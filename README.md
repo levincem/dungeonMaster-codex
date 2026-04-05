@@ -1,27 +1,27 @@
 # Dungeon Master Codex
 
-Remake / reinterpretation de *Dungeon Master* avec React, TypeScript, Vite et React Three Fiber.
+A remake / reinterpretation of *Dungeon Master* built with React, TypeScript, Vite, and React Three Fiber.
 
-Le projet vise a recreer l'exploration du donjon, les champions, les sorts, les objets et les mecanismes du jeu original, tout en gardant une base de code moderne et facile a faire evoluer.
+The goal of this project is to recreate dungeon exploration, champions, spells, items, and mechanisms from the original game while keeping a modern codebase that is easier to evolve and maintain.
 
-Note : Je ne suis ni graphiste, ni développeur de jeu professionnel (Je suis dev PHP / JS / admin serveur), c'est un projet amateur, non commercial. Les graphismes sont générés par DALL-E / ChatGPT. Le code est en très grande partie écrit par Claude 4.6 et GPT-4.5.
+Note: I am neither a professional artist nor a professional game developer (my background is PHP / JavaScript development and server administration). This is a non-commercial amateur project. The graphics are generated with DALL-E / ChatGPT. A large part of the codebase has been written with Claude 4.6 and GPT-4.5.
 
-## Etat du projet
+## Project Status
 
-Le projet est jouable et comprend deja une partie importante des systemes principaux :
+The project is already playable and includes a substantial part of the core systems:
 
-- exploration 3D du donjon
-- deplacement du groupe en case par case
-- recrutement des champions
-- interface HUD et fiches de personnages
-- inventaire, equipement, depot et ramassage d'objets
-- creatures, combats et projectiles
-- sorts, effets lumineux et mecanismes du donjon
-- chargement des donnees historiques depuis `Old_data`
+- 3D dungeon exploration
+- grid-based party movement
+- champion recruitment
+- HUD and character sheets
+- inventory, equipment, item drop and pickup systems
+- creatures, combat, and projectiles
+- spells, lighting effects, and dungeon mechanisms
+- loading historical data from `Old_data`
 
-Le contenu et certains systemes sont encore en cours d'affinage.
+Some content and systems still need refinement.
 
-## Stack technique
+## Tech Stack
 
 - React
 - TypeScript
@@ -31,7 +31,7 @@ Le contenu et certains systemes sont encore en cours d'affinage.
 - `@react-three/drei`
 - Zustand
 
-## Lancer le projet
+## Running the Project
 
 ### Installation
 
@@ -39,28 +39,28 @@ Le contenu et certains systemes sont encore en cours d'affinage.
 npm install
 ```
 
-### Developpement
+### Development
 
 ```bash
 npm run dev
 ```
 
-### Build production
+### Production Build
 
 ```bash
 npm run build
 ```
 
-## Structure du projet
+## Project Structure
 
 ```text
 src/
   components/
-    Dungeon/     Scene 3D, tuiles, creatures, objets, decals
-    UI/          HUD, ecrans, popup miroir, fiche champion
-  data/          Donnees de jeu, loaders, definitions
-  engine/        Store Zustand, logique globale, sons, constantes
-  types/         Types partages
+    Dungeon/     3D scene, tiles, creatures, items, decals
+    UI/          HUD, screens, mirror popup, champion sheet
+  data/          Game data, loaders, definitions
+  engine/        Zustand store, global logic, sounds, constants
+  types/         Shared types
 
 Old_data/
   dungeon.json
@@ -68,37 +68,37 @@ Old_data/
   mechanisms.json
 ```
 
-## Donnees source
+## Source Data
 
-Le projet s'appuie sur des donnees issues de `Old_data/`, notamment :
+The project relies on data from `Old_data/`, especially:
 
-- `dungeon.json` pour les maps, objets et placements
-- `game_db.json` pour les runes, sorts, objets et references diverses
-- `mechanisms.json` pour les mecanismes de niveau
+- `dungeon.json` for maps, object placement, and tile content
+- `game_db.json` for runes, spells, items, and various references
+- `mechanisms.json` for dungeon mechanisms
 
-Ces fichiers servent de base pour reconstruire les comportements du jeu dans une architecture web moderne.
+These files are used as a foundation to rebuild the original game's behavior in a modern web architecture.
 
-## Notes de developpement
+## Development Notes
 
-- Le bundle principal reste volumineux a cause des donnees de donjon et du rendu 3D.
-- Le build TypeScript est actuellement valide.
-- Le build Vite complet fonctionne egalement dans un environnement autorisant l'execution des sous-processus necessaires.
+- The main bundle is still relatively large because of dungeon data and the 3D stack.
+- The TypeScript build is currently valid.
+- The full Vite production build also works in an environment that allows the required subprocess execution.
 
-## Roadmap possible
+## Possible Roadmap
 
-- ameliorer le decoupage du bundle
-- continuer la finition visuelle du donjon
-- completer les interactions, effets et comportements manquants
-- enrichir la documentation technique du projet
+- improve bundle splitting further
+- continue visual polish for the dungeon
+- complete missing interactions, effects, and behaviors
+- expand the project's technical documentation
 
 ## Credits
 
-- Aux createurs du jeu original : Doug Bell, Mike Newton, Dennis Walker, Andy Jaros, Wayne Holder, Nancy Holder, Tsukasa Tawada
-- A FTL Games
-- A la communaute Dungeon Master
-- Au site [Dungeon Master Encyclopaedia](http://dmweb.free.fr/)
-- Au projet [ReDMCSB](https://github.com/gondur/ReDMCSB_Release2), par Christophe Fontanel
+- To the creators of the original game: Doug Bell, Mike Newton, Dennis Walker, Andy Jaros, Wayne Holder, Nancy Holder, Tsukasa Tawada
+- To FTL Games
+- To the Dungeon Master community
+- To the [Dungeon Master Encyclopaedia](http://dmweb.free.fr/)
+- To the [ReDMCSB](https://github.com/gondur/ReDMCSB_Release2) project by Christophe Fontanel
 
-## Remarque
+## Note
 
-Ce projet est un hommage technique et creatif autour de *Dungeon Master*. Il conserve l'esprit du jeu original tout en l'adaptant a une implementation web moderne.
+This project is a technical and creative tribute to *Dungeon Master*. It aims to preserve the spirit of the original game while adapting it to a modern web implementation.
