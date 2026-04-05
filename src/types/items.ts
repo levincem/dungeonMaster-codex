@@ -96,4 +96,10 @@ export type EquipSlotKey =
     | 'legs'
     | 'feet'
     | 'hands'
-    | 'belt';
+    | 'belt'
+    | 'quiver1'
+    | 'quiver2'
+    | 'quiver3'
+    | 'quiver4'
+    | 'pocket1'
+    | 'pocket2';

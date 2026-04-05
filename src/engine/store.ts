@@ -13,7 +13,7 @@ import { CHAMPION_BY_ID } from '../data/champions';
 import { CREATURE_TYPES } from '../data/creatures';
 import { findSpell, getSkillLevel } from '../data/runes';
 import type { CastSkill } from '../data/runes';
-import { WEAPON_TYPES } from '../data/items';
+import { WEAPON_TYPES, POTION_TYPES, MISC_TYPES } from '../data/items';
 import { playPartyAttack, playCreatureMove, playCreatureAttack, playPlate } from './sounds';
 
 export type Direction = 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
@@ -828,6 +828,8 @@ interface GameState {
     giveEquippedItem: (fromChampionId: number, slotKey: EquipSlotKey, toChampionId: number) => void;
     killChampion: (championId: number) => void;
     resurrectChampion: (bonesItemId: string) => void;
+    useItem: (championId: number, itemId: string) => void;
+    sleep: () => void;
 }
 
 const DIRECTIONS: Direction[] = ['NORTH', 'EAST', 'SOUTH', 'WEST'];
@@ -1257,6 +1259,49 @@ export const useStore = create<GameState>((set) => ({
             floorItems: newFloorItems,
             deadChampions: newDead,
         };
+    }),
+
+    useItem: (championId, itemId) => set((state) => {
+        const inv = state.championInventories[championId];
+        if (!inv) return state;
+        const item = inv.find(i => i.id === itemId);
+        if (!item) return state;
+        const vitals = state.championVitals[championId];
+        if (!vitals) return state;
+        const champ = state.party.find(c => c.id === championId);
+        if (!champ) return state;
+
+        let newVitals = { ...vitals };
+
+        if (item.category === 'Potion') {
+            const def = POTION_TYPES[item.typeId];
+            if (def?.restore !== undefined) {
+                if (def.effect === 'health')  newVitals.hp      = Math.min(champ.health,  vitals.hp      + def.restore);
+                if (def.effect === 'stamina') newVitals.stamina = Math.min(champ.stamina, vitals.stamina + def.restore);
+                if (def.effect === 'mana')    newVitals.mana    = Math.min(champ.mana,    vitals.mana    + def.restore);
+                if (def.effect === 'poison')  { /* clears poison — placeholder */ }
+            }
+        } else if (item.category === 'Misc') {
+            const def = MISC_TYPES[item.typeId];
+            if (def?.food && def.nutrition) {
+                newVitals.stamina = Math.min(champ.stamina, vitals.stamina + def.nutrition / 10);
+            } else if (def?.food && item.typeId === 1) { // water
+                newVitals.stamina = Math.min(champ.stamina, vitals.stamina + 30);
+            }
+        }
+
+        return {
+            championVitals: { ...state.championVitals, [championId]: newVitals },
+            championInventories: { ...state.championInventories, [championId]: inv.filter(i => i.id !== itemId) },
+        };
+    }),
+
+    sleep: () => set((state) => {
+        const newVitals: Record<number, ChampionVitals> = { ...state.championVitals };
+        for (const champ of state.party) {
+            newVitals[champ.id] = { hp: champ.health, stamina: champ.stamina, mana: champ.mana };
+        }
+        return { championVitals: newVitals };
     }),
 
     // ─── Potion rune → typeId mapping (spell runes without power rune) ──────────
