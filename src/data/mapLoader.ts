@@ -1,12 +1,6 @@
-// Map loader — parses Old_data/dungeon.json into typed GameMap objects
-// dungeon.json contains 14 maps (index 0–13) with full tile & object data.
-//
-// NOTE: dungeon.json is ~2.7 MB. Vite inlines it at build time.
-// If bundle size becomes a concern, move it to public/ and use fetch().
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore — JSON import resolved by Vite; resolveJsonModule in tsconfig
-import rawDungeon from '../../Old_data/dungeon.json';
+// Map loader - parses public/dungeon.json into typed GameMap objects.
+// The source of truth remains Old_data/dungeon.json, copied into public/
+// so the browser can fetch it at runtime instead of inlining 2.7 MB in JS.
 
 import type {
     GameMap,
@@ -15,8 +9,7 @@ import type {
     TileObject,
     CardinalDir,
 } from '../types/game';
-
-// ─── Raw JSON shapes (loose, from dungeon.json) ────────────────────────────────
+import { getDungeonDataSync } from './dungeonData';
 
 interface RawObject {
     category: string;
@@ -49,23 +42,27 @@ interface RawMap {
 }
 
 interface RawDungeon {
+    champions: Array<{
+        portraitId: number;
+        x: number;
+        y: number;
+        wallFace: string;
+    }>;
     maps: RawMap[];
 }
 
-// ─── Converter ────────────────────────────────────────────────────────────────
-
 function normaliseTileType(raw: string): TileType {
     switch (raw) {
-        case 'Floor':       return 'Floor';
-        case 'Wall':        return 'Wall';
-        case 'Door':        return 'Door';
-        case 'Teleporter':  return 'Teleporter';
-        case 'Pit':         return 'Pit';
-        case 'Water':       return 'Water';
-        case 'Stairs':      return 'Stairs';
-        case 'StairsUp':    return 'StairsUp';
-        case 'StairsDown':  return 'StairsDown';
-        default:            return 'Floor'; // safe fallback
+        case 'Floor':      return 'Floor';
+        case 'Wall':       return 'Wall';
+        case 'Door':       return 'Door';
+        case 'Teleporter': return 'Teleporter';
+        case 'Pit':        return 'Pit';
+        case 'Water':      return 'Water';
+        case 'Stairs':     return 'Stairs';
+        case 'StairsUp':   return 'StairsUp';
+        case 'StairsDown': return 'StairsDown';
+        default:           return 'Floor';
     }
 }
 
@@ -79,20 +76,22 @@ function buildTile(raw: RawTile): GameTile {
         allowDecoS: raw.allowDecoS,
         allowDecoW: raw.allowDecoW,
         orientation: raw.orientation as GameTile['orientation'],
-        state:       raw.state       as GameTile['state'],
-        open:    raw.open,
+        state: raw.state as GameTile['state'],
+        open: raw.open,
         visible: raw.visible,
         objects: (raw.objects ?? []) as unknown as TileObject[],
     };
 }
 
 function buildMap(raw: RawMap): GameMap {
-    // Initialise a [height][width] grid
     const tiles: GameTile[][] = Array.from(
         { length: raw.height },
         (_, y) => Array.from({ length: raw.width }, (__, x) => ({
-            x, y, type: 'Wall' as TileType, objects: [],
-        }))
+            x,
+            y,
+            type: 'Wall' as TileType,
+            objects: [],
+        })),
     );
 
     for (const rawTile of raw.tiles) {
@@ -100,34 +99,26 @@ function buildMap(raw: RawMap): GameMap {
     }
 
     return {
-        index:      raw.index,
-        name:       raw.name,
-        level:      raw.level,
-        width:      raw.width,
-        height:     raw.height,
+        index: raw.index,
+        name: raw.name,
+        level: raw.level,
+        width: raw.width,
+        height: raw.height,
         difficulty: raw.difficulty,
         tiles,
     };
 }
 
-// ─── Exported maps ────────────────────────────────────────────────────────────
+const dungeon = getDungeonDataSync<RawDungeon>();
 
-const dungeon = rawDungeon as unknown as RawDungeon;
-
-/** All 14 dungeon maps, indexed by their map index (0–13). */
 export const GAME_MAPS: GameMap[] = dungeon.maps.map(buildMap);
 
-/** Get a map by its index. Throws if out of range. */
 export function getGameMap(index: number): GameMap {
     const map = GAME_MAPS[index];
     if (!map) throw new Error(`Map index ${index} does not exist`);
     return map;
 }
 
-/** Champion start positions from dungeon.json (map 0 — Hall of Champions).
- *  Each entry: { portraitId, x, y, wallFace }
- *  Used in Phase 2 to place mirrors at the correct tile coordinates.
- */
 export interface ChampionStartPos {
     portraitId: number;
     x: number;
@@ -136,9 +127,7 @@ export interface ChampionStartPos {
 }
 
 export const CHAMPION_START_POSITIONS: ChampionStartPos[] =
-    (rawDungeon as unknown as { champions: Array<{
-        portraitId: number; x: number; y: number; wallFace: string;
-    }> }).champions.map(c => ({
+    dungeon.champions.map(c => ({
         portraitId: c.portraitId,
         x: c.x,
         y: c.y,

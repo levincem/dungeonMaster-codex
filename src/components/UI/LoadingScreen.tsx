@@ -1,67 +1,79 @@
 import { useEffect, useState } from 'react';
-
-// ─── Asset manifest ───────────────────────────────────────────────────────────
+import { preloadDungeonData } from '../../data/dungeonData';
 
 const RUNE_IDS = [
-    'bro','dain','des','ee','ew','ful','gor',
-    'ir','kath','ku','lo','mon','neta','oh','on',
-    'pal','ra','ros','sar','um','ven','vi','ya','zo',
+    'bro', 'dain', 'des', 'ee', 'ew', 'ful', 'gor',
+    'ir', 'kath', 'ku', 'lo', 'mon', 'neta', 'oh', 'on',
+    'pal', 'ra', 'ros', 'sar', 'um', 'ven', 'vi', 'ya', 'zo',
 ];
 
-const CREATURE_IDS = Array.from({ length: 27 }, (_, i) => i); // 0-26
+const CREATURE_IDS = Array.from({ length: 27 }, (_, i) => i);
 
-const ASSETS: string[] = [
-    // Runes
+const IMAGE_ASSETS: string[] = [
     ...RUNE_IDS.map(id => `/runes/${id}.png`),
-    // Creature sprites
     ...CREATURE_IDS.map(id => `/sprites/creatures/creature_${id}.png`),
-    // Portrait sheets
     '/portraits/screen1.png',
     '/portraits/screen2.png',
-    // Dungeon textures
     '/textures/wall.png',
     '/textures/floor.png',
     '/textures/ceiling.png',
     '/textures/door.png',
 ];
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function preloadImage(src: string): Promise<void> {
     return new Promise(resolve => {
         const img = new Image();
-        img.onload = img.onerror = () => resolve(); // always resolve — missing file = skip
+        img.onload = img.onerror = () => resolve();
         img.src = src;
     });
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 interface Props {
-    onDone: () => void;
+    onDone?: () => void | Promise<void>;
+    autoStart?: boolean;
 }
 
-export const LoadingScreen = ({ onDone }: Props) => {
-    const [loaded, setLoaded] = useState(0);
+export const LoadingScreen = ({ onDone, autoStart = true }: Props) => {
+    const totalAssets = IMAGE_ASSETS.length + 1;
+    const [loaded, setLoaded] = useState(autoStart ? 0 : totalAssets);
     const [fadeOut, setFadeOut] = useState(false);
-    const total = ASSETS.length;
-    const pct = total > 0 ? Math.round((loaded / total) * 100) : 0;
+    const pct = totalAssets > 0 ? Math.round((loaded / totalAssets) * 100) : 0;
 
     useEffect(() => {
+        if (!autoStart) return;
+
+        let active = true;
         let count = 0;
-        for (const src of ASSETS) {
+        let finished = false;
+
+        const finishOne = async () => {
+            if (!active || finished) return;
+            count += 1;
+            setLoaded(count);
+            if (count === totalAssets) {
+                finished = true;
+                setFadeOut(true);
+                await new Promise(resolve => window.setTimeout(resolve, 500));
+                if (active && onDone) await onDone();
+            }
+        };
+
+        for (const src of IMAGE_ASSETS) {
             preloadImage(src).then(() => {
-                count += 1;
-                setLoaded(count);
-                if (count === total) {
-                    // short pause so the bar visually reaches 100 % before fading
-                    setTimeout(() => setFadeOut(true), 400);
-                    setTimeout(() => onDone(), 900);
-                }
+                void finishOne();
             });
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+
+        preloadDungeonData().then(() => {
+            void finishOne();
+        }).catch(() => {
+            void finishOne();
+        });
+
+        return () => {
+            active = false;
+        };
+    }, [autoStart, onDone, totalAssets]);
 
     return (
         <div style={{
@@ -74,14 +86,12 @@ export const LoadingScreen = ({ onDone }: Props) => {
             transition: 'opacity 0.5s ease',
             pointerEvents: fadeOut ? 'none' : 'all',
         }}>
-            {/* Vignette */}
             <div style={{
                 position: 'absolute', inset: 0,
                 background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.85) 100%)',
                 pointerEvents: 'none',
             }} />
 
-            {/* Logo — replace /logo.png with the real asset when available */}
             <img
                 src="/logo.png"
                 alt="Dungeon Master"
@@ -97,7 +107,6 @@ export const LoadingScreen = ({ onDone }: Props) => {
                 }}
             />
 
-            {/* Fallback title shown while logo.png is absent */}
             <div style={{
                 fontSize: 11,
                 letterSpacing: 8,
@@ -109,7 +118,6 @@ export const LoadingScreen = ({ onDone }: Props) => {
                 Dungeon Master
             </div>
 
-            {/* Progress bar track */}
             <div style={{
                 width: 320,
                 height: 3,
@@ -128,7 +136,6 @@ export const LoadingScreen = ({ onDone }: Props) => {
                 }} />
             </div>
 
-            {/* Percentage */}
             <div style={{
                 marginTop: 14,
                 fontSize: 10,

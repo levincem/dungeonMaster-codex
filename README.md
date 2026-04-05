@@ -4,6 +4,8 @@ Remake / reinterpretation de *Dungeon Master* avec React, TypeScript, Vite et Re
 
 Le projet vise a recreer l'exploration du donjon, les champions, les sorts, les objets et les mecanismes du jeu original, tout en gardant une base de code moderne et facile a faire evoluer.
 
+Note : Je ne suis ni graphiste, ni développeur de jeu professionnel (Je suis dev PHP / JS / admin serveur), c'est un projet amateur, non commercial. Les graphismes sont générés par DALL-E / ChatGPT. Le code est en très grande partie écrit par Claude 4.6 et GPT-4.5.
+
 ## Etat du projet
 
 Le projet est jouable et comprend deja une partie importante des systemes principaux :
