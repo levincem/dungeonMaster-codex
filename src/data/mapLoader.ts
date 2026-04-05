@@ -55,6 +55,7 @@ function normaliseTileType(raw: string): TileType {
     switch (raw) {
         case 'Floor':      return 'Floor';
         case 'Wall':       return 'Wall';
+        case 'TrickWall':  return 'TrickWall';
         case 'Door':       return 'Door';
         case 'Teleporter': return 'Teleporter';
         case 'Pit':        return 'Pit';

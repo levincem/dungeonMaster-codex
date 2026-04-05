@@ -437,17 +437,18 @@ const TileGrid: React.FC<{
     map: GameMap;
     level: number;
     openDoors: Set<string>;
+    openWalls: Set<string>;
     recruitedIds: Set<number>;
     wallButtons: { tileX: number; tileY: number; face: CardinalDir; sensorIndex: number }[];
     wallDecals: { tileX: number; tileY: number; face: CardinalDir; image: string }[];
     pressurePlates: { tileX: number; tileY: number }[];
     onCellClick: (e: ThreeEvent<MouseEvent>, renderType: CellRenderType, x: number, y: number) => void;
     onWallSensor: (level: number, x: number, y: number, sensorIndex: number) => void;
-}> = memo(({ map, level, openDoors, recruitedIds, wallButtons, wallDecals, pressurePlates, onCellClick, onWallSensor  }) => {
+}> = memo(({ map, level, openDoors, openWalls, recruitedIds, wallButtons, wallDecals, pressurePlates, onCellClick, onWallSensor  }) => {
     return (
         <group>
             {/* One draw call each for floor, ceiling, and walls */}
-            <InstancedTiles key={level} map={map} />
+            <InstancedTiles key={level} map={map} openWalls={openWalls} />
 
             {/* Pressure plates — floor-level objects */}
             {pressurePlates.map(({ tileX, tileY }) => (
@@ -514,6 +515,7 @@ export const DungeonScene = () => {
     const position       = useStore(s => s.position);
     const direction      = useStore(s => s.direction);
     const openDoors      = useStore(s => s.openDoors);
+    const openWalls      = useStore(s => s.openWalls);
     const openMirror     = useStore(s => s.openMirror);
     const toggleDoor     = useStore(s => s.toggleDoor);
     const visibleTexts   = useStore(s => s.visibleTexts);
@@ -643,6 +645,7 @@ export const DungeonScene = () => {
                     map={map}
                     level={level}
                     openDoors={openDoors}
+                    openWalls={openWalls}
                     recruitedIds={recruitedIds}
                     wallButtons={wallButtons}
                     wallDecals={wallDecals}

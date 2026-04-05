@@ -7,6 +7,7 @@ export type CardinalDir = 'North' | 'East' | 'South' | 'West';
 export type TileType =
     | 'Floor'
     | 'Wall'
+    | 'TrickWall'
     | 'Door'
     | 'Teleporter'
     | 'Pit'

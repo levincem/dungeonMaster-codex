@@ -9,9 +9,10 @@ const HALF = GRID_SIZE / 2;
 
 interface Props {
     map: GameMap;
+    openWalls: Set<string>;
 }
 
-export const InstancedTiles = ({ map }: Props) => {
+export const InstancedTiles = ({ map, openWalls }: Props) => {
     const { floor, ceiling, wall } = useTexture({
         floor:   '/textures/floor.png?v=2',
         ceiling: '/textures/ceiling.png?v=2',
@@ -22,25 +23,30 @@ export const InstancedTiles = ({ map }: Props) => {
         t.repeat.set(1, 1);
     });
 
-    // Classify tiles once per map
-    const { floorPositions, ceilPositions, wallPositions } = useMemo(() => {
-        const floorPositions: [number, number][] = [];  // non-Wall → floor plane
-        const ceilPositions:  [number, number][] = [];  // every tile → ceiling plane
-        const wallPositions:  [number, number][] = [];  // Wall (non-Mirror) → box
+    // Classify tiles once per map — wallEntries includes TrickWalls (closed by default)
+    const { floorPositions, ceilPositions, wallEntries } = useMemo(() => {
+        const floorPositions: [number, number][] = [];
+        const ceilPositions:  [number, number][] = [];
+        // [wx, wz, tileKey] — tileKey is "level,y,x" for TrickWall, "" for regular Wall
+        const wallEntries: [number, number, string][] = [];
 
         for (const row of map.tiles) {
             for (const tile of row) {
                 const wx = tile.x * GRID_SIZE;
                 const wz = tile.y * GRID_SIZE;
                 ceilPositions.push([wx, wz]);
-                if (tile.type !== 'Wall') {
+                if (tile.type === 'Wall') {
+                    if (!MIRROR_WALL_MAP.has(`${map.index},${tile.x},${tile.y}`)) {
+                        wallEntries.push([wx, wz, '']);
+                    }
+                } else if (tile.type === 'TrickWall') {
+                    wallEntries.push([wx, wz, `${map.index},${tile.y},${tile.x}`]);
+                } else {
                     floorPositions.push([wx, wz]);
-                } else if (!MIRROR_WALL_MAP.has(`${map.index},${tile.x},${tile.y}`)) {
-                    wallPositions.push([wx, wz]);
                 }
             }
         }
-        return { floorPositions, ceilPositions, wallPositions };
+        return { floorPositions, ceilPositions, wallEntries };
     }, [map]);
 
     const floorRef = useRef<THREE.InstancedMesh>(null);
@@ -50,39 +56,40 @@ export const InstancedTiles = ({ map }: Props) => {
     useEffect(() => {
         const dummy = new THREE.Object3D();
 
-        // Floor planes (horizontal, facing up)
         if (floorRef.current) {
             dummy.rotation.set(-Math.PI / 2, 0, 0);
             floorPositions.forEach(([wx, wz], i) => {
                 dummy.position.set(wx, -HALF, wz);
+                dummy.scale.set(1, 1, 1);
                 dummy.updateMatrix();
                 floorRef.current!.setMatrixAt(i, dummy.matrix);
             });
             floorRef.current.instanceMatrix.needsUpdate = true;
         }
 
-        // Ceiling planes (horizontal, facing down)
         if (ceilRef.current) {
             dummy.rotation.set(Math.PI / 2, 0, 0);
             ceilPositions.forEach(([wx, wz], i) => {
                 dummy.position.set(wx, HALF, wz);
+                dummy.scale.set(1, 1, 1);
                 dummy.updateMatrix();
                 ceilRef.current!.setMatrixAt(i, dummy.matrix);
             });
             ceilRef.current.instanceMatrix.needsUpdate = true;
         }
 
-        // Wall boxes (axis-aligned, no rotation needed)
         if (wallRef.current) {
             dummy.rotation.set(0, 0, 0);
-            wallPositions.forEach(([wx, wz], i) => {
+            wallEntries.forEach(([wx, wz, tKey], i) => {
+                const isOpenTrickWall = tKey !== '' && openWalls.has(tKey);
                 dummy.position.set(wx, 0, wz);
+                dummy.scale.set(isOpenTrickWall ? 0 : 1, isOpenTrickWall ? 0 : 1, isOpenTrickWall ? 0 : 1);
                 dummy.updateMatrix();
                 wallRef.current!.setMatrixAt(i, dummy.matrix);
             });
             wallRef.current.instanceMatrix.needsUpdate = true;
         }
-    }, [floorPositions, ceilPositions, wallPositions]);
+    }, [floorPositions, ceilPositions, wallEntries, openWalls]);
 
     return (
         <>
@@ -106,7 +113,7 @@ export const InstancedTiles = ({ map }: Props) => {
 
             <instancedMesh
                 ref={wallRef}
-                args={[undefined, undefined, wallPositions.length]}
+                args={[undefined, undefined, wallEntries.length]}
                 frustumCulled={false}
             >
                 <boxGeometry args={[GRID_SIZE, WALL_HEIGHT, GRID_SIZE]} />

@@ -195,7 +195,7 @@ function hasLineOfSight(map: GameMap, ax: number, ay: number, bx: number, by: nu
         const cx = Math.round(ax + dx * i / steps);
         const cy = Math.round(ay + dy * i / steps);
         const tile = map.tiles[cy]?.[cx];
-        if (!tile || tile.type === 'Wall' || tile.type === 'Door') return false;
+        if (!tile || tile.type === 'Wall' || tile.type === 'TrickWall' || tile.type === 'Door') return false;
     }
     return true;
 }
@@ -432,12 +432,13 @@ function buildDeathDrop(
     };
 }
 
-const isWalkable = (level: number, y: number, x: number, openDoors: Set<string>): boolean => {
+const isWalkable = (level: number, y: number, x: number, openDoors: Set<string>, openWalls: Set<string>): boolean => {
     const map = getMap(level);
     if (y < 0 || y >= map.height || x < 0 || x >= map.width) return false;
     const tile = map.tiles[y]?.[x];
     if (!tile) return false;
     if (tile.type === 'Wall') return false;
+    if (tile.type === 'TrickWall') return openWalls.has(`${level},${y},${x}`);
     if (tile.type === 'Door') return openDoors.has(`${level},${y},${x}`);
     return true;
 };
@@ -450,6 +451,8 @@ const getTeleporter = (tile: GameTile): TeleporterObject | undefined =>
 type SensorState = {
     openDoors: Set<string>;
     openTeleporters: Set<string>;
+    openWalls: Set<string>;
+    activeSensors: Set<string>;
     firedSensors: Set<string>;
     visibleTexts: Set<string>;
 };
@@ -462,7 +465,65 @@ function applyToSet(s: Set<string>, key: string, action: string): Set<string> {
     return next;
 }
 
+/** Evaluate a type-5 logic gate on `gateTile` and apply its output.
+ *  data byte: low nibble = threshold (0 = AND = all inputs must be active).
+ *  For "Hold" action: Set target when condition met, Clear when not. */
+function evaluateLogicGates(level: number, gateTile: GameTile, ss: SensorState): Partial<SensorState> {
+    const gates = gateTile.objects.filter(
+        o => o.category === 'Sensor' && (o as SensorObject).type === 5
+    ) as SensorObject[];
+    if (gates.length === 0) return {};
+
+    // Collect all sensor inputs targeting this gate tile
+    const map = getMap(level);
+    const inputs: SensorObject[] = [];
+    for (const row of map.tiles) {
+        for (const tile of row) {
+            for (const obj of tile.objects) {
+                if (obj.category === 'Sensor') {
+                    const s = obj as SensorObject;
+                    if (s.targetX === gateTile.x && s.targetY === gateTile.y) inputs.push(s);
+                }
+            }
+        }
+    }
+
+    let cur: SensorState = ss;
+    let changed = false;
+    for (const gate of gates) {
+        const threshold = gate.data & 0x0f; // low nibble
+        const required = threshold === 0 ? inputs.length : threshold;
+        const activeCount = inputs.filter(s => ss.activeSensors.has(`${level}_${s.index}`)).length;
+        const conditionMet = activeCount >= required;
+
+        const targetTile = map.tiles[gate.targetY]?.[gate.targetX];
+        if (!targetTile) continue;
+        const tKey = `${level},${gate.targetY},${gate.targetX}`;
+
+        // "Hold" = maintain state: Set when met, Clear when not
+        // Other actions fire only when condition transitions to met
+        const effectiveAction = gate.action === 'Hold'
+            ? (conditionMet ? 'Set' : 'Clear')
+            : (conditionMet ? gate.action : 'Clear');
+
+        if (targetTile.type === 'Door') {
+            cur = { ...cur, openDoors: applyToSet(cur.openDoors, tKey, effectiveAction) };
+            changed = true;
+        } else if (targetTile.type === 'TrickWall') {
+            cur = { ...cur, openWalls: applyToSet(cur.openWalls, tKey, effectiveAction) };
+            changed = true;
+        } else if (targetTile.type === 'Teleporter') {
+            cur = { ...cur, openTeleporters: applyToSet(cur.openTeleporters, tKey, effectiveAction) };
+            changed = true;
+        }
+    }
+    return changed ? cur : {};
+}
+
 function computeSensorEffect(sensor: SensorObject, level: number, ss: SensorState): Partial<SensorState> {
+    // type-5 = logic gate, evaluated separately via evaluateLogicGates
+    if (sensor.type === 5) return {};
+    // Hold sensors are maintained via evaluateLogicGates only
     if (sensor.action === 'Hold') return {};
     const sKey = `${level}_${sensor.index}`;
     if (sensor.onceOnly && ss.firedSensors.has(sKey)) return {};
@@ -470,8 +531,23 @@ function computeSensorEffect(sensor: SensorObject, level: number, ss: SensorStat
     const targetTile = getMap(level).tiles[sensor.targetY]?.[sensor.targetX];
     if (!targetTile) return { firedSensors: newFired };
     const tKey = `${level},${sensor.targetY},${sensor.targetX}`;
+
+    // Update activeSensors for this sensor (levers / buttons targeting Wall or TrickWall gate tiles)
+    const targetHasGate = targetTile.objects.some(
+        o => o.category === 'Sensor' && (o as SensorObject).type === 5
+    );
+    let newActive = ss.activeSensors;
+    if (targetHasGate) {
+        newActive = applyToSet(ss.activeSensors, sKey, sensor.action);
+        const gateEffect = evaluateLogicGates(level, targetTile, { ...ss, activeSensors: newActive, firedSensors: newFired });
+        return { activeSensors: newActive, firedSensors: newFired, ...gateEffect };
+    }
+
     if (targetTile.type === 'Door') {
         return { openDoors: applyToSet(ss.openDoors, tKey, sensor.action), firedSensors: newFired };
+    }
+    if (targetTile.type === 'TrickWall') {
+        return { openWalls: applyToSet(ss.openWalls, tKey, sensor.action), firedSensors: newFired };
     }
     if (targetTile.type === 'Teleporter') {
         return { openTeleporters: applyToSet(ss.openTeleporters, tKey, sensor.action), firedSensors: newFired };
@@ -494,7 +570,7 @@ const PUSH_FACE: Record<string, string> = {
 /** Trigger sensors on a wall tile when the player pushes against it. */
 function triggerWallPushSensors(level: number, wx: number, wy: number, dir: string, ss: SensorState): Partial<SensorState> {
     const tile = getMap(level).tiles[wy]?.[wx];
-    if (!tile || tile.type !== 'Wall') return {};
+    if (!tile || (tile.type !== 'Wall' && tile.type !== 'TrickWall')) return {};
     const face = PUSH_FACE[dir];
     let cur: SensorState = ss;
     let changed = false;
@@ -520,7 +596,7 @@ function triggerLockSensors(
     inventories: Record<number, FloorItem[]>,
 ): { sensorChanges: Partial<SensorState>; newInventories: Record<number, FloorItem[]> | null } {
     const tile = getMap(level).tiles[wy]?.[wx];
-    if (!tile || tile.type !== 'Wall') return { sensorChanges: {}, newInventories: null };
+    if (!tile || (tile.type !== 'Wall' && tile.type !== 'TrickWall')) return { sensorChanges: {}, newInventories: null };
     let cur: SensorState = ss;
     let sensorChanged = false;
     let newInventories: Record<number, FloorItem[]> | null = null;
@@ -674,6 +750,8 @@ interface GameState {
     gateOpen: boolean;
     openDoors: Set<string>;
     openTeleporters: Set<string>;
+    openWalls: Set<string>;
+    activeSensors: Set<string>;
     firedSensors: Set<string>;
     visibleTexts: Set<string>;
     creatures: CreatureInstance[];
@@ -768,6 +846,8 @@ export const useStore = create<GameState>((set) => ({
     gateOpen: false,
     openDoors: new Set<string>(),
     openTeleporters: buildOpenTeleporters(),
+    openWalls: new Set<string>(),
+    activeSensors: new Set<string>(),
     firedSensors: new Set<string>(),
     visibleTexts: buildVisibleTexts(),
     creatures: buildCreatureInstances(),
@@ -798,8 +878,8 @@ export const useStore = create<GameState>((set) => ({
         if (state.direction === 'SOUTH') ny = y + 1;
         if (state.direction === 'EAST')  nx = x + 1;
         if (state.direction === 'WEST')  nx = x - 1;
-        if (!isWalkable(state.level, ny, nx, state.openDoors)) {
-            const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
+        if (!isWalkable(state.level, ny, nx, state.openDoors, state.openWalls)) {
+            const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, openWalls: state.openWalls, activeSensors: state.activeSensors, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
             const face = { NORTH: 'South', SOUTH: 'North', EAST: 'West', WEST: 'East' }[state.direction]!;
             const pushChanges = triggerWallPushSensors(state.level, nx, ny, state.direction, ss);
             const pushState = Object.keys(pushChanges).length > 0 ? { ...ss, ...pushChanges } as SensorState : ss;
@@ -832,13 +912,13 @@ export const useStore = create<GameState>((set) => ({
             if (tp && tp.destMap === state.level) {
                 const tpKey = `${state.level},${ny},${nx}`;
                 if (state.openTeleporters.has(tpKey)) {
-                    const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
+                    const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, openWalls: state.openWalls, activeSensors: state.activeSensors, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
                     const sensorChanges = triggerFloorSensors(state.level, tp.destX, tp.destY, ss);
                     return { position: [tp.destY, tp.destX] as [number, number], ...sensorChanges };
                 }
             }
         }
-        const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
+        const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, openWalls: state.openWalls, activeSensors: state.activeSensors, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
         const sensorChanges = triggerFloorSensors(state.level, nx, ny, ss);
         const footprintChanges = Date.now() < state.footprintsUntil
             ? { footprintHistory: [...state.footprintHistory, { x: nx, y: ny, level: state.level, ts: Date.now() }] }
@@ -854,8 +934,8 @@ export const useStore = create<GameState>((set) => ({
         if (state.direction === 'SOUTH') ny = y - 1;
         if (state.direction === 'EAST')  nx = x - 1;
         if (state.direction === 'WEST')  nx = x + 1;
-        if (!isWalkable(state.level, ny, nx, state.openDoors)) return state;
-        const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
+        if (!isWalkable(state.level, ny, nx, state.openDoors, state.openWalls)) return state;
+        const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, openWalls: state.openWalls, activeSensors: state.activeSensors, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
         const sensorChanges = triggerFloorSensors(state.level, nx, ny, ss);
         const footprintChanges = Date.now() < state.footprintsUntil
             ? { footprintHistory: [...state.footprintHistory, { x: nx, y: ny, level: state.level, ts: Date.now() }] }
@@ -871,8 +951,8 @@ export const useStore = create<GameState>((set) => ({
         if (state.direction === 'SOUTH') nx = x + 1;
         if (state.direction === 'EAST')  ny = y - 1;
         if (state.direction === 'WEST')  ny = y + 1;
-        if (!isWalkable(state.level, ny, nx, state.openDoors)) return state;
-        const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
+        if (!isWalkable(state.level, ny, nx, state.openDoors, state.openWalls)) return state;
+        const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, openWalls: state.openWalls, activeSensors: state.activeSensors, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
         const fpL = Date.now() < state.footprintsUntil
             ? { footprintHistory: [...state.footprintHistory, { x: nx, y: ny, level: state.level, ts: Date.now() }] }
             : {};
@@ -887,8 +967,8 @@ export const useStore = create<GameState>((set) => ({
         if (state.direction === 'SOUTH') nx = x - 1;
         if (state.direction === 'EAST')  ny = y + 1;
         if (state.direction === 'WEST')  ny = y - 1;
-        if (!isWalkable(state.level, ny, nx, state.openDoors)) return state;
-        const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
+        if (!isWalkable(state.level, ny, nx, state.openDoors, state.openWalls)) return state;
+        const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, openWalls: state.openWalls, activeSensors: state.activeSensors, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
         const fpR = Date.now() < state.footprintsUntil
             ? { footprintHistory: [...state.footprintHistory, { x: nx, y: ny, level: state.level, ts: Date.now() }] }
             : {};
@@ -999,7 +1079,7 @@ export const useStore = create<GameState>((set) => ({
             o => o.category === 'Sensor' && (o as SensorObject).index === sensorIndex
         ) as SensorObject | undefined;
         if (!sensor) return state;
-        const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
+        const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, openWalls: state.openWalls, activeSensors: state.activeSensors, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
         return computeSensorEffect(sensor, mapIndex, ss);
     }),
 
@@ -1625,7 +1705,7 @@ export const useStore = create<GameState>((set) => ({
         const monsterWalkable = (y: number, x: number): boolean => {
             if (y < 0 || y >= map.height || x < 0 || x >= map.width) return false;
             const t = map.tiles[y]?.[x];
-            return !!t && t.type !== 'Wall' && t.type !== 'Door';
+            return !!t && t.type !== 'Wall' && t.type !== 'TrickWall' && t.type !== 'Door';
         };
 
         let creatures  = state.creatures as CreatureInstance[];
@@ -1851,7 +1931,8 @@ export const useStore = create<GameState>((set) => ({
             const map = getMap(proj.level);
             const tile = map.tiles[ny]?.[nx];
             const doorKey = `${proj.level},${ny},${nx}`;
-            if (!tile || tile.type === 'Wall' || (tile.type === 'Door' && !state.openDoors.has(doorKey))) {
+            const wallKey = `${proj.level},${ny},${nx}`;
+            if (!tile || tile.type === 'Wall' || (tile.type === 'TrickWall' && !state.openWalls.has(wallKey)) || (tile.type === 'Door' && !state.openDoors.has(doorKey))) {
                 continue; // projectile absorbed by wall
             }
 
