@@ -26,7 +26,8 @@ const ItemSprite = ({ imagePath, onClick }: { imagePath: string; onClick: () => 
     const tex = useTexture(imagePath);
     tex.colorSpace = THREE.SRGBColorSpace;
 
-    const aspect = tex.image ? (tex.image.width / tex.image.height) : 1;
+    const image = tex.image as { width: number; height: number } | undefined;
+    const aspect = image ? (image.width / image.height) : 1;
     const w = ITEM_SIZE;
     const h = ITEM_SIZE / aspect;
 

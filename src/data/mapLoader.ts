@@ -82,7 +82,7 @@ function buildTile(raw: RawTile): GameTile {
         state:       raw.state       as GameTile['state'],
         open:    raw.open,
         visible: raw.visible,
-        objects: (raw.objects ?? []) as TileObject[],
+        objects: (raw.objects ?? []) as unknown as TileObject[],
     };
 }
 

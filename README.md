@@ -1,85 +1,102 @@
-# Dungeon Master
+# Dungeon Master Codex
 
-## Remerciements
+Remake / reinterpretation de *Dungeon Master* avec React, TypeScript, Vite et React Three Fiber.
 
-- Aux créateurs du jeu original (Programmation : Doug Bell, Mike Newton et Dennis Walker / Conception artistique : Andy Jaros / Conception audio : Wayne Holder / Prologue : Nancy Holder / Compositeur	: Tsukasa Tawada)
-- Au studio FTL Games
-- À la communauté Dungeon Master
+Le projet vise a recreer l'exploration du donjon, les champions, les sorts, les objets et les mecanismes du jeu original, tout en gardant une base de code moderne et facile a faire evoluer.
+
+## Etat du projet
+
+Le projet est jouable et comprend deja une partie importante des systemes principaux :
+
+- exploration 3D du donjon
+- deplacement du groupe en case par case
+- recrutement des champions
+- interface HUD et fiches de personnages
+- inventaire, equipement, depot et ramassage d'objets
+- creatures, combats et projectiles
+- sorts, effets lumineux et mecanismes du donjon
+- chargement des donnees historiques depuis `Old_data`
+
+Le contenu et certains systemes sont encore en cours d'affinage.
+
+## Stack technique
+
+- React
+- TypeScript
+- Vite
+- Three.js
+- `@react-three/fiber`
+- `@react-three/drei`
+- Zustand
+
+## Lancer le projet
+
+### Installation
+
+```bash
+npm install
+```
+
+### Developpement
+
+```bash
+npm run dev
+```
+
+### Build production
+
+```bash
+npm run build
+```
+
+## Structure du projet
+
+```text
+src/
+  components/
+    Dungeon/     Scene 3D, tuiles, creatures, objets, decals
+    UI/          HUD, ecrans, popup miroir, fiche champion
+  data/          Donnees de jeu, loaders, definitions
+  engine/        Store Zustand, logique globale, sons, constantes
+  types/         Types partages
+
+Old_data/
+  dungeon.json
+  game_db.json
+  mechanisms.json
+```
+
+## Donnees source
+
+Le projet s'appuie sur des donnees issues de `Old_data/`, notamment :
+
+- `dungeon.json` pour les maps, objets et placements
+- `game_db.json` pour les runes, sorts, objets et references diverses
+- `mechanisms.json` pour les mecanismes de niveau
+
+Ces fichiers servent de base pour reconstruire les comportements du jeu dans une architecture web moderne.
+
+## Notes de developpement
+
+- Le bundle principal reste volumineux a cause des donnees de donjon et du rendu 3D.
+- Le build TypeScript est actuellement valide.
+- Le build Vite complet fonctionne egalement dans un environnement autorisant l'execution des sous-processus necessaires.
+
+## Roadmap possible
+
+- ameliorer le decoupage du bundle
+- continuer la finition visuelle du donjon
+- completer les interactions, effets et comportements manquants
+- enrichir la documentation technique du projet
+
+## Credits
+
+- Aux createurs du jeu original : Doug Bell, Mike Newton, Dennis Walker, Andy Jaros, Wayne Holder, Nancy Holder, Tsukasa Tawada
+- A FTL Games
+- A la communaute Dungeon Master
 - Au site [Dungeon Master Encyclopaedia](http://dmweb.free.fr/)
 - Au projet [ReDMCSB](https://github.com/gondur/ReDMCSB_Release2), par Christophe Fontanel
 
----
+## Remarque
 
-# React + TypeScript + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Ce projet est un hommage technique et creatif autour de *Dungeon Master*. Il conserve l'esprit du jeu original tout en l'adaptant a une implementation web moderne.

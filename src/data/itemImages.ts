@@ -46,13 +46,31 @@ export const WEAPON_VARIANTS: Record<number, { empty: string; full: string }> = 
     16: { empty: 'torch_unlit.png',           full: 'torch_lit.png'            },
 };
 
-/** Torch wear states: charges remaining → image */
-export const TORCH_STATES = [
-    'torch_used_2.png',   // almost dead
-    'torch_used_1.png',   // worn
-    'torch_lit.png',      // normal lit
-    'torch_lit.png',      // fresh
+/** Torch images by state index (0=burnt, 1=used_2, 2=used_1, 3=lit) */
+export const TORCH_STATE_IMAGES = [
+    'torch_unlit.png',   // 0 burnt out
+    'torch_used_2.png',  // 1 almost dead
+    'torch_used_1.png',  // 2 worn
+    'torch_lit.png',     // 3 fresh / lit
 ];
+
+/**
+ * Return the correct torch image for a given item id and the torchBurnStart map.
+ * Falls back to torch_lit if the torch hasn't been lit yet (fresh floor item).
+ */
+export function getTorchImage(itemId: string, torchBurnStart: Record<string, number>): string {
+    const litAt = torchBurnStart[itemId];
+    if (litAt === undefined) return BASE + 'torch_lit.png'; // unlit floor torch
+    const elapsed = Date.now() - litAt;
+    const TORCH_LIFETIME_MS = 15 * 60 * 1000;
+    const TORCH_STATE_MS    =  5 * 60 * 1000;
+    let idx: number;
+    if      (elapsed >= TORCH_LIFETIME_MS)  idx = 0;
+    else if (elapsed >= TORCH_STATE_MS * 2) idx = 1;
+    else if (elapsed >= TORCH_STATE_MS)     idx = 2;
+    else                                     idx = 3;
+    return BASE + TORCH_STATE_IMAGES[idx];
+}
 
 // ─── Armor images ─────────────────────────────────────────────────────────────
 const ARMOR_IMG: Record<number, string> = {

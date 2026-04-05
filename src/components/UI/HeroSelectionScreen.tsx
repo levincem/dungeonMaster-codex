@@ -161,9 +161,6 @@ const ChampionCard: React.FC<{
                 )}
             </div>
 
-            <div style={{ marginTop: 6, fontSize: 10, color: '#666', lineHeight: 1.4, fontStyle: 'italic' }}>
-                {champion.description}
-            </div>
         </div>
     );
 };

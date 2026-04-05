@@ -58,9 +58,8 @@ const Portrait: React.FC<{ champion: Champion; size?: number }> = ({ champion, s
 // ─── Party slot mini ──────────────────────────────────────────────────────
 const PartySlotMini: React.FC<{
     champion?: Champion;
-    index: number;
     onRemove: () => void;
-}> = ({ champion, index, onRemove }) => {
+}> = ({ champion, onRemove }) => {
     const color = champion ? CLASS_COLORS[champion.class] : '#333';
     if (champion) {
         return (
@@ -180,9 +179,6 @@ export const MirrorPopup: React.FC = () => {
                         }}>
                             {CLASS_EMOJI[champion.class]} {champion.class.toUpperCase()}
                         </div>
-                        <div style={{ fontSize: 11, color: '#555', marginTop: 8, lineHeight: 1.5, fontStyle: 'italic' }}>
-                            {champion.description}
-                        </div>
                     </div>
                 </div>
 
@@ -255,7 +251,6 @@ export const MirrorPopup: React.FC = () => {
                             <PartySlotMini
                                 key={i}
                                 champion={party[i]}
-                                index={i}
                                 onRemove={() => party[i] && removeFromParty(party[i].id)}
                             />
                         ))}

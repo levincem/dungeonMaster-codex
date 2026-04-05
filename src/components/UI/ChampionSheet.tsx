@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CHAMPIONS } from '../../data/champions';
 import type { Champion, ChampionClass } from '../../data/champions';
 import { useStore } from '../../engine/store';
@@ -6,7 +6,7 @@ import { WEAPON_TYPES, ARMOR_TYPES, POTION_TYPES, MISC_TYPES } from '../../data/
 import type { ArmorSlot } from '../../types/items';
 import type { EquipSlotKey } from '../../types/items';
 import type { FloorItem, ChampionEquipment } from '../../types/game';
-import { getItemImage } from '../../data/itemImages';
+import { getItemImage, getTorchImage } from '../../data/itemImages';
 
 const CLASS_COLORS: Record<ChampionClass, string> = {
     Fighter: '#c0392b',
@@ -132,18 +132,44 @@ const StatBar: React.FC<{ label: string; value: number; max?: number; color: str
 );
 
 // ─── Item image thumbnail ─────────────────────────────────────────────────────
-const ItemThumb: React.FC<{ item: FloorItem; size?: number }> = ({ item, size = 36 }) => (
-    <img
-        src={getItemImage(item.category, item.typeId)}
-        alt=""
-        style={{
-            width: size, height: size,
-            objectFit: 'contain',
-            imageRendering: 'crisp-edges',
-            flexShrink: 0,
-        }}
-    />
-);
+function useSharedVisualTick(enabled: boolean, intervalMs: number): number {
+    const [tick, setTick] = useState(() => Math.floor(Date.now() / intervalMs));
+
+    useEffect(() => {
+        if (!enabled) return;
+
+        const updateTick = () => setTick(Math.floor(Date.now() / intervalMs));
+        updateTick();
+        const id = window.setInterval(updateTick, intervalMs);
+        return () => window.clearInterval(id);
+    }, [enabled, intervalMs]);
+
+    return tick;
+}
+
+const ItemThumb: React.FC<{ item: FloorItem; size?: number }> = ({ item, size = 36 }) => {
+    const torchBurnStart = useStore(s => s.torchBurnStart);
+    const isTorch = item.category === 'Weapon' && item.typeId === 16;
+
+    // Shared time bucket: each torch still computes its own state from its own lit timestamp.
+    useSharedVisualTick(isTorch, 30_000);
+
+    const src = isTorch
+        ? getTorchImage(item.id, torchBurnStart)
+        : getItemImage(item.category, item.typeId);
+    return (
+        <img
+            src={src}
+            alt=""
+            style={{
+                width: size, height: size,
+                objectFit: 'contain',
+                imageRendering: 'crisp-edges',
+                flexShrink: 0,
+            }}
+        />
+    );
+};
 
 // ─── Drag-and-drop helpers ────────────────────────────────────────────────────
 interface DragPayload {

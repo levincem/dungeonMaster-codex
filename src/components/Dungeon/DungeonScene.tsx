@@ -1,10 +1,12 @@
-import { useRef, useMemo, memo, useCallback } from 'react';
+import { useRef, useMemo, memo, useCallback, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import type { ThreeEvent } from '@react-three/fiber';
 import { PerspectiveCamera, Plane, Html, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore, MIRROR_WALL_MAP, MIRROR_FACE_MAP, STAIR_CONNECTIONS } from '../../engine/store';
-import type { Direction, ProjectileEffect } from '../../engine/store';
+import { getMapMechanisms } from '../../data/mechanisms';
+import type { Direction, ProjectileEffect, FootprintEntry } from '../../engine/store';
+import { computeLightLevel } from '../../engine/store';
 import { getGameMap } from '../../data/mapLoader';
 import type { GameMap, GameTile, TeleporterObject, SensorObject, WallTextObject, CardinalDir, DoorObject } from '../../types/game';
 import type { Champion } from '../../data/champions';
@@ -18,6 +20,20 @@ import { WallDecal } from './WallDecal';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 
 const HALF = GRID_SIZE / 2;
+const BASE_FOG_NEAR = GRID_SIZE * 2;
+const BASE_FOG_FAR = GRID_SIZE * 7;
+const DUNGEON_AMBIENT_COLOR = new THREE.Color('#f4e2ba');
+const DUNGEON_DARK_AMBIENT_COLOR = new THREE.Color('#8ea0c0');
+
+function createPulseMaterial(color: string, opacity: number) {
+    return new THREE.MeshBasicMaterial({
+        color,
+        transparent: true,
+        opacity,
+        depthWrite: false,
+        toneMapped: false,
+    });
+}
 
 // ─── Camera smooth follow ─────────────────────────────────────────────────────
 const CameraController = () => {
@@ -155,21 +171,32 @@ const WallTextOverlay = ({
     );
 };
 
-// ─── Fog controller ───────────────────────────────────────────────────────────
-const BASE_FOG_FAR = GRID_SIZE * 7;
-
-const FogController: React.FC = () => {
-    const spellLights = useStore(s => s.spellLights);
+const LightController: React.FC = () => {
+    const spellLights      = useStore(s => s.spellLights);
+    const torchBurnStart   = useStore(s => s.torchBurnStart);
+    const championEquipment = useStore(s => s.championEquipment);
     const { scene } = useThree();
+    const lightRef = useRef<THREE.AmbientLight>(null);
+
     useFrame(() => {
+        if (!lightRef.current) return;
+        const level  = computeLightLevel(spellLights, torchBurnStart, championEquipment);
         const fog = scene.fog as THREE.Fog | null;
-        if (!fog) return;
-        const now = Date.now();
-        const active = spellLights.filter(l => l.expiresAt > now);
-        const maxMult = active.length > 0 ? Math.max(...active.map(l => l.fogMult)) : 1.0;
-        fog.far += (BASE_FOG_FAR * maxMult - fog.far) * 0.04;
+        const target = Math.max(0, level) * 2.0;
+        lightRef.current.intensity += (target - lightRef.current.intensity) * 0.04;
+
+        const colorTarget = level > 0.45 ? DUNGEON_AMBIENT_COLOR : DUNGEON_DARK_AMBIENT_COLOR;
+        lightRef.current.color.lerp(colorTarget, 0.025);
+
+        if (fog) {
+            const fogNearTarget = BASE_FOG_NEAR + (1 - level) * GRID_SIZE * 0.3;
+            const fogFarTarget = BASE_FOG_FAR - (1 - level) * GRID_SIZE * 1.2;
+            fog.near += (fogNearTarget - fog.near) * 0.03;
+            fog.far += (fogFarTarget - fog.far) * 0.03;
+        }
     });
-    return null;
+
+    return <ambientLight ref={lightRef} intensity={2.0} color="#e8dbbd" />;
 };
 
 // ─── Projectile renderer ──────────────────────────────────────────────────────
@@ -180,14 +207,171 @@ const PROJ_COLORS: Record<ProjectileEffect, string> = {
 const ProjectileRenderer: React.FC = () => {
     const projectiles = useStore(s => s.projectiles);
     const level = useStore(s => s.level);
+    const activeProjectiles = useMemo(
+        () => projectiles.filter(p => p.level === level),
+        [projectiles, level],
+    );
+    const outerGeometry = useMemo(() => new THREE.SphereGeometry(0.28, 10, 10), []);
+    const glowGeometry = useMemo(() => new THREE.SphereGeometry(0.2, 8, 8), []);
+    const coreGeometry = useMemo(() => new THREE.SphereGeometry(0.14, 8, 8), []);
+    const coreMaterial = useMemo(
+        () => new THREE.MeshBasicMaterial({ color: '#ffffff', toneMapped: false }),
+        [],
+    );
+    const glowMaterials = useMemo(
+        () => ({
+            fireball: createPulseMaterial(PROJ_COLORS.fireball, 0.22),
+            lightning: createPulseMaterial(PROJ_COLORS.lightning, 0.2),
+            poison: createPulseMaterial(PROJ_COLORS.poison, 0.18),
+            plasma: createPulseMaterial(PROJ_COLORS.plasma, 0.2),
+        }),
+        [],
+    );
+
+    useEffect(() => () => {
+        outerGeometry.dispose();
+        glowGeometry.dispose();
+        coreGeometry.dispose();
+        coreMaterial.dispose();
+        Object.values(glowMaterials).forEach(mat => mat.dispose());
+    }, [outerGeometry, glowGeometry, coreGeometry, coreMaterial, glowMaterials]);
+
     return (
         <>
-            {projectiles.filter(p => p.level === level).map(p => (
+            {activeProjectiles.map((p, index) => {
+                const phase = (Date.now() / 180) + index * 0.7;
+                const shellScale = 1 + Math.sin(phase) * 0.08;
+                const glowScale = 1.35 + Math.sin(phase * 1.2) * 0.12;
+                return (
                 <group key={p.id} position={[p.x * GRID_SIZE, 0, p.y * GRID_SIZE]}>
-                    <mesh><sphereGeometry args={[0.28, 10, 10]} /><meshBasicMaterial color={PROJ_COLORS[p.effect]} transparent opacity={0.35} /></mesh>
-                    <mesh><sphereGeometry args={[0.14, 8, 8]} /><meshBasicMaterial color="#ffffff" /></mesh>
+                    <mesh
+                        geometry={outerGeometry}
+                        material={glowMaterials[p.effect]}
+                        scale={shellScale}
+                    />
+                    <mesh
+                        geometry={glowGeometry}
+                        material={glowMaterials[p.effect]}
+                        scale={glowScale}
+                    />
+                    <mesh geometry={coreGeometry} material={coreMaterial} />
                 </group>
+                );
+            })}
+        </>
+    );
+};
+
+// ─── Magic vision — red halos around hidden sensors + pressure plates ─────────
+const MagicVisionLayer: React.FC<{
+    wallButtons: { tileX: number; tileY: number; face: CardinalDir }[];
+    pressurePlates: { tileX: number; tileY: number }[];
+}> = ({ wallButtons, pressurePlates }) => {
+    const magicVisionUntil = useStore(s => s.magicVisionUntil);
+    const pulseRef = useRef(0);
+    const buttonGeometry = useMemo(() => new THREE.SphereGeometry(0.22, 10, 10), []);
+    const plateGeometry = useMemo(() => new THREE.RingGeometry(GRID_SIZE * 0.18, GRID_SIZE * 0.38, 24), []);
+    const buttonMaterial = useMemo(() => createPulseMaterial('#ff3f2f', 0.55), []);
+    const plateMaterial = useMemo(() => createPulseMaterial('#ff5544', 0.34), []);
+
+    useFrame(() => { pulseRef.current += 0.04; });
+
+    useEffect(() => () => {
+        buttonGeometry.dispose();
+        plateGeometry.dispose();
+        buttonMaterial.dispose();
+        plateMaterial.dispose();
+    }, [buttonGeometry, plateGeometry, buttonMaterial, plateMaterial]);
+
+    if (Date.now() >= magicVisionUntil) return null;
+
+    const FACE_OFFSET: Record<CardinalDir, [number, number]> = {
+        North: [0, -HALF], South: [0, HALF], East: [HALF, 0], West: [-HALF, 0],
+    };
+
+    return (
+        <>
+            {wallButtons.map(({ tileX, tileY, face }) => {
+                const [ox, oz] = FACE_OFFSET[face];
+                const pulse = 0.92 + ((Math.sin(pulseRef.current + tileX * 0.8 + tileY * 0.35) + 1) * 0.08);
+                return (
+                    <mesh key={`mv_btn_${tileX}_${tileY}_${face}`}
+                        position={[tileX * GRID_SIZE + ox, 0, tileY * GRID_SIZE + oz]}
+                        geometry={buttonGeometry}
+                        material={buttonMaterial}
+                        scale={pulse}
+                        frustumCulled={false}
+                    />
+                );
+            })}
+            {pressurePlates.map(({ tileX, tileY }) => (
+                <mesh key={`mv_plate_${tileX}_${tileY}`}
+                    position={[tileX * GRID_SIZE, -WALL_HEIGHT / 2 + 0.02, tileY * GRID_SIZE]}
+                    rotation={[-Math.PI / 2, 0, 0]}
+                    geometry={plateGeometry}
+                    material={plateMaterial}
+                    scale={1 + Math.sin(pulseRef.current * 0.8 + tileX * 0.5 + tileY * 0.4) * 0.06}
+                    frustumCulled={false}
+                />
             ))}
+        </>
+    );
+};
+
+// ─── Footprint trail — fading floor planes ────────────────────────────────────
+const FOOTPRINT_LIFETIME_MS = 60_000;
+
+const FootprintLayer: React.FC = () => {
+    const footprintHistory = useStore(s => s.footprintHistory);
+    const level = useStore(s => s.level);
+    const meshRefs = useRef<Map<string, THREE.Mesh>>(new Map());
+    const footprintGeometry = useMemo(() => new THREE.PlaneGeometry(GRID_SIZE * 0.6, GRID_SIZE * 0.6), []);
+
+    useEffect(() => () => {
+        footprintGeometry.dispose();
+    }, [footprintGeometry]);
+
+    useFrame(() => {
+        const now = Date.now();
+        for (const [key, mesh] of meshRefs.current) {
+            if (!mesh) continue;
+            const parts = key.split(',');
+            const ts = parseInt(parts[2]);
+            const age = now - ts;
+            const opacity = Math.max(0, (FOOTPRINT_LIFETIME_MS - age) / FOOTPRINT_LIFETIME_MS);
+            (mesh.material as THREE.MeshBasicMaterial).opacity = opacity * 0.45;
+            mesh.visible = opacity > 0.01;
+        }
+    });
+
+    const currentFootprints = footprintHistory.filter(e => e.level === level);
+
+    return (
+        <>
+            {currentFootprints.map((e: FootprintEntry) => {
+                const key = `${e.x},${e.y},${e.ts}`;
+                return (
+                    <mesh
+                        key={key}
+                        ref={(m) => {
+                            if (m) meshRefs.current.set(key, m);
+                            else meshRefs.current.delete(key);
+                        }}
+                        position={[e.x * GRID_SIZE, -WALL_HEIGHT / 2 + 0.03, e.y * GRID_SIZE]}
+                        rotation={[-Math.PI / 2, 0, 0]}
+                        geometry={footprintGeometry}
+                        frustumCulled={false}
+                    >
+                        <meshBasicMaterial
+                            color="#66ccff"
+                            transparent
+                            opacity={0.45}
+                            depthWrite={false}
+                            toneMapped={false}
+                        />
+                    </mesh>
+                );
+            })}
         </>
     );
 };
@@ -376,54 +560,40 @@ export const DungeonScene = () => {
         };
 
         const decals: { tileX: number; tileY: number; face: CardinalDir; image: string }[] = [];
+
+        // ── Staircases ─────────────────────────────────────────────────────────
         for (const row of map.tiles) {
             for (const tile of row) {
-                // Staircase back-wall image
-                if (tile.type === 'Stairs') {
-                    const link = STAIR_CONNECTIONS.find(
-                        s => s.fromLevel === level && s.fromY === tile.y && s.fromX === tile.x
-                    );
-                    if (link) {
-                        const face  = stairsBackFace(tile.x, tile.y);
-                        const image = link.toLevel > level ? '/misc/stairs_down.png' : '/misc/stairs_up.png';
-                        decals.push({ tileX: tile.x, tileY: tile.y, face, image });
-                    }
-                }
-                for (const obj of tile.objects) {
-                    if (obj.category === 'Sensor') {
-                        const s = obj as SensorObject;
-                        // Altars and levers only make sense on Wall tiles
-                        if (tile.type !== 'Wall') continue;
-                        if (s.type === 0) {
-                            decals.push({ tileX: tile.x, tileY: tile.y, face: s.tilePos, image: '/misc/autel.png' });
-                        } else if (s.type === 1) {
-                            decals.push({ tileX: tile.x, tileY: tile.y, face: s.tilePos, image: '/misc/levier_haut.png' });
-                        }
-                    } else if (obj.category === 'Door') {
-                        const d = obj as DoorObject;
-                        if (d.ornate >= 1) {
-                            // tilePos is always 'North' in data — not reliable.
-                            // Place lock on both walkable sides based on door orientation.
-                            const sides: [CardinalDir, CardinalDir] =
-                                tile.orientation === 'WestEast'
-                                    ? ['North', 'South']
-                                    : ['East', 'West'];
-                            const ADJ: Record<CardinalDir, [number, number]> = {
-                                North: [0, -1], South: [0, 1], East: [1, 0], West: [-1, 0],
-                            };
-                            for (const dir of sides) {
-                                const [dx, dy] = ADJ[dir];
-                                const adjX = tile.x + dx, adjY = tile.y + dy;
-                                const adjTile = map.tiles[adjY]?.[adjX];
-                                if (adjTile && adjTile.type !== 'Wall') {
-                                    decals.push({ tileX: adjX, tileY: adjY, face: OPPOSITE[dir], image: '/misc/serrure.png' });
-                                }
-                            }
-                        }
-                    }
+                if (tile.type !== 'Stairs') continue;
+                const link = STAIR_CONNECTIONS.find(
+                    s => s.fromLevel === level && s.fromY === tile.y && s.fromX === tile.x
+                );
+                if (link) {
+                    const face  = stairsBackFace(tile.x, tile.y);
+                    const image = link.toLevel > level ? '/misc/stairs_down.png' : '/misc/stairs_up.png';
+                    decals.push({ tileX: tile.x, tileY: tile.y, face, image });
                 }
             }
         }
+
+        // ── Mechanisms from mechanisms.json — exact wall positions ─────────────
+        const seen = new Set<string>(); // deduplicate (x,y,face,image)
+        const add = (tileX: number, tileY: number, face: CardinalDir, image: string) => {
+            const key = `${tileX}_${tileY}_${face}_${image}`;
+            if (!seen.has(key)) { seen.add(key); decals.push({ tileX, tileY, face, image }); }
+        };
+
+        for (const mech of getMapMechanisms(level)) {
+            if (mech.support !== 'Wall') continue;
+            if (mech.kind.includes('Levier')) {
+                add(mech.x, mech.y, mech.face, '/misc/levier_haut.png');
+            } else if (mech.kind.includes('Serrure')) {
+                add(mech.x, mech.y, mech.face, '/misc/serrure.png');
+            } else if (mech.kind.includes('Alcôve')) {
+                add(mech.x, mech.y, mech.face, '/misc/autel.png');
+            }
+        }
+
         return decals;
     }, [map, level]);
 
@@ -464,10 +634,9 @@ export const DungeonScene = () => {
             />
 
             <Canvas gl={{ localClippingEnabled: true }}>
-                <fog attach="fog" args={['#000000', GRID_SIZE * 2, BASE_FOG_FAR]} />
-                <FogController />
+                <fog attach="fog" args={['#030405', BASE_FOG_NEAR, BASE_FOG_FAR]} />
+                <LightController />
                 <CameraController />
-                <ambientLight intensity={2.0} />
                 <BoundaryWalls map={map} />
 
                 <TileGrid
@@ -482,6 +651,8 @@ export const DungeonScene = () => {
                     onWallSensor={activateWallSensor}
                 />
 
+                <FootprintLayer />
+                <MagicVisionLayer wallButtons={wallButtons} pressurePlates={pressurePlates} />
                 <CreaturesLayer />
                 <DamageLayer />
                 <FloorItemsLayer />
