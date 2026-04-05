@@ -316,8 +316,8 @@ export const ChampionSheet: React.FC = () => {
         { key: 'wizard',  label: 'MAGE'     },
     ] as const;
 
-    // Equipment layout — body slots in grid
-    const BODY_SLOTS: EquipSlotKey[] = ['head','neck','torso','rightHand','leftHand','hands','belt','legs','feet'];
+    // Equipment layout — 7 body slots only (no 'hands', no 'belt')
+    const BODY_SLOTS: EquipSlotKey[] = ['head','neck','torso','rightHand','leftHand','legs','feet'];
     const QUIVER_SLOTS: EquipSlotKey[] = ['quiver1','quiver2','quiver3','quiver4'];
     const POCKET_SLOTS: EquipSlotKey[] = ['pocket1','pocket2'];
 
@@ -329,7 +329,9 @@ export const ChampionSheet: React.FC = () => {
                 width: 'min(960px, 98vw)',
                 maxHeight: '96vh',
                 overflowY: 'auto',
-                background: `linear-gradient(135deg, ${T.parchment} 0%, #c8a050 40%, ${T.parchmentDk} 100%)`,
+                backgroundImage: 'url(/misc/parchemin.png)',
+                backgroundRepeat: 'repeat',
+                backgroundSize: 'auto',
                 border: `3px solid ${T.goldDim}`,
                 borderRadius: 8,
                 boxShadow: `0 0 60px rgba(0,0,0,0.8), inset 0 0 40px rgba(0,0,0,0.15)`,
@@ -337,9 +339,6 @@ export const ChampionSheet: React.FC = () => {
                 color: T.text,
                 position: 'relative',
             }}>
-                {/* ── Close ── */}
-                <button onClick={closePartyMember} style={{ position: 'absolute', top: 10, right: 14, background: 'none', border: 'none', color: T.goldDim, fontSize: 28, cursor: 'pointer', lineHeight: 1, zIndex: 1 }}>×</button>
-
                 {/* ── Header bar ── */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, paddingBottom: 8, borderBottom: `1px solid ${T.goldDim}` }}>
                     <div style={{ fontSize: 20, fontWeight: 'bold', color: '#1a0800', letterSpacing: 3, textShadow: '1px 1px 0 rgba(255,200,80,0.4)' }}>
@@ -349,11 +348,12 @@ export const ChampionSheet: React.FC = () => {
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                         <button onClick={() => sleep()} title="Dormir (restaure tous les stats)" style={{ width: 36, height: 36, background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 4, color: T.cream, fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🛏</button>
                         <button onClick={() => alert('Sauvegarde non implémentée.')} title="Sauvegarder" style={{ width: 36, height: 36, background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 4, color: T.cream, fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>💾</button>
+                        <button onClick={closePartyMember} style={{ width: 36, height: 36, background: 'none', border: 'none', color: T.goldDim, fontSize: 28, cursor: 'pointer', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
                     </div>
                 </div>
 
                 {/* ── 3-column ── */}
-                <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr 260px', gap: 12, alignItems: 'start' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr 300px', gap: 12, alignItems: 'start' }}>
 
                     {/* ── COL 1: Portrait + Vitals + Stats + Skills ── */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -417,7 +417,14 @@ export const ChampionSheet: React.FC = () => {
 
                     {/* ── COL 2: Equipment silhouette ── */}
                     <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 5, padding: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                        <div style={{ fontSize: 9, letterSpacing: 3, color: T.gold, marginBottom: 2 }}>ÉQUIPEMENT</div>
+
+                        {/* Header: title + weight on same line */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+                            <span style={{ fontSize: 9, letterSpacing: 3, color: T.gold }}>ÉQUIPEMENT</span>
+                            <span style={{ fontSize: 11, fontWeight: 'bold', color: overloaded ? T.red : T.cream }}>
+                                ⚖ {weight}<span style={{ fontSize: 10, color: T.creamDim, fontWeight: 'normal' }}>/{maxWeight} kg</span>{overloaded && <span style={{ color: T.red }}> ⚠</span>}
+                            </span>
+                        </div>
 
                         {/* Eye + Mouth at top */}
                         <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 4 }}>
@@ -426,9 +433,9 @@ export const ChampionSheet: React.FC = () => {
                         </div>
 
                         {/* Equipment grid with silhouette */}
-                        <div style={{ position: 'relative', flex: 1 }}>
+                        <div style={{ position: 'relative' }}>
                             {/* Silhouette */}
-                            <svg viewBox="0 0 200 420" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.05, pointerEvents: 'none' }} xmlns="http://www.w3.org/2000/svg">
+                            <svg viewBox="0 0 200 480" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.05, pointerEvents: 'none' }} xmlns="http://www.w3.org/2000/svg">
                                 <ellipse cx="100" cy="38" rx="26" ry="30" fill="#f0d090" />
                                 <rect x="90" y="66" width="20" height="20" fill="#f0d090" />
                                 <path d="M56 86 Q40 110 44 180 L156 180 Q160 110 144 86 Z" fill="#f0d090" />
@@ -441,37 +448,60 @@ export const ChampionSheet: React.FC = () => {
                                 <ellipse cx="136" cy="352" rx="16" ry="10" fill="#f0d090" />
                             </svg>
 
-                            {/* Slots grid */}
+                            {/* Slots grid — quivers under rhand, pockets under lhand */}
                             <div style={{ position: 'relative', zIndex: 1, display: 'grid', gridTemplateAreas: `
                                 ". head ."
                                 ". neck ."
                                 "lhand torso rhand"
-                                ". hands ."
-                                ". belt ."
-                                ". legs ."
+                                "pockets legs quivers"
                                 ". feet ."
-                            `, gridTemplateColumns: '1fr 1fr 1fr', gap: 4 }}>
+                            `, gridTemplateColumns: '1fr 1fr 1fr', gap: 6 }}>
+
+                                {/* Body slots */}
                                 {BODY_SLOTS.map(s => (
-                                    <div key={s} style={{ gridArea: s === 'rightHand' ? 'rhand' : s === 'leftHand' ? 'lhand' : s, display: 'flex', justifyContent: 'center' }}>
-                                        <EquipSlot slotKey={s} item={equip[s]} championId={champion.id} size={52} onDrop={handleDropOnSlot} onUnequip={() => unequipItem(champion.id, s)} />
+                                    <div key={s} style={{ gridArea: s === 'rightHand' ? 'rhand' : s === 'leftHand' ? 'lhand' : s, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                        <EquipSlot slotKey={s} item={equip[s]} championId={champion.id} size={80} onDrop={handleDropOnSlot} onUnequip={() => unequipItem(champion.id, s)} />
                                     </div>
                                 ))}
+
+                                {/* Quivers: 2×2 under right hand */}
+                                <div style={{ gridArea: 'quivers', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                                    <div style={{ fontSize: 7, color: T.goldDim, letterSpacing: 2 }}>CARQUOIS</div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
+                                        {QUIVER_SLOTS.map(s => <EquipSlot key={s} slotKey={s} item={equip[s]} championId={champion.id} size={46} onDrop={handleDropOnSlot} onUnequip={() => unequipItem(champion.id, s)} />)}
+                                    </div>
+                                </div>
+
+                                {/* Pockets: 1×2 under left hand */}
+                                <div style={{ gridArea: 'pockets', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                                    <div style={{ fontSize: 7, color: T.goldDim, letterSpacing: 2 }}>POCHES</div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
+                                        {POCKET_SLOTS.map(s => <EquipSlot key={s} slotKey={s} item={equip[s]} championId={champion.id} size={46} onDrop={handleDropOnSlot} onUnequip={() => unequipItem(champion.id, s)} />)}
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Quiver + Pocket slots at bottom */}
-                        <div style={{ display: 'flex', gap: 4, justifyContent: 'center', paddingTop: 6, borderTop: `1px solid ${T.slotBorder}` }}>
-                            <div style={{ fontSize: 8, color: T.goldDim, writingMode: 'vertical-rl', textOrientation: 'mixed', letterSpacing: 1, alignSelf: 'center', marginRight: 2 }}>CARQ.</div>
-                            {QUIVER_SLOTS.map(s => <EquipSlot key={s} slotKey={s} item={equip[s]} championId={champion.id} size={42} onDrop={handleDropOnSlot} onUnequip={() => unequipItem(champion.id, s)} />)}
-                            <div style={{ width: 1, background: T.slotBorder, margin: '0 4px' }} />
-                            <div style={{ fontSize: 8, color: T.goldDim, writingMode: 'vertical-rl', textOrientation: 'mixed', letterSpacing: 1, alignSelf: 'center', marginRight: 2 }}>POCH.</div>
-                            {POCKET_SLOTS.map(s => <EquipSlot key={s} slotKey={s} item={equip[s]} championId={champion.id} size={42} onDrop={handleDropOnSlot} onUnequip={() => unequipItem(champion.id, s)} />)}
-                        </div>
-
-                        {/* Weight at bottom */}
-                        <div style={{ paddingTop: 6, borderTop: `1px solid ${T.slotBorder}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: 11, color: T.creamDim }}>⚖ POIDS</span>
-                            <span style={{ fontSize: 12, fontWeight: 'bold', color: overloaded ? T.red : T.cream }}>{weight}<span style={{ fontSize: 10, color: T.creamDim, fontWeight: 'normal' }}>/{maxWeight} kg</span> {overloaded && <span style={{ color: T.red }}>⚠</span>}</span>
+                        {/* Skills block — below equipment silhouette */}
+                        <div style={{ background: 'rgba(0,0,0,0.35)', border: `1px solid ${T.panelBorder}`, borderRadius: 5, padding: '8px 12px', marginTop: 4 }}>
+                            <div style={{ fontSize: 9, letterSpacing: 3, color: T.gold, marginBottom: 6 }}>CLASSES</div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px 12px' }}>
+                                {skills.map(({ key, label }) => {
+                                    const skillXP = xp?.[key] ?? 0;
+                                    const name = getSkillLevelName(skillXP);
+                                    const color = SKILL_COLORS[key];
+                                    if (name === 'None') return null;
+                                    return (
+                                        <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 2 }}>
+                                            <span style={{ fontSize: 10, color: T.creamDim }}>{label}</span>
+                                            <span style={{ fontSize: 10, fontWeight: 'bold', color }}>{name}</span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            {skills.every(({ key }) => (xp?.[key] ?? 0) === 0) && (
+                                <div style={{ fontSize: 10, color: T.goldDim, fontStyle: 'italic' }}>Débutant</div>
+                            )}
                         </div>
                     </div>
 
