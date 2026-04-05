@@ -35,7 +35,7 @@ export const InstancedTiles = ({ map }: Props) => {
                 ceilPositions.push([wx, wz]);
                 if (tile.type !== 'Wall') {
                     floorPositions.push([wx, wz]);
-                } else if (!MIRROR_WALL_MAP.has(`${tile.x},${tile.y}`)) {
+                } else if (!MIRROR_WALL_MAP.has(`${map.index},${tile.x},${tile.y}`)) {
                     wallPositions.push([wx, wz]);
                 }
             }

@@ -359,11 +359,78 @@ function buildVisibleTexts(): Set<string> {
 const getMap = (level: number): GameMap => getGameMap(level);
 
 export const MIRROR_WALL_MAP: Map<string, Champion> = new Map(
-    CHAMPION_START_POSITIONS.map(pos => [`${pos.x},${pos.y}`, CHAMPION_BY_ID[pos.portraitId]])
+    CHAMPION_START_POSITIONS.map(pos => [`${pos.mapIndex},${pos.x},${pos.y}`, CHAMPION_BY_ID[pos.portraitId]])
 );
 export const MIRROR_FACE_MAP: Map<string, CardinalDir> = new Map(
-    CHAMPION_START_POSITIONS.map(pos => [`${pos.x},${pos.y}`, pos.wallFace])
+    CHAMPION_START_POSITIONS.map(pos => [`${pos.mapIndex},${pos.x},${pos.y}`, pos.wallFace])
 );
+
+// ─── Vi Altar detection ───────────────────────────────────────────────────────
+// Altars are Text objects on a tile whose text contains "ALTAR".
+// Positions from dungeon.json: map0(5,17), map2(28,29), map5(24,28).
+function isAltarTile(level: number, x: number, y: number): boolean {
+    const map = getMap(level);
+    const tile = map.tiles[y]?.[x];
+    if (!tile) return false;
+    return tile.objects.some(
+        o => o.category === 'Text' && typeof (o as import('../types/game').WallTextObject).text === 'string'
+            && (o as import('../types/game').WallTextObject).text!.includes('ALTAR')
+    );
+}
+
+// ─── Champion death helper ────────────────────────────────────────────────────
+// Drops all inventory + equipment + a bones item at the party position.
+// Returns the partial state update (does NOT update party — caller handles that).
+function buildDeathDrop(
+    state: {
+        level: number;
+        position: [number, number];
+        party: Champion[];
+        championInventories: Record<number, import('../types/game').FloorItem[]>;
+        championEquipment: Record<number, import('../types/game').ChampionEquipment>;
+        floorItems: import('../types/game').FloorItem[];
+        deadChampions: Record<number, Champion>;
+    },
+    championId: number,
+): {
+    floorItems: import('../types/game').FloorItem[];
+    championInventories: Record<number, import('../types/game').FloorItem[]>;
+    championEquipment: Record<number, import('../types/game').ChampionEquipment>;
+    deadChampions: Record<number, Champion>;
+    party: Champion[];
+} {
+    const [y, x] = state.position;
+    const inv   = state.championInventories[championId] ?? [];
+    const equip = state.championEquipment[championId] ?? {};
+
+    const droppedItems: import('../types/game').FloorItem[] = [
+        ...inv,
+        ...(Object.values(equip).filter(Boolean) as import('../types/game').FloorItem[]),
+    ].map(item => ({ ...item, mapIndex: state.level, x, y, tilePos: 'North' as const }));
+
+    const bonesItem: import('../types/game').FloorItem = {
+        id: `bones_${championId}_${Date.now()}`,
+        category: 'Misc',
+        typeId: 28,
+        rawName: 'Bones',
+        mapIndex: state.level,
+        x,
+        y,
+        tilePos: 'North' as const,
+        championId,
+    };
+
+    const champion = state.party.find(c => c.id === championId);
+    return {
+        floorItems: [...state.floorItems, ...droppedItems, bonesItem],
+        championInventories: { ...state.championInventories, [championId]: [] },
+        championEquipment:   { ...state.championEquipment,   [championId]: {} },
+        deadChampions: champion
+            ? { ...state.deadChampions, [championId]: champion }
+            : state.deadChampions,
+        party: state.party.filter(c => c.id !== championId),
+    };
+}
 
 const isWalkable = (level: number, y: number, x: number, openDoors: Set<string>): boolean => {
     const map = getMap(level);
@@ -643,6 +710,8 @@ interface GameState {
     footprintsUntil: number;
     /** Tile positions visited while footprint spell was active */
     footprintHistory: FootprintEntry[];
+    /** Champions who have died — preserved for resurrection, keyed by champion.id */
+    deadChampions: Record<number, Champion>;
 
     moveForward: () => void;
     moveBackward: () => void;
@@ -679,6 +748,8 @@ interface GameState {
     unequipItem: (championId: number, slotKey: EquipSlotKey) => void;
     giveItem: (fromChampionId: number, toChampionId: number, itemId: string) => void;
     giveEquippedItem: (fromChampionId: number, slotKey: EquipSlotKey, toChampionId: number) => void;
+    killChampion: (championId: number) => void;
+    resurrectChampion: (bonesItemId: string) => void;
 }
 
 const DIRECTIONS: Direction[] = ['NORTH', 'EAST', 'SOUTH', 'WEST'];
@@ -717,6 +788,7 @@ export const useStore = create<GameState>((set) => ({
     magicVisionUntil: 0,
     footprintsUntil: 0,
     footprintHistory: [],
+    deadChampions: {},
 
     moveForward: () => set((state) => {
         if (state.gamePhase !== 'exploration') return state;
@@ -935,6 +1007,21 @@ export const useStore = create<GameState>((set) => ({
         creatures: state.creatures.map(c => c.id === id ? { ...c, alive: false } : c),
     })),
 
+    killChampion: (championId) => set((state) => {
+        const v = state.championVitals[championId];
+        if (!v || v.hp > 0) return state; // only kill champions already at 0 HP
+        const partial = buildDeathDrop(
+            { level: state.level, position: state.position, party: state.party,
+              championInventories: state.championInventories, championEquipment: state.championEquipment,
+              floorItems: state.floorItems, deadChampions: state.deadChampions },
+            championId,
+        );
+        const selectedChampionIndex = partial.party.length > 0
+            ? Math.min(state.selectedChampionIndex, partial.party.length - 1)
+            : 0;
+        return { ...partial, selectedChampionIndex };
+    }),
+
     selectChampion: (index) => set({ selectedChampionIndex: index }),
 
     reorderParty: (fromIndex, toIndex) => set((state) => {
@@ -967,6 +1054,25 @@ export const useStore = create<GameState>((set) => ({
         const item = inv.find(i => i.id === itemId);
         if (!item) return state;
         const [y, x] = state.position;
+
+        // ── Altar resurrection: dropping bones on a Vi Altar tile ──────────────
+        if (item.category === 'Misc' && item.typeId === 28 && item.championId !== undefined) {
+            const deadChampId = item.championId;
+            const deadChamp   = state.deadChampions[deadChampId];
+            if (deadChamp && isAltarTile(state.level, x, y) && state.party.length < MAX_PARTY) {
+                const newInv = inv.filter(i => i.id !== itemId);
+                const newDead = { ...state.deadChampions };
+                delete newDead[deadChampId];
+                return {
+                    party: [...state.party, deadChamp],
+                    championVitals: { ...state.championVitals, [deadChampId]: { hp: 1, stamina: 0, mana: 0 } },
+                    championInventories: { ...state.championInventories, [championId]: newInv, [deadChampId]: [] },
+                    championEquipment: { ...state.championEquipment, [deadChampId]: {} },
+                    deadChampions: newDead,
+                };
+            }
+        }
+
         const dropped: FloorItem = { ...item, mapIndex: state.level, x, y, tilePos: 'North' };
         return {
             championInventories: { ...state.championInventories, [championId]: inv.filter(i => i.id !== itemId) },
@@ -1031,6 +1137,45 @@ export const useStore = create<GameState>((set) => ({
         return {
             championEquipment: { ...state.championEquipment, [fromChampionId]: newEquip },
             championInventories: { ...state.championInventories, [toChampionId]: [...toInv, item] },
+        };
+    }),
+
+    resurrectChampion: (bonesItemId) => set((state) => {
+        // Find the bones in inventory or on the floor
+        let carriedBy: number | null = null;
+        let bonesItem: FloorItem | undefined;
+        for (const [cidStr, inv] of Object.entries(state.championInventories)) {
+            const found = inv.find(i => i.id === bonesItemId);
+            if (found) { bonesItem = found; carriedBy = Number(cidStr); break; }
+        }
+        if (!bonesItem) bonesItem = state.floorItems.find(i => i.id === bonesItemId);
+        if (!bonesItem || bonesItem.championId === undefined) return state;
+
+        const deadChampId = bonesItem.championId;
+        const deadChamp   = state.deadChampions[deadChampId];
+        if (!deadChamp) return state;
+        if (state.party.length >= MAX_PARTY) return state;
+
+        const [y, x] = state.position;
+        if (!isAltarTile(state.level, x, y)) return state;
+
+        const newDead = { ...state.deadChampions };
+        delete newDead[deadChampId];
+
+        const newFloorItems = state.floorItems.filter(i => i.id !== bonesItemId);
+        const newInv = carriedBy !== null
+            ? (state.championInventories[carriedBy] ?? []).filter(i => i.id !== bonesItemId)
+            : state.championInventories[carriedBy!] ?? [];
+
+        return {
+            party: [...state.party, deadChamp],
+            championVitals: { ...state.championVitals, [deadChampId]: { hp: 1, stamina: 0, mana: 0 } },
+            championInventories: carriedBy !== null
+                ? { ...state.championInventories, [carriedBy]: newInv, [deadChampId]: [] }
+                : { ...state.championInventories, [deadChampId]: [] },
+            championEquipment: { ...state.championEquipment, [deadChampId]: {} },
+            floorItems: newFloorItems,
+            deadChampions: newDead,
         };
     }),
 
@@ -1483,9 +1628,17 @@ export const useStore = create<GameState>((set) => ({
             return !!t && t.type !== 'Wall' && t.type !== 'Door';
         };
 
+        let creatures  = state.creatures as CreatureInstance[];
+        let vitals     = state.championVitals;
+        let dmgEvts    = state.damageEvents;
+        let anyChange  = false;
+        // Champions that reach 0 HP this tick — processed after the loop
+        const newlyDead: number[] = [];
+
         // Pick an attack target based on creature side:
         //   left creature → prefers left column (party[0,2]), falls back to right (party[1,3])
         //   right creature → prefers right column (party[1,3]), falls back to left (party[0,2])
+        // Uses `vitals` (not state.championVitals) so kills earlier this tick are respected.
         const getTarget = (side: CreatureSide) => {
             const preferIdx = side === 'left' ? [0, 2] : [1, 3];
             const fallbackIdx = side === 'left' ? [1, 3] : [0, 2];
@@ -1494,23 +1647,18 @@ export const useStore = create<GameState>((set) => ({
                 const frontAlive = indices.filter(i => i <= 1)
                     .map(i => state.party[i])
                     .filter((c): c is import('../data/champions').Champion =>
-                        !!c && (state.championVitals[c.id]?.hp ?? 0) > 0);
+                        !!c && (vitals[c.id]?.hp ?? 0) > 0);
                 if (frontAlive.length > 0)
                     return frontAlive[Math.floor(Math.random() * frontAlive.length)];
                 const backAlive = indices.filter(i => i > 1)
                     .map(i => state.party[i])
                     .filter((c): c is import('../data/champions').Champion =>
-                        !!c && (state.championVitals[c.id]?.hp ?? 0) > 0);
+                        !!c && (vitals[c.id]?.hp ?? 0) > 0);
                 if (backAlive.length > 0)
                     return backAlive[Math.floor(Math.random() * backAlive.length)];
             }
             return null;
         };
-
-        let creatures = state.creatures as CreatureInstance[];
-        let vitals    = state.championVitals;
-        let dmgEvts   = state.damageEvents;
-        let anyChange = false;
 
         for (let i = 0; i < creatures.length; i++) {
             const c = creatures[i];
@@ -1599,9 +1747,11 @@ export const useStore = create<GameState>((set) => ({
                         const shieldProt = state.activeShields
                             .filter(s => s.expiresAt > nowMs && !s.fireOnly)
                             .reduce((max, s) => Math.max(max, s.protection), 0);
-                        const dmg  = Math.max(1, Math.round(raw * (1 - shieldProt)));
+                        const dmg   = Math.max(1, Math.round(raw * (1 - shieldProt)));
                         const newHP = Math.max(0, tv.hp - dmg);
                         vitals = { ...vitals, [target.id]: { ...tv, hp: newHP } };
+                        if (newHP === 0 && !newlyDead.includes(target.id))
+                            newlyDead.push(target.id);
                         dmgEvts = [...dmgEvts, {
                             id: `mdmg_${Date.now()}_${c.id}`,
                             x: c.x, y: c.y, amount: dmg, ts: Date.now(),
@@ -1631,11 +1781,44 @@ export const useStore = create<GameState>((set) => ({
             }
         }
 
+        // ── Process champion deaths ───────────────────────────────────────────
+        let party                = state.party;
+        let floorItems           = state.floorItems;
+        let championInventories  = state.championInventories;
+        let championEquipment    = state.championEquipment;
+        let deadChampions        = state.deadChampions;
+
+        for (const championId of newlyDead) {
+            const partial = buildDeathDrop(
+                { level: state.level, position: state.position, party, championInventories, championEquipment, floorItems, deadChampions },
+                championId,
+            );
+            party               = partial.party;
+            floorItems          = partial.floorItems;
+            championInventories = partial.championInventories;
+            championEquipment   = partial.championEquipment;
+            deadChampions       = partial.deadChampions;
+            anyChange           = true;
+        }
+
         if (!anyChange && creatures === state.creatures) return state;
+
+        const selectedChampionIndex = party.length > 0
+            ? Math.min(state.selectedChampionIndex, party.length - 1)
+            : 0;
+
         return {
             creatures,
-            ...(vitals !== state.championVitals   ? { championVitals: vitals }   : {}),
-            ...(dmgEvts !== state.damageEvents     ? { damageEvents: dmgEvts }    : {}),
+            ...(vitals !== state.championVitals             ? { championVitals: vitals }                     : {}),
+            ...(dmgEvts !== state.damageEvents              ? { damageEvents: dmgEvts }                      : {}),
+            ...(party !== state.party ? {
+                party,
+                selectedChampionIndex,
+                floorItems,
+                championInventories,
+                championEquipment,
+                deadChampions,
+            } : {}),
         };
     }),
 

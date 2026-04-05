@@ -133,6 +133,7 @@ export const MISC_TYPES: Record<number, MiscDef> = {
      2: { id:  2, name: 'Torch',          usable: true,  description: 'Provides light', luminous: true },
     16: { id: 16, name: 'Jewel Symal',    usable: false, description: '+15 Anti-Magic' },
     24: { id: 24, name: 'Ashes',          usable: false, description: 'Remains of a champion' },
+    28: { id: 28, name: 'Bones',          usable: false, description: 'Remains of a fallen champion' },
     25: { id: 25, name: 'Magical Box',    usable: false, description: 'Quest item' },
     56: { id: 56, name: 'Chest of the North Wind', usable: false, description: 'Quest item' },
 };

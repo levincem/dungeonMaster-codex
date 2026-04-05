@@ -121,6 +121,7 @@ export function getGameMap(index: number): GameMap {
 
 export interface ChampionStartPos {
     portraitId: number;
+    mapIndex: number;
     x: number;
     y: number;
     wallFace: CardinalDir;
@@ -129,6 +130,7 @@ export interface ChampionStartPos {
 export const CHAMPION_START_POSITIONS: ChampionStartPos[] =
     dungeon.champions.map(c => ({
         portraitId: c.portraitId,
+        mapIndex: (c as { map?: number }).map ?? 0,
         x: c.x,
         y: c.y,
         wallFace: c.wallFace as CardinalDir,

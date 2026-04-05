@@ -196,6 +196,8 @@ export interface FloorItem {
     x: number;
     y: number;
     tilePos: CardinalDir;
+    /** Set on bones items (Misc typeId 28) — links to the dead champion's id */
+    championId?: number;
 }
 
 /** Per-champion equipped items, keyed by slot. */

@@ -86,7 +86,7 @@ const BoundaryWalls = memo(({ map }: { map: GameMap }) => {
 function getRenderType(tile: GameTile, level: number): CellRenderType {
     switch (tile.type) {
         case 'Wall':
-            return (level === 0 && MIRROR_WALL_MAP.has(`${tile.x},${tile.y}`)) ? 'Mirror' : 'Wall';
+            return MIRROR_WALL_MAP.has(`${level},${tile.x},${tile.y}`) ? 'Mirror' : 'Wall';
         case 'Door':
             return 'Door';
         case 'Stairs': {
@@ -463,10 +463,10 @@ const TileGrid: React.FC<{
                     if (renderType !== 'Door' && renderType !== 'Mirror') return null;
 
                     const mirrorChampion: Champion | null =
-                        renderType === 'Mirror' ? (MIRROR_WALL_MAP.get(`${x},${y}`) ?? null) : null;
+                        renderType === 'Mirror' ? (MIRROR_WALL_MAP.get(`${level},${x},${y}`) ?? null) : null;
                     const champion = mirrorChampion && !recruitedIds.has(mirrorChampion.id)
                         ? mirrorChampion : null;
-                    const wallFace = renderType === 'Mirror' ? MIRROR_FACE_MAP.get(`${x},${y}`) : undefined;
+                    const wallFace = renderType === 'Mirror' ? MIRROR_FACE_MAP.get(`${level},${x},${y}`) : undefined;
                     const doorOpen = renderType === 'Door' ? openDoors.has(`${level},${y},${x}`) : undefined;
                     const doorOrientation = renderType === 'Door' ? tile.orientation : undefined;
                     const doorHasButton = renderType === 'Door'
@@ -618,8 +618,8 @@ export const DungeonScene = () => {
         e: ThreeEvent<MouseEvent>, renderType: CellRenderType, x: number, y: number,
     ) => {
         e.stopPropagation();
-        if (renderType === 'Mirror' && level === 0) {
-            const champion = MIRROR_WALL_MAP.get(`${x},${y}`);
+        if (renderType === 'Mirror') {
+            const champion = MIRROR_WALL_MAP.get(`${level},${x},${y}`);
             if (champion) openMirror(champion.id);
         }
         if (renderType === 'Door') toggleDoor(x, y);
