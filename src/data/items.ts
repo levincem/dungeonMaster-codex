@@ -150,18 +150,25 @@ function byId<T extends { id: number }>(entries: T[]): Record<number, T> {
     return Object.fromEntries(entries.map((entry) => [entry.id, entry]));
 }
 
+function mergeById<T extends { id: number }>(primary: T[], fallback: Record<number, T>): T[] {
+    const merged = new Map<number, T>();
+    for (const value of Object.values(fallback)) merged.set(value.id, value);
+    for (const value of primary) merged.set(value.id, value);
+    return [...merged.values()].sort((a, b) => a.id - b.id);
+}
+
 function normalizeWeaponEntries(): WeaponDef[] {
     const catalog = weaponsCatalog as unknown as { weapons?: Array<Record<string, unknown>> };
     if (!catalog.weapons) return Object.values(LEGACY_WEAPON_TYPES);
 
-    return catalog.weapons.map((entry) => ({
+    const normalized: WeaponDef[] = catalog.weapons.map((entry) => ({
         id: Number(entry.id ?? 0),
         name: String(entry.name ?? 'Unknown Weapon'),
         type: String(entry.type ?? 'Special') as WeaponDef['type'],
         damage: [
             Number(Array.isArray(entry.damage) ? entry.damage[0] ?? 0 : 0),
             Number(Array.isArray(entry.damage) ? entry.damage[1] ?? 0 : 0),
-        ],
+        ] as [number, number],
         weight: Number(entry.weight ?? 0),
         atkSpd: Number(entry.atkSpd ?? 0),
         twoHanded: Boolean(entry.twoHanded),
@@ -170,21 +177,22 @@ function normalizeWeaponEntries(): WeaponDef[] {
         luminous: entry.luminous === undefined ? undefined : Boolean(entry.luminous),
         poison: entry.poison === undefined ? undefined : Boolean(entry.poison),
     }));
+    return mergeById(normalized, LEGACY_WEAPON_TYPES);
 }
 
 function normalizeArmorEntries(): ArmorDef[] {
     const catalog = armorCatalog as unknown as { armor?: ArmorDef[] };
-    return catalog.armor ?? Object.values(LEGACY_ARMOR_TYPES);
+    return catalog.armor ? mergeById(catalog.armor, LEGACY_ARMOR_TYPES) : Object.values(LEGACY_ARMOR_TYPES);
 }
 
 function normalizePotionEntries(): PotionDef[] {
     const catalog = potionsCatalog as unknown as { potions?: PotionDef[] };
-    return catalog.potions ?? Object.values(LEGACY_POTION_TYPES);
+    return catalog.potions ? mergeById(catalog.potions, LEGACY_POTION_TYPES) : Object.values(LEGACY_POTION_TYPES);
 }
 
 function normalizeMiscEntries(): MiscDef[] {
     const catalog = miscCatalog as unknown as { miscellaneousItems?: MiscDef[] };
-    return catalog.miscellaneousItems ?? Object.values(LEGACY_MISC_TYPES);
+    return catalog.miscellaneousItems ? mergeById(catalog.miscellaneousItems, LEGACY_MISC_TYPES) : Object.values(LEGACY_MISC_TYPES);
 }
 
 const weaponEntries = normalizeWeaponEntries();

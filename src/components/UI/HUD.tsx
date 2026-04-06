@@ -6,8 +6,14 @@ import { WEAPON_TYPES } from '../../data/items';
 import { getGameMap } from '../../data/mapLoader';
 import type { Champion } from '../../data/champions';
 import type { ChampionEquipment } from '../../types/game';
+import { getItemImage, getTorchImage } from '../../data/itemImages';
 import { RUNES_BY_FAMILY, RUNES_BY_ID, findSpell } from '../../data/runes';
 import type { RuneFamily } from '../../data/runes';
+
+const HAND_SLOT_LABELS = {
+    leftHand: 'MG',
+    rightHand: 'MD',
+} as const;
 
 // ─── Combat grid ──────────────────────────────────────────────────────────────
 const CombatGrid: React.FC<{
@@ -98,6 +104,112 @@ function getPortraitStyle(size: number): React.CSSProperties {
     };
 }
 
+const HandSlot: React.FC<{
+    slotKey: 'leftHand' | 'rightHand';
+    item?: ChampionEquipment['leftHand'];
+}> = ({ slotKey, item }) => {
+    const torchBurnStart = useStore(s => s.torchBurnStart);
+    const isTorch = item?.category === 'Weapon' && item.typeId === 16;
+    const imageSrc = item
+        ? (isTorch ? getTorchImage(item.id, torchBurnStart) : getItemImage(item.category, item.typeId))
+        : null;
+
+    return (
+        <div style={{
+            flex: 1,
+            height: 36,
+            border: '1px solid rgba(120,96,54,0.75)',
+            borderRadius: 4,
+            background: 'rgba(8,6,14,0.92)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative',
+            overflow: 'hidden',
+        }}>
+            <span style={{
+                position: 'absolute',
+                top: 2,
+                left: 4,
+                fontSize: 7,
+                lineHeight: 1,
+                letterSpacing: 1,
+                color: 'rgba(208,184,112,0.6)',
+            }}>
+                {HAND_SLOT_LABELS[slotKey]}
+            </span>
+            {imageSrc ? (
+                <img
+                    src={imageSrc}
+                    alt=""
+                    draggable={false}
+                    style={{
+                        maxWidth: '82%',
+                        maxHeight: '82%',
+                        objectFit: 'contain',
+                        imageRendering: 'crisp-edges',
+                    }}
+                />
+            ) : (
+                <div style={{
+                    width: '68%',
+                    height: '68%',
+                    borderRadius: 3,
+                    border: '1px dashed rgba(110,88,48,0.45)',
+                }} />
+            )}
+        </div>
+    );
+};
+
+const FormationSilhouette: React.FC<{
+    champion: Champion | undefined;
+    slotIndex: number;
+    isDragOver: boolean;
+    onDragStart: () => void;
+    onDragOver: (e: React.DragEvent) => void;
+    onDrop: () => void;
+    onDragEnd: () => void;
+}> = ({ champion, slotIndex, isDragOver, onDragStart, onDragOver, onDrop, onDragEnd }) => {
+    const color = champion ? CLASS_COLORS[champion.class] : '#4a405a';
+
+    return (
+        <div
+            draggable={!!champion}
+            onDragStart={onDragStart}
+            onDragOver={onDragOver}
+            onDrop={onDrop}
+            onDragEnd={onDragEnd}
+            title={champion ? `${champion.name} - position ${slotIndex + 1}` : `Position ${slotIndex + 1}`}
+            style={{
+                width: 52,
+                height: 52,
+                borderRadius: 8,
+                border: `2px solid ${isDragOver ? '#f0d060' : champion ? color : '#342a44'}`,
+                background: isDragOver ? 'rgba(240,208,96,0.12)' : 'rgba(8,6,16,0.92)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: champion ? 'grab' : 'default',
+                transition: 'border-color 0.12s, background 0.12s',
+            }}
+        >
+            {champion ? (
+                <svg viewBox="0 0 100 100" width="34" height="34" aria-hidden="true">
+                    <circle cx="50" cy="24" r="12" fill={color} opacity="0.95" />
+                    <rect x="39" y="36" width="22" height="22" rx="9" fill={color} opacity="0.95" />
+                    <rect x="24" y="41" width="18" height="10" rx="5" fill={color} opacity="0.75" />
+                    <rect x="58" y="41" width="18" height="10" rx="5" fill={color} opacity="0.75" />
+                    <rect x="41" y="58" width="8" height="23" rx="4" fill={color} opacity="0.8" />
+                    <rect x="51" y="58" width="8" height="23" rx="4" fill={color} opacity="0.8" />
+                </svg>
+            ) : (
+                <span style={{ fontSize: 12, color: '#514660', fontFamily: 'monospace' }}>{slotIndex + 1}</span>
+            )}
+        </div>
+    );
+};
+
 const CLASS_COLORS: Record<string, string> = {
     Fighter: '#e05040', Ninja: '#40cc70', Wizard: '#a060e0', Priest: '#4090e0',
 };
@@ -113,7 +225,7 @@ const FAMILY_LABELS: Record<RuneFamily, string> = {
 const VitalsStrip: React.FC<{ hp: number; maxHp: number; sta: number; maxSta: number; mana: number; maxMana: number }> = (
     { hp, maxHp, sta, maxSta, mana, maxMana }
 ) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 1, padding: '2px 3px', background: '#060408' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: '3px 4px', background: '#060408' }}>
         {([
             { val: hp,   max: maxHp,   color: '#c0251a' },
             { val: sta,  max: maxSta,  color: '#1e9940' },
@@ -136,27 +248,19 @@ const VitalsStrip: React.FC<{ hp: number; maxHp: number; sta: number; maxSta: nu
 const ChampionCard: React.FC<{
     champion: Champion | undefined;
     vitals: { hp: number; stamina: number; mana: number } | undefined;
+    equip: ChampionEquipment;
     slotIndex: number;
     selected: boolean;
     isDragOver: boolean;
     onSelect: () => void;
     onOpenSheet: () => void;
-    onDragStart: () => void;
-    onDragOver: (e: React.DragEvent) => void;
-    onDrop: () => void;
-    onDragEnd: () => void;
-}> = ({ champion, vitals, slotIndex, selected, isDragOver, onSelect, onOpenSheet, onDragStart, onDragOver, onDrop, onDragEnd }) => {
-    const W = 68;
+}> = ({ champion, vitals, equip, slotIndex, selected, isDragOver, onSelect, onOpenSheet }) => {
+    const W = 92;
     const PORTRAIT_H = 55; // clip height — shows upper portion (face), no deformation
     const color = champion ? CLASS_COLORS[champion.class] : '#2a2a3a';
 
     return (
         <div
-            draggable={!!champion}
-            onDragStart={onDragStart}
-            onDragOver={onDragOver}
-            onDrop={onDrop}
-            onDragEnd={onDragEnd}
             onClick={() => champion && (selected ? onOpenSheet() : onSelect())}
             title={champion
                 ? (selected ? `Fiche de ${champion.name}` : `Sélectionner ${champion.name}`)
@@ -166,7 +270,7 @@ const ChampionCard: React.FC<{
                 border: `2px solid ${isDragOver ? '#f0d060' : selected ? color : champion ? color + '77' : '#252535'}`,
                 borderRadius: 5,
                 overflow: 'hidden',
-                cursor: champion ? (selected ? 'pointer' : 'grab') : 'default',
+                cursor: champion ? 'pointer' : 'default',
                 background: isDragOver ? 'rgba(240,208,80,0.15)' : selected ? `${color}22` : '#0a080f',
                 outline: selected ? `3px solid ${color}55` : 'none',
                 outlineOffset: 2,
@@ -199,10 +303,14 @@ const ChampionCard: React.FC<{
                     }}>
                         {champion.name.toUpperCase()}
                     </div>
+                    <div style={{ display: 'flex', gap: 4, padding: 4, background: '#05030a' }}>
+                        <HandSlot slotKey="leftHand" item={equip.leftHand} />
+                        <HandSlot slotKey="rightHand" item={equip.rightHand} />
+                    </div>
                 </>
             ) : (
                 <div style={{
-                    height: PORTRAIT_H + 27, display: 'flex',
+                    height: PORTRAIT_H + 60, display: 'flex',
                     alignItems: 'center', justifyContent: 'center',
                     color: '#252535', fontSize: 18,
                 }}>
@@ -272,7 +380,7 @@ const MoveBtn: React.FC<{
             border: `1px solid ${flash ? 'rgba(240,210,100,0.80)' : 'rgba(100,85,130,0.60)'}`,
             borderRadius: 6,
             color: flash ? '#ffe898' : '#aa99cc',
-            fontSize: 28, cursor: 'pointer', fontFamily: 'monospace',
+            fontSize: 16, cursor: 'pointer', fontFamily: 'monospace',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             transition: 'background 0.05s, border-color 0.05s, color 0.05s',
         }}
@@ -394,59 +502,50 @@ export const HUD = () => {
             overflow: 'hidden',
         }}>
 
-            {/* ── Champions 2×2 + Movement side by side ─────────────────── */}
+            {/* Top area: four portraits in one row, formation on the right */}
             <div style={panel}>
-                <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-
-                    {/* Champions grid — fixed width */}
-                    <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 5 }}>
-                        {([
-                            { label: '⚔', indices: [0, 1] },
-                            { label: '✦', indices: [2, 3] },
-                        ] as const).map(({ label, indices }) => (
-                            <div key={label}>
-                                <div style={{ fontSize: 8, letterSpacing: 2, color: 'rgba(180,160,120,0.35)', marginBottom: 3 }}>
-                                    {label}
-                                </div>
-                                <div style={{ display: 'flex', gap: 5 }}>
-                                    {indices.map(i => (
-                                        <ChampionCard
-                                            key={i}
-                                            champion={party[i]}
-                                            vitals={party[i] ? championVitals[party[i].id] : undefined}
-                                            slotIndex={i}
-                                            selected={selectedChampionIndex === i && !!party[i]}
-                                            isDragOver={dragOver === i}
-                                            onSelect={() => selectChampion(i)}
-                                            onOpenSheet={() => party[i] && openPartyMember(party[i].id)}
-                                            onDragStart={() => setDragFrom(i)}
-                                            onDragOver={e => { e.preventDefault(); setDragOver(i); }}
-                                            onDrop={() => {
-                                                if (dragFrom !== null && dragFrom !== i) reorderParty(dragFrom, i);
-                                                setDragFrom(null); setDragOver(null);
-                                            }}
-                                            onDragEnd={() => { setDragFrom(null); setDragOver(null); }}
-                                        />
-                                    ))}
-                                </div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'stretch' }}>
+                    <div style={{ flex: '0 0 80%', display: 'flex', gap: 6, minWidth: 0 }}>
+                        {[0, 1, 2, 3].map(i => (
+                            <div key={i} style={{ flex: '1 1 20%', minWidth: 0, display: 'flex', justifyContent: 'center' }}>
+                                <ChampionCard
+                                    champion={party[i]}
+                                    vitals={party[i] ? championVitals[party[i].id] : undefined}
+                                    equip={party[i] ? (championEquipment[party[i].id] ?? {}) : {}}
+                                    slotIndex={i}
+                                    selected={selectedChampionIndex === i && !!party[i]}
+                                    isDragOver={false}
+                                    onSelect={() => selectChampion(i)}
+                                    onOpenSheet={() => party[i] && openPartyMember(party[i].id)}
+                                />
                             </div>
                         ))}
                     </div>
 
-                    {/* Movement grid — fills remaining width, padding réduit la taille effective */}
                     <div style={{
-                        flex: 1,
+                        flex: '0 0 20%',
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(3, 1fr)',
-                        gap: 5,
-                        padding: '6px 18px',
+                        gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                        gap: 8,
+                        alignContent: 'center',
+                        justifyItems: 'center',
+                        minWidth: 0,
                     }}>
-                        <MoveBtn label="↺" flash={flashKey === 'tl'}  title="Tourner gauche (Q)"  onClick={() => flash('tl',  turnLeft)}    />
-                        <MoveBtn label="↑" flash={flashKey === 'fwd'} title="Avancer (Z)"          onClick={() => move('fwd', moveForward)}   />
-                        <MoveBtn label="↻" flash={flashKey === 'tr'}  title="Tourner droite (D)"  onClick={() => flash('tr',  turnRight)}   />
-                        <MoveBtn label="←" flash={flashKey === 'sl'}  title="Pas gauche (A)"       onClick={() => move('sl',  strafeLeft)}   />
-                        <MoveBtn label="↓" flash={flashKey === 'bck'} title="Reculer (S)"          onClick={() => move('bck', moveBackward)} />
-                        <MoveBtn label="→" flash={flashKey === 'sr'}  title="Pas droite (E)"       onClick={() => move('sr',  strafeRight)}  />
+                        {[0, 1, 2, 3].map(i => (
+                            <FormationSilhouette
+                                key={i}
+                                champion={party[i]}
+                                slotIndex={i}
+                                isDragOver={dragOver === i}
+                                onDragStart={() => setDragFrom(i)}
+                                onDragOver={e => { e.preventDefault(); setDragOver(i); }}
+                                onDrop={() => {
+                                    if (dragFrom !== null && dragFrom !== i) reorderParty(dragFrom, i);
+                                    setDragFrom(null); setDragOver(null);
+                                }}
+                                onDragEnd={() => { setDragFrom(null); setDragOver(null); }}
+                            />
+                        ))}
                     </div>
                 </div>
 
@@ -486,7 +585,8 @@ export const HUD = () => {
                                 onClick={() => runeId && setSelectedRunes(prev => prev.slice(0, i))}
                                 title={runeId ? `Retirer ${rune?.name}` : `Slot ${i + 1}`}
                                 style={{
-                                    flex: 1, aspectRatio: '1',
+                                    flex: 1,
+                                    aspectRatio: '1 / 0.68',
                                     background: runeId ? `${fColor}20` : 'rgba(8,6,18,0.85)',
                                     border: `1px solid ${runeId ? 'rgba(255,255,255,0.5)' : '#252535'}`,
                                     borderRadius: 4,
@@ -498,13 +598,13 @@ export const HUD = () => {
                                 {runeId ? (
                                     <>
                                         <img src={`/runes/${runeId}.png`} alt=""
-                                            style={{ width: '78%', height: '78%', objectFit: 'contain' }} />
-                                        <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.75)', letterSpacing: 1, lineHeight: 1 }}>
+                                            style={{ width: '58%', height: '58%', objectFit: 'contain' }} />
+                                        <span style={{ fontSize: 7, color: 'rgba(255,255,255,0.75)', letterSpacing: 1, lineHeight: 1 }}>
                                             {rune?.name?.toUpperCase()}
                                         </span>
                                     </>
                                 ) : (
-                                    <span style={{ fontSize: 18, color: '#252535' }}>{i + 1}</span>
+                                    <span style={{ fontSize: 14, color: '#252535' }}>{i + 1}</span>
                                 )}
                             </div>
                         );
@@ -582,13 +682,31 @@ export const HUD = () => {
 
             {/* ── Combat ─────────────────────────────────────────────────── */}
             <div style={panel}>
-                <CombatGrid
-                    party={party}
-                    championCombat={championCombat}
-                    championEquipment={championEquipment}
-                    championXP={championXP}
-                    attackFront={attackFront}
-                />
+                <div style={{ display: 'flex', gap: 10, alignItems: 'stretch' }}>
+                    <div style={{ flex: '1 1 auto', minWidth: 0 }}>
+                        <CombatGrid
+                            party={party}
+                            championCombat={championCombat}
+                            championEquipment={championEquipment}
+                            championXP={championXP}
+                            attackFront={attackFront}
+                        />
+                    </div>
+                    <div style={{
+                        flex: '0 0 96px',
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(3, 1fr)',
+                        gap: 4,
+                        alignContent: 'center',
+                    }}>
+                        <MoveBtn label="↺" flash={flashKey === 'tl'}  title="Tourner gauche (Q)"  onClick={() => flash('tl',  turnLeft)} />
+                        <MoveBtn label="↑" flash={flashKey === 'fwd'} title="Avancer (Z)"          onClick={() => move('fwd', moveForward)} />
+                        <MoveBtn label="↻" flash={flashKey === 'tr'}  title="Tourner droite (D)"  onClick={() => flash('tr',  turnRight)} />
+                        <MoveBtn label="←" flash={flashKey === 'sl'}  title="Pas gauche (A)"       onClick={() => move('sl',  strafeLeft)} />
+                        <MoveBtn label="↓" flash={flashKey === 'bck'} title="Reculer (S)"          onClick={() => move('bck', moveBackward)} />
+                        <MoveBtn label="→" flash={flashKey === 'sr'}  title="Pas droite (E)"       onClick={() => move('sr',  strafeRight)} />
+                    </div>
+                </div>
             </div>
 
             <div style={{ flex: 1 }} />

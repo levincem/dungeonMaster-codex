@@ -7,6 +7,7 @@ import { subscribePlateActivated } from '../../engine/store';
 import type { ThreeEvent } from '@react-three/fiber';
 import type { Champion } from '../../data/champions';
 import type { CardinalDir } from '../../types/game';
+import { getDoorTexturePath } from '../../data/doors';
 
 // ─── Tile render type ─────────────────────────────────────────────────────────
 
@@ -252,9 +253,10 @@ function makeButtonTex(open: boolean): THREE.Texture {
 const DoorMeshInner: React.FC<{
     open: boolean;
     hasButton: boolean;
+    doorType?: number;
     onButtonClick?: (e: ThreeEvent<MouseEvent>) => void;
-}> = ({ open, hasButton, onButtonClick }) => {
-    const baseDoorTex = useTexture('/textures/door.png');
+}> = ({ open, hasButton, doorType, onButtonClick }) => {
+    const baseDoorTex = useTexture(getDoorTexturePath(doorType));
     const baseWallTex = useTexture('/textures/wall.png?v=2');
     const tex = useMemo(
         () => cloneTexture(baseDoorTex, next => { next.colorSpace = THREE.SRGBColorSpace; }),
@@ -331,10 +333,11 @@ const DoorMeshInner: React.FC<{
 const DoorMesh: React.FC<{
     open: boolean;
     hasButton: boolean;
+    doorType?: number;
     onButtonClick?: (e: ThreeEvent<MouseEvent>) => void;
-}> = ({ open, hasButton, onButtonClick }) => (
+}> = ({ open, hasButton, doorType, onButtonClick }) => (
     <Suspense fallback={null}>
-        <DoorMeshInner open={open} hasButton={hasButton} onButtonClick={onButtonClick} />
+        <DoorMeshInner open={open} hasButton={hasButton} doorType={doorType} onButtonClick={onButtonClick} />
     </Suspense>
 );
 
@@ -448,10 +451,11 @@ interface CellProps {
     doorOpen?: boolean;
     doorOrientation?: string;
     doorHasButton?: boolean;
+    doorType?: number;
     onClick?: (e: ThreeEvent<MouseEvent>) => void;
 }
 
-export const Cell: React.FC<CellProps> = ({ type, position, wallFace, champion, frameChampion, doorOpen, doorOrientation, doorHasButton, onClick }) => {
+export const Cell: React.FC<CellProps> = ({ type, position, wallFace, champion, frameChampion, doorOpen, doorOrientation, doorHasButton, doorType, onClick }) => {
     const baseWallTex = useTexture('/textures/wall.png?v=2');
     const wallTex = useMemo(
         () => cloneTexture(baseWallTex, next => {
@@ -492,6 +496,7 @@ export const Cell: React.FC<CellProps> = ({ type, position, wallFace, champion, 
                     <DoorMesh
                         open={doorOpen ?? false}
                         hasButton={hasBtn}
+                        doorType={doorType}
                         onButtonClick={hasBtn ? onClick : undefined}
                     />
                 </group>

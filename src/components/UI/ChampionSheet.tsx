@@ -3,10 +3,15 @@ import { CHAMPIONS } from '../../data/champions';
 import type { Champion } from '../../data/champions';
 import { useStore, xpToLevel } from '../../engine/store';
 import { WEAPON_TYPES, ARMOR_TYPES, POTION_TYPES, MISC_TYPES } from '../../data/items';
-import type { ArmorSlot } from '../../types/items';
 import type { EquipSlotKey } from '../../types/items';
 import type { FloorItem, ChampionEquipment } from '../../types/game';
 import { getItemImage, getTorchImage } from '../../data/itemImages';
+import {
+    getEquippableSlots,
+    getTotalWeight,
+    getChampionMaxLoad,
+    getEffectiveChampionStats,
+} from '../../data/equipment';
 
 // ─── Slot highlight animation ─────────────────────────────────────────────────
 const PULSE_STYLE = `
@@ -69,41 +74,6 @@ function getItemName(item: FloorItem): string {
     }
     if (item.rawName && !PLACEHOLDER_RE.test(item.rawName)) return item.rawName;
     return `${item.category} #${item.typeId}`;
-}
-
-function getItemWeight(item: FloorItem): number {
-    if (item.category === 'Weapon') return WEAPON_TYPES[item.typeId]?.weight ?? 0;
-    if (item.category === 'Armor')  return ARMOR_TYPES[item.typeId]?.weight  ?? 0;
-    return 0;
-}
-
-function getTotalWeight(equip: ChampionEquipment, inv: FloorItem[]): number {
-    return [...Object.values(equip).filter(Boolean) as FloorItem[], ...inv]
-        .reduce((s, i) => s + getItemWeight(i), 0);
-}
-
-function getEquippableSlots(item: FloorItem): EquipSlotKey[] {
-    switch (item.category) {
-        case 'Weapon': {
-            const def = WEAPON_TYPES[item.typeId];
-            if (def?.type === 'Ammo' || def?.thrown) return ['quiver1','quiver2','quiver3','quiver4'];
-            return ['rightHand','leftHand'];
-        }
-        case 'Armor': {
-            const def = ARMOR_TYPES[item.typeId];
-            if (!def) return [];
-            const map: Record<ArmorSlot, EquipSlotKey> = {
-                head:'head', neck:'neck', torso:'torso',
-                legs:'legs', feet:'feet', hands:'hands', belt:'belt',
-            };
-            return [map[def.slot]];
-        }
-        case 'Misc':
-        case 'Potion':
-        case 'Scroll':
-            return ['pocket1','pocket2','rightHand','leftHand'];
-        default: return [];
-    }
 }
 
 function isConsumable(item: FloorItem): boolean {
@@ -335,13 +305,14 @@ export const ChampionSheet: React.FC = () => {
     const equip      = championEquipment[champion.id]   ?? {};
     const vitals     = championVitals[champion.id];
     const xp         = championXP?.[champion.id];
+    const effectiveStats = getEffectiveChampionStats(champion, equip);
     const weight     = getTotalWeight(equip, inv);
-    const maxWeight  = champion.strength * 2;
+    const maxWeight  = getChampionMaxLoad(champion, equip, vitals?.stamina);
     const overloaded = weight > maxWeight;
 
     const hp      = vitals?.hp      ?? champion.health;
     const stamina = vitals?.stamina ?? champion.stamina;
-    const mana    = vitals?.mana    ?? champion.mana;
+    const mana    = vitals?.mana    ?? effectiveStats.mana;
 
     const handleDropOnSlot = (payload: DragPayload, targetSlot: EquipSlotKey) => {
         if (payload.fromChampionId !== champion.id) { giveItem(payload.fromChampionId, champion.id, payload.itemId); return; }
@@ -440,20 +411,20 @@ export const ChampionSheet: React.FC = () => {
                         <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 5, padding: '10px 12px' }}>
                             <VitalBar icon="❤" label="SANTÉ"     value={hp}      max={champion.health}  color={T.red}    />
                             <VitalBar icon="⚡" label="ENDURANCE" value={stamina} max={champion.stamina} color={T.yellow} />
-                            {champion.mana > 0 && <VitalBar icon="🔮" label="MANA" value={mana} max={champion.mana} color={T.blue} />}
+                            {effectiveStats.mana > 0 && <VitalBar icon="🔮" label="MANA" value={mana} max={effectiveStats.mana} color={T.blue} />}
                         </div>
 
                         {/* Base stats */}
                         <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 5, padding: '10px 12px' }}>
                             <div style={{ fontSize: 9, letterSpacing: 3, color: T.gold, marginBottom: 8 }}>CARACTÉRISTIQUES</div>
                             {[
-                                { label: 'FORCE',       val: champion.strength,  color: T.red    },
-                                { label: 'DEXTÉRITÉ',   val: champion.dexterity, color: T.green  },
-                                { label: 'SAGESSE',     val: champion.wisdom,    color: T.blue   },
-                                { label: 'VITALITÉ',    val: champion.vitality,  color: T.yellow },
-                                { label: 'CHANCE',      val: champion.luck,      color: T.gold   },
-                                { label: 'ANTI-MAGIE',  val: champion.antiMagic, color: '#60c0a0'},
-                                { label: 'ANTI-FEU',    val: champion.antiFire,  color: '#d08030'},
+                                { label: 'FORCE',       val: effectiveStats.strength,  color: T.red    },
+                                { label: 'DEXTÉRITÉ',   val: effectiveStats.dexterity, color: T.green  },
+                                { label: 'SAGESSE',     val: effectiveStats.wisdom,    color: T.blue   },
+                                { label: 'VITALITÉ',    val: effectiveStats.vitality,  color: T.yellow },
+                                { label: 'CHANCE',      val: effectiveStats.luck,      color: T.gold   },
+                                { label: 'ANTI-MAGIE',  val: effectiveStats.antiMagic, color: '#60c0a0'},
+                                { label: 'ANTI-FEU',    val: effectiveStats.antiFire,  color: '#d08030'},
                             ].map(s => (
                                 <div key={s.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
                                     <span style={{ fontSize: 10, color: T.creamDim }}>{s.label}</span>

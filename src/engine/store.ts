@@ -14,6 +14,8 @@ import { CREATURE_TYPES } from '../data/creatures';
 import { findSpell, getSkillLevel } from '../data/runes';
 import type { CastSkill } from '../data/runes';
 import { WEAPON_TYPES, POTION_TYPES, MISC_TYPES } from '../data/items';
+import { canEquipItemInSlot, getEffectiveChampionStats } from '../data/equipment';
+import { doorBlocksThrownItems, doorBlocksVision } from '../data/doors';
 import { playPartyAttack, playCreatureMove, playCreatureAttack, playPlate } from './sounds';
 
 export type Direction = 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
@@ -190,7 +192,7 @@ function creaturesInFront(
 
 // ─── Line-of-sight helper (grid ray — checks for wall/door blocking) ──────────
 
-function hasLineOfSight(map: GameMap, ax: number, ay: number, bx: number, by: number): boolean {
+function hasLineOfSight(map: GameMap, level: number, openDoors: Set<string>, ax: number, ay: number, bx: number, by: number): boolean {
     const dx = bx - ax, dy = by - ay;
     const steps = Math.max(Math.abs(dx), Math.abs(dy));
     if (steps === 0) return true;
@@ -198,7 +200,12 @@ function hasLineOfSight(map: GameMap, ax: number, ay: number, bx: number, by: nu
         const cx = Math.round(ax + dx * i / steps);
         const cy = Math.round(ay + dy * i / steps);
         const tile = map.tiles[cy]?.[cx];
-        if (!tile || tile.type === 'Wall' || tile.type === 'TrickWall' || tile.type === 'Door') return false;
+        if (!tile || tile.type === 'Wall' || tile.type === 'TrickWall') return false;
+        if (tile.type === 'Door') {
+            if (openDoors.has(`${level},${cy},${cx}`)) continue;
+            const door = tile.objects.find((o): o is import('../types/game').DoorObject => o.category === 'Door');
+            if (doorBlocksVision(door?.doorType)) return false;
+        }
     }
     return true;
 }
@@ -1318,6 +1325,7 @@ export const useStore = create<GameState>((set) => ({
         const inv = state.championInventories[championId] ?? [];
         const item = inv.find(i => i.id === itemId);
         if (!item) return state;
+        if (!canEquipItemInSlot(item, slotKey)) return state;
         const curEquip = state.championEquipment[championId] ?? {};
         const displaced = curEquip[slotKey];
         const newInv = inv.filter(i => i.id !== itemId);
@@ -1422,23 +1430,24 @@ export const useStore = create<GameState>((set) => ({
         if (!vitals) return state;
         const champ = state.party.find(c => c.id === championId);
         if (!champ) return state;
+        const effective = getEffectiveChampionStats(champ, state.championEquipment[championId] ?? {});
 
         let newVitals = { ...vitals };
 
         if (item.category === 'Potion') {
             const def = POTION_TYPES[item.typeId];
             if (def?.restore !== undefined) {
-                if (def.effect === 'health')  newVitals.hp      = Math.min(champ.health,  vitals.hp      + def.restore);
-                if (def.effect === 'stamina') newVitals.stamina = Math.min(champ.stamina, vitals.stamina + def.restore);
-                if (def.effect === 'mana')    newVitals.mana    = Math.min(champ.mana,    vitals.mana    + def.restore);
+                if (def.effect === 'health')  newVitals.hp      = Math.min(effective.health,  vitals.hp      + def.restore);
+                if (def.effect === 'stamina') newVitals.stamina = Math.min(effective.stamina, vitals.stamina + def.restore);
+                if (def.effect === 'mana')    newVitals.mana    = Math.min(effective.mana,    vitals.mana    + def.restore);
                 if (def.effect === 'poison')  { /* clears poison — placeholder */ }
             }
         } else if (item.category === 'Misc') {
             const def = MISC_TYPES[item.typeId];
             if (def?.food && def.nutrition) {
-                newVitals.stamina = Math.min(champ.stamina, vitals.stamina + def.nutrition / 10);
+                newVitals.stamina = Math.min(effective.stamina, vitals.stamina + def.nutrition / 10);
             } else if (def?.food && item.typeId === 1) { // water
-                newVitals.stamina = Math.min(champ.stamina, vitals.stamina + 30);
+                newVitals.stamina = Math.min(effective.stamina, vitals.stamina + 30);
             }
         }
 
@@ -1702,14 +1711,15 @@ export const useStore = create<GameState>((set) => ({
         for (const champ of state.party) {
             const v = state.championVitals[champ.id];
             if (!v) continue;
-            const maxHP      = champ.health;
-            const maxStamina = champ.stamina;
-            const maxMana    = champ.mana;   // 0 for pure fighters
+            const effective = getEffectiveChampionStats(champ, state.championEquipment[champ.id] ?? {});
+            const maxHP      = effective.health;
+            const maxStamina = effective.stamina;
+            const maxMana    = effective.mana;
 
-            const nextHP      = maxHP      > v.hp      ? Math.min(maxHP,      v.hp      + champ.vitality / 600 * delta) : v.hp;
-            const nextStamina = maxStamina > v.stamina  ? Math.min(maxStamina, v.stamina + champ.vitality / 200 * delta) : v.stamina;
+            const nextHP      = maxHP      > v.hp      ? Math.min(maxHP,      v.hp      + effective.vitality / 600 * delta) : v.hp;
+            const nextStamina = maxStamina > v.stamina  ? Math.min(maxStamina, v.stamina + effective.vitality / 200 * delta) : v.stamina;
             const nextMana    = maxMana > 0 && maxMana > v.mana
-                ? Math.min(maxMana, v.mana + champ.wisdom / 150 * delta)
+                ? Math.min(maxMana, v.mana + effective.wisdom / 150 * delta)
                 : v.mana;
 
             if (nextHP !== v.hp || nextStamina !== v.stamina || nextMana !== v.mana) {
@@ -1760,8 +1770,9 @@ export const useStore = create<GameState>((set) => ({
         }
 
         // Damage
+        const effective = getEffectiveChampionStats(champion, state.championEquipment[championId]);
         const baseDmg = stats.dmgMin + Math.floor(Math.random() * (stats.dmgMax - stats.dmgMin + 1));
-        const strBonus = Math.floor(champion.strength / 10);
+        const strBonus = Math.floor(effective.strength / 10);
         const totalDmg = Math.max(1, baseDmg + strBonus); // party attacks creatures — no shield applies here
 
         const newHP = target.currentHP - totalDmg;
@@ -1955,7 +1966,7 @@ export const useStore = create<GameState>((set) => ({
             const dy   = py - c.y;
             const dist = Math.abs(dx) + Math.abs(dy);
             const adjacent = dist === 1;
-            const canSee   = dist <= 8 && hasLineOfSight(map, c.x, c.y, px, py);
+            const canSee   = dist <= 8 && hasLineOfSight(map, state.level, state.openDoors, c.x, c.y, px, py);
 
             let nx = c.x, ny = c.y;
 
@@ -2129,7 +2140,12 @@ export const useStore = create<GameState>((set) => ({
             const tile = map.tiles[ny]?.[nx];
             const doorKey = `${proj.level},${ny},${nx}`;
             const wallKey = `${proj.level},${ny},${nx}`;
-            if (!tile || tile.type === 'Wall' || (tile.type === 'TrickWall' && !state.openWalls.has(wallKey)) || (tile.type === 'Door' && !state.openDoors.has(doorKey))) {
+            const closedDoorBlocksProjectile = (() => {
+                if (!tile || tile.type !== 'Door' || state.openDoors.has(doorKey)) return false;
+                const door = tile.objects.find((o): o is import('../types/game').DoorObject => o.category === 'Door');
+                return doorBlocksThrownItems(door?.doorType);
+            })();
+            if (!tile || tile.type === 'Wall' || (tile.type === 'TrickWall' && !state.openWalls.has(wallKey)) || closedDoorBlocksProjectile) {
                 continue; // projectile absorbed by wall
             }
 

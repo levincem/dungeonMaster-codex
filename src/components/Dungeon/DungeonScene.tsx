@@ -609,6 +609,9 @@ const TileGrid: React.FC<{
                     const doorHasButton = renderType === 'Door'
                         ? (tile.objects.find(o => o.category === 'Door') as DoorObject | undefined)?.hasButton ?? false
                         : undefined;
+                    const doorType = renderType === 'Door'
+                        ? (tile.objects.find(o => o.category === 'Door') as DoorObject | undefined)?.doorType
+                        : undefined;
 
                     return (
                         <Cell
@@ -621,6 +624,7 @@ const TileGrid: React.FC<{
                             doorOpen={doorOpen}
                             doorOrientation={doorOrientation}
                             doorHasButton={doorHasButton}
+                            doorType={doorType}
                             onClick={(e) => onCellClick(e, renderType, x, y)}
                         />
                     );
@@ -653,6 +657,7 @@ export const DungeonScene = () => {
     const openMirror     = useStore(s => s.openMirror);
     const toggleDoor     = useStore(s => s.toggleDoor);
     const activateWallSensor = useStore(s => s.activateWallSensor);
+    const activeSensors  = useStore(s => s.activeSensors);
     const party          = useStore(s => s.party);
 
     const map = getGameMap(level);
@@ -718,7 +723,13 @@ export const DungeonScene = () => {
         for (const mech of getMapMechanisms(level)) {
             if (mech.support !== 'Wall') continue;
             if (mech.kind.includes('Levier')) {
-                add(mech.x, mech.y, mech.face, '/misc/levier_haut.png');
+                const matchingSensor = map.tiles[mech.y]?.[mech.x]?.objects.find(obj =>
+                    obj.category === 'Sensor' &&
+                    (obj as SensorObject).type === 2 &&
+                    (obj as SensorObject).tilePos === mech.face
+                ) as SensorObject | undefined;
+                const isActive = matchingSensor ? activeSensors.has(`${level}_${matchingSensor.index}`) : false;
+                add(mech.x, mech.y, mech.face, isActive ? '/misc/levier_bas.png' : '/misc/levier_haut.png');
             } else if (mech.kind.includes('Serrure')) {
                 add(mech.x, mech.y, mech.face, '/misc/serrure.png');
             } else if (mech.kind.includes('Alcôve')) {
@@ -745,24 +756,22 @@ export const DungeonScene = () => {
         }
 
         return decals;
-    }, [map, level]);
+    }, [map, level, activeSensors]);
 
     const pressurePlates = useMemo(() => {
+        const seen = new Set<string>();
         const plates: { tileX: number; tileY: number }[] = [];
-        for (const row of map.tiles) {
-            for (const tile of row) {
-                if (tile.type === 'Wall' || tile.type === 'Door') continue;
-                const has = tile.objects.some(o =>
-                    o.category === 'Sensor' &&
-                    !(o as SensorObject).isLocal &&
-                    (o as SensorObject).type !== 2 &&
-                    (o as SensorObject).type !== 127
-                );
-                if (has) plates.push({ tileX: tile.x, tileY: tile.y });
-            }
+        for (const mech of getMapMechanisms(level)) {
+            if (mech.support !== 'Floor' || !mech.kind.includes('Dalle')) continue;
+            const tile = map.tiles[mech.y]?.[mech.x];
+            if (!tile || tile.type === 'Wall' || tile.type === 'Door' || tile.type === 'Teleporter') continue;
+            const key = `${mech.x},${mech.y}`;
+            if (seen.has(key)) continue;
+            seen.add(key);
+            plates.push({ tileX: mech.x, tileY: mech.y });
         }
         return plates;
-    }, [map]);
+    }, [map, level]);
 
     const handleCellClick = useCallback((
         e: ThreeEvent<MouseEvent>, renderType: CellRenderType, x: number, y: number,
