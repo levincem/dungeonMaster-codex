@@ -1,0 +1,3612 @@
+{
+  "source": {
+    "rawPath": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0696.RAW1 [Unknown - Unknown Content (Words of data)].dat",
+    "generatedAt": "2026-04-06T13:35:32.402Z",
+    "byteLength": 9160,
+    "wordCount": 4580
+  },
+  "notes": [
+    "0696.RAW1 appears as a shared post-Atari block on PC DOS, Amiga 3.x, FM Towns, PC-98 and X68k mappings in sck.",
+    "This export is structural rather than fully semantic: it preserves section boundaries and 4-word record interpretations used during reverse engineering.",
+    "Values are little-endian 16-bit words from the PC DOS GRAPHICS.DAT extraction."
+  ],
+  "header": {
+    "firstWords": [
+      64525,
+      23,
+      1,
+      17,
+      400,
+      436,
+      120,
+      139,
+      700,
+      749,
+      800,
+      833,
+      850,
+      872,
+      3200,
+      3394,
+      2900,
+      2947,
+      2500,
+      2568,
+      3000,
+      3064,
+      1000,
+      1138,
+      1500,
+      1510,
+      2000,
+      2008,
+      3700,
+      3809,
+      1950,
+      1953,
+      450,
+      471,
+      100,
+      106,
+      500,
+      618,
+      150,
+      218,
+      220,
+      264,
+      75,
+      98,
+      65,
+      73,
+      110,
+      116,
+      9,
+      0,
+      320,
+      200,
+      1,
+      1,
+      0,
+      0,
+      9,
+      0,
+      224,
+      136,
+      1,
+      3,
+      0,
+      0
+    ]
+  },
+  "sectionPairs": [
+    {
+      "name": "A",
+      "ranges": [
+        {
+          "startWord": 400,
+          "endWord": 436,
+          "lengthWords": 37,
+          "rawWords": [
+            12,
+            4,
+            0,
+            9,
+            1,
+            3,
+            0,
+            0,
+            11,
+            4,
+            0,
+            0,
+            12,
+            4,
+            0,
+            0,
+            11,
+            4,
+            16,
+            27,
+            1,
+            4,
+            73,
+            27,
+            1,
+            4,
+            147,
+            27,
+            12,
+            4,
+            65520,
+            26,
+            2,
+            4,
+            91,
+            27,
+            1
+          ],
+          "records4": [
+            {
+              "wordIndex": 400,
+              "opcode": 12,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 9
+            },
+            {
+              "wordIndex": 404,
+              "opcode": 1,
+              "target": 3,
+              "targetDescription": "Interface - Main Menu Right Door",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 408,
+              "opcode": 11,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 412,
+              "opcode": 12,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 416,
+              "opcode": 11,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 16,
+              "y": 27
+            },
+            {
+              "wordIndex": 420,
+              "opcode": 1,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 73,
+              "y": 27
+            },
+            {
+              "wordIndex": 424,
+              "opcode": 1,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 147,
+              "y": 27
+            },
+            {
+              "wordIndex": 428,
+              "opcode": 12,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": -16,
+              "y": 26
+            },
+            {
+              "wordIndex": 432,
+              "opcode": 2,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 91,
+              "y": 27
+            }
+          ]
+        },
+        {
+          "startWord": 120,
+          "endWord": 139,
+          "lengthWords": 20,
+          "rawWords": [
+            1,
+            400,
+            0,
+            0,
+            9,
+            2,
+            96,
+            137,
+            1,
+            402,
+            224,
+            33,
+            9,
+            2,
+            320,
+            31,
+            1,
+            404,
+            0,
+            169
+          ],
+          "records4": [
+            {
+              "wordIndex": 120,
+              "opcode": 1,
+              "target": 400,
+              "targetDescription": "Floor ornate 03 (Front 2)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 124,
+              "opcode": 9,
+              "target": 2,
+              "targetDescription": "Interface - Main Menu Left Door",
+              "x": 96,
+              "y": 137
+            },
+            {
+              "wordIndex": 128,
+              "opcode": 1,
+              "target": 402,
+              "targetDescription": "Floor ornate 03 (Front 1)",
+              "x": 224,
+              "y": 33
+            },
+            {
+              "wordIndex": 132,
+              "opcode": 9,
+              "target": 2,
+              "targetDescription": "Interface - Main Menu Left Door",
+              "x": 320,
+              "y": 31
+            },
+            {
+              "wordIndex": 136,
+              "opcode": 1,
+              "target": 404,
+              "targetDescription": "Floor ornate 04 (Front 3)",
+              "x": 0,
+              "y": 169
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "B",
+      "ranges": [
+        {
+          "startWord": 700,
+          "endWord": 749,
+          "lengthWords": 50,
+          "rawWords": [
+            11,
+            4,
+            65535,
+            76,
+            15,
+            4,
+            0,
+            77,
+            12,
+            4,
+            1,
+            76,
+            11,
+            4,
+            65533,
+            94,
+            15,
+            4,
+            1,
+            94,
+            12,
+            4,
+            2,
+            94,
+            11,
+            4,
+            65532,
+            126,
+            15,
+            4,
+            0,
+            127,
+            12,
+            4,
+            0,
+            126,
+            11,
+            4,
+            0,
+            19,
+            15,
+            4,
+            0,
+            19,
+            12,
+            4,
+            0,
+            19,
+            11,
+            4
+          ],
+          "records4": [
+            {
+              "wordIndex": 700,
+              "opcode": 11,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": -1,
+              "y": 76
+            },
+            {
+              "wordIndex": 704,
+              "opcode": 15,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 77
+            },
+            {
+              "wordIndex": 708,
+              "opcode": 12,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 1,
+              "y": 76
+            },
+            {
+              "wordIndex": 712,
+              "opcode": 11,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": -3,
+              "y": 94
+            },
+            {
+              "wordIndex": 716,
+              "opcode": 15,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 1,
+              "y": 94
+            },
+            {
+              "wordIndex": 720,
+              "opcode": 12,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 2,
+              "y": 94
+            },
+            {
+              "wordIndex": 724,
+              "opcode": 11,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": -4,
+              "y": 126
+            },
+            {
+              "wordIndex": 728,
+              "opcode": 15,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 127
+            },
+            {
+              "wordIndex": 732,
+              "opcode": 12,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 126
+            },
+            {
+              "wordIndex": 736,
+              "opcode": 11,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 19
+            },
+            {
+              "wordIndex": 740,
+              "opcode": 15,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 19
+            },
+            {
+              "wordIndex": 744,
+              "opcode": 12,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 19
+            }
+          ]
+        },
+        {
+          "startWord": 800,
+          "endWord": 833,
+          "lengthWords": 34,
+          "rawWords": [
+            7,
+            4,
+            58,
+            72,
+            7,
+            4,
+            27,
+            72,
+            7,
+            4,
+            45,
+            72,
+            7,
+            4,
+            157,
+            68,
+            7,
+            4,
+            181,
+            67,
+            7,
+            4,
+            200,
+            72,
+            7,
+            4,
+            166,
+            72,
+            7,
+            4,
+            179,
+            72,
+            7,
+            4
+          ],
+          "records4": [
+            {
+              "wordIndex": 800,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 58,
+              "y": 72
+            },
+            {
+              "wordIndex": 804,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 27,
+              "y": 72
+            },
+            {
+              "wordIndex": 808,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 45,
+              "y": 72
+            },
+            {
+              "wordIndex": 812,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 157,
+              "y": 68
+            },
+            {
+              "wordIndex": 816,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 181,
+              "y": 67
+            },
+            {
+              "wordIndex": 820,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 200,
+              "y": 72
+            },
+            {
+              "wordIndex": 824,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 166,
+              "y": 72
+            },
+            {
+              "wordIndex": 828,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 179,
+              "y": 72
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "C",
+      "ranges": [
+        {
+          "startWord": 850,
+          "endWord": 872,
+          "lengthWords": 23,
+          "rawWords": [
+            65521,
+            72,
+            7,
+            4,
+            219,
+            68,
+            7,
+            4,
+            251,
+            70,
+            7,
+            4,
+            267,
+            70,
+            7,
+            4,
+            226,
+            70,
+            7,
+            4,
+            239,
+            72,
+            7
+          ],
+          "records4": [
+            {
+              "wordIndex": 850,
+              "opcode": 65521,
+              "target": 72,
+              "targetDescription": "Dungeon Graphics - Wall Mask (Left Side 2)",
+              "x": 7,
+              "y": 4
+            },
+            {
+              "wordIndex": 854,
+              "opcode": 219,
+              "target": 68,
+              "targetDescription": "Dungeon Graphics - Ceiling Pit (Left Side 0)",
+              "x": 7,
+              "y": 4
+            },
+            {
+              "wordIndex": 858,
+              "opcode": 251,
+              "target": 70,
+              "targetDescription": "Dungeon Graphics - Wall Mask (Left Side 3)",
+              "x": 7,
+              "y": 4
+            },
+            {
+              "wordIndex": 862,
+              "opcode": 267,
+              "target": 70,
+              "targetDescription": "Dungeon Graphics - Wall Mask (Left Side 3)",
+              "x": 7,
+              "y": 4
+            },
+            {
+              "wordIndex": 866,
+              "opcode": 226,
+              "target": 70,
+              "targetDescription": "Dungeon Graphics - Wall Mask (Left Side 3)",
+              "x": 7,
+              "y": 4
+            }
+          ]
+        },
+        {
+          "startWord": 3200,
+          "endWord": 3394,
+          "lengthWords": 195,
+          "rawWords": [
+            4,
+            136,
+            0,
+            16,
+            4,
+            136,
+            0,
+            31,
+            4,
+            136,
+            0,
+            46,
+            2,
+            136,
+            8,
+            0,
+            2,
+            136,
+            16,
+            0,
+            2,
+            136,
+            24,
+            0,
+            1,
+            136,
+            56,
+            0,
+            1,
+            136,
+            48,
+            0,
+            1,
+            136,
+            40,
+            0,
+            1,
+            137,
+            0,
+            1,
+            4,
+            137,
+            0,
+            22,
+            4,
+            137,
+            0,
+            44,
+            4,
+            137,
+            0,
+            66,
+            2,
+            137,
+            12,
+            0,
+            2,
+            137,
+            24,
+            0,
+            2,
+            137,
+            36,
+            0,
+            1,
+            137,
+            84,
+            0,
+            1,
+            137,
+            72,
+            0,
+            1,
+            137,
+            60,
+            0,
+            1,
+            138,
+            0,
+            1,
+            4,
+            138,
+            0,
+            22,
+            4,
+            138,
+            0,
+            44,
+            4,
+            138,
+            0,
+            66,
+            2,
+            138,
+            12,
+            0,
+            2,
+            138,
+            24,
+            0,
+            2,
+            138,
+            36,
+            0,
+            1,
+            138,
+            84,
+            0,
+            1,
+            138,
+            72,
+            0,
+            1,
+            138,
+            60,
+            0,
+            1,
+            139,
+            0,
+            1,
+            4,
+            139,
+            0,
+            22,
+            4,
+            139,
+            0,
+            44,
+            4,
+            139,
+            0,
+            66,
+            2,
+            139,
+            12,
+            0,
+            2,
+            139,
+            24,
+            0,
+            2,
+            139,
+            36,
+            0,
+            1,
+            139,
+            84,
+            0,
+            1,
+            139,
+            72,
+            0,
+            1,
+            139,
+            60,
+            0,
+            0,
+            4,
+            199,
+            41,
+            0,
+            4,
+            139,
+            43,
+            0,
+            4,
+            153,
+            45,
+            0,
+            4,
+            171,
+            48,
+            4,
+            4,
+            192,
+            7,
+            1,
+            4,
+            0,
+            51,
+            1,
+            4,
+            102,
+            89,
+            1,
+            4,
+            102,
+            62,
+            9,
+            4,
+            192,
+            17,
+            9,
+            4,
+            86
+          ],
+          "records4": [
+            {
+              "wordIndex": 3200,
+              "opcode": 4,
+              "target": 136,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 16
+            },
+            {
+              "wordIndex": 3204,
+              "opcode": 4,
+              "target": 136,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 31
+            },
+            {
+              "wordIndex": 3208,
+              "opcode": 4,
+              "target": 136,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 46
+            },
+            {
+              "wordIndex": 3212,
+              "opcode": 2,
+              "target": 136,
+              "targetDescription": "No Item Data",
+              "x": 8,
+              "y": 0
+            },
+            {
+              "wordIndex": 3216,
+              "opcode": 2,
+              "target": 136,
+              "targetDescription": "No Item Data",
+              "x": 16,
+              "y": 0
+            },
+            {
+              "wordIndex": 3220,
+              "opcode": 2,
+              "target": 136,
+              "targetDescription": "No Item Data",
+              "x": 24,
+              "y": 0
+            },
+            {
+              "wordIndex": 3224,
+              "opcode": 1,
+              "target": 136,
+              "targetDescription": "No Item Data",
+              "x": 56,
+              "y": 0
+            },
+            {
+              "wordIndex": 3228,
+              "opcode": 1,
+              "target": 136,
+              "targetDescription": "No Item Data",
+              "x": 48,
+              "y": 0
+            },
+            {
+              "wordIndex": 3232,
+              "opcode": 1,
+              "target": 136,
+              "targetDescription": "No Item Data",
+              "x": 40,
+              "y": 0
+            },
+            {
+              "wordIndex": 3236,
+              "opcode": 1,
+              "target": 137,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 1
+            },
+            {
+              "wordIndex": 3240,
+              "opcode": 4,
+              "target": 137,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 22
+            },
+            {
+              "wordIndex": 3244,
+              "opcode": 4,
+              "target": 137,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 44
+            },
+            {
+              "wordIndex": 3248,
+              "opcode": 4,
+              "target": 137,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 66
+            },
+            {
+              "wordIndex": 3252,
+              "opcode": 2,
+              "target": 137,
+              "targetDescription": "No Item Data",
+              "x": 12,
+              "y": 0
+            },
+            {
+              "wordIndex": 3256,
+              "opcode": 2,
+              "target": 137,
+              "targetDescription": "No Item Data",
+              "x": 24,
+              "y": 0
+            },
+            {
+              "wordIndex": 3260,
+              "opcode": 2,
+              "target": 137,
+              "targetDescription": "No Item Data",
+              "x": 36,
+              "y": 0
+            },
+            {
+              "wordIndex": 3264,
+              "opcode": 1,
+              "target": 137,
+              "targetDescription": "No Item Data",
+              "x": 84,
+              "y": 0
+            },
+            {
+              "wordIndex": 3268,
+              "opcode": 1,
+              "target": 137,
+              "targetDescription": "No Item Data",
+              "x": 72,
+              "y": 0
+            },
+            {
+              "wordIndex": 3272,
+              "opcode": 1,
+              "target": 137,
+              "targetDescription": "No Item Data",
+              "x": 60,
+              "y": 0
+            },
+            {
+              "wordIndex": 3276,
+              "opcode": 1,
+              "target": 138,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 1
+            },
+            {
+              "wordIndex": 3280,
+              "opcode": 4,
+              "target": 138,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 22
+            },
+            {
+              "wordIndex": 3284,
+              "opcode": 4,
+              "target": 138,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 44
+            },
+            {
+              "wordIndex": 3288,
+              "opcode": 4,
+              "target": 138,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 66
+            },
+            {
+              "wordIndex": 3292,
+              "opcode": 2,
+              "target": 138,
+              "targetDescription": "No Item Data",
+              "x": 12,
+              "y": 0
+            },
+            {
+              "wordIndex": 3296,
+              "opcode": 2,
+              "target": 138,
+              "targetDescription": "No Item Data",
+              "x": 24,
+              "y": 0
+            },
+            {
+              "wordIndex": 3300,
+              "opcode": 2,
+              "target": 138,
+              "targetDescription": "No Item Data",
+              "x": 36,
+              "y": 0
+            },
+            {
+              "wordIndex": 3304,
+              "opcode": 1,
+              "target": 138,
+              "targetDescription": "No Item Data",
+              "x": 84,
+              "y": 0
+            },
+            {
+              "wordIndex": 3308,
+              "opcode": 1,
+              "target": 138,
+              "targetDescription": "No Item Data",
+              "x": 72,
+              "y": 0
+            },
+            {
+              "wordIndex": 3312,
+              "opcode": 1,
+              "target": 138,
+              "targetDescription": "No Item Data",
+              "x": 60,
+              "y": 0
+            },
+            {
+              "wordIndex": 3316,
+              "opcode": 1,
+              "target": 139,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 1
+            },
+            {
+              "wordIndex": 3320,
+              "opcode": 4,
+              "target": 139,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 22
+            },
+            {
+              "wordIndex": 3324,
+              "opcode": 4,
+              "target": 139,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 44
+            },
+            {
+              "wordIndex": 3328,
+              "opcode": 4,
+              "target": 139,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 66
+            },
+            {
+              "wordIndex": 3332,
+              "opcode": 2,
+              "target": 139,
+              "targetDescription": "No Item Data",
+              "x": 12,
+              "y": 0
+            },
+            {
+              "wordIndex": 3336,
+              "opcode": 2,
+              "target": 139,
+              "targetDescription": "No Item Data",
+              "x": 24,
+              "y": 0
+            },
+            {
+              "wordIndex": 3340,
+              "opcode": 2,
+              "target": 139,
+              "targetDescription": "No Item Data",
+              "x": 36,
+              "y": 0
+            },
+            {
+              "wordIndex": 3344,
+              "opcode": 1,
+              "target": 139,
+              "targetDescription": "No Item Data",
+              "x": 84,
+              "y": 0
+            },
+            {
+              "wordIndex": 3348,
+              "opcode": 1,
+              "target": 139,
+              "targetDescription": "No Item Data",
+              "x": 72,
+              "y": 0
+            },
+            {
+              "wordIndex": 3352,
+              "opcode": 1,
+              "target": 139,
+              "targetDescription": "No Item Data",
+              "x": 60,
+              "y": 0
+            },
+            {
+              "wordIndex": 3356,
+              "opcode": 0,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 199,
+              "y": 41
+            },
+            {
+              "wordIndex": 3360,
+              "opcode": 0,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 139,
+              "y": 43
+            },
+            {
+              "wordIndex": 3364,
+              "opcode": 0,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 153,
+              "y": 45
+            },
+            {
+              "wordIndex": 3368,
+              "opcode": 0,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 171,
+              "y": 48
+            },
+            {
+              "wordIndex": 3372,
+              "opcode": 4,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 192,
+              "y": 7
+            },
+            {
+              "wordIndex": 3376,
+              "opcode": 1,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 51
+            },
+            {
+              "wordIndex": 3380,
+              "opcode": 1,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 102,
+              "y": 89
+            },
+            {
+              "wordIndex": 3384,
+              "opcode": 1,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 102,
+              "y": 62
+            },
+            {
+              "wordIndex": 3388,
+              "opcode": 9,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 192,
+              "y": 17
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "D",
+      "ranges": [
+        {
+          "startWord": 2900,
+          "endWord": 2947,
+          "lengthWords": 48,
+          "rawWords": [
+            10,
+            125,
+            0,
+            0,
+            17,
+            123,
+            6,
+            65535,
+            17,
+            124,
+            8,
+            65528,
+            17,
+            125,
+            12,
+            65528,
+            1,
+            129,
+            0,
+            0,
+            4,
+            129,
+            0,
+            10,
+            4,
+            129,
+            0,
+            20,
+            4,
+            129,
+            0,
+            30,
+            2,
+            129,
+            6,
+            0,
+            2,
+            129,
+            12,
+            0,
+            2,
+            129,
+            18,
+            0,
+            1,
+            129,
+            42,
+            0
+          ],
+          "records4": [
+            {
+              "wordIndex": 2900,
+              "opcode": 10,
+              "target": 125,
+              "targetDescription": "Dungeon Graphics - Stairs (Side 1)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 2904,
+              "opcode": 17,
+              "target": 123,
+              "targetDescription": "Dungeon Graphics - Stairs Up (Side 2 Left)",
+              "x": 6,
+              "y": -1
+            },
+            {
+              "wordIndex": 2908,
+              "opcode": 17,
+              "target": 124,
+              "targetDescription": "Dungeon Graphics - Stairs Down (Side 2 Left)",
+              "x": 8,
+              "y": -8
+            },
+            {
+              "wordIndex": 2912,
+              "opcode": 17,
+              "target": 125,
+              "targetDescription": "Dungeon Graphics - Stairs (Side 1)",
+              "x": 12,
+              "y": -8
+            },
+            {
+              "wordIndex": 2916,
+              "opcode": 1,
+              "target": 129,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 2920,
+              "opcode": 4,
+              "target": 129,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 10
+            },
+            {
+              "wordIndex": 2924,
+              "opcode": 4,
+              "target": 129,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 20
+            },
+            {
+              "wordIndex": 2928,
+              "opcode": 4,
+              "target": 129,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 30
+            },
+            {
+              "wordIndex": 2932,
+              "opcode": 2,
+              "target": 129,
+              "targetDescription": "No Item Data",
+              "x": 6,
+              "y": 0
+            },
+            {
+              "wordIndex": 2936,
+              "opcode": 2,
+              "target": 129,
+              "targetDescription": "No Item Data",
+              "x": 12,
+              "y": 0
+            },
+            {
+              "wordIndex": 2940,
+              "opcode": 2,
+              "target": 129,
+              "targetDescription": "No Item Data",
+              "x": 18,
+              "y": 0
+            },
+            {
+              "wordIndex": 2944,
+              "opcode": 1,
+              "target": 129,
+              "targetDescription": "No Item Data",
+              "x": 42,
+              "y": 0
+            }
+          ]
+        },
+        {
+          "startWord": 2500,
+          "endWord": 2568,
+          "lengthWords": 69,
+          "rawWords": [
+            0,
+            4,
+            180,
+            56,
+            0,
+            4,
+            72,
+            58,
+            0,
+            4,
+            151,
+            58,
+            0,
+            4,
+            11,
+            65,
+            0,
+            4,
+            113,
+            65,
+            0,
+            4,
+            215,
+            65,
+            0,
+            4,
+            56,
+            67,
+            0,
+            4,
+            168,
+            67,
+            0,
+            4,
+            112,
+            78,
+            0,
+            4,
+            22,
+            42,
+            0,
+            4,
+            202,
+            43,
+            0,
+            4,
+            83,
+            42,
+            0,
+            4,
+            141,
+            42,
+            0,
+            4,
+            43,
+            43,
+            0,
+            4,
+            113,
+            42,
+            0,
+            4,
+            182,
+            43,
+            0,
+            4,
+            68,
+            44,
+            0
+          ],
+          "records4": [
+            {
+              "wordIndex": 2500,
+              "opcode": 0,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 180,
+              "y": 56
+            },
+            {
+              "wordIndex": 2504,
+              "opcode": 0,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 72,
+              "y": 58
+            },
+            {
+              "wordIndex": 2508,
+              "opcode": 0,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 151,
+              "y": 58
+            },
+            {
+              "wordIndex": 2512,
+              "opcode": 0,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 11,
+              "y": 65
+            },
+            {
+              "wordIndex": 2516,
+              "opcode": 0,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 113,
+              "y": 65
+            },
+            {
+              "wordIndex": 2520,
+              "opcode": 0,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 215,
+              "y": 65
+            },
+            {
+              "wordIndex": 2524,
+              "opcode": 0,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 56,
+              "y": 67
+            },
+            {
+              "wordIndex": 2528,
+              "opcode": 0,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 168,
+              "y": 67
+            },
+            {
+              "wordIndex": 2532,
+              "opcode": 0,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 112,
+              "y": 78
+            },
+            {
+              "wordIndex": 2536,
+              "opcode": 0,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 22,
+              "y": 42
+            },
+            {
+              "wordIndex": 2540,
+              "opcode": 0,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 202,
+              "y": 43
+            },
+            {
+              "wordIndex": 2544,
+              "opcode": 0,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 83,
+              "y": 42
+            },
+            {
+              "wordIndex": 2548,
+              "opcode": 0,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 141,
+              "y": 42
+            },
+            {
+              "wordIndex": 2552,
+              "opcode": 0,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 43,
+              "y": 43
+            },
+            {
+              "wordIndex": 2556,
+              "opcode": 0,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 113,
+              "y": 42
+            },
+            {
+              "wordIndex": 2560,
+              "opcode": 0,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 182,
+              "y": 43
+            },
+            {
+              "wordIndex": 2564,
+              "opcode": 0,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 68,
+              "y": 44
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "E",
+      "ranges": [
+        {
+          "startWord": 3000,
+          "endWord": 3064,
+          "lengthWords": 65,
+          "rawWords": [
+            4,
+            131,
+            0,
+            10,
+            4,
+            131,
+            0,
+            20,
+            4,
+            131,
+            0,
+            30,
+            2,
+            131,
+            6,
+            0,
+            2,
+            131,
+            12,
+            0,
+            2,
+            131,
+            18,
+            0,
+            1,
+            131,
+            42,
+            0,
+            1,
+            131,
+            36,
+            0,
+            1,
+            131,
+            30,
+            0,
+            1,
+            132,
+            0,
+            1,
+            4,
+            132,
+            0,
+            10,
+            4,
+            132,
+            0,
+            20,
+            4,
+            132,
+            0,
+            30,
+            2,
+            132,
+            6,
+            0,
+            2,
+            132,
+            12,
+            0,
+            2,
+            132,
+            18,
+            0,
+            1
+          ],
+          "records4": [
+            {
+              "wordIndex": 3000,
+              "opcode": 4,
+              "target": 131,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 10
+            },
+            {
+              "wordIndex": 3004,
+              "opcode": 4,
+              "target": 131,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 20
+            },
+            {
+              "wordIndex": 3008,
+              "opcode": 4,
+              "target": 131,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 30
+            },
+            {
+              "wordIndex": 3012,
+              "opcode": 2,
+              "target": 131,
+              "targetDescription": "No Item Data",
+              "x": 6,
+              "y": 0
+            },
+            {
+              "wordIndex": 3016,
+              "opcode": 2,
+              "target": 131,
+              "targetDescription": "No Item Data",
+              "x": 12,
+              "y": 0
+            },
+            {
+              "wordIndex": 3020,
+              "opcode": 2,
+              "target": 131,
+              "targetDescription": "No Item Data",
+              "x": 18,
+              "y": 0
+            },
+            {
+              "wordIndex": 3024,
+              "opcode": 1,
+              "target": 131,
+              "targetDescription": "No Item Data",
+              "x": 42,
+              "y": 0
+            },
+            {
+              "wordIndex": 3028,
+              "opcode": 1,
+              "target": 131,
+              "targetDescription": "No Item Data",
+              "x": 36,
+              "y": 0
+            },
+            {
+              "wordIndex": 3032,
+              "opcode": 1,
+              "target": 131,
+              "targetDescription": "No Item Data",
+              "x": 30,
+              "y": 0
+            },
+            {
+              "wordIndex": 3036,
+              "opcode": 1,
+              "target": 132,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 1
+            },
+            {
+              "wordIndex": 3040,
+              "opcode": 4,
+              "target": 132,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 10
+            },
+            {
+              "wordIndex": 3044,
+              "opcode": 4,
+              "target": 132,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 20
+            },
+            {
+              "wordIndex": 3048,
+              "opcode": 4,
+              "target": 132,
+              "targetDescription": "No Item Data",
+              "x": 0,
+              "y": 30
+            },
+            {
+              "wordIndex": 3052,
+              "opcode": 2,
+              "target": 132,
+              "targetDescription": "No Item Data",
+              "x": 6,
+              "y": 0
+            },
+            {
+              "wordIndex": 3056,
+              "opcode": 2,
+              "target": 132,
+              "targetDescription": "No Item Data",
+              "x": 12,
+              "y": 0
+            },
+            {
+              "wordIndex": 3060,
+              "opcode": 2,
+              "target": 132,
+              "targetDescription": "No Item Data",
+              "x": 18,
+              "y": 0
+            }
+          ]
+        },
+        {
+          "startWord": 1000,
+          "endWord": 1138,
+          "lengthWords": 139,
+          "rawWords": [
+            7,
+            4,
+            0,
+            0,
+            7,
+            4,
+            0,
+            0,
+            7,
+            4,
+            0,
+            0,
+            7,
+            4,
+            256,
+            135,
+            7,
+            4,
+            0,
+            0,
+            7,
+            4,
+            0,
+            0,
+            7,
+            4,
+            0,
+            0,
+            7,
+            4,
+            0,
+            0,
+            7,
+            4,
+            94,
+            73,
+            7,
+            4,
+            128,
+            73,
+            7,
+            4,
+            112,
+            70,
+            7,
+            4,
+            112,
+            70,
+            7,
+            4,
+            112,
+            73,
+            7,
+            4,
+            28,
+            73,
+            7,
+            4,
+            58,
+            73,
+            7,
+            4,
+            49,
+            70,
+            7,
+            4,
+            45,
+            70,
+            7,
+            4,
+            49,
+            73,
+            7,
+            4,
+            166,
+            73,
+            7,
+            4,
+            198,
+            73,
+            7,
+            4,
+            175,
+            70,
+            7,
+            4,
+            179,
+            70,
+            7,
+            4,
+            178,
+            73,
+            7,
+            4,
+            65496,
+            75,
+            7,
+            4,
+            65534,
+            73,
+            7,
+            4,
+            65525,
+            70,
+            7,
+            4,
+            65521,
+            70,
+            7,
+            4,
+            65526,
+            70,
+            7,
+            4,
+            226,
+            73,
+            7,
+            4,
+            264,
+            75,
+            7,
+            4,
+            235,
+            70,
+            7,
+            4,
+            239,
+            70,
+            7,
+            4,
+            233,
+            73,
+            7,
+            4,
+            91,
+            90,
+            7,
+            4,
+            132
+          ],
+          "records4": [
+            {
+              "wordIndex": 1000,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 1004,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 1008,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 1012,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 256,
+              "y": 135
+            },
+            {
+              "wordIndex": 1016,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 1020,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 1024,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 1028,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 1032,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 94,
+              "y": 73
+            },
+            {
+              "wordIndex": 1036,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 128,
+              "y": 73
+            },
+            {
+              "wordIndex": 1040,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 112,
+              "y": 70
+            },
+            {
+              "wordIndex": 1044,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 112,
+              "y": 70
+            },
+            {
+              "wordIndex": 1048,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 112,
+              "y": 73
+            },
+            {
+              "wordIndex": 1052,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 28,
+              "y": 73
+            },
+            {
+              "wordIndex": 1056,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 58,
+              "y": 73
+            },
+            {
+              "wordIndex": 1060,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 49,
+              "y": 70
+            },
+            {
+              "wordIndex": 1064,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 45,
+              "y": 70
+            },
+            {
+              "wordIndex": 1068,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 49,
+              "y": 73
+            },
+            {
+              "wordIndex": 1072,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 166,
+              "y": 73
+            },
+            {
+              "wordIndex": 1076,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 198,
+              "y": 73
+            },
+            {
+              "wordIndex": 1080,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 175,
+              "y": 70
+            },
+            {
+              "wordIndex": 1084,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 179,
+              "y": 70
+            },
+            {
+              "wordIndex": 1088,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 178,
+              "y": 73
+            },
+            {
+              "wordIndex": 1092,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": -40,
+              "y": 75
+            },
+            {
+              "wordIndex": 1096,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": -2,
+              "y": 73
+            },
+            {
+              "wordIndex": 1100,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": -11,
+              "y": 70
+            },
+            {
+              "wordIndex": 1104,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": -15,
+              "y": 70
+            },
+            {
+              "wordIndex": 1108,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": -10,
+              "y": 70
+            },
+            {
+              "wordIndex": 1112,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 226,
+              "y": 73
+            },
+            {
+              "wordIndex": 1116,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 264,
+              "y": 75
+            },
+            {
+              "wordIndex": 1120,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 235,
+              "y": 70
+            },
+            {
+              "wordIndex": 1124,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 239,
+              "y": 70
+            },
+            {
+              "wordIndex": 1128,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 233,
+              "y": 73
+            },
+            {
+              "wordIndex": 1132,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 91,
+              "y": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "F",
+      "ranges": [
+        {
+          "startWord": 1500,
+          "endWord": 1510,
+          "lengthWords": 11,
+          "rawWords": [
+            7,
+            4,
+            321,
+            85,
+            7,
+            4,
+            223,
+            85,
+            7,
+            4,
+            244
+          ],
+          "records4": [
+            {
+              "wordIndex": 1500,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 321,
+              "y": 85
+            },
+            {
+              "wordIndex": 1504,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 223,
+              "y": 85
+            }
+          ]
+        },
+        {
+          "startWord": 2000,
+          "endWord": 2008,
+          "lengthWords": 9,
+          "rawWords": [
+            7,
+            4,
+            181,
+            62,
+            7,
+            4,
+            114,
+            74,
+            7
+          ],
+          "records4": [
+            {
+              "wordIndex": 2000,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 181,
+              "y": 62
+            },
+            {
+              "wordIndex": 2004,
+              "opcode": 7,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 114,
+              "y": 74
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "G",
+      "ranges": [
+        {
+          "startWord": 3700,
+          "endWord": 3809,
+          "lengthWords": 110,
+          "rawWords": [
+            4,
+            4,
+            3,
+            7,
+            4,
+            4,
+            104,
+            132,
+            3,
+            4,
+            218,
+            132,
+            4,
+            101,
+            28,
+            7,
+            4,
+            101,
+            28,
+            6,
+            4,
+            101,
+            28,
+            34,
+            4,
+            101,
+            94,
+            34,
+            0,
+            101,
+            84,
+            35,
+            9,
+            4,
+            11,
+            11,
+            1,
+            561,
+            179,
+            2,
+            9,
+            4,
+            19,
+            11,
+            1,
+            563,
+            190,
+            2,
+            9,
+            4,
+            11,
+            11,
+            1,
+            565,
+            209,
+            2,
+            9,
+            4,
+            9,
+            9,
+            1,
+            567,
+            168,
+            3,
+            9,
+            101,
+            55,
+            57,
+            1,
+            569,
+            24,
+            1,
+            1,
+            569,
+            83,
+            1,
+            9,
+            101,
+            114,
+            11,
+            1,
+            572,
+            24,
+            61,
+            4,
+            101,
+            97,
+            6,
+            4,
+            101,
+            25,
+            25,
+            9,
+            101,
+            69,
+            9,
+            1,
+            576,
+            27,
+            62,
+            9,
+            101,
+            19,
+            9,
+            1,
+            578,
+            117,
+            62,
+            9,
+            101
+          ],
+          "records4": [
+            {
+              "wordIndex": 3700,
+              "opcode": 4,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 3,
+              "y": 7
+            },
+            {
+              "wordIndex": 3704,
+              "opcode": 4,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 104,
+              "y": 132
+            },
+            {
+              "wordIndex": 3708,
+              "opcode": 3,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 218,
+              "y": 132
+            },
+            {
+              "wordIndex": 3712,
+              "opcode": 4,
+              "target": 101,
+              "targetDescription": "Dungeon Graphics - Wall (Left Side 2)",
+              "x": 28,
+              "y": 7
+            },
+            {
+              "wordIndex": 3716,
+              "opcode": 4,
+              "target": 101,
+              "targetDescription": "Dungeon Graphics - Wall (Left Side 2)",
+              "x": 28,
+              "y": 6
+            },
+            {
+              "wordIndex": 3720,
+              "opcode": 4,
+              "target": 101,
+              "targetDescription": "Dungeon Graphics - Wall (Left Side 2)",
+              "x": 28,
+              "y": 34
+            },
+            {
+              "wordIndex": 3724,
+              "opcode": 4,
+              "target": 101,
+              "targetDescription": "Dungeon Graphics - Wall (Left Side 2)",
+              "x": 94,
+              "y": 34
+            },
+            {
+              "wordIndex": 3728,
+              "opcode": 0,
+              "target": 101,
+              "targetDescription": "Dungeon Graphics - Wall (Left Side 2)",
+              "x": 84,
+              "y": 35
+            },
+            {
+              "wordIndex": 3732,
+              "opcode": 9,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 11,
+              "y": 11
+            },
+            {
+              "wordIndex": 3736,
+              "opcode": 1,
+              "target": 561,
+              "targetDescription": "Item on floor 63",
+              "x": 179,
+              "y": 2
+            },
+            {
+              "wordIndex": 3740,
+              "opcode": 9,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 19,
+              "y": 11
+            },
+            {
+              "wordIndex": 3744,
+              "opcode": 1,
+              "target": 563,
+              "targetDescription": "Item on floor 65",
+              "x": 190,
+              "y": 2
+            },
+            {
+              "wordIndex": 3748,
+              "opcode": 9,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 11,
+              "y": 11
+            },
+            {
+              "wordIndex": 3752,
+              "opcode": 1,
+              "target": 565,
+              "targetDescription": "Item on floor 67",
+              "x": 209,
+              "y": 2
+            },
+            {
+              "wordIndex": 3756,
+              "opcode": 9,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 9,
+              "y": 9
+            },
+            {
+              "wordIndex": 3760,
+              "opcode": 1,
+              "target": 567,
+              "targetDescription": "Item on floor 69",
+              "x": 168,
+              "y": 3
+            },
+            {
+              "wordIndex": 3764,
+              "opcode": 9,
+              "target": 101,
+              "targetDescription": "Dungeon Graphics - Wall (Left Side 2)",
+              "x": 55,
+              "y": 57
+            },
+            {
+              "wordIndex": 3768,
+              "opcode": 1,
+              "target": 569,
+              "targetDescription": "Item on floor 71",
+              "x": 24,
+              "y": 1
+            },
+            {
+              "wordIndex": 3772,
+              "opcode": 1,
+              "target": 569,
+              "targetDescription": "Item on floor 71",
+              "x": 83,
+              "y": 1
+            },
+            {
+              "wordIndex": 3776,
+              "opcode": 9,
+              "target": 101,
+              "targetDescription": "Dungeon Graphics - Wall (Left Side 2)",
+              "x": 114,
+              "y": 11
+            },
+            {
+              "wordIndex": 3780,
+              "opcode": 1,
+              "target": 572,
+              "targetDescription": "Item on floor 74",
+              "x": 24,
+              "y": 61
+            },
+            {
+              "wordIndex": 3784,
+              "opcode": 4,
+              "target": 101,
+              "targetDescription": "Dungeon Graphics - Wall (Left Side 2)",
+              "x": 97,
+              "y": 6
+            },
+            {
+              "wordIndex": 3788,
+              "opcode": 4,
+              "target": 101,
+              "targetDescription": "Dungeon Graphics - Wall (Left Side 2)",
+              "x": 25,
+              "y": 25
+            },
+            {
+              "wordIndex": 3792,
+              "opcode": 9,
+              "target": 101,
+              "targetDescription": "Dungeon Graphics - Wall (Left Side 2)",
+              "x": 69,
+              "y": 9
+            },
+            {
+              "wordIndex": 3796,
+              "opcode": 1,
+              "target": 576,
+              "targetDescription": "Item on floor 78",
+              "x": 27,
+              "y": 62
+            },
+            {
+              "wordIndex": 3800,
+              "opcode": 9,
+              "target": 101,
+              "targetDescription": "Dungeon Graphics - Wall (Left Side 2)",
+              "x": 19,
+              "y": 9
+            },
+            {
+              "wordIndex": 3804,
+              "opcode": 1,
+              "target": 578,
+              "targetDescription": "Item on floor 80",
+              "x": 117,
+              "y": 62
+            }
+          ]
+        },
+        {
+          "startWord": 1950,
+          "endWord": 1953,
+          "lengthWords": 4,
+          "rawWords": [
+            115,
+            74,
+            7,
+            4
+          ],
+          "records4": [
+            {
+              "wordIndex": 1950,
+              "opcode": 115,
+              "target": 74,
+              "targetDescription": "Dungeon Graphics - Wall Mask (Left Front 1)",
+              "x": 7,
+              "y": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "H",
+      "ranges": [
+        {
+          "startWord": 450,
+          "endWord": 471,
+          "lengthWords": 22,
+          "rawWords": [
+            68,
+            13,
+            1,
+            4,
+            155,
+            13,
+            15,
+            4,
+            0,
+            0,
+            11,
+            4,
+            6,
+            22,
+            15,
+            4,
+            0,
+            21,
+            12,
+            4,
+            6,
+            22
+          ],
+          "records4": [
+            {
+              "wordIndex": 450,
+              "opcode": 68,
+              "target": 13,
+              "targetDescription": "Interface - Movement Arrows",
+              "x": 1,
+              "y": 4
+            },
+            {
+              "wordIndex": 454,
+              "opcode": 155,
+              "target": 13,
+              "targetDescription": "Interface - Movement Arrows",
+              "x": 15,
+              "y": 4
+            },
+            {
+              "wordIndex": 458,
+              "opcode": 0,
+              "target": 0,
+              "targetDescription": "Interface - Dialog Box",
+              "x": 11,
+              "y": 4
+            },
+            {
+              "wordIndex": 462,
+              "opcode": 6,
+              "target": 22,
+              "targetDescription": "Empty image 16x4",
+              "x": 15,
+              "y": 4
+            },
+            {
+              "wordIndex": 466,
+              "opcode": 0,
+              "target": 21,
+              "targetDescription": "No Item Data",
+              "x": 12,
+              "y": 4
+            }
+          ]
+        },
+        {
+          "startWord": 100,
+          "endWord": 106,
+          "lengthWords": 7,
+          "rawWords": [
+            9,
+            2,
+            320,
+            27,
+            4,
+            14,
+            0
+          ],
+          "records4": [
+            {
+              "wordIndex": 100,
+              "opcode": 9,
+              "target": 2,
+              "targetDescription": "Interface - Main Menu Left Door",
+              "x": 320,
+              "y": 27
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "I",
+      "ranges": [
+        {
+          "startWord": 500,
+          "endWord": 618,
+          "lengthWords": 119,
+          "rawWords": [
+            9,
+            4,
+            72,
+            26,
+            3,
+            738,
+            111,
+            135,
+            4,
+            738,
+            112,
+            135,
+            4,
+            739,
+            112,
+            114,
+            3,
+            739,
+            111,
+            114,
+            9,
+            4,
+            80,
+            56,
+            2,
+            744,
+            111,
+            14,
+            1,
+            744,
+            112,
+            14,
+            9,
+            4,
+            48,
+            56,
+            2,
+            747,
+            111,
+            14,
+            1,
+            747,
+            112,
+            14,
+            11,
+            4,
+            0,
+            25,
+            12,
+            4,
+            0,
+            25,
+            11,
+            4,
+            14,
+            26,
+            15,
+            4,
+            0,
+            25,
+            12,
+            4,
+            65522,
+            26,
+            11,
+            4,
+            65535,
+            24,
+            15,
+            4,
+            0,
+            20,
+            12,
+            4,
+            1,
+            20,
+            11,
+            4,
+            0,
+            9,
+            15,
+            4,
+            0,
+            9,
+            12,
+            4,
+            0,
+            9,
+            11,
+            4,
+            0,
+            58,
+            12,
+            4,
+            0,
+            58,
+            11,
+            4,
+            0,
+            25,
+            12,
+            4,
+            0,
+            25,
+            11,
+            4,
+            13,
+            28,
+            15,
+            4,
+            0,
+            25,
+            12,
+            4,
+            65520,
+            28,
+            11,
+            4,
+            0
+          ],
+          "records4": [
+            {
+              "wordIndex": 500,
+              "opcode": 9,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 72,
+              "y": 26
+            },
+            {
+              "wordIndex": 504,
+              "opcode": 3,
+              "target": 738,
+              "targetDescription": "Interface - Main Menu Screen (German)",
+              "x": 111,
+              "y": 135
+            },
+            {
+              "wordIndex": 508,
+              "opcode": 4,
+              "target": 738,
+              "targetDescription": "Interface - Main Menu Screen (German)",
+              "x": 112,
+              "y": 135
+            },
+            {
+              "wordIndex": 512,
+              "opcode": 4,
+              "target": 739,
+              "targetDescription": "Interface - 'Ende' Label",
+              "x": 112,
+              "y": 114
+            },
+            {
+              "wordIndex": 516,
+              "opcode": 3,
+              "target": 739,
+              "targetDescription": "Interface - 'Ende' Label",
+              "x": 111,
+              "y": 114
+            },
+            {
+              "wordIndex": 520,
+              "opcode": 9,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 80,
+              "y": 56
+            },
+            {
+              "wordIndex": 524,
+              "opcode": 2,
+              "target": 744,
+              "targetDescription": "Interface - Character Sheet - Resurrect And Reincarnate (German)",
+              "x": 111,
+              "y": 14
+            },
+            {
+              "wordIndex": 528,
+              "opcode": 1,
+              "target": 744,
+              "targetDescription": "Interface - Character Sheet - Resurrect And Reincarnate (German)",
+              "x": 112,
+              "y": 14
+            },
+            {
+              "wordIndex": 532,
+              "opcode": 9,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 48,
+              "y": 56
+            },
+            {
+              "wordIndex": 536,
+              "opcode": 2,
+              "target": 747,
+              "targetDescription": "Miscellaneous Texts (German)",
+              "x": 111,
+              "y": 14
+            },
+            {
+              "wordIndex": 540,
+              "opcode": 1,
+              "target": 747,
+              "targetDescription": "Miscellaneous Texts (German)",
+              "x": 112,
+              "y": 14
+            },
+            {
+              "wordIndex": 544,
+              "opcode": 11,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 25
+            },
+            {
+              "wordIndex": 548,
+              "opcode": 12,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 25
+            },
+            {
+              "wordIndex": 552,
+              "opcode": 11,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 14,
+              "y": 26
+            },
+            {
+              "wordIndex": 556,
+              "opcode": 15,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 25
+            },
+            {
+              "wordIndex": 560,
+              "opcode": 12,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": -14,
+              "y": 26
+            },
+            {
+              "wordIndex": 564,
+              "opcode": 11,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": -1,
+              "y": 24
+            },
+            {
+              "wordIndex": 568,
+              "opcode": 15,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 20
+            },
+            {
+              "wordIndex": 572,
+              "opcode": 12,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 1,
+              "y": 20
+            },
+            {
+              "wordIndex": 576,
+              "opcode": 11,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 9
+            },
+            {
+              "wordIndex": 580,
+              "opcode": 15,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 9
+            },
+            {
+              "wordIndex": 584,
+              "opcode": 12,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 9
+            },
+            {
+              "wordIndex": 588,
+              "opcode": 11,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 58
+            },
+            {
+              "wordIndex": 592,
+              "opcode": 12,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 58
+            },
+            {
+              "wordIndex": 596,
+              "opcode": 11,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 25
+            },
+            {
+              "wordIndex": 600,
+              "opcode": 12,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 25
+            },
+            {
+              "wordIndex": 604,
+              "opcode": 11,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 13,
+              "y": 28
+            },
+            {
+              "wordIndex": 608,
+              "opcode": 15,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 25
+            },
+            {
+              "wordIndex": 612,
+              "opcode": 12,
+              "target": 4,
+              "targetDescription": "Interface - Main Menu Screen (English)",
+              "x": -16,
+              "y": 28
+            }
+          ]
+        },
+        {
+          "startWord": 150,
+          "endWord": 218,
+          "lengthWords": 69,
+          "rawWords": [
+            55,
+            18,
+            1,
+            408,
+            244,
+            76,
+            9,
+            2,
+            46,
+            14,
+            4,
+            410,
+            248,
+            199,
+            1,
+            2,
+            19,
+            7,
+            1,
+            2,
+            19,
+            55,
+            1,
+            2,
+            19,
+            103,
+            1,
+            2,
+            19,
+            151,
+            1,
+            412,
+            8,
+            6,
+            1,
+            413,
+            8,
+            6,
+            1,
+            414,
+            8,
+            6,
+            1,
+            415,
+            8,
+            6,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            10,
+            2,
+            0,
+            0,
+            10,
+            2,
+            0
+          ],
+          "records4": [
+            {
+              "wordIndex": 150,
+              "opcode": 55,
+              "target": 18,
+              "targetDescription": "Interface - Character Sheet - Arrow Showing The Content Of A Chest",
+              "x": 1,
+              "y": 408
+            },
+            {
+              "wordIndex": 154,
+              "opcode": 244,
+              "target": 76,
+              "targetDescription": "Dungeon Graphics - Teleporter",
+              "x": 9,
+              "y": 2
+            },
+            {
+              "wordIndex": 158,
+              "opcode": 46,
+              "target": 14,
+              "targetDescription": "Interface - Damage Done",
+              "x": 4,
+              "y": 410
+            },
+            {
+              "wordIndex": 162,
+              "opcode": 248,
+              "target": 199,
+              "targetDescription": "No Item Data",
+              "x": 1,
+              "y": 2
+            },
+            {
+              "wordIndex": 166,
+              "opcode": 19,
+              "target": 7,
+              "targetDescription": "Interface - Champion Information",
+              "x": 1,
+              "y": 2
+            },
+            {
+              "wordIndex": 170,
+              "opcode": 19,
+              "target": 55,
+              "targetDescription": "Dungeon Graphics - Floor Pit (Front 1)",
+              "x": 1,
+              "y": 2
+            },
+            {
+              "wordIndex": 174,
+              "opcode": 19,
+              "target": 103,
+              "targetDescription": "Dungeon Graphics - Wall (Far Right Side 3)",
+              "x": 1,
+              "y": 2
+            },
+            {
+              "wordIndex": 178,
+              "opcode": 19,
+              "target": 151,
+              "targetDescription": "No Item Data",
+              "x": 1,
+              "y": 412
+            },
+            {
+              "wordIndex": 182,
+              "opcode": 8,
+              "target": 6,
+              "targetDescription": "Interface - 'The End' Label",
+              "x": 1,
+              "y": 413
+            },
+            {
+              "wordIndex": 186,
+              "opcode": 8,
+              "target": 6,
+              "targetDescription": "Interface - 'The End' Label",
+              "x": 1,
+              "y": 414
+            },
+            {
+              "wordIndex": 190,
+              "opcode": 8,
+              "target": 6,
+              "targetDescription": "Interface - 'The End' Label",
+              "x": 1,
+              "y": 415
+            },
+            {
+              "wordIndex": 194,
+              "opcode": 8,
+              "target": 6,
+              "targetDescription": "Interface - 'The End' Label",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 198,
+              "opcode": 0,
+              "target": 0,
+              "targetDescription": "Interface - Dialog Box",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 202,
+              "opcode": 0,
+              "target": 0,
+              "targetDescription": "Interface - Dialog Box",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 206,
+              "opcode": 0,
+              "target": 0,
+              "targetDescription": "Interface - Dialog Box",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 210,
+              "opcode": 0,
+              "target": 0,
+              "targetDescription": "Interface - Dialog Box",
+              "x": 10,
+              "y": 2
+            },
+            {
+              "wordIndex": 214,
+              "opcode": 0,
+              "target": 0,
+              "targetDescription": "Interface - Dialog Box",
+              "x": 10,
+              "y": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "J",
+      "ranges": [
+        {
+          "startWord": 220,
+          "endWord": 264,
+          "lengthWords": 45,
+          "rawWords": [
+            15,
+            2,
+            0,
+            118,
+            1,
+            2,
+            0,
+            30,
+            9,
+            0,
+            232,
+            161,
+            1,
+            428,
+            0,
+            0,
+            11,
+            429,
+            0,
+            0,
+            12,
+            429,
+            0,
+            0,
+            1,
+            429,
+            0,
+            3,
+            9,
+            2,
+            50,
+            15,
+            1,
+            433,
+            243,
+            110,
+            1,
+            2,
+            243,
+            46,
+            1,
+            2,
+            243,
+            78,
+            9
+          ],
+          "records4": [
+            {
+              "wordIndex": 220,
+              "opcode": 15,
+              "target": 2,
+              "targetDescription": "Interface - Main Menu Left Door",
+              "x": 0,
+              "y": 118
+            },
+            {
+              "wordIndex": 224,
+              "opcode": 1,
+              "target": 2,
+              "targetDescription": "Interface - Main Menu Left Door",
+              "x": 0,
+              "y": 30
+            },
+            {
+              "wordIndex": 228,
+              "opcode": 9,
+              "target": 0,
+              "targetDescription": "Interface - Dialog Box",
+              "x": 232,
+              "y": 161
+            },
+            {
+              "wordIndex": 232,
+              "opcode": 1,
+              "target": 428,
+              "targetDescription": "Floor ornate 08 (Front 3)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 236,
+              "opcode": 11,
+              "target": 429,
+              "targetDescription": "Floor ornate 08 (Left Side 2)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 240,
+              "opcode": 12,
+              "target": 429,
+              "targetDescription": "Floor ornate 08 (Left Side 2)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 244,
+              "opcode": 1,
+              "target": 429,
+              "targetDescription": "Floor ornate 08 (Left Side 2)",
+              "x": 0,
+              "y": 3
+            },
+            {
+              "wordIndex": 248,
+              "opcode": 9,
+              "target": 2,
+              "targetDescription": "Interface - Main Menu Left Door",
+              "x": 50,
+              "y": 15
+            },
+            {
+              "wordIndex": 252,
+              "opcode": 1,
+              "target": 433,
+              "targetDescription": "Floor ornate 09 (Left Side 3)",
+              "x": 243,
+              "y": 110
+            },
+            {
+              "wordIndex": 256,
+              "opcode": 1,
+              "target": 2,
+              "targetDescription": "Interface - Main Menu Left Door",
+              "x": 243,
+              "y": 46
+            },
+            {
+              "wordIndex": 260,
+              "opcode": 1,
+              "target": 2,
+              "targetDescription": "Interface - Main Menu Left Door",
+              "x": 243,
+              "y": 78
+            }
+          ]
+        },
+        {
+          "startWord": 75,
+          "endWord": 98,
+          "lengthWords": 24,
+          "rawWords": [
+            33,
+            9,
+            2,
+            87,
+            45,
+            3,
+            8,
+            319,
+            168,
+            9,
+            2,
+            87,
+            45,
+            2,
+            10,
+            319,
+            77,
+            9,
+            2,
+            87,
+            33,
+            3,
+            12,
+            319
+          ],
+          "records4": [
+            {
+              "wordIndex": 75,
+              "opcode": 33,
+              "target": 9,
+              "targetDescription": "Interface - Spell Casting Area",
+              "x": 2,
+              "y": 87
+            },
+            {
+              "wordIndex": 79,
+              "opcode": 45,
+              "target": 3,
+              "targetDescription": "Interface - Main Menu Right Door",
+              "x": 8,
+              "y": 319
+            },
+            {
+              "wordIndex": 83,
+              "opcode": 168,
+              "target": 9,
+              "targetDescription": "Interface - Spell Casting Area",
+              "x": 2,
+              "y": 87
+            },
+            {
+              "wordIndex": 87,
+              "opcode": 45,
+              "target": 2,
+              "targetDescription": "Interface - Main Menu Left Door",
+              "x": 10,
+              "y": 319
+            },
+            {
+              "wordIndex": 91,
+              "opcode": 77,
+              "target": 9,
+              "targetDescription": "Interface - Spell Casting Area",
+              "x": 2,
+              "y": 87
+            },
+            {
+              "wordIndex": 95,
+              "opcode": 33,
+              "target": 3,
+              "targetDescription": "Interface - Main Menu Right Door",
+              "x": 12,
+              "y": 319
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "K",
+      "ranges": [
+        {
+          "startWord": 65,
+          "endWord": 73,
+          "lengthWords": 9,
+          "rawWords": [
+            2,
+            0,
+            0,
+            10,
+            4,
+            0,
+            0,
+            1,
+            3
+          ],
+          "records4": [
+            {
+              "wordIndex": 65,
+              "opcode": 2,
+              "target": 0,
+              "targetDescription": "Interface - Dialog Box",
+              "x": 0,
+              "y": 10
+            },
+            {
+              "wordIndex": 69,
+              "opcode": 4,
+              "target": 0,
+              "targetDescription": "Interface - Dialog Box",
+              "x": 0,
+              "y": 1
+            }
+          ]
+        },
+        {
+          "startWord": 110,
+          "endWord": 116,
+          "lengthWords": 7,
+          "rawWords": [
+            87,
+            6,
+            1,
+            16,
+            233,
+            33,
+            9
+          ],
+          "records4": [
+            {
+              "wordIndex": 110,
+              "opcode": 87,
+              "target": 6,
+              "targetDescription": "Interface - 'The End' Label",
+              "x": 1,
+              "y": 16
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
