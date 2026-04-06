@@ -1,11 +1,15 @@
 // Item definitions — sourced from Old_data/game_db.json
 // Weapons, Armor, Potions, Misc
 
+import weaponsCatalog from '../../public/original_weapons_catalog.json';
+import armorCatalog from '../../public/original_armor_catalog.json';
+import potionsCatalog from '../../public/original_potions_catalog.json';
+import miscCatalog from '../../public/original_misc_catalog.json';
 import type { WeaponDef, ArmorDef, PotionDef, MiscDef } from '../types/items';
 
 // ─── Weapons ──────────────────────────────────────────────────────────────────
 
-export const WEAPON_TYPES: Record<number, WeaponDef> = {
+const LEGACY_WEAPON_TYPES: Record<number, WeaponDef> = {
      0: { id:  0, name: 'Vorpal Blade',     type: 'Sword',   damage: [10, 25], weight:  8, atkSpd: 20, twoHanded: false },
      2: { id:  2, name: 'Fury',             type: 'Sword',   damage: [20, 35], weight: 12, atkSpd: 22, twoHanded: false },
      8: { id:  8, name: 'Arrow',            type: 'Ammo',    damage: [ 8, 15], weight:  1, atkSpd:  0, twoHanded: false },
@@ -39,7 +43,7 @@ export const WEAPON_TYPES: Record<number, WeaponDef> = {
 
 // ─── Armor ────────────────────────────────────────────────────────────────────
 
-export const ARMOR_TYPES: Record<number, ArmorDef> = {
+const LEGACY_ARMOR_TYPES: Record<number, ArmorDef> = {
     // Torso
      0: { id:  0, name: 'Cape',                  slot: 'torso', armor:  0, weight:  1 },
      1: { id:  1, name: 'Cloak of Night',         slot: 'torso', armor:  6, weight:  3 },
@@ -83,7 +87,7 @@ export const ARMOR_TYPES: Record<number, ArmorDef> = {
 
 // ─── Potions ──────────────────────────────────────────────────────────────────
 
-export const POTION_TYPES: Record<number, PotionDef> = {
+const LEGACY_POTION_TYPES: Record<number, PotionDef> = {
      0: { id:  0, name: 'Mon Potion',          effect: 'spellPower', level: 1 },
      1: { id:  1, name: 'Um Potion',           effect: 'spellPower', level: 2 },
      2: { id:  2, name: 'Dee Potion',          effect: 'spellPower', level: 3 },
@@ -106,7 +110,7 @@ export const POTION_TYPES: Record<number, PotionDef> = {
 
 // Type IDs confirmed by cross-referencing champion starting equipment (Hall of Champions wall tiles)
 // and floor items with the DM1 item location table.
-export const MISC_TYPES: Record<number, MiscDef> = {
+const LEGACY_MISC_TYPES: Record<number, MiscDef> = {
     // ── Food (confirmed) ──────────────────────────────────────────────────────
      1: { id:  1, name: 'Water',          usable: true,  food: true, nutrition: 0,   description: 'Restores stamina' },
     29: { id: 29, name: 'Apple',          usable: true,  food: true, nutrition: 500  },
@@ -141,3 +145,54 @@ export const MISC_TYPES: Record<number, MiscDef> = {
     25: { id: 25, name: 'Magical Box',    usable: false, description: 'Quest item' },
     56: { id: 56, name: 'Chest of the North Wind', usable: false, description: 'Quest item' },
 };
+
+function byId<T extends { id: number }>(entries: T[]): Record<number, T> {
+    return Object.fromEntries(entries.map((entry) => [entry.id, entry]));
+}
+
+function normalizeWeaponEntries(): WeaponDef[] {
+    const catalog = weaponsCatalog as unknown as { weapons?: Array<Record<string, unknown>> };
+    if (!catalog.weapons) return Object.values(LEGACY_WEAPON_TYPES);
+
+    return catalog.weapons.map((entry) => ({
+        id: Number(entry.id ?? 0),
+        name: String(entry.name ?? 'Unknown Weapon'),
+        type: String(entry.type ?? 'Special') as WeaponDef['type'],
+        damage: [
+            Number(Array.isArray(entry.damage) ? entry.damage[0] ?? 0 : 0),
+            Number(Array.isArray(entry.damage) ? entry.damage[1] ?? 0 : 0),
+        ],
+        weight: Number(entry.weight ?? 0),
+        atkSpd: Number(entry.atkSpd ?? 0),
+        twoHanded: Boolean(entry.twoHanded),
+        ranged: entry.ranged === undefined ? undefined : Boolean(entry.ranged),
+        thrown: entry.thrown === undefined ? undefined : Boolean(entry.thrown),
+        luminous: entry.luminous === undefined ? undefined : Boolean(entry.luminous),
+        poison: entry.poison === undefined ? undefined : Boolean(entry.poison),
+    }));
+}
+
+function normalizeArmorEntries(): ArmorDef[] {
+    const catalog = armorCatalog as unknown as { armor?: ArmorDef[] };
+    return catalog.armor ?? Object.values(LEGACY_ARMOR_TYPES);
+}
+
+function normalizePotionEntries(): PotionDef[] {
+    const catalog = potionsCatalog as unknown as { potions?: PotionDef[] };
+    return catalog.potions ?? Object.values(LEGACY_POTION_TYPES);
+}
+
+function normalizeMiscEntries(): MiscDef[] {
+    const catalog = miscCatalog as unknown as { miscellaneousItems?: MiscDef[] };
+    return catalog.miscellaneousItems ?? Object.values(LEGACY_MISC_TYPES);
+}
+
+const weaponEntries = normalizeWeaponEntries();
+const armorEntries = normalizeArmorEntries();
+const potionEntries = normalizePotionEntries();
+const miscEntries = normalizeMiscEntries();
+
+export const WEAPON_TYPES: Record<number, WeaponDef> = byId(weaponEntries);
+export const ARMOR_TYPES: Record<number, ArmorDef> = byId(armorEntries);
+export const POTION_TYPES: Record<number, PotionDef> = byId(potionEntries);
+export const MISC_TYPES: Record<number, MiscDef> = byId(miscEntries);

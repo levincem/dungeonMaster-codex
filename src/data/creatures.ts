@@ -1,6 +1,8 @@
 // Creature definitions — sourced from Old_data/game_db.json creatureTypes
 // 27 creature types (IDs 0–26)
 
+import originalCreatures from '../../public/original_creatures_runtime.json';
+
 export type AttackType =
     | 'Physical'
     | 'Magic'
@@ -27,7 +29,7 @@ export interface CreatureDef {
     drops: string[];    // item names dropped on death
 }
 
-export const CREATURE_TYPES: Record<number, CreatureDef> = {
+const LEGACY_CREATURE_TYPES: Record<number, CreatureDef> = {
     0:  { id: 0,  name: 'Giant Scorpion',    baseHP: 150, armor: 55, hitProb: 55, atkSpd: 20, moveSpd:  8, exp:  20, poison: true,  attackTypes: ['Physical'],                  drops: [] },
     1:  { id: 1,  name: 'Swamp Slime',       baseHP: 110, armor: 20, hitProb: 20, atkSpd: 32, moveSpd: 15, exp:  12, poison: false, attackTypes: ['Physical'],                  drops: [] },
     2:  { id: 2,  name: 'Giggler',           baseHP:  40, armor: 10, hitProb: 60, atkSpd: 15, moveSpd: 15, exp:  15, poison: false, attackTypes: ['Physical', 'Steal'],         drops: [] },
@@ -56,3 +58,85 @@ export const CREATURE_TYPES: Record<number, CreatureDef> = {
     25: { id: 25, name: 'Lord Order',        baseHP: 500, armor: 80, hitProb: 90, atkSpd: 12, moveSpd:  8, exp: 100, poison: false, attackTypes: ['Physical', 'Magic'],         drops: [] },
     26: { id: 26, name: 'Grey Lord',         baseHP: 500, armor: 80, hitProb: 90, atkSpd: 12, moveSpd:  8, exp: 100, poison: false, attackTypes: ['Physical', 'Magic'],         drops: [] },
 };
+
+type OriginalAttackType = 'Unconditional' | 'Fire' | 'Impact' | 'Blunt' | 'Sharp' | 'Magic' | 'Mental' | 'Blast';
+
+interface OriginalCreatureDef {
+    id: number;
+    name: string;
+    baseHP: number;
+    armor: number;
+    hitProb: number;
+    atkSpd: number;
+    moveSpd: number;
+    exp: number;
+    poison: boolean;
+    attackTypeId: number;
+    attackType: OriginalAttackType;
+    notes?: string[];
+}
+
+interface OriginalCreaturesDataset {
+    creatures: OriginalCreatureDef[];
+}
+
+const BASE_ATTACK_TYPE_MAP: Record<OriginalAttackType, AttackType[]> = {
+    Unconditional: ['Physical'],
+    Fire: ['Fire'],
+    Impact: ['Physical'],
+    Blunt: ['Physical'],
+    Sharp: ['Physical'],
+    Magic: ['Magic'],
+    Mental: ['StaminaDrain'],
+    Blast: ['Physical'],
+};
+
+const LEGACY_ATTACK_TYPE_OVERRIDES: Partial<Record<number, AttackType[]>> = {
+    2: ['Physical', 'Steal'],
+    5: ['Physical', 'Rust'],
+    6: ['Alert'],
+    8: ['StaminaDrain'],
+    10: ['Physical', 'Immobilize'],
+    13: ['Physical', 'Poison'],
+    14: ['Magic', 'Physical'],
+    15: ['Physical', 'Poison'],
+    17: ['Physical', 'Poison'],
+    19: ['Magic', 'Teleport'],
+    21: ['Physical', 'Magic'],
+    22: ['Physical', 'Fire'],
+    23: ['Magic', 'Physical', 'Fire'],
+    24: ['Fire', 'Physical'],
+    25: ['Physical', 'Magic'],
+    26: ['Physical', 'Magic'],
+};
+
+const LEGACY_DROP_OVERRIDES: Partial<Record<number, string[]>> = {
+    18: ['Falchion', 'TorsoPlateCursed'],
+};
+
+const dataset = originalCreatures as OriginalCreaturesDataset;
+
+export const CREATURE_TYPES: Record<number, CreatureDef> = Object.fromEntries(
+    dataset.creatures.map(creature => {
+        const legacy = LEGACY_CREATURE_TYPES[creature.id];
+        const attackTypes =
+            LEGACY_ATTACK_TYPE_OVERRIDES[creature.id] ??
+            BASE_ATTACK_TYPE_MAP[creature.attackType] ??
+            legacy?.attackTypes ??
+            ['Physical'];
+
+        return [creature.id, {
+            id: creature.id,
+            name: creature.name,
+            baseHP: creature.baseHP,
+            armor: creature.armor,
+            hitProb: creature.hitProb,
+            atkSpd: creature.atkSpd,
+            moveSpd: creature.moveSpd,
+            exp: creature.exp,
+            poison: creature.poison,
+            attackTypes,
+            drops: LEGACY_DROP_OVERRIDES[creature.id] ?? legacy?.drops ?? [],
+        } satisfies CreatureDef];
+    }),
+);
