@@ -280,12 +280,12 @@ function buildFloorItems(): FloorItem[] {
             for (const tile of row) {
                 for (const obj of tile.objects) {
                     if (!ITEM_CATEGORIES.has(obj.category)) continue;
-                    const rawObj = obj as unknown as { type: number; name?: string };
+                    const rawObj = obj as unknown as { type: number; name?: string; text?: string };
                     items.push({
                         id: `${map.index}_${tile.x}_${tile.y}_${obj.category}_${obj.index}`,
                         category: obj.category as FloorItem['category'],
                         typeId: rawObj.type ?? 0,
-                        rawName: rawObj.name,
+                        rawName: rawObj.text ?? rawObj.name,
                         mapIndex: map.index,
                         x: tile.x,
                         y: tile.y,
@@ -902,7 +902,12 @@ export const useStore = create<GameState>((set) => ({
             );
             if (link) {
                 if (link.requireGate && !state.gateOpen) return state;
-                return { level: link.toLevel, position: [link.toY, link.toX] as [number, number], direction: link.dir };
+                // Land one step past the staircase tile, in the arrival direction
+                const DIR_STEP: Record<Direction, [number, number]> = {
+                    NORTH: [-1, 0], SOUTH: [1, 0], EAST: [0, 1], WEST: [0, -1],
+                };
+                const [dy, dx] = DIR_STEP[link.dir];
+                return { level: link.toLevel, position: [link.toY + dy, link.toX + dx] as [number, number], direction: link.dir };
             }
         }
         if (tile.type === 'Teleporter') {

@@ -1,12 +1,21 @@
 import React, { useState } from 'react';
 import { CHAMPIONS } from '../../data/champions';
-import type { Champion, ChampionClass } from '../../data/champions';
+import type { Champion } from '../../data/champions';
 import { useStore, xpToLevel } from '../../engine/store';
 import { WEAPON_TYPES, ARMOR_TYPES, POTION_TYPES, MISC_TYPES } from '../../data/items';
 import type { ArmorSlot } from '../../types/items';
 import type { EquipSlotKey } from '../../types/items';
 import type { FloorItem, ChampionEquipment } from '../../types/game';
 import { getItemImage, getTorchImage } from '../../data/itemImages';
+
+// ─── Slot highlight animation ─────────────────────────────────────────────────
+const PULSE_STYLE = `
+@keyframes slot-pulse {
+  0%,100% { box-shadow: 0 0 0 2px #e0c050, 0 0 6px 1px #e0a83066; }
+  50%      { box-shadow: 0 0 0 2px #ffe080, 0 0 14px 4px #e0a830aa; }
+}
+.slot-valid { animation: slot-pulse 1s ease-in-out infinite; border-color: #e0c050 !important; }
+`;
 
 // ─── Skill level names (DM1 original) ─────────────────────────────────────────
 const SKILL_LEVEL_NAMES: string[] = [
@@ -38,13 +47,6 @@ const T = {
     slotBg:      'rgba(0,0,0,0.6)',
     slotBorder:  '#5a3e10',
     text:        '#f4dfa0',
-};
-
-const CLASS_COLORS: Record<ChampionClass, string> = {
-    Fighter: '#d04030',
-    Ninja:   '#40b060',
-    Wizard:  '#8060c0',
-    Priest:  '#4080c0',
 };
 
 const SKILL_COLORS: Record<string, string> = {
@@ -149,12 +151,15 @@ const SLOT_LABELS: Record<EquipSlotKey, string> = {
 
 const EquipSlot: React.FC<{
     slotKey: EquipSlotKey; item?: FloorItem; championId: number;
-    size?: number; onDrop: (p: DragPayload, slot: EquipSlotKey) => void; onUnequip: () => void;
-}> = ({ slotKey, item, championId, size = 48, onDrop, onUnequip }) => {
+    size?: number; highlight?: boolean;
+    onDrop: (p: DragPayload, slot: EquipSlotKey) => void; onUnequip: () => void;
+    onDragBegin?: (p: DragPayload) => void; onDragEnd?: () => void;
+}> = ({ slotKey, item, championId, size = 48, highlight = false, onDrop, onUnequip, onDragBegin, onDragEnd }) => {
     const [over, setOver] = useState(false);
     return (
         <div
-            style={{ width: size, height: size, border: `1px solid ${over ? T.gold : item ? T.panelBorder : T.slotBorder}`, borderRadius: 3, background: over ? 'rgba(30,18,0,0.9)' : T.slotBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, cursor: item ? 'grab' : 'default', position: 'relative', transition: 'border-color 0.1s', padding: 2, boxSizing: 'border-box' }}
+            className={highlight && !over ? 'slot-valid' : undefined}
+            style={{ width: size, height: size, border: `1px solid ${over ? T.gold : item ? T.panelBorder : T.slotBorder}`, borderRadius: 3, background: over ? 'rgba(30,18,0,0.9)' : T.slotBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, cursor: item ? 'grab' : 'default', position: 'relative', transition: over ? undefined : 'border-color 0.1s', padding: 2, boxSizing: 'border-box' }}
             onDragOver={e => { e.preventDefault(); setOver(true); }}
             onDragLeave={() => setOver(false)}
             onDrop={e => { e.preventDefault(); setOver(false); const p = getDrag(e); if (p) onDrop(p, slotKey); }}
@@ -162,7 +167,10 @@ const EquipSlot: React.FC<{
             <div style={{ fontSize: 6, color: T.goldDim, letterSpacing: 0.5, lineHeight: 1 }}>{SLOT_LABELS[slotKey]}</div>
             {item ? (
                 <>
-                    <span draggable onDragStart={e => setDrag(e, { itemId: item.id, fromChampionId: championId, fromSlot: slotKey })}>
+                    <span draggable
+                        onDragStart={e => { setDrag(e, { itemId: item.id, fromChampionId: championId, fromSlot: slotKey }); onDragBegin?.({ itemId: item.id, fromChampionId: championId, fromSlot: slotKey }); }}
+                        onDragEnd={onDragEnd}
+                    >
                         <ItemThumb item={item} size={size - 16} />
                     </span>
                     <button onClick={onUnequip} title="Déséquiper" style={{ position: 'absolute', top: 1, right: 2, background: 'none', border: 'none', color: T.goldDim, fontSize: 8, cursor: 'pointer', padding: 0, lineHeight: 1 }}>↩</button>
@@ -189,10 +197,12 @@ const ScrollPopup: React.FC<{ item: FloorItem; onClose: () => void }> = ({ item,
 );
 
 // ─── Interactive drop zone (eye / mouth) ──────────────────────────────────────
-const DropZone: React.FC<{ icon: string; label: string; title: string; borderColor: string; onDrop: (p: DragPayload) => void }> = ({ icon, label, title, borderColor, onDrop }) => {
+const DropZone: React.FC<{ icon: string; label: string; title: string; borderColor: string; highlight?: boolean; onDrop: (p: DragPayload) => void }> = ({ icon, label, title, borderColor, highlight = false, onDrop }) => {
     const [over, setOver] = useState(false);
     return (
-        <div title={title} style={{ width: 48, height: 48, border: `1px solid ${over ? borderColor : T.slotBorder}`, borderRadius: 3, background: over ? 'rgba(30,15,0,0.9)' : T.slotBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, cursor: 'default', transition: 'border-color 0.1s' }}
+        <div title={title}
+            className={highlight && !over ? 'slot-valid' : undefined}
+            style={{ width: 48, height: 48, border: `1px solid ${over ? borderColor : T.slotBorder}`, borderRadius: 3, background: over ? 'rgba(30,15,0,0.9)' : T.slotBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, cursor: 'default', transition: over ? undefined : 'border-color 0.1s' }}
             onDragOver={e => { e.preventDefault(); setOver(true); }}
             onDragLeave={() => setOver(false)}
             onDrop={e => { e.preventDefault(); setOver(false); const p = getDrag(e); if (p) onDrop(p); }}
@@ -210,22 +220,26 @@ const BackpackGrid: React.FC<{
     onEquip: (item: FloorItem) => void; onDropToFloor: (id: string) => void;
     onReadScroll: (item: FloorItem) => void; onUseItem: (id: string) => void;
     onUnequipToInventory: (e: React.DragEvent) => void;
-}> = ({ inv, champion, onEquip, onDropToFloor, onReadScroll, onUseItem, onUnequipToInventory }) => (
-    <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 6, padding: 10, display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' }}
+    onItemDragStart: (p: DragPayload) => void; onItemDragEnd: () => void;
+}> = ({ inv, champion, onEquip, onDropToFloor, onReadScroll, onUseItem, onUnequipToInventory, onItemDragStart, onItemDragEnd }) => (
+    <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 6, padding: 10, display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}
         onDragOver={e => e.preventDefault()} onDrop={onUnequipToInventory}
     >
         <div style={{ fontSize: 10, letterSpacing: 3, color: T.gold, marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>
             <span>SAC À DOS</span>
             <span style={{ color: inv.length >= BACKPACK_SLOTS ? T.red : T.creamDim, fontSize: 10 }}>{inv.length}/{BACKPACK_SLOTS}</span>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4, flex: 1 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4 }}>
             {Array.from({ length: BACKPACK_SLOTS }).map((_, i) => {
                 const item = inv[i];
-                if (!item) return <div key={i} style={{ border: `1px dashed ${T.slotBorder}`, borderRadius: 3, background: T.slotBg, opacity: 0.5 }} />;
+                if (!item) return <div key={i} style={{ aspectRatio: '1', border: `1px dashed ${T.slotBorder}`, borderRadius: 3, background: T.slotBg, opacity: 0.5 }} />;
                 return (
-                    <div key={item.id} draggable onDragStart={e => setDrag(e, { itemId: item.id, fromChampionId: champion.id, fromSlot: 'inventory' })} title={getItemName(item)}
-                        style={{ border: `1px solid ${T.slotBorder}`, borderRadius: 3, background: T.slotBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, cursor: 'grab', padding: 3, position: 'relative' }}>
-                        <ItemThumb item={item} size={26} />
+                    <div key={item.id} draggable
+                        onDragStart={e => { const p: DragPayload = { itemId: item.id, fromChampionId: champion.id, fromSlot: 'inventory' }; setDrag(e, p); onItemDragStart(p); }}
+                        onDragEnd={onItemDragEnd}
+                        title={getItemName(item)}
+                        style={{ aspectRatio: '1', border: `1px solid ${T.slotBorder}`, borderRadius: 3, background: T.slotBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, cursor: 'grab', padding: 3, position: 'relative', overflow: 'hidden' }}>
+                        <ItemThumb item={item} size={44} />
                         <div style={{ fontSize: 7, color: T.creamDim, textAlign: 'center', lineHeight: 1.1, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>
                             {getItemName(item).substring(0, 9)}
                         </div>
@@ -253,6 +267,19 @@ export const ChampionSheet: React.FC = () => {
     } = useStore();
 
     const [scrollItem, setScrollItem] = useState<FloorItem | null>(null);
+    const [draggingItem, setDraggingItem] = useState<FloorItem | null>(null);
+
+    const validSlots = new Set<EquipSlotKey>(draggingItem ? getEquippableSlots(draggingItem) : []);
+    const highlightEye   = draggingItem?.category === 'Scroll';
+    const highlightMouth = draggingItem ? isConsumable(draggingItem) : false;
+
+    const handleDragBegin = (p: DragPayload, localEquip: ChampionEquipment, localInv: FloorItem[]) => {
+        const item = p.fromSlot === 'inventory'
+            ? localInv.find(i => i.id === p.itemId)
+            : localEquip[p.fromSlot as EquipSlotKey];
+        setDraggingItem(item ?? null);
+    };
+    const handleDragEnd = () => setDraggingItem(null);
 
     if (activePartyMemberId === null) return null;
     const champion = CHAMPIONS.find(c => c.id === activePartyMemberId);
@@ -324,8 +351,9 @@ export const ChampionSheet: React.FC = () => {
 
     return (
         <div onClick={closePartyMember} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.82)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, fontFamily: '"Courier New", Courier, monospace' }}>
+            <style>{PULSE_STYLE}</style>
             <div onClick={e => e.stopPropagation()} style={{
-                width: 'min(960px, 98vw)',
+                width: 'min(1100px, 98vw)',
                 maxHeight: '96vh',
                 overflowY: 'auto',
                 backgroundImage: 'url(/misc/parchemin.png)',
@@ -352,7 +380,7 @@ export const ChampionSheet: React.FC = () => {
                 </div>
 
                 {/* ── 3-column ── */}
-                <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr 300px', gap: 12, alignItems: 'start' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '190px 1fr 500px', gap: 12, alignItems: 'start' }}>
 
                     {/* ── COL 1: Portrait + Vitals + Stats ── */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignSelf: 'stretch' }}>
@@ -408,8 +436,8 @@ export const ChampionSheet: React.FC = () => {
 
                         {/* Eye + Mouth at top */}
                         <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 4 }}>
-                            <DropZone icon="👁" label="LIRE" title="Déposer un parchemin pour le lire" borderColor="#d4a840" onDrop={handleReadScroll} />
-                            <DropZone icon="👄" label="MANGER" title="Déposer nourriture/potion pour consommer" borderColor="#d04040" onDrop={handleConsume} />
+                            <DropZone icon="👁" label="LIRE" title="Déposer un parchemin pour le lire" borderColor="#d4a840" highlight={highlightEye} onDrop={handleReadScroll} />
+                            <DropZone icon="👄" label="MANGER" title="Déposer nourriture/potion pour consommer" borderColor="#d04040" highlight={highlightMouth} onDrop={handleConsume} />
                         </div>
 
                         {/* Equipment grid with silhouette */}
@@ -440,7 +468,9 @@ export const ChampionSheet: React.FC = () => {
                                 {/* Body slots */}
                                 {BODY_SLOTS.map(s => (
                                     <div key={s} style={{ gridArea: s === 'rightHand' ? 'rhand' : s === 'leftHand' ? 'lhand' : s, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                        <EquipSlot slotKey={s} item={equip[s]} championId={champion.id} size={80} onDrop={handleDropOnSlot} onUnequip={() => unequipItem(champion.id, s)} />
+                                        <EquipSlot slotKey={s} item={equip[s]} championId={champion.id} size={80} highlight={validSlots.has(s)}
+                                            onDrop={handleDropOnSlot} onUnequip={() => unequipItem(champion.id, s)}
+                                            onDragBegin={p => handleDragBegin(p, equip, inv)} onDragEnd={handleDragEnd} />
                                     </div>
                                 ))}
 
@@ -448,7 +478,9 @@ export const ChampionSheet: React.FC = () => {
                                 <div style={{ gridArea: 'quivers', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                                     <div style={{ fontSize: 7, color: T.goldDim, letterSpacing: 2 }}>CARQUOIS</div>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
-                                        {QUIVER_SLOTS.map(s => <EquipSlot key={s} slotKey={s} item={equip[s]} championId={champion.id} size={46} onDrop={handleDropOnSlot} onUnequip={() => unequipItem(champion.id, s)} />)}
+                                        {QUIVER_SLOTS.map(s => <EquipSlot key={s} slotKey={s} item={equip[s]} championId={champion.id} size={46} highlight={validSlots.has(s)}
+                                            onDrop={handleDropOnSlot} onUnequip={() => unequipItem(champion.id, s)}
+                                            onDragBegin={p => handleDragBegin(p, equip, inv)} onDragEnd={handleDragEnd} />)}
                                     </div>
                                 </div>
 
@@ -456,7 +488,9 @@ export const ChampionSheet: React.FC = () => {
                                 <div style={{ gridArea: 'pockets', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                                     <div style={{ fontSize: 7, color: T.goldDim, letterSpacing: 2 }}>POCHES</div>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
-                                        {POCKET_SLOTS.map(s => <EquipSlot key={s} slotKey={s} item={equip[s]} championId={champion.id} size={46} onDrop={handleDropOnSlot} onUnequip={() => unequipItem(champion.id, s)} />)}
+                                        {POCKET_SLOTS.map(s => <EquipSlot key={s} slotKey={s} item={equip[s]} championId={champion.id} size={46} highlight={validSlots.has(s)}
+                                            onDrop={handleDropOnSlot} onUnequip={() => unequipItem(champion.id, s)}
+                                            onDragBegin={p => handleDragBegin(p, equip, inv)} onDragEnd={handleDragEnd} />)}
                                     </div>
                                 </div>
                             </div>
@@ -485,49 +519,55 @@ export const ChampionSheet: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* ── COL 3: Backpack ── */}
-                    <BackpackGrid
-                        inv={inv} equip={equip} champion={champion}
-                        onEquip={handleEquipItem}
-                        onDropToFloor={id => dropItem(id, champion.id)}
-                        onReadScroll={setScrollItem}
-                        onUseItem={id => useItem(champion.id, id)}
-                        onUnequipToInventory={handleUnequipToInventory}
-                    />
+                    {/* ── COL 3: Backpack + Team portraits ── */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <BackpackGrid
+                            inv={inv} equip={equip} champion={champion}
+                            onEquip={handleEquipItem}
+                            onDropToFloor={id => dropItem(id, champion.id)}
+                            onReadScroll={setScrollItem}
+                            onUseItem={id => useItem(champion.id, id)}
+                            onUnequipToInventory={handleUnequipToInventory}
+                            onItemDragStart={p => handleDragBegin(p, equip, inv)}
+                            onItemDragEnd={handleDragEnd}
+                        />
+
+                        {otherMembers.length > 0 && (
+                            <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 6, padding: '8px 10px' }}>
+                                <div style={{ fontSize: 9, letterSpacing: 3, color: T.gold, marginBottom: 8 }}>DONNER À</div>
+                                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                    {otherMembers.map(other => {
+                                        const [over2, setOver2] = React.useState(false);
+                                        return (
+                                            <div key={other.id} title={`Donner à ${other.name}`}
+                                                style={{ width: 56, border: `2px solid ${over2 ? T.gold : T.slotBorder}`, borderRadius: 4, background: over2 ? 'rgba(30,18,0,0.9)' : T.slotBg, cursor: 'copy', transition: 'border-color 0.12s', overflow: 'hidden' }}
+                                                onDragOver={e => { e.preventDefault(); setOver2(true); }}
+                                                onDragLeave={() => setOver2(false)}
+                                                onDrop={e => {
+                                                    e.preventDefault(); setOver2(false);
+                                                    const p = getDrag(e);
+                                                    if (!p || p.fromChampionId !== champion.id) return;
+                                                    if (p.fromSlot === 'inventory') giveItem(champion.id, other.id, p.itemId);
+                                                    else giveEquippedItem(champion.id, p.fromSlot as EquipSlotKey, other.id);
+                                                }}
+                                            >
+                                                <img src={other.portrait} alt={other.name} style={{ width: 56, height: 56, objectFit: 'cover', objectPosition: 'top center', display: 'block' }} />
+                                                <div style={{ fontSize: 8, textAlign: 'center', padding: '3px 0', background: 'rgba(0,0,0,0.6)', letterSpacing: 1, color: T.creamDim }}>{other.name.substring(0, 7).toUpperCase()}</div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
-                {/* ── Footer: give to other members ── */}
-                {otherMembers.length > 0 && (
-                    <div style={{ marginTop: 10, paddingTop: 8, borderTop: `1px solid ${T.goldDim}`, display: 'flex', gap: 10, alignItems: 'center' }}>
-                        <span style={{ fontSize: 9, letterSpacing: 2, color: T.goldDim }}>DONNER À</span>
-                        {otherMembers.map(other => {
-                            const [over2, setOver2] = React.useState(false);
-                            const oc = CLASS_COLORS[other.class];
-                            return (
-                                <div key={other.id} title={`Donner à ${other.name}`}
-                                    style={{ width: 48, border: `2px solid ${over2 ? oc : oc + '55'}`, borderRadius: 4, background: over2 ? `${oc}22` : T.panelBg, cursor: 'copy', transition: 'border-color 0.12s', overflow: 'hidden' }}
-                                    onDragOver={e => { e.preventDefault(); setOver2(true); }}
-                                    onDragLeave={() => setOver2(false)}
-                                    onDrop={e => {
-                                        e.preventDefault(); setOver2(false);
-                                        const p = getDrag(e);
-                                        if (!p || p.fromChampionId !== champion.id) return;
-                                        if (p.fromSlot === 'inventory') giveItem(champion.id, other.id, p.itemId);
-                                        else giveEquippedItem(champion.id, p.fromSlot as EquipSlotKey, other.id);
-                                    }}
-                                >
-                                    <img src={other.portrait} alt={other.name} style={{ width: 48, height: 48, objectFit: 'cover', objectPosition: 'top center', display: 'block' }} />
-                                    <div style={{ fontSize: 8, textAlign: 'center', color: oc, padding: '2px 0', background: T.panelBg, letterSpacing: 1 }}>{other.name.substring(0, 6).toUpperCase()}</div>
-                                </div>
-                            );
-                        })}
-                        <div style={{ flex: 1 }} />
-                        {level === 0 && (
-                            <button onClick={() => { removeFromParty(champion.id); closePartyMember(); }}
-                                style={{ padding: '6px 14px', background: 'rgba(80,10,10,0.8)', border: `1px solid ${T.red}`, borderRadius: 4, color: '#ffaaaa', fontSize: 11, letterSpacing: 2, cursor: 'pointer', fontFamily: '"Courier New", monospace' }}>
-                                RENVOYER
-                            </button>
-                        )}
+                {level === 0 && (
+                    <div style={{ marginTop: 10, paddingTop: 8, borderTop: `1px solid ${T.goldDim}`, display: 'flex', justifyContent: 'flex-end' }}>
+                        <button onClick={() => { removeFromParty(champion.id); closePartyMember(); }}
+                            style={{ padding: '6px 14px', background: 'rgba(80,10,10,0.8)', border: `1px solid ${T.red}`, borderRadius: 4, color: '#ffaaaa', fontSize: 11, letterSpacing: 2, cursor: 'pointer', fontFamily: '"Courier New", monospace' }}>
+                            RENVOYER
+                        </button>
                     </div>
                 )}
             </div>

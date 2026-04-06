@@ -61,8 +61,8 @@ const DECAL_PRESETS: Record<string, DecalPreset> = {
         width: GRID_SIZE * 0.56,
         height: WALL_HEIGHT * 0.42,
         y: -WALL_HEIGHT * 0.03,
-        hasBacking: true,
-        hasGlow: true,
+        hasBacking: false,
+        hasGlow: false,
     },
 };
 
@@ -72,7 +72,7 @@ const DecalSprite = ({ image, width, height }: { image: string; width: number; h
     const tex = useTexture(image);
     tex.colorSpace = THREE.SRGBColorSpace;
     return (
-        <mesh frustumCulled={false} renderOrder={4}>
+        <mesh frustumCulled={false} renderOrder={10}>
             <planeGeometry args={[width, height]} />
             <meshBasicMaterial
                 map={tex}
@@ -80,10 +80,11 @@ const DecalSprite = ({ image, width, height }: { image: string; width: number; h
                 alphaTest={0.05}
                 side={THREE.DoubleSide}
                 depthWrite={false}
+                depthTest={true}
+                polygonOffset
+                polygonOffsetFactor={-4}
+                polygonOffsetUnits={-4}
                 toneMapped={false}
-                polygonOffset={true}
-                polygonOffsetFactor={-1}
-                polygonOffsetUnits={-1}
             />
         </mesh>
     );
@@ -138,6 +139,10 @@ export const WallDecal = ({
                         opacity={0.12}
                         side={THREE.DoubleSide}
                         depthWrite={false}
+                        depthTest={true}
+                        polygonOffset
+                        polygonOffsetFactor={-2}
+                        polygonOffsetUnits={-2}
                         toneMapped={false}
                     />
                 </mesh>

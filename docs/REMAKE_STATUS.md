@@ -15,6 +15,8 @@ Le projet est deja une base tres avancee et jouable:
 - portes, senseurs, teleporteurs et une partie des interactions de carte
 - TrickWalls (murs secrets) avec système levier/capteur/porte logique
 - fiche de champion redessinée (parchemin, équipement silhouette, noms DM1)
+- textes muraux gravés en 3D directement sur les murs (canvas texture)
+- overlays muraux (escaliers, autels, leviers, serrures) correctement positionnés et sans bleeding
 
 En revanche, ce n'est pas encore un remake "proprement termine". Le projet ressemble aujourd'hui a une vertical slice avancee plutot qu'a une recreation complete et finie de Dungeon Master.
 
@@ -408,7 +410,7 @@ Si on reprend le chantier de maniere pragmatique, le meilleur ordre est:
 
 ## Premiere checklist de reprise
 
-- [ ] Faire passer `npm.cmd run build`
+- [x] Faire passer `npm.cmd run build`
 - [ ] Corriger `HeroSelectionScreen` et `MirrorPopup`
 - [ ] Corriger `FloorItemMesh`
 - [ ] Corriger le cast de `mapLoader`
@@ -421,6 +423,34 @@ Si on reprend le chantier de maniere pragmatique, le meilleur ordre est:
 - [ ] Implementer les sorts de type `potion`
 - [ ] Clarifier faim / eau / poison / objets utilitaires
 - [ ] Commencer le nettoyage de `MISSING_IMAGES.md`
+
+## Journal des sessions
+
+### Session 2026-04-06
+
+**ChampionSheet (src/components/UI/ChampionSheet.tsx)**
+
+- Refonte complète : thème parchemin (parchemin.png en repeat), layout 3 colonnes
+- Bouton × intégré dans le header (plus d'overlap)
+- Silhouette d'équipement : grille CSS areas (head/neck/torso/legs/feet/hands + quiver 2×2 sous main droite + poches 1×2 sous main gauche)
+- Bloc skills déplacé sous l'équipement dans la colonne centrale
+- Portrait gauche en hauteur pleine
+- Sac à dos : slots carrés (aspectRatio 1), miniatures 44px
+- Portraits des autres membres en bas du sac à dos (drag & drop pour passer des objets)
+- Highlight pulsant sur les slots valides lors d'un drag (animation CSS gold)
+- Correction lecture des textes parchemins : utilisation de `rawObj.text` (pas `rawObj.name`)
+
+**Overlays muraux (src/components/Dungeon/DungeonScene.tsx + WallDecal.tsx)**
+
+- Textes muraux : remplacement du popup HTML par des plans 3D avec texture canvas (`WallTextEntry`, `makeEngravedTexture`) — texte gravé or sur fond transparent
+- Correction violation règles des hooks React : extraction de `WallTextEntry` en composant propre (useMemo hors de .map())
+- Correction `depthTest={false}` → `depthTest={true}` + `polygonOffset` sur WallTextEntry et WallDecal : fin du bleeding à travers les murs
+- Correction `FACE_ROT_TEXT` East/West : les textes sont stockés sur les tiles Wall (convention inversée vs tiles Floor), rotations corrigées
+- Correction `CHAMPION_DATA_RE` : regex `/\n{2,}[MF]\n[A-Z]/` pour filtrer les noms de champions avec 3+ sauts de ligne
+- Escalier : `stairsEntryFace` retourne la face d'entrée (visible par le joueur qui approche), plus `OPPOSITE`
+- Escalier : offset d'atterrissage (`DIR_STEP`) pour sortir du tile escalier
+- Autel : détection via Sensor `graphic=5` (pas texte "ALTAR")
+- Build TypeScript : suppression des imports/variables inutilisés (`Direction`, `position`, `direction`)
 
 ## Note finale
 

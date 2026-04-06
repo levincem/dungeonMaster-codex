@@ -5,7 +5,7 @@ import { PerspectiveCamera, Plane, Html, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore, MIRROR_WALL_MAP, MIRROR_FACE_MAP, STAIR_CONNECTIONS } from '../../engine/store';
 import { getMapMechanisms } from '../../data/mechanisms';
-import type { Direction, ProjectileEffect, FootprintEntry } from '../../engine/store';
+import type { ProjectileEffect, FootprintEntry } from '../../engine/store';
 import { computeLightLevel } from '../../engine/store';
 import { getGameMap } from '../../data/mapLoader';
 import type { GameMap, GameTile, TeleporterObject, SensorObject, WallTextObject, CardinalDir, DoorObject } from '../../types/game';
@@ -121,55 +121,110 @@ const LevelName = ({ level }: { level: number }) => {
     );
 };
 
-// ─── Wall text overlay ────────────────────────────────────────────────────────
-const CHAMPION_DATA_RE = /\n\n[MF]\n/;
-const DIR_TO_FACE: Record<Direction, CardinalDir> = {
-    NORTH: 'South', SOUTH: 'North', EAST: 'West', WEST: 'East',
+// ─── Wall text — carved 3D inscriptions ──────────────────────────────────────
+const CHAMPION_DATA_RE = /\n{2,}[MF]\n[A-Z]/;
+
+const FACE_POS_TEXT: Record<CardinalDir, [number, number, number]> = {
+    North: [0, 0, -(GRID_SIZE / 2 + 0.035)],
+    South: [0, 0,  (GRID_SIZE / 2 + 0.035)],
+    East:  [ (GRID_SIZE / 2 + 0.035), 0, 0],
+    West:  [-(GRID_SIZE / 2 + 0.035), 0, 0],
+};
+const FACE_ROT_TEXT: Record<CardinalDir, [number, number, number]> = {
+    North: [0, Math.PI,      0],   // player approaches from -Z looking +Z (south)
+    South: [0, 0,            0],   // player approaches from +Z looking -Z (north)
+    // East/West are stored on wall tiles — label is from the wall tile's perspective,
+    // opposite to floor-tile convention, so rotations are swapped vs WallDecal.
+    East:  [0,  Math.PI / 2, 0],
+    West:  [0, -Math.PI / 2, 0],
 };
 
-const WallTextOverlay = ({
-    level, position, direction, map, visibleTexts,
-}: {
-    level: number; position: [number, number]; direction: Direction;
-    map: GameMap; visibleTexts: Set<string>;
-}) => {
-    const text = useMemo(() => {
-        const [y, x] = position;
-        let ty = y, tx = x;
-        if (direction === 'NORTH') ty--;
-        else if (direction === 'SOUTH') ty++;
-        else if (direction === 'EAST') tx++;
-        else tx--;
-        const tile = map.tiles[ty]?.[tx];
-        if (!tile) return null;
-        const face = DIR_TO_FACE[direction];
-        for (const obj of tile.objects) {
-            if (obj.category !== 'Text') continue;
-            const t = obj as WallTextObject;
-            if (t.tilePos !== face) continue;
-            const key = `${level}_${tx}_${ty}_${t.index}`;
-            if (!visibleTexts.has(key)) continue;
-            if (!t.text || CHAMPION_DATA_RE.test(t.text)) continue;
-            return t.text;
-        }
-        return null;
-    }, [level, position, direction, map, visibleTexts]);
+function makeEngravedTexture(text: string): THREE.CanvasTexture {
+    const W = 512, H = 512;
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d')!;
+    ctx.clearRect(0, 0, W, H);
 
-    if (!text) return null;
+    const lines = text.split('\n').filter(l => l.trim() !== '');
+    const fontSize = Math.max(28, Math.min(48, Math.floor(H * 0.12 / Math.max(lines.length, 1) * 1.4)));
+    ctx.font = `bold ${fontSize}px "Courier New", Courier, monospace`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    const lineH = fontSize * 1.35;
+    const totalH = lines.length * lineH;
+    const startY = H / 2 - totalH / 2 + lineH / 2;
+
+    lines.forEach((line, i) => {
+        const y = startY + i * lineH;
+        // Dark shadow (depth)
+        ctx.fillStyle = 'rgba(0,0,0,0.7)';
+        ctx.fillText(line, W / 2 + 2, y + 2);
+        // Inner light (highlight of carved ridge)
+        ctx.fillStyle = 'rgba(255,220,120,0.25)';
+        ctx.fillText(line, W / 2 - 1, y - 1);
+        // Main engraved text
+        ctx.fillStyle = '#c8a040';
+        ctx.fillText(line, W / 2, y);
+    });
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+}
+
+const WallTextEntry: React.FC<{ tileX: number; tileY: number; face: CardinalDir; text: string }> = ({ tileX, tileY, face, text }) => {
+    const tex = useMemo(() => makeEngravedTexture(text), [text]);
+    const [ox, , oz] = FACE_POS_TEXT[face];
+    const [rx, ry, rz] = FACE_ROT_TEXT[face];
     return (
-        <div style={{
-            position: 'absolute', bottom: '22%', left: '50%', transform: 'translateX(-50%)',
-            zIndex: 20, background: 'rgba(8,6,4,0.88)', border: '1px solid #6a5430',
-            borderRadius: 6, padding: '12px 20px', color: '#c8a96e',
-            fontFamily: '"Courier New", Courier, monospace', fontSize: '0.95rem',
-            letterSpacing: '0.08em', textAlign: 'center', lineHeight: 1.7,
-            whiteSpace: 'pre-line', pointerEvents: 'none', userSelect: 'none',
-            boxShadow: '0 0 24px rgba(200,169,110,0.2)', maxWidth: 340,
-        }}>
-            {text}
-        </div>
+        <mesh
+            position={[tileX * GRID_SIZE + ox, 0, tileY * GRID_SIZE + oz]}
+            rotation={[rx, ry, rz]}
+            frustumCulled={false}
+            renderOrder={6}
+        >
+            <planeGeometry args={[GRID_SIZE * 0.78, WALL_HEIGHT * 0.55]} />
+            <meshBasicMaterial
+                map={tex}
+                transparent
+                depthWrite={false}
+                depthTest={true}
+                polygonOffset
+                polygonOffsetFactor={-4}
+                polygonOffsetUnits={-4}
+                side={THREE.DoubleSide}
+                toneMapped={false}
+            />
+        </mesh>
     );
 };
+
+const WallTextPlanes: React.FC<{ map: GameMap }> = memo(({ map }) => {
+    const entries = useMemo(() => {
+        const result: { tileX: number; tileY: number; face: CardinalDir; text: string }[] = [];
+        for (const row of map.tiles) {
+            for (const tile of row) {
+                for (const obj of tile.objects) {
+                    if (obj.category !== 'Text') continue;
+                    const t = obj as WallTextObject;
+                    if (!t.text || CHAMPION_DATA_RE.test(t.text)) continue;
+                    result.push({ tileX: tile.x, tileY: tile.y, face: t.tilePos as CardinalDir, text: t.text });
+                }
+            }
+        }
+        return result;
+    }, [map]);
+
+    return (
+        <>
+            {entries.map(({ tileX, tileY, face, text }, i) => (
+                <WallTextEntry key={i} tileX={tileX} tileY={tileY} face={face} text={text} />
+            ))}
+        </>
+    );
+});
 
 const LightController: React.FC = () => {
     const spellLights      = useStore(s => s.spellLights);
@@ -512,13 +567,10 @@ const TileGrid: React.FC<{
 export const DungeonScene = () => {
     // Only subscribe to stable/slow-changing state here
     const level          = useStore(s => s.level);
-    const position       = useStore(s => s.position);
-    const direction      = useStore(s => s.direction);
     const openDoors      = useStore(s => s.openDoors);
     const openWalls      = useStore(s => s.openWalls);
     const openMirror     = useStore(s => s.openMirror);
     const toggleDoor     = useStore(s => s.toggleDoor);
-    const visibleTexts   = useStore(s => s.visibleTexts);
     const activateWallSensor = useStore(s => s.activateWallSensor);
     const party          = useStore(s => s.party);
 
@@ -541,12 +593,9 @@ export const DungeonScene = () => {
     }, [map]);
 
     const wallDecals = useMemo(() => {
-        const OPPOSITE: Record<CardinalDir, CardinalDir> = {
-            North: 'South', South: 'North', East: 'West', West: 'East',
-        };
-        // For a Stairs tile, find the one walkable neighbour — that's the entry
-        // direction, so the image goes on the opposite (back) face.
-        const stairsBackFace = (x: number, y: number): CardinalDir => {
+        // For a Stairs tile, find the one walkable neighbour — the image goes on
+        // that same face (the face visible to the player approaching from that side).
+        const stairsEntryFace = (x: number, y: number): CardinalDir => {
             const neighbours: Array<{ dx: number; dy: number; dir: CardinalDir }> = [
                 { dx:  0, dy: -1, dir: 'North' },
                 { dx:  0, dy:  1, dir: 'South' },
@@ -556,7 +605,7 @@ export const DungeonScene = () => {
             for (const { dx, dy, dir } of neighbours) {
                 const row = map.tiles[y + dy];
                 const nb  = row?.[x + dx];
-                if (nb && nb.type !== 'Wall') return OPPOSITE[dir];
+                if (nb && nb.type !== 'Wall') return dir;
             }
             return 'South';
         };
@@ -571,7 +620,7 @@ export const DungeonScene = () => {
                     s => s.fromLevel === level && s.fromY === tile.y && s.fromX === tile.x
                 );
                 if (link) {
-                    const face  = stairsBackFace(tile.x, tile.y);
+                    const face  = stairsEntryFace(tile.x, tile.y);
                     const image = link.toLevel > level ? '/misc/stairs_down.png' : '/misc/stairs_up.png';
                     decals.push({ tileX: tile.x, tileY: tile.y, face, image });
                 }
@@ -593,6 +642,19 @@ export const DungeonScene = () => {
                 add(mech.x, mech.y, mech.face, '/misc/serrure.png');
             } else if (mech.kind.includes('Alcôve')) {
                 add(mech.x, mech.y, mech.face, '/misc/autel.png');
+            }
+        }
+
+        // ── Vi Altars — Sensors with graphic=5 ────────────────────────────────
+        for (const row of map.tiles) {
+            for (const tile of row) {
+                for (const obj of tile.objects) {
+                    if (obj.category !== 'Sensor') continue;
+                    const s = obj as SensorObject;
+                    if ((s as unknown as { graphic?: number }).graphic === 5) {
+                        add(tile.x, tile.y, s.tilePos as CardinalDir, '/misc/autel.png');
+                    }
+                }
             }
         }
 
@@ -630,16 +692,13 @@ export const DungeonScene = () => {
     return (
         <div style={{ width: '100vw', height: '100vh', background: '#000', position: 'relative' }}>
             <LevelName key={level} level={level} />
-            <WallTextOverlay
-                level={level} position={position} direction={direction}
-                map={map} visibleTexts={visibleTexts}
-            />
 
             <Canvas gl={{ localClippingEnabled: true }}>
                 <fog attach="fog" args={['#030405', BASE_FOG_NEAR, BASE_FOG_FAR]} />
                 <LightController />
                 <CameraController />
                 <BoundaryWalls map={map} />
+                <WallTextPlanes map={map} />
 
                 <TileGrid
                     map={map}
