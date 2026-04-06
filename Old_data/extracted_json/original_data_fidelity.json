@@ -1,0 +1,201 @@
+{
+  "generatedAt": "2026-04-06T00:00:00Z",
+  "domains": [
+    {
+      "name": "dungeon_topology",
+      "status": "strong",
+      "source": [
+        "public/dungeon.json"
+      ],
+      "notes": [
+        "Maps, tiles, offsets, local/global coordinates and placed dungeon objects are source-backed."
+      ]
+    },
+    {
+      "name": "resource_names",
+      "status": "strong",
+      "source": [
+        "public/graphics_db.json"
+      ],
+      "notes": [
+        "Item names, attack names, door families and many wall ornament names are extracted via sck."
+      ]
+    },
+    {
+      "name": "render_layout",
+      "status": "strong",
+      "source": [
+        "public/graphics_layout_0696.json",
+        "public/graphics_helper_0696.json",
+        "public/graphics_panels_0696.json"
+      ],
+      "notes": [
+        "Post-Atari layout/composition data from 0696 is now structurally exported and partially semantically decoded."
+      ]
+    },
+    {
+      "name": "door_and_panel_composites",
+      "status": "strong",
+      "source": [
+        "public/graphics_panels_0696.json"
+      ],
+      "notes": [
+        "Late 0696 ranges now expose front-door, teleporter/floor, wall/pit and stairs composite panels."
+      ]
+    },
+    {
+      "name": "helper_templates",
+      "status": "strong",
+      "source": [
+        "public/graphics_helper_0696.json"
+      ],
+      "notes": [
+        "NULL helper ids used by 0696 are catalogued with role guesses and stable families."
+      ]
+    },
+    {
+      "name": "floor_item_distribution",
+      "status": "strong",
+      "source": [
+        "public/graphics_layout_0696.json",
+        "public/graphics_panels_0696.json"
+      ],
+      "notes": [
+        "The 3812..3940 range is effectively decoded as a floor-item distribution grid."
+      ]
+    },
+    {
+      "name": "gameplay_item_tables",
+      "status": "partially_documented",
+      "source": [
+        "src/data/items.ts",
+        "public/game_db.json",
+        "docs/ORIGINAL_ITEM_TABLES.md"
+      ],
+      "notes": [
+        "Item identity, category mapping and carry-location rules are now externally documented from graphics.dat item 559.",
+        "Weapon stats, armor values, potion effects and several misc behaviors are still project-maintained or await companion stat tables."
+      ]
+    },
+    {
+      "name": "gameplay_creature_tables",
+      "status": "documented_external",
+      "source": [
+        "src/data/creatures.ts",
+        "public/game_db.json",
+        "docs/ORIGINAL_CREATURE_TABLES.md"
+      ],
+      "notes": [
+        "Creature descriptors from graphics.dat item 559 are now documented externally, including PC 3.4 variant values.",
+        "Runtime creature data is still maintained locally until those descriptors are integrated structurally."
+      ]
+    },
+    {
+      "name": "actions_and_combos",
+      "status": "documented_external",
+      "source": [
+        "docs/ORIGINAL_ACTIONS_AND_COMBOS.md",
+        "docs/ORIGINAL_ITEM_TABLES.md"
+      ],
+      "notes": [
+        "Action metadata, combo composition, minimum skill gating and charge use are now documented externally.",
+        "This fills the link between item attack-combo indexes and actual champion actions."
+      ]
+    },
+    {
+      "name": "attacks_and_defenses",
+      "status": "documented_external",
+      "source": [
+        "docs/ORIGINAL_ATTACKS_AND_DEFENSES.md",
+        "docs/ORIGINAL_CREATURE_TABLES.md"
+      ],
+      "notes": [
+        "Attack type semantics and champion defense factors are now documented externally.",
+        "This supports a more faithful combat-defense model once integrated."
+      ]
+    },
+    {
+      "name": "skills_and_experience",
+      "status": "documented_external",
+      "source": [
+        "docs/ORIGINAL_SKILLS_AND_EXPERIENCE.md",
+        "docs/ORIGINAL_ACTIONS_AND_COMBOS.md"
+      ],
+      "notes": [
+        "Basic/hidden skills, XP rules, level multipliers, training and growth rules are now documented externally.",
+        "Resurrect and reincarnate behavior is now documented strongly enough to guide runtime alignment."
+      ]
+    },
+    {
+      "name": "item559_structure",
+      "status": "documented_external",
+      "source": [
+        "docs/ORIGINAL_ITEM559_STRUCTURE.md",
+        "public/original_item559.json"
+      ],
+      "notes": [
+        "The original Atari-style logical breakdown of item 559 is now documented in-project and mirrored in a structured JSON reference.",
+        "This covers doors, droppings, creature descriptors, weapon descriptors and item descriptors."
+      ]
+    },
+    {
+      "name": "item560_actions_spells",
+      "status": "documented_external",
+      "source": [
+        "docs/ORIGINAL_ITEM560_ACTIONS_SPELLS.md",
+        "public/original_item560.json"
+      ],
+      "notes": [
+        "The original Atari-style logical breakdown of item 560 is now documented in-project and mirrored in a structured JSON reference.",
+        "This covers action arrays, combos and spell tables."
+      ]
+    },
+    {
+      "name": "item562_ui_system",
+      "status": "documented_external",
+      "source": [
+        "docs/ORIGINAL_ITEM562_UI_SYSTEM.md",
+        "public/original_item562.json"
+      ],
+      "notes": [
+        "The original Atari-style logical breakdown of item 562 is now documented in-project and mirrored in a structured JSON reference.",
+        "This includes carry-location masks, luminance tables, torch mappings and injury/attack-position support tables."
+      ]
+    },
+    {
+      "name": "pc_binary_gameplay_tables",
+      "status": "unresolved",
+      "source": [
+        "assets/DMDisquette/EUDATA/out_GRAPHICS.DAT/0696.RAW1 [Unknown - Unknown Content (Words of data)].dat",
+        "assets/DMDisquette/FIRES_decompressed.bin"
+      ],
+      "notes": [
+        "No contiguous Atari-style I559 gameplay block has been recovered from the PC assets.",
+        "The remaining gap appears to be PC-specific binary organization rather than missing file extraction."
+      ]
+    },
+    {
+      "name": "runtime_door_rendering",
+      "status": "replaceable_now",
+      "source": [
+        "src/components/Dungeon/Cell.tsx",
+        "public/graphics_db.json",
+        "public/graphics_panels_0696.json"
+      ],
+      "notes": [
+        "The runtime still uses one generic door texture, but original door families and front-view panel composites are now extracted."
+      ]
+    },
+    {
+      "name": "runtime_wall_decor_mapping",
+      "status": "replaceable_now",
+      "source": [
+        "src/components/Dungeon/DungeonScene.tsx",
+        "public/graphics_db.json"
+      ],
+      "notes": [
+        "Wall décor fallback logic still uses placeholders such as autel/torch art, even though major original ornament families are now known."
+      ]
+    }
+  ]
+}

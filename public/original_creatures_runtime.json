@@ -1,0 +1,37 @@
+{
+  "_meta": {
+    "source": "graphics.dat item 559 creature descriptors plus current remake field selection",
+    "status": "documented_external_normalized",
+    "generatedAt": "2026-04-06T00:00:00Z",
+    "purpose": "Runtime-friendly creature table using the combat-facing subset already needed by the remake."
+  },
+  "creatures": [
+    { "id": 0, "name": "Giant Scorpion", "baseHP": 150, "armor": 55, "hitProb": 55, "atkSpd": 20, "moveSpd": 8, "exp": 20, "poison": true, "attackTypeId": 4, "attackType": "Sharp" },
+    { "id": 1, "name": "Swamp Slime", "baseHP": 110, "armor": 20, "hitProb": 20, "atkSpd": 32, "moveSpd": 15, "exp": 12, "poison": false, "attackTypeId": 3, "attackType": "Blunt" },
+    { "id": 2, "name": "Giggler", "baseHP": 40, "armor": 10, "hitProb": 60, "atkSpd": 15, "moveSpd": 15, "exp": 15, "poison": false, "attackTypeId": 0, "attackType": "Unconditional", "notes": [ "Item stealing remains hardcoded behavior." ] },
+    { "id": 3, "name": "Wizard Eye", "baseHP": 40, "armor": 30, "hitProb": 80, "atkSpd": 21, "moveSpd": 10, "exp": 20, "poison": false, "attackTypeId": 5, "attackType": "Magic" },
+    { "id": 4, "name": "Pain Rat", "baseHP": 80, "armor": 15, "hitProb": 50, "atkSpd": 10, "moveSpd": 20, "exp": 10, "poison": false, "attackTypeId": 4, "attackType": "Sharp" },
+    { "id": 5, "name": "Ruster", "baseHP": 80, "armor": 25, "hitProb": 45, "atkSpd": 18, "moveSpd": 12, "exp": 15, "poison": false, "attackTypeId": 3, "attackType": "Blunt" },
+    { "id": 6, "name": "Screamer", "baseHP": 30, "armor": 5, "hitProb": 20, "atkSpd": 40, "moveSpd": 5, "exp": 5, "poison": false, "attackTypeId": 6, "attackType": "Mental" },
+    { "id": 7, "name": "Rockpile", "baseHP": 250, "armor": 90, "hitProb": 40, "atkSpd": 25, "moveSpd": 5, "exp": 30, "poison": false, "attackTypeId": 4, "attackType": "Sharp" },
+    { "id": 8, "name": "Ghost", "baseHP": 50, "armor": 60, "hitProb": 70, "atkSpd": 18, "moveSpd": 12, "exp": 25, "poison": false, "attackTypeId": 6, "attackType": "Mental" },
+    { "id": 9, "name": "Stone Golem", "baseHP": 300, "armor": 85, "hitProb": 60, "atkSpd": 30, "moveSpd": 5, "exp": 40, "poison": false, "attackTypeId": 3, "attackType": "Blunt" },
+    { "id": 10, "name": "Mummy", "baseHP": 180, "armor": 30, "hitProb": 50, "atkSpd": 22, "moveSpd": 8, "exp": 25, "poison": false, "attackTypeId": 3, "attackType": "Blunt" },
+    { "id": 11, "name": "Black Flame", "baseHP": 120, "armor": 80, "hitProb": 65, "atkSpd": 20, "moveSpd": 10, "exp": 30, "poison": false, "attackTypeId": 1, "attackType": "Fire" },
+    { "id": 12, "name": "Skeleton", "baseHP": 100, "armor": 35, "hitProb": 55, "atkSpd": 18, "moveSpd": 10, "exp": 20, "poison": false, "attackTypeId": 4, "attackType": "Sharp" },
+    { "id": 13, "name": "Couatl", "baseHP": 39, "armor": 42, "hitProb": 88, "atkSpd": 10, "moveSpd": 5, "exp": 35, "poison": true, "attackTypeId": 4, "attackType": "Sharp" },
+    { "id": 14, "name": "Vexirk", "baseHP": 44, "armor": 47, "hitProb": 90, "atkSpd": 20, "moveSpd": 10, "exp": 40, "poison": false, "attackTypeId": 5, "attackType": "Magic" },
+    { "id": 15, "name": "Magenta Worm", "baseHP": 400, "armor": 60, "hitProb": 55, "atkSpd": 25, "moveSpd": 8, "exp": 50, "poison": true, "attackTypeId": 4, "attackType": "Sharp" },
+    { "id": 16, "name": "Trolin", "baseHP": 120, "armor": 30, "hitProb": 55, "atkSpd": 16, "moveSpd": 12, "exp": 20, "poison": false, "attackTypeId": 3, "attackType": "Blunt" },
+    { "id": 17, "name": "Giant Wasp", "baseHP": 60, "armor": 20, "hitProb": 75, "atkSpd": 12, "moveSpd": 18, "exp": 20, "poison": true, "attackTypeId": 4, "attackType": "Sharp" },
+    { "id": 18, "name": "Animated Armour", "baseHP": 200, "armor": 80, "hitProb": 65, "atkSpd": 20, "moveSpd": 8, "exp": 45, "poison": false, "attackTypeId": 4, "attackType": "Sharp" },
+    { "id": 19, "name": "Materializer", "baseHP": 100, "armor": 45, "hitProb": 70, "atkSpd": 15, "moveSpd": 15, "exp": 35, "poison": false, "attackTypeId": 5, "attackType": "Magic" },
+    { "id": 20, "name": "Water Elemental", "baseHP": 200, "armor": 70, "hitProb": 60, "atkSpd": 20, "moveSpd": 10, "exp": 40, "poison": false, "attackTypeId": 3, "attackType": "Blunt" },
+    { "id": 21, "name": "Oitu", "baseHP": 250, "armor": 75, "hitProb": 70, "atkSpd": 20, "moveSpd": 8, "exp": 50, "poison": false, "attackTypeId": 4, "attackType": "Sharp" },
+    { "id": 22, "name": "Demon", "baseHP": 300, "armor": 70, "hitProb": 75, "atkSpd": 18, "moveSpd": 10, "exp": 60, "poison": false, "attackTypeId": 3, "attackType": "Blunt" },
+    { "id": 23, "name": "Lord Chaos", "baseHP": 990, "armor": 90, "hitProb": 95, "atkSpd": 8, "moveSpd": 5, "exp": 500, "poison": false, "attackTypeId": 5, "attackType": "Magic" },
+    { "id": 24, "name": "Red Dragon", "baseHP": 800, "armor": 85, "hitProb": 85, "atkSpd": 15, "moveSpd": 8, "exp": 200, "poison": false, "attackTypeId": 4, "attackType": "Sharp" },
+    { "id": 25, "name": "Lord Order", "baseHP": 500, "armor": 80, "hitProb": 90, "atkSpd": 12, "moveSpd": 8, "exp": 100, "poison": false, "attackTypeId": 5, "attackType": "Magic" },
+    { "id": 26, "name": "Grey Lord", "baseHP": 500, "armor": 80, "hitProb": 90, "atkSpd": 12, "moveSpd": 8, "exp": 100, "poison": false, "attackTypeId": 5, "attackType": "Magic" }
+  ]
+}

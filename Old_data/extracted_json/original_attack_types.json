@@ -1,0 +1,57 @@
+{
+  "_meta": {
+    "source": "Dungeon Master and Chaos Strikes Back Attacks and Defenses",
+    "status": "documented_external",
+    "generatedAt": "2026-04-06T00:00:00Z",
+    "purpose": "Normalized attack-type semantics for runtime combat logic."
+  },
+  "attackTypes": [
+    {
+      "id": 0,
+      "name": "Unconditional",
+      "defenseModel": "No armor or stat-based mitigation.",
+      "notes": [
+        "Used for poison, stamina collapse and poison cloud damage.",
+        "Cannot cause wounds."
+      ]
+    },
+    {
+      "id": 1,
+      "name": "Fire",
+      "defenseModel": "Anti-Fire, Fireshield, normal armor, last-action defense, Vitality, shield spell and shield potion."
+    },
+    {
+      "id": 2,
+      "name": "Impact",
+      "defenseModel": "Normal armor, last-action defense, Vitality, shield spell and shield potion.",
+      "notes": [
+        "Defense is halved for this attack type."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Blunt",
+      "defenseModel": "Normal armor, last-action defense, Vitality, shield spell and shield potion."
+    },
+    {
+      "id": 4,
+      "name": "Sharp",
+      "defenseModel": "Sharp-defense armor, last-action defense, Vitality, shield spell and shield potion."
+    },
+    {
+      "id": 5,
+      "name": "Magic",
+      "defenseModel": "Anti-Magic and Spellshield."
+    },
+    {
+      "id": 6,
+      "name": "Mental",
+      "defenseModel": "Wisdom."
+    },
+    {
+      "id": 7,
+      "name": "Blast",
+      "defenseModel": "Normal armor, last-action defense, Vitality, shield spell and shield potion."
+    }
+  ]
+}

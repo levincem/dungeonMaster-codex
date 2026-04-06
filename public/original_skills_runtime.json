@@ -1,0 +1,32 @@
+{
+  "_meta": {
+    "source": "Dungeon Master and Chaos Strikes Back Skills and Statistics",
+    "status": "documented_external",
+    "generatedAt": "2026-04-06T00:00:00Z",
+    "purpose": "Normalized skill metadata for actions, combos and training."
+  },
+  "basicSkills": [
+    { "id": 0, "name": "Fighter" },
+    { "id": 1, "name": "Ninja" },
+    { "id": 2, "name": "Priest" },
+    { "id": 3, "name": "Wizard" }
+  ],
+  "hiddenSkills": [
+    { "id": 4, "name": "Swing", "parentSkill": "Fighter" },
+    { "id": 5, "name": "Thrust", "parentSkill": "Fighter" },
+    { "id": 6, "name": "Club", "parentSkill": "Fighter" },
+    { "id": 7, "name": "Parry", "parentSkill": "Fighter" },
+    { "id": 8, "name": "Steal", "parentSkill": "Ninja" },
+    { "id": 9, "name": "Fight", "parentSkill": "Ninja" },
+    { "id": 10, "name": "Throw", "parentSkill": "Ninja" },
+    { "id": 11, "name": "Shoot", "parentSkill": "Ninja" },
+    { "id": 12, "name": "Identify", "parentSkill": "Priest" },
+    { "id": 13, "name": "Heal", "parentSkill": "Priest" },
+    { "id": 14, "name": "Influence", "parentSkill": "Priest" },
+    { "id": 15, "name": "Defend", "parentSkill": "Priest" },
+    { "id": 16, "name": "Fire", "parentSkill": "Wizard" },
+    { "id": 17, "name": "Air", "parentSkill": "Wizard" },
+    { "id": 18, "name": "Earth", "parentSkill": "Wizard" },
+    { "id": 19, "name": "Water", "parentSkill": "Wizard" }
+  ]
+}

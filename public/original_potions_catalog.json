@@ -1,0 +1,112 @@
+{
+    "_meta":  {
+                  "source":  "public/game_db.json + runtime definitions",
+                  "status":  "derived_current_project",
+                  "generatedAt":  "2026-04-06T00:00:00Z",
+                  "purpose":  "Flat potion catalog currently consumable by the remake."
+              },
+    "potions":  [
+                    {
+                        "id":  0,
+                        "name":  "Mon Potion",
+                        "effect":  "spellPower",
+                        "level":  1
+                    },
+                    {
+                        "id":  1,
+                        "name":  "Um Potion",
+                        "effect":  "spellPower",
+                        "level":  2
+                    },
+                    {
+                        "id":  2,
+                        "name":  "Dee Potion",
+                        "effect":  "spellPower",
+                        "level":  3
+                    },
+                    {
+                        "id":  3,
+                        "name":  "Zo Potion",
+                        "effect":  "spellPower",
+                        "level":  4
+                    },
+                    {
+                        "id":  4,
+                        "name":  "Ful Potion",
+                        "effect":  "spellPower",
+                        "level":  5
+                    },
+                    {
+                        "id":  8,
+                        "name":  "Health Potion",
+                        "effect":  "health",
+                        "restore":  100
+                    },
+                    {
+                        "id":  9,
+                        "name":  "Stamina Potion",
+                        "effect":  "stamina",
+                        "restore":  100
+                    },
+                    {
+                        "id":  10,
+                        "name":  "Mana Potion",
+                        "effect":  "mana",
+                        "restore":  100
+                    },
+                    {
+                        "id":  11,
+                        "name":  "Antidote",
+                        "effect":  "poison",
+                        "restore":  0
+                    },
+                    {
+                        "id":  13,
+                        "name":  "Strength Potion",
+                        "effect":  "strength",
+                        "boost":  10,
+                        "duration":  1000
+                    },
+                    {
+                        "id":  14,
+                        "name":  "Dexterity Potion",
+                        "effect":  "dexterity",
+                        "boost":  10,
+                        "duration":  1000
+                    },
+                    {
+                        "id":  15,
+                        "name":  "Wisdom Potion",
+                        "effect":  "wisdom",
+                        "boost":  10,
+                        "duration":  1000
+                    },
+                    {
+                        "id":  16,
+                        "name":  "Vitality Potion",
+                        "effect":  "vitality",
+                        "boost":  10,
+                        "duration":  1000
+                    },
+                    {
+                        "id":  17,
+                        "name":  "Anti-Magic Potion",
+                        "effect":  "antiMagic",
+                        "boost":  20,
+                        "duration":  1000
+                    },
+                    {
+                        "id":  18,
+                        "name":  "Anti-Fire Potion",
+                        "effect":  "antiFire",
+                        "boost":  20,
+                        "duration":  1000
+                    },
+                    {
+                        "id":  24,
+                        "name":  "Waterskin (water)",
+                        "effect":  "stamina",
+                        "restore":  30
+                    }
+                ]
+}

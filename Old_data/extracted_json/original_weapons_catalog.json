@@ -1,0 +1,367 @@
+{
+    "_meta":  {
+                  "source":  "public/game_db.json + runtime definitions",
+                  "status":  "derived_current_project",
+                  "generatedAt":  "2026-04-06T00:00:00Z",
+                  "purpose":  "Flat weapon catalog currently consumable by the remake."
+              },
+    "weapons":  [
+                    {
+                        "id":  0,
+                        "name":  "Vorpal Blade",
+                        "type":  "Sword",
+                        "damage":  [
+                                       10,
+                                       25
+                                   ],
+                        "weight":  8,
+                        "atkSpd":  20,
+                        "twoHanded":  false
+                    },
+                    {
+                        "id":  2,
+                        "name":  "Fury",
+                        "type":  "Sword",
+                        "damage":  [
+                                       20,
+                                       35
+                                   ],
+                        "weight":  12,
+                        "atkSpd":  22,
+                        "twoHanded":  false
+                    },
+                    {
+                        "id":  8,
+                        "name":  "Arrow",
+                        "type":  "Ammo",
+                        "damage":  [
+                                       8,
+                                       15
+                                   ],
+                        "weight":  1,
+                        "atkSpd":  0,
+                        "twoHanded":  false
+                    },
+                    {
+                        "id":  9,
+                        "name":  "Slayer",
+                        "type":  "Ammo",
+                        "damage":  [
+                                       20,
+                                       30
+                                   ],
+                        "weight":  1,
+                        "atkSpd":  0,
+                        "twoHanded":  false
+                    },
+                    {
+                        "id":  10,
+                        "name":  "Rocket",
+                        "type":  "Ammo",
+                        "damage":  [
+                                       30,
+                                       45
+                                   ],
+                        "weight":  2,
+                        "atkSpd":  0,
+                        "twoHanded":  false
+                    },
+                    {
+                        "id":  16,
+                        "name":  "Torch",
+                        "type":  "Torch",
+                        "damage":  [
+                                       4,
+                                       8
+                                   ],
+                        "weight":  3,
+                        "atkSpd":  20,
+                        "twoHanded":  false,
+                        "luminous":  true
+                    },
+                    {
+                        "id":  17,
+                        "name":  "Gem of Ages",
+                        "type":  "Special",
+                        "damage":  [
+                                       0,
+                                       0
+                                   ],
+                        "weight":  1,
+                        "atkSpd":  0,
+                        "twoHanded":  false
+                    },
+                    {
+                        "id":  18,
+                        "name":  "Etoile",
+                        "type":  "Special",
+                        "damage":  [
+                                       0,
+                                       0
+                                   ],
+                        "weight":  2,
+                        "atkSpd":  0,
+                        "twoHanded":  false
+                    },
+                    {
+                        "id":  19,
+                        "name":  "Yew Staff",
+                        "type":  "Staff",
+                        "damage":  [
+                                       8,
+                                       18
+                                   ],
+                        "weight":  10,
+                        "atkSpd":  24,
+                        "twoHanded":  true
+                    },
+                    {
+                        "id":  20,
+                        "name":  "Staff of Claws",
+                        "type":  "Staff",
+                        "damage":  [
+                                       20,
+                                       35
+                                   ],
+                        "weight":  12,
+                        "atkSpd":  24,
+                        "twoHanded":  true
+                    },
+                    {
+                        "id":  21,
+                        "name":  "Staff",
+                        "type":  "Staff",
+                        "damage":  [
+                                       5,
+                                       12
+                                   ],
+                        "weight":  8,
+                        "atkSpd":  22,
+                        "twoHanded":  true
+                    },
+                    {
+                        "id":  22,
+                        "name":  "Wand",
+                        "type":  "Wand",
+                        "damage":  [
+                                       5,
+                                       10
+                                   ],
+                        "weight":  3,
+                        "atkSpd":  18,
+                        "twoHanded":  false
+                    },
+                    {
+                        "id":  23,
+                        "name":  "Teowand",
+                        "type":  "Wand",
+                        "damage":  [
+                                       10,
+                                       20
+                                   ],
+                        "weight":  4,
+                        "atkSpd":  18,
+                        "twoHanded":  false
+                    },
+                    {
+                        "id":  25,
+                        "name":  "Axe of Strength",
+                        "type":  "Axe",
+                        "damage":  [
+                                       30,
+                                       45
+                                   ],
+                        "weight":  15,
+                        "atkSpd":  28,
+                        "twoHanded":  false
+                    },
+                    {
+                        "id":  26,
+                        "name":  "Executioner",
+                        "type":  "Axe",
+                        "damage":  [
+                                       35,
+                                       55
+                                   ],
+                        "weight":  18,
+                        "atkSpd":  30,
+                        "twoHanded":  true
+                    },
+                    {
+                        "id":  27,
+                        "name":  "Dagger of Fear",
+                        "type":  "Dagger",
+                        "damage":  [
+                                       15,
+                                       25
+                                   ],
+                        "weight":  4,
+                        "atkSpd":  14,
+                        "twoHanded":  false
+                    },
+                    {
+                        "id":  32,
+                        "name":  "Dagger",
+                        "type":  "Dagger",
+                        "damage":  [
+                                       10,
+                                       18
+                                   ],
+                        "weight":  3,
+                        "atkSpd":  14,
+                        "twoHanded":  false
+                    },
+                    {
+                        "id":  33,
+                        "name":  "Falchion",
+                        "type":  "Sword",
+                        "damage":  [
+                                       22,
+                                       34
+                                   ],
+                        "weight":  10,
+                        "atkSpd":  20,
+                        "twoHanded":  false
+                    },
+                    {
+                        "id":  34,
+                        "name":  "Rapier",
+                        "type":  "Sword",
+                        "damage":  [
+                                       18,
+                                       28
+                                   ],
+                        "weight":  7,
+                        "atkSpd":  16,
+                        "twoHanded":  false
+                    },
+                    {
+                        "id":  35,
+                        "name":  "Sabre",
+                        "type":  "Sword",
+                        "damage":  [
+                                       28,
+                                       42
+                                   ],
+                        "weight":  11,
+                        "atkSpd":  20,
+                        "twoHanded":  false
+                    },
+                    {
+                        "id":  36,
+                        "name":  "Sword",
+                        "type":  "Sword",
+                        "damage":  [
+                                       24,
+                                       36
+                                   ],
+                        "weight":  12,
+                        "atkSpd":  22,
+                        "twoHanded":  false
+                    },
+                    {
+                        "id":  40,
+                        "name":  "Bow",
+                        "type":  "Bow",
+                        "damage":  [
+                                       0,
+                                       0
+                                   ],
+                        "weight":  8,
+                        "atkSpd":  0,
+                        "twoHanded":  true,
+                        "ranged":  true
+                    },
+                    {
+                        "id":  41,
+                        "name":  "Crossbow",
+                        "type":  "Bow",
+                        "damage":  [
+                                       0,
+                                       0
+                                   ],
+                        "weight":  10,
+                        "atkSpd":  0,
+                        "twoHanded":  true,
+                        "ranged":  true
+                    },
+                    {
+                        "id":  42,
+                        "name":  "Long Bow",
+                        "type":  "Bow",
+                        "damage":  [
+                                       0,
+                                       0
+                                   ],
+                        "weight":  9,
+                        "atkSpd":  0,
+                        "twoHanded":  true,
+                        "ranged":  true
+                    },
+                    {
+                        "id":  48,
+                        "name":  "Rock",
+                        "type":  "Thrown",
+                        "damage":  [
+                                       6,
+                                       12
+                                   ],
+                        "weight":  4,
+                        "atkSpd":  0,
+                        "twoHanded":  false,
+                        "thrown":  true
+                    },
+                    {
+                        "id":  49,
+                        "name":  "Poison Dart",
+                        "type":  "Thrown",
+                        "damage":  [
+                                       4,
+                                       8
+                                   ],
+                        "weight":  1,
+                        "atkSpd":  0,
+                        "twoHanded":  false,
+                        "thrown":  true,
+                        "poison":  true
+                    },
+                    {
+                        "id":  50,
+                        "name":  "Throwing Star",
+                        "type":  "Thrown",
+                        "damage":  [
+                                       10,
+                                       18
+                                   ],
+                        "weight":  2,
+                        "atkSpd":  0,
+                        "twoHanded":  false,
+                        "thrown":  true
+                    },
+                    {
+                        "id":  56,
+                        "name":  "Sling",
+                        "type":  "Bow",
+                        "damage":  [
+                                       0,
+                                       0
+                                   ],
+                        "weight":  3,
+                        "atkSpd":  0,
+                        "twoHanded":  true,
+                        "ranged":  true
+                    },
+                    {
+                        "id":  63,
+                        "name":  "Master Key",
+                        "type":  "Key",
+                        "damage":  [
+                                       0,
+                                       0
+                                   ],
+                        "weight":  1,
+                        "atkSpd":  0,
+                        "twoHanded":  false
+                    }
+                ]
+}

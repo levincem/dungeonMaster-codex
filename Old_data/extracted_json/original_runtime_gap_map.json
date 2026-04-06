@@ -1,0 +1,137 @@
+{
+  "generatedAt": "2026-04-06T00:00:00Z",
+  "notes": [
+    "This file maps current remake runtime heuristics to the original-data exports now available in the repository.",
+    "The goal is to separate gaps that are replaceable immediately from gaps still blocked on missing gameplay-table decoding."
+  ],
+  "domains": [
+    {
+      "name": "doors",
+      "status": "replaceable_now",
+      "runtime": [
+        {
+          "path": "src/components/Dungeon/Cell.tsx",
+          "detail": "Door rendering still loads a single generic /textures/door.png texture."
+        }
+      ],
+      "originalData": [
+        {
+          "path": "public/graphics_db.json",
+          "detail": "Door families are now extracted: Porticullis, Wooden Door, Iron Door, Ra Door."
+        },
+        {
+          "path": "public/graphics_panels_0696.json",
+          "detail": "Front-door composite strips and front-view door family panels are structurally exported."
+        }
+      ]
+    },
+    {
+      "name": "wall_decor",
+      "status": "replaceable_now",
+      "runtime": [
+        {
+          "path": "src/components/Dungeon/DungeonScene.tsx",
+          "detail": "Alcove and sensor-graphic wall decals still fall back to /misc/autel.png or /items/torch_unlit.png."
+        }
+      ],
+      "originalData": [
+        {
+          "path": "public/graphics_db.json",
+          "detail": "Named wall ornaments now include Grate, Empty Torch Holder, Full Torch Holder, Champion Mirror, Lever Up and Lever Down."
+        }
+      ]
+    },
+    {
+      "name": "item_gameplay",
+      "status": "partially_documented",
+      "runtime": [
+        {
+          "path": "src/data/items.ts",
+          "detail": "Weapon damage, attack speed, armor values, slot mappings, potion effects and nutrition remain project-maintained."
+        },
+        {
+          "path": "public/game_db.json",
+          "detail": "Reference DB is explicitly marked as derived and not byte-perfect."
+        }
+      ],
+      "originalData": [
+        {
+          "path": "public/graphics_db.json",
+          "detail": "Names and visible identities are strongly recovered."
+        },
+        {
+          "path": "public/dungeon.json",
+          "detail": "Placement/origin data is source-backed."
+        },
+        {
+          "path": "docs/ORIGINAL_ITEM_TABLES.md",
+          "detail": "graphics.dat item 559 documentation now covers global item indexes, categories, attack combos and carry-location bitmasks."
+        }
+      ],
+      "blocker": "Companion stat tables for damage, armor, weight and related gameplay values are still not recovered as a structured PC-native dataset."
+    },
+    {
+      "name": "creature_gameplay",
+      "status": "documented_external",
+      "runtime": [
+        {
+          "path": "src/data/creatures.ts",
+          "detail": "HP, armor, hit probability, speed, XP, attack tags and drop tables remain project-maintained."
+        }
+      ],
+      "originalData": [
+        {
+          "path": "public/graphics_db.json",
+          "detail": "Creature-facing render resources are present."
+        },
+        {
+          "path": "public/graphics_layout_0696.json",
+          "detail": "Post-Atari render/layout data is structurally exported."
+        },
+        {
+          "path": "docs/ORIGINAL_CREATURE_TABLES.md",
+          "detail": "graphics.dat item 559 creature descriptors are now documented externally, including PC 3.4 variant values and hardcoded exceptions."
+        }
+      ],
+      "blocker": "The descriptor data is documented, but has not yet been imported as a structured source-backed runtime dataset."
+    },
+    {
+      "name": "actions_combos_and_training",
+      "status": "documented_external",
+      "runtime": [
+        {
+          "path": "public/game_db.json",
+          "detail": "Action, combo and training semantics are still largely represented through a derived reference layer rather than a dedicated source-backed dataset."
+        }
+      ],
+      "originalData": [
+        {
+          "path": "docs/ORIGINAL_ACTIONS_AND_COMBOS.md",
+          "detail": "Action metadata, combo composition, charge use and minimum skill levels are now documented externally."
+        },
+        {
+          "path": "docs/ORIGINAL_SKILLS_AND_EXPERIENCE.md",
+          "detail": "Skill relationships, XP rules, level multipliers and growth logic are now documented externally."
+        }
+      ],
+      "blocker": "These rules are documented, but not yet normalized into a structured runtime dataset."
+    },
+    {
+      "name": "combat_defense_model",
+      "status": "documented_external",
+      "runtime": [
+        {
+          "path": "src/data/creatures.ts",
+          "detail": "Creature attack typing exists locally, but the original defense-factor mapping is not yet represented as its own source-backed table."
+        }
+      ],
+      "originalData": [
+        {
+          "path": "docs/ORIGINAL_ATTACKS_AND_DEFENSES.md",
+          "detail": "The original attack-type to defense-factor model is now documented externally."
+        }
+      ],
+      "blocker": "The defense rules are known, but still need explicit integration into the remake combat model."
+    }
+  ]
+}

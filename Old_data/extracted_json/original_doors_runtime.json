@@ -1,0 +1,42 @@
+{
+  "_meta": {
+    "source": "graphics.dat item 559",
+    "status": "source_backed",
+    "generatedAt": "2026-04-06T00:00:00Z",
+    "purpose": "Runtime-friendly door definitions derived from original door characteristics."
+  },
+  "doors": [
+    {
+      "id": 0,
+      "name": "Grate door",
+      "animated": false,
+      "thrownItemsCanPassThrough": true,
+      "creaturesCanSeeThrough": true,
+      "resistance": 110
+    },
+    {
+      "id": 1,
+      "name": "Wooden door",
+      "animated": false,
+      "thrownItemsCanPassThrough": false,
+      "creaturesCanSeeThrough": false,
+      "resistance": 42
+    },
+    {
+      "id": 2,
+      "name": "Iron door",
+      "animated": false,
+      "thrownItemsCanPassThrough": false,
+      "creaturesCanSeeThrough": false,
+      "resistance": 230
+    },
+    {
+      "id": 3,
+      "name": "Ra door",
+      "animated": true,
+      "thrownItemsCanPassThrough": false,
+      "creaturesCanSeeThrough": true,
+      "resistance": 255
+    }
+  ]
+}

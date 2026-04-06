@@ -1,0 +1,56 @@
+{
+    "_meta":  {
+                  "source":  "graphics.dat item 562",
+                  "status":  "documented_external",
+                  "generatedAt":  "2026-04-06T00:00:00Z",
+                  "purpose":  "Runtime-facing UI and support-system constants from original item 562."
+              },
+    "paletteBrightnessThresholds":  [
+                                        99,
+                                        75,
+                                        50,
+                                        25,
+                                        1,
+                                        0
+                                    ],
+    "luminousPowerToLuminance":  [
+                                     0,
+                                     5,
+                                     12,
+                                     24,
+                                     33,
+                                     40,
+                                     46,
+                                     51,
+                                     59,
+                                     68,
+                                     76,
+                                     82,
+                                     89,
+                                     94,
+                                     97,
+                                     100
+                                 ],
+    "creatureInjuryMasks":  {
+                                "feet":  32,
+                                "legs":  16,
+                                "torso":  8,
+                                "head":  4
+                            },
+    "stringsUsedWhenReincarnating":  {
+                                         "space":  " ",
+                                         "underscore":  "_"
+                                     },
+    "specialCharactersWhenReincarnating":  [
+                                               44,
+                                               46,
+                                               59,
+                                               58,
+                                               32,
+                                               0
+                                           ],
+    "notes":  [
+                  "Carry-location masks and icon display descriptors remain documented in original_item562.json.",
+                  "This file is the compact runtime-facing subset of item 562 constants."
+              ]
+}
