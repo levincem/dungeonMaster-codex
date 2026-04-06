@@ -8,6 +8,7 @@ Le projet est deja une base tres avancee et jouable:
 - deplacement du groupe dans les niveaux
 - recrutement des champions via les miroirs
 - interface HUD jouable
+- HUD principal retravaille : portraits en ligne, mains visibles, formation 2x2 a droite
 - monstres visibles avec IA simple
 - combat temps reel simplifie
 - sorts partiellement fonctionnels
@@ -39,7 +40,7 @@ Les zones les plus solides du projet:
 - [src/data/mapLoader.ts](/D:/DungeonMaster-codex/src/data/mapLoader.ts)
   chargement du dungeon original depuis `Old_data/dungeon.json`
 
-### 2. Le projet ne build pas encore proprement
+### 2. Le projet build maintenant proprement
 
 Commande verifiee:
 
@@ -47,22 +48,10 @@ Commande verifiee:
 npm.cmd run build
 ```
 
-Erreurs relevees:
-
-- [src/components/Dungeon/FloorItemMesh.tsx](/D:/DungeonMaster-codex/src/components/Dungeon/FloorItemMesh.tsx#L29)
-  acces non type a `tex.image.width` et `tex.image.height`
-- [src/components/UI/HeroSelectionScreen.tsx](/D:/DungeonMaster-codex/src/components/UI/HeroSelectionScreen.tsx#L165)
-  utilisation de `champion.description` alors que ce champ n'existe pas dans le type `Champion`
-- [src/components/UI/MirrorPopup.tsx](/D:/DungeonMaster-codex/src/components/UI/MirrorPopup.tsx#L184)
-  meme probleme avec `champion.description`
-- [src/components/UI/MirrorPopup.tsx](/D:/DungeonMaster-codex/src/components/UI/MirrorPopup.tsx#L63)
-  variable `index` non utilisee
-- [src/data/mapLoader.ts](/D:/DungeonMaster-codex/src/data/mapLoader.ts#L85)
-  cast fragile de `RawObject[]` vers `TileObject[]`
-
 Conclusion:
 
-- avant de parler de "finition", il faut d'abord remettre le projet dans un etat de build vert
+- le build vert n'est plus un blocage
+- on peut maintenant se concentrer sur la fidelite systemique, les mecanismes et le polish
 
 ### 3. Des ecrans existent mais ne sont pas branches
 
@@ -123,7 +112,7 @@ Le combat du groupe et l'IA des monstres tournent deja dans [src/engine/store.ts
 
 Le jeu est donc jouable, mais pas encore "authentique" ni complet systemiquement.
 
-### 6. Les objets et statuts sont loin d'etre termines
+### 6. Les objets et statuts avancent nettement, mais ne sont pas termines
 
 Les donnees d'objets sont riches:
 
@@ -135,16 +124,25 @@ Les donnees d'objets sont riches:
 - objets speciaux
 - conteneurs
 
-Mais la boucle de jeu associee n'est pas terminee:
+Les points deja bien avances:
+
+- catalogues runtime relies a des JSON d'origine consolides
+- nettoyage global des noms d'objets a partir des listes extraites
+- regles d'equipement centralisees et partagees entre UI et runtime
+- verification des slots valides cote store
+- poids et charge max rapproches du comportement DM
+- quelques bonus passifs documentes branches
+
+Mais la boucle de jeu associee n'est pas encore terminee:
 
 - pas de faim/soif visible
 - pas de vrai systeme de poison persistant cote groupe
 - potions et bonus temporaires incomplets
-- cles et serrures encore simplifiees
+- cles, serrures et drag and drop main -> serrure encore a finaliser
 - conteneurs non exploites comme vrai systeme de contenu
 - usage des objets speciaux incomplet
 
-### 7. Les tiles speciales et interactions de carte sont encore incompletes
+### 7. Les tiles speciales et interactions de carte progressent, mais restent incompletes
 
 Le typage et les donnees prevoient:
 
@@ -155,6 +153,13 @@ Le typage et les donnees prevoient:
 - textes muraux
 - teleporteurs
 - senseurs / portes logiques — **implementes** : type 5, seuil d'inputs, actions Hold
+
+Ce qui est maintenant deja mieux cale:
+
+- portes branchees sur leurs proprietes originales (vision / passage projectiles)
+- texture specifique de grille fer
+- vraies plaques de pression Floor affichees, sans faux positifs teleporter au debut du niveau 0
+- convention levier_haut = inactif, levier_bas = actif
 
 Mais il manque encore des comportements attendus pour un remake complet:
 
@@ -411,22 +416,49 @@ Si on reprend le chantier de maniere pragmatique, le meilleur ordre est:
 ## Premiere checklist de reprise
 
 - [x] Faire passer `npm.cmd run build`
-- [ ] Corriger `HeroSelectionScreen` et `MirrorPopup`
-- [ ] Corriger `FloorItemMesh`
-- [ ] Corriger le cast de `mapLoader`
 - [ ] Decider si `HeroSelectionScreen` doit etre branche ou non
 - [ ] Ajouter au moins un etat de game over
 - [ ] Ajouter au moins un etat de victoire ou de fin
-- [ ] Implementer `shield`
-- [ ] Implementer `invisibility`
-- [ ] Implementer `magic_vision`
+- [x] Implementer `shield`
+- [x] Implementer `invisibility`
+- [x] Implementer `magic_vision`
 - [ ] Implementer les sorts de type `potion`
 - [ ] Clarifier faim / eau / poison / objets utilitaires
+- [ ] Finaliser cles / serrures / alcoves avec drag and drop depuis les mains
+- [ ] Brancher defenses d'armure / boucliers / resistances dans les degats recus
 - [ ] Commencer le nettoyage de `MISSING_IMAGES.md`
 
 ## Journal des sessions
 
 ### Session 2026-04-06
+
+**Donnees originales et runtime**
+
+- Consolidation des tables d'origine en JSON de reference et JSON runtime dans `public/`
+- `creatures.ts` et `items.ts` relies aux donnees originales consolidees
+- nettoyage global des noms d'objets a partir des listes extraites
+- resolver centralise des noms d'items utilise par les catalogues et par le chargement runtime
+
+**HUD et interface**
+
+- HUD principal retravaille : 4 portraits sur une ligne, mains visibles, formation 2x2 a droite
+- tailles et espacements ajustes pour se rapprocher d'un usage clavier + DM1
+- correction du halo de drag and drop dans la fiche champion
+
+**Objets / equipement**
+
+- regles de slots centralisees dans `src/data/equipment.ts`
+- validation des slots cote UI et store
+- correction des cas comme `Armor_21` / `Armor_22`
+- formule de charge max rapprochee de Dungeon Master
+- quelques bonus passifs d'objets documentes branches
+
+**Portes / mecanismes**
+
+- portes branchees sur leurs proprietes originales (vision / projectiles)
+- plaques de pression derivees des vrais mecanismes Floor
+- texture de grille fer corrigee via asset alpha propre
+- convention des leviers fixee : haut=inactif, bas=actif
 
 **ChampionSheet (src/components/UI/ChampionSheet.tsx)**
 

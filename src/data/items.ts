@@ -7,6 +7,126 @@ import potionsCatalog from '../../public/original_potions_catalog.json';
 import miscCatalog from '../../public/original_misc_catalog.json';
 import type { WeaponDef, ArmorDef, PotionDef, MiscDef } from '../types/items';
 
+const PLACEHOLDER_NAME_RE = /^([A-Za-z]+_\d+|\(W\d+\))$/;
+
+const CANONICAL_WEAPON_NAMES: Record<number, string> = {
+    13: 'Samurai Sword',
+    25: 'Axe',
+};
+
+const CANONICAL_ARMOR_NAMES: Record<number, string> = {
+     0: 'Cape',
+     1: 'Cloak of Night',
+     2: 'Elven Doublet',
+     3: 'Leather Jerkin',
+     4: 'Suede Doublet',
+     5: 'Robe of the Kite Lord',
+     6: 'Robe',
+     7: 'Barbarian Doublet',
+     8: 'Ghi',
+     9: 'Plate Mail',
+    10: 'Tunic',
+    11: 'Silk Shirt',
+    12: 'Gunna',
+    13: 'Tabard',
+    14: 'Halter',
+    15: 'Kirtle',
+    16: 'Leather Boots',
+    17: 'Sandals',
+    18: 'Hosen',
+    19: 'Chain Mail Aketon',
+    20: 'Elven Boots',
+    21: 'Suede Boots',
+    22: 'Blue Pants',
+    23: 'Mail Aketon',
+    24: 'Leg Mail',
+    25: 'Leather Pants',
+    26: 'Robe Legs',
+    27: 'Fine Robe Legs',
+    28: 'Ghi Trousers',
+    29: 'Barbarian Hide',
+    30: 'Greave of Lyte',
+    31: 'Greave of Darc',
+    32: 'Helmet',
+    33: 'Armet',
+    34: 'Crown of Nerra',
+    35: "Vilmain's Hat",
+    36: "Casque 'n Coif",
+    37: 'Basinet',
+    38: 'Helm of Lyte',
+    39: 'Helm of Darc',
+    40: 'Neck Plate',
+    41: 'Torso Plate',
+    42: 'Leg Plate',
+    43: 'Foot Plate',
+    44: 'Poleyn of Lyte',
+    45: 'Poleyn of Darc',
+    46: 'Plate of Lyte',
+    47: 'Plate of Darc',
+    48: 'Gauntlets',
+    49: 'Gloves',
+    50: 'Shield of Lyte',
+    51: 'Shield of Darc',
+    52: 'Buckler',
+    54: 'Hide Shield',
+    56: 'Belt',
+    57: 'Large Shield',
+};
+
+const CANONICAL_MISC_NAMES: Record<number, string> = {
+     0: 'Compass',
+     1: 'Waterskin',
+     2: 'Torch',
+     3: 'Dragon Steak',
+     4: 'Drumstick',
+     5: 'Corn',
+     6: 'Bread',
+     7: 'Water Flask',
+     8: 'Apple',
+     9: 'Cheese',
+    10: 'Ful Bomb',
+    11: 'Zokathra Spell',
+    12: 'Corbamite',
+    13: 'Copper Coin',
+    14: 'Silver Coin',
+    15: 'Gold Coin',
+    16: 'Jewel Symal',
+    17: 'Illumulet',
+    18: 'Moonstone',
+    19: 'Magnifier',
+    21: 'Lock Picks',
+    22: 'Rope',
+    23: 'Mirror of Dawn',
+    24: 'Ashes',
+    25: 'Magical Box',
+    26: 'Scroll',
+    27: 'Pendant Feral',
+    28: 'Bones',
+    29: 'Apple',
+    30: 'Corn',
+    31: 'Bread',
+    32: "Rabbit's Foot",
+    35: 'Drumstick',
+    36: 'Dragon Steak',
+    37: 'Worm Round',
+    38: 'Screamer Slice',
+    39: 'Moonstone',
+    40: 'Empty Flask',
+    41: 'Water Flask',
+    42: 'Magical Box',
+    43: 'Delta',
+    44: 'Ekkhard Cross',
+    45: 'Rope',
+    46: "Rabbit's Foot",
+    47: 'Choker',
+    48: 'Iron Key',
+    49: 'Key of B',
+    50: 'Winged Key',
+    51: 'Topaz Key',
+    52: 'Cross Key',
+    56: 'Chest',
+};
+
 // ─── Weapons ──────────────────────────────────────────────────────────────────
 
 const LEGACY_WEAPON_TYPES: Record<number, WeaponDef> = {
@@ -150,6 +270,29 @@ function byId<T extends { id: number }>(entries: T[]): Record<number, T> {
     return Object.fromEntries(entries.map((entry) => [entry.id, entry]));
 }
 
+function getCanonicalName(category: 'Weapon' | 'Armor' | 'Potion' | 'Misc', typeId: number): string | undefined {
+    switch (category) {
+        case 'Weapon': return CANONICAL_WEAPON_NAMES[typeId];
+        case 'Armor': return CANONICAL_ARMOR_NAMES[typeId];
+        case 'Misc': return CANONICAL_MISC_NAMES[typeId];
+        default: return undefined;
+    }
+}
+
+export function resolveItemName(
+    category: 'Weapon' | 'Armor' | 'Potion' | 'Misc' | 'Scroll' | 'Container',
+    typeId: number,
+    rawName?: string,
+): string {
+    if (category === 'Scroll') return rawName && !PLACEHOLDER_NAME_RE.test(rawName) ? rawName : 'Scroll';
+    if (category === 'Container') return rawName && !PLACEHOLDER_NAME_RE.test(rawName) ? rawName : 'Chest';
+
+    const canonical = getCanonicalName(category, typeId);
+    if (canonical) return canonical;
+    if (rawName && !PLACEHOLDER_NAME_RE.test(rawName)) return rawName;
+    return `${category} #${typeId}`;
+}
+
 function mergeById<T extends { id: number }>(primary: T[], fallback: Record<number, T>): T[] {
     const merged = new Map<number, T>();
     for (const value of Object.values(fallback)) merged.set(value.id, value);
@@ -163,7 +306,7 @@ function normalizeWeaponEntries(): WeaponDef[] {
 
     const normalized: WeaponDef[] = catalog.weapons.map((entry) => ({
         id: Number(entry.id ?? 0),
-        name: String(entry.name ?? 'Unknown Weapon'),
+        name: resolveItemName('Weapon', Number(entry.id ?? 0), String(entry.name ?? 'Unknown Weapon')),
         type: String(entry.type ?? 'Special') as WeaponDef['type'],
         damage: [
             Number(Array.isArray(entry.damage) ? entry.damage[0] ?? 0 : 0),
@@ -177,22 +320,37 @@ function normalizeWeaponEntries(): WeaponDef[] {
         luminous: entry.luminous === undefined ? undefined : Boolean(entry.luminous),
         poison: entry.poison === undefined ? undefined : Boolean(entry.poison),
     }));
-    return mergeById(normalized, LEGACY_WEAPON_TYPES);
+    return mergeById(normalized, LEGACY_WEAPON_TYPES).map((entry) => ({
+        ...entry,
+        name: resolveItemName('Weapon', entry.id, entry.name),
+    }));
 }
 
 function normalizeArmorEntries(): ArmorDef[] {
     const catalog = armorCatalog as unknown as { armor?: ArmorDef[] };
-    return catalog.armor ? mergeById(catalog.armor, LEGACY_ARMOR_TYPES) : Object.values(LEGACY_ARMOR_TYPES);
+    const merged = catalog.armor ? mergeById(catalog.armor, LEGACY_ARMOR_TYPES) : Object.values(LEGACY_ARMOR_TYPES);
+    return merged.map((entry) => ({
+        ...entry,
+        name: resolveItemName('Armor', entry.id, entry.name),
+    }));
 }
 
 function normalizePotionEntries(): PotionDef[] {
     const catalog = potionsCatalog as unknown as { potions?: PotionDef[] };
-    return catalog.potions ? mergeById(catalog.potions, LEGACY_POTION_TYPES) : Object.values(LEGACY_POTION_TYPES);
+    const merged = catalog.potions ? mergeById(catalog.potions, LEGACY_POTION_TYPES) : Object.values(LEGACY_POTION_TYPES);
+    return merged.map((entry) => ({
+        ...entry,
+        name: resolveItemName('Potion', entry.id, entry.name),
+    }));
 }
 
 function normalizeMiscEntries(): MiscDef[] {
     const catalog = miscCatalog as unknown as { miscellaneousItems?: MiscDef[] };
-    return catalog.miscellaneousItems ? mergeById(catalog.miscellaneousItems, LEGACY_MISC_TYPES) : Object.values(LEGACY_MISC_TYPES);
+    const merged = catalog.miscellaneousItems ? mergeById(catalog.miscellaneousItems, LEGACY_MISC_TYPES) : Object.values(LEGACY_MISC_TYPES);
+    return merged.map((entry) => ({
+        ...entry,
+        name: resolveItemName('Misc', entry.id, entry.name),
+    }));
 }
 
 const weaponEntries = normalizeWeaponEntries();

@@ -13,7 +13,7 @@ import { CHAMPION_BY_ID } from '../data/champions';
 import { CREATURE_TYPES } from '../data/creatures';
 import { findSpell, getSkillLevel } from '../data/runes';
 import type { CastSkill } from '../data/runes';
-import { WEAPON_TYPES, POTION_TYPES, MISC_TYPES } from '../data/items';
+import { WEAPON_TYPES, POTION_TYPES, MISC_TYPES, resolveItemName } from '../data/items';
 import { canEquipItemInSlot, getEffectiveChampionStats } from '../data/equipment';
 import { doorBlocksThrownItems, doorBlocksVision } from '../data/doors';
 import { playPartyAttack, playCreatureMove, playCreatureAttack, playPlate } from './sounds';
@@ -332,7 +332,11 @@ function buildFloorItems(): FloorItem[] {
                         id: `${map.index}_${tile.x}_${tile.y}_${obj.category}_${obj.index}`,
                         category: obj.category as FloorItem['category'],
                         typeId: rawObj.type ?? 0,
-                        rawName: rawObj.text ?? rawObj.name,
+                        rawName: resolveItemName(
+                            obj.category as FloorItem['category'],
+                            rawObj.type ?? 0,
+                            rawObj.text ?? rawObj.name,
+                        ),
                         mapIndex: map.index,
                         x: tile.x,
                         y: tile.y,
@@ -368,7 +372,11 @@ function buildChampionStarterItems(): Record<number, FloorItem[]> {
                         id: `starter_${championId}_${obj.category}_${obj.index}`,
                         category: obj.category as FloorItem['category'],
                         typeId: rawObj.type ?? 0,
-                        rawName: rawObj.text ?? rawObj.name,
+                        rawName: resolveItemName(
+                            obj.category as FloorItem['category'],
+                            rawObj.type ?? 0,
+                            rawObj.text ?? rawObj.name,
+                        ),
                         mapIndex: 0,
                         x: tile.x,
                         y: tile.y,

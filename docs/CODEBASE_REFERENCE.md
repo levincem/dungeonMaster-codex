@@ -403,3 +403,13 @@ public/
 Les deux Maps exportées depuis `store.ts` utilisent la clé `"${mapIndex},${x},${y}"`.
 Tous les accès (InstancedTiles, DungeonScene) doivent inclure l'index de la map dans la clé.
 Les miroirs n'existent que sur map 0 (Hall of Champions), mais le filtre s'applique génériquement.
+### Ajouts session 2026-04-06
+
+- `src/data/items.ts` : catalogues relies aux JSON runtime avec fallback propre sur les donnees legacy
+- `src/data/items.ts` : `resolveItemName(...)` centralise la resolution des noms DM1 et elimine une grande partie des placeholders `Armor_xx` / `(Wxx)`
+- `src/engine/store.ts` : les objets charges depuis `dungeon.json` passent aussi par le resolver centralise
+- `src/data/equipment.ts` : source partagee pour slots valides, poids, charge max, stats effectives et bonus passifs
+- `src/data/doors.ts` : proprietes originales des portes branchees (vision / projectiles)
+- `src/components/UI/HUD.tsx` : portraits en ligne, mains visibles, formation 2x2 a droite
+- `src/components/UI/ChampionSheet.tsx` : drag and drop fiabilise et halo de slots nettoye correctement en fin de drag
+- `public/original_*` : JSON de reference et JSON runtime pour creatures, items, actions, combos, magic, doors

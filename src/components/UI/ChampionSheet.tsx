@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { CHAMPIONS } from '../../data/champions';
 import type { Champion } from '../../data/champions';
 import { useStore, xpToLevel } from '../../engine/store';
-import { WEAPON_TYPES, ARMOR_TYPES, POTION_TYPES, MISC_TYPES } from '../../data/items';
+import { MISC_TYPES, resolveItemName } from '../../data/items';
 import type { EquipSlotKey } from '../../types/items';
 import type { FloorItem, ChampionEquipment } from '../../types/game';
 import { getItemImage, getTorchImage } from '../../data/itemImages';
@@ -62,18 +62,8 @@ const SKILL_COLORS: Record<string, string> = {
 };
 
 // ─── Item helpers ─────────────────────────────────────────────────────────────
-const PLACEHOLDER_RE = /^[A-Za-z]+_\d+$/;
-
 function getItemName(item: FloorItem): string {
-    switch (item.category) {
-        case 'Weapon':    { const d = WEAPON_TYPES[item.typeId]; if (d) return d.name; break; }
-        case 'Armor':     { const d = ARMOR_TYPES[item.typeId];  if (d) return d.name; break; }
-        case 'Potion':    { const d = POTION_TYPES[item.typeId]; if (d) return d.name; break; }
-        case 'Misc':      { const d = MISC_TYPES[item.typeId];   if (d) return d.name; break; }
-        case 'Container': return 'Coffre';
-    }
-    if (item.rawName && !PLACEHOLDER_RE.test(item.rawName)) return item.rawName;
-    return `${item.category} #${item.typeId}`;
+    return resolveItemName(item.category, item.typeId, item.rawName);
 }
 
 function isConsumable(item: FloorItem): boolean {
@@ -174,7 +164,7 @@ const ScrollPopup: React.FC<{ item: FloorItem; onClose: () => void }> = ({ item,
             <div style={{ fontSize: 10, letterSpacing: 4, color: T.goldDim, textAlign: 'center', marginBottom: 14 }}>✦ PARCHEMIN ✦</div>
             <div style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center', marginBottom: 18, color: T.gold }}>{getItemName(item)}</div>
             <div style={{ fontSize: 12, lineHeight: 1.8, color: T.creamDim, textAlign: 'center', fontStyle: 'italic', whiteSpace: 'pre-line' }}>
-                {item.rawName && !PLACEHOLDER_RE.test(item.rawName) ? item.rawName : 'Le parchemin est couvert\nde runes illisibles.'}
+                {item.rawName && !/^[A-Za-z]+_\d+$/.test(item.rawName) ? item.rawName : 'Le parchemin est couvert\nde runes illisibles.'}
             </div>
             <button onClick={onClose} style={{ display: 'block', margin: '20px auto 0', background: 'none', border: `1px solid ${T.goldDim}`, borderRadius: 4, color: T.goldDim, fontSize: 11, letterSpacing: 2, cursor: 'pointer', padding: '6px 20px', fontFamily: '"Courier New", monospace' }}>FERMER</button>
         </div>
@@ -295,7 +285,8 @@ export const ChampionSheet: React.FC = () => {
             : localEquip[p.fromSlot as EquipSlotKey];
         setDraggingItem(item ?? null);
     };
-    const handleDragEnd = () => setDraggingItem(null);
+    const clearDragState = () => setDraggingItem(null);
+    const handleDragEnd = () => clearDragState();
 
     if (activePartyMemberId === null) return null;
     const champion = CHAMPIONS.find(c => c.id === activePartyMemberId);
@@ -315,11 +306,16 @@ export const ChampionSheet: React.FC = () => {
     const mana    = vitals?.mana    ?? effectiveStats.mana;
 
     const handleDropOnSlot = (payload: DragPayload, targetSlot: EquipSlotKey) => {
-        if (payload.fromChampionId !== champion.id) { giveItem(payload.fromChampionId, champion.id, payload.itemId); return; }
+        if (payload.fromChampionId !== champion.id) {
+            giveItem(payload.fromChampionId, champion.id, payload.itemId);
+            clearDragState();
+            return;
+        }
         if (payload.fromSlot === 'inventory') {
             const item = inv.find(i => i.id === payload.itemId);
             if (!item || !getEquippableSlots(item).includes(targetSlot)) return;
             equipItem(champion.id, targetSlot, payload.itemId);
+            clearDragState();
         } else {
             const src = payload.fromSlot as EquipSlotKey;
             if (src === targetSlot) return;
@@ -327,6 +323,7 @@ export const ChampionSheet: React.FC = () => {
             if (!srcItem || !getEquippableSlots(srcItem).includes(targetSlot)) return;
             unequipItem(champion.id, src);
             equipItem(champion.id, targetSlot, srcItem.id);
+            clearDragState();
         }
     };
 
@@ -335,6 +332,7 @@ export const ChampionSheet: React.FC = () => {
         const p = getDrag(e);
         if (!p || p.fromChampionId !== champion.id || p.fromSlot === 'inventory') return;
         unequipItem(champion.id, p.fromSlot as EquipSlotKey);
+        clearDragState();
     };
 
     const handleEquipItem = (item: FloorItem) => {
@@ -344,12 +342,18 @@ export const ChampionSheet: React.FC = () => {
     };
 
     const handleConsume = (payload: DragPayload) => {
-        if (payload.fromSlot === 'inventory') consumeItem(champion.id, payload.itemId);
+        if (payload.fromSlot === 'inventory') {
+            consumeItem(champion.id, payload.itemId);
+            clearDragState();
+        }
     };
 
     const handleReadScroll = (payload: DragPayload) => {
         const item = inv.find(i => i.id === payload.itemId);
-        if (item?.category === 'Scroll') setScrollItem(item);
+        if (item?.category === 'Scroll') {
+            setScrollItem(item);
+            clearDragState();
+        }
     };
 
     const skills = [
