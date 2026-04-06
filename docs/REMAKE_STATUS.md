@@ -13,6 +13,8 @@ Le projet est deja une base tres avancee et jouable:
 - sorts partiellement fonctionnels
 - inventaire, equipement, transfert et ramassage d'objets
 - portes, senseurs, teleporteurs et une partie des interactions de carte
+- TrickWalls (murs secrets) avec système levier/capteur/porte logique
+- fiche de champion redessinée (parchemin, équipement silhouette, noms DM1)
 
 En revanche, ce n'est pas encore un remake "proprement termine". Le projet ressemble aujourd'hui a une vertical slice avancee plutot qu'a une recreation complete et finie de Dungeon Master.
 
@@ -146,17 +148,18 @@ Le typage et les donnees prevoient:
 
 - `Pit`
 - `Water`
+- `TrickWall` (murs secrets) — **implementes** : impassables par defaut, ouvrables par capteurs
 - portes de plusieurs types
 - textes muraux
 - teleporteurs
-- senseurs
+- senseurs / portes logiques — **implementes** : type 5, seuil d'inputs, actions Hold
 
 Mais il manque encore des comportements attendus pour un remake complet:
 
 - chutes dans les puits
 - usage de la corde
 - interactions liees a l'eau
-- secret doors / illusions / vision magique completes
+- illusions / vision magique completes
 - gestion plus fine des portes verrouillees
 
 ### 8. Il manque encore des conditions de fin et des etats globaux

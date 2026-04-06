@@ -1,7 +1,7 @@
 # DungeonMaster Codex — Référence codebase
 
 Document vivant. Mis à jour à chaque session de travail significative.
-Dernière mise à jour : 2026-04-05
+Dernière mise à jour : 2026-04-06
 
 ---
 
@@ -86,6 +86,8 @@ C'est le fichier le plus important. Contient toute la logique de jeu sous forme 
 | `deadChampions` | `Record<id, Champion>` | Champions morts, conservés pour résurrection |
 | `openDoors` | `Set<string>` | Clés `"level,y,x"` des portes ouvertes |
 | `openTeleporters` | `Set<string>` | Téléporteurs actifs |
+| `openWalls` | `Set<string>` | TrickWalls ouvertes (clé `"level,y,x"`) |
+| `activeSensors` | `Set<string>` | Capteurs actuellement actifs (portes logiques) |
 | `firedSensors` | `Set<string>` | Capteurs déjà activés (oneShot) |
 | `visibleTexts` | `Set<string>` | Textes muraux visibles |
 | `spellLights` | `SpellLight[]` | Lumières actives (sorts, torches) |
@@ -109,6 +111,8 @@ C'est le fichier le plus important. Contient toute la logique de jeu sous forme 
 | `dropItem(itemId, championId)` | Poser un item au sol (si os sur autel → résurrection) |
 | `equipItem / unequipItem` | Équipement/déséquipement |
 | `giveItem / giveEquippedItem` | Transfert entre champions |
+| `useItem(championId, itemId)` | Consomme une potion/nourriture, restaure les vitaux |
+| `sleep()` | Restaure HP/Stamina/Mana à max pour tous les membres du groupe |
 | `attackFront(id)` | Champion attaque les créatures devant |
 | `castSpell(id, runeIds)` | Lance un sort |
 | `regenTick(delta)` | Régénération HP/Stamina/Mana |
@@ -118,6 +122,7 @@ C'est le fichier le plus important. Contient toute la logique de jeu sous forme 
 | `tickSpells(now)` | Expire les lumières/sorts, avance les projectiles |
 | `toggleDoor(x, y)` | Ouvrir/fermer une porte |
 | `activateWallSensor(mapIndex, x, y, idx)` | Déclencher un capteur mural |
+| `evaluateLogicGates(state)` | Recalcule les portes logiques (type 5) et met à jour `openDoors`/`openWalls` |
 | `goToLevel(level, pos, dir)` | Changer de niveau |
 
 ### Helpers internes clés
@@ -161,7 +166,9 @@ C'est le fichier le plus important. Contient toute la logique de jeu sous forme 
 ```
 
 ### `ChampionEquipment`
-`Partial<Record<EquipSlotKey, FloorItem>>` — les slots sont : `head, neck, torso, hands, belt, legs, feet, rightHand, leftHand`
+`Partial<Record<EquipSlotKey, FloorItem>>` — slots actifs : `head, neck, torso, legs, feet, rightHand, leftHand, quiver1–4, pocket1–2`
+
+> **Note** : `hands` et `belt` existent dans le type mais ne sont plus exposés dans l'UI.
 
 ### `GameMap` / `GameTile`
 - `GameMap` : index, name, level, width, height, `tiles: GameTile[]` (tableau **plat**, pas 2D)
@@ -202,6 +209,50 @@ C'est le fichier le plus important. Contient toute la logique de jeu sous forme 
 - Parse `Old_data/mechanisms.json`
 - Kinds présents : leviers, dalles de pression, serrures, alcôves, échangeurs…
 - `getMechanismsAt(level, x, y, face)` → `Mechanism[]`
+
+---
+
+## Système de mécanismes (store.ts)
+
+### TrickWall
+- Nouveau type de tuile : `'TrickWall'` — passage secret, impassable par défaut
+- Rendu via `InstancedTiles` avec `scale=0` quand ouverte (clé dans `openWalls`)
+- Bloque la LOS et le déplacement des monstres comme un mur normal tant que fermée
+
+### Capteurs / portes logiques
+- Capteur de type **5** = porte logique : plusieurs leviers/dalles pointent vers le même senseur
+- Nibble bas de `data` = seuil d'inputs actifs (0 = ET pur, tous requis)
+- `evaluateLogicGates()` recomptabilise les inputs actifs → ouvre/ferme la cible
+- Actions "Hold" : maintiennent l'état tant que la condition est remplie (vs oneShot)
+- `activeSensors: Set<string>` trace les inputs actuellement activés
+
+### Chaîne clé/levier → porte/mur
+1. Joueur active un levier/dalle → `activateWallSensor` ou `triggerLockSensor`
+2. Le capteur est résolu : Set/Clear/Toggle sur la cible
+3. Cibles supportées : `Door`, `TrickWall`, `Teleporter`
+4. `openDoors` / `openWalls` / `openTeleporters` mis à jour dans le store
+
+---
+
+## UI : ChampionSheet (src/components/UI/ChampionSheet.tsx)
+
+Fiche de champion redessinée, thème parchemin DM1.
+
+### Layout 3 colonnes
+| Colonne | Contenu |
+|---|---|
+| Gauche (200 px) | Portrait (flex, remplit la hauteur), Vitaux (HP/Stamina/Mana), Caractéristiques |
+| Centre (1fr) | En-tête ÉQUIPEMENT + poids, Œil/Bouche (parchemin/consommable), Silhouette d'équipement, Classes |
+| Droite (300 px) | Sac à dos 17 cases (grille 5 colonnes) |
+
+### Slots d'équipement
+- **Corps** (80×80 px) : tête, cou, torse, main droite, main gauche, jambes, pieds
+- **Carquois** (46×46 px, 2×2) : sous la main droite
+- **Poches** (46×46 px, 1×2) : sous la main gauche
+- Drag & drop entre inventaire ↔ slots ↔ champions du groupe
+
+### Noms de niveaux DM1
+`xpToLevel(xp) = floor(sqrt(xp/500))` → index dans `SKILL_LEVEL_NAMES` (Novice…TimeStone)
 
 ### Map loader (mapLoader.ts)
 - Charge `public/dungeon.json` (copie de `Old_data/dungeon.json`, servie au runtime)

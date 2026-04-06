@@ -258,7 +258,6 @@ export const ChampionSheet: React.FC = () => {
     const champion = CHAMPIONS.find(c => c.id === activePartyMemberId);
     if (!champion) return null;
 
-    const classColor = CLASS_COLORS[champion.class];
     const inv        = championInventories[champion.id] ?? [];
     const equip      = championEquipment[champion.id]   ?? {};
     const vitals     = championVitals[champion.id];
@@ -355,12 +354,12 @@ export const ChampionSheet: React.FC = () => {
                 {/* ── 3-column ── */}
                 <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr 300px', gap: 12, alignItems: 'start' }}>
 
-                    {/* ── COL 1: Portrait + Vitals + Stats + Skills ── */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {/* ── COL 1: Portrait + Vitals + Stats ── */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignSelf: 'stretch' }}>
 
-                        {/* Portrait — large */}
-                        <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 5, overflow: 'hidden' }}>
-                            <img src={champion.portrait} alt={champion.name} style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', objectPosition: 'top center', display: 'block' }} />
+                        {/* Portrait — fills available space */}
+                        <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 5, overflow: 'hidden', flex: 1, minHeight: 140 }}>
+                            <img src={champion.portrait} alt={champion.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center', display: 'block' }} />
                         </div>
 
                         {/* Vitals */}
@@ -394,25 +393,6 @@ export const ChampionSheet: React.FC = () => {
                             ))}
                         </div>
 
-                        {/* Skills with level names */}
-                        <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 5, padding: '10px 12px' }}>
-                            <div style={{ fontSize: 9, letterSpacing: 3, color: T.gold, marginBottom: 8 }}>CLASSES</div>
-                            {skills.map(({ key, label }) => {
-                                const skillXP = xp?.[key] ?? 0;
-                                const name = getSkillLevelName(skillXP);
-                                const color = SKILL_COLORS[key];
-                                if (name === 'None') return null;
-                                return (
-                                    <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                                        <span style={{ fontSize: 10, color: T.creamDim }}>{label}</span>
-                                        <span style={{ fontSize: 10, fontWeight: 'bold', color }}>{name}</span>
-                                    </div>
-                                );
-                            })}
-                            {skills.every(({ key }) => (xp?.[key] ?? 0) === 0) && (
-                                <div style={{ fontSize: 10, color: T.goldDim, fontStyle: 'italic' }}>Débutant</div>
-                            )}
-                        </div>
                     </div>
 
                     {/* ── COL 2: Equipment silhouette ── */}
