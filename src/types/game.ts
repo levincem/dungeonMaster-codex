@@ -34,6 +34,8 @@ export interface TeleporterObject {
     category: 'Teleporter';
     index: number;
     tilePos: CardinalDir;
+    globalX?: number;
+    globalY?: number;
     sound: boolean;
     scope: string;
     rotationType: number;
@@ -41,6 +43,8 @@ export interface TeleporterObject {
     destX: number;
     destY: number;
     destMap: number;
+    destGlobalX?: number;
+    destGlobalY?: number;
 }
 
 export type SensorAction = 'Set' | 'Clear' | 'Toggle' | 'Hold';
@@ -49,6 +53,8 @@ export interface SensorObject {
     category: 'Sensor';
     index: number;
     tilePos: CardinalDir;
+    globalX?: number;
+    globalY?: number;
     type: number;
     data: number;
     graphic: number;
@@ -60,6 +66,8 @@ export interface SensorObject {
     onceOnly: boolean;
     targetY: number;
     targetX: number;
+    targetGlobalY?: number;
+    targetGlobalX?: number;
     targetDir: CardinalDir;
 }
 
@@ -67,6 +75,8 @@ export interface WallTextObject {
     category: 'Text';
     index: number;
     tilePos: CardinalDir;
+    globalX?: number;
+    globalY?: number;
     visible: boolean;
     text?: string;
 }
@@ -75,6 +85,8 @@ export interface CreatureObject {
     category: 'Creature';
     index: number;
     tilePos: CardinalDir;
+    globalX?: number;
+    globalY?: number;
     type: number;   // references creatureTypes in game_db.json
     hp: number;
 }
@@ -83,6 +95,8 @@ export interface WeaponObject {
     category: 'Weapon';
     index: number;
     tilePos: CardinalDir;
+    globalX?: number;
+    globalY?: number;
     type: number;
 }
 
@@ -90,6 +104,8 @@ export interface ArmorObject {
     category: 'Armor';
     index: number;
     tilePos: CardinalDir;
+    globalX?: number;
+    globalY?: number;
     type: number;
 }
 
@@ -97,6 +113,8 @@ export interface PotionObject {
     category: 'Potion';
     index: number;
     tilePos: CardinalDir;
+    globalX?: number;
+    globalY?: number;
     type: number;
 }
 
@@ -104,6 +122,8 @@ export interface ScrollObject {
     category: 'Scroll';
     index: number;
     tilePos: CardinalDir;
+    globalX?: number;
+    globalY?: number;
     type: number;
 }
 
@@ -111,6 +131,8 @@ export interface MiscObject {
     category: 'Misc';
     index: number;
     tilePos: CardinalDir;
+    globalX?: number;
+    globalY?: number;
     type: number;
     name: string;
     important?: boolean;
@@ -120,6 +142,8 @@ export interface ContainerObject {
     category: 'Container';
     index: number;
     tilePos: CardinalDir;
+    globalX?: number;
+    globalY?: number;
     type: number;
 }
 
@@ -141,6 +165,8 @@ export type TileObject =
 export interface GameTile {
     x: number;
     y: number;
+    globalX?: number;
+    globalY?: number;
     type: TileType;
     // Which wall faces allow decorations
     allowDecoN?: boolean;
@@ -164,6 +190,9 @@ export interface GameMap {
     width: number;
     height: number;
     difficulty: number;
+    mapOffset?: { x: number; y: number };
+    localBounds?: { minX: number; minY: number; maxX: number; maxY: number };
+    globalBounds?: { minX: number; minY: number; maxX: number; maxY: number };
     // 2D grid indexed as tiles[y][x]
     tiles: GameTile[][];
 }

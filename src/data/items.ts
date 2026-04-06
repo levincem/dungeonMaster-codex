@@ -56,10 +56,14 @@ export const ARMOR_TYPES: Record<number, ArmorDef> = {
     // Feet
     16: { id: 16, name: 'Leather Boots',          slot: 'feet',  armor:  6, weight:  4 },
     17: { id: 17, name: 'Sandals',                slot: 'feet',  armor:  2, weight:  2 },
-    18: { id: 18, name: 'Hosen',                  slot: 'feet',  armor:  8, weight:  5 },
+    18: { id: 18, name: 'Hosen',                  slot: 'legs',  armor:  8, weight:  5 },
     19: { id: 19, name: 'Chain Mail Aketon',      slot: 'feet',  armor: 20, weight: 15 },
+    20: { id: 20, name: 'Elven Boots',            slot: 'feet',  armor: 10, weight:  3 },
+    21: { id: 21, name: 'Suede Boots',            slot: 'feet',  armor:  8, weight:  4 },
     43: { id: 43, name: 'Foot Plate',             slot: 'feet',  armor: 18, weight: 12 },
     // Legs
+    22: { id: 22, name: 'Blue Pants',             slot: 'legs',  armor:  6, weight:  4 },
+    23: { id: 23, name: 'Mail Aketon',            slot: 'legs',  armor: 14, weight:  8 },
     24: { id: 24, name: 'Leg Mail',               slot: 'legs',  armor: 18, weight: 12 },
     25: { id: 25, name: 'Leather Pants',          slot: 'legs',  armor:  8, weight:  5 },
     42: { id: 42, name: 'Leg Plate',              slot: 'legs',  armor: 25, weight: 18 },

@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { Suspense, useEffect, useMemo } from 'react';
 import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
@@ -64,13 +64,26 @@ const DECAL_PRESETS: Record<string, DecalPreset> = {
         hasBacking: false,
         hasGlow: false,
     },
+    '/items/torch_unlit.png': {
+        width: GRID_SIZE * 0.18,
+        height: WALL_HEIGHT * 0.5,
+        y: 0,
+        hasBacking: false,
+        hasGlow: true,
+    },
 };
 
 // ─── Inner sprite (loads texture) ─────────────────────────────────────────────
 
 const DecalSprite = ({ image, width, height }: { image: string; width: number; height: number }) => {
-    const tex = useTexture(image);
-    tex.colorSpace = THREE.SRGBColorSpace;
+    const baseTex = useTexture(image);
+    const tex = useMemo(() => {
+        const next = baseTex.clone();
+        next.colorSpace = THREE.SRGBColorSpace;
+        next.needsUpdate = true;
+        return next;
+    }, [baseTex]);
+    useEffect(() => () => tex.dispose(), [tex]);
     return (
         <mesh frustumCulled={false} renderOrder={10}>
             <planeGeometry args={[width, height]} />

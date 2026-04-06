@@ -10,15 +10,14 @@ const CLASS_COLORS: Record<ChampionClass, string> = {
     Priest:  '#2980b9',
 };
 const CLASS_EMOJI: Record<ChampionClass, string> = {
-    Fighter: '⚔️',
-    Ninja:   '🗡️',
-    Wizard:  '🔮',
-    Priest:  '✨',
+    Fighter: 'F',
+    Ninja:   'N',
+    Wizard:  'W',
+    Priest:  'P',
 };
 
 const MAX_PARTY = 4;
 
-// ─── Stat bar ──────────────────────────────────────────────────────────────
 const StatBar: React.FC<{ label: string; value: number; max?: number; color: string }> = ({
     label, value, max = 100, color,
 }) => (
@@ -44,7 +43,8 @@ const Portrait: React.FC<{ champion: Champion; size?: number }> = ({ champion, s
         src={champion.portrait}
         alt={champion.name}
         style={{
-            width: size, height: size,
+            width: size,
+            height: size,
             objectFit: 'cover',
             objectPosition: 'top center',
             flexShrink: 0,
@@ -55,7 +55,6 @@ const Portrait: React.FC<{ champion: Champion; size?: number }> = ({ champion, s
     />
 );
 
-// ─── Party slot mini ──────────────────────────────────────────────────────
 const PartySlotMini: React.FC<{
     champion?: Champion;
     onRemove: () => void;
@@ -67,7 +66,8 @@ const PartySlotMini: React.FC<{
                 onClick={onRemove}
                 title={`Retirer ${champion.name}`}
                 style={{
-                    width: 52, height: 64,
+                    width: 52,
+                    height: 64,
                     borderRadius: 4,
                     border: `2px solid ${color}`,
                     overflow: 'hidden',
@@ -83,12 +83,16 @@ const PartySlotMini: React.FC<{
     return (
         <div
             style={{
-                width: 52, height: 64,
+                width: 52,
+                height: 64,
                 borderRadius: 4,
-                border: `2px dashed #333`,
+                border: '2px dashed #333',
                 background: '#0d0d12',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#2a2a2a', fontSize: 18,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#2a2a2a',
+                fontSize: 18,
             }}
         >
             +
@@ -96,7 +100,6 @@ const PartySlotMini: React.FC<{
     );
 };
 
-// ─── Main Mirror Popup ─────────────────────────────────────────────────────
 export const MirrorPopup: React.FC = () => {
     const {
         activeMirrorChampionId,
@@ -116,18 +119,19 @@ export const MirrorPopup: React.FC = () => {
     const partyFull = party.length >= MAX_PARTY;
 
     return (
-        /* Fullscreen backdrop */
         <div
             onClick={closeMirror}
             style={{
-                position: 'fixed', inset: 0,
+                position: 'fixed',
+                inset: 0,
                 background: 'rgba(0,0,0,0.75)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 zIndex: 100,
                 fontFamily: '"Courier New", Courier, monospace',
             }}
         >
-            {/* Card – stop propagation so click inside doesn't close */}
             <div
                 onClick={e => e.stopPropagation()}
                 style={{
@@ -141,28 +145,36 @@ export const MirrorPopup: React.FC = () => {
                     position: 'relative',
                 }}
             >
-                {/* Close button */}
                 <button
                     onClick={closeMirror}
                     style={{
-                        position: 'absolute', top: 10, right: 12,
-                        background: 'none', border: 'none',
-                        color: '#666', fontSize: 20, cursor: 'pointer', lineHeight: 1,
+                        position: 'absolute',
+                        top: 10,
+                        right: 12,
+                        background: 'none',
+                        border: 'none',
+                        color: '#666',
+                        fontSize: 20,
+                        cursor: 'pointer',
+                        lineHeight: 1,
                     }}
-                >×</button>
+                >
+                    X
+                </button>
 
-                {/* Mirror label */}
                 <div style={{ fontSize: 10, letterSpacing: 4, color: '#6a5430', marginBottom: 14, textAlign: 'center' }}>
-                    ✦ HALL OF CHAMPIONS ✦
+                    HALL OF CHAMPIONS
                 </div>
 
-                {/* Portrait + identity */}
                 <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', marginBottom: 18 }}>
                     <Portrait champion={champion} size={90} />
                     <div style={{ flex: 1 }}>
                         <div style={{
-                            fontSize: 22, fontWeight: 'bold', letterSpacing: 2,
-                            color: '#e0d5ba', textShadow: `0 0 12px ${color}88`,
+                            fontSize: 22,
+                            fontWeight: 'bold',
+                            letterSpacing: 2,
+                            color: '#e0d5ba',
+                            textShadow: `0 0 12px ${color}88`,
                         }}>
                             {champion.name}
                         </div>
@@ -170,19 +182,23 @@ export const MirrorPopup: React.FC = () => {
                             {champion.title}
                         </div>
                         <div style={{
-                            display: 'inline-flex', alignItems: 'center', gap: 6,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 6,
                             background: `${color}22`,
                             border: `1px solid ${color}66`,
                             borderRadius: 4,
                             padding: '3px 10px',
-                            fontSize: 11, color, fontWeight: 'bold', letterSpacing: 1,
+                            fontSize: 11,
+                            color,
+                            fontWeight: 'bold',
+                            letterSpacing: 1,
                         }}>
                             {CLASS_EMOJI[champion.class]} {champion.class.toUpperCase()}
                         </div>
                     </div>
                 </div>
 
-                {/* Stats */}
                 <div style={{
                     background: '#0a0a12',
                     border: '1px solid #2a2a3a',
@@ -191,59 +207,92 @@ export const MirrorPopup: React.FC = () => {
                     marginBottom: 16,
                 }}>
                     <div style={{ fontSize: 10, letterSpacing: 3, color: '#555', marginBottom: 8 }}>STATISTICS</div>
-                    <StatBar label="STRENGTH"  value={champion.strength}  color="#e74c3c" />
+                    <StatBar label="STRENGTH" value={champion.strength} color="#e74c3c" />
                     <StatBar label="DEXTERITY" value={champion.dexterity} color="#2ecc71" />
-                    <StatBar label="WISDOM"    value={champion.wisdom}    color="#9b59b6" />
-                    <StatBar label="VITALITY"  value={champion.vitality}  color="#3498db" />
-                    <StatBar label="HEALTH"    value={champion.health}    max={500} color="#e67e22" />
+                    <StatBar label="WISDOM" value={champion.wisdom} color="#9b59b6" />
+                    <StatBar label="VITALITY" value={champion.vitality} color="#3498db" />
+                    <StatBar label="HEALTH" value={champion.health} max={500} color="#e67e22" />
                     {champion.mana > 0 && (
                         <StatBar label="MANA" value={champion.mana} max={500} color="#8e44ad" />
                     )}
                 </div>
 
-                {/* Reincarnate / Dismiss button */}
-                <button
-                    onClick={() => {
-                        if (isInParty) {
-                            removeFromParty(champion.id);
-                        } else if (!partyFull) {
-                            addToParty(champion);
-                        }
-                    }}
-                    disabled={!isInParty && partyFull}
-                    style={{
-                        width: '100%',
-                        padding: '11px 0',
-                        background: isInParty
-                            ? 'linear-gradient(135deg, #6a1010, #8b0000)'
-                            : partyFull
-                                ? '#1a1a1a'
-                                : `linear-gradient(135deg, ${color}99, ${color}55)`,
-                        border: `1px solid ${isInParty ? '#c0392b' : partyFull ? '#333' : color}`,
-                        borderRadius: 6,
-                        color: partyFull && !isInParty ? '#444' : '#fff',
-                        fontSize: 13, fontWeight: 'bold',
-                        letterSpacing: 2,
-                        cursor: partyFull && !isInParty ? 'not-allowed' : 'pointer',
-                        transition: 'all 0.2s',
-                        fontFamily: '"Courier New", monospace',
-                        marginBottom: 14,
-                        boxShadow: isInParty ? '0 0 12px #c0392b44' : `0 0 12px ${color}33`,
-                    }}
-                >
-                    {isInParty
-                        ? '💀 RENVOYER'
-                        : partyFull
-                            ? 'ÉQUIPE COMPLÈTE'
-                            : '⚡ RÉINCARNER'}
-                </button>
+                {isInParty ? (
+                    <button
+                        onClick={() => removeFromParty(champion.id)}
+                        style={{
+                            width: '100%',
+                            padding: '11px 0',
+                            background: 'linear-gradient(135deg, #6a1010, #8b0000)',
+                            border: '1px solid #c0392b',
+                            borderRadius: 6,
+                            color: '#fff',
+                            fontSize: 13,
+                            fontWeight: 'bold',
+                            letterSpacing: 2,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            fontFamily: '"Courier New", monospace',
+                            marginBottom: 14,
+                            boxShadow: '0 0 12px #c0392b44',
+                        }}
+                    >
+                        RETIRER DE L'EQUIPE
+                    </button>
+                ) : (
+                    <>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+                            <button
+                                onClick={() => addToParty(champion, 'resurrect')}
+                                disabled={partyFull}
+                                style={{
+                                    padding: '11px 0',
+                                    background: partyFull ? '#1a1a1a' : `linear-gradient(135deg, ${color}bb, ${color}66)`,
+                                    border: `1px solid ${partyFull ? '#333' : color}`,
+                                    borderRadius: 6,
+                                    color: partyFull ? '#444' : '#fff',
+                                    fontSize: 12,
+                                    fontWeight: 'bold',
+                                    letterSpacing: 1.5,
+                                    cursor: partyFull ? 'not-allowed' : 'pointer',
+                                    fontFamily: '"Courier New", monospace',
+                                    boxShadow: partyFull ? 'none' : `0 0 12px ${color}33`,
+                                }}
+                            >
+                                RESSUSCITER
+                            </button>
+                            <button
+                                onClick={() => addToParty(champion, 'reincarnate')}
+                                disabled={partyFull}
+                                style={{
+                                    padding: '11px 0',
+                                    background: partyFull ? '#1a1a1a' : 'linear-gradient(135deg, #7b5b24, #4a3410)',
+                                    border: `1px solid ${partyFull ? '#333' : '#9a7b3f'}`,
+                                    borderRadius: 6,
+                                    color: partyFull ? '#444' : '#fff4d0',
+                                    fontSize: 12,
+                                    fontWeight: 'bold',
+                                    letterSpacing: 1.5,
+                                    cursor: partyFull ? 'not-allowed' : 'pointer',
+                                    fontFamily: '"Courier New", monospace',
+                                    boxShadow: partyFull ? 'none' : '0 0 12px rgba(154,123,63,0.3)',
+                                }}
+                            >
+                                REINCARNER
+                            </button>
+                        </div>
+                        <div style={{ fontSize: 10, color: '#80725b', marginBottom: 14, lineHeight: 1.5 }}>
+                            Ressusciter conserve les competences du champion. Reincarner remet ses
+                            competences a zero mais augmente ses attributs de base.
+                        </div>
+                    </>
+                )}
 
-                {/* Party slots */}
                 <div style={{ borderTop: '1px solid #2a2a3a', paddingTop: 12 }}>
                     <div style={{ fontSize: 10, letterSpacing: 3, color: '#555', marginBottom: 8 }}>
-                        ÉQUIPE — {party.length}/{MAX_PARTY}
+                        EQUIPE - {party.length}/{MAX_PARTY}
                         {party.length === MAX_PARTY && (
-                            <span style={{ color: '#c8973a', marginLeft: 8 }}>✦ COMPLÈTE</span>
+                            <span style={{ color: '#c8973a', marginLeft: 8 }}>COMPLETE</span>
                         )}
                     </div>
                     <div style={{ display: 'flex', gap: 8 }}>
@@ -257,7 +306,7 @@ export const MirrorPopup: React.FC = () => {
                     </div>
                     {party.length < MAX_PARTY && (
                         <div style={{ fontSize: 10, color: '#555', marginTop: 6, fontStyle: 'italic' }}>
-                            Sélectionnez {MAX_PARTY - party.length} champion(s) supplémentaire(s) pour déverrouiller la porte
+                            Selectionnez {MAX_PARTY - party.length} champion(s) supplementaire(s) pour deverrouiller la porte
                         </div>
                     )}
                 </div>

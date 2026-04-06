@@ -122,7 +122,22 @@ const ItemThumb: React.FC<{ item: FloorItem; size?: number }> = ({ item, size = 
     const torchBurnStart = useStore(s => s.torchBurnStart);
     const isTorch = item.category === 'Weapon' && item.typeId === 16;
     const src = isTorch ? getTorchImage(item.id, torchBurnStart) : getItemImage(item.category, item.typeId);
-    return <img src={src} alt="" style={{ width: size, height: size, objectFit: 'contain', imageRendering: 'crisp-edges', flexShrink: 0 }} />;
+    return (
+        <img
+            src={src}
+            alt=""
+            draggable={false}
+            style={{
+                width: size,
+                height: size,
+                objectFit: 'contain',
+                imageRendering: 'crisp-edges',
+                flexShrink: 0,
+                pointerEvents: 'none',
+                userSelect: 'none',
+            }}
+        />
+    );
 };
 
 // ─── Vital bar ────────────────────────────────────────────────────────────────
@@ -213,6 +228,34 @@ const DropZone: React.FC<{ icon: string; label: string; title: string; borderCol
     );
 };
 
+const PartyMemberDropTarget: React.FC<{
+    championId: number;
+    other: Champion;
+    onGiveInventory: (targetId: number, itemId: string) => void;
+    onGiveEquipped: (targetId: number, slot: EquipSlotKey) => void;
+}> = ({ championId, other, onGiveInventory, onGiveEquipped }) => {
+    const [over, setOver] = useState(false);
+
+    return (
+        <div title={`Donner à ${other.name}`}
+            style={{ width: 56, border: `2px solid ${over ? T.gold : T.slotBorder}`, borderRadius: 4, background: over ? 'rgba(30,18,0,0.9)' : T.slotBg, cursor: 'copy', transition: 'border-color 0.12s', overflow: 'hidden' }}
+            onDragOver={e => { e.preventDefault(); setOver(true); }}
+            onDragLeave={() => setOver(false)}
+            onDrop={e => {
+                e.preventDefault();
+                setOver(false);
+                const p = getDrag(e);
+                if (!p || p.fromChampionId !== championId) return;
+                if (p.fromSlot === 'inventory') onGiveInventory(other.id, p.itemId);
+                else onGiveEquipped(other.id, p.fromSlot as EquipSlotKey);
+            }}
+        >
+            <img src={other.portrait} alt={other.name} style={{ width: 56, height: 56, objectFit: 'cover', objectPosition: 'top center', display: 'block' }} />
+            <div style={{ fontSize: 8, textAlign: 'center', padding: '3px 0', background: 'rgba(0,0,0,0.6)', letterSpacing: 1, color: T.creamDim }}>{other.name.substring(0, 7).toUpperCase()}</div>
+        </div>
+    );
+};
+
 // ─── Backpack (17 slots, 5 cols) ──────────────────────────────────────────────
 const BACKPACK_SLOTS = 17;
 const BackpackGrid: React.FC<{
@@ -235,6 +278,9 @@ const BackpackGrid: React.FC<{
                 if (!item) return <div key={i} style={{ aspectRatio: '1', border: `1px dashed ${T.slotBorder}`, borderRadius: 3, background: T.slotBg, opacity: 0.5 }} />;
                 return (
                     <div key={item.id} draggable
+                        onMouseDown={() => {
+                            onItemDragStart({ itemId: item.id, fromChampionId: champion.id, fromSlot: 'inventory' });
+                        }}
                         onDragStart={e => { const p: DragPayload = { itemId: item.id, fromChampionId: champion.id, fromSlot: 'inventory' }; setDrag(e, p); onItemDragStart(p); }}
                         onDragEnd={onItemDragEnd}
                         title={getItemName(item)}
@@ -263,7 +309,7 @@ export const ChampionSheet: React.FC = () => {
         closePartyMember, removeFromParty,
         championInventories, championEquipment, championVitals, championXP,
         equipItem, unequipItem, dropItem, giveItem, giveEquippedItem,
-        useItem, sleep,
+        useItem: consumeItem, sleep,
     } = useStore();
 
     const [scrollItem, setScrollItem] = useState<FloorItem | null>(null);
@@ -327,7 +373,7 @@ export const ChampionSheet: React.FC = () => {
     };
 
     const handleConsume = (payload: DragPayload) => {
-        if (payload.fromSlot === 'inventory') useItem(champion.id, payload.itemId);
+        if (payload.fromSlot === 'inventory') consumeItem(champion.id, payload.itemId);
     };
 
     const handleReadScroll = (payload: DragPayload) => {
@@ -526,7 +572,7 @@ export const ChampionSheet: React.FC = () => {
                             onEquip={handleEquipItem}
                             onDropToFloor={id => dropItem(id, champion.id)}
                             onReadScroll={setScrollItem}
-                            onUseItem={id => useItem(champion.id, id)}
+                            onUseItem={id => consumeItem(champion.id, id)}
                             onUnequipToInventory={handleUnequipToInventory}
                             onItemDragStart={p => handleDragBegin(p, equip, inv)}
                             onItemDragEnd={handleDragEnd}
@@ -536,26 +582,15 @@ export const ChampionSheet: React.FC = () => {
                             <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 6, padding: '8px 10px' }}>
                                 <div style={{ fontSize: 9, letterSpacing: 3, color: T.gold, marginBottom: 8 }}>DONNER À</div>
                                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                                    {otherMembers.map(other => {
-                                        const [over2, setOver2] = React.useState(false);
-                                        return (
-                                            <div key={other.id} title={`Donner à ${other.name}`}
-                                                style={{ width: 56, border: `2px solid ${over2 ? T.gold : T.slotBorder}`, borderRadius: 4, background: over2 ? 'rgba(30,18,0,0.9)' : T.slotBg, cursor: 'copy', transition: 'border-color 0.12s', overflow: 'hidden' }}
-                                                onDragOver={e => { e.preventDefault(); setOver2(true); }}
-                                                onDragLeave={() => setOver2(false)}
-                                                onDrop={e => {
-                                                    e.preventDefault(); setOver2(false);
-                                                    const p = getDrag(e);
-                                                    if (!p || p.fromChampionId !== champion.id) return;
-                                                    if (p.fromSlot === 'inventory') giveItem(champion.id, other.id, p.itemId);
-                                                    else giveEquippedItem(champion.id, p.fromSlot as EquipSlotKey, other.id);
-                                                }}
-                                            >
-                                                <img src={other.portrait} alt={other.name} style={{ width: 56, height: 56, objectFit: 'cover', objectPosition: 'top center', display: 'block' }} />
-                                                <div style={{ fontSize: 8, textAlign: 'center', padding: '3px 0', background: 'rgba(0,0,0,0.6)', letterSpacing: 1, color: T.creamDim }}>{other.name.substring(0, 7).toUpperCase()}</div>
-                                            </div>
-                                        );
-                                    })}
+                                    {otherMembers.map(other => (
+                                        <PartyMemberDropTarget
+                                            key={other.id}
+                                            championId={champion.id}
+                                            other={other}
+                                            onGiveInventory={(targetId, itemId) => giveItem(champion.id, targetId, itemId)}
+                                            onGiveEquipped={(targetId, slot) => giveEquippedItem(champion.id, slot, targetId)}
+                                        />
+                                    ))}
                                 </div>
                             </div>
                         )}

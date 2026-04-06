@@ -1,4 +1,4 @@
-import { Suspense, useRef, useEffect } from 'react';
+import { Suspense, useRef, useEffect, useMemo } from 'react';
 import { Billboard, Plane, useTexture } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -33,18 +33,23 @@ interface SpriteInnerProps {
 }
 
 const SpriteInner = ({ typeId, frameRef, frameTimerRef }: SpriteInnerProps) => {
-    const tex = useTexture(`/sprites/creatures/creature_${typeId}.png`);
-    tex.colorSpace = THREE.SRGBColorSpace;
+    const baseTex = useTexture(`/sprites/creatures/creature_${typeId}.png`);
 
     const single = SINGLE_FRAME_IDS.has(typeId);
     const nFrames = single ? 1 : 3;
     const frameW  = 1 / nFrames;
 
     // Clone so we don't mutate the shared cached texture
-    const animTex = tex.clone();
-    animTex.repeat.set(frameW, 1);
-    animTex.offset.setX(0);
-    animTex.needsUpdate = true;
+    const animTex = useMemo(() => {
+        const next = baseTex.clone();
+        next.colorSpace = THREE.SRGBColorSpace;
+        next.repeat.set(frameW, 1);
+        next.offset.setX(0);
+        next.needsUpdate = true;
+        return next;
+    }, [baseTex, frameW]);
+
+    useEffect(() => () => animTex.dispose(), [animTex]);
 
     useFrame((_, delta) => {
         if (single) return;

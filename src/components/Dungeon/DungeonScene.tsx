@@ -1,5 +1,5 @@
 import { useRef, useMemo, memo, useCallback, useEffect } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, useFrame } from '@react-three/fiber';
 import type { ThreeEvent } from '@react-three/fiber';
 import { PerspectiveCamera, Plane, Html, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
@@ -24,6 +24,16 @@ const BASE_FOG_NEAR = GRID_SIZE * 2;
 const BASE_FOG_FAR = GRID_SIZE * 7;
 const DUNGEON_AMBIENT_COLOR = new THREE.Color('#f4e2ba');
 const DUNGEON_DARK_AMBIENT_COLOR = new THREE.Color('#8ea0c0');
+
+function cloneTexture<T extends THREE.Texture>(
+    texture: T,
+    configure?: (next: T) => void,
+): T {
+    const next = texture.clone() as T;
+    configure?.(next);
+    next.needsUpdate = true;
+    return next;
+}
 
 function createPulseMaterial(color: string, opacity: number) {
     return new THREE.MeshBasicMaterial({
@@ -59,8 +69,15 @@ const CameraController = () => {
 
 // ─── Boundary wall planes ─────────────────────────────────────────────────────
 const BoundaryWalls = memo(({ map }: { map: GameMap }) => {
-    const { wall } = useTexture({ wall: '/textures/wall.png?v=2' });
-    wall.wrapS = wall.wrapT = THREE.RepeatWrapping;
+    const { wall: baseWall } = useTexture({ wall: '/textures/wall.png?v=2' });
+    const wall = useMemo(
+        () => cloneTexture(baseWall, next => {
+            next.wrapS = THREE.RepeatWrapping;
+            next.wrapT = THREE.RepeatWrapping;
+        }),
+        [baseWall],
+    );
+    useEffect(() => () => wall.dispose(), [wall]);
 
     const planes: React.ReactElement[] = [];
     for (const row of map.tiles) {
@@ -230,25 +247,16 @@ const LightController: React.FC = () => {
     const spellLights      = useStore(s => s.spellLights);
     const torchBurnStart   = useStore(s => s.torchBurnStart);
     const championEquipment = useStore(s => s.championEquipment);
-    const { scene } = useThree();
     const lightRef = useRef<THREE.AmbientLight>(null);
 
     useFrame(() => {
         if (!lightRef.current) return;
         const level  = computeLightLevel(spellLights, torchBurnStart, championEquipment);
-        const fog = scene.fog as THREE.Fog | null;
         const target = Math.max(0, level) * 2.0;
         lightRef.current.intensity += (target - lightRef.current.intensity) * 0.04;
 
         const colorTarget = level > 0.45 ? DUNGEON_AMBIENT_COLOR : DUNGEON_DARK_AMBIENT_COLOR;
         lightRef.current.color.lerp(colorTarget, 0.025);
-
-        if (fog) {
-            const fogNearTarget = BASE_FOG_NEAR + (1 - level) * GRID_SIZE * 0.3;
-            const fogFarTarget = BASE_FOG_FAR - (1 - level) * GRID_SIZE * 1.2;
-            fog.near += (fogNearTarget - fog.near) * 0.03;
-            fog.far += (fogFarTarget - fog.far) * 0.03;
-        }
     });
 
     return <ambientLight ref={lightRef} intensity={2.0} color="#e8dbbd" />;
@@ -293,27 +301,50 @@ const ProjectileRenderer: React.FC = () => {
 
     return (
         <>
-            {activeProjectiles.map((p, index) => {
-                const phase = (Date.now() / 180) + index * 0.7;
-                const shellScale = 1 + Math.sin(phase) * 0.08;
-                const glowScale = 1.35 + Math.sin(phase * 1.2) * 0.12;
-                return (
-                <group key={p.id} position={[p.x * GRID_SIZE, 0, p.y * GRID_SIZE]}>
-                    <mesh
-                        geometry={outerGeometry}
-                        material={glowMaterials[p.effect]}
-                        scale={shellScale}
-                    />
-                    <mesh
-                        geometry={glowGeometry}
-                        material={glowMaterials[p.effect]}
-                        scale={glowScale}
-                    />
-                    <mesh geometry={coreGeometry} material={coreMaterial} />
-                </group>
-                );
-            })}
+            {activeProjectiles.map((p, index) => (
+                <ProjectileOrb
+                    key={p.id}
+                    projectile={p}
+                    index={index}
+                    outerGeometry={outerGeometry}
+                    glowGeometry={glowGeometry}
+                    coreGeometry={coreGeometry}
+                    coreMaterial={coreMaterial}
+                    glowMaterial={glowMaterials[p.effect]}
+                />
+            ))}
         </>
+    );
+};
+
+const ProjectileOrb: React.FC<{
+    projectile: { x: number; y: number };
+    index: number;
+    outerGeometry: THREE.SphereGeometry;
+    glowGeometry: THREE.SphereGeometry;
+    coreGeometry: THREE.SphereGeometry;
+    coreMaterial: THREE.MeshBasicMaterial;
+    glowMaterial: THREE.MeshBasicMaterial;
+}> = ({ projectile, index, outerGeometry, glowGeometry, coreGeometry, coreMaterial, glowMaterial }) => {
+    const shellRef = useRef<THREE.Mesh>(null);
+    const glowRef = useRef<THREE.Mesh>(null);
+    const phaseRef = useRef(index * 0.7);
+
+    useFrame((_, delta) => {
+        phaseRef.current += delta * (1000 / 180);
+        const phase = phaseRef.current;
+        const shellScale = 1 + Math.sin(phase) * 0.08;
+        const glowScale = 1.35 + Math.sin(phase * 1.2) * 0.12;
+        if (shellRef.current) shellRef.current.scale.setScalar(shellScale);
+        if (glowRef.current) glowRef.current.scale.setScalar(glowScale);
+    });
+
+    return (
+        <group position={[projectile.x * GRID_SIZE, 0, projectile.y * GRID_SIZE]}>
+            <mesh ref={shellRef} geometry={outerGeometry} material={glowMaterial} />
+            <mesh ref={glowRef} geometry={glowGeometry} material={glowMaterial} />
+            <mesh geometry={coreGeometry} material={coreMaterial} />
+        </group>
     );
 };
 
@@ -323,13 +354,15 @@ const MagicVisionLayer: React.FC<{
     pressurePlates: { tileX: number; tileY: number }[];
 }> = ({ wallButtons, pressurePlates }) => {
     const magicVisionUntil = useStore(s => s.magicVisionUntil);
-    const pulseRef = useRef(0);
+    const groupRef = useRef<THREE.Group>(null);
     const buttonGeometry = useMemo(() => new THREE.SphereGeometry(0.22, 10, 10), []);
     const plateGeometry = useMemo(() => new THREE.RingGeometry(GRID_SIZE * 0.18, GRID_SIZE * 0.38, 24), []);
     const buttonMaterial = useMemo(() => createPulseMaterial('#ff3f2f', 0.55), []);
     const plateMaterial = useMemo(() => createPulseMaterial('#ff5544', 0.34), []);
 
-    useFrame(() => { pulseRef.current += 0.04; });
+    useFrame(() => {
+        if (groupRef.current) groupRef.current.visible = Date.now() < magicVisionUntil;
+    });
 
     useEffect(() => () => {
         buttonGeometry.dispose();
@@ -338,38 +371,86 @@ const MagicVisionLayer: React.FC<{
         plateMaterial.dispose();
     }, [buttonGeometry, plateGeometry, buttonMaterial, plateMaterial]);
 
-    if (Date.now() >= magicVisionUntil) return null;
-
     const FACE_OFFSET: Record<CardinalDir, [number, number]> = {
         North: [0, -HALF], South: [0, HALF], East: [HALF, 0], West: [-HALF, 0],
     };
 
     return (
-        <>
+        <group ref={groupRef} visible={false}>
             {wallButtons.map(({ tileX, tileY, face }) => {
                 const [ox, oz] = FACE_OFFSET[face];
-                const pulse = 0.92 + ((Math.sin(pulseRef.current + tileX * 0.8 + tileY * 0.35) + 1) * 0.08);
                 return (
-                    <mesh key={`mv_btn_${tileX}_${tileY}_${face}`}
+                    <MagicVisionButton
+                        key={`mv_btn_${tileX}_${tileY}_${face}`}
                         position={[tileX * GRID_SIZE + ox, 0, tileY * GRID_SIZE + oz]}
                         geometry={buttonGeometry}
                         material={buttonMaterial}
-                        scale={pulse}
-                        frustumCulled={false}
+                        seed={tileX * 0.8 + tileY * 0.35}
                     />
                 );
             })}
             {pressurePlates.map(({ tileX, tileY }) => (
-                <mesh key={`mv_plate_${tileX}_${tileY}`}
+                <MagicVisionPlate key={`mv_plate_${tileX}_${tileY}`}
                     position={[tileX * GRID_SIZE, -WALL_HEIGHT / 2 + 0.02, tileY * GRID_SIZE]}
-                    rotation={[-Math.PI / 2, 0, 0]}
                     geometry={plateGeometry}
                     material={plateMaterial}
-                    scale={1 + Math.sin(pulseRef.current * 0.8 + tileX * 0.5 + tileY * 0.4) * 0.06}
-                    frustumCulled={false}
+                    seed={tileX * 0.5 + tileY * 0.4}
                 />
             ))}
-        </>
+        </group>
+    );
+};
+
+const MagicVisionButton: React.FC<{
+    position: [number, number, number];
+    geometry: THREE.SphereGeometry;
+    material: THREE.MeshBasicMaterial;
+    seed: number;
+}> = ({ position, geometry, material, seed }) => {
+    const meshRef = useRef<THREE.Mesh>(null);
+    const pulseRef = useRef(seed);
+
+    useFrame(() => {
+        pulseRef.current += 0.04;
+        const pulse = 0.92 + ((Math.sin(pulseRef.current) + 1) * 0.08);
+        if (meshRef.current) meshRef.current.scale.setScalar(pulse);
+    });
+
+    return (
+        <mesh
+            ref={meshRef}
+            position={position}
+            geometry={geometry}
+            material={material}
+            frustumCulled={false}
+        />
+    );
+};
+
+const MagicVisionPlate: React.FC<{
+    position: [number, number, number];
+    geometry: THREE.RingGeometry;
+    material: THREE.MeshBasicMaterial;
+    seed: number;
+}> = ({ position, geometry, material, seed }) => {
+    const meshRef = useRef<THREE.Mesh>(null);
+    const pulseRef = useRef(seed);
+
+    useFrame(() => {
+        pulseRef.current += 0.04;
+        const scale = 1 + Math.sin(pulseRef.current * 0.8) * 0.06;
+        if (meshRef.current) meshRef.current.scale.setScalar(scale);
+    });
+
+    return (
+        <mesh
+            ref={meshRef}
+            position={position}
+            rotation={[-Math.PI / 2, 0, 0]}
+            geometry={geometry}
+            material={material}
+            frustumCulled={false}
+        />
     );
 };
 
@@ -641,7 +722,12 @@ export const DungeonScene = () => {
             } else if (mech.kind.includes('Serrure')) {
                 add(mech.x, mech.y, mech.face, '/misc/serrure.png');
             } else if (mech.kind.includes('Alcôve')) {
-                add(mech.x, mech.y, mech.face, '/misc/autel.png');
+                add(
+                    mech.x,
+                    mech.y,
+                    mech.face,
+                    mech.storedObject === 'TORCH' ? '/items/torch_unlit.png' : '/misc/autel.png',
+                );
             }
         }
 

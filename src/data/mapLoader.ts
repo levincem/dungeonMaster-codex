@@ -19,6 +19,8 @@ interface RawObject {
 interface RawTile {
     x: number;
     y: number;
+    globalX?: number;
+    globalY?: number;
     type: string;
     allowDecoN?: boolean;
     allowDecoE?: boolean;
@@ -38,6 +40,9 @@ interface RawMap {
     width: number;
     height: number;
     difficulty: number;
+    mapOffset?: { x: number; y: number };
+    localBounds?: { minX: number; minY: number; maxX: number; maxY: number };
+    globalBounds?: { minX: number; minY: number; maxX: number; maxY: number };
     tiles: RawTile[];
 }
 
@@ -71,6 +76,8 @@ function buildTile(raw: RawTile): GameTile {
     return {
         x: raw.x,
         y: raw.y,
+        globalX: raw.globalX,
+        globalY: raw.globalY,
         type: normaliseTileType(raw.type),
         allowDecoN: raw.allowDecoN,
         allowDecoE: raw.allowDecoE,
@@ -106,6 +113,9 @@ function buildMap(raw: RawMap): GameMap {
         width: raw.width,
         height: raw.height,
         difficulty: raw.difficulty,
+        mapOffset: raw.mapOffset,
+        localBounds: raw.localBounds,
+        globalBounds: raw.globalBounds,
         tiles,
     };
 }
@@ -118,6 +128,22 @@ export function getGameMap(index: number): GameMap {
     const map = GAME_MAPS[index];
     if (!map) throw new Error(`Map index ${index} does not exist`);
     return map;
+}
+
+export function toGlobalCoords(mapIndex: number, x: number, y: number): { x: number; y: number } {
+    const map = getGameMap(mapIndex);
+    return {
+        x: (map.mapOffset?.x ?? 0) + x,
+        y: (map.mapOffset?.y ?? 0) + y,
+    };
+}
+
+export function toLocalCoords(mapIndex: number, globalX: number, globalY: number): { x: number; y: number } {
+    const map = getGameMap(mapIndex);
+    return {
+        x: globalX - (map.mapOffset?.x ?? 0),
+        y: globalY - (map.mapOffset?.y ?? 0),
+    };
 }
 
 export interface ChampionStartPos {

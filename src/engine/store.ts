@@ -32,6 +32,8 @@ export interface CastResult {
     ts: number; // Date.now() — used to trigger re-display
 }
 
+let castResultTimeout: ReturnType<typeof setTimeout> | null = null;
+
 // ─── Floating damage number shown on struck creature ─────────────────────────
 export interface DamageEvent {
     id: string;
@@ -136,6 +138,7 @@ export interface ChampionCombat {
 }
 
 const MAX_PARTY = 4;
+type MirrorRecruitMode = 'resurrect' | 'reincarnate';
 
 /** Back-calculate starting XP from a champion's initial skill levels. */
 function buildInitialXP(champion: import('../data/champions').Champion): ChampionXP {
@@ -211,6 +214,36 @@ function notifyPlateActivated(level: number, x: number, y: number) {
     for (const fn of plateListeners) fn(level, x, y);
 }
 
+function isHallEntryPressurePlate(level: number, x: number, y: number): boolean {
+    return level === 0 && x === 6 && y === 9;
+}
+
+function queueTransientMessage(message: string, success = false, durationMs = 3000) {
+    const ts = Date.now();
+    useStore.setState({ lastCastResult: { success, message, ts } });
+    if (castResultTimeout) clearTimeout(castResultTimeout);
+    castResultTimeout = setTimeout(() => {
+        const current = useStore.getState().lastCastResult;
+        if (current?.ts === ts) {
+            useStore.setState({ lastCastResult: null });
+        }
+    }, durationMs);
+}
+
+function getHallEntryPlateChanges(level: number, x: number, y: number, partySize: number): Partial<GameState> {
+    if (!isHallEntryPressurePlate(level, x, y)) return {};
+
+    playPlate();
+    notifyPlateActivated(level, x, y);
+
+    if (partySize >= MAX_PARTY) {
+        return { gateOpen: true };
+    }
+
+    queueTransientMessage("Selectionnez vos 4 aventuriers avant d'entrer dans le donjon");
+    return { gateOpen: false };
+}
+
 // ─── Creature action pub/sub (drives sprite frame changes) ───────────────────
 type CreatureActionListener = (id: string, action: 'move' | 'attack') => void;
 const creatureActionListeners = new Set<CreatureActionListener>();
@@ -278,8 +311,15 @@ function buildFloorItems(): FloorItem[] {
     for (const map of GAME_MAPS) {
         for (const row of map.tiles) {
             for (const tile of row) {
+                const isHallChampionTile =
+                    map.index === 0 &&
+                    tile.objects.some(obj =>
+                        obj.category === 'Sensor' &&
+                        (obj as SensorObject & { championGraphic?: number }).championGraphic !== undefined
+                    );
                 for (const obj of tile.objects) {
                     if (!ITEM_CATEGORIES.has(obj.category)) continue;
+                    if (isHallChampionTile) continue;
                     const rawObj = obj as unknown as { type: number; name?: string; text?: string };
                     items.push({
                         id: `${map.index}_${tile.x}_${tile.y}_${obj.category}_${obj.index}`,
@@ -296,6 +336,73 @@ function buildFloorItems(): FloorItem[] {
         }
     }
     return items;
+}
+
+function buildChampionStarterItems(): Record<number, FloorItem[]> {
+    const hall = GAME_MAPS[0];
+    if (!hall) return {};
+
+    const starterItems: Record<number, FloorItem[]> = {};
+    for (const row of hall.tiles) {
+        for (const tile of row) {
+            const championSensor = tile.objects.find(obj =>
+                obj.category === 'Sensor' &&
+                (obj as SensorObject & { championGraphic?: number }).championGraphic !== undefined
+            ) as (SensorObject & { championGraphic?: number }) | undefined;
+
+            if (!championSensor || championSensor.championGraphic === undefined) continue;
+
+            const championId = championSensor.championGraphic;
+            const items = tile.objects
+                .filter(obj => ITEM_CATEGORIES.has(obj.category))
+                .map(obj => {
+                    const rawObj = obj as unknown as { type: number; name?: string; text?: string };
+                    return {
+                        id: `starter_${championId}_${obj.category}_${obj.index}`,
+                        category: obj.category as FloorItem['category'],
+                        typeId: rawObj.type ?? 0,
+                        rawName: rawObj.text ?? rawObj.name,
+                        mapIndex: 0,
+                        x: tile.x,
+                        y: tile.y,
+                        tilePos: obj.tilePos,
+                    } satisfies FloorItem;
+                });
+
+            starterItems[championId] = items;
+        }
+    }
+    return starterItems;
+}
+
+const CHAMPION_STARTER_ITEMS = buildChampionStarterItems();
+
+function getChampionStarterItems(championId: number): FloorItem[] {
+    return (CHAMPION_STARTER_ITEMS[championId] ?? []).map(item => ({ ...item }));
+}
+
+function createReincarnatedChampion(champion: Champion): Champion {
+    const skillTotal =
+        [...champion.skills.fighter, ...champion.skills.ninja, ...champion.skills.priest, ...champion.skills.wizard]
+            .reduce((sum, value) => sum + value, 0);
+    const bonus = Math.max(4, Math.min(18, skillTotal));
+
+    return {
+        ...champion,
+        strength: Math.min(99, champion.strength + bonus),
+        dexterity: Math.min(99, champion.dexterity + Math.round(bonus * 0.7)),
+        wisdom: Math.min(99, champion.wisdom + Math.round(bonus * 0.4)),
+        vitality: Math.min(99, champion.vitality + Math.round(bonus * 0.8)),
+        health: Math.min(999, champion.health + bonus * 2),
+        stamina: Math.min(999, champion.stamina + bonus * 2),
+        mana: Math.max(0, Math.round(champion.mana * 0.6)),
+        skills: {
+            fighter: [0, 0, 0, 0],
+            ninja: [0, 0, 0, 0],
+            priest: [0, 0, 0, 0],
+            wizard: [0, 0, 0, 0],
+        },
+    };
 }
 
 // ─── Teleporter initialisation ────────────────────────────────────────────────
@@ -798,13 +905,14 @@ interface GameState {
     turnLeft: () => void;
     turnRight: () => void;
 
-    addToParty: (champion: Champion) => void;
+    addToParty: (champion: Champion, mode?: MirrorRecruitMode) => void;
     removeFromParty: (championId: number) => void;
     openMirror: (championId: number) => void;
     closeMirror: () => void;
     openPartyMember: (championId: number) => void;
     closePartyMember: () => void;
     tryOpenGate: () => void;
+    showTransientMessage: (message: string, success?: boolean, durationMs?: number) => void;
     goToLevel: (level: number, pos: [number, number], dir: Direction) => void;
     toggleDoor: (x: number, y: number) => void;
     activateWallSensor: (mapIndex: number, x: number, y: number, sensorIndex: number) => void;
@@ -926,11 +1034,13 @@ export const useStore = create<GameState>((set) => ({
             }
         }
         const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, openWalls: state.openWalls, activeSensors: state.activeSensors, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
-        const sensorChanges = triggerFloorSensors(state.level, nx, ny, ss);
+        const suppressHallPlateSensors = isHallEntryPressurePlate(state.level, nx, ny) && state.party.length < MAX_PARTY;
+        const sensorChanges = suppressHallPlateSensors ? {} : triggerFloorSensors(state.level, nx, ny, ss);
+        const hallGateChanges = getHallEntryPlateChanges(state.level, nx, ny, state.party.length);
         const footprintChanges = Date.now() < state.footprintsUntil
             ? { footprintHistory: [...state.footprintHistory, { x: nx, y: ny, level: state.level, ts: Date.now() }] }
             : {};
-        return { position: [ny, nx] as [number, number], ...sensorChanges, ...footprintChanges };
+        return { position: [ny, nx] as [number, number], ...sensorChanges, ...hallGateChanges, ...footprintChanges };
     }),
 
     moveBackward: () => set((state) => {
@@ -943,11 +1053,13 @@ export const useStore = create<GameState>((set) => ({
         if (state.direction === 'WEST')  nx = x + 1;
         if (!isWalkable(state.level, ny, nx, state.openDoors, state.openWalls)) return state;
         const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, openWalls: state.openWalls, activeSensors: state.activeSensors, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
-        const sensorChanges = triggerFloorSensors(state.level, nx, ny, ss);
+        const suppressHallPlateSensors = isHallEntryPressurePlate(state.level, nx, ny) && state.party.length < MAX_PARTY;
+        const sensorChanges = suppressHallPlateSensors ? {} : triggerFloorSensors(state.level, nx, ny, ss);
+        const hallGateChanges = getHallEntryPlateChanges(state.level, nx, ny, state.party.length);
         const footprintChanges = Date.now() < state.footprintsUntil
             ? { footprintHistory: [...state.footprintHistory, { x: nx, y: ny, level: state.level, ts: Date.now() }] }
             : {};
-        return { position: [ny, nx] as [number, number], ...sensorChanges, ...footprintChanges };
+        return { position: [ny, nx] as [number, number], ...sensorChanges, ...hallGateChanges, ...footprintChanges };
     }),
 
     strafeLeft: () => set((state) => {
@@ -963,7 +1075,14 @@ export const useStore = create<GameState>((set) => ({
         const fpL = Date.now() < state.footprintsUntil
             ? { footprintHistory: [...state.footprintHistory, { x: nx, y: ny, level: state.level, ts: Date.now() }] }
             : {};
-        return { position: [ny, nx] as [number, number], ...triggerFloorSensors(state.level, nx, ny, ss), ...fpL };
+        return {
+            position: [ny, nx] as [number, number],
+            ...(isHallEntryPressurePlate(state.level, nx, ny) && state.party.length < MAX_PARTY
+                ? {}
+                : triggerFloorSensors(state.level, nx, ny, ss)),
+            ...getHallEntryPlateChanges(state.level, nx, ny, state.party.length),
+            ...fpL,
+        };
     }),
 
     strafeRight: () => set((state) => {
@@ -979,7 +1098,14 @@ export const useStore = create<GameState>((set) => ({
         const fpR = Date.now() < state.footprintsUntil
             ? { footprintHistory: [...state.footprintHistory, { x: nx, y: ny, level: state.level, ts: Date.now() }] }
             : {};
-        return { position: [ny, nx] as [number, number], ...triggerFloorSensors(state.level, nx, ny, ss), ...fpR };
+        return {
+            position: [ny, nx] as [number, number],
+            ...(isHallEntryPressurePlate(state.level, nx, ny) && state.party.length < MAX_PARTY
+                ? {}
+                : triggerFloorSensors(state.level, nx, ny, ss)),
+            ...getHallEntryPlateChanges(state.level, nx, ny, state.party.length),
+            ...fpR,
+        };
     }),
 
     turnLeft: () => set((state) => {
@@ -994,16 +1120,20 @@ export const useStore = create<GameState>((set) => ({
         return { direction: DIRECTIONS[(index + 1) % 4] };
     }),
 
-    addToParty: (champion) => set((state) => {
+    addToParty: (champion, mode = 'resurrect') => set((state) => {
         if (state.party.find(c => c.id === champion.id)) return state;
         if (state.party.length >= MAX_PARTY) return state;
-        const newParty = [...state.party, champion];
+        const recruitedChampion = mode === 'reincarnate'
+            ? createReincarnatedChampion(champion)
+            : champion;
+        const newParty = [...state.party, recruitedChampion];
+        const starterItems = getChampionStarterItems(champion.id);
         return {
             party: newParty,
-            gateOpen: newParty.length >= MAX_PARTY,
+            gateOpen: false,
             championInventories: champion.id in state.championInventories
                 ? state.championInventories
-                : { ...state.championInventories, [champion.id]: [] },
+                : { ...state.championInventories, [champion.id]: starterItems },
             championEquipment: champion.id in state.championEquipment
                 ? state.championEquipment
                 : { ...state.championEquipment, [champion.id]: {} },
@@ -1012,14 +1142,19 @@ export const useStore = create<GameState>((set) => ({
                 : {
                     ...state.championVitals,
                     [champion.id]: {
-                        hp:      champion.health,
-                        stamina: champion.stamina,
-                        mana:    champion.mana,
+                        hp:      recruitedChampion.health,
+                        stamina: recruitedChampion.stamina,
+                        mana:    recruitedChampion.mana,
                     },
                 },
             championXP: champion.id in state.championXP
                 ? state.championXP
-                : { ...state.championXP, [champion.id]: buildInitialXP(champion) },
+                : {
+                    ...state.championXP,
+                    [champion.id]: mode === 'reincarnate'
+                        ? { fighter: 0, ninja: 0, priest: 0, wizard: 0 }
+                        : buildInitialXP(recruitedChampion),
+                },
             championCombat: champion.id in state.championCombat
                 ? state.championCombat
                 : { ...state.championCombat, [champion.id]: { cooldown: 0, cooldownMax: 1 } },
@@ -1037,21 +1172,33 @@ export const useStore = create<GameState>((set) => ({
         ].map(item => ({ ...item, mapIndex: state.level, x, y, tilePos: 'North' as const }));
         return {
             party: newParty,
-            gateOpen: newParty.length >= MAX_PARTY,
+            gateOpen: false,
             floorItems: [...state.floorItems, ...dropped],
             championInventories: { ...state.championInventories, [championId]: [] },
             championEquipment: { ...state.championEquipment, [championId]: {} },
         };
     }),
 
-    openMirror:       (championId) => set({ gamePhase: 'mirror_open', activeMirrorChampionId: championId }),
-    closeMirror:      () => set({ gamePhase: 'exploration', activeMirrorChampionId: null }),
-    openPartyMember:  (championId) => set({ activePartyMemberId: championId }),
-    closePartyMember: () => set({ activePartyMemberId: null }),
+      openMirror:       (championId) => set({ gamePhase: 'mirror_open', activeMirrorChampionId: championId }),
+      closeMirror:      () => set({ gamePhase: 'exploration', activeMirrorChampionId: null }),
+      openPartyMember:  (championId) => set({ activePartyMemberId: championId }),
+      closePartyMember: () => set({ activePartyMemberId: null }),
 
-    tryOpenGate: () => set((state) => ({ gateOpen: state.party.length >= MAX_PARTY })),
+      tryOpenGate: () => set((state) => ({ gateOpen: state.party.length >= MAX_PARTY })),
 
-    goToLevel: (level, pos, dir) => set({ level, position: pos, direction: dir }),
+    showTransientMessage: (message, success = false, durationMs = 3000) => {
+        const ts = Date.now();
+        set({ lastCastResult: { success, message, ts } });
+        if (castResultTimeout) clearTimeout(castResultTimeout);
+        castResultTimeout = setTimeout(() => {
+            const current = useStore.getState().lastCastResult;
+            if (current?.ts === ts) {
+                useStore.setState({ lastCastResult: null });
+            }
+        }, durationMs);
+    },
+
+      goToLevel: (level, pos, dir) => set({ level, position: pos, direction: dir }),
 
     toggleDoor: (x, y) => set((state) => {
         const key = `${state.level},${y},${x}`;

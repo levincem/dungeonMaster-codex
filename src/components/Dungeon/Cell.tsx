@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useEffect, Suspense } from 'react';
 import { Box, Plane, useTexture } from '@react-three/drei';
-import { useFrame, useThree } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import { subscribePlateActivated } from '../../engine/store';
@@ -94,6 +94,16 @@ function makeFrameTex(): THREE.CanvasTexture {
 
 const FRAME_TEX = makeFrameTex();
 
+function cloneTexture<T extends THREE.Texture>(
+    texture: T,
+    configure?: (next: T) => void,
+): T {
+    const next = texture.clone() as T;
+    configure?.(next);
+    next.needsUpdate = true;
+    return next;
+}
+
 /** Decorative frame always visible on mirror wall, regardless of champion state. */
 const PortraitFrame: React.FC<{ wallFace: CardinalDir }> = ({ wallFace }) => {
     const { pos, rot } = FACE_CONFIGS[wallFace];
@@ -129,8 +139,12 @@ const FrameEmpty: React.FC<{ wallFace: CardinalDir }> = ({ wallFace }) => {
 };
 
 const MirrorPortrait: React.FC<{ champion: Champion; wallFace: CardinalDir }> = ({ champion, wallFace }) => {
-    const tex = useTexture(champion.portrait);
-    tex.colorSpace = THREE.SRGBColorSpace;
+    const baseTex = useTexture(champion.portrait);
+    const tex = useMemo(
+        () => cloneTexture(baseTex, next => { next.colorSpace = THREE.SRGBColorSpace; }),
+        [baseTex],
+    );
+    useEffect(() => () => tex.dispose(), [tex]);
 
     const { pos, rot } = FACE_CONFIGS[wallFace];
     const zOff = 0.004;
@@ -240,13 +254,18 @@ const DoorMeshInner: React.FC<{
     hasButton: boolean;
     onButtonClick?: (e: ThreeEvent<MouseEvent>) => void;
 }> = ({ open, hasButton, onButtonClick }) => {
-    const tex     = useTexture('/textures/door.png');
-    const wallTex = useTexture('/textures/wall.png?v=2');
-    tex.colorSpace     = THREE.SRGBColorSpace;
-    wallTex.colorSpace = THREE.SRGBColorSpace;
-
-    const { gl } = useThree();
-    useEffect(() => { gl.localClippingEnabled = true; }, [gl]);
+    const baseDoorTex = useTexture('/textures/door.png');
+    const baseWallTex = useTexture('/textures/wall.png?v=2');
+    const tex = useMemo(
+        () => cloneTexture(baseDoorTex, next => { next.colorSpace = THREE.SRGBColorSpace; }),
+        [baseDoorTex],
+    );
+    const wallTex = useMemo(
+        () => cloneTexture(baseWallTex, next => { next.colorSpace = THREE.SRGBColorSpace; }),
+        [baseWallTex],
+    );
+    useEffect(() => () => tex.dispose(), [tex]);
+    useEffect(() => () => wallTex.dispose(), [wallTex]);
 
     const groupRef = useRef<THREE.Group>(null);
     const matRef1  = useRef<THREE.MeshBasicMaterial>(null);
@@ -433,9 +452,16 @@ interface CellProps {
 }
 
 export const Cell: React.FC<CellProps> = ({ type, position, wallFace, champion, frameChampion, doorOpen, doorOrientation, doorHasButton, onClick }) => {
-    const wallTex = useTexture('/textures/wall.png?v=2');
-    wallTex.wrapS = wallTex.wrapT = THREE.RepeatWrapping;
-    wallTex.repeat.set(1, 1);
+    const baseWallTex = useTexture('/textures/wall.png?v=2');
+    const wallTex = useMemo(
+        () => cloneTexture(baseWallTex, next => {
+            next.wrapS = THREE.RepeatWrapping;
+            next.wrapT = THREE.RepeatWrapping;
+            next.repeat.set(1, 1);
+        }),
+        [baseWallTex],
+    );
+    useEffect(() => () => wallTex.dispose(), [wallTex]);
 
     // ── MIRROR ────────────────────────────────────────────────────────────────
     // InstancedTiles renders ceiling for all tiles; Mirror needs its own wall Box.

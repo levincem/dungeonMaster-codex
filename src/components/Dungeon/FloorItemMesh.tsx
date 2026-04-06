@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { Suspense, useEffect, useMemo } from 'react';
 import { Billboard, Plane } from '@react-three/drei';
 import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
@@ -23,8 +23,14 @@ const TILEPOS_OFFSET: Record<string, [number, number]> = {
 // ─── Inner sprite (uses texture) ──────────────────────────────────────────────
 
 const ItemSprite = ({ imagePath, onClick }: { imagePath: string; onClick: () => void }) => {
-    const tex = useTexture(imagePath);
-    tex.colorSpace = THREE.SRGBColorSpace;
+    const baseTex = useTexture(imagePath);
+    const tex = useMemo(() => {
+        const next = baseTex.clone();
+        next.colorSpace = THREE.SRGBColorSpace;
+        next.needsUpdate = true;
+        return next;
+    }, [baseTex]);
+    useEffect(() => () => tex.dispose(), [tex]);
 
     const image = tex.image as { width: number; height: number } | undefined;
     const aspect = image ? (image.width / image.height) : 1;

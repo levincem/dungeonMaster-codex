@@ -3,6 +3,7 @@ import { useStore, xpToLevel } from '../../engine/store';
 import { playStep, playCry, onSoundPlayed } from '../../engine/sounds';
 import type { ChampionCombat, ChampionXP } from '../../engine/store';
 import { WEAPON_TYPES } from '../../data/items';
+import { getGameMap } from '../../data/mapLoader';
 import type { Champion } from '../../data/champions';
 import type { ChampionEquipment } from '../../types/game';
 import { RUNES_BY_FAMILY, RUNES_BY_ID, findSpell } from '../../data/runes';
@@ -291,6 +292,9 @@ export const HUD = () => {
         championVitals, castSpell: storeCastSpell, lastCastResult,
         championXP, championCombat, attackFront, championEquipment,
     } = useStore();
+    const currentMap = getGameMap(level);
+    const globalX = (currentMap.mapOffset?.x ?? 0) + position[1];
+    const globalY = (currentMap.mapOffset?.y ?? 0) + position[0];
 
     // ── Sound debug ─────────────────────────────────────────────────────────
     const [lastSound, setLastSound] = useState<string>('');
@@ -591,7 +595,10 @@ export const HUD = () => {
 
             {/* Debug */}
             <div style={{ fontSize: 10, color: '#993322', fontFamily: 'monospace', textAlign: 'center', opacity: 0.6 }}>
-                [{position[0]},{position[1]}] {direction} · LVL {level}
+                [{globalX},{globalY}] {direction} · LVL {level}
+            </div>
+            <div style={{ fontSize: 9, color: '#7a4a24', fontFamily: 'monospace', textAlign: 'center', opacity: 0.5, marginTop: 2 }}>
+                local [{position[1]},{position[0]}] · offset [{currentMap.mapOffset?.x ?? 0},{currentMap.mapOffset?.y ?? 0}]
             </div>
             {lastSound && (
                 <div style={{ fontSize: 9, color: '#cc8833', fontFamily: 'monospace', textAlign: 'center', opacity: 0.7, marginTop: 2 }}>
