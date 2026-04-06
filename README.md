@@ -93,11 +93,15 @@ These files are used as a foundation to rebuild the original game's behavior in 
 
 ## Credits
 
-- To the creators of the original game: Doug Bell, Mike Newton, Dennis Walker, Andy Jaros, Wayne Holder, Nancy Holder, Tsukasa Tawada
-- To FTL Games
-- To the Dungeon Master community
-- To the [Dungeon Master Encyclopaedia](http://dmweb.free.fr/)
-- To the [ReDMCSB](https://github.com/gondur/ReDMCSB_Release2) project by Christophe Fontanel
+Thanks to :
+
+- The creators of the original game: Doug Bell, Mike Newton, Dennis Walker, Andy Jaros, Wayne Holder, Nancy Holder, Tsukasa Tawada
+- FTL Games
+- The [Dungeon Master community](https://www.dungeon-master.com/forum/)
+- The [Dungeon Master Encyclopaedia](http://dmweb.free.fr/)
+- The [ReDMCSB](https://github.com/gondur/ReDMCSB_Release2) project by Christophe Fontanel
+- The [Dungeon Master: Swoosh Construction Kit by Pierre Monnot](http://greatstone.free.fr)
+
 
 ## Note
 
