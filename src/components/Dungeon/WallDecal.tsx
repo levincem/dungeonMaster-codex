@@ -32,6 +32,7 @@ type DecalPreset = {
     y: number;
     hasBacking: boolean;
     hasGlow: boolean;
+    plateColor: string;
 };
 
 const DEFAULT_PRESET: DecalPreset = {
@@ -40,6 +41,7 @@ const DEFAULT_PRESET: DecalPreset = {
     y: 0,
     hasBacking: false,
     hasGlow: false,
+    plateColor: '#3a2b1d',
 };
 
 const DECAL_PRESETS: Record<string, DecalPreset> = {
@@ -49,6 +51,7 @@ const DECAL_PRESETS: Record<string, DecalPreset> = {
         y: -WALL_HEIGHT * 0.02,
         hasBacking: false,
         hasGlow: true,
+        plateColor: '#3a2b1d',
     },
     '/misc/levier_haut.png': {
         width: GRID_SIZE * 0.28,
@@ -56,6 +59,15 @@ const DECAL_PRESETS: Record<string, DecalPreset> = {
         y: 0,
         hasBacking: true,
         hasGlow: true,
+        plateColor: '#3a2b1d',
+    },
+    '/misc/levier_bas.png': {
+        width: GRID_SIZE * 0.28,
+        height: WALL_HEIGHT * 0.46,
+        y: 0,
+        hasBacking: true,
+        hasGlow: true,
+        plateColor: '#3a2b1d',
     },
     '/misc/autel.png': {
         width: GRID_SIZE * 0.56,
@@ -63,6 +75,7 @@ const DECAL_PRESETS: Record<string, DecalPreset> = {
         y: -WALL_HEIGHT * 0.03,
         hasBacking: false,
         hasGlow: false,
+        plateColor: '#3a2b1d',
     },
     '/items/torch_unlit.png': {
         width: GRID_SIZE * 0.18,
@@ -70,6 +83,15 @@ const DECAL_PRESETS: Record<string, DecalPreset> = {
         y: 0,
         hasBacking: false,
         hasGlow: true,
+        plateColor: '#3a2b1d',
+    },
+    '/misc/wall_foutain_overlay.png': {
+        width: GRID_SIZE * 0.72,
+        height: WALL_HEIGHT * 0.92,
+        y: -WALL_HEIGHT * 0.02,
+        hasBacking: false,
+        hasGlow: true,
+        plateColor: '#1b2b39',
     },
 };
 
@@ -103,13 +125,99 @@ const DecalSprite = ({ image, width, height }: { image: string; width: number; h
     );
 };
 
+const makeLabelTexture = (label: string, accent: string): THREE.CanvasTexture => {
+    const width = 512;
+    const height = 320;
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Failed to create label texture for wall decal.');
+
+    ctx.clearRect(0, 0, width, height);
+    ctx.fillStyle = 'rgba(20, 17, 15, 0.92)';
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 14;
+    ctx.strokeRect(18, 18, width - 36, height - 36);
+
+    ctx.strokeStyle = 'rgba(255, 242, 220, 0.18)';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(34, 34, width - 68, height - 68);
+
+    const words = label.toUpperCase().split(' ');
+    const lines: string[] = [];
+    let current = '';
+    for (const word of words) {
+        const next = current ? `${current} ${word}` : word;
+        if (next.length > 14 && current) {
+            lines.push(current);
+            current = word;
+        } else {
+            current = next;
+        }
+    }
+    if (current) lines.push(current);
+
+    ctx.fillStyle = accent;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = 'bold 42px Georgia, serif';
+    const lineHeight = 52;
+    const startY = height / 2 - ((lines.length - 1) * lineHeight) / 2;
+    lines.forEach((line, index) => {
+        ctx.fillText(line, width / 2, startY + index * lineHeight);
+    });
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.needsUpdate = true;
+    return texture;
+};
+
+const LabelSprite = ({
+    label,
+    accent,
+    width,
+    height,
+}: {
+    label: string;
+    accent: string;
+    width: number;
+    height: number;
+}) => {
+    const texture = useMemo(() => makeLabelTexture(label, accent), [label, accent]);
+    useEffect(() => () => texture.dispose(), [texture]);
+
+    return (
+        <mesh frustumCulled={false} renderOrder={10}>
+            <planeGeometry args={[width, height]} />
+            <meshBasicMaterial
+                map={texture}
+                transparent
+                alphaTest={0.05}
+                side={THREE.DoubleSide}
+                depthWrite={false}
+                depthTest={true}
+                polygonOffset
+                polygonOffsetFactor={-4}
+                polygonOffsetUnits={-4}
+                toneMapped={false}
+            />
+        </mesh>
+    );
+};
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 interface Props {
     tileX: number;
     tileY: number;
     face: CardinalDir;
-    image: string;
+    image?: string;
+    label?: string;
+    accent?: string;
     /** Width of the decal plane — defaults to full GRID_SIZE */
     width?: number;
     /** Height of the decal plane — defaults to full WALL_HEIGHT */
@@ -118,12 +226,26 @@ interface Props {
 
 export const WallDecal = ({
     tileX, tileY, face, image,
+    label,
+    accent = '#c5a46a',
     width,
     height,
 }: Props) => {
+    if (!image && !label) return null;
+
     const [ox, , oz] = FACE_POS[face];
     const [rx, ry, rz] = FACE_ROT[face];
-    const preset = DECAL_PRESETS[image] ?? DEFAULT_PRESET;
+    const preset = image
+        ? (DECAL_PRESETS[image] ?? DEFAULT_PRESET)
+        : {
+            ...DEFAULT_PRESET,
+            hasBacking: true,
+            hasGlow: true,
+            width: GRID_SIZE * 0.54,
+            height: WALL_HEIGHT * 0.28,
+            y: -WALL_HEIGHT * 0.04,
+            plateColor: '#1f1a15',
+        };
     const decalWidth = width ?? preset.width;
     const decalHeight = height ?? preset.height;
     const plateWidth = Math.max(decalWidth - PLATE_INSET_X, decalWidth * 0.86);
@@ -139,7 +261,7 @@ export const WallDecal = ({
                 <>
                     <mesh position={[0, 0, -PLATE_DEPTH * 0.55]} frustumCulled={false} renderOrder={1}>
                         <boxGeometry args={[plateWidth, plateHeight, PLATE_DEPTH]} />
-                        <meshBasicMaterial color="#3a2b1d" />
+                        <meshBasicMaterial color={preset.plateColor} />
                     </mesh>
                 </>
             )}
@@ -147,7 +269,7 @@ export const WallDecal = ({
                 <mesh position={[0, 0, -PLATE_DEPTH * 0.04]} frustumCulled={false} renderOrder={2}>
                     <planeGeometry args={[decalWidth * 1.1, decalHeight * 1.1]} />
                     <meshBasicMaterial
-                        color="#c5a46a"
+                        color={accent}
                         transparent
                         opacity={0.12}
                         side={THREE.DoubleSide}
@@ -161,9 +283,13 @@ export const WallDecal = ({
                 </mesh>
             )}
             <group position={[0, 0, PLATE_DEPTH * 0.16]}>
-                <Suspense fallback={null}>
-                    <DecalSprite image={image} width={decalWidth} height={decalHeight} />
-                </Suspense>
+                {image ? (
+                    <Suspense fallback={null}>
+                        <DecalSprite image={image} width={decalWidth} height={decalHeight} />
+                    </Suspense>
+                ) : label ? (
+                    <LabelSprite label={label} accent={accent} width={decalWidth} height={decalHeight} />
+                ) : null}
             </group>
         </group>
     );

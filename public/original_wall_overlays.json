@@ -1,0 +1,1331 @@
+{
+  "generatedAt": "2026-04-07T00:00:00Z",
+  "source": "public/graphics_db.json",
+  "caveats": [
+    "Names and visual variants are source-backed from graphics_db.json.",
+    "This file catalogs wall ornament families, not exact in-dungeon wall placements.",
+    "Exact tile and face positions for each ornament are still unresolved in the current dungeon export."
+  ],
+  "entries": [
+    {
+      "index": 0,
+      "name": "Unreadable Wall Inscription",
+      "classification": "decorative",
+      "stateGroup": null,
+      "notes": "Primarily decorative or ambiance-facing.",
+      "variants": {
+        "left": {
+          "resourceId": 259,
+          "width": 10,
+          "height": 42,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0259.IMG3 [Wall Ornate 00 (Left Side) - Unreadable Wall Inscription].bmp"
+        },
+        "front": {
+          "resourceId": 260,
+          "width": 90,
+          "height": 56,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0260.IMG3 [Wall Ornate 00 (Front) - Unreadable Wall Inscription].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 1,
+      "name": "Square Alcove",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Wall container or deposit niche.",
+      "variants": {
+        "left": {
+          "resourceId": 261,
+          "width": 16,
+          "height": 48,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0261.IMG3 [Wall Ornate 01 (Left Side) - Square Alcove].bmp"
+        },
+        "front": {
+          "resourceId": 262,
+          "width": 90,
+          "height": 56,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0262.IMG3 [Wall Ornate 01 (Front) - Square Alcove].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 2,
+      "name": "Vi Altar",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Special wall altar; likely puzzle or shrine-related rather than pure decoration.",
+      "variants": {
+        "left": {
+          "resourceId": 263,
+          "width": 20,
+          "height": 48,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0263.IMG3 [Wall Ornate 02 (Left Side) - Vi Altar].bmp"
+        },
+        "front": {
+          "resourceId": 264,
+          "width": 96,
+          "height": 56,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0264.IMG3 [Wall Ornate 02 (Front) - Vi Altar].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 3,
+      "name": "Arched Alcove",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Wall container or deposit niche.",
+      "variants": {
+        "left": {
+          "resourceId": 265,
+          "width": 28,
+          "height": 48,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0265.IMG3 [Wall Ornate 03 (Left Side) - Arched Alcove].bmp"
+        },
+        "front": {
+          "resourceId": 266,
+          "width": 96,
+          "height": 56,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0266.IMG3 [Wall Ornate 03 (Front) - Arched Alcove].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 4,
+      "name": "Hook",
+      "classification": "decorative",
+      "stateGroup": null,
+      "notes": "Primarily decorative or ambiance-facing.",
+      "variants": {
+        "left": {
+          "resourceId": 267,
+          "width": 14,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0267.IMG3 [Wall Ornate 04 (Left Side) - Hook].bmp"
+        },
+        "front": {
+          "resourceId": 268,
+          "width": 28,
+          "height": 28,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0268.IMG3 [Wall Ornate 04 (Front) - Hook].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 5,
+      "name": "Iron Lock",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Lock or keyhole style wall mechanism.",
+      "variants": {
+        "left": {
+          "resourceId": 269,
+          "width": 14,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0269.IMG3 [Wall Ornate 05 (Left Side) - Iron Lock].bmp"
+        },
+        "front": {
+          "resourceId": 270,
+          "width": 28,
+          "height": 27,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0270.IMG3 [Wall Ornate 05 (Front) - Iron Lock].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 6,
+      "name": "Wood Ring",
+      "classification": "decorative",
+      "stateGroup": null,
+      "notes": "Primarily decorative or ambiance-facing.",
+      "variants": {
+        "left": {
+          "resourceId": 271,
+          "width": 14,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0271.IMG3 [Wall Ornate 06 (Left Side) - Wood Ring].bmp"
+        },
+        "front": {
+          "resourceId": 272,
+          "width": 28,
+          "height": 26,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0272.IMG3 [Wall Ornate 06 (Front) - Wood Ring].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 7,
+      "name": "Small Switch",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Wall switch or hidden button family.",
+      "variants": {
+        "left": {
+          "resourceId": 273,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0273.IMG3 [Wall Ornate 07 (Left Side) - Small Switch].bmp"
+        },
+        "front": {
+          "resourceId": 274,
+          "width": 12,
+          "height": 28,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0274.IMG3 [Wall Ornate 07 (Front) - Small Switch].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 8,
+      "name": "Dent 1",
+      "classification": "decorative",
+      "stateGroup": null,
+      "notes": "Primarily decorative or ambiance-facing.",
+      "variants": {
+        "left": {
+          "resourceId": 275,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0275.IMG3 [Wall Ornate 08 (Left Side) - Dent 1].bmp"
+        },
+        "front": {
+          "resourceId": 276,
+          "width": 14,
+          "height": 26,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0276.IMG3 [Wall Ornate 08 (Front) - Dent 1].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 9,
+      "name": "Dent 2",
+      "classification": "decorative",
+      "stateGroup": null,
+      "notes": "Primarily decorative or ambiance-facing.",
+      "variants": {
+        "left": {
+          "resourceId": 277,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0277.IMG3 [Wall Ornate 09 (Left Side) - Dent 2].bmp"
+        },
+        "front": {
+          "resourceId": 278,
+          "width": 14,
+          "height": 24,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0278.IMG3 [Wall Ornate 09 (Front) - Dent 2].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 10,
+      "name": "Iron Ring",
+      "classification": "decorative",
+      "stateGroup": null,
+      "notes": "Primarily decorative or ambiance-facing.",
+      "variants": {
+        "left": {
+          "resourceId": 279,
+          "width": 14,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0279.IMG3 [Wall Ornate 10 (Left Side) - Iron Ring].bmp"
+        },
+        "front": {
+          "resourceId": 280,
+          "width": 20,
+          "height": 28,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0280.IMG3 [Wall Ornate 10 (Front) - Iron Ring].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 11,
+      "name": "Crack",
+      "classification": "decorative",
+      "stateGroup": null,
+      "notes": "Primarily decorative or ambiance-facing.",
+      "variants": {
+        "left": {
+          "resourceId": 281,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0281.IMG3 [Wall Ornate 11 (Left Side) - Crack].bmp"
+        },
+        "front": {
+          "resourceId": 282,
+          "width": 22,
+          "height": 28,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0282.IMG3 [Wall Ornate 11 (Front) - Crack].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 12,
+      "name": "Slime Outlet",
+      "classification": "hazard",
+      "stateGroup": null,
+      "notes": "Hazard emitter or trap outlet.",
+      "variants": {
+        "left": {
+          "resourceId": 283,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0283.IMG3 [Wall Ornate 12 (Left Side) - Slime Outlet].bmp"
+        },
+        "front": {
+          "resourceId": 284,
+          "width": 32,
+          "height": 28,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0284.IMG3 [Wall Ornate 12 (Front) - Slime Outlet].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 13,
+      "name": "Dent 3",
+      "classification": "decorative",
+      "stateGroup": null,
+      "notes": "Primarily decorative or ambiance-facing.",
+      "variants": {
+        "left": {
+          "resourceId": 285,
+          "width": 11,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0285.IMG3 [Wall Ornate 13 (Left Side) - Dent 3].bmp"
+        },
+        "front": {
+          "resourceId": 286,
+          "width": 6,
+          "height": 26,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0286.IMG3 [Wall Ornate 13 (Front) - Dent 3].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 14,
+      "name": "Tiny Switch",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Wall switch or hidden button family.",
+      "variants": {
+        "left": {
+          "resourceId": 287,
+          "width": 12,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0287.IMG3 [Wall Ornate 14 (Left Side) - Tiny Switch].bmp"
+        },
+        "front": {
+          "resourceId": 288,
+          "width": 30,
+          "height": 28,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0288.IMG3 [Wall Ornate 14 (Front) - Tiny Switch].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 15,
+      "name": "Green Switch Out",
+      "classification": "interactive",
+      "stateGroup": "switch",
+      "notes": "Wall switch or hidden button family.",
+      "variants": {
+        "left": {
+          "resourceId": 289,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0289.IMG3 [Wall Ornate 15 (Left Side) - Green Switch Out].bmp"
+        },
+        "front": {
+          "resourceId": 290,
+          "width": 14,
+          "height": 26,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0290.IMG3 [Wall Ornate 15 (Front) - Green Switch Out].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 16,
+      "name": "Blue Switch Out",
+      "classification": "interactive",
+      "stateGroup": "switch",
+      "notes": "Wall switch or hidden button family.",
+      "variants": {
+        "left": {
+          "resourceId": 291,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0291.IMG3 [Wall Ornate 16 (Left Side) - Blue Switch Out].bmp"
+        },
+        "front": {
+          "resourceId": 292,
+          "width": 14,
+          "height": 26,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0292.IMG3 [Wall Ornate 16 (Front) - Blue Switch Out].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 17,
+      "name": "Coin Slot",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Insertion slot for a specific item or coin.",
+      "variants": {
+        "left": {
+          "resourceId": 293,
+          "width": 14,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0293.IMG3 [Wall Ornate 17 (Left Side) - Coin Slot].bmp"
+        },
+        "front": {
+          "resourceId": 294,
+          "width": 10,
+          "height": 26,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0294.IMG3 [Wall Ornate 17 (Front) - Coin Slot].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 18,
+      "name": "Double Iron Lock",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Lock or keyhole style wall mechanism.",
+      "variants": {
+        "left": {
+          "resourceId": 295,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0295.IMG3 [Wall Ornate 18 (Left Side) - Double Iron Lock].bmp"
+        },
+        "front": {
+          "resourceId": 296,
+          "width": 32,
+          "height": 26,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0296.IMG3 [Wall Ornate 18 (Front) - Double Iron Lock].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 19,
+      "name": "Square Lock",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Lock or keyhole style wall mechanism.",
+      "variants": {
+        "left": {
+          "resourceId": 297,
+          "width": 14,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0297.IMG3 [Wall Ornate 19 (Left Side) - Square Lock].bmp"
+        },
+        "front": {
+          "resourceId": 298,
+          "width": 20,
+          "height": 20,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0298.IMG3 [Wall Ornate 19 (Front) - Square Lock].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 20,
+      "name": "Winged Lock",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Lock or keyhole style wall mechanism.",
+      "variants": {
+        "left": {
+          "resourceId": 299,
+          "width": 14,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0299.IMG3 [Wall Ornate 20 (Left Side) - Winged Lock].bmp"
+        },
+        "front": {
+          "resourceId": 300,
+          "width": 30,
+          "height": 26,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0300.IMG3 [Wall Ornate 20 (Front) - Winged Lock].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 21,
+      "name": "Onyx Lock",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Lock or keyhole style wall mechanism.",
+      "variants": {
+        "left": {
+          "resourceId": 301,
+          "width": 14,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0301.IMG3 [Wall Ornate 21 (Left Side) - Onyx Lock].bmp"
+        },
+        "front": {
+          "resourceId": 302,
+          "width": 20,
+          "height": 26,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0302.IMG3 [Wall Ornate 21 (Front) - Onyx Lock].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 22,
+      "name": "Stone Lock",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Lock or keyhole style wall mechanism.",
+      "variants": {
+        "left": {
+          "resourceId": 303,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0303.IMG3 [Wall Ornate 22 (Left Side) - Stone Lock].bmp"
+        },
+        "front": {
+          "resourceId": 304,
+          "width": 32,
+          "height": 28,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0304.IMG3 [Wall Ornate 22 (Front) - Stone Lock].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 23,
+      "name": "Cross Lock",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Lock or keyhole style wall mechanism.",
+      "variants": {
+        "left": {
+          "resourceId": 305,
+          "width": 14,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0305.IMG3 [Wall Ornate 23 (Left Side) - Cross Lock].bmp"
+        },
+        "front": {
+          "resourceId": 306,
+          "width": 28,
+          "height": 26,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0306.IMG3 [Wall Ornate 23 (Front) - Cross Lock].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 24,
+      "name": "Topaz Lock",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Lock or keyhole style wall mechanism.",
+      "variants": {
+        "left": {
+          "resourceId": 307,
+          "width": 14,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0307.IMG3 [Wall Ornate 24 (Left Side) - Topaz Lock].bmp"
+        },
+        "front": {
+          "resourceId": 308,
+          "width": 27,
+          "height": 26,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0308.IMG3 [Wall Ornate 24 (Front) - Topaz Lock].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 25,
+      "name": "Skeleton Lock",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Lock or keyhole style wall mechanism.",
+      "variants": {
+        "left": {
+          "resourceId": 309,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0309.IMG3 [Wall Ornate 25 (Left Side) - Skeleton Lock].bmp"
+        },
+        "front": {
+          "resourceId": 310,
+          "width": 24,
+          "height": 26,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0310.IMG3 [Wall Ornate 25 (Front) - Skeleton Lock].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 26,
+      "name": "Gold Lock",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Lock or keyhole style wall mechanism.",
+      "variants": {
+        "left": {
+          "resourceId": 311,
+          "width": 14,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0311.IMG3 [Wall Ornate 26 (Left Side) - Gold Lock].bmp"
+        },
+        "front": {
+          "resourceId": 312,
+          "width": 32,
+          "height": 26,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0312.IMG3 [Wall Ornate 26 (Front) - Gold Lock].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 27,
+      "name": "Tourquoise Lock",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Lock or keyhole style wall mechanism.",
+      "variants": {
+        "left": {
+          "resourceId": 313,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0313.IMG3 [Wall Ornate 27 (Left Side) - Tourquoise Lock].bmp"
+        },
+        "front": {
+          "resourceId": 314,
+          "width": 32,
+          "height": 26,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0314.IMG3 [Wall Ornate 27 (Front) - Tourquoise Lock].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 28,
+      "name": "Emerald Lock",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Lock or keyhole style wall mechanism.",
+      "variants": {
+        "left": {
+          "resourceId": 315,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0315.IMG3 [Wall Ornate 28 (Left Side) - Emerald Lock].bmp"
+        },
+        "front": {
+          "resourceId": 316,
+          "width": 32,
+          "height": 26,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0316.IMG3 [Wall Ornate 28 (Front) - Emerald Lock].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 29,
+      "name": "Ruby Lock",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Lock or keyhole style wall mechanism.",
+      "variants": {
+        "left": {
+          "resourceId": 317,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0317.IMG3 [Wall Ornate 29 (Left Side) - Ruby Lock].bmp"
+        },
+        "front": {
+          "resourceId": 318,
+          "width": 30,
+          "height": 28,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0318.IMG3 [Wall Ornate 29 (Front) - Ruby Lock].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 30,
+      "name": "Ra Lock",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Lock or keyhole style wall mechanism.",
+      "variants": {
+        "left": {
+          "resourceId": 319,
+          "width": 14,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0319.IMG3 [Wall Ornate 30 (Left Side) - Ra Lock].bmp"
+        },
+        "front": {
+          "resourceId": 320,
+          "width": 30,
+          "height": 26,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0320.IMG3 [Wall Ornate 30 (Front) - Ra Lock].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 31,
+      "name": "Master Lock",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Lock or keyhole style wall mechanism.",
+      "variants": {
+        "left": {
+          "resourceId": 321,
+          "width": 14,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0321.IMG3 [Wall Ornate 31 (Left Side) - Master Lock].bmp"
+        },
+        "front": {
+          "resourceId": 322,
+          "width": 28,
+          "height": 26,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0322.IMG3 [Wall Ornate 31 (Front) - Master Lock].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 32,
+      "name": "Gem Hole",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Gem insertion point.",
+      "variants": {
+        "left": {
+          "resourceId": 323,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0323.IMG3 [Wall Ornate 32 (Left Side) - Gem Hole].bmp"
+        },
+        "front": {
+          "resourceId": 324,
+          "width": 32,
+          "height": 26,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0324.IMG3 [Wall Ornate 32 (Front) - Gem Hole].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 33,
+      "name": "Slime",
+      "classification": "decorative",
+      "stateGroup": null,
+      "notes": "Primarily decorative or ambiance-facing.",
+      "variants": {
+        "left": {
+          "resourceId": 325,
+          "width": 16,
+          "height": 10,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0325.IMG3 [Wall Ornate 33 (Left Side) - Slime].bmp"
+        },
+        "front": {
+          "resourceId": 326,
+          "width": 22,
+          "height": 16,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0326.IMG3 [Wall Ornate 33 (Front) - Slime].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 34,
+      "name": "Grate",
+      "classification": "decorative",
+      "stateGroup": null,
+      "notes": "Primarily decorative or ambiance-facing.",
+      "variants": {
+        "left": {
+          "resourceId": 327,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0327.IMG3 [Wall Ornate 34 (Left Side) - Grate].bmp"
+        },
+        "front": {
+          "resourceId": 328,
+          "width": 32,
+          "height": 20,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0328.IMG3 [Wall Ornate 34 (Front) - Grate].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 35,
+      "name": "Fountain",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Water or wish fountain wall feature.",
+      "variants": {
+        "left": {
+          "resourceId": 329,
+          "width": 32,
+          "height": 48,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0329.IMG3 [Wall Ornate 35 (Left Side) - Fountain].bmp"
+        },
+        "front": {
+          "resourceId": 330,
+          "width": 96,
+          "height": 56,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0330.IMG3 [Wall Ornate 35 (Front) - Fountain].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 36,
+      "name": "Manacles",
+      "classification": "decorative",
+      "stateGroup": null,
+      "notes": "Primarily decorative or ambiance-facing.",
+      "variants": {
+        "left": {
+          "resourceId": 331,
+          "width": 32,
+          "height": 42,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0331.IMG3 [Wall Ornate 36 (Left Side) - Manacles].bmp"
+        },
+        "front": {
+          "resourceId": 332,
+          "width": 92,
+          "height": 52,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0332.IMG3 [Wall Ornate 36 (Front) - Manacles].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 37,
+      "name": "Ghoul's Head",
+      "classification": "decorative",
+      "stateGroup": null,
+      "notes": "Primarily decorative or ambiance-facing.",
+      "variants": {
+        "left": {
+          "resourceId": 333,
+          "width": 16,
+          "height": 46,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0333.IMG3 [Wall Ornate 37 (Left Side) - Ghoul's Head].bmp"
+        },
+        "front": {
+          "resourceId": 334,
+          "width": 88,
+          "height": 55,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0334.IMG3 [Wall Ornate 37 (Front) - Ghoul's Head].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 38,
+      "name": "Empty Torch Holder",
+      "classification": "interactive",
+      "stateGroup": "torch_holder",
+      "notes": "Torch holder state on the wall.",
+      "variants": {
+        "left": {
+          "resourceId": 335,
+          "width": 20,
+          "height": 40,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0335.IMG3 [Wall Ornate 38 (Left Side) - Empty Torch Holder].bmp"
+        },
+        "front": {
+          "resourceId": 336,
+          "width": 24,
+          "height": 54,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0336.IMG3 [Wall Ornate 38 (Front) - Empty Torch Holder].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 39,
+      "name": "Scratches",
+      "classification": "decorative",
+      "stateGroup": null,
+      "notes": "Primarily decorative or ambiance-facing.",
+      "variants": {
+        "left": {
+          "resourceId": 337,
+          "width": 20,
+          "height": 30,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0337.IMG3 [Wall Ornate 39 (Left Side) - Scratches].bmp"
+        },
+        "front": {
+          "resourceId": 338,
+          "width": 60,
+          "height": 54,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0338.IMG3 [Wall Ornate 39 (Front) - Scratches].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 40,
+      "name": "Poison Holes",
+      "classification": "hazard",
+      "stateGroup": null,
+      "notes": "Hazard emitter or trap outlet.",
+      "variants": {
+        "left": {
+          "resourceId": 339,
+          "width": 22,
+          "height": 8,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0339.IMG3 [Wall Ornate 40 (Left Side) - Poison Holes].bmp"
+        },
+        "front": {
+          "resourceId": 340,
+          "width": 88,
+          "height": 4,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0340.IMG3 [Wall Ornate 40 (Front) - Poison Holes].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 41,
+      "name": "Fireball Holes",
+      "classification": "hazard",
+      "stateGroup": null,
+      "notes": "Hazard emitter or trap outlet.",
+      "variants": {
+        "left": {
+          "resourceId": 341,
+          "width": 24,
+          "height": 12,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0341.IMG3 [Wall Ornate 41 (Left Side) - Fireball Holes].bmp"
+        },
+        "front": {
+          "resourceId": 342,
+          "width": 96,
+          "height": 10,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0342.IMG3 [Wall Ornate 41 (Front) - Fireball Holes].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 42,
+      "name": "Dagger Holes",
+      "classification": "hazard",
+      "stateGroup": null,
+      "notes": "Hazard emitter or trap outlet.",
+      "variants": {
+        "left": {
+          "resourceId": 343,
+          "width": 21,
+          "height": 12,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0343.IMG3 [Wall Ornate 42 (Left Side) - Dagger Holes].bmp"
+        },
+        "front": {
+          "resourceId": 344,
+          "width": 90,
+          "height": 12,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0344.IMG3 [Wall Ornate 42 (Front) - Dagger Holes].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 43,
+      "name": "Champion Mirror",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Champion mirror interaction.",
+      "variants": {
+        "left": {
+          "resourceId": 345,
+          "width": 16,
+          "height": 35,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0345.IMG3 [Wall Ornate 43 (Left Side) - Champion Mirror].bmp"
+        },
+        "front": {
+          "resourceId": 346,
+          "width": 48,
+          "height": 43,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0346.IMG3 [Wall Ornate 43 (Front) - Champion Mirror].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 44,
+      "name": "Lever Up",
+      "classification": "interactive",
+      "stateGroup": "lever",
+      "notes": "Explicit wall lever state.",
+      "variants": {
+        "left": {
+          "resourceId": 347,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0347.IMG3 [Wall Ornate 44 (Left Side) - Lever Up].bmp"
+        },
+        "front": {
+          "resourceId": 348,
+          "width": 14,
+          "height": 28,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0348.IMG3 [Wall Ornate 44 (Front) - Lever Up].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 45,
+      "name": "Lever Down",
+      "classification": "interactive",
+      "stateGroup": "lever",
+      "notes": "Explicit wall lever state.",
+      "variants": {
+        "left": {
+          "resourceId": 349,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0349.IMG3 [Wall Ornate 45 (Left Side) - Lever Down].bmp"
+        },
+        "front": {
+          "resourceId": 350,
+          "width": 14,
+          "height": 28,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0350.IMG3 [Wall Ornate 45 (Front) - Lever Down].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 46,
+      "name": "Full Torch Holder",
+      "classification": "interactive",
+      "stateGroup": "torch_holder",
+      "notes": "Torch holder state on the wall.",
+      "variants": {
+        "left": {
+          "resourceId": 351,
+          "width": 24,
+          "height": 48,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0351.IMG3 [Wall Ornate 46 (Left Side) - Full Torch Holder].bmp"
+        },
+        "front": {
+          "resourceId": 352,
+          "width": 24,
+          "height": 53,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0352.IMG3 [Wall Ornate 46 (Front) - Full Torch Holder].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 47,
+      "name": "Red Switch Out",
+      "classification": "interactive",
+      "stateGroup": "switch",
+      "notes": "Wall switch or hidden button family.",
+      "variants": {
+        "left": {
+          "resourceId": 353,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0353.IMG3 [Wall Ornate 47 (Left Side) - Red Switch Out].bmp"
+        },
+        "front": {
+          "resourceId": 354,
+          "width": 16,
+          "height": 26,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0354.IMG3 [Wall Ornate 47 (Front) - Red Switch Out].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 48,
+      "name": "Eye Switch",
+      "classification": "interactive",
+      "stateGroup": null,
+      "notes": "Wall switch or hidden button family.",
+      "variants": {
+        "left": {
+          "resourceId": 355,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0355.IMG3 [Wall Ornate 48 (Left Side) - Eye Switch].bmp"
+        },
+        "front": {
+          "resourceId": 356,
+          "width": 32,
+          "height": 17,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0356.IMG3 [Wall Ornate 48 (Front) - Eye Switch].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 49,
+      "name": "Big Switch Out",
+      "classification": "interactive",
+      "stateGroup": "switch",
+      "notes": "Wall switch or hidden button family.",
+      "variants": {
+        "left": {
+          "resourceId": 357,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0357.IMG3 [Wall Ornate 49 (Left Side) - Big Switch Out].bmp"
+        },
+        "front": {
+          "resourceId": 358,
+          "width": 26,
+          "height": 28,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0358.IMG3 [Wall Ornate 49 (Front) - Big Switch Out].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 50,
+      "name": "Crack Switch Out",
+      "classification": "interactive",
+      "stateGroup": "switch",
+      "notes": "Wall switch or hidden button family.",
+      "variants": {
+        "left": {
+          "resourceId": 359,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0359.IMG3 [Wall Ornate 50 (Left Side) - Crack Switch Out].bmp"
+        },
+        "front": {
+          "resourceId": 360,
+          "width": 30,
+          "height": 28,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0360.IMG3 [Wall Ornate 50 (Front) - Crack Switch Out].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 51,
+      "name": "Green Switch In",
+      "classification": "interactive",
+      "stateGroup": "switch",
+      "notes": "Wall switch or hidden button family.",
+      "variants": {
+        "left": {
+          "resourceId": 361,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0361.IMG3 [Wall Ornate 51 (Left Side) - Green Switch In].bmp"
+        },
+        "front": {
+          "resourceId": 362,
+          "width": 14,
+          "height": 26,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0362.IMG3 [Wall Ornate 51 (Front) - Green Switch In].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 52,
+      "name": "Blue Switch In",
+      "classification": "interactive",
+      "stateGroup": "switch",
+      "notes": "Wall switch or hidden button family.",
+      "variants": {
+        "left": {
+          "resourceId": 363,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0363.IMG3 [Wall Ornate 52 (Left Side) - Blue Switch In].bmp"
+        },
+        "front": {
+          "resourceId": 364,
+          "width": 14,
+          "height": 26,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0364.IMG3 [Wall Ornate 52 (Front) - Blue Switch In].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 53,
+      "name": "Red Switch In",
+      "classification": "interactive",
+      "stateGroup": "switch",
+      "notes": "Wall switch or hidden button family.",
+      "variants": {
+        "left": {
+          "resourceId": 365,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0365.IMG3 [Wall Ornate 53 (Left Side) - Red Switch In].bmp"
+        },
+        "front": {
+          "resourceId": 366,
+          "width": 16,
+          "height": 26,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0366.IMG3 [Wall Ornate 53 (Front) - Red Switch In].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 54,
+      "name": "Big Switch In",
+      "classification": "interactive",
+      "stateGroup": "switch",
+      "notes": "Wall switch or hidden button family.",
+      "variants": {
+        "left": {
+          "resourceId": 367,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0367.IMG3 [Wall Ornate 54 (Left Side) - Big Switch In].bmp"
+        },
+        "front": {
+          "resourceId": 368,
+          "width": 26,
+          "height": 28,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0368.IMG3 [Wall Ornate 54 (Front) - Big Switch In].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 55,
+      "name": "Crack Switch In",
+      "classification": "interactive",
+      "stateGroup": "switch",
+      "notes": "Wall switch or hidden button family.",
+      "variants": {
+        "left": {
+          "resourceId": 369,
+          "width": 16,
+          "height": 19,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0369.IMG3 [Wall Ornate 55 (Left Side) - Crack Switch In].bmp"
+        },
+        "front": {
+          "resourceId": 370,
+          "width": 30,
+          "height": 28,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0370.IMG3 [Wall Ornate 55 (Front) - Crack Switch In].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 56,
+      "name": "Amalgam (Encased Gem)",
+      "classification": "stateful",
+      "stateGroup": "amalgam",
+      "notes": "Stateful Firestaff/Gem endgame wall decoration.",
+      "variants": {
+        "left": {
+          "resourceId": 371,
+          "width": 16,
+          "height": 111,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0371.IMG3 [Wall Ornate 56 (Left Side) - Amalgam (Encased Gem)].bmp"
+        },
+        "front": {
+          "resourceId": 372,
+          "width": 96,
+          "height": 111,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0372.IMG3 [Wall Ornate 56 (Front) - Amalgam (Encased Gem)].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 57,
+      "name": "Amalgam (Free Gem)",
+      "classification": "stateful",
+      "stateGroup": "amalgam",
+      "notes": "Stateful Firestaff/Gem endgame wall decoration.",
+      "variants": {
+        "left": {
+          "resourceId": 373,
+          "width": 16,
+          "height": 111,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0373.IMG3 [Wall Ornate 57 (Left Side) - Amalgam (Free Gem)].bmp"
+        },
+        "front": {
+          "resourceId": 374,
+          "width": 96,
+          "height": 111,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0374.IMG3 [Wall Ornate 57 (Front) - Amalgam (Free Gem)].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 58,
+      "name": "Amalgam (Without Gem)",
+      "classification": "stateful",
+      "stateGroup": "amalgam",
+      "notes": "Stateful Firestaff/Gem endgame wall decoration.",
+      "variants": {
+        "left": {
+          "resourceId": 375,
+          "width": 16,
+          "height": 111,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0375.IMG3 [Wall Ornate 58 (Left Side) - Amalgam (Without Gem)].bmp"
+        },
+        "front": {
+          "resourceId": 376,
+          "width": 96,
+          "height": 111,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0376.IMG3 [Wall Ornate 58 (Front) - Amalgam (Without Gem)].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    },
+    {
+      "index": 59,
+      "name": "Lord Order (Outside)",
+      "classification": "decorative",
+      "stateGroup": null,
+      "notes": "Primarily decorative or ambiance-facing.",
+      "variants": {
+        "left": {
+          "resourceId": 377,
+          "width": 32,
+          "height": 111,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0377.IMG3 [Wall Ornate 59 (Left Side) - Lord Order (Outside)].bmp"
+        },
+        "front": {
+          "resourceId": 378,
+          "width": 160,
+          "height": 111,
+          "file": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0378.IMG3 [Wall Ornate 59 (Front) - Lord Order (Outside)].bmp"
+        }
+      },
+      "source": "public/graphics_db.json"
+    }
+  ]
+}

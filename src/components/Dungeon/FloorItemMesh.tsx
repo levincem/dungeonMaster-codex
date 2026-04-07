@@ -4,7 +4,7 @@ import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { GRID_SIZE } from '../../engine/constants';
 import type { FloorItem } from '../../types/game';
-import { getItemImage } from '../../data/itemImages';
+import { getFloorItemImage } from '../../data/itemImages';
 
 // ─── Layout ───────────────────────────────────────────────────────────────────
 
@@ -82,7 +82,7 @@ export const FloorItemMesh = ({ item, onPickup }: Props) => {
         item.y * GRID_SIZE + offset[1],
     ];
 
-    const imagePath = getItemImage(item.category, item.typeId);
+    const imagePath = getFloorItemImage(item);
 
     return (
         <Billboard

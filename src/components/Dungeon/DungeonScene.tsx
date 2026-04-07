@@ -5,6 +5,7 @@ import { PerspectiveCamera, Plane, Html, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore, MIRROR_WALL_MAP, MIRROR_FACE_MAP, STAIR_CONNECTIONS } from '../../engine/store';
 import { getMapMechanisms } from '../../data/mechanisms';
+import { getOriginalWallOverlaysForMap, type OriginalWallOverlayRender } from '../../data/originalWallOverlays';
 import type { ProjectileEffect, FootprintEntry } from '../../engine/store';
 import { computeLightLevel } from '../../engine/store';
 import { getGameMap } from '../../data/mapLoader';
@@ -576,7 +577,7 @@ const TileGrid: React.FC<{
     openWalls: Set<string>;
     recruitedIds: Set<number>;
     wallButtons: { tileX: number; tileY: number; face: CardinalDir; sensorIndex: number }[];
-    wallDecals: { tileX: number; tileY: number; face: CardinalDir; image: string }[];
+    wallDecals: OriginalWallOverlayRender[];
     pressurePlates: { tileX: number; tileY: number }[];
     onCellClick: (e: ThreeEvent<MouseEvent>, renderType: CellRenderType, x: number, y: number) => void;
     onWallSensor: (level: number, x: number, y: number, sensorIndex: number) => void;
@@ -638,10 +639,17 @@ const TileGrid: React.FC<{
                     onClick={() => onWallSensor(level, tileX, tileY, sensorIndex)}
                 />
             ))}
-            {wallDecals.map(({ tileX, tileY, face, image }, i) => (
+            {wallDecals.map(({ tileX, tileY, face, image, label, accent, width, height }, i) => (
                 <WallDecal
                     key={`wdecal_${tileX}_${tileY}_${face}_${i}`}
-                    tileX={tileX} tileY={tileY} face={face} image={image}
+                    tileX={tileX}
+                    tileY={tileY}
+                    face={face}
+                    image={image}
+                    label={label}
+                    accent={accent}
+                    width={width}
+                    height={height}
                 />
             ))}
         </group>
@@ -679,8 +687,6 @@ export const DungeonScene = () => {
     }, [map]);
 
     const wallDecals = useMemo(() => {
-        // For a Stairs tile, find the one walkable neighbour — the image goes on
-        // that same face (the face visible to the player approaching from that side).
         const stairsEntryFace = (x: number, y: number): CardinalDir => {
             const neighbours: Array<{ dx: number; dy: number; dir: CardinalDir }> = [
                 { dx:  0, dy: -1, dir: 'North' },
@@ -690,69 +696,40 @@ export const DungeonScene = () => {
             ];
             for (const { dx, dy, dir } of neighbours) {
                 const row = map.tiles[y + dy];
-                const nb  = row?.[x + dx];
-                if (nb && nb.type !== 'Wall') return dir;
+                const neighbour = row?.[x + dx];
+                if (neighbour && neighbour.type !== 'Wall') return dir;
             }
             return 'South';
         };
 
-        const decals: { tileX: number; tileY: number; face: CardinalDir; image: string }[] = [];
+        const decals: OriginalWallOverlayRender[] = [];
+        const seen = new Set<string>();
+        const add = (overlay: OriginalWallOverlayRender) => {
+            const visualKey = overlay.image ?? overlay.label ?? 'overlay';
+            const key = `${overlay.tileX}_${overlay.tileY}_${overlay.face}_${visualKey}`;
+            if (seen.has(key)) return;
+            seen.add(key);
+            decals.push(overlay);
+        };
 
-        // ── Staircases ─────────────────────────────────────────────────────────
         for (const row of map.tiles) {
             for (const tile of row) {
                 if (tile.type !== 'Stairs') continue;
                 const link = STAIR_CONNECTIONS.find(
-                    s => s.fromLevel === level && s.fromY === tile.y && s.fromX === tile.x
+                    stair => stair.fromLevel === level && stair.fromY === tile.y && stair.fromX === tile.x,
                 );
-                if (link) {
-                    const face  = stairsEntryFace(tile.x, tile.y);
-                    const image = link.toLevel > level ? '/misc/stairs_down.png' : '/misc/stairs_up.png';
-                    decals.push({ tileX: tile.x, tileY: tile.y, face, image });
-                }
+                if (!link) continue;
+                add({
+                    tileX: tile.x,
+                    tileY: tile.y,
+                    face: stairsEntryFace(tile.x, tile.y),
+                    image: link.toLevel > level ? '/misc/stairs_down.png' : '/misc/stairs_up.png',
+                });
             }
         }
 
-        // ── Mechanisms from mechanisms.json — exact wall positions ─────────────
-        const seen = new Set<string>(); // deduplicate (x,y,face,image)
-        const add = (tileX: number, tileY: number, face: CardinalDir, image: string) => {
-            const key = `${tileX}_${tileY}_${face}_${image}`;
-            if (!seen.has(key)) { seen.add(key); decals.push({ tileX, tileY, face, image }); }
-        };
-
-        for (const mech of getMapMechanisms(level)) {
-            if (mech.support !== 'Wall') continue;
-            if (mech.kind.includes('Levier')) {
-                const matchingSensor = map.tiles[mech.y]?.[mech.x]?.objects.find(obj =>
-                    obj.category === 'Sensor' &&
-                    (obj as SensorObject).type === 2 &&
-                    (obj as SensorObject).tilePos === mech.face
-                ) as SensorObject | undefined;
-                const isActive = matchingSensor ? activeSensors.has(`${level}_${matchingSensor.index}`) : false;
-                add(mech.x, mech.y, mech.face, isActive ? '/misc/levier_bas.png' : '/misc/levier_haut.png');
-            } else if (mech.kind.includes('Serrure')) {
-                add(mech.x, mech.y, mech.face, '/misc/serrure.png');
-            } else if (mech.kind.includes('Alcôve')) {
-                add(
-                    mech.x,
-                    mech.y,
-                    mech.face,
-                    mech.storedObject === 'TORCH' ? '/items/torch_unlit.png' : '/misc/autel.png',
-                );
-            }
-        }
-
-        // ── Vi Altars — Sensors with graphic=5 ────────────────────────────────
-        for (const row of map.tiles) {
-            for (const tile of row) {
-                for (const obj of tile.objects) {
-                    if (obj.category !== 'Sensor') continue;
-                    const s = obj as SensorObject;
-                    if ((s as unknown as { graphic?: number }).graphic === 5) {
-                        add(tile.x, tile.y, s.tilePos as CardinalDir, '/misc/autel.png');
-                    }
-                }
-            }
+        for (const overlay of getOriginalWallOverlaysForMap(map, activeSensors)) {
+            add(overlay);
         }
 
         return decals;

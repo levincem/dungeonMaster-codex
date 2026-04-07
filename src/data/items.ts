@@ -293,6 +293,35 @@ export function resolveItemName(
     return `${category} #${typeId}`;
 }
 
+const SCROLL_TEXT_FIXUPS: Record<string, string> = {
+    'SE PIT\nLEAVE A\nVALUABLE\nON FLOOR': 'TO CLOSE PIT\nLEAVE A\nVALUABLE\nON FLOOR',
+    'PIT\nLEAVE A\nVALUABLE\nON FLOOR': 'TO CLOSE PIT\nLEAVE A\nVALUABLE\nON FLOOR',
+    'LEAVE A\nVALUABLE\nON FLOOR': 'TO CLOSE PIT\nLEAVE A\nVALUABLE\nON FLOOR',
+    'LE\nON FLOOR': 'TO CLOSE PIT\nLEAVE A\nVALUABLE\nON FLOOR',
+    'UABLE\nON FLOOR': 'TO CLOSE PIT\nLEAVE A\nVALUABLE\nON FLOOR',
+    'ON FLOOR': 'TO CLOSE PIT\nLEAVE A\nVALUABLE\nON FLOOR',
+    'FLOOR': 'TO CLOSE PIT\nLEAVE A\nVALUABLE\nON FLOOR',
+    'S FOUNTAIN\nACCEPTS ONE\nWISH.': 'THIS FOUNTAIN\nACCEPTS ONE\nWISH.',
+    'OUNTAIN\nACCEPTS ONE\nWISH.': 'THIS FOUNTAIN\nACCEPTS ONE\nWISH.',
+    'N\nACCEPTS ONE\nWISH.': 'THIS FOUNTAIN\nACCEPTS ONE\nWISH.',
+    'E\nWISH.': 'THIS FOUNTAIN\nACCEPTS ONE\nWISH.',
+    'L\nFOR A MAGIC\nTORCH': 'INVOKE FUL\nFOR A MAGIC\nTORCH',
+    'OR A MAGIC\nTORCH': 'INVOKE FUL\nFOR A MAGIC\nTORCH',
+    'AGIC\nTORCH': 'INVOKE FUL\nFOR A MAGIC\nTORCH',
+    'C\nTORCH': 'INVOKE FUL\nFOR A MAGIC\nTORCH',
+    'ORCH': 'INVOKE FUL\nFOR A MAGIC\nTORCH',
+    RTCUT: 'SHORTCUT',
+    ACK: 'TURN BACK',
+    'BRAVE\nADVENTURERS.': 'COME BACK\nBRAVE\nADVENTURERS.',
+    'AVE\nADVENTURERS.': 'COME BACK\nBRAVE\nADVENTURERS.',
+    'ADVENTURERS.': 'COME BACK\nBRAVE\nADVENTURERS.',
+};
+
+export function normalizeScrollText(rawText?: string): string | undefined {
+    if (!rawText) return rawText;
+    return SCROLL_TEXT_FIXUPS[rawText] ?? rawText;
+}
+
 function mergeById<T extends { id: number }>(primary: T[], fallback: Record<number, T>): T[] {
     const merged = new Map<number, T>();
     for (const value of Object.values(fallback)) merged.set(value.id, value);

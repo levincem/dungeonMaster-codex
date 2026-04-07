@@ -226,6 +226,8 @@ export interface FloorItem {
     x: number;
     y: number;
     tilePos: CardinalDir;
+    waterCharges?: number;
+    waterMaxCharges?: number;
     /** Set on bones items (Misc typeId 28) — links to the dead champion's id */
     championId?: number;
 }

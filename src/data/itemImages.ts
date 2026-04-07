@@ -4,6 +4,9 @@
  * Pass `state` for charged/worn variants.
  */
 
+import type { FloorItem } from '../types/game';
+import { getWaterContainerState } from './waterContainers';
+
 const BASE = '/items/';
 
 // ─── Weapon images ────────────────────────────────────────────────────────────
@@ -246,4 +249,15 @@ export function getItemImage(category: string, typeId: number): string {
         case 'Container': filename = CONTAINER_IMG[typeId]; break;
     }
     return BASE + (filename ?? CATEGORY_FALLBACK[category] ?? 'compass.png');
+}
+
+export function getFloorItemImage(item: FloorItem): string {
+    const waterState = getWaterContainerState(item);
+    if (waterState) {
+        if (waterState.kind === 'waterskin') {
+            return BASE + (waterState.charges > 0 ? 'water_waterskin_full.png' : 'waterskin_empty.png');
+        }
+        return BASE + (waterState.charges > 0 ? 'water_flask.png' : 'empty_flask.png');
+    }
+    return getItemImage(item.category, item.typeId);
 }

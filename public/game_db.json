@@ -26,7 +26,7 @@
       "atkSpd": 32,
       "moveSpd": 15,
       "exp": 12,
-      "poison": false,
+      "poison": true,
       "attackTypes": [
         "Physical"
       ],
@@ -34,11 +34,11 @@
     },
     "2": {
       "name": "Giggler",
-      "baseHP": 40,
-      "armor": 10,
-      "hitProb": 60,
-      "atkSpd": 15,
-      "moveSpd": 15,
+      "baseHP": 10,
+      "armor": 50,
+      "hitProb": 110,
+      "atkSpd": 5,
+      "moveSpd": 3,
       "exp": 15,
       "poison": false,
       "attackTypes": [
@@ -63,11 +63,11 @@
     },
     "4": {
       "name": "Pain Rat",
-      "baseHP": 80,
-      "armor": 15,
-      "hitProb": 50,
-      "atkSpd": 10,
-      "moveSpd": 20,
+      "baseHP": 101,
+      "armor": 45,
+      "hitProb": 65,
+      "atkSpd": 8,
+      "moveSpd": 9,
       "exp": 10,
       "poison": false,
       "attackTypes": [
@@ -77,11 +77,11 @@
     },
     "5": {
       "name": "Ruster",
-      "baseHP": 80,
-      "armor": 25,
-      "hitProb": 45,
+      "baseHP": 60,
+      "armor": 100,
+      "hitProb": 30,
       "atkSpd": 18,
-      "moveSpd": 12,
+      "moveSpd": 20,
       "exp": 15,
       "poison": false,
       "attackTypes": [
@@ -91,11 +91,11 @@
     },
     "6": {
       "name": "Screamer",
-      "baseHP": 30,
+      "baseHP": 165,
       "armor": 5,
-      "hitProb": 20,
-      "atkSpd": 40,
-      "moveSpd": 5,
+      "hitProb": 5,
+      "atkSpd": 10,
+      "moveSpd": 120,
       "exp": 5,
       "poison": false,
       "attackTypes": [
@@ -105,13 +105,13 @@
     },
     "7": {
       "name": "Rockpile",
-      "baseHP": 250,
-      "armor": 90,
-      "hitProb": 40,
-      "atkSpd": 25,
-      "moveSpd": 5,
+      "baseHP": 50,
+      "armor": 170,
+      "hitProb": 10,
+      "atkSpd": 15,
+      "moveSpd": 185,
       "exp": 30,
-      "poison": false,
+      "poison": true,
       "attackTypes": [
         "Physical"
       ],
@@ -119,11 +119,11 @@
     },
     "8": {
       "name": "Ghost",
-      "baseHP": 50,
-      "armor": 60,
-      "hitProb": 70,
-      "atkSpd": 18,
-      "moveSpd": 12,
+      "baseHP": 30,
+      "armor": 15,
+      "hitProb": 80,
+      "atkSpd": 16,
+      "moveSpd": 11,
       "exp": 25,
       "poison": false,
       "attackTypes": [
@@ -133,11 +133,11 @@
     },
     "9": {
       "name": "Stone Golem",
-      "baseHP": 300,
-      "armor": 85,
-      "hitProb": 60,
-      "atkSpd": 30,
-      "moveSpd": 5,
+      "baseHP": 120,
+      "armor": 240,
+      "hitProb": 35,
+      "atkSpd": 14,
+      "moveSpd": 21,
       "exp": 40,
       "poison": false,
       "attackTypes": [
@@ -147,11 +147,11 @@
     },
     "10": {
       "name": "Mummy",
-      "baseHP": 180,
-      "armor": 30,
-      "hitProb": 50,
-      "atkSpd": 22,
-      "moveSpd": 8,
+      "baseHP": 33,
+      "armor": 25,
+      "hitProb": 40,
+      "atkSpd": 12,
+      "moveSpd": 17,
       "exp": 25,
       "poison": false,
       "attackTypes": [
@@ -162,11 +162,11 @@
     },
     "11": {
       "name": "Black Flame",
-      "baseHP": 120,
-      "armor": 80,
-      "hitProb": 65,
-      "atkSpd": 20,
-      "moveSpd": 10,
+      "baseHP": 80,
+      "armor": 45,
+      "hitProb": 60,
+      "atkSpd": 8,
+      "moveSpd": 255,
       "exp": 30,
       "poison": false,
       "attackTypes": [
@@ -176,11 +176,11 @@
     },
     "12": {
       "name": "Skeleton",
-      "baseHP": 100,
-      "armor": 35,
-      "hitProb": 55,
-      "atkSpd": 18,
-      "moveSpd": 10,
+      "baseHP": 20,
+      "armor": 22,
+      "hitProb": 80,
+      "atkSpd": 7,
+      "moveSpd": 7,
       "exp": 20,
       "poison": false,
       "attackTypes": [
@@ -220,11 +220,11 @@
     },
     "15": {
       "name": "Magenta Worm",
-      "baseHP": 400,
-      "armor": 60,
-      "hitProb": 55,
-      "atkSpd": 25,
-      "moveSpd": 8,
+      "baseHP": 70,
+      "armor": 72,
+      "hitProb": 35,
+      "atkSpd": 19,
+      "moveSpd": 18,
       "exp": 50,
       "poison": true,
       "attackTypes": [
@@ -235,11 +235,11 @@
     },
     "16": {
       "name": "Trolin",
-      "baseHP": 120,
-      "armor": 30,
-      "hitProb": 55,
-      "atkSpd": 16,
-      "moveSpd": 12,
+      "baseHP": 20,
+      "armor": 28,
+      "hitProb": 41,
+      "atkSpd": 8,
+      "moveSpd": 13,
       "exp": 20,
       "poison": false,
       "attackTypes": [
@@ -249,11 +249,11 @@
     },
     "17": {
       "name": "Giant Wasp",
-      "baseHP": 60,
-      "armor": 20,
-      "hitProb": 75,
-      "atkSpd": 12,
-      "moveSpd": 18,
+      "baseHP": 8,
+      "armor": 180,
+      "hitProb": 150,
+      "atkSpd": 16,
+      "moveSpd": 1,
       "exp": 20,
       "poison": true,
       "attackTypes": [
@@ -264,11 +264,11 @@
     },
     "18": {
       "name": "Animated Armour",
-      "baseHP": 200,
-      "armor": 80,
-      "hitProb": 65,
-      "atkSpd": 20,
-      "moveSpd": 8,
+      "baseHP": 60,
+      "armor": 140,
+      "hitProb": 70,
+      "atkSpd": 6,
+      "moveSpd": 14,
       "exp": 45,
       "poison": false,
       "attackTypes": [
@@ -281,11 +281,11 @@
     },
     "19": {
       "name": "Materializer",
-      "baseHP": 100,
-      "armor": 45,
-      "hitProb": 70,
-      "atkSpd": 15,
-      "moveSpd": 15,
+      "baseHP": 33,
+      "armor": 15,
+      "hitProb": 65,
+      "atkSpd": 18,
+      "moveSpd": 5,
       "exp": 35,
       "poison": false,
       "attackTypes": [
@@ -296,11 +296,11 @@
     },
     "20": {
       "name": "Water Elemental",
-      "baseHP": 200,
-      "armor": 70,
-      "hitProb": 60,
-      "atkSpd": 20,
-      "moveSpd": 10,
+      "baseHP": 144,
+      "armor": 75,
+      "hitProb": 50,
+      "atkSpd": 25,
+      "moveSpd": 25,
       "exp": 40,
       "poison": false,
       "attackTypes": [
@@ -310,11 +310,11 @@
     },
     "21": {
       "name": "Oitu",
-      "baseHP": 250,
-      "armor": 75,
-      "hitProb": 70,
-      "atkSpd": 20,
-      "moveSpd": 8,
+      "baseHP": 77,
+      "armor": 33,
+      "hitProb": 60,
+      "atkSpd": 15,
+      "moveSpd": 7,
       "exp": 50,
       "poison": false,
       "attackTypes": [
@@ -325,10 +325,10 @@
     },
     "22": {
       "name": "Demon",
-      "baseHP": 300,
-      "armor": 70,
+      "baseHP": 100,
+      "armor": 68,
       "hitProb": 75,
-      "atkSpd": 18,
+      "atkSpd": 14,
       "moveSpd": 10,
       "exp": 60,
       "poison": false,
@@ -340,11 +340,11 @@
     },
     "23": {
       "name": "Lord Chaos",
-      "baseHP": 990,
-      "armor": 90,
-      "hitProb": 95,
-      "atkSpd": 8,
-      "moveSpd": 5,
+      "baseHP": 180,
+      "armor": 255,
+      "hitProb": 130,
+      "atkSpd": 22,
+      "moveSpd": 12,
       "exp": 500,
       "poison": false,
       "attackTypes": [
@@ -356,11 +356,11 @@
     },
     "24": {
       "name": "Red Dragon",
-      "baseHP": 800,
-      "armor": 85,
-      "hitProb": 85,
-      "atkSpd": 15,
-      "moveSpd": 8,
+      "baseHP": 255,
+      "armor": 110,
+      "hitProb": 70,
+      "atkSpd": 28,
+      "moveSpd": 13,
       "exp": 200,
       "poison": false,
       "attackTypes": [
@@ -371,11 +371,11 @@
     },
     "25": {
       "name": "Lord Order",
-      "baseHP": 500,
-      "armor": 80,
-      "hitProb": 90,
-      "atkSpd": 12,
-      "moveSpd": 8,
+      "baseHP": 180,
+      "armor": 255,
+      "hitProb": 130,
+      "atkSpd": 22,
+      "moveSpd": 12,
       "exp": 100,
       "poison": false,
       "attackTypes": [
@@ -386,11 +386,11 @@
     },
     "26": {
       "name": "Grey Lord",
-      "baseHP": 500,
-      "armor": 80,
-      "hitProb": 90,
-      "atkSpd": 12,
-      "moveSpd": 8,
+      "baseHP": 180,
+      "armor": 255,
+      "hitProb": 130,
+      "atkSpd": 22,
+      "moveSpd": 12,
       "exp": 100,
       "poison": false,
       "attackTypes": [
@@ -408,7 +408,7 @@
         10,
         25
       ],
-      "weight": 8,
+      "weight": 3,
       "atkSpd": 20,
       "twoHanded": false
     },
@@ -430,7 +430,7 @@
         8,
         15
       ],
-      "weight": 1,
+      "weight": 0.2,
       "atkSpd": 0,
       "twoHanded": false
     },
@@ -441,7 +441,7 @@
         20,
         30
       ],
-      "weight": 1,
+      "weight": 0.2,
       "atkSpd": 0,
       "twoHanded": false
     },
@@ -463,7 +463,7 @@
         4,
         8
       ],
-      "weight": 3,
+      "weight": 1.1,
       "atkSpd": 20,
       "twoHanded": false,
       "luminous": true
@@ -497,7 +497,7 @@
         8,
         18
       ],
-      "weight": 10,
+      "weight": 3.5,
       "atkSpd": 24,
       "twoHanded": true
     },
@@ -508,7 +508,7 @@
         20,
         35
       ],
-      "weight": 12,
+      "weight": 0.9,
       "atkSpd": 24,
       "twoHanded": true
     },
@@ -519,7 +519,7 @@
         5,
         12
       ],
-      "weight": 8,
+      "weight": 2.6,
       "atkSpd": 22,
       "twoHanded": true
     },
@@ -530,7 +530,7 @@
         5,
         10
       ],
-      "weight": 3,
+      "weight": 0.1,
       "atkSpd": 18,
       "twoHanded": false
     },
@@ -541,7 +541,7 @@
         10,
         20
       ],
-      "weight": 4,
+      "weight": 0.2,
       "atkSpd": 18,
       "twoHanded": false
     },
@@ -563,7 +563,7 @@
         35,
         55
       ],
-      "weight": 18,
+      "weight": 6.5,
       "atkSpd": 30,
       "twoHanded": true
     },
@@ -585,7 +585,7 @@
         10,
         18
       ],
-      "weight": 3,
+      "weight": 0.5,
       "atkSpd": 14,
       "twoHanded": false
     },
@@ -596,7 +596,7 @@
         22,
         34
       ],
-      "weight": 10,
+      "weight": 3.3,
       "atkSpd": 20,
       "twoHanded": false
     },
@@ -607,7 +607,7 @@
         18,
         28
       ],
-      "weight": 7,
+      "weight": 2.6,
       "atkSpd": 16,
       "twoHanded": false
     },
@@ -629,7 +629,7 @@
         24,
         36
       ],
-      "weight": 12,
+      "weight": 3.2,
       "atkSpd": 22,
       "twoHanded": false
     },
@@ -640,7 +640,7 @@
         0,
         0
       ],
-      "weight": 8,
+      "weight": 1,
       "atkSpd": 0,
       "twoHanded": true,
       "ranged": true
@@ -652,7 +652,7 @@
         0,
         0
       ],
-      "weight": 10,
+      "weight": 2.8,
       "atkSpd": 0,
       "twoHanded": true,
       "ranged": true
@@ -676,7 +676,7 @@
         6,
         12
       ],
-      "weight": 4,
+      "weight": 1,
       "atkSpd": 0,
       "twoHanded": false,
       "thrown": true
@@ -688,7 +688,7 @@
         4,
         8
       ],
-      "weight": 1,
+      "weight": 0.3,
       "atkSpd": 0,
       "twoHanded": false,
       "thrown": true,
@@ -701,7 +701,7 @@
         10,
         18
       ],
-      "weight": 2,
+      "weight": 0.1,
       "atkSpd": 0,
       "twoHanded": false,
       "thrown": true
@@ -713,7 +713,7 @@
         0,
         0
       ],
-      "weight": 3,
+      "weight": 1.9,
       "atkSpd": 0,
       "twoHanded": true,
       "ranged": true
@@ -734,26 +734,26 @@
     "0": {
       "name": "Cape",
       "slot": "torso",
-      "armor": 0,
-      "weight": 1
+      "armor": 5,
+      "weight": 0.3
     },
     "1": {
       "name": "Cloak of Night",
       "slot": "torso",
-      "armor": 6,
-      "weight": 3
+      "armor": 10,
+      "weight": 0.4
     },
     "2": {
       "name": "Elven Doublet",
       "slot": "torso",
-      "armor": 10,
-      "weight": 5
+      "armor": 11,
+      "weight": 0.3
     },
     "3": {
       "name": "Leather Jerkin",
       "slot": "torso",
-      "armor": 14,
-      "weight": 7
+      "armor": 17,
+      "weight": 0.6
     },
     "4": {
       "name": "Suede Doublet",
@@ -771,7 +771,7 @@
       "name": "Robe",
       "slot": "torso",
       "armor": 5,
-      "weight": 4
+      "weight": 0.4
     },
     "7": {
       "name": "Barbarian Doublet",
@@ -783,7 +783,7 @@
       "name": "Gi",
       "slot": "torso",
       "armor": 8,
-      "weight": 4
+      "weight": 0.5
     },
     "9": {
       "name": "Plate Mail",
@@ -794,26 +794,26 @@
     "10": {
       "name": "Tunic",
       "slot": "torso",
-      "armor": 4,
-      "weight": 3
+      "armor": 9,
+      "weight": 0.5
     },
     "16": {
       "name": "Leather Boots",
       "slot": "feet",
-      "armor": 6,
-      "weight": 4
+      "armor": 25,
+      "weight": 1.6
     },
     "17": {
       "name": "Sandals",
       "slot": "feet",
-      "armor": 2,
-      "weight": 2
+      "armor": 5,
+      "weight": 0.6
     },
     "18": {
       "name": "Hosen",
       "slot": "feet",
-      "armor": 8,
-      "weight": 5
+      "armor": 30,
+      "weight": 1.6
     },
     "19": {
       "name": "Chain Mail Aketon",
@@ -824,32 +824,32 @@
     "24": {
       "name": "Leg Mail",
       "slot": "legs",
-      "armor": 18,
-      "weight": 12
+      "armor": 35,
+      "weight": 5.3
     },
     "25": {
       "name": "Leather Pants",
       "slot": "legs",
-      "armor": 8,
-      "weight": 5
+      "armor": 20,
+      "weight": 0.8
     },
     "32": {
       "name": "Helmet",
       "slot": "head",
-      "armor": 15,
-      "weight": 8
+      "armor": 17,
+      "weight": 1.4
     },
     "33": {
       "name": "Armet",
       "slot": "head",
-      "armor": 22,
-      "weight": 12
+      "armor": 40,
+      "weight": 1.9
     },
     "34": {
       "name": "Crown of Nerra",
       "slot": "head",
-      "armor": 28,
-      "weight": 10
+      "armor": 5,
+      "weight": 0.6
     },
     "35": {
       "name": "Vilmain's Hat",
@@ -866,20 +866,20 @@
     "41": {
       "name": "Torso Plate",
       "slot": "torso",
-      "armor": 40,
-      "weight": 30
+      "armor": 65,
+      "weight": 12
     },
     "42": {
       "name": "Leg Plate",
       "slot": "legs",
-      "armor": 25,
-      "weight": 18
+      "armor": 56,
+      "weight": 8
     },
     "43": {
       "name": "Foot Plate",
       "slot": "feet",
-      "armor": 18,
-      "weight": 12
+      "armor": 37,
+      "weight": 2.8
     },
     "48": {
       "name": "Gauntlets",
@@ -993,13 +993,13 @@
       "name": "Compass",
       "usable": true,
       "description": "Shows current direction",
-      "weight": 1
+      "weight": 0.1
     },
     "1": {
       "name": "Waterskin",
       "usable": true,
       "description": "Restores stamina when filled",
-      "weight": 2
+      "weight": 0.3
     },
     "2": {
       "name": "Torch",
@@ -1012,61 +1012,68 @@
       "name": "Dragon Steak",
       "usable": true,
       "food": true,
-      "nutrition": 80,
-      "weight": 3
+      "nutrition": 1400,
+      "weight": 0.6
     },
     "4": {
       "name": "Drumstick",
       "usable": true,
       "food": true,
-      "nutrition": 40,
+      "nutrition": 990,
       "weight": 1
     },
     "5": {
       "name": "Corn",
       "usable": true,
       "food": true,
-      "nutrition": 20,
-      "weight": 1
+      "nutrition": 600,
+      "weight": 0.4
     },
     "6": {
       "name": "Bread",
       "usable": true,
       "food": true,
-      "nutrition": 30,
-      "weight": 1
+      "nutrition": 650,
+      "weight": 0.3
+    },
+    "7": {
+      "name": "Worm Round",
+      "usable": true,
+      "food": true,
+      "nutrition": 350,
+      "weight": 1.1
     },
     "8": {
       "name": "Apple",
       "usable": true,
       "food": true,
-      "nutrition": 15,
-      "weight": 1
+      "nutrition": 500,
+      "weight": 0.4
     },
     "9": {
       "name": "Cheese",
       "usable": true,
       "food": true,
-      "nutrition": 25,
-      "weight": 1
+      "nutrition": 820,
+      "weight": 0.8
     },
     "16": {
       "name": "Jewel Symal",
       "usable": false,
       "description": "Rune stone",
-      "weight": 1
+      "weight": 0.2
     },
     "17": {
       "name": "Illumulet",
       "usable": false,
       "description": "Amulet (equippable)",
-      "weight": 1
+      "weight": 0.2
     },
     "24": {
       "name": "Ashes",
       "usable": false,
       "description": "Remains of a champion",
-      "weight": 1
+      "weight": 0.4
     },
     "25": {
       "name": "Magical Box of the Champion of Aether",
@@ -1078,31 +1085,38 @@
       "name": "Rabbit's Foot",
       "usable": false,
       "description": "Luck item",
-      "weight": 1
+      "weight": 0.1
+    },
+    "34": {
+      "name": "Screamer Slice",
+      "usable": true,
+      "food": true,
+      "nutrition": 550,
+      "weight": 0.5
     },
     "48": {
       "name": "Iron Key",
       "usable": true,
       "key": true,
-      "weight": 1
+      "weight": 0.2
     },
     "49": {
       "name": "Key of B",
       "usable": true,
       "key": true,
-      "weight": 1
+      "weight": 0.1
     },
     "50": {
       "name": "Winged Key",
       "usable": true,
       "key": true,
-      "weight": 1
+      "weight": 0.1
     },
     "51": {
       "name": "Topaz Key",
       "usable": true,
       "key": true,
-      "weight": 1
+      "weight": 0.1
     },
     "52": {
       "name": "Cross of Neta",
@@ -1115,6 +1129,13 @@
       "usable": false,
       "description": "Quest item",
       "weight": 5
+    },
+    "58": {
+      "name": "Shank",
+      "usable": true,
+      "food": true,
+      "nutrition": 990,
+      "weight": 0.4
     }
   },
   "championPortraits": {

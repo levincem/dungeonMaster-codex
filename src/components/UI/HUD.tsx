@@ -1,5 +1,14 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { useStore, xpToLevel } from '../../engine/store';
+import {
+    CRITICAL_FOOD_THRESHOLD,
+    CRITICAL_WATER_THRESHOLD,
+    LOW_FOOD_THRESHOLD,
+    LOW_WATER_THRESHOLD,
+    MAX_FOOD,
+    MAX_WATER,
+    useStore,
+    xpToLevel,
+} from '../../engine/store';
 import { playStep, playCry, onSoundPlayed } from '../../engine/sounds';
 import type { ChampionCombat, ChampionXP } from '../../engine/store';
 import { WEAPON_TYPES } from '../../data/items';
@@ -220,18 +229,39 @@ const FAMILY_LABELS: Record<RuneFamily, string> = {
     power: 'PUISSANCE', element: 'ÉLÉMENT', form: 'FORME', alignment: 'ALIGNEMENT',
 };
 
+function getAlertFrameColor(value: number, lowThreshold: number, criticalThreshold: number): string | undefined {
+    if (value <= criticalThreshold) return '#b83a30';
+    if (value <= lowThreshold) return 'rgba(212, 168, 32, 0.7)';
+    return undefined;
+}
+
 
 // ─── Tiny 3-bar vitals strip ───────────────────────────────────────────────────
-const VitalsStrip: React.FC<{ hp: number; maxHp: number; sta: number; maxSta: number; mana: number; maxMana: number }> = (
-    { hp, maxHp, sta, maxSta, mana, maxMana }
+const VitalsStrip: React.FC<{
+    hp: number; maxHp: number;
+    sta: number; maxSta: number;
+    mana: number; maxMana: number;
+    food: number; maxFood: number;
+    water: number; maxWater: number;
+}> = (
+    { hp, maxHp, sta, maxSta, mana, maxMana, food, maxFood, water, maxWater }
 ) => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: '3px 4px', background: '#060408' }}>
         {([
-            { val: hp,   max: maxHp,   color: '#c0251a' },
-            { val: sta,  max: maxSta,  color: '#1e9940' },
-            { val: mana, max: maxMana, color: '#1a6ec0' },
-        ] as const).map(({ val, max, color }, i) => (
-            <div key={i} style={{ height: 3, background: '#1a1220', borderRadius: 1 }}>
+            { val: hp, max: maxHp, color: '#c0251a', frameColor: undefined },
+            { val: sta, max: maxSta, color: '#1e9940', frameColor: undefined },
+            { val: mana, max: maxMana, color: '#1a6ec0', frameColor: undefined },
+            { val: food, max: maxFood, color: '#c47b24', frameColor: getAlertFrameColor(food, LOW_FOOD_THRESHOLD, CRITICAL_FOOD_THRESHOLD) },
+            { val: water, max: maxWater, color: '#2d91d0', frameColor: getAlertFrameColor(water, LOW_WATER_THRESHOLD, CRITICAL_WATER_THRESHOLD) },
+        ] as const).map(({ val, max, color, frameColor }, i) => (
+            <div key={i} style={{
+                height: 3,
+                background: '#1a1220',
+                borderRadius: 1,
+                border: frameColor ? `1px solid ${frameColor}` : '1px solid transparent',
+                boxSizing: 'border-box',
+                boxShadow: frameColor ? `0 0 0 1px ${frameColor}18` : undefined,
+            }}>
                 <div style={{
                     height: '100%',
                     width: max > 0 ? `${Math.max(0, Math.min(100, (val / max) * 100))}%` : '0%',
@@ -247,7 +277,7 @@ const VitalsStrip: React.FC<{ hp: number; maxHp: number; sta: number; maxSta: nu
 // ─── Champion card (draggable, 2×2 grid) ──────────────────────────────────────
 const ChampionCard: React.FC<{
     champion: Champion | undefined;
-    vitals: { hp: number; stamina: number; mana: number } | undefined;
+    vitals: { hp: number; stamina: number; mana: number; food: number; water: number } | undefined;
     equip: ChampionEquipment;
     slotIndex: number;
     selected: boolean;
@@ -290,9 +320,11 @@ const ChampionCard: React.FC<{
                             hp={vitals.hp}       maxHp={champion.health}
                             sta={vitals.stamina} maxSta={champion.stamina}
                             mana={vitals.mana}   maxMana={champion.mana}
+                            food={vitals.food}   maxFood={MAX_FOOD}
+                            water={vitals.water} maxWater={MAX_WATER}
                         />
                     ) : (
-                        <div style={{ height: 13, background: '#060408' }} />
+                        <div style={{ height: 23, background: '#060408' }} />
                     )}
                     {/* Name strip */}
                     <div style={{

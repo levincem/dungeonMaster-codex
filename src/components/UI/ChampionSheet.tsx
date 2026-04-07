@@ -1,11 +1,23 @@
 import React, { useState } from 'react';
 import { CHAMPIONS } from '../../data/champions';
 import type { Champion } from '../../data/champions';
-import { useStore, xpToLevel } from '../../engine/store';
+import { getGameMap } from '../../data/mapLoader';
+import { hasOriginalWallOverlayAt } from '../../data/originalWallOverlays';
+import {
+    CRITICAL_FOOD_THRESHOLD,
+    CRITICAL_WATER_THRESHOLD,
+    LOW_FOOD_THRESHOLD,
+    LOW_WATER_THRESHOLD,
+    MAX_FOOD,
+    MAX_WATER,
+    useStore,
+    xpToLevel,
+} from '../../engine/store';
 import { MISC_TYPES, resolveItemName } from '../../data/items';
 import type { EquipSlotKey } from '../../types/items';
 import type { FloorItem, ChampionEquipment } from '../../types/game';
-import { getItemImage, getTorchImage } from '../../data/itemImages';
+import { getFloorItemImage, getTorchImage } from '../../data/itemImages';
+import { canDrinkFromContainer, canFillWaterContainer, isWaterContainer } from '../../data/waterContainers';
 import {
     getEquippableSlots,
     getTotalWeight,
@@ -67,8 +79,10 @@ function getItemName(item: FloorItem): string {
 }
 
 function isConsumable(item: FloorItem): boolean {
-    if (item.category === 'Potion') return true;
-    if (item.category === 'Misc') return !!(MISC_TYPES[item.typeId]?.food) || item.typeId === 1;
+    if (isWaterContainer(item)) return canDrinkFromContainer(item);
+    if (canDrinkFromContainer(item)) return true;
+    if (item.category === 'Potion') return item.typeId !== 24;
+    if (item.category === 'Misc') return !!(MISC_TYPES[item.typeId]?.food);
     return false;
 }
 
@@ -81,7 +95,7 @@ function getDrag(e: React.DragEvent): DragPayload | null { try { return JSON.par
 const ItemThumb: React.FC<{ item: FloorItem; size?: number }> = ({ item, size = 32 }) => {
     const torchBurnStart = useStore(s => s.torchBurnStart);
     const isTorch = item.category === 'Weapon' && item.typeId === 16;
-    const src = isTorch ? getTorchImage(item.id, torchBurnStart) : getItemImage(item.category, item.typeId);
+    const src = isTorch ? getTorchImage(item.id, torchBurnStart) : getFloorItemImage(item);
     return (
         <img
             src={src}
@@ -101,7 +115,7 @@ const ItemThumb: React.FC<{ item: FloorItem; size?: number }> = ({ item, size = 
 };
 
 // ─── Vital bar ────────────────────────────────────────────────────────────────
-const VitalBar: React.FC<{ icon: string; label: string; value: number; max: number; color: string }> = ({ icon, label, value, max, color }) => (
+const VitalBar: React.FC<{ icon: string; label: string; value: number; max: number; color: string; frameColor?: string }> = ({ icon, label, value, max, color, frameColor }) => (
     <div style={{ marginBottom: 7 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3 }}>
             <span style={{ fontSize: 13, lineHeight: 1, width: 16, textAlign: 'center' }}>{icon}</span>
@@ -110,7 +124,14 @@ const VitalBar: React.FC<{ icon: string; label: string; value: number; max: numb
                 {Math.ceil(value)}<span style={{ fontSize: 10, color: T.creamDim, fontWeight: 'normal' }}>/{max}</span>
             </span>
         </div>
-        <div style={{ height: 9, background: 'rgba(0,0,0,0.5)', borderRadius: 4, border: `1px solid ${T.slotBorder}`, overflow: 'hidden' }}>
+        <div style={{
+            height: 9,
+            background: 'rgba(0,0,0,0.5)',
+            borderRadius: 4,
+            border: `1px solid ${frameColor ?? T.slotBorder}`,
+            overflow: 'hidden',
+            boxShadow: frameColor ? `0 0 0 1px ${frameColor}22` : undefined,
+        }}>
             <div style={{ height: '100%', width: `${Math.max(0, Math.min(100, (value / max) * 100))}%`, background: `linear-gradient(90deg, ${color}88, ${color})`, borderRadius: 4, transition: 'width 0.3s ease', boxShadow: `0 0 5px ${color}55` }} />
         </div>
     </div>
@@ -265,11 +286,11 @@ const BackpackGrid: React.FC<{
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export const ChampionSheet: React.FC = () => {
     const {
-        activePartyMemberId, party, level,
+        activePartyMemberId, party, level, position, direction,
         closePartyMember, removeFromParty,
         championInventories, championEquipment, championVitals, championXP,
         equipItem, unequipItem, dropItem, giveItem, giveEquippedItem,
-        useItem: consumeItem, sleep,
+        useItem: consumeItem, fillWaterContainer, sleep,
     } = useStore();
 
     const [scrollItem, setScrollItem] = useState<FloorItem | null>(null);
@@ -278,6 +299,7 @@ export const ChampionSheet: React.FC = () => {
     const validSlots = new Set<EquipSlotKey>(draggingItem ? getEquippableSlots(draggingItem) : []);
     const highlightEye   = draggingItem?.category === 'Scroll';
     const highlightMouth = draggingItem ? isConsumable(draggingItem) : false;
+    const highlightFountain = draggingItem ? canFillWaterContainer(draggingItem) : false;
 
     const handleDragBegin = (p: DragPayload, localEquip: ChampionEquipment, localInv: FloorItem[]) => {
         const item = p.fromSlot === 'inventory'
@@ -304,6 +326,17 @@ export const ChampionSheet: React.FC = () => {
     const hp      = vitals?.hp      ?? champion.health;
     const stamina = vitals?.stamina ?? champion.stamina;
     const mana    = vitals?.mana    ?? effectiveStats.mana;
+    const food    = vitals?.food    ?? MAX_FOOD;
+    const water   = vitals?.water   ?? MAX_WATER;
+    const foodFrame = food <= CRITICAL_FOOD_THRESHOLD ? '#b83a30' : food <= LOW_FOOD_THRESHOLD ? 'rgba(212, 168, 32, 0.7)' : undefined;
+    const waterFrame = water <= CRITICAL_WATER_THRESHOLD ? '#b83a30' : water <= LOW_WATER_THRESHOLD ? 'rgba(212, 168, 32, 0.7)' : undefined;
+    const frontTileY = direction === 'NORTH' ? position[0] - 1 : direction === 'SOUTH' ? position[0] + 1 : position[0];
+    const frontTileX = direction === 'EAST' ? position[1] + 1 : direction === 'WEST' ? position[1] - 1 : position[1];
+    const frontWallFace = direction === 'NORTH' ? 'South' : direction === 'SOUTH' ? 'North' : direction === 'EAST' ? 'West' : 'East';
+    const frontTile = getGameMap(level).tiles[frontTileY]?.[frontTileX];
+    const facingFountain = !!frontTile &&
+        (frontTile.type === 'Wall' || frontTile.type === 'TrickWall') &&
+        hasOriginalWallOverlayAt(level, frontTileX, frontTileY, frontWallFace, 'Fountain');
 
     const handleDropOnSlot = (payload: DragPayload, targetSlot: EquipSlotKey) => {
         if (payload.fromChampionId !== champion.id) {
@@ -354,6 +387,12 @@ export const ChampionSheet: React.FC = () => {
             setScrollItem(item);
             clearDragState();
         }
+    };
+
+    const handleFillAtFountain = (payload: DragPayload) => {
+        if (!facingFountain) return;
+        fillWaterContainer(champion.id, payload.itemId);
+        clearDragState();
     };
 
     const skills = [
@@ -415,6 +454,8 @@ export const ChampionSheet: React.FC = () => {
                         <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 5, padding: '10px 12px' }}>
                             <VitalBar icon="❤" label="SANTÉ"     value={hp}      max={champion.health}  color={T.red}    />
                             <VitalBar icon="⚡" label="ENDURANCE" value={stamina} max={champion.stamina} color={T.yellow} />
+                            <VitalBar icon="🍗" label="FAIM"      value={food}    max={MAX_FOOD}         color="#d88b2d" frameColor={foodFrame} />
+                            <VitalBar icon="💧" label="SOIF"      value={water}   max={MAX_WATER}        color="#3aa0d8" frameColor={waterFrame} />
                             {effectiveStats.mana > 0 && <VitalBar icon="🔮" label="MANA" value={mana} max={effectiveStats.mana} color={T.blue} />}
                         </div>
 
@@ -458,6 +499,16 @@ export const ChampionSheet: React.FC = () => {
                         {/* Eye + Mouth at top */}
                         <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 4 }}>
                             <DropZone icon="👁" label="LIRE" title="Déposer un parchemin pour le lire" borderColor="#d4a840" highlight={highlightEye} onDrop={handleReadScroll} />
+                            {facingFountain && (
+                                <DropZone
+                                    icon="💧"
+                                    label="FONTAINE"
+                                    title="Déposer une flasque ou une outre pour la remplir"
+                                    borderColor="#3aa0d8"
+                                    highlight={highlightFountain}
+                                    onDrop={handleFillAtFountain}
+                                />
+                            )}
                             <DropZone icon="👄" label="MANGER" title="Déposer nourriture/potion pour consommer" borderColor="#d04040" highlight={highlightMouth} onDrop={handleConsume} />
                         </div>
 

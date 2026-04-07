@@ -13,8 +13,16 @@ import { CHAMPION_BY_ID } from '../data/champions';
 import { CREATURE_TYPES } from '../data/creatures';
 import { findSpell, getSkillLevel } from '../data/runes';
 import type { CastSkill } from '../data/runes';
-import { WEAPON_TYPES, POTION_TYPES, MISC_TYPES, resolveItemName } from '../data/items';
+import { WEAPON_TYPES, POTION_TYPES, MISC_TYPES, normalizeScrollText, resolveItemName } from '../data/items';
 import { canEquipItemInSlot, getEffectiveChampionStats } from '../data/equipment';
+import { hasOriginalWallOverlayAt } from '../data/originalWallOverlays';
+import {
+    canFillWaterContainer,
+    consumeWaterContainer,
+    fillWaterContainer,
+    isWaterContainer,
+    normaliseWaterContainer,
+} from '../data/waterContainers';
 import { doorBlocksThrownItems, doorBlocksVision } from '../data/doors';
 import { playPartyAttack, playCreatureMove, playCreatureAttack, playPlate } from './sounds';
 
@@ -26,6 +34,8 @@ export interface ChampionVitals {
     hp:      number;  // current hit points (0 … champion.health)
     stamina: number;  // current stamina    (0 … champion.stamina)
     mana:    number;  // current mana       (0 … champion.mana)
+    food:    number;  // hunger reserve     (0 … 2000)
+    water:   number;  // thirst reserve     (0 … 2000)
 }
 
 export interface CastResult {
@@ -141,6 +151,29 @@ export interface ChampionCombat {
 
 const MAX_PARTY = 4;
 type MirrorRecruitMode = 'resurrect' | 'reincarnate';
+
+export const MAX_FOOD = 2000;
+export const MAX_WATER = 2000;
+export const LOW_FOOD_THRESHOLD = 1000;
+export const CRITICAL_FOOD_THRESHOLD = 500;
+export const LOW_WATER_THRESHOLD = 1000;
+export const CRITICAL_WATER_THRESHOLD = 500;
+
+const FOOD_DECAY_PER_SEC = 0.42;
+const WATER_DECAY_PER_SEC = 0.7;
+const FOOD_STAMINA_DRAIN_PER_SEC = 0.65;
+const WATER_STAMINA_DRAIN_PER_SEC = 1.1;
+const STARVATION_HP_DRAIN_PER_SEC = 0.22;
+const DEHYDRATION_HP_DRAIN_PER_SEC = 0.36;
+
+function clampVital(value: number, max: number): number {
+    return Math.max(0, Math.min(max, value));
+}
+
+function getResourcePenalty(value: number, criticalThreshold: number): number {
+    if (value >= criticalThreshold) return 0;
+    return 1 - (value / criticalThreshold);
+}
 
 /** Back-calculate starting XP from a champion's initial skill levels. */
 function buildInitialXP(champion: import('../data/champions').Champion): ChampionXP {
@@ -335,13 +368,16 @@ function buildFloorItems(): FloorItem[] {
                         rawName: resolveItemName(
                             obj.category as FloorItem['category'],
                             rawObj.type ?? 0,
-                            rawObj.text ?? rawObj.name,
+                            obj.category === 'Scroll'
+                                ? normalizeScrollText(rawObj.text ?? rawObj.name)
+                                : (rawObj.text ?? rawObj.name),
                         ),
                         mapIndex: map.index,
                         x: tile.x,
                         y: tile.y,
                         tilePos: obj.tilePos,
                     });
+                    items[items.length - 1] = normaliseWaterContainer(items[items.length - 1]!);
                 }
             }
         }
@@ -375,7 +411,9 @@ function buildChampionStarterItems(): Record<number, FloorItem[]> {
                         rawName: resolveItemName(
                             obj.category as FloorItem['category'],
                             rawObj.type ?? 0,
-                            rawObj.text ?? rawObj.name,
+                            obj.category === 'Scroll'
+                                ? normalizeScrollText(rawObj.text ?? rawObj.name)
+                                : (rawObj.text ?? rawObj.name),
                         ),
                         mapIndex: 0,
                         x: tile.x,
@@ -384,7 +422,7 @@ function buildChampionStarterItems(): Record<number, FloorItem[]> {
                     } satisfies FloorItem;
                 });
 
-            starterItems[championId] = items;
+            starterItems[championId] = items.map(item => normaliseWaterContainer(item));
         }
     }
     return starterItems;
@@ -498,6 +536,37 @@ function isAltarTile(level: number, x: number, y: number): boolean {
         o => o.category === 'Text' && typeof (o as import('../types/game').WallTextObject).text === 'string'
             && (o as import('../types/game').WallTextObject).text!.includes('ALTAR')
     );
+}
+
+const FRONT_WALL_FACE_BY_DIRECTION: Record<Direction, CardinalDir> = {
+    NORTH: 'South',
+    SOUTH: 'North',
+    EAST: 'West',
+    WEST: 'East',
+};
+
+function getFrontWallTarget(level: number, position: [number, number], direction: Direction): {
+    tile: GameTile | undefined;
+    x: number;
+    y: number;
+    face: CardinalDir;
+} {
+    const [y0, x0] = position;
+    const y = direction === 'NORTH' ? y0 - 1 : direction === 'SOUTH' ? y0 + 1 : y0;
+    const x = direction === 'EAST' ? x0 + 1 : direction === 'WEST' ? x0 - 1 : x0;
+    return {
+        tile: getMap(level).tiles[y]?.[x],
+        x,
+        y,
+        face: FRONT_WALL_FACE_BY_DIRECTION[direction],
+    };
+}
+
+function isFacingFountain(level: number, position: [number, number], direction: Direction): boolean {
+    const front = getFrontWallTarget(level, position, direction);
+    return !!front.tile &&
+        (front.tile.type === 'Wall' || front.tile.type === 'TrickWall') &&
+        hasOriginalWallOverlayAt(level, front.x, front.y, front.face, 'Fountain');
 }
 
 // ─── Champion death helper ────────────────────────────────────────────────────
@@ -952,6 +1021,7 @@ interface GameState {
     killChampion: (championId: number) => void;
     resurrectChampion: (bonesItemId: string) => void;
     useItem: (championId: number, itemId: string) => void;
+    fillWaterContainer: (championId: number, itemId: string) => void;
     sleep: () => void;
 }
 
@@ -1160,6 +1230,8 @@ export const useStore = create<GameState>((set) => ({
                         hp:      recruitedChampion.health,
                         stamina: recruitedChampion.stamina,
                         mana:    recruitedChampion.mana,
+                        food:    MAX_FOOD,
+                        water:   MAX_WATER,
                     },
                 },
             championXP: champion.id in state.championXP
@@ -1314,7 +1386,10 @@ export const useStore = create<GameState>((set) => ({
                 delete newDead[deadChampId];
                 return {
                     party: [...state.party, deadChamp],
-                    championVitals: { ...state.championVitals, [deadChampId]: { hp: 1, stamina: 0, mana: 0 } },
+                    championVitals: {
+                        ...state.championVitals,
+                        [deadChampId]: { hp: 1, stamina: 0, mana: 0, food: Math.round(MAX_FOOD * 0.35), water: Math.round(MAX_WATER * 0.35) },
+                    },
                     championInventories: { ...state.championInventories, [championId]: newInv, [deadChampId]: [] },
                     championEquipment: { ...state.championEquipment, [deadChampId]: {} },
                     deadChampions: newDead,
@@ -1419,7 +1494,10 @@ export const useStore = create<GameState>((set) => ({
 
         return {
             party: [...state.party, deadChamp],
-            championVitals: { ...state.championVitals, [deadChampId]: { hp: 1, stamina: 0, mana: 0 } },
+            championVitals: {
+                ...state.championVitals,
+                [deadChampId]: { hp: 1, stamina: 0, mana: 0, food: Math.round(MAX_FOOD * 0.35), water: Math.round(MAX_WATER * 0.35) },
+            },
             championInventories: carriedBy !== null
                 ? { ...state.championInventories, [carriedBy]: newInv, [deadChampId]: [] }
                 : { ...state.championInventories, [deadChampId]: [] },
@@ -1432,7 +1510,8 @@ export const useStore = create<GameState>((set) => ({
     useItem: (championId, itemId) => set((state) => {
         const inv = state.championInventories[championId];
         if (!inv) return state;
-        const item = inv.find(i => i.id === itemId);
+        const itemIndex = inv.findIndex(i => i.id === itemId);
+        const item = itemIndex >= 0 ? inv[itemIndex] : undefined;
         if (!item) return state;
         const vitals = state.championVitals[championId];
         if (!vitals) return state;
@@ -1441,8 +1520,17 @@ export const useStore = create<GameState>((set) => ({
         const effective = getEffectiveChampionStats(champ, state.championEquipment[championId] ?? {});
 
         let newVitals = { ...vitals };
+        let replacementItem: FloorItem | null = null;
+        let shouldConsumeOriginal = true;
 
-        if (item.category === 'Potion') {
+        const waterUse = consumeWaterContainer(item);
+        if (isWaterContainer(item) && !waterUse) return state;
+        if (waterUse) {
+            newVitals.water = clampVital(vitals.water + waterUse.waterGain, MAX_WATER);
+            newVitals.stamina = Math.min(effective.stamina, vitals.stamina + waterUse.staminaGain);
+            replacementItem = waterUse.nextItem;
+            shouldConsumeOriginal = false;
+        } else if (item.category === 'Potion') {
             const def = POTION_TYPES[item.typeId];
             if (def?.restore !== undefined) {
                 if (def.effect === 'health')  newVitals.hp      = Math.min(effective.health,  vitals.hp      + def.restore);
@@ -1453,22 +1541,65 @@ export const useStore = create<GameState>((set) => ({
         } else if (item.category === 'Misc') {
             const def = MISC_TYPES[item.typeId];
             if (def?.food && def.nutrition) {
-                newVitals.stamina = Math.min(effective.stamina, vitals.stamina + def.nutrition / 10);
-            } else if (def?.food && item.typeId === 1) { // water
-                newVitals.stamina = Math.min(effective.stamina, vitals.stamina + 30);
+                newVitals.food = clampVital(vitals.food + def.nutrition, MAX_FOOD);
+                newVitals.stamina = Math.min(effective.stamina, vitals.stamina + def.nutrition / 20);
             }
         }
 
+        const nextInventory = shouldConsumeOriginal
+            ? inv.filter(i => i.id !== itemId)
+            : inv.map((entry, index) => index === itemIndex ? (replacementItem ?? entry) : entry);
+
         return {
             championVitals: { ...state.championVitals, [championId]: newVitals },
-            championInventories: { ...state.championInventories, [championId]: inv.filter(i => i.id !== itemId) },
+            championInventories: { ...state.championInventories, [championId]: nextInventory },
         };
+    }),
+
+    fillWaterContainer: (championId, itemId) => set((state) => {
+        if (!isFacingFountain(state.level, state.position, state.direction)) return state;
+
+        const inv = state.championInventories[championId] ?? [];
+        const invIndex = inv.findIndex(item => item.id === itemId);
+        if (invIndex >= 0) {
+            const filled = fillWaterContainer(inv[invIndex]!);
+            if (!filled || !canFillWaterContainer(inv[invIndex]!)) return state;
+            return {
+                championInventories: {
+                    ...state.championInventories,
+                    [championId]: inv.map((item, index) => index === invIndex ? filled : item),
+                },
+            };
+        }
+
+        const equip = state.championEquipment[championId] ?? {};
+        for (const slot of Object.keys(equip) as EquipSlotKey[]) {
+            const item = equip[slot];
+            if (!item || item.id !== itemId) continue;
+            const filled = fillWaterContainer(item);
+            if (!filled || !canFillWaterContainer(item)) return state;
+            return {
+                championEquipment: {
+                    ...state.championEquipment,
+                    [championId]: { ...equip, [slot]: filled },
+                },
+            };
+        }
+
+        return state;
     }),
 
     sleep: () => set((state) => {
         const newVitals: Record<number, ChampionVitals> = { ...state.championVitals };
         for (const champ of state.party) {
-            newVitals[champ.id] = { hp: champ.health, stamina: champ.stamina, mana: champ.mana };
+            const current = state.championVitals[champ.id];
+            newVitals[champ.id] = {
+                hp: champ.health,
+                stamina: champ.stamina,
+                mana: champ.mana,
+                food: current?.food ?? MAX_FOOD,
+                water: current?.water ?? MAX_WATER,
+            };
         }
         return { championVitals: newVitals };
     }),
@@ -1724,14 +1855,45 @@ export const useStore = create<GameState>((set) => ({
             const maxStamina = effective.stamina;
             const maxMana    = effective.mana;
 
-            const nextHP      = maxHP      > v.hp      ? Math.min(maxHP,      v.hp      + effective.vitality / 600 * delta) : v.hp;
-            const nextStamina = maxStamina > v.stamina  ? Math.min(maxStamina, v.stamina + effective.vitality / 200 * delta) : v.stamina;
-            const nextMana    = maxMana > 0 && maxMana > v.mana
-                ? Math.min(maxMana, v.mana + effective.wisdom / 150 * delta)
-                : v.mana;
+            const nextFood = clampVital(v.food - FOOD_DECAY_PER_SEC * delta, MAX_FOOD);
+            const nextWater = clampVital(v.water - WATER_DECAY_PER_SEC * delta, MAX_WATER);
 
-            if (nextHP !== v.hp || nextStamina !== v.stamina || nextMana !== v.mana) {
-                newVitals[champ.id] = { hp: nextHP, stamina: nextStamina, mana: nextMana };
+            const foodPenalty = getResourcePenalty(nextFood, CRITICAL_FOOD_THRESHOLD);
+            const waterPenalty = getResourcePenalty(nextWater, CRITICAL_WATER_THRESHOLD);
+            const staminaDrain = (foodPenalty * FOOD_STAMINA_DRAIN_PER_SEC) + (waterPenalty * WATER_STAMINA_DRAIN_PER_SEC);
+            const staminaRegenFactor = Math.max(0, 1 - foodPenalty * 0.55 - waterPenalty * 0.75);
+
+            const hpRegen = maxHP > v.hp ? effective.vitality / 600 * delta : 0;
+            const staminaRegen = maxStamina > v.stamina ? effective.vitality / 200 * delta * staminaRegenFactor : 0;
+            const manaRegen = maxMana > 0 && maxMana > v.mana ? effective.wisdom / 150 * delta : 0;
+
+            const nextStamina = clampVital(v.stamina + staminaRegen - staminaDrain * delta, maxStamina);
+
+            let nextHP = clampVital(v.hp + hpRegen, maxHP);
+            if (nextStamina <= 0) {
+                const starvationDamage = nextFood <= 0 ? STARVATION_HP_DRAIN_PER_SEC : 0;
+                const dehydrationDamage = nextWater <= 0 ? DEHYDRATION_HP_DRAIN_PER_SEC : 0;
+                if (starvationDamage > 0 || dehydrationDamage > 0) {
+                    nextHP = clampVital(nextHP - (starvationDamage + dehydrationDamage) * delta, maxHP);
+                }
+            }
+
+            const nextMana = maxMana > 0 ? Math.min(maxMana, v.mana + manaRegen) : v.mana;
+
+            if (
+                nextHP !== v.hp ||
+                nextStamina !== v.stamina ||
+                nextMana !== v.mana ||
+                nextFood !== v.food ||
+                nextWater !== v.water
+            ) {
+                newVitals[champ.id] = {
+                    hp: nextHP,
+                    stamina: nextStamina,
+                    mana: nextMana,
+                    food: nextFood,
+                    water: nextWater,
+                };
                 changed = true;
             }
         }
