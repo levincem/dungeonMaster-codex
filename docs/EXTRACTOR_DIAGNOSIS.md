@@ -3,9 +3,9 @@
 Audit date: 2026-04-07
 
 Audited files:
-- [assets/DMDisquette/parse_full.js](D:\DungeonMaster-codex\assets\DMDisquette\parse_full.js)
-- [assets/DMDisquette/parse_dungeon.js](D:\DungeonMaster-codex\assets\DMDisquette\parse_dungeon.js)
-- [assets/DMDisquette/EUDATA/DUNGEON.DAT](D:\DungeonMaster-codex\assets\DMDisquette\EUDATA\DUNGEON.DAT)
+- [assets/OriginalDataExtraction/parse_full.js](D:\DungeonMaster-codex\assets\OriginalDataExtraction\parse_full.js)
+- [assets/OriginalDataExtraction/parse_dungeon.js](D:\DungeonMaster-codex\assets\OriginalDataExtraction\parse_dungeon.js)
+- [assets/OriginalDataExtraction/EUDATA/DUNGEON.DAT](D:\DungeonMaster-codex\assets\OriginalDataExtraction\EUDATA\DUNGEON.DAT)
 
 Reference data:
 - [public/original_level_content.json](D:\DungeonMaster-codex\public\original_level_content.json)
@@ -24,7 +24,7 @@ Instead, it appears to:
 
 Important correction:
 
-- an earlier hypothesis was that [parse_full.js](D:\DungeonMaster-codex\assets\DMDisquette\parse_full.js) was fundamentally wrong because it did not use the column index table
+- an earlier hypothesis was that [parse_full.js](D:\DungeonMaster-codex\assets\OriginalDataExtraction\parse_full.js) was fundamentally wrong because it did not use the column index table
 - after checking the original engine source, that claim is too strong
 - the current sequential traversal of `hasObjects` squares is broadly consistent with the original `GetSquareFirstThingIndex` logic
 
@@ -56,7 +56,7 @@ This matches the shape of [public/dungeon.json](D:\DungeonMaster-codex\public\du
 
 ### 1. The column index table confirms the square-first-thing layout
 
-The original engine source in [DUNGEON.C](D:\DungeonMaster-codex\assets\DMDisquette\ReDMCSB\SOURCE\ENGINE\DUNGEON.C) exposes:
+The original engine source in [DUNGEON.C](D:\DungeonMaster-codex\assets\OriginalDataExtraction\ReDMCSB\SOURCE\ENGINE\DUNGEON.C) exposes:
 
 - `G280_pui_DungeonColumnsCumulativeSquareThingCount`
 - `G281_pi_DungeonMapsFirstColumnIndex`
@@ -138,7 +138,7 @@ This means the text-decoding stage also needs validation against canonical place
 
 ### Hardcoded item naming is partly heuristic
 
-[assets/DMDisquette/RESEARCH_NOTES.md](D:\DungeonMaster-codex\assets\DMDisquette\RESEARCH_NOTES.md) already documents that:
+[assets/OriginalDataExtraction/docs/RESEARCH_NOTES.md](D:\DungeonMaster-codex\assets\OriginalDataExtraction\docs\RESEARCH_NOTES.md) already documents that:
 
 - `GRAPHICS.DAT` item tables are not fully resolved
 - some item naming/stat lookup is derived rather than byte-perfect
@@ -160,7 +160,7 @@ The safest path is:
 ## Progress on 2026-04-07
 
 After introducing a first conservative remap pass in
-[assets/DMDisquette/parse_full.js](D:\DungeonMaster-codex\assets\DMDisquette\parse_full.js):
+[assets/OriginalDataExtraction/parse_full.js](D:\DungeonMaster-codex\assets\OriginalDataExtraction\parse_full.js):
 
 - weapon names are much closer to the original game data
 - many `Misc` items and key-like objects now decode correctly
@@ -191,3 +191,5 @@ The next technical questions to answer are:
 - why some scroll and wall texts are truncated or shifted
 
 Until that is resolved, [public/dungeon.json](D:\DungeonMaster-codex\public\dungeon.json) should still not be considered authoritative for placed dungeon content.
+
+

@@ -696,9 +696,9 @@ Assessment:
 
 Source:
 
-- [`0696.RAW1 [Unknown - Unknown Content (Words of data)].dat`](/D:/DungeonMaster-codex/assets/DMDisquette/EUDATA/out_GRAPHICS.DAT/0696.RAW1%20%5BUnknown%20-%20Unknown%20Content%20%28Words%20of%20data%29%5D.dat)
-- analysis script: [`analyze_raw_0696.cjs`](/D:/DungeonMaster-codex/assets/DMDisquette/analyze_raw_0696.cjs)
-- analysis output: [`raw_0696_analysis.json`](/D:/DungeonMaster-codex/assets/DMDisquette/output/raw_0696_analysis.json)
+- [`0696.RAW1 [Unknown - Unknown Content (Words of data)].dat`](/D:/DungeonMaster-codex/assets/OriginalDataExtraction/EUDATA/out_GRAPHICS.DAT/0696.RAW1%20%5BUnknown%20-%20Unknown%20Content%20%28Words%20of%20data%29%5D.dat)
+- analysis script: [`analyze_raw_0696.cjs`](/D:/DungeonMaster-codex/assets/OriginalDataExtraction/analyze_raw_0696.cjs)
+- analysis output: [`raw_0696_analysis.json`](/D:/DungeonMaster-codex/assets/OriginalDataExtraction/output/raw_0696_analysis.json)
 
 What is known:
 
@@ -752,9 +752,9 @@ Assessment:
 
 Sources:
 
-- [`DataI558.javap.txt`](/D:/DungeonMaster-codex/assets/DMDisquette/sck/_inspect/DataI558.javap.txt)
-- [`DataI559.javap.txt`](/D:/DungeonMaster-codex/assets/DMDisquette/sck/_inspect/DataI559.javap.txt)
-- [`dm_pc43_en_gd.map`](/D:/DungeonMaster-codex/assets/DMDisquette/sck/_inspect/db/map/dm_pc43_en_gd.map)
+- [`DataI558.javap.txt`](/D:/DungeonMaster-codex/assets/OriginalDataExtraction/sck/_inspect/DataI558.javap.txt)
+- [`DataI559.javap.txt`](/D:/DungeonMaster-codex/assets/OriginalDataExtraction/sck/_inspect/DataI559.javap.txt)
+- [`dm_pc43_en_gd.map`](/D:/DungeonMaster-codex/assets/OriginalDataExtraction/sck/_inspect/db/map/dm_pc43_en_gd.map)
 
 What is now confirmed:
 
@@ -801,8 +801,8 @@ Important structural result:
 Most important implication:
 
 - these exact Atari-style structures do **not** appear contiguously in:
-  - [`0696.RAW1 [Unknown - Unknown Content (Words of data)].dat`](/D:/DungeonMaster-codex/assets/DMDisquette/EUDATA/out_GRAPHICS.DAT/0696.RAW1%20%5BUnknown%20-%20Unknown%20Content%20%28Words%20of%20data%29%5D.dat)
-  - [`FIRES_decompressed.bin`](/D:/DungeonMaster-codex/assets/DMDisquette/FIRES_decompressed.bin)
+  - [`0696.RAW1 [Unknown - Unknown Content (Words of data)].dat`](/D:/DungeonMaster-codex/assets/OriginalDataExtraction/EUDATA/out_GRAPHICS.DAT/0696.RAW1%20%5BUnknown%20-%20Unknown%20Content%20%28Words%20of%20data%29%5D.dat)
+  - [`FIRES_decompressed.bin`](/D:/DungeonMaster-codex/assets/OriginalDataExtraction/generated/decompressed/FIRES_decompressed.bin)
 - signature searches for the `DataI559` tail markers failed:
   - no `extra_db_entries` pattern
   - no `deltaY = -1,0,1,0` followed by `deltaX = 0,1,0,-1`
@@ -1070,7 +1070,9 @@ Candidate areas:
 - [`ORIGINAL_ACTIONS_AND_COMBOS.md`](/D:/DungeonMaster-codex/docs/ORIGINAL_ACTIONS_AND_COMBOS.md)
 - [`ORIGINAL_ATTACKS_AND_DEFENSES.md`](/D:/DungeonMaster-codex/docs/ORIGINAL_ATTACKS_AND_DEFENSES.md)
 - [`ORIGINAL_SKILLS_AND_EXPERIENCE.md`](/D:/DungeonMaster-codex/docs/ORIGINAL_SKILLS_AND_EXPERIENCE.md)
-- [`assets/DMDisquette/parse_sck_graphics.cjs`](/D:/DungeonMaster-codex/assets/DMDisquette/parse_sck_graphics.cjs)
-- [`assets/DMDisquette/analyze_raw_0696.cjs`](/D:/DungeonMaster-codex/assets/DMDisquette/analyze_raw_0696.cjs)
-- [`assets/DMDisquette/output/raw_0696_analysis.json`](/D:/DungeonMaster-codex/assets/DMDisquette/output/raw_0696_analysis.json)
-- [`assets/DMDisquette/SCK_NOTES.md`](/D:/DungeonMaster-codex/assets/DMDisquette/SCK_NOTES.md)
+- [`assets/OriginalDataExtraction/parse_sck_graphics.cjs`](/D:/DungeonMaster-codex/assets/OriginalDataExtraction/parse_sck_graphics.cjs)
+- [`assets/OriginalDataExtraction/analyze_raw_0696.cjs`](/D:/DungeonMaster-codex/assets/OriginalDataExtraction/analyze_raw_0696.cjs)
+- [`assets/OriginalDataExtraction/output/raw_0696_analysis.json`](/D:/DungeonMaster-codex/assets/OriginalDataExtraction/output/raw_0696_analysis.json)
+- [`assets/OriginalDataExtraction/docs/SCK_NOTES.md`](/D:/DungeonMaster-codex/assets/OriginalDataExtraction/docs/SCK_NOTES.md)
+
+

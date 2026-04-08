@@ -8,7 +8,7 @@ Reference data:
 - [public/dungeon.json](D:\DungeonMaster-codex\public\dungeon.json)
 
 Generated report:
-- [assets/DMDisquette/output/canonical_world_content_audit.json](D:\DungeonMaster-codex\assets\DMDisquette\output\canonical_world_content_audit.json)
+- [assets/OriginalDataExtraction/output/canonical_world_content_audit.json](D:\DungeonMaster-codex\assets\OriginalDataExtraction\output\canonical_world_content_audit.json)
 
 ## Summary
 
@@ -74,3 +74,5 @@ So the main generator-type reverse-engineering gap is now closed.
    - group-size presentation
    - multi-square canonical wording
 2. Investigate whether the remaining two creature mismatches are true extraction gaps or just canonical presentation differences
+
+

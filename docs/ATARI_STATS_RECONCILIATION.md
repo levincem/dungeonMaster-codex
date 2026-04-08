@@ -3,11 +3,18 @@
 Audit date: 2026-04-07
 
 Relevant files:
-- [assets/DMDisquette/output/atari_i559_stats.json](D:\DungeonMaster-codex\assets\DMDisquette\output\atari_i559_stats.json)
-- [assets/DMDisquette/output/atari_game_db_comparison.json](D:\DungeonMaster-codex\assets\DMDisquette\output\atari_game_db_comparison.json)
-- [assets/DMDisquette/compare_atari_stats_to_game_db.cjs](D:\DungeonMaster-codex\assets\DMDisquette\compare_atari_stats_to_game_db.cjs)
-- [assets/DMDisquette/parse_full.js](D:\DungeonMaster-codex\assets\DMDisquette\parse_full.js)
+- [assets/OriginalDataExtraction/output/atari_i559_stats.json](D:\DungeonMaster-codex\assets\OriginalDataExtraction\output\atari_i559_stats.json)
+- [assets/OriginalDataExtraction/output/atari_i560_stats.json](D:\DungeonMaster-codex\assets\OriginalDataExtraction\output\atari_i560_stats.json)
+- [assets/OriginalDataExtraction/output/atari_i561_stats.json](D:\DungeonMaster-codex\assets\OriginalDataExtraction\output\atari_i561_stats.json)
+- [assets/OriginalDataExtraction/output/atari_i562_stats.json](D:\DungeonMaster-codex\assets\OriginalDataExtraction\output\atari_i562_stats.json)
+- [assets/OriginalDataExtraction/output/atari_game_db_comparison.json](D:\DungeonMaster-codex\assets\OriginalDataExtraction\output\atari_game_db_comparison.json)
+- [assets/OriginalDataExtraction/output/weapon_attack_reference.json](D:\DungeonMaster-codex\assets\OriginalDataExtraction\output\weapon_attack_reference.json)
+- [assets/OriginalDataExtraction/compare_atari_stats_to_game_db.cjs](D:\DungeonMaster-codex\assets\OriginalDataExtraction\compare_atari_stats_to_game_db.cjs)
+- [assets/OriginalDataExtraction/parse_full.js](D:\DungeonMaster-codex\assets\OriginalDataExtraction\parse_full.js)
 - [public/game_db.json](D:\DungeonMaster-codex\public\game_db.json)
+- [docs/I560_ATTACKS_EXTRACTION.md](D:\DungeonMaster-codex\docs\I560_ATTACKS_EXTRACTION.md)
+- [docs/I561_UI_TABLES_EXTRACTION.md](D:\DungeonMaster-codex\docs\I561_UI_TABLES_EXTRACTION.md)
+- [docs/I562_RUNTIME_TABLES_EXTRACTION.md](D:\DungeonMaster-codex\docs\I562_RUNTIME_TABLES_EXTRACTION.md)
 
 ## Current State
 
@@ -70,14 +77,31 @@ We also reconciled the subset of `misc` item weights that already have a confirm
 - `Topaz Key`
 - `Rabbit's Foot`
 
-## What Still Differs Strongly
+## What Still Needs Interpretation
 
-The remaining divergences are no longer the straightforward raw fields above. What is left is mostly interpretation work.
+The remaining divergences are no longer straightforward missing tables. We now have the original attack tables too.
+
+What remains is the translation problem between:
+
+- original attack descriptors and formulas
+- the remake's simplified weapon damage range model
+
+We also now have `0562` decoded cleanly enough to expose proven runtime tables such as:
+
+- champion `dropOrder`
+- `carryLocationMasks`
+- original icon display anchors
+- sound table entries
+- default graphic list indirection
+
+Those are now available in [public/game_db.json](D:\DungeonMaster-codex\public\game_db.json) under `originalAtari.i562`, with any unresolved residue kept as raw bytes instead of guessed.
 
 Examples:
 
 - weapon damage ranges
-  - Atari gives descriptor values like raw damage, attack class, and kinetic energy
+  - Atari uses weapon descriptors from `0559`
+  - and attack tables from `0560`
+  - plus runtime formulas in `Attack.cpp`
   - the remake still models damage as hand-authored ranges
 
 - derived gameplay fields
@@ -88,7 +112,9 @@ Examples:
 ## Recommended Next Order
 
 1. Reconcile weapon damage interpretation:
-   - Atari raw weapon descriptor fields
+   - Atari weapon descriptors from `0559`
+   - Atari attack tables from `0560`
+   - runtime damage formulas from `Attack.cpp`
    - remake damage ranges
 
 2. Revisit remaining derived monster fields:
@@ -116,6 +142,9 @@ Safe direct migrations:
 Fields that still need interpretation:
 
 - weapon damage ranges
+- attack class to remake UI/gameplay mapping
 - `exp`
 - modern convenience tags like `attackTypes`
 - some poison or special-effect booleans that are currently inferred rather than directly modeled
+
+
