@@ -1,0 +1,2909 @@
+[
+  {
+    "key": "Armor:13",
+    "observed": [
+      {
+        "value": "Armor_13",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Elven Doublet",
+        "count": 1
+      },
+      {
+        "value": "Dagger",
+        "count": 1
+      },
+      {
+        "value": "Arrow",
+        "count": 1
+      },
+      {
+        "value": "Torch",
+        "count": 1
+      },
+      {
+        "value": "Emerald Key",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:14",
+    "observed": [
+      {
+        "value": "Elven Huke",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Elven Huke",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:15",
+    "observed": [
+      {
+        "value": "Elven Boots",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Elven Boots",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:16",
+    "observed": [
+      {
+        "value": "Leather Boots",
+        "count": 3
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Leather Jerkin",
+        "count": 3
+      },
+      {
+        "value": "Leather Pants",
+        "count": 2
+      },
+      {
+        "value": "Bezerker Helm",
+        "count": 1
+      },
+      {
+        "value": "Suede Boots",
+        "count": 1
+      },
+      {
+        "value": "Drumstick",
+        "count": 1
+      },
+      {
+        "value": "Gold Key",
+        "count": 1
+      },
+      {
+        "value": "Apple",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:17",
+    "observed": [
+      {
+        "value": "Leather Pants",
+        "count": 4
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Leather Pants",
+        "count": 3
+      },
+      {
+        "value": "Leather Jerkin",
+        "count": 2
+      },
+      {
+        "value": "Scroll Casting Vi into a flask creates a serum that heals wounds",
+        "count": 1
+      },
+      {
+        "value": "Empty flask",
+        "count": 1
+      },
+      {
+        "value": "Leather pants",
+        "count": 1
+      },
+      {
+        "value": "Scroll Casting Vi Bro into a flask creates a serum for curing poison",
+        "count": 1
+      },
+      {
+        "value": "Drumstick",
+        "count": 1
+      },
+      {
+        "value": "Bezerker Helm",
+        "count": 1
+      },
+      {
+        "value": "Suede Boots",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:18",
+    "observed": [
+      {
+        "value": "Hosen",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Bezerker Helm",
+        "count": 1
+      },
+      {
+        "value": "Suede Boots",
+        "count": 1
+      },
+      {
+        "value": "Leather Pants",
+        "count": 1
+      },
+      {
+        "value": "Leather Jerkin",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:22",
+    "observed": [
+      {
+        "value": "Armor_22",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Iron Key",
+        "count": 1
+      },
+      {
+        "value": "Ghi Trousers",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:23",
+    "observed": [
+      {
+        "value": "Armor_23",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Copper Coin",
+        "count": 1
+      },
+      {
+        "value": "Gold Coin",
+        "count": 1
+      },
+      {
+        "value": "Calista",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:24",
+    "observed": [
+      {
+        "value": "Leg Mail",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Magical Box (Green)",
+        "count": 1
+      },
+      {
+        "value": "Crown Of Nerra",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:25",
+    "observed": [
+      {
+        "value": "Bezerker Helm",
+        "count": 2
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Bezerker Helm",
+        "count": 2
+      },
+      {
+        "value": "Suede Boots",
+        "count": 1
+      },
+      {
+        "value": "Leather Pants",
+        "count": 1
+      },
+      {
+        "value": "Leather Jerkin",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:26",
+    "observed": [
+      {
+        "value": "Helmet",
+        "count": 3
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Helmet",
+        "count": 3
+      },
+      {
+        "value": "Blue Gem",
+        "count": 1
+      },
+      {
+        "value": "Hosen",
+        "count": 1
+      },
+      {
+        "value": "Leg Mail",
+        "count": 1
+      },
+      {
+        "value": "Mail Aketon",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:27",
+    "observed": [
+      {
+        "value": "Basinet",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Basinet",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:28",
+    "observed": [
+      {
+        "value": "Buckler",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Buckler",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:30",
+    "observed": [
+      {
+        "value": "Armor_30",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Cheese",
+        "count": 1
+      },
+      {
+        "value": "Wooden Shield",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:31",
+    "observed": [
+      {
+        "value": "Small Shield",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Small Shield",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:32",
+    "observed": [
+      {
+        "value": "Helmet",
+        "count": 3
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Mail Aketon",
+        "count": 3
+      },
+      {
+        "value": "Empty Flask",
+        "count": 1
+      },
+      {
+        "value": "Hosen",
+        "count": 1
+      },
+      {
+        "value": "Leg Mail",
+        "count": 1
+      },
+      {
+        "value": "Helmet",
+        "count": 1
+      },
+      {
+        "value": "Iron Key",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:33",
+    "observed": [
+      {
+        "value": "Leg Mail",
+        "count": 2
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Leg Mail",
+        "count": 2
+      },
+      {
+        "value": "Hosen",
+        "count": 1
+      },
+      {
+        "value": "Mail Aketon",
+        "count": 1
+      },
+      {
+        "value": "Helmet",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:34",
+    "observed": [
+      {
+        "value": "Crown of Nerra",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Mithral Aketon",
+        "count": 1
+      },
+      {
+        "value": "Slayer",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:35",
+    "observed": [
+      {
+        "value": "Mithral Mail",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Mithral Mail",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:36",
+    "observed": [
+      {
+        "value": "Casque'n Coif",
+        "count": 2
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Casque'n Coif",
+        "count": 2
+      }
+    ]
+  },
+  {
+    "key": "Armor:37",
+    "observed": [
+      {
+        "value": "Armor_37",
+        "count": 2
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Hosen",
+        "count": 2
+      },
+      {
+        "value": "Drumstick",
+        "count": 1
+      },
+      {
+        "value": "Torch",
+        "count": 1
+      },
+      {
+        "value": "Leg Mail",
+        "count": 1
+      },
+      {
+        "value": "Mail Aketon",
+        "count": 1
+      },
+      {
+        "value": "Helmet",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:38",
+    "observed": [
+      {
+        "value": "Armet",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Armet",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:39",
+    "observed": [
+      {
+        "value": "Armor_39",
+        "count": 2
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Torso Plate",
+        "count": 2
+      },
+      {
+        "value": "Iron Key",
+        "count": 1
+      },
+      {
+        "value": "Ful Bomb",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:4",
+    "observed": [
+      {
+        "value": "Suede Doublet",
+        "count": 2
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Leather Boots",
+        "count": 2
+      },
+      {
+        "value": "Gold Key",
+        "count": 1
+      },
+      {
+        "value": "Torch",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:40",
+    "observed": [
+      {
+        "value": "Neck Plate",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Foot Plate",
+        "count": 1
+      },
+      {
+        "value": "Leg Plate",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:41",
+    "observed": [
+      {
+        "value": "Foot Plate",
+        "count": 2
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Foot Plate",
+        "count": 2
+      },
+      {
+        "value": "Leg Plate",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:42",
+    "observed": [
+      {
+        "value": "Large Shield",
+        "count": 2
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Large Shield",
+        "count": 2
+      }
+    ]
+  },
+  {
+    "key": "Armor:43",
+    "observed": [
+      {
+        "value": "Helm Of Lyte",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Helm Of Lyte",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:44",
+    "observed": [
+      {
+        "value": "Armor_44",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Plate Of Lyte",
+        "count": 1
+      },
+      {
+        "value": "Poleyn Of Lyte",
+        "count": 1
+      },
+      {
+        "value": "Greave Of Lyte",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:45",
+    "observed": [
+      {
+        "value": "Armor_45",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Plate Of Lyte",
+        "count": 1
+      },
+      {
+        "value": "Poleyn Of Lyte",
+        "count": 1
+      },
+      {
+        "value": "Greave Of Lyte",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:46",
+    "observed": [
+      {
+        "value": "Armor_46",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Plate Of Lyte",
+        "count": 1
+      },
+      {
+        "value": "Poleyn Of Lyte",
+        "count": 1
+      },
+      {
+        "value": "Greave Of Lyte",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:47",
+    "observed": [
+      {
+        "value": "Armor_47",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Shield Of Lyte",
+        "count": 1
+      },
+      {
+        "value": "Scroll Mana potion Zo Bro Ra creates a pure mana potion.",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:48",
+    "observed": [
+      {
+        "value": "Helm Of Darc",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Helm Of Darc",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:49",
+    "observed": [
+      {
+        "value": "Plate Of Darc",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Plate Of Darc",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:50",
+    "observed": [
+      {
+        "value": "Poleyn Of Darc",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Poleyn Of Darc",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:51",
+    "observed": [
+      {
+        "value": "Greave Of Darc",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Greave Of Darc",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:52",
+    "observed": [
+      {
+        "value": "Shield Of Darc",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Shield Of Darc",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:54",
+    "observed": [
+      {
+        "value": "Armor_54",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Bolt Blade",
+        "count": 1
+      },
+      {
+        "value": "Flamebain",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:56",
+    "observed": [
+      {
+        "value": "Boots Of Speed",
+        "count": 4
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Boots Of Speed",
+        "count": 4
+      },
+      {
+        "value": "Dragon Spit",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:7",
+    "observed": [
+      {
+        "value": "Barbarian Doublet",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Gold Key",
+        "count": 1
+      },
+      {
+        "value": "Sabre",
+        "count": 1
+      },
+      {
+        "value": "Fine Robe (Body)",
+        "count": 1
+      },
+      {
+        "value": "Fine Robe (Legs)",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Armor:8",
+    "observed": [
+      {
+        "value": "Gi",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Gold Key",
+        "count": 1
+      },
+      {
+        "value": "Sabre",
+        "count": 1
+      },
+      {
+        "value": "Fine Robe (Body)",
+        "count": 1
+      },
+      {
+        "value": "Fine Robe (Legs)",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Container:0",
+    "observed": [
+      {
+        "value": "Chest",
+        "count": 6
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "ChestScroll \"Drink these to gain magical defense\", Ya potion]",
+        "count": 1
+      },
+      {
+        "value": "ChestSilver Coin, Copper Coin, Magical Box (Blue)]",
+        "count": 1
+      },
+      {
+        "value": "ChestBro Potion, Magical Box (Blue), Ful Bomb]",
+        "count": 1
+      },
+      {
+        "value": "ChestSlayer, Water Flask, Drumstick]",
+        "count": 1
+      },
+      {
+        "value": "ChestSkeleton Key]",
+        "count": 1
+      },
+      {
+        "value": "Vi Potion",
+        "count": 1
+      },
+      {
+        "value": "ChestGreen Gem, Scroll \"Put the gem back...\"]",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Container:1",
+    "observed": [
+      {
+        "value": "Chest",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "ChestSolid Key]",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Container:121",
+    "observed": [
+      {
+        "value": "Chest",
+        "count": 3
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "ChestDrumstick, Corn, Cheese, Bread, Magical Box (Blue), Scroll \"Des Ven will conjure a poison spell\", Empty Flask]",
+        "count": 1
+      },
+      {
+        "value": "ChestApple, Cheese, Scroll \"Ya will create a stamina potion\", Scroll \"Some doors can be opened with a Zo spell\", Gold Coin]",
+        "count": 1
+      },
+      {
+        "value": "ChestYa Potion, Scroll \"The spell Ya Bro Ros leaves a trail of magic footprints.\"]",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:0",
+    "observed": [
+      {
+        "value": "Compass",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Compass",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:1",
+    "observed": [
+      {
+        "value": "Waterskin",
+        "count": 4
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Water",
+        "count": 3
+      },
+      {
+        "value": "Cheese",
+        "count": 2
+      },
+      {
+        "value": "Scroll Invoke Ful for a magic torch",
+        "count": 1
+      },
+      {
+        "value": "Arrow",
+        "count": 1
+      },
+      {
+        "value": "Waterskin",
+        "count": 1
+      },
+      {
+        "value": "Axe",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:10",
+    "observed": [
+      {
+        "value": "Key of B",
+        "count": 2
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Key of B",
+        "count": 1
+      },
+      {
+        "value": "Key Of B",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:11",
+    "observed": [
+      {
+        "value": "Solid Key",
+        "count": 3
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Solid Key",
+        "count": 3
+      }
+    ]
+  },
+  {
+    "key": "Misc:12",
+    "observed": [
+      {
+        "value": "Square Key",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Square Key",
+        "count": 1
+      },
+      {
+        "value": "Ashes",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:14",
+    "observed": [
+      {
+        "value": "Cross Key",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Cross Key",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:16",
+    "observed": [
+      {
+        "value": "Skeleton Key",
+        "count": 2
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Skeleton Key",
+        "count": 2
+      }
+    ]
+  },
+  {
+    "key": "Misc:17",
+    "observed": [
+      {
+        "value": "Gold Key",
+        "count": 12
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Gold Key",
+        "count": 12
+      },
+      {
+        "value": "Apple",
+        "count": 2
+      },
+      {
+        "value": "Leather Boots",
+        "count": 1
+      },
+      {
+        "value": "Throwing Star",
+        "count": 1
+      },
+      {
+        "value": "Drumstick",
+        "count": 1
+      },
+      {
+        "value": "Leather Jerkin",
+        "count": 1
+      },
+      {
+        "value": "Sabre",
+        "count": 1
+      },
+      {
+        "value": "Fine Robe (Body)",
+        "count": 1
+      },
+      {
+        "value": "Fine Robe (Legs)",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:18",
+    "observed": [
+      {
+        "value": "Winged Key",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Winged Key",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:19",
+    "observed": [
+      {
+        "value": "Topaz Key",
+        "count": 2
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Topaz Key",
+        "count": 2
+      }
+    ]
+  },
+  {
+    "key": "Misc:2",
+    "observed": [
+      {
+        "value": "Jewel Symal",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Jewel Symal",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:21",
+    "observed": [
+      {
+        "value": "(Misc_21)",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Elven Doublet",
+        "count": 1
+      },
+      {
+        "value": "Dagger",
+        "count": 1
+      },
+      {
+        "value": "Arrow",
+        "count": 1
+      },
+      {
+        "value": "Torch",
+        "count": 1
+      },
+      {
+        "value": "Emerald Key",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:25",
+    "observed": [
+      {
+        "value": "Boulder",
+        "count": 6
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Boulder",
+        "count": 6
+      },
+      {
+        "value": "Silver Coin",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:26",
+    "observed": [
+      {
+        "value": "Blue Gem",
+        "count": 5
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Blue Gem",
+        "count": 5
+      },
+      {
+        "value": "Drumstick",
+        "count": 1
+      },
+      {
+        "value": "Helmet",
+        "count": 1
+      },
+      {
+        "value": "Mace",
+        "count": 1
+      },
+      {
+        "value": "Dane Potion",
+        "count": 1
+      },
+      {
+        "value": "Green Gem",
+        "count": 1
+      },
+      {
+        "value": "Eye Of Time",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:28",
+    "observed": [
+      {
+        "value": "Green Gem",
+        "count": 2
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Blue Gem",
+        "count": 2
+      },
+      {
+        "value": "Green Gem",
+        "count": 2
+      },
+      {
+        "value": "Eye Of Time",
+        "count": 2
+      }
+    ]
+  },
+  {
+    "key": "Misc:29",
+    "observed": [
+      {
+        "value": "Apple",
+        "count": 22
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Apple",
+        "count": 22
+      },
+      {
+        "value": "Corn",
+        "count": 4
+      },
+      {
+        "value": "Cheese",
+        "count": 3
+      },
+      {
+        "value": "Torch",
+        "count": 3
+      },
+      {
+        "value": "Drumstick",
+        "count": 3
+      },
+      {
+        "value": "Gold Key",
+        "count": 2
+      },
+      {
+        "value": "Scroll Small details can hide great rewards",
+        "count": 1
+      },
+      {
+        "value": "Dagger",
+        "count": 1
+      },
+      {
+        "value": "Falchion",
+        "count": 1
+      },
+      {
+        "value": "Leather Jerkin",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:3",
+    "observed": [
+      {
+        "value": "Illumulet",
+        "count": 2
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Illumulet",
+        "count": 2
+      },
+      {
+        "value": "Gem Of Ages",
+        "count": 1
+      },
+      {
+        "value": "Sceptre Of Lyf",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:30",
+    "observed": [
+      {
+        "value": "Corn",
+        "count": 13
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Corn",
+        "count": 13
+      },
+      {
+        "value": "Apple",
+        "count": 4
+      },
+      {
+        "value": "Cheese",
+        "count": 3
+      },
+      {
+        "value": "Scroll Small details can hide great rewards",
+        "count": 1
+      },
+      {
+        "value": "Dagger",
+        "count": 1
+      },
+      {
+        "value": "Falchion",
+        "count": 1
+      },
+      {
+        "value": "Choker",
+        "count": 1
+      },
+      {
+        "value": "Throwing Star",
+        "count": 1
+      },
+      {
+        "value": "Scroll Light Oh Ir Ra. Darkness Des Ir Sar.",
+        "count": 1
+      },
+      {
+        "value": "Dragon Steak",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:31",
+    "observed": [
+      {
+        "value": "Bread",
+        "count": 9
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Bread",
+        "count": 9
+      },
+      {
+        "value": "Apple",
+        "count": 1
+      },
+      {
+        "value": "Corn",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:32",
+    "observed": [
+      {
+        "value": "Cheese",
+        "count": 17
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Cheese",
+        "count": 17
+      },
+      {
+        "value": "Apple",
+        "count": 5
+      },
+      {
+        "value": "Corn",
+        "count": 4
+      },
+      {
+        "value": "Torch",
+        "count": 2
+      },
+      {
+        "value": "Arrow",
+        "count": 1
+      },
+      {
+        "value": "Waterskin",
+        "count": 1
+      },
+      {
+        "value": "Wooden Shield",
+        "count": 1
+      },
+      {
+        "value": "Water",
+        "count": 1
+      },
+      {
+        "value": "Axe",
+        "count": 1
+      },
+      {
+        "value": "Bro Potion",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:35",
+    "observed": [
+      {
+        "value": "Drumstick",
+        "count": 23
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Drumstick",
+        "count": 23
+      },
+      {
+        "value": "Torch",
+        "count": 5
+      },
+      {
+        "value": "Apple",
+        "count": 3
+      },
+      {
+        "value": "Sword",
+        "count": 2
+      },
+      {
+        "value": "Scroll Casting Vi into a flask creates a serum that heals wounds",
+        "count": 1
+      },
+      {
+        "value": "Empty flask",
+        "count": 1
+      },
+      {
+        "value": "Leather pants",
+        "count": 1
+      },
+      {
+        "value": "Scroll Casting Vi Bro into a flask creates a serum for curing poison",
+        "count": 1
+      },
+      {
+        "value": "Gold Key",
+        "count": 1
+      },
+      {
+        "value": "Leather Jerkin",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:36",
+    "observed": [
+      {
+        "value": "Dragon Steak",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Dragon Steak",
+        "count": 1
+      },
+      {
+        "value": "Corn",
+        "count": 1
+      },
+      {
+        "value": "Apple",
+        "count": 1
+      },
+      {
+        "value": "Cheese",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:37",
+    "observed": [
+      {
+        "value": "Gem Of Ages",
+        "count": 2
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Gem Of Ages",
+        "count": 2
+      },
+      {
+        "value": "Illumulet",
+        "count": 1
+      },
+      {
+        "value": "Sceptre Of Lyf",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:38",
+    "observed": [
+      {
+        "value": "Ekkhard Cross",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Ekkhard Cross",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:39",
+    "observed": [
+      {
+        "value": "Moonstone",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Drumstick",
+        "count": 1
+      },
+      {
+        "value": "Moonstone",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:4",
+    "observed": [
+      {
+        "value": "Ashes",
+        "count": 7
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Ashes",
+        "count": 7
+      },
+      {
+        "value": "Square Key",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:41",
+    "observed": [
+      {
+        "value": "Pendant Feral",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Pendant Feral",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:42",
+    "observed": [
+      {
+        "value": "Magical Box (Blue)",
+        "count": 5
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Magical Box (Blue)",
+        "count": 5
+      },
+      {
+        "value": "Drumstick",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:43",
+    "observed": [
+      {
+        "value": "Magical Box (Green)",
+        "count": 7
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Magical Box (Green)",
+        "count": 7
+      },
+      {
+        "value": "Crown Of Nerra",
+        "count": 1
+      },
+      {
+        "value": "Ful Bomb",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:44",
+    "observed": [
+      {
+        "value": "Mirror Of Dawn",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Mirror Of Dawn",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:45",
+    "observed": [
+      {
+        "value": "Rope",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Rope",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:46",
+    "observed": [
+      {
+        "value": "Rabbit's Foot",
+        "count": 3
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Rabbit's Foot",
+        "count": 3
+      },
+      {
+        "value": "Gold Coin",
+        "count": 1
+      },
+      {
+        "value": "Ful Bomb",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:47",
+    "observed": [
+      {
+        "value": "Corbamite",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Corbamite",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:48",
+    "observed": [
+      {
+        "value": "(Misc_48)",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Corn",
+        "count": 1
+      },
+      {
+        "value": "Choker",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:50",
+    "observed": [
+      {
+        "value": "Magnifier",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Magnifier",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:6",
+    "observed": [
+      {
+        "value": "Copper Coin",
+        "count": 16
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Copper Coin",
+        "count": 16
+      },
+      {
+        "value": "Gold Coin",
+        "count": 3
+      },
+      {
+        "value": "Calista",
+        "count": 3
+      }
+    ]
+  },
+  {
+    "key": "Misc:7",
+    "observed": [
+      {
+        "value": "Silver Coin",
+        "count": 4
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Silver Coin",
+        "count": 4
+      },
+      {
+        "value": "Boulder",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:8",
+    "observed": [
+      {
+        "value": "Gold Coin",
+        "count": 4
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Gold Coin",
+        "count": 4
+      },
+      {
+        "value": "Rabbit's Foot",
+        "count": 1
+      },
+      {
+        "value": "Copper Coin",
+        "count": 1
+      },
+      {
+        "value": "Calista",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Misc:9",
+    "observed": [
+      {
+        "value": "Iron Key",
+        "count": 7
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Iron Key",
+        "count": 7
+      },
+      {
+        "value": "Ghi Trousers",
+        "count": 1
+      },
+      {
+        "value": "Mail Aketon",
+        "count": 1
+      },
+      {
+        "value": "Torso Plate",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Potion:0",
+    "observed": [
+      {
+        "value": "Mon Potion",
+        "count": 17
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Drumstick",
+        "count": 6
+      },
+      {
+        "value": "Empty flask",
+        "count": 4
+      },
+      {
+        "value": "Empty Flask",
+        "count": 4
+      },
+      {
+        "value": "Scroll Casting Vi into a flask creates a serum that heals wounds",
+        "count": 3
+      },
+      {
+        "value": "Leather pants",
+        "count": 3
+      },
+      {
+        "value": "Scroll Casting Vi Bro into a flask creates a serum for curing poison",
+        "count": 3
+      },
+      {
+        "value": "Vi Potion",
+        "count": 3
+      },
+      {
+        "value": "Ful Bomb",
+        "count": 3
+      },
+      {
+        "value": "Ros Potion",
+        "count": 2
+      },
+      {
+        "value": "Torch",
+        "count": 2
+      }
+    ]
+  },
+  {
+    "key": "Potion:16",
+    "observed": [
+      {
+        "value": "Vitality Potion",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Ven Potion",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Potion:18",
+    "observed": [
+      {
+        "value": "Anti-Fire Potion",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Vi Potion",
+        "count": 1
+      },
+      {
+        "value": "ChestGreen Gem, Scroll \"Put the gem back...\"]",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Potion:24",
+    "observed": [
+      {
+        "value": "Waterskin (water)",
+        "count": 4
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Ful Bomb",
+        "count": 2
+      },
+      {
+        "value": "Ven Potion",
+        "count": 1
+      },
+      {
+        "value": "Vi Potion",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Potion:28",
+    "observed": [
+      {
+        "value": "Ven Potion",
+        "count": 2
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Ven Potion",
+        "count": 1
+      },
+      {
+        "value": "Ful Bomb",
+        "count": 1
+      },
+      {
+        "value": "Magical Box (Green)",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Potion:31",
+    "observed": [
+      {
+        "value": "Ven Potion",
+        "count": 3
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Ven Potion",
+        "count": 3
+      },
+      {
+        "value": "Ful Bomb",
+        "count": 2
+      },
+      {
+        "value": "The Inquisitor",
+        "count": 2
+      }
+    ]
+  },
+  {
+    "key": "Potion:4",
+    "observed": [
+      {
+        "value": "Ful Potion",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Cheese",
+        "count": 1
+      },
+      {
+        "value": "Bro Potion",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Potion:8",
+    "observed": [
+      {
+        "value": "Health Potion",
+        "count": 7
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Vi Potion",
+        "count": 3
+      },
+      {
+        "value": "Water Flask",
+        "count": 3
+      },
+      {
+        "value": "Ful Bomb",
+        "count": 3
+      },
+      {
+        "value": "Ya Potion",
+        "count": 2
+      },
+      {
+        "value": "Apple",
+        "count": 2
+      },
+      {
+        "value": "Scroll Invisibility Oh Ew Sar",
+        "count": 2
+      },
+      {
+        "value": "Ven Potion",
+        "count": 1
+      },
+      {
+        "value": "Cheese",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Scroll:na",
+    "observed": [
+      {
+        "value": "(unnamed)",
+        "count": 14
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Apple",
+        "count": 3
+      },
+      {
+        "value": "Empty flask",
+        "count": 3
+      },
+      {
+        "value": "Corn",
+        "count": 2
+      },
+      {
+        "value": "Scroll Casting Vi into a flask creates a serum that heals wounds",
+        "count": 2
+      },
+      {
+        "value": "Leather pants",
+        "count": 2
+      },
+      {
+        "value": "Scroll Casting Vi Bro into a flask creates a serum for curing poison",
+        "count": 2
+      },
+      {
+        "value": "Drumstick",
+        "count": 2
+      },
+      {
+        "value": "Scroll Ya Bro creates a magical shield potion",
+        "count": 2
+      },
+      {
+        "value": "Scroll The spell Oh Ven cast a cloud of poison.",
+        "count": 2
+      },
+      {
+        "value": "Water",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:0",
+    "observed": [
+      {
+        "value": "(W0)",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Blue Gem",
+        "count": 1
+      },
+      {
+        "value": "Green Gem",
+        "count": 1
+      },
+      {
+        "value": "Eye Of Time",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:1",
+    "observed": [
+      {
+        "value": "(W1)",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Storm Ring",
+        "count": 1
+      },
+      {
+        "value": "Torch",
+        "count": 1
+      },
+      {
+        "value": "Drumstick",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:10",
+    "observed": [
+      {
+        "value": "Sword",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Drumstick",
+        "count": 1
+      },
+      {
+        "value": "Sword",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:11",
+    "observed": [
+      {
+        "value": "Rapier",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Rapier",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:12",
+    "observed": [
+      {
+        "value": "Sabre",
+        "count": 2
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Sabre",
+        "count": 2
+      },
+      {
+        "value": "Gold Key",
+        "count": 1
+      },
+      {
+        "value": "Fine Robe (Body)",
+        "count": 1
+      },
+      {
+        "value": "Fine Robe (Legs)",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:14",
+    "observed": [
+      {
+        "value": "Delta",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Delta",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:16",
+    "observed": [
+      {
+        "value": "Vorpal Blade",
+        "count": 2
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Vorpal Blade",
+        "count": 2
+      }
+    ]
+  },
+  {
+    "key": "Weapon:18",
+    "observed": [
+      {
+        "value": "Axe",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Cheese",
+        "count": 1
+      },
+      {
+        "value": "Water",
+        "count": 1
+      },
+      {
+        "value": "Axe",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:19",
+    "observed": [
+      {
+        "value": "Hardcleave",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Hardcleave",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:2",
+    "observed": [
+      {
+        "value": "Torch",
+        "count": 8
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Torch",
+        "count": 8
+      },
+      {
+        "value": "Drumstick",
+        "count": 4
+      },
+      {
+        "value": "Apple",
+        "count": 2
+      },
+      {
+        "value": "Elven Doublet",
+        "count": 1
+      },
+      {
+        "value": "Dagger",
+        "count": 1
+      },
+      {
+        "value": "Arrow",
+        "count": 1
+      },
+      {
+        "value": "Emerald Key",
+        "count": 1
+      },
+      {
+        "value": "Hosen",
+        "count": 1
+      },
+      {
+        "value": "Ros Potion",
+        "count": 1
+      },
+      {
+        "value": "Vi Potion",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:20",
+    "observed": [
+      {
+        "value": "Mace",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Blue Gem",
+        "count": 1
+      },
+      {
+        "value": "Mace",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:21",
+    "observed": [
+      {
+        "value": "Mace Of Order",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Mace Of Order",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:22",
+    "observed": [
+      {
+        "value": "Morningstar",
+        "count": 2
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Morningstar",
+        "count": 2
+      }
+    ]
+  },
+  {
+    "key": "Weapon:23",
+    "observed": [
+      {
+        "value": "Club",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Club",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:25",
+    "observed": [
+      {
+        "value": "Bow",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Bow",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:26",
+    "observed": [
+      {
+        "value": "Crossbow",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Crossbow",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:27",
+    "observed": [
+      {
+        "value": "Arrow",
+        "count": 6
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Arrow",
+        "count": 6
+      },
+      {
+        "value": "Elven Doublet",
+        "count": 1
+      },
+      {
+        "value": "Dagger",
+        "count": 1
+      },
+      {
+        "value": "Torch",
+        "count": 1
+      },
+      {
+        "value": "Emerald Key",
+        "count": 1
+      },
+      {
+        "value": "Waterskin",
+        "count": 1
+      },
+      {
+        "value": "Cheese",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:28",
+    "observed": [
+      {
+        "value": "Slayer",
+        "count": 3
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Slayer",
+        "count": 3
+      },
+      {
+        "value": "Mithral Aketon",
+        "count": 2
+      },
+      {
+        "value": "Drumstick",
+        "count": 1
+      },
+      {
+        "value": "Apple",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:29",
+    "observed": [
+      {
+        "value": "Sling",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Sling",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:30",
+    "observed": [
+      {
+        "value": "Rock",
+        "count": 2
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Rock",
+        "count": 2
+      }
+    ]
+  },
+  {
+    "key": "Weapon:31",
+    "observed": [
+      {
+        "value": "Poison Dart",
+        "count": 3
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Poison Dart",
+        "count": 3
+      }
+    ]
+  },
+  {
+    "key": "Weapon:32",
+    "observed": [
+      {
+        "value": "Throwing Star",
+        "count": 4
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Throwing Star",
+        "count": 4
+      },
+      {
+        "value": "Corn",
+        "count": 2
+      },
+      {
+        "value": "Gold Key",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:34",
+    "observed": [
+      {
+        "value": "Staff",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Staff",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:35",
+    "observed": [
+      {
+        "value": "Wand",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Wand",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:36",
+    "observed": [
+      {
+        "value": "Teowand",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Teowand",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:37",
+    "observed": [
+      {
+        "value": "Yew Staff",
+        "count": 2
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Yew Staff",
+        "count": 2
+      }
+    ]
+  },
+  {
+    "key": "Weapon:38",
+    "observed": [
+      {
+        "value": "Staff Of Manar",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Staff Of Manar",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:39",
+    "observed": [
+      {
+        "value": "Snake Staff",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Snake Staff",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:4",
+    "observed": [
+      {
+        "value": "Staff Of Claws",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Staff Of Claws",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:41",
+    "observed": [
+      {
+        "value": "Dragon Spit",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Boots Of Speed",
+        "count": 1
+      },
+      {
+        "value": "Dragon Spit",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:42",
+    "observed": [
+      {
+        "value": "Sceptre Of Lyf",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Gem Of Ages",
+        "count": 1
+      },
+      {
+        "value": "Illumulet",
+        "count": 1
+      },
+      {
+        "value": "Sceptre Of Lyf",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:43",
+    "observed": [
+      {
+        "value": "(W43)",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Horn Of Fear",
+        "count": 1
+      },
+      {
+        "value": "Empty Flask",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:44",
+    "observed": [
+      {
+        "value": "Speedbow",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Speedbow",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:5",
+    "observed": [
+      {
+        "value": "Bolt Blade",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Bolt Blade",
+        "count": 1
+      },
+      {
+        "value": "Flamebain",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:6",
+    "observed": [
+      {
+        "value": "Fury",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Fury",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:8",
+    "observed": [
+      {
+        "value": "Dagger",
+        "count": 3
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Dagger",
+        "count": 3
+      },
+      {
+        "value": "Corn",
+        "count": 1
+      },
+      {
+        "value": "Apple",
+        "count": 1
+      },
+      {
+        "value": "Scroll Small details can hide great rewards",
+        "count": 1
+      },
+      {
+        "value": "Falchion",
+        "count": 1
+      },
+      {
+        "value": "Elven Doublet",
+        "count": 1
+      },
+      {
+        "value": "Arrow",
+        "count": 1
+      },
+      {
+        "value": "Torch",
+        "count": 1
+      },
+      {
+        "value": "Emerald Key",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Weapon:9",
+    "observed": [
+      {
+        "value": "Falchion",
+        "count": 2
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Falchion",
+        "count": 2
+      }
+    ]
+  }
+]

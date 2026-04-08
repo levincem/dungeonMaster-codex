@@ -1,0 +1,4855 @@
+{
+  "generatedAt": "2026-04-06T11:04:23.728Z",
+  "graphicsDat": {
+    "path": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\GRAPHICS.DAT",
+    "byteLength": 398925,
+    "firstWord": {
+      "be": 384,
+      "le": 32769
+    },
+    "headerChecks": {
+      "be384CompressedSum": 6042758,
+      "le384CompressedSum": 123443,
+      "be384DecompressedSum": 9772276,
+      "le384DecompressedSum": 297241
+    }
+  },
+  "objectNames": [
+    {
+      "startOffset": 291152,
+      "startOffsetHex": "0x47150",
+      "byteLength": 2046,
+      "firstTenNames": [
+        {
+          "index": 0,
+          "name": "COMPASS",
+          "offset": 291152
+        },
+        {
+          "index": 1,
+          "name": "COMPASS",
+          "offset": 291160
+        },
+        {
+          "index": 2,
+          "name": "COMPASS",
+          "offset": 291168
+        },
+        {
+          "index": 3,
+          "name": "COMPASS",
+          "offset": 291176
+        },
+        {
+          "index": 4,
+          "name": "TORCH",
+          "offset": 291184
+        },
+        {
+          "index": 5,
+          "name": "TORCH",
+          "offset": 291190
+        },
+        {
+          "index": 6,
+          "name": "TORCH",
+          "offset": 291196
+        },
+        {
+          "index": 7,
+          "name": "TORCH",
+          "offset": 291202
+        },
+        {
+          "index": 8,
+          "name": "WATERSKIN",
+          "offset": 291208
+        },
+        {
+          "index": 9,
+          "name": "WATER",
+          "offset": 291218
+        }
+      ],
+      "lastTenNames": [
+        {
+          "index": 189,
+          "name": "RUBY KEY",
+          "offset": 293095
+        },
+        {
+          "index": 190,
+          "name": "RA KEY",
+          "offset": 293104
+        },
+        {
+          "index": 191,
+          "name": "MASTER KEY",
+          "offset": 293111
+        },
+        {
+          "index": 192,
+          "name": "LOCK PICKS",
+          "offset": 293122
+        },
+        {
+          "index": 193,
+          "name": "MAGNIFIER",
+          "offset": 293133
+        },
+        {
+          "index": 194,
+          "name": "BOOTS OF SPEED",
+          "offset": 293143
+        },
+        {
+          "index": 195,
+          "name": "EMPTY FLASK",
+          "offset": 293158
+        },
+        {
+          "index": 196,
+          "name": "HALTER",
+          "offset": 293170
+        },
+        {
+          "index": 197,
+          "name": "ZOKATHRA SPELL",
+          "offset": 293177
+        },
+        {
+          "index": 198,
+          "name": "BONES",
+          "offset": 293192
+        }
+      ]
+    }
+  ],
+  "topObjectInfoCandidates": [
+    {
+      "offset": 3336,
+      "offsetHex": "0xd08",
+      "endianness": "LE",
+      "score": 973.25,
+      "invalid": 9,
+      "knownMatches": 1,
+      "uniqueTypeCount": 43,
+      "nonZeroActions": 1,
+      "preview": [
+        {
+          "index": 0,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0020"
+        },
+        {
+          "index": 1,
+          "type": 123,
+          "typeName": "THE HELLION",
+          "aspect": 25,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x005e"
+        },
+        {
+          "index": 2,
+          "type": 18,
+          "typeName": "STORMRING",
+          "aspect": 65,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x000a"
+        },
+        {
+          "index": 23,
+          "type": 91,
+          "typeName": "LEG MAIL",
+          "aspect": 152,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x005c"
+        },
+        {
+          "index": 25,
+          "type": 5,
+          "typeName": "TORCH",
+          "aspect": 20,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x002b"
+        },
+        {
+          "index": 31,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 50,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 51,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 53,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 54,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 55,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 69,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 127,
+          "type": 19,
+          "typeName": "STORMRING",
+          "aspect": 14,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x001a"
+        }
+      ],
+      "nearbyLayout": {
+        "expectedPrecedingArrays": {
+          "directionToStepBytes": [
+            78,
+            0,
+            74,
+            0,
+            60,
+            0,
+            111,
+            0,
+            33,
+            0,
+            136,
+            0,
+            32,
+            0,
+            32,
+            0
+          ],
+          "thingDataByteCount": [
+            32,
+            0,
+            32,
+            0,
+            224,
+            0,
+            97,
+            0,
+            224,
+            0,
+            39,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "additionalThingCounts": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "firstBytesAfterObjectInfo": [
+          16,
+          0,
+          19,
+          0,
+          32,
+          0,
+          17,
+          0,
+          16,
+          0,
+          19,
+          0,
+          26,
+          0,
+          28,
+          0,
+          16,
+          0,
+          19,
+          0,
+          30,
+          0,
+          28,
+          0
+        ],
+        "firstBytesAtExpectedArmourInfo": [
+          34,
+          0,
+          5,
+          0,
+          32,
+          0,
+          25,
+          0,
+          40,
+          0,
+          6,
+          0,
+          16,
+          0,
+          5,
+          0,
+          16,
+          0,
+          5,
+          0,
+          32,
+          0,
+          6,
+          0
+        ],
+        "firstBytesAtExpectedDoorInfo": [
+          0,
+          94,
+          0,
+          128,
+          0,
+          94,
+          0,
+          64
+        ]
+      }
+    },
+    {
+      "offset": 3708,
+      "offsetHex": "0xe7c",
+      "endianness": "LE",
+      "score": 966.25,
+      "invalid": 10,
+      "knownMatches": 1,
+      "uniqueTypeCount": 43,
+      "nonZeroActions": 1,
+      "preview": [
+        {
+          "index": 0,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 1,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 2,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 23,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 25,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 31,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 50,
+          "type": 64,
+          "typeName": "THE CONDUIT",
+          "aspect": 61,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0060"
+        },
+        {
+          "index": 51,
+          "type": 88,
+          "typeName": "LEATHER PANTS",
+          "aspect": 44,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0026"
+        },
+        {
+          "index": 53,
+          "type": 88,
+          "typeName": "LEATHER PANTS",
+          "aspect": 32,
+          "actionSetIndex": 1,
+          "allowedSlotsHex": "0x0008"
+        },
+        {
+          "index": 54,
+          "type": 10,
+          "typeName": "JEWEL SYMAL",
+          "aspect": 42,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x005a"
+        },
+        {
+          "index": 55,
+          "type": 56,
+          "typeName": "THROWING STAR",
+          "aspect": 16,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0030"
+        },
+        {
+          "index": 69,
+          "type": 19,
+          "typeName": "STORMRING",
+          "aspect": 22,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x001c"
+        },
+        {
+          "index": 127,
+          "type": 28,
+          "typeName": "THE FIRESTAFF",
+          "aspect": 16,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0013"
+        }
+      ],
+      "nearbyLayout": {
+        "expectedPrecedingArrays": {
+          "directionToStepBytes": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "thingDataByteCount": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "additionalThingCounts": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "firstBytesAfterObjectInfo": [
+          96,
+          0,
+          88,
+          0,
+          32,
+          0,
+          19,
+          0,
+          32,
+          0,
+          19,
+          0,
+          96,
+          0,
+          88,
+          0,
+          94,
+          0,
+          86,
+          0,
+          8,
+          0,
+          9,
+          0
+        ],
+        "firstBytesAtExpectedArmourInfo": [
+          16,
+          0,
+          4,
+          0,
+          59,
+          0,
+          21,
+          0,
+          59,
+          0,
+          25,
+          0,
+          64,
+          0,
+          14,
+          0,
+          55,
+          0,
+          26,
+          0,
+          64,
+          0,
+          16,
+          0
+        ],
+        "firstBytesAtExpectedDoorInfo": [
+          252,
+          231,
+          222,
+          240,
+          101,
+          175,
+          179,
+          22
+        ]
+      }
+    },
+    {
+      "offset": 4106,
+      "offsetHex": "0x100a",
+      "endianness": "LE",
+      "score": 966,
+      "invalid": 10,
+      "knownMatches": 1,
+      "uniqueTypeCount": 59,
+      "nonZeroActions": 0,
+      "preview": [
+        {
+          "index": 0,
+          "type": 19,
+          "typeName": "STORMRING",
+          "aspect": 14,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0018"
+        },
+        {
+          "index": 1,
+          "type": 14,
+          "typeName": "FLAMITT",
+          "aspect": 19,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0014"
+        },
+        {
+          "index": 2,
+          "type": 28,
+          "typeName": "THE FIRESTAFF",
+          "aspect": 16,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0013"
+        },
+        {
+          "index": 23,
+          "type": 32,
+          "typeName": "DAGGER",
+          "aspect": 26,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0010"
+        },
+        {
+          "index": 25,
+          "type": 16,
+          "typeName": "EYE OF TIME",
+          "aspect": 19,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0020"
+        },
+        {
+          "index": 31,
+          "type": 32,
+          "typeName": "DAGGER",
+          "aspect": 26,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0010"
+        },
+        {
+          "index": 50,
+          "type": 53,
+          "typeName": "SLING",
+          "aspect": 16,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0013"
+        },
+        {
+          "index": 51,
+          "type": 16,
+          "typeName": "EYE OF TIME",
+          "aspect": 26,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0010"
+        },
+        {
+          "index": 53,
+          "type": 16,
+          "typeName": "EYE OF TIME",
+          "aspect": 19,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x001a"
+        },
+        {
+          "index": 54,
+          "type": 28,
+          "typeName": "THE FIRESTAFF",
+          "aspect": 16,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0013"
+        },
+        {
+          "index": 55,
+          "type": 30,
+          "typeName": "OPEN SCROLL",
+          "aspect": 28,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0010"
+        },
+        {
+          "index": 69,
+          "type": 80,
+          "typeName": "CAPE",
+          "aspect": 15,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x004e"
+        },
+        {
+          "index": 127,
+          "type": 36,
+          "typeName": "SABRE",
+          "aspect": 42,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x001c"
+        }
+      ],
+      "nearbyLayout": {
+        "expectedPrecedingArrays": {
+          "directionToStepBytes": [
+            48,
+            0,
+            96,
+            0,
+            56,
+            0,
+            14,
+            0,
+            19,
+            0,
+            28,
+            0,
+            28,
+            0,
+            14,
+            0
+          ],
+          "thingDataByteCount": [
+            19,
+            0,
+            28,
+            0,
+            27,
+            0,
+            14,
+            0,
+            19,
+            0,
+            28,
+            0,
+            26,
+            0,
+            16,
+            0
+          ],
+          "additionalThingCounts": [
+            19,
+            0,
+            12,
+            0,
+            28,
+            0,
+            16,
+            0,
+            19,
+            0,
+            14,
+            0,
+            26,
+            0,
+            16,
+            0
+          ]
+        },
+        "firstBytesAfterObjectInfo": [
+          5,
+          0,
+          15,
+          0,
+          9,
+          0,
+          60,
+          0,
+          11,
+          0,
+          64,
+          0,
+          14,
+          0,
+          34,
+          0,
+          20,
+          0,
+          23,
+          0,
+          14,
+          0,
+          57,
+          0
+        ],
+        "firstBytesAtExpectedArmourInfo": [
+          83,
+          0,
+          64,
+          0,
+          80,
+          0,
+          64,
+          0,
+          99,
+          0,
+          64,
+          0,
+          80,
+          0,
+          64,
+          0,
+          80,
+          0,
+          64,
+          0,
+          80,
+          0,
+          64,
+          0
+        ],
+        "firstBytesAtExpectedDoorInfo": [
+          126,
+          240,
+          49,
+          175,
+          67,
+          117,
+          103,
+          254
+        ]
+      }
+    },
+    {
+      "offset": 4148,
+      "offsetHex": "0x1034",
+      "endianness": "LE",
+      "score": 966,
+      "invalid": 10,
+      "knownMatches": 1,
+      "uniqueTypeCount": 60,
+      "nonZeroActions": 0,
+      "preview": [
+        {
+          "index": 0,
+          "type": 30,
+          "typeName": "OPEN SCROLL",
+          "aspect": 28,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0010"
+        },
+        {
+          "index": 1,
+          "type": 19,
+          "typeName": "STORMRING",
+          "aspect": 14,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x001a"
+        },
+        {
+          "index": 2,
+          "type": 16,
+          "typeName": "EYE OF TIME",
+          "aspect": 19,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x000e"
+        },
+        {
+          "index": 23,
+          "type": 26,
+          "typeName": "FURY",
+          "aspect": 16,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0013"
+        },
+        {
+          "index": 25,
+          "type": 10,
+          "typeName": "JEWEL SYMAL",
+          "aspect": 22,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0010"
+        },
+        {
+          "index": 31,
+          "type": 55,
+          "typeName": "POISON DART",
+          "aspect": 20,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0028"
+        },
+        {
+          "index": 50,
+          "type": 16,
+          "typeName": "EYE OF TIME",
+          "aspect": 19,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x000e"
+        },
+        {
+          "index": 51,
+          "type": 26,
+          "typeName": "FURY",
+          "aspect": 16,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0013"
+        },
+        {
+          "index": 53,
+          "type": 19,
+          "typeName": "STORMRING",
+          "aspect": 26,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x001c"
+        },
+        {
+          "index": 54,
+          "type": 16,
+          "typeName": "EYE OF TIME",
+          "aspect": 19,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x001e"
+        },
+        {
+          "index": 55,
+          "type": 28,
+          "typeName": "THE FIRESTAFF",
+          "aspect": 16,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x006f"
+        },
+        {
+          "index": 69,
+          "type": 6,
+          "typeName": "TORCH",
+          "aspect": 26,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0006"
+        },
+        {
+          "index": 127,
+          "type": 18,
+          "typeName": "STORMRING",
+          "aspect": 84,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0012"
+        }
+      ],
+      "nearbyLayout": {
+        "expectedPrecedingArrays": {
+          "directionToStepBytes": [
+            14,
+            0,
+            26,
+            0,
+            16,
+            0,
+            19,
+            0,
+            14,
+            0,
+            24,
+            0,
+            14,
+            0,
+            19,
+            0
+          ],
+          "thingDataByteCount": [
+            20,
+            0,
+            28,
+            0,
+            16,
+            0,
+            19,
+            0,
+            22,
+            0,
+            28,
+            0,
+            16,
+            0,
+            19,
+            0
+          ],
+          "additionalThingCounts": [
+            32,
+            0,
+            28,
+            0,
+            11,
+            0,
+            19,
+            0,
+            6,
+            0,
+            26,
+            0,
+            12,
+            0,
+            19,
+            0
+          ]
+        },
+        "firstBytesAfterObjectInfo": [
+          16,
+          0,
+          7,
+          0,
+          11,
+          0,
+          8,
+          0,
+          11,
+          0,
+          8,
+          0,
+          16,
+          0,
+          5,
+          0,
+          15,
+          0,
+          13,
+          0,
+          30,
+          0,
+          13,
+          0
+        ],
+        "firstBytesAtExpectedArmourInfo": [
+          64,
+          0,
+          49,
+          0,
+          32,
+          0,
+          49,
+          0,
+          64,
+          0,
+          49,
+          0,
+          64,
+          0,
+          56,
+          0,
+          64,
+          0,
+          59,
+          0,
+          112,
+          0,
+          43,
+          0
+        ],
+        "firstBytesAtExpectedDoorInfo": [
+          127,
+          120,
+          119,
+          238,
+          161,
+          127,
+          120,
+          119
+        ]
+      }
+    },
+    {
+      "offset": 4196,
+      "offsetHex": "0x1064",
+      "endianness": "LE",
+      "score": 966,
+      "invalid": 10,
+      "knownMatches": 1,
+      "uniqueTypeCount": 60,
+      "nonZeroActions": 0,
+      "preview": [
+        {
+          "index": 0,
+          "type": 30,
+          "typeName": "OPEN SCROLL",
+          "aspect": 26,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x000e"
+        },
+        {
+          "index": 1,
+          "type": 19,
+          "typeName": "STORMRING",
+          "aspect": 20,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x001a"
+        },
+        {
+          "index": 2,
+          "type": 16,
+          "typeName": "EYE OF TIME",
+          "aspect": 19,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0020"
+        },
+        {
+          "index": 23,
+          "type": 55,
+          "typeName": "POISON DART",
+          "aspect": 20,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0028"
+        },
+        {
+          "index": 25,
+          "type": 30,
+          "typeName": "OPEN SCROLL",
+          "aspect": 60,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0036"
+        },
+        {
+          "index": 31,
+          "type": 43,
+          "typeName": "HARDCLEAVE",
+          "aspect": 16,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0013"
+        },
+        {
+          "index": 50,
+          "type": 16,
+          "typeName": "EYE OF TIME",
+          "aspect": 111,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0060"
+        },
+        {
+          "index": 51,
+          "type": 111,
+          "typeName": "SHIELD OF DARC",
+          "aspect": 32,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x006f"
+        },
+        {
+          "index": 53,
+          "type": 9,
+          "typeName": "WATER",
+          "aspect": 64,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0009"
+        },
+        {
+          "index": 54,
+          "type": 80,
+          "typeName": "CAPE",
+          "aspect": 15,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x004e"
+        },
+        {
+          "index": 55,
+          "type": 15,
+          "typeName": "FLAMITT",
+          "aspect": 56,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x001b"
+        },
+        {
+          "index": 69,
+          "type": 6,
+          "typeName": "TORCH",
+          "aspect": 26,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0006"
+        },
+        {
+          "index": 127,
+          "type": 31,
+          "typeName": "SCROLL",
+          "aspect": 48,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x001f"
+        }
+      ],
+      "nearbyLayout": {
+        "expectedPrecedingArrays": {
+          "directionToStepBytes": [
+            30,
+            0,
+            28,
+            0,
+            16,
+            0,
+            19,
+            0,
+            14,
+            0,
+            26,
+            0,
+            16,
+            0,
+            19,
+            0
+          ],
+          "thingDataByteCount": [
+            14,
+            0,
+            26,
+            0,
+            14,
+            0,
+            19,
+            0,
+            10,
+            0,
+            26,
+            0,
+            16,
+            0,
+            19,
+            0
+          ],
+          "additionalThingCounts": [
+            32,
+            0,
+            26,
+            0,
+            14,
+            0,
+            19,
+            0,
+            20,
+            0,
+            20,
+            0,
+            14,
+            0,
+            19,
+            0
+          ]
+        },
+        "firstBytesAfterObjectInfo": [
+          21,
+          0,
+          24,
+          0,
+          32,
+          0,
+          15,
+          0,
+          16,
+          0,
+          7,
+          0,
+          16,
+          0,
+          15,
+          0,
+          15,
+          0,
+          9,
+          0,
+          23,
+          0,
+          14,
+          0
+        ],
+        "firstBytesAtExpectedArmourInfo": [
+          48,
+          0,
+          49,
+          0,
+          48,
+          0,
+          53,
+          0,
+          48,
+          0,
+          49,
+          0,
+          48,
+          0,
+          53,
+          0,
+          64,
+          0,
+          89,
+          0,
+          64,
+          0,
+          89,
+          0
+        ],
+        "firstBytesAtExpectedDoorInfo": [
+          247,
+          135,
+          126,
+          240,
+          122,
+          23,
+          90,
+          7
+        ]
+      }
+    },
+    {
+      "offset": 4208,
+      "offsetHex": "0x1070",
+      "endianness": "LE",
+      "score": 966,
+      "invalid": 10,
+      "knownMatches": 1,
+      "uniqueTypeCount": 61,
+      "nonZeroActions": 0,
+      "preview": [
+        {
+          "index": 0,
+          "type": 16,
+          "typeName": "EYE OF TIME",
+          "aspect": 19,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0020"
+        },
+        {
+          "index": 1,
+          "type": 28,
+          "typeName": "THE FIRESTAFF",
+          "aspect": 14,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0013"
+        },
+        {
+          "index": 2,
+          "type": 28,
+          "typeName": "THE FIRESTAFF",
+          "aspect": 26,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x000e"
+        },
+        {
+          "index": 23,
+          "type": 30,
+          "typeName": "OPEN SCROLL",
+          "aspect": 60,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0036"
+        },
+        {
+          "index": 25,
+          "type": 4,
+          "typeName": "TORCH",
+          "aspect": 24,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x000c"
+        },
+        {
+          "index": 31,
+          "type": 19,
+          "typeName": "STORMRING",
+          "aspect": 14,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x001c"
+        },
+        {
+          "index": 50,
+          "type": 160,
+          "typeName": "YA POTION",
+          "aspect": 111,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0060"
+        },
+        {
+          "index": 51,
+          "type": 9,
+          "typeName": "WATER",
+          "aspect": 64,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0009"
+        },
+        {
+          "index": 53,
+          "type": 15,
+          "typeName": "FLAMITT",
+          "aspect": 56,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x001b"
+        },
+        {
+          "index": 54,
+          "type": 112,
+          "typeName": "SANDALS",
+          "aspect": 29,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0028"
+        },
+        {
+          "index": 55,
+          "type": 6,
+          "typeName": "TORCH",
+          "aspect": 26,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0006"
+        },
+        {
+          "index": 69,
+          "type": 11,
+          "typeName": "JEWEL SYMAL",
+          "aspect": 15,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0015"
+        },
+        {
+          "index": 127,
+          "type": 30,
+          "typeName": "OPEN SCROLL",
+          "aspect": 48,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x001f"
+        }
+      ],
+      "nearbyLayout": {
+        "expectedPrecedingArrays": {
+          "directionToStepBytes": [
+            16,
+            0,
+            19,
+            0,
+            14,
+            0,
+            26,
+            0,
+            14,
+            0,
+            19,
+            0,
+            10,
+            0,
+            26,
+            0
+          ],
+          "thingDataByteCount": [
+            16,
+            0,
+            19,
+            0,
+            32,
+            0,
+            26,
+            0,
+            14,
+            0,
+            19,
+            0,
+            20,
+            0,
+            20,
+            0
+          ],
+          "additionalThingCounts": [
+            14,
+            0,
+            19,
+            0,
+            30,
+            0,
+            26,
+            0,
+            14,
+            0,
+            19,
+            0,
+            20,
+            0,
+            26,
+            0
+          ]
+        },
+        "firstBytesAfterObjectInfo": [
+          16,
+          0,
+          15,
+          0,
+          15,
+          0,
+          9,
+          0,
+          23,
+          0,
+          14,
+          0,
+          15,
+          0,
+          8,
+          0,
+          17,
+          0,
+          9,
+          0,
+          15,
+          0,
+          13,
+          0
+        ],
+        "firstBytesAtExpectedArmourInfo": [
+          48,
+          0,
+          53,
+          0,
+          64,
+          0,
+          89,
+          0,
+          64,
+          0,
+          89,
+          0,
+          64,
+          0,
+          89,
+          0,
+          64,
+          0,
+          89,
+          0,
+          64,
+          0,
+          84,
+          0
+        ],
+        "firstBytesAtExpectedDoorInfo": [
+          55,
+          247,
+          135,
+          126,
+          122,
+          55,
+          247,
+          135
+        ]
+      }
+    },
+    {
+      "offset": 3672,
+      "offsetHex": "0xe58",
+      "endianness": "LE",
+      "score": 960.25,
+      "invalid": 8,
+      "knownMatches": 0,
+      "uniqueTypeCount": 40,
+      "nonZeroActions": 1,
+      "preview": [
+        {
+          "index": 0,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 1,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 2,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 23,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 25,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 31,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 50,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 51,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 44,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0026"
+        },
+        {
+          "index": 53,
+          "type": 88,
+          "typeName": "LEATHER PANTS",
+          "aspect": 44,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0026"
+        },
+        {
+          "index": 54,
+          "type": 64,
+          "typeName": "THE CONDUIT",
+          "aspect": 61,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0060"
+        },
+        {
+          "index": 55,
+          "type": 88,
+          "typeName": "LEATHER PANTS",
+          "aspect": 44,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0026"
+        },
+        {
+          "index": 69,
+          "type": 26,
+          "typeName": "FURY",
+          "aspect": 16,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0013"
+        },
+        {
+          "index": 127,
+          "type": 19,
+          "typeName": "STORMRING",
+          "aspect": 30,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x001c"
+        }
+      ],
+      "nearbyLayout": {
+        "expectedPrecedingArrays": {
+          "directionToStepBytes": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "thingDataByteCount": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "additionalThingCounts": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "firstBytesAfterObjectInfo": [
+          96,
+          0,
+          88,
+          0,
+          80,
+          0,
+          74,
+          0,
+          30,
+          0,
+          19,
+          0,
+          86,
+          0,
+          68,
+          0,
+          96,
+          0,
+          88,
+          0,
+          92,
+          0,
+          72,
+          0
+        ],
+        "firstBytesAtExpectedArmourInfo": [
+          32,
+          0,
+          20,
+          0,
+          70,
+          0,
+          20,
+          0,
+          64,
+          0,
+          4,
+          0,
+          72,
+          0,
+          8,
+          0,
+          64,
+          0,
+          17,
+          0,
+          80,
+          0,
+          17,
+          0
+        ],
+        "firstBytesAtExpectedDoorInfo": [
+          239,
+          255,
+          7,
+          10,
+          143,
+          187,
+          239,
+          4
+        ]
+      }
+    },
+    {
+      "offset": 4058,
+      "offsetHex": "0xfda",
+      "endianness": "LE",
+      "score": 959,
+      "invalid": 11,
+      "knownMatches": 1,
+      "uniqueTypeCount": 57,
+      "nonZeroActions": 0,
+      "preview": [
+        {
+          "index": 0,
+          "type": 48,
+          "typeName": "STONE CLUB",
+          "aspect": 96,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0038"
+        },
+        {
+          "index": 1,
+          "type": 14,
+          "typeName": "FLAMITT",
+          "aspect": 19,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x001c"
+        },
+        {
+          "index": 2,
+          "type": 28,
+          "typeName": "THE FIRESTAFF",
+          "aspect": 14,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0013"
+        },
+        {
+          "index": 23,
+          "type": 30,
+          "typeName": "OPEN SCROLL",
+          "aspect": 26,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x000e"
+        },
+        {
+          "index": 25,
+          "type": 16,
+          "typeName": "EYE OF TIME",
+          "aspect": 19,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0020"
+        },
+        {
+          "index": 31,
+          "type": 32,
+          "typeName": "DAGGER",
+          "aspect": 26,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0010"
+        },
+        {
+          "index": 50,
+          "type": 4,
+          "typeName": "TORCH",
+          "aspect": 24,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x000c"
+        },
+        {
+          "index": 51,
+          "type": 96,
+          "typeName": "BEZERKER HELM",
+          "aspect": 10,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0015"
+        },
+        {
+          "index": 53,
+          "type": 16,
+          "typeName": "EYE OF TIME",
+          "aspect": 35,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0030"
+        },
+        {
+          "index": 54,
+          "type": 43,
+          "typeName": "HARDCLEAVE",
+          "aspect": 16,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0013"
+        },
+        {
+          "index": 55,
+          "type": 14,
+          "typeName": "FLAMITT",
+          "aspect": 28,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0010"
+        },
+        {
+          "index": 69,
+          "type": 16,
+          "typeName": "EYE OF TIME",
+          "aspect": 19,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x001e"
+        },
+        {
+          "index": 127,
+          "type": 54,
+          "typeName": "ROCK",
+          "aspect": 9,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0010"
+        }
+      ],
+      "nearbyLayout": {
+        "expectedPrecedingArrays": {
+          "directionToStepBytes": [
+            61,
+            0,
+            96,
+            0,
+            88,
+            0,
+            44,
+            0,
+            38,
+            0,
+            64,
+            0,
+            61,
+            0,
+            96,
+            0
+          ],
+          "thingDataByteCount": [
+            88,
+            0,
+            32,
+            1,
+            8,
+            0,
+            10,
+            0,
+            42,
+            0,
+            90,
+            0,
+            56,
+            0,
+            16,
+            0
+          ],
+          "additionalThingCounts": [
+            48,
+            0,
+            90,
+            0,
+            56,
+            0,
+            20,
+            0,
+            48,
+            0,
+            96,
+            0,
+            56,
+            0,
+            28,
+            0
+          ]
+        },
+        "firstBytesAfterObjectInfo": [
+          14,
+          0,
+          24,
+          0,
+          8,
+          0,
+          6,
+          0,
+          3,
+          0,
+          71,
+          0,
+          9,
+          0,
+          48,
+          0,
+          14,
+          0,
+          80,
+          0,
+          20,
+          0,
+          80,
+          0
+        ],
+        "firstBytesAtExpectedArmourInfo": [
+          60,
+          0,
+          64,
+          0,
+          43,
+          0,
+          64,
+          0,
+          64,
+          0,
+          64,
+          0,
+          83,
+          0,
+          64,
+          0,
+          93,
+          0,
+          64,
+          0,
+          101,
+          0,
+          64,
+          0
+        ],
+        "firstBytesAtExpectedDoorInfo": [
+          253,
+          145,
+          175,
+          62,
+          117,
+          224,
+          117,
+          248
+        ]
+      }
+    },
+    {
+      "offset": 4346,
+      "offsetHex": "0x10fa",
+      "endianness": "LE",
+      "score": 959,
+      "invalid": 11,
+      "knownMatches": 1,
+      "uniqueTypeCount": 62,
+      "nonZeroActions": 0,
+      "preview": [
+        {
+          "index": 0,
+          "type": 30,
+          "typeName": "OPEN SCROLL",
+          "aspect": 60,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0036"
+        },
+        {
+          "index": 1,
+          "type": 22,
+          "typeName": "STAFF OF CLAWS",
+          "aspect": 8,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0058"
+        },
+        {
+          "index": 2,
+          "type": 4,
+          "typeName": "TORCH",
+          "aspect": 24,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x000c"
+        },
+        {
+          "index": 23,
+          "type": 96,
+          "typeName": "BEZERKER HELM",
+          "aspect": 111,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0010"
+        },
+        {
+          "index": 25,
+          "type": 16,
+          "typeName": "EYE OF TIME",
+          "aspect": 111,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0060"
+        },
+        {
+          "index": 31,
+          "type": 112,
+          "typeName": "SANDALS",
+          "aspect": 29,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0028"
+        },
+        {
+          "index": 50,
+          "type": 6,
+          "typeName": "TORCH",
+          "aspect": 16,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x000c"
+        },
+        {
+          "index": 51,
+          "type": 30,
+          "typeName": "OPEN SCROLL",
+          "aspect": 12,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0021"
+        },
+        {
+          "index": 53,
+          "type": 48,
+          "typeName": "STONE CLUB",
+          "aspect": 11,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0028"
+        },
+        {
+          "index": 54,
+          "type": 11,
+          "typeName": "JEWEL SYMAL",
+          "aspect": 17,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0015"
+        },
+        {
+          "index": 55,
+          "type": 60,
+          "typeName": "TEOWAND",
+          "aspect": 25,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0018"
+        },
+        {
+          "index": 69,
+          "type": 30,
+          "typeName": "OPEN SCROLL",
+          "aspect": 19,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0056"
+        },
+        {
+          "index": 127,
+          "type": 74,
+          "typeName": "GHI",
+          "aspect": 24,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0049"
+        }
+      ],
+      "nearbyLayout": {
+        "expectedPrecedingArrays": {
+          "directionToStepBytes": [
+            10,
+            0,
+            22,
+            0,
+            16,
+            0,
+            16,
+            0,
+            19,
+            0,
+            32,
+            0,
+            20,
+            0,
+            32,
+            0
+          ],
+          "thingDataByteCount": [
+            48,
+            0,
+            96,
+            0,
+            56,
+            0,
+            32,
+            0,
+            42,
+            0,
+            92,
+            0,
+            52,
+            0,
+            16,
+            0
+          ],
+          "additionalThingCounts": [
+            46,
+            0,
+            88,
+            0,
+            55,
+            0,
+            20,
+            0,
+            40,
+            0,
+            24,
+            0,
+            54,
+            0,
+            20,
+            0
+          ]
+        },
+        "firstBytesAfterObjectInfo": [
+          83,
+          0,
+          64,
+          0,
+          93,
+          0,
+          64,
+          0,
+          101,
+          0,
+          64,
+          0,
+          101,
+          0,
+          64,
+          0,
+          101,
+          0,
+          64,
+          0,
+          101,
+          0,
+          64,
+          0
+        ],
+        "firstBytesAtExpectedArmourInfo": [
+          0,
+          0,
+          23,
+          30,
+          12,
+          0,
+          75,
+          6,
+          22,
+          0,
+          27,
+          5,
+          8,
+          0,
+          99,
+          5,
+          10,
+          0,
+          243,
+          4,
+          11,
+          0,
+          223,
+          4
+        ],
+        "firstBytesAtExpectedDoorInfo": [
+          120,
+          119,
+          232,
+          163,
+          117,
+          161,
+          127,
+          120
+        ]
+      }
+    },
+    {
+      "offset": 3258,
+      "offsetHex": "0xcba",
+      "endianness": "LE",
+      "score": 958.25,
+      "invalid": 11,
+      "knownMatches": 1,
+      "uniqueTypeCount": 44,
+      "nonZeroActions": 1,
+      "preview": [
+        {
+          "index": 0,
+          "type": 5,
+          "typeName": "TORCH",
+          "aspect": 52,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0009"
+        },
+        {
+          "index": 1,
+          "type": 140,
+          "typeName": "DEXHELM",
+          "aspect": 9,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0010"
+        },
+        {
+          "index": 2,
+          "type": 4,
+          "typeName": "TORCH",
+          "aspect": 170,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0004"
+        },
+        {
+          "index": 23,
+          "type": 78,
+          "typeName": "PLATE OF LYTE",
+          "aspect": 74,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x004e"
+        },
+        {
+          "index": 25,
+          "type": 44,
+          "typeName": "MACE",
+          "aspect": 49,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x002c"
+        },
+        {
+          "index": 31,
+          "type": 32,
+          "typeName": "DAGGER",
+          "aspect": 100,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x00a0"
+        },
+        {
+          "index": 50,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 51,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 53,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 54,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 55,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 69,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 127,
+          "type": 64,
+          "typeName": "THE CONDUIT",
+          "aspect": 61,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0060"
+        }
+      ],
+      "nearbyLayout": {
+        "expectedPrecedingArrays": {
+          "directionToStepBytes": [
+            12,
+            0,
+            57,
+            0,
+            24,
+            0,
+            139,
+            0,
+            24,
+            0,
+            24,
+            0,
+            10,
+            0,
+            170,
+            0
+          ],
+          "thingDataByteCount": [
+            9,
+            0,
+            72,
+            0,
+            12,
+            0,
+            92,
+            0,
+            12,
+            0,
+            52,
+            0,
+            24,
+            0,
+            144,
+            0
+          ],
+          "additionalThingCounts": [
+            24,
+            0,
+            18,
+            0,
+            12,
+            0,
+            174,
+            0,
+            12,
+            0,
+            70,
+            0,
+            5,
+            0,
+            90,
+            0
+          ]
+        },
+        "firstBytesAfterObjectInfo": [
+          40,
+          0,
+          24,
+          0,
+          54,
+          0,
+          20,
+          0,
+          30,
+          0,
+          60,
+          0,
+          54,
+          0,
+          22,
+          0,
+          8,
+          0,
+          88,
+          0,
+          4,
+          0,
+          24,
+          0
+        ],
+        "firstBytesAtExpectedArmourInfo": [
+          6,
+          0,
+          48,
+          0,
+          11,
+          0,
+          38,
+          0,
+          11,
+          0,
+          15,
+          0,
+          21,
+          0,
+          54,
+          0,
+          23,
+          0,
+          16,
+          0,
+          5,
+          0,
+          14,
+          0
+        ],
+        "firstBytesAtExpectedDoorInfo": [
+          0,
+          64,
+          0,
+          84,
+          0,
+          64,
+          0,
+          84
+        ]
+      }
+    },
+    {
+      "offset": 4436,
+      "offsetHex": "0x1154",
+      "endianness": "LE",
+      "score": 958,
+      "invalid": 14,
+      "knownMatches": 2,
+      "uniqueTypeCount": 63,
+      "nonZeroActions": 0,
+      "preview": [
+        {
+          "index": 0,
+          "type": 30,
+          "typeName": "OPEN SCROLL",
+          "aspect": 28,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0010"
+        },
+        {
+          "index": 1,
+          "type": 19,
+          "typeName": "STORMRING",
+          "aspect": 14,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x001a"
+        },
+        {
+          "index": 2,
+          "type": 16,
+          "typeName": "EYE OF TIME",
+          "aspect": 19,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x000e"
+        },
+        {
+          "index": 23,
+          "type": 11,
+          "typeName": "JEWEL SYMAL",
+          "aspect": 25,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0014"
+        },
+        {
+          "index": 25,
+          "type": 4,
+          "typeName": "TORCH",
+          "aspect": 8,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0002"
+        },
+        {
+          "index": 31,
+          "type": 11,
+          "typeName": "JEWEL SYMAL",
+          "aspect": 15,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0015"
+        },
+        {
+          "index": 50,
+          "type": 40,
+          "typeName": "VORPAL BLADE",
+          "aspect": 7,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x001a"
+        },
+        {
+          "index": 51,
+          "type": 5,
+          "typeName": "TORCH",
+          "aspect": 9,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0007"
+        },
+        {
+          "index": 53,
+          "type": 88,
+          "typeName": "LEATHER PANTS",
+          "aspect": 80,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x004a"
+        },
+        {
+          "index": 54,
+          "type": 30,
+          "typeName": "OPEN SCROLL",
+          "aspect": 19,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0056"
+        },
+        {
+          "index": 55,
+          "type": 68,
+          "typeName": "FINE ROBE",
+          "aspect": 96,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0058"
+        },
+        {
+          "index": 69,
+          "type": 15,
+          "typeName": "FLAMITT",
+          "aspect": 60,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x000f"
+        },
+        {
+          "index": 127,
+          "type": 14,
+          "typeName": "FLAMITT",
+          "aspect": 34,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0014"
+        }
+      ],
+      "nearbyLayout": {
+        "expectedPrecedingArrays": {
+          "directionToStepBytes": [
+            14,
+            0,
+            28,
+            0,
+            16,
+            0,
+            19,
+            0,
+            14,
+            0,
+            28,
+            0,
+            24,
+            0,
+            48,
+            0
+          ],
+          "thingDataByteCount": [
+            24,
+            0,
+            53,
+            0,
+            16,
+            0,
+            19,
+            0,
+            16,
+            0,
+            26,
+            0,
+            16,
+            0,
+            19,
+            0
+          ],
+          "additionalThingCounts": [
+            32,
+            0,
+            17,
+            0,
+            16,
+            0,
+            19,
+            0,
+            26,
+            0,
+            28,
+            0,
+            16,
+            0,
+            19,
+            0
+          ]
+        },
+        "firstBytesAfterObjectInfo": [
+          64,
+          0,
+          56,
+          0,
+          64,
+          0,
+          59,
+          0,
+          112,
+          0,
+          43,
+          0,
+          64,
+          0,
+          59,
+          0,
+          64,
+          0,
+          67,
+          0,
+          64,
+          0,
+          83,
+          0
+        ],
+        "firstBytesAtExpectedArmourInfo": [
+          78,
+          0,
+          66,
+          76,
+          70,
+          73,
+          71,
+          72,
+          113,
+          12,
+          0,
+          0,
+          193,
+          11,
+          0,
+          0,
+          64,
+          13,
+          0,
+          0,
+          193,
+          20,
+          0,
+          0
+        ],
+        "firstBytesAtExpectedDoorInfo": [
+          126,
+          10,
+          103,
+          90,
+          23,
+          247,
+          135,
+          126
+        ]
+      }
+    },
+    {
+      "offset": 3480,
+      "offsetHex": "0xd98",
+      "endianness": "LE",
+      "score": 956.25,
+      "invalid": 8,
+      "knownMatches": 1,
+      "uniqueTypeCount": 31,
+      "nonZeroActions": 1,
+      "preview": [
+        {
+          "index": 0,
+          "type": 30,
+          "typeName": "OPEN SCROLL",
+          "aspect": 60,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0008"
+        },
+        {
+          "index": 1,
+          "type": 5,
+          "typeName": "TORCH",
+          "aspect": 20,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x002b"
+        },
+        {
+          "index": 2,
+          "type": 20,
+          "typeName": "STAFF OF CLAWS",
+          "aspect": 39,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0010"
+        },
+        {
+          "index": 23,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 25,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 31,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 50,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 51,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 53,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 54,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 55,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 69,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 127,
+          "type": 19,
+          "typeName": "STORMRING",
+          "aspect": 32,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x001a"
+        }
+      ],
+      "nearbyLayout": {
+        "expectedPrecedingArrays": {
+          "directionToStepBytes": [
+            68,
+            0,
+            46,
+            0,
+            60,
+            0,
+            62,
+            0,
+            100,
+            0,
+            63,
+            0,
+            32,
+            0,
+            100,
+            0
+          ],
+          "thingDataByteCount": [
+            160,
+            0,
+            100,
+            0,
+            30,
+            0,
+            44,
+            0,
+            75,
+            0,
+            41,
+            0,
+            74,
+            0,
+            49,
+            0
+          ],
+          "additionalThingCounts": [
+            61,
+            0,
+            62,
+            0,
+            98,
+            0,
+            61,
+            0,
+            32,
+            0,
+            91,
+            0,
+            152,
+            0,
+            92,
+            0
+          ]
+        },
+        "firstBytesAfterObjectInfo": [
+          40,
+          0,
+          6,
+          0,
+          26,
+          0,
+          6,
+          0,
+          60,
+          0,
+          11,
+          0,
+          42,
+          0,
+          11,
+          0,
+          25,
+          0,
+          20,
+          0,
+          62,
+          0,
+          21,
+          0
+        ],
+        "firstBytesAtExpectedArmourInfo": [
+          32,
+          0,
+          43,
+          0,
+          34,
+          0,
+          44,
+          0,
+          48,
+          0,
+          47,
+          0,
+          45,
+          0,
+          15,
+          0,
+          60,
+          0,
+          15,
+          0,
+          16,
+          0,
+          12,
+          0
+        ],
+        "firstBytesAtExpectedDoorInfo": [
+          13,
+          0,
+          0,
+          193,
+          20,
+          0,
+          0,
+          176
+        ]
+      }
+    },
+    {
+      "offset": 3120,
+      "offsetHex": "0xc30",
+      "endianness": "LE",
+      "score": 956,
+      "invalid": 14,
+      "knownMatches": 2,
+      "uniqueTypeCount": 56,
+      "nonZeroActions": 4,
+      "preview": [
+        {
+          "index": 0,
+          "type": 46,
+          "typeName": "MORNINGSTAR",
+          "aspect": 9,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0060"
+        },
+        {
+          "index": 1,
+          "type": 15,
+          "typeName": "FLAMITT",
+          "aspect": 18,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0012"
+        },
+        {
+          "index": 2,
+          "type": 18,
+          "typeName": "STORMRING",
+          "aspect": 18,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0012"
+        },
+        {
+          "index": 23,
+          "type": 5,
+          "typeName": "TORCH",
+          "aspect": 52,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0009"
+        },
+        {
+          "index": 25,
+          "type": 4,
+          "typeName": "TORCH",
+          "aspect": 170,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0004"
+        },
+        {
+          "index": 31,
+          "type": 32,
+          "typeName": "DAGGER",
+          "aspect": 224,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0061"
+        },
+        {
+          "index": 50,
+          "type": 83,
+          "typeName": "ROBE",
+          "aspect": 49,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0046"
+        },
+        {
+          "index": 51,
+          "type": 49,
+          "typeName": "BOW",
+          "aspect": 63,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x002d"
+        },
+        {
+          "index": 53,
+          "type": 62,
+          "typeName": "STAFF OF MANAR",
+          "aspect": 100,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x003f"
+        },
+        {
+          "index": 54,
+          "type": 32,
+          "typeName": "DAGGER",
+          "aspect": 100,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x00a0"
+        },
+        {
+          "index": 55,
+          "type": 100,
+          "typeName": "ARMET",
+          "aspect": 30,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x002c"
+        },
+        {
+          "index": 69,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 127,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        }
+      ],
+      "nearbyLayout": {
+        "expectedPrecedingArrays": {
+          "directionToStepBytes": [
+            16,
+            0,
+            9,
+            0,
+            144,
+            0,
+            73,
+            0,
+            0,
+            0,
+            0,
+            0,
+            16,
+            0,
+            4,
+            0
+          ],
+          "thingDataByteCount": [
+            144,
+            0,
+            73,
+            0,
+            0,
+            0,
+            0,
+            0,
+            144,
+            0,
+            73,
+            0,
+            0,
+            1,
+            87,
+            0
+          ],
+          "additionalThingCounts": [
+            144,
+            0,
+            73,
+            0,
+            76,
+            0,
+            14,
+            0,
+            26,
+            0,
+            26,
+            0,
+            34,
+            0,
+            9,
+            0
+          ]
+        },
+        "firstBytesAfterObjectInfo": [
+          14,
+          0,
+          19,
+          0,
+          20,
+          0,
+          26,
+          0,
+          16,
+          0,
+          19,
+          0,
+          32,
+          0,
+          28,
+          0,
+          14,
+          0,
+          19,
+          0,
+          28,
+          0,
+          26,
+          0
+        ],
+        "firstBytesAtExpectedArmourInfo": [
+          30,
+          0,
+          28,
+          0,
+          16,
+          0,
+          111,
+          0,
+          96,
+          0,
+          111,
+          0,
+          16,
+          0,
+          111,
+          0,
+          96,
+          0,
+          111,
+          0,
+          16,
+          0,
+          111,
+          0
+        ],
+        "firstBytesAtExpectedDoorInfo": [
+          0,
+          82,
+          0,
+          64,
+          0,
+          82,
+          0,
+          64
+        ]
+      }
+    },
+    {
+      "offset": 3318,
+      "offsetHex": "0xcf6",
+      "endianness": "LE",
+      "score": 953.25,
+      "invalid": 9,
+      "knownMatches": 0,
+      "uniqueTypeCount": 43,
+      "nonZeroActions": 1,
+      "preview": [
+        {
+          "index": 0,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 1,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 2,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 23,
+          "type": 75,
+          "typeName": "MAIL AKETON",
+          "aspect": 41,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x004a"
+        },
+        {
+          "index": 25,
+          "type": 98,
+          "typeName": "BASINET",
+          "aspect": 61,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0020"
+        },
+        {
+          "index": 31,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 50,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 51,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 53,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 54,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 55,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 69,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 127,
+          "type": 14,
+          "typeName": "FLAMITT",
+          "aspect": 19,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x001c"
+        }
+      ],
+      "nearbyLayout": {
+        "expectedPrecedingArrays": {
+          "directionToStepBytes": [
+            4,
+            0,
+            170,
+            0,
+            4,
+            0,
+            36,
+            0,
+            49,
+            0,
+            83,
+            0,
+            49,
+            0,
+            8,
+            0
+          ],
+          "thingDataByteCount": [
+            52,
+            0,
+            78,
+            0,
+            74,
+            0,
+            60,
+            0,
+            111,
+            0,
+            33,
+            0,
+            136,
+            0,
+            32,
+            0
+          ],
+          "additionalThingCounts": [
+            32,
+            0,
+            32,
+            0,
+            32,
+            0,
+            224,
+            0,
+            97,
+            0,
+            224,
+            0,
+            39,
+            0,
+            0,
+            0
+          ]
+        },
+        "firstBytesAfterObjectInfo": [
+          28,
+          0,
+          24,
+          0,
+          48,
+          0,
+          24,
+          0,
+          53,
+          0,
+          16,
+          0,
+          19,
+          0,
+          16,
+          0,
+          26,
+          0,
+          16,
+          0,
+          19,
+          0,
+          32,
+          0
+        ],
+        "firstBytesAtExpectedArmourInfo": [
+          21,
+          0,
+          60,
+          0,
+          25,
+          0,
+          24,
+          0,
+          4,
+          0,
+          20,
+          0,
+          4,
+          0,
+          29,
+          0,
+          5,
+          0,
+          34,
+          0,
+          5,
+          0,
+          32,
+          0
+        ],
+        "firstBytesAtExpectedDoorInfo": [
+          0,
+          64,
+          0,
+          96,
+          0,
+          64,
+          0,
+          96
+        ]
+      }
+    },
+    {
+      "offset": 3324,
+      "offsetHex": "0xcfc",
+      "endianness": "LE",
+      "score": 953.25,
+      "invalid": 9,
+      "knownMatches": 0,
+      "uniqueTypeCount": 43,
+      "nonZeroActions": 1,
+      "preview": [
+        {
+          "index": 0,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 1,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 2,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0020"
+        },
+        {
+          "index": 23,
+          "type": 49,
+          "typeName": "BOW",
+          "aspect": 61,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x003e"
+        },
+        {
+          "index": 25,
+          "type": 91,
+          "typeName": "LEG MAIL",
+          "aspect": 152,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x005c"
+        },
+        {
+          "index": 31,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 50,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 51,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 53,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 54,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 55,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 69,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 127,
+          "type": 26,
+          "typeName": "FURY",
+          "aspect": 16,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0013"
+        }
+      ],
+      "nearbyLayout": {
+        "expectedPrecedingArrays": {
+          "directionToStepBytes": [
+            36,
+            0,
+            49,
+            0,
+            83,
+            0,
+            49,
+            0,
+            8,
+            0,
+            52,
+            0,
+            78,
+            0,
+            74,
+            0
+          ],
+          "thingDataByteCount": [
+            60,
+            0,
+            111,
+            0,
+            33,
+            0,
+            136,
+            0,
+            32,
+            0,
+            32,
+            0,
+            32,
+            0,
+            32,
+            0
+          ],
+          "additionalThingCounts": [
+            224,
+            0,
+            97,
+            0,
+            224,
+            0,
+            39,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "firstBytesAfterObjectInfo": [
+          24,
+          0,
+          53,
+          0,
+          16,
+          0,
+          19,
+          0,
+          16,
+          0,
+          26,
+          0,
+          16,
+          0,
+          19,
+          0,
+          32,
+          0,
+          17,
+          0,
+          16,
+          0,
+          19,
+          0
+        ],
+        "firstBytesAtExpectedArmourInfo": [
+          24,
+          0,
+          4,
+          0,
+          20,
+          0,
+          4,
+          0,
+          29,
+          0,
+          5,
+          0,
+          34,
+          0,
+          5,
+          0,
+          32,
+          0,
+          25,
+          0,
+          40,
+          0,
+          6,
+          0
+        ],
+        "firstBytesAtExpectedDoorInfo": [
+          0,
+          96,
+          0,
+          128,
+          0,
+          94,
+          0,
+          144
+        ]
+      }
+    },
+    {
+      "offset": 3330,
+      "offsetHex": "0xd02",
+      "endianness": "LE",
+      "score": 953.25,
+      "invalid": 9,
+      "knownMatches": 0,
+      "uniqueTypeCount": 43,
+      "nonZeroActions": 1,
+      "preview": [
+        {
+          "index": 0,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 1,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0020"
+        },
+        {
+          "index": 2,
+          "type": 123,
+          "typeName": "THE HELLION",
+          "aspect": 25,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x005e"
+        },
+        {
+          "index": 23,
+          "type": 98,
+          "typeName": "BASINET",
+          "aspect": 61,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0020"
+        },
+        {
+          "index": 25,
+          "type": 30,
+          "typeName": "OPEN SCROLL",
+          "aspect": 60,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0008"
+        },
+        {
+          "index": 31,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 50,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 51,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 53,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 54,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 55,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 69,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 127,
+          "type": 12,
+          "typeName": "ILLUMULET",
+          "aspect": 28,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0010"
+        }
+      ],
+      "nearbyLayout": {
+        "expectedPrecedingArrays": {
+          "directionToStepBytes": [
+            49,
+            0,
+            8,
+            0,
+            52,
+            0,
+            78,
+            0,
+            74,
+            0,
+            60,
+            0,
+            111,
+            0,
+            33,
+            0
+          ],
+          "thingDataByteCount": [
+            136,
+            0,
+            32,
+            0,
+            32,
+            0,
+            32,
+            0,
+            32,
+            0,
+            224,
+            0,
+            97,
+            0,
+            224,
+            0
+          ],
+          "additionalThingCounts": [
+            39,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "firstBytesAfterObjectInfo": [
+          19,
+          0,
+          16,
+          0,
+          26,
+          0,
+          16,
+          0,
+          19,
+          0,
+          32,
+          0,
+          17,
+          0,
+          16,
+          0,
+          19,
+          0,
+          26,
+          0,
+          28,
+          0,
+          16,
+          0
+        ],
+        "firstBytesAtExpectedArmourInfo": [
+          4,
+          0,
+          29,
+          0,
+          5,
+          0,
+          34,
+          0,
+          5,
+          0,
+          32,
+          0,
+          25,
+          0,
+          40,
+          0,
+          6,
+          0,
+          16,
+          0,
+          5,
+          0,
+          16,
+          0
+        ],
+        "firstBytesAtExpectedDoorInfo": [
+          0,
+          144,
+          0,
+          94,
+          0,
+          128,
+          0,
+          94
+        ]
+      }
+    },
+    {
+      "offset": 3342,
+      "offsetHex": "0xd0e",
+      "endianness": "LE",
+      "score": 953.25,
+      "invalid": 9,
+      "knownMatches": 0,
+      "uniqueTypeCount": 43,
+      "nonZeroActions": 1,
+      "preview": [
+        {
+          "index": 0,
+          "type": 123,
+          "typeName": "THE HELLION",
+          "aspect": 25,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x005e"
+        },
+        {
+          "index": 1,
+          "type": 18,
+          "typeName": "STORMRING",
+          "aspect": 65,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x000a"
+        },
+        {
+          "index": 2,
+          "type": 42,
+          "typeName": "AXE",
+          "aspect": 16,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x002b"
+        },
+        {
+          "index": 23,
+          "type": 30,
+          "typeName": "OPEN SCROLL",
+          "aspect": 60,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0008"
+        },
+        {
+          "index": 25,
+          "type": 20,
+          "typeName": "STAFF OF CLAWS",
+          "aspect": 39,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0010"
+        },
+        {
+          "index": 31,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 50,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 51,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 53,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 54,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 55,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 69,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 127,
+          "type": 16,
+          "typeName": "EYE OF TIME",
+          "aspect": 19,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x000e"
+        }
+      ],
+      "nearbyLayout": {
+        "expectedPrecedingArrays": {
+          "directionToStepBytes": [
+            111,
+            0,
+            33,
+            0,
+            136,
+            0,
+            32,
+            0,
+            32,
+            0,
+            32,
+            0,
+            32,
+            0,
+            224,
+            0
+          ],
+          "thingDataByteCount": [
+            97,
+            0,
+            224,
+            0,
+            39,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "additionalThingCounts": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            32,
+            0
+          ]
+        },
+        "firstBytesAfterObjectInfo": [
+          17,
+          0,
+          16,
+          0,
+          19,
+          0,
+          26,
+          0,
+          28,
+          0,
+          16,
+          0,
+          19,
+          0,
+          30,
+          0,
+          28,
+          0,
+          16,
+          0,
+          19,
+          0,
+          14,
+          0
+        ],
+        "firstBytesAtExpectedArmourInfo": [
+          25,
+          0,
+          40,
+          0,
+          6,
+          0,
+          16,
+          0,
+          5,
+          0,
+          16,
+          0,
+          5,
+          0,
+          32,
+          0,
+          6,
+          0,
+          32,
+          0,
+          6,
+          0,
+          16,
+          0
+        ],
+        "firstBytesAtExpectedDoorInfo": [
+          0,
+          64,
+          0,
+          93,
+          0,
+          64,
+          0,
+          93
+        ]
+      }
+    },
+    {
+      "offset": 3348,
+      "offsetHex": "0xd14",
+      "endianness": "LE",
+      "score": 953.25,
+      "invalid": 9,
+      "knownMatches": 0,
+      "uniqueTypeCount": 43,
+      "nonZeroActions": 1,
+      "preview": [
+        {
+          "index": 0,
+          "type": 18,
+          "typeName": "STORMRING",
+          "aspect": 65,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x000a"
+        },
+        {
+          "index": 1,
+          "type": 42,
+          "typeName": "AXE",
+          "aspect": 16,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x002b"
+        },
+        {
+          "index": 2,
+          "type": 102,
+          "typeName": "HELM OF DARC",
+          "aspect": 4,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0046"
+        },
+        {
+          "index": 23,
+          "type": 5,
+          "typeName": "TORCH",
+          "aspect": 20,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x002b"
+        },
+        {
+          "index": 25,
+          "type": 13,
+          "typeName": "ILLUMULET",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 31,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 50,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 51,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 53,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 54,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 55,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 69,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 127,
+          "type": 24,
+          "typeName": "BOLT BLADE",
+          "aspect": 14,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0013"
+        }
+      ],
+      "nearbyLayout": {
+        "expectedPrecedingArrays": {
+          "directionToStepBytes": [
+            32,
+            0,
+            32,
+            0,
+            32,
+            0,
+            32,
+            0,
+            224,
+            0,
+            97,
+            0,
+            224,
+            0,
+            39,
+            0
+          ],
+          "thingDataByteCount": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "additionalThingCounts": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            32,
+            0,
+            123,
+            0,
+            25,
+            0,
+            94,
+            0
+          ]
+        },
+        "firstBytesAfterObjectInfo": [
+          26,
+          0,
+          28,
+          0,
+          16,
+          0,
+          19,
+          0,
+          30,
+          0,
+          28,
+          0,
+          16,
+          0,
+          19,
+          0,
+          14,
+          0,
+          26,
+          0,
+          16,
+          0,
+          19,
+          0
+        ],
+        "firstBytesAtExpectedArmourInfo": [
+          16,
+          0,
+          5,
+          0,
+          16,
+          0,
+          5,
+          0,
+          32,
+          0,
+          6,
+          0,
+          32,
+          0,
+          6,
+          0,
+          16,
+          0,
+          12,
+          0,
+          10,
+          0,
+          6,
+          0
+        ],
+        "firstBytesAtExpectedDoorInfo": [
+          0,
+          93,
+          0,
+          114,
+          3,
+          9,
+          0,
+          128
+        ]
+      }
+    },
+    {
+      "offset": 3354,
+      "offsetHex": "0xd1a",
+      "endianness": "LE",
+      "score": 953.25,
+      "invalid": 9,
+      "knownMatches": 0,
+      "uniqueTypeCount": 42,
+      "nonZeroActions": 1,
+      "preview": [
+        {
+          "index": 0,
+          "type": 42,
+          "typeName": "AXE",
+          "aspect": 16,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x002b"
+        },
+        {
+          "index": 1,
+          "type": 102,
+          "typeName": "HELM OF DARC",
+          "aspect": 4,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0046"
+        },
+        {
+          "index": 2,
+          "type": 3,
+          "typeName": "COMPASS",
+          "aspect": 33,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0088"
+        },
+        {
+          "index": 23,
+          "type": 20,
+          "typeName": "STAFF OF CLAWS",
+          "aspect": 39,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0010"
+        },
+        {
+          "index": 25,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 31,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 50,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 51,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 53,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 54,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 55,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 69,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 127,
+          "type": 20,
+          "typeName": "STAFF OF CLAWS",
+          "aspect": 28,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0010"
+        }
+      ],
+      "nearbyLayout": {
+        "expectedPrecedingArrays": {
+          "directionToStepBytes": [
+            32,
+            0,
+            224,
+            0,
+            97,
+            0,
+            224,
+            0,
+            39,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "thingDataByteCount": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "additionalThingCounts": [
+            0,
+            0,
+            32,
+            0,
+            123,
+            0,
+            25,
+            0,
+            94,
+            0,
+            18,
+            0,
+            65,
+            0,
+            10,
+            0
+          ]
+        },
+        "firstBytesAfterObjectInfo": [
+          19,
+          0,
+          30,
+          0,
+          28,
+          0,
+          16,
+          0,
+          19,
+          0,
+          14,
+          0,
+          26,
+          0,
+          16,
+          0,
+          19,
+          0,
+          14,
+          0,
+          26,
+          0,
+          16,
+          0
+        ],
+        "firstBytesAtExpectedArmourInfo": [
+          5,
+          0,
+          32,
+          0,
+          6,
+          0,
+          32,
+          0,
+          6,
+          0,
+          16,
+          0,
+          12,
+          0,
+          10,
+          0,
+          6,
+          0,
+          18,
+          0,
+          4,
+          0,
+          24,
+          0
+        ],
+        "firstBytesAtExpectedDoorInfo": [
+          0,
+          128,
+          0,
+          11,
+          0,
+          219,
+          8,
+          3
+        ]
+      }
+    },
+    {
+      "offset": 3360,
+      "offsetHex": "0xd20",
+      "endianness": "LE",
+      "score": 953.25,
+      "invalid": 9,
+      "knownMatches": 0,
+      "uniqueTypeCount": 41,
+      "nonZeroActions": 1,
+      "preview": [
+        {
+          "index": 0,
+          "type": 102,
+          "typeName": "HELM OF DARC",
+          "aspect": 4,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0046"
+        },
+        {
+          "index": 1,
+          "type": 3,
+          "typeName": "COMPASS",
+          "aspect": 33,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0088"
+        },
+        {
+          "index": 2,
+          "type": 33,
+          "typeName": "FALCHION",
+          "aspect": 136,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x003c"
+        },
+        {
+          "index": 23,
+          "type": 13,
+          "typeName": "ILLUMULET",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 25,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 31,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 50,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 51,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 53,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 54,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 55,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 69,
+          "type": 0,
+          "typeName": "COMPASS",
+          "aspect": 0,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x0000"
+        },
+        {
+          "index": 127,
+          "type": 19,
+          "typeName": "STORMRING",
+          "aspect": 22,
+          "actionSetIndex": 0,
+          "allowedSlotsHex": "0x001c"
+        }
+      ],
+      "nearbyLayout": {
+        "expectedPrecedingArrays": {
+          "directionToStepBytes": [
+            224,
+            0,
+            39,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "thingDataByteCount": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            32,
+            0,
+            123,
+            0
+          ],
+          "additionalThingCounts": [
+            25,
+            0,
+            94,
+            0,
+            18,
+            0,
+            65,
+            0,
+            10,
+            0,
+            42,
+            0,
+            16,
+            0,
+            43,
+            0
+          ]
+        },
+        "firstBytesAfterObjectInfo": [
+          16,
+          0,
+          19,
+          0,
+          14,
+          0,
+          26,
+          0,
+          16,
+          0,
+          19,
+          0,
+          14,
+          0,
+          26,
+          0,
+          16,
+          0,
+          19,
+          0,
+          16,
+          0,
+          26,
+          0
+        ],
+        "firstBytesAtExpectedArmourInfo": [
+          32,
+          0,
+          6,
+          0,
+          16,
+          0,
+          12,
+          0,
+          10,
+          0,
+          6,
+          0,
+          18,
+          0,
+          4,
+          0,
+          24,
+          0,
+          4,
+          0,
+          40,
+          0,
+          7,
+          0
+        ],
+        "firstBytesAtExpectedDoorInfo": [
+          8,
+          3,
+          0,
+          124,
+          5,
+          9,
+          0,
+          130
+        ]
+      }
+    }
+  ],
+  "notes": [
+    "GRAPHICS.DAT (PC DOS) does not match the simple Atari ST header interpretation used by ReDMCSB.",
+    "Object names are still clearly present as an ASCII block in the PC DOS file.",
+    "ObjectInfo candidates are heuristic and need confirmation before being promoted into parse_full.js exports."
+  ]
+}

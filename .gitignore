@@ -24,7 +24,10 @@ dist-ssr
 *.sw?
 
 # Raw source assets (large, kept locally)
-assets/
+assets/*
+!assets/OriginalDataExtraction/
+!assets/OriginalDataExtraction/**
+assets/Old/
 creatures/
 import/
 

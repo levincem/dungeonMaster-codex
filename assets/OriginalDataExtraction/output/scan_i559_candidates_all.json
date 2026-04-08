@@ -1,0 +1,1394 @@
+﻿{
+  "decodedLength": 3032,
+  "results": [
+    {
+      "filePath": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0696.RAW1 [Unknown - Unknown Content (Words of data)].dat",
+      "fileSize": 9160,
+      "candidateCount": 6022,
+      "topCandidates": [
+        {
+          "start": 3122,
+          "endian": "le",
+          "score": 612.5,
+          "saneCreatureFlags": 27,
+          "saneAttackTypes": 15,
+          "saneAttackSounds": 27,
+          "saneObjectTypes": 179,
+          "exactObjectTypeMatches": 9,
+          "saneAllowedSlots": 177,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 8,
+          "nonZeroFoodValues": 8,
+          "distinctFoodValues": 6,
+          "nonZeroMiscWeights": 23,
+          "deltaY": [
+            16,
+            4,
+            134,
+            0
+          ],
+          "deltaX": [
+            31,
+            4,
+            134,
+            0
+          ],
+          "firstFoodValues": [
+            4,
+            296,
+            60,
+            7,
+            4,
+            112,
+            48,
+            7
+          ]
+        },
+        {
+          "start": 3146,
+          "endian": "le",
+          "score": 606.5,
+          "saneCreatureFlags": 26,
+          "saneAttackTypes": 15,
+          "saneAttackSounds": 27,
+          "saneObjectTypes": 179,
+          "exactObjectTypeMatches": 9,
+          "saneAllowedSlots": 177,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 8,
+          "nonZeroFoodValues": 7,
+          "distinctFoodValues": 6,
+          "nonZeroMiscWeights": 21,
+          "deltaY": [
+            0,
+            2,
+            134,
+            16
+          ],
+          "deltaX": [
+            0,
+            2,
+            134,
+            24
+          ],
+          "firstFoodValues": [
+            4,
+            112,
+            73,
+            7,
+            4,
+            112,
+            85,
+            0
+          ]
+        },
+        {
+          "start": 3128,
+          "endian": "le",
+          "score": 604,
+          "saneCreatureFlags": 27,
+          "saneAttackTypes": 13,
+          "saneAttackSounds": 25,
+          "saneObjectTypes": 179,
+          "exactObjectTypeMatches": 9,
+          "saneAllowedSlots": 177,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 8,
+          "nonZeroFoodValues": 8,
+          "distinctFoodValues": 5,
+          "nonZeroMiscWeights": 22,
+          "deltaY": [
+            0,
+            31,
+            4,
+            134
+          ],
+          "deltaX": [
+            0,
+            46,
+            2,
+            134
+          ],
+          "firstFoodValues": [
+            7,
+            4,
+            112,
+            48,
+            7,
+            4,
+            112,
+            59
+          ]
+        },
+        {
+          "start": 5970,
+          "endian": "le",
+          "score": 604,
+          "saneCreatureFlags": 25,
+          "saneAttackTypes": 15,
+          "saneAttackSounds": 27,
+          "saneObjectTypes": 180,
+          "exactObjectTypeMatches": 7,
+          "saneAllowedSlots": 180,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 8,
+          "nonZeroFoodValues": 8,
+          "distinctFoodValues": 5,
+          "nonZeroMiscWeights": 26,
+          "deltaY": [
+            23,
+            1,
+            65,
+            1
+          ],
+          "deltaX": [
+            23,
+            9,
+            2,
+            39
+          ],
+          "firstFoodValues": [
+            4,
+            3,
+            7,
+            4,
+            4,
+            104,
+            132,
+            3
+          ]
+        },
+        {
+          "start": 3116,
+          "endian": "le",
+          "score": 603.5,
+          "saneCreatureFlags": 25,
+          "saneAttackTypes": 14,
+          "saneAttackSounds": 27,
+          "saneObjectTypes": 179,
+          "exactObjectTypeMatches": 9,
+          "saneAllowedSlots": 177,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 8,
+          "nonZeroFoodValues": 7,
+          "distinctFoodValues": 6,
+          "nonZeroMiscWeights": 23,
+          "deltaY": [
+            4,
+            134,
+            0,
+            16
+          ],
+          "deltaX": [
+            4,
+            134,
+            0,
+            31
+          ],
+          "firstFoodValues": [
+            256,
+            60,
+            0,
+            4,
+            296,
+            60,
+            7,
+            4
+          ]
+        },
+        {
+          "start": 3134,
+          "endian": "le",
+          "score": 603.5,
+          "saneCreatureFlags": 25,
+          "saneAttackTypes": 14,
+          "saneAttackSounds": 27,
+          "saneObjectTypes": 179,
+          "exactObjectTypeMatches": 9,
+          "saneAllowedSlots": 177,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 8,
+          "nonZeroFoodValues": 8,
+          "distinctFoodValues": 5,
+          "nonZeroMiscWeights": 21,
+          "deltaY": [
+            134,
+            0,
+            46,
+            2
+          ],
+          "deltaX": [
+            134,
+            8,
+            0,
+            2
+          ],
+          "firstFoodValues": [
+            48,
+            7,
+            4,
+            112,
+            59,
+            7,
+            4,
+            112
+          ]
+        },
+        {
+          "start": 3290,
+          "endian": "le",
+          "score": 603.5,
+          "saneCreatureFlags": 27,
+          "saneAttackTypes": 14,
+          "saneAttackSounds": 27,
+          "saneObjectTypes": 179,
+          "exactObjectTypeMatches": 9,
+          "saneAllowedSlots": 177,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 8,
+          "nonZeroFoodValues": 6,
+          "distinctFoodValues": 6,
+          "nonZeroMiscWeights": 21,
+          "deltaY": [
+            31,
+            4,
+            136,
+            0
+          ],
+          "deltaX": [
+            46,
+            2,
+            136,
+            8
+          ],
+          "firstFoodValues": [
+            4,
+            202,
+            50,
+            0,
+            4,
+            84,
+            49,
+            0
+          ]
+        },
+        {
+          "start": 3130,
+          "endian": "le",
+          "score": 603,
+          "saneCreatureFlags": 26,
+          "saneAttackTypes": 16,
+          "saneAttackSounds": 27,
+          "saneObjectTypes": 178,
+          "exactObjectTypeMatches": 7,
+          "saneAllowedSlots": 179,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 8,
+          "nonZeroFoodValues": 8,
+          "distinctFoodValues": 5,
+          "nonZeroMiscWeights": 22,
+          "deltaY": [
+            31,
+            4,
+            134,
+            0
+          ],
+          "deltaX": [
+            46,
+            2,
+            134,
+            8
+          ],
+          "firstFoodValues": [
+            4,
+            112,
+            48,
+            7,
+            4,
+            112,
+            59,
+            7
+          ]
+        },
+        {
+          "start": 3140,
+          "endian": "le",
+          "score": 601,
+          "saneCreatureFlags": 23,
+          "saneAttackTypes": 15,
+          "saneAttackSounds": 27,
+          "saneObjectTypes": 179,
+          "exactObjectTypeMatches": 9,
+          "saneAllowedSlots": 177,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 8,
+          "nonZeroFoodValues": 8,
+          "distinctFoodValues": 5,
+          "nonZeroMiscWeights": 20,
+          "deltaY": [
+            2,
+            134,
+            8,
+            0
+          ],
+          "deltaX": [
+            2,
+            134,
+            16,
+            0
+          ],
+          "firstFoodValues": [
+            112,
+            59,
+            7,
+            4,
+            112,
+            73,
+            7,
+            4
+          ]
+        },
+        {
+          "start": 3284,
+          "endian": "le",
+          "score": 601,
+          "saneCreatureFlags": 26,
+          "saneAttackTypes": 14,
+          "saneAttackSounds": 27,
+          "saneObjectTypes": 179,
+          "exactObjectTypeMatches": 9,
+          "saneAllowedSlots": 177,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 8,
+          "nonZeroFoodValues": 6,
+          "distinctFoodValues": 6,
+          "nonZeroMiscWeights": 20,
+          "deltaY": [
+            4,
+            136,
+            0,
+            31
+          ],
+          "deltaX": [
+            4,
+            136,
+            0,
+            46
+          ],
+          "firstFoodValues": [
+            22,
+            48,
+            0,
+            4,
+            202,
+            50,
+            0,
+            4
+          ]
+        },
+        {
+          "start": 5934,
+          "endian": "le",
+          "score": 600.5,
+          "saneCreatureFlags": 25,
+          "saneAttackTypes": 14,
+          "saneAttackSounds": 27,
+          "saneObjectTypes": 180,
+          "exactObjectTypeMatches": 6,
+          "saneAllowedSlots": 180,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 8,
+          "nonZeroFoodValues": 8,
+          "distinctFoodValues": 6,
+          "nonZeroMiscWeights": 27,
+          "deltaY": [
+            65,
+            1,
+            1,
+            1
+          ],
+          "deltaX": [
+            67,
+            58,
+            1,
+            1
+          ],
+          "firstFoodValues": [
+            124,
+            4,
+            4,
+            5,
+            132,
+            3,
+            4,
+            95
+          ]
+        },
+        {
+          "start": 3136,
+          "endian": "le",
+          "score": 599.5,
+          "saneCreatureFlags": 27,
+          "saneAttackTypes": 13,
+          "saneAttackSounds": 24,
+          "saneObjectTypes": 178,
+          "exactObjectTypeMatches": 8,
+          "saneAllowedSlots": 179,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 8,
+          "nonZeroFoodValues": 8,
+          "distinctFoodValues": 5,
+          "nonZeroMiscWeights": 21,
+          "deltaY": [
+            0,
+            46,
+            2,
+            134
+          ],
+          "deltaX": [
+            8,
+            0,
+            2,
+            134
+          ],
+          "firstFoodValues": [
+            7,
+            4,
+            112,
+            59,
+            7,
+            4,
+            112,
+            73
+          ]
+        }
+      ]
+    },
+    {
+      "filePath": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\DM_decompressed.bin",
+      "fileSize": 17904,
+      "candidateCount": 14766,
+      "topCandidates": [
+        {
+          "start": 14726,
+          "endian": "le",
+          "score": 504,
+          "saneCreatureFlags": 11,
+          "saneAttackTypes": 15,
+          "saneAttackSounds": 16,
+          "saneObjectTypes": 145,
+          "exactObjectTypeMatches": 0,
+          "saneAllowedSlots": 160,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 0,
+          "nonZeroFoodValues": 8,
+          "distinctFoodValues": 8,
+          "nonZeroMiscWeights": 50,
+          "deltaY": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "deltaX": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            8300,
+            28490,
+            29561,
+            26996,
+            27491,
+            17664,
+            26478,
+            26988
+          ]
+        },
+        {
+          "start": 14756,
+          "endian": "le",
+          "score": 503.5,
+          "saneCreatureFlags": 11,
+          "saneAttackTypes": 13,
+          "saneAttackSounds": 17,
+          "saneObjectTypes": 145,
+          "exactObjectTypeMatches": 0,
+          "saneAllowedSlots": 160,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 1,
+          "nonZeroFoodValues": 8,
+          "distinctFoodValues": 8,
+          "nonZeroMiscWeights": 51,
+          "deltaY": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "deltaX": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            26723,
+            2560,
+            13,
+            3338,
+            27728,
+            24933,
+            25971,
+            29472
+          ]
+        },
+        {
+          "start": 14740,
+          "endian": "le",
+          "score": 502,
+          "saneCreatureFlags": 12,
+          "saneAttackTypes": 14,
+          "saneAttackSounds": 16,
+          "saneObjectTypes": 144,
+          "exactObjectTypeMatches": 0,
+          "saneAllowedSlots": 157,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 1,
+          "nonZeroFoodValues": 8,
+          "distinctFoodValues": 8,
+          "nonZeroMiscWeights": 50,
+          "deltaY": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "deltaX": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            26988,
+            26739,
+            18176,
+            29285,
+            24941,
+            110,
+            29254,
+            28261
+          ]
+        },
+        {
+          "start": 14754,
+          "endian": "le",
+          "score": 501.5,
+          "saneCreatureFlags": 11,
+          "saneAttackTypes": 15,
+          "saneAttackSounds": 15,
+          "saneObjectTypes": 147,
+          "exactObjectTypeMatches": 0,
+          "saneAllowedSlots": 154,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 1,
+          "nonZeroFoodValues": 8,
+          "distinctFoodValues": 8,
+          "nonZeroMiscWeights": 51,
+          "deltaY": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "deltaX": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            28261,
+            26723,
+            2560,
+            13,
+            3338,
+            27728,
+            24933,
+            25971
+          ]
+        },
+        {
+          "start": 14712,
+          "endian": "le",
+          "score": 500.5,
+          "saneCreatureFlags": 12,
+          "saneAttackTypes": 14,
+          "saneAttackSounds": 17,
+          "saneObjectTypes": 147,
+          "exactObjectTypeMatches": 0,
+          "saneAllowedSlots": 154,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 0,
+          "nonZeroFoodValues": 8,
+          "distinctFoodValues": 8,
+          "nonZeroMiscWeights": 49,
+          "deltaY": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "deltaX": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            26996,
+            28271,
+            28448,
+            8294,
+            26948,
+            26983,
+            24948,
+            8300
+          ]
+        },
+        {
+          "start": 14684,
+          "endian": "le",
+          "score": 499.5,
+          "saneCreatureFlags": 12,
+          "saneAttackTypes": 15,
+          "saneAttackSounds": 18,
+          "saneObjectTypes": 140,
+          "exactObjectTypeMatches": 0,
+          "saneAllowedSlots": 156,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 0,
+          "nonZeroFoodValues": 8,
+          "distinctFoodValues": 8,
+          "nonZeroMiscWeights": 51,
+          "deltaY": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "deltaX": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            24948,
+            8300,
+            28490,
+            29561,
+            26996,
+            27491,
+            19200,
+            31077
+          ]
+        },
+        {
+          "start": 14700,
+          "endian": "le",
+          "score": 499.5,
+          "saneCreatureFlags": 12,
+          "saneAttackTypes": 14,
+          "saneAttackSounds": 19,
+          "saneObjectTypes": 145,
+          "exactObjectTypeMatches": 0,
+          "saneAllowedSlots": 153,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 0,
+          "nonZeroFoodValues": 8,
+          "distinctFoodValues": 8,
+          "nonZeroMiscWeights": 49,
+          "deltaY": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "deltaX": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            28514,
+            29281,
+            8292,
+            26963,
+            30061,
+            24940,
+            26996,
+            28271
+          ]
+        },
+        {
+          "start": 14732,
+          "endian": "le",
+          "score": 498.5,
+          "saneCreatureFlags": 10,
+          "saneAttackTypes": 13,
+          "saneAttackSounds": 17,
+          "saneObjectTypes": 145,
+          "exactObjectTypeMatches": 0,
+          "saneAllowedSlots": 160,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 0,
+          "nonZeroFoodValues": 8,
+          "distinctFoodValues": 8,
+          "nonZeroMiscWeights": 49,
+          "deltaY": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "deltaX": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            26996,
+            27491,
+            17664,
+            26478,
+            26988,
+            26739,
+            18176,
+            29285
+          ]
+        },
+        {
+          "start": 14760,
+          "endian": "le",
+          "score": 498.5,
+          "saneCreatureFlags": 10,
+          "saneAttackTypes": 14,
+          "saneAttackSounds": 16,
+          "saneObjectTypes": 147,
+          "exactObjectTypeMatches": 0,
+          "saneAllowedSlots": 154,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 1,
+          "nonZeroFoodValues": 8,
+          "distinctFoodValues": 8,
+          "nonZeroMiscWeights": 51,
+          "deltaY": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "deltaX": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            13,
+            3338,
+            27728,
+            24933,
+            25971,
+            29472,
+            27749,
+            25445
+          ]
+        },
+        {
+          "start": 14728,
+          "endian": "le",
+          "score": 498,
+          "saneCreatureFlags": 11,
+          "saneAttackTypes": 13,
+          "saneAttackSounds": 18,
+          "saneObjectTypes": 144,
+          "exactObjectTypeMatches": 0,
+          "saneAllowedSlots": 157,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 0,
+          "nonZeroFoodValues": 8,
+          "distinctFoodValues": 8,
+          "nonZeroMiscWeights": 50,
+          "deltaY": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "deltaX": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            28490,
+            29561,
+            26996,
+            27491,
+            17664,
+            26478,
+            26988,
+            26739
+          ]
+        },
+        {
+          "start": 14672,
+          "endian": "le",
+          "score": 497,
+          "saneCreatureFlags": 12,
+          "saneAttackTypes": 14,
+          "saneAttackSounds": 19,
+          "saneObjectTypes": 138,
+          "exactObjectTypeMatches": 0,
+          "saneAllowedSlots": 154,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 1,
+          "nonZeroFoodValues": 8,
+          "distinctFoodValues": 8,
+          "nonZeroMiscWeights": 52,
+          "deltaY": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "deltaX": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            31087,
+            29811,
+            25449,
+            107,
+            26948,
+            26983,
+            24948,
+            8300
+          ]
+        },
+        {
+          "start": 14708,
+          "endian": "le",
+          "score": 496.5,
+          "saneCreatureFlags": 11,
+          "saneAttackTypes": 12,
+          "saneAttackSounds": 16,
+          "saneObjectTypes": 144,
+          "exactObjectTypeMatches": 0,
+          "saneAllowedSlots": 160,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 0,
+          "nonZeroFoodValues": 8,
+          "distinctFoodValues": 8,
+          "nonZeroMiscWeights": 49,
+          "deltaY": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "deltaX": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            30061,
+            24940,
+            26996,
+            28271,
+            28448,
+            8294,
+            26948,
+            26983
+          ]
+        }
+      ]
+    },
+    {
+      "filePath": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\FIRES_decompressed.bin",
+      "fileSize": 167584,
+      "candidateCount": 164446,
+      "topCandidates": [
+        {
+          "start": 156916,
+          "endian": "le",
+          "score": 632.5,
+          "saneCreatureFlags": 8,
+          "saneAttackTypes": 17,
+          "saneAttackSounds": 25,
+          "saneObjectTypes": 180,
+          "exactObjectTypeMatches": 4,
+          "saneAllowedSlots": 180,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 6,
+          "nonZeroFoodValues": 6,
+          "distinctFoodValues": 6,
+          "nonZeroMiscWeights": 27,
+          "deltaY": [
+            0,
+            2,
+            0,
+            0
+          ],
+          "deltaX": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            680,
+            28672,
+            82,
+            1539,
+            0,
+            0,
+            681,
+            28672
+          ]
+        },
+        {
+          "start": 156640,
+          "endian": "le",
+          "score": 628.5,
+          "saneCreatureFlags": 16,
+          "saneAttackTypes": 16,
+          "saneAttackSounds": 26,
+          "saneObjectTypes": 170,
+          "exactObjectTypeMatches": 1,
+          "saneAllowedSlots": 167,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 8,
+          "nonZeroFoodValues": 7,
+          "distinctFoodValues": 8,
+          "nonZeroMiscWeights": 37,
+          "deltaY": [
+            0,
+            1,
+            0,
+            0
+          ],
+          "deltaX": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            0,
+            5,
+            12,
+            24,
+            33,
+            40,
+            46,
+            51
+          ]
+        },
+        {
+          "start": 157660,
+          "endian": "le",
+          "score": 628,
+          "saneCreatureFlags": 13,
+          "saneAttackTypes": 21,
+          "saneAttackSounds": 25,
+          "saneObjectTypes": 180,
+          "exactObjectTypeMatches": 0,
+          "saneAllowedSlots": 180,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 7,
+          "nonZeroFoodValues": 5,
+          "distinctFoodValues": 5,
+          "nonZeroMiscWeights": 20,
+          "deltaY": [
+            0,
+            1,
+            0,
+            0
+          ],
+          "deltaX": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            0,
+            2,
+            127,
+            65535,
+            115,
+            0,
+            0,
+            2
+          ]
+        },
+        {
+          "start": 156796,
+          "endian": "le",
+          "score": 624,
+          "saneCreatureFlags": 10,
+          "saneAttackTypes": 15,
+          "saneAttackSounds": 25,
+          "saneObjectTypes": 180,
+          "exactObjectTypeMatches": 2,
+          "saneAllowedSlots": 180,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 6,
+          "nonZeroFoodValues": 6,
+          "distinctFoodValues": 6,
+          "nonZeroMiscWeights": 26,
+          "deltaY": [
+            0,
+            2,
+            0,
+            0
+          ],
+          "deltaX": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            671,
+            28672,
+            11,
+            1539,
+            0,
+            0,
+            672,
+            28672
+          ]
+        },
+        {
+          "start": 157072,
+          "endian": "le",
+          "score": 622.5,
+          "saneCreatureFlags": 7,
+          "saneAttackTypes": 21,
+          "saneAttackSounds": 25,
+          "saneObjectTypes": 180,
+          "exactObjectTypeMatches": 0,
+          "saneAllowedSlots": 180,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 6,
+          "nonZeroFoodValues": 6,
+          "distinctFoodValues": 7,
+          "nonZeroMiscWeights": 23,
+          "deltaY": [
+            0,
+            2,
+            0,
+            0
+          ],
+          "deltaX": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            688,
+            28672,
+            60,
+            1283,
+            0,
+            0,
+            708,
+            35328
+          ]
+        },
+        {
+          "start": 157180,
+          "endian": "le",
+          "score": 622,
+          "saneCreatureFlags": 6,
+          "saneAttackTypes": 22,
+          "saneAttackSounds": 23,
+          "saneObjectTypes": 180,
+          "exactObjectTypeMatches": 0,
+          "saneAllowedSlots": 180,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 6,
+          "nonZeroFoodValues": 6,
+          "distinctFoodValues": 6,
+          "nonZeroMiscWeights": 30,
+          "deltaY": [
+            0,
+            2,
+            0,
+            0
+          ],
+          "deltaX": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            706,
+            35328,
+            28,
+            1024,
+            0,
+            0,
+            711,
+            35328
+          ]
+        },
+        {
+          "start": 157228,
+          "endian": "le",
+          "score": 619.5,
+          "saneCreatureFlags": 7,
+          "saneAttackTypes": 21,
+          "saneAttackSounds": 25,
+          "saneObjectTypes": 180,
+          "exactObjectTypeMatches": 0,
+          "saneAllowedSlots": 180,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 3,
+          "nonZeroFoodValues": 6,
+          "distinctFoodValues": 7,
+          "nonZeroMiscWeights": 29,
+          "deltaY": [
+            0,
+            2,
+            0,
+            0
+          ],
+          "deltaX": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            6077,
+            9536,
+            0,
+            0,
+            19780,
+            17408,
+            77,
+            65535
+          ]
+        },
+        {
+          "start": 158050,
+          "endian": "le",
+          "score": 618.5,
+          "saneCreatureFlags": 20,
+          "saneAttackTypes": 13,
+          "saneAttackSounds": 22,
+          "saneObjectTypes": 168,
+          "exactObjectTypeMatches": 1,
+          "saneAllowedSlots": 178,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 6,
+          "nonZeroFoodValues": 6,
+          "distinctFoodValues": 6,
+          "nonZeroMiscWeights": 25,
+          "deltaY": [
+            0,
+            0,
+            2,
+            0
+          ],
+          "deltaX": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            65534,
+            517,
+            0,
+            0,
+            2,
+            39,
+            65534,
+            518
+          ]
+        },
+        {
+          "start": 156676,
+          "endian": "le",
+          "score": 618,
+          "saneCreatureFlags": 14,
+          "saneAttackTypes": 10,
+          "saneAttackSounds": 24,
+          "saneObjectTypes": 174,
+          "exactObjectTypeMatches": 1,
+          "saneAllowedSlots": 171,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 6,
+          "nonZeroFoodValues": 7,
+          "distinctFoodValues": 8,
+          "nonZeroMiscWeights": 44,
+          "deltaY": [
+            0,
+            1,
+            0,
+            0
+          ],
+          "deltaX": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            50,
+            25,
+            1,
+            0,
+            2823,
+            3592,
+            1285,
+            1540
+          ]
+        },
+        {
+          "start": 156670,
+          "endian": "le",
+          "score": 617.5,
+          "saneCreatureFlags": 15,
+          "saneAttackTypes": 6,
+          "saneAttackSounds": 26,
+          "saneObjectTypes": 174,
+          "exactObjectTypeMatches": 1,
+          "saneAllowedSlots": 171,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 7,
+          "nonZeroFoodValues": 7,
+          "distinctFoodValues": 8,
+          "nonZeroMiscWeights": 47,
+          "deltaY": [
+            -1,
+            2,
+            0,
+            0
+          ],
+          "deltaX": [
+            1,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            100,
+            99,
+            75,
+            50,
+            25,
+            1,
+            0,
+            2823
+          ]
+        },
+        {
+          "start": 156736,
+          "endian": "le",
+          "score": 615.5,
+          "saneCreatureFlags": 11,
+          "saneAttackTypes": 12,
+          "saneAttackSounds": 25,
+          "saneObjectTypes": 177,
+          "exactObjectTypeMatches": 1,
+          "saneAllowedSlots": 177,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 3,
+          "nonZeroFoodValues": 8,
+          "distinctFoodValues": 8,
+          "nonZeroMiscWeights": 29,
+          "deltaY": [
+            0,
+            2,
+            0,
+            0
+          ],
+          "deltaX": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            1792,
+            3072,
+            1536,
+            2816,
+            768,
+            3328,
+            3584,
+            3840
+          ]
+        },
+        {
+          "start": 158014,
+          "endian": "le",
+          "score": 608.5,
+          "saneCreatureFlags": 18,
+          "saneAttackTypes": 11,
+          "saneAttackSounds": 18,
+          "saneObjectTypes": 169,
+          "exactObjectTypeMatches": 1,
+          "saneAllowedSlots": 179,
+          "saneWeaponClasses": 46,
+          "saneFoodValues": 6,
+          "nonZeroFoodValues": 6,
+          "distinctFoodValues": 6,
+          "nonZeroMiscWeights": 25,
+          "deltaY": [
+            0,
+            0,
+            2,
+            0
+          ],
+          "deltaX": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "firstFoodValues": [
+            65534,
+            514,
+            0,
+            0,
+            2,
+            36,
+            65534,
+            515
+          ]
+        }
+      ]
+    }
+  ]
+}

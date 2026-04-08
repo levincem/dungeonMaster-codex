@@ -1,0 +1,41 @@
+# Default: keep the local archive available, but do not commit the heavy raw corpus.
+*
+
+# Keep the local archive guide and the extraction scripts.
+!.gitignore
+!README.md
+!*.js
+!*.cjs
+
+# Keep local notes and generated proof outputs.
+!docs/
+!docs/**
+!output/
+!output/**
+!generated/
+!generated/**
+
+# Keep small reference sources that are directly useful to understand or reproduce the tooling.
+!DM1GDED/
+DM1GDED/*
+!DM1GDED/spec/
+!DM1GDED/spec/**
+!DM1GDED/README.txt
+
+!DMExtract v1.01 Source/
+!DMExtract v1.01 Source/**
+
+!DMExtract v1.01/
+DMExtract v1.01/*
+!DMExtract v1.01/MAPS/
+!DMExtract v1.01/MAPS/**
+!DMExtract v1.01/readme.txt
+
+# Keep large raw game files, extracted corpora, and third-party mirrors only locally.
+EUDATA/
+OriginalAtariGame/
+original-pc-runtime/
+ReDMCSB/
+sck/
+skProject/
+sourceCode/

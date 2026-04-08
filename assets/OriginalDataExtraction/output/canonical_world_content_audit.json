@@ -1,0 +1,35 @@
+{
+  "generatedAt": "2026-04-07T17:34:31.409Z",
+  "sources": {
+    "dungeon": "public/dungeon.json",
+    "canonical": "public/original_level_content.json",
+    "overlays": "public/original_wall_overlay_positions.json"
+  },
+  "caveats": [
+    "Inscriptions are audited against reconstructed fixed wall text placements, allowing a one-tile wall-facing offset.",
+    "Locks are audited against nearby fixed wall overlay placements, allowing a one-tile wall-facing offset; some special receptacles are matched by overlay family rather than exact required item semantics.",
+    "Creature generators are decoded from Sensor type 6 using the original sensor Type_Data payload and generator count bits.",
+    "Creature inventory drops are not required for a creature position match in this audit."
+  ],
+  "inscriptions": {
+    "total": 61,
+    "exactCount": 61,
+    "mismatchCount": 0,
+    "mismatches": []
+  },
+  "locks": {
+    "total": 65,
+    "exactCount": 65,
+    "mismatchCount": 0,
+    "mismatches": []
+  },
+  "creatures": {
+    "total": 225,
+    "exactCount": 225,
+    "mismatchCount": 0,
+    "generatorTotal": 50,
+    "generatorPositionCount": 50,
+    "generatorTypeConfidentCount": 50,
+    "mismatches": []
+  }
+}

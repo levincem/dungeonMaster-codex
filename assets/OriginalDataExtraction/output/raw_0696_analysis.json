@@ -1,0 +1,6224 @@
+{
+  "source": "D:\\DungeonMaster-codex\\assets\\DMDisquette\\EUDATA\\out_GRAPHICS.DAT\\0696.RAW1 [Unknown - Unknown Content (Words of data)].dat",
+  "wordCount": 4580,
+  "probableHeader": {
+    "firstWords": [
+      64525,
+      23,
+      1,
+      17
+    ],
+    "sectionPairs": [
+      {
+        "headerWordIndex": 4,
+        "a": {
+          "start": 400,
+          "end": 436,
+          "lengthWords": 37,
+          "approximateTupleCount": 9,
+          "topOpcodes": [
+            {
+              "opcode": 12,
+              "count": 3
+            },
+            {
+              "opcode": 1,
+              "count": 3
+            },
+            {
+              "opcode": 11,
+              "count": 2
+            },
+            {
+              "opcode": 2,
+              "count": 1
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 4,
+              "count": 8,
+              "description": "Interface - Main Menu Screen (English)"
+            },
+            {
+              "id": 3,
+              "count": 1,
+              "description": "Interface - Main Menu Right Door"
+            }
+          ],
+          "samples": [
+            {
+              "wordIndex": 400,
+              "opcode": 12,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 9
+            },
+            {
+              "wordIndex": 404,
+              "opcode": 1,
+              "target": 3,
+              "description": "Interface - Main Menu Right Door",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 408,
+              "opcode": 11,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 412,
+              "opcode": 12,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 416,
+              "opcode": 11,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 16,
+              "y": 27
+            },
+            {
+              "wordIndex": 420,
+              "opcode": 1,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 73,
+              "y": 27
+            },
+            {
+              "wordIndex": 424,
+              "opcode": 1,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 147,
+              "y": 27
+            },
+            {
+              "wordIndex": 428,
+              "opcode": 12,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": -16,
+              "y": 26
+            },
+            {
+              "wordIndex": 432,
+              "opcode": 2,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 91,
+              "y": 27
+            }
+          ]
+        },
+        "b": {
+          "start": 120,
+          "end": 139,
+          "lengthWords": 20,
+          "approximateTupleCount": 5,
+          "topOpcodes": [
+            {
+              "opcode": 1,
+              "count": 3
+            },
+            {
+              "opcode": 9,
+              "count": 2
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 2,
+              "count": 2,
+              "description": "Interface - Main Menu Left Door"
+            },
+            {
+              "id": 400,
+              "count": 1,
+              "description": "Floor ornate 03 (Front 2)"
+            },
+            {
+              "id": 402,
+              "count": 1,
+              "description": "Floor ornate 03 (Front 1)"
+            },
+            {
+              "id": 404,
+              "count": 1,
+              "description": "Floor ornate 04 (Front 3)"
+            }
+          ],
+          "samples": [
+            {
+              "wordIndex": 120,
+              "opcode": 1,
+              "target": 400,
+              "description": "Floor ornate 03 (Front 2)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 124,
+              "opcode": 9,
+              "target": 2,
+              "description": "Interface - Main Menu Left Door",
+              "x": 96,
+              "y": 137
+            },
+            {
+              "wordIndex": 128,
+              "opcode": 1,
+              "target": 402,
+              "description": "Floor ornate 03 (Front 1)",
+              "x": 224,
+              "y": 33
+            },
+            {
+              "wordIndex": 132,
+              "opcode": 9,
+              "target": 2,
+              "description": "Interface - Main Menu Left Door",
+              "x": 320,
+              "y": 31
+            },
+            {
+              "wordIndex": 136,
+              "opcode": 1,
+              "target": 404,
+              "description": "Floor ornate 04 (Front 3)",
+              "x": 0,
+              "y": 169
+            }
+          ]
+        }
+      },
+      {
+        "headerWordIndex": 8,
+        "a": {
+          "start": 700,
+          "end": 749,
+          "lengthWords": 50,
+          "approximateTupleCount": 12,
+          "topOpcodes": [
+            {
+              "opcode": 11,
+              "count": 4
+            },
+            {
+              "opcode": 15,
+              "count": 4
+            },
+            {
+              "opcode": 12,
+              "count": 4
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 4,
+              "count": 12,
+              "description": "Interface - Main Menu Screen (English)"
+            }
+          ],
+          "samples": [
+            {
+              "wordIndex": 700,
+              "opcode": 11,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": -1,
+              "y": 76
+            },
+            {
+              "wordIndex": 704,
+              "opcode": 15,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 77
+            },
+            {
+              "wordIndex": 708,
+              "opcode": 12,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 1,
+              "y": 76
+            },
+            {
+              "wordIndex": 712,
+              "opcode": 11,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": -3,
+              "y": 94
+            },
+            {
+              "wordIndex": 716,
+              "opcode": 15,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 1,
+              "y": 94
+            },
+            {
+              "wordIndex": 720,
+              "opcode": 12,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 2,
+              "y": 94
+            },
+            {
+              "wordIndex": 724,
+              "opcode": 11,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": -4,
+              "y": 126
+            },
+            {
+              "wordIndex": 728,
+              "opcode": 15,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 127
+            },
+            {
+              "wordIndex": 732,
+              "opcode": 12,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 126
+            },
+            {
+              "wordIndex": 736,
+              "opcode": 11,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 19
+            }
+          ]
+        },
+        "b": {
+          "start": 800,
+          "end": 833,
+          "lengthWords": 34,
+          "approximateTupleCount": 8,
+          "topOpcodes": [
+            {
+              "opcode": 7,
+              "count": 8
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 4,
+              "count": 8,
+              "description": "Interface - Main Menu Screen (English)"
+            }
+          ],
+          "samples": [
+            {
+              "wordIndex": 800,
+              "opcode": 7,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 58,
+              "y": 72
+            },
+            {
+              "wordIndex": 804,
+              "opcode": 7,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 27,
+              "y": 72
+            },
+            {
+              "wordIndex": 808,
+              "opcode": 7,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 45,
+              "y": 72
+            },
+            {
+              "wordIndex": 812,
+              "opcode": 7,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 157,
+              "y": 68
+            },
+            {
+              "wordIndex": 816,
+              "opcode": 7,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 181,
+              "y": 67
+            },
+            {
+              "wordIndex": 820,
+              "opcode": 7,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 200,
+              "y": 72
+            },
+            {
+              "wordIndex": 824,
+              "opcode": 7,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 166,
+              "y": 72
+            },
+            {
+              "wordIndex": 828,
+              "opcode": 7,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 179,
+              "y": 72
+            }
+          ]
+        }
+      },
+      {
+        "headerWordIndex": 12,
+        "a": {
+          "start": 850,
+          "end": 872,
+          "lengthWords": 23,
+          "approximateTupleCount": 5,
+          "topOpcodes": [
+            {
+              "opcode": 65521,
+              "count": 1
+            },
+            {
+              "opcode": 219,
+              "count": 1
+            },
+            {
+              "opcode": 251,
+              "count": 1
+            },
+            {
+              "opcode": 267,
+              "count": 1
+            },
+            {
+              "opcode": 226,
+              "count": 1
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 70,
+              "count": 3,
+              "description": "Dungeon Graphics - Wall Mask (Left Side 3)"
+            },
+            {
+              "id": 72,
+              "count": 1,
+              "description": "Dungeon Graphics - Wall Mask (Left Side 2)"
+            },
+            {
+              "id": 68,
+              "count": 1,
+              "description": "Dungeon Graphics - Ceiling Pit (Left Side 0)"
+            }
+          ],
+          "samples": [
+            {
+              "wordIndex": 850,
+              "opcode": 65521,
+              "target": 72,
+              "description": "Dungeon Graphics - Wall Mask (Left Side 2)",
+              "x": 7,
+              "y": 4
+            },
+            {
+              "wordIndex": 854,
+              "opcode": 219,
+              "target": 68,
+              "description": "Dungeon Graphics - Ceiling Pit (Left Side 0)",
+              "x": 7,
+              "y": 4
+            },
+            {
+              "wordIndex": 858,
+              "opcode": 251,
+              "target": 70,
+              "description": "Dungeon Graphics - Wall Mask (Left Side 3)",
+              "x": 7,
+              "y": 4
+            },
+            {
+              "wordIndex": 862,
+              "opcode": 267,
+              "target": 70,
+              "description": "Dungeon Graphics - Wall Mask (Left Side 3)",
+              "x": 7,
+              "y": 4
+            },
+            {
+              "wordIndex": 866,
+              "opcode": 226,
+              "target": 70,
+              "description": "Dungeon Graphics - Wall Mask (Left Side 3)",
+              "x": 7,
+              "y": 4
+            }
+          ]
+        },
+        "b": {
+          "start": 3200,
+          "end": 3394,
+          "lengthWords": 195,
+          "approximateTupleCount": 48,
+          "topOpcodes": [
+            {
+              "opcode": 1,
+              "count": 18
+            },
+            {
+              "opcode": 4,
+              "count": 13
+            },
+            {
+              "opcode": 2,
+              "count": 12
+            },
+            {
+              "opcode": 0,
+              "count": 4
+            },
+            {
+              "opcode": 9,
+              "count": 1
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 137,
+              "count": 10,
+              "description": "No Item Data"
+            },
+            {
+              "id": 138,
+              "count": 10,
+              "description": "No Item Data"
+            },
+            {
+              "id": 139,
+              "count": 10,
+              "description": "No Item Data"
+            },
+            {
+              "id": 136,
+              "count": 9,
+              "description": "No Item Data"
+            },
+            {
+              "id": 4,
+              "count": 9,
+              "description": "Interface - Main Menu Screen (English)"
+            }
+          ],
+          "samples": [
+            {
+              "wordIndex": 3200,
+              "opcode": 4,
+              "target": 136,
+              "description": "No Item Data",
+              "x": 0,
+              "y": 16
+            },
+            {
+              "wordIndex": 3204,
+              "opcode": 4,
+              "target": 136,
+              "description": "No Item Data",
+              "x": 0,
+              "y": 31
+            },
+            {
+              "wordIndex": 3208,
+              "opcode": 4,
+              "target": 136,
+              "description": "No Item Data",
+              "x": 0,
+              "y": 46
+            },
+            {
+              "wordIndex": 3212,
+              "opcode": 2,
+              "target": 136,
+              "description": "No Item Data",
+              "x": 8,
+              "y": 0
+            },
+            {
+              "wordIndex": 3216,
+              "opcode": 2,
+              "target": 136,
+              "description": "No Item Data",
+              "x": 16,
+              "y": 0
+            },
+            {
+              "wordIndex": 3220,
+              "opcode": 2,
+              "target": 136,
+              "description": "No Item Data",
+              "x": 24,
+              "y": 0
+            },
+            {
+              "wordIndex": 3224,
+              "opcode": 1,
+              "target": 136,
+              "description": "No Item Data",
+              "x": 56,
+              "y": 0
+            },
+            {
+              "wordIndex": 3228,
+              "opcode": 1,
+              "target": 136,
+              "description": "No Item Data",
+              "x": 48,
+              "y": 0
+            },
+            {
+              "wordIndex": 3232,
+              "opcode": 1,
+              "target": 136,
+              "description": "No Item Data",
+              "x": 40,
+              "y": 0
+            },
+            {
+              "wordIndex": 3236,
+              "opcode": 1,
+              "target": 137,
+              "description": "No Item Data",
+              "x": 0,
+              "y": 1
+            }
+          ]
+        }
+      },
+      {
+        "headerWordIndex": 16,
+        "a": {
+          "start": 2900,
+          "end": 2947,
+          "lengthWords": 48,
+          "approximateTupleCount": 12,
+          "topOpcodes": [
+            {
+              "opcode": 17,
+              "count": 3
+            },
+            {
+              "opcode": 4,
+              "count": 3
+            },
+            {
+              "opcode": 2,
+              "count": 3
+            },
+            {
+              "opcode": 1,
+              "count": 2
+            },
+            {
+              "opcode": 10,
+              "count": 1
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 129,
+              "count": 8,
+              "description": "No Item Data"
+            },
+            {
+              "id": 125,
+              "count": 2,
+              "description": "Dungeon Graphics - Stairs (Side 1)"
+            },
+            {
+              "id": 123,
+              "count": 1,
+              "description": "Dungeon Graphics - Stairs Up (Side 2 Left)"
+            },
+            {
+              "id": 124,
+              "count": 1,
+              "description": "Dungeon Graphics - Stairs Down (Side 2 Left)"
+            }
+          ],
+          "samples": [
+            {
+              "wordIndex": 2900,
+              "opcode": 10,
+              "target": 125,
+              "description": "Dungeon Graphics - Stairs (Side 1)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 2904,
+              "opcode": 17,
+              "target": 123,
+              "description": "Dungeon Graphics - Stairs Up (Side 2 Left)",
+              "x": 6,
+              "y": -1
+            },
+            {
+              "wordIndex": 2908,
+              "opcode": 17,
+              "target": 124,
+              "description": "Dungeon Graphics - Stairs Down (Side 2 Left)",
+              "x": 8,
+              "y": -8
+            },
+            {
+              "wordIndex": 2912,
+              "opcode": 17,
+              "target": 125,
+              "description": "Dungeon Graphics - Stairs (Side 1)",
+              "x": 12,
+              "y": -8
+            },
+            {
+              "wordIndex": 2916,
+              "opcode": 1,
+              "target": 129,
+              "description": "No Item Data",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 2920,
+              "opcode": 4,
+              "target": 129,
+              "description": "No Item Data",
+              "x": 0,
+              "y": 10
+            },
+            {
+              "wordIndex": 2924,
+              "opcode": 4,
+              "target": 129,
+              "description": "No Item Data",
+              "x": 0,
+              "y": 20
+            },
+            {
+              "wordIndex": 2928,
+              "opcode": 4,
+              "target": 129,
+              "description": "No Item Data",
+              "x": 0,
+              "y": 30
+            },
+            {
+              "wordIndex": 2932,
+              "opcode": 2,
+              "target": 129,
+              "description": "No Item Data",
+              "x": 6,
+              "y": 0
+            },
+            {
+              "wordIndex": 2936,
+              "opcode": 2,
+              "target": 129,
+              "description": "No Item Data",
+              "x": 12,
+              "y": 0
+            }
+          ]
+        },
+        "b": {
+          "start": 2500,
+          "end": 2568,
+          "lengthWords": 69,
+          "approximateTupleCount": 17,
+          "topOpcodes": [
+            {
+              "opcode": 0,
+              "count": 17
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 4,
+              "count": 17,
+              "description": "Interface - Main Menu Screen (English)"
+            }
+          ],
+          "samples": [
+            {
+              "wordIndex": 2500,
+              "opcode": 0,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 180,
+              "y": 56
+            },
+            {
+              "wordIndex": 2504,
+              "opcode": 0,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 72,
+              "y": 58
+            },
+            {
+              "wordIndex": 2508,
+              "opcode": 0,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 151,
+              "y": 58
+            },
+            {
+              "wordIndex": 2512,
+              "opcode": 0,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 11,
+              "y": 65
+            },
+            {
+              "wordIndex": 2516,
+              "opcode": 0,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 113,
+              "y": 65
+            },
+            {
+              "wordIndex": 2520,
+              "opcode": 0,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 215,
+              "y": 65
+            },
+            {
+              "wordIndex": 2524,
+              "opcode": 0,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 56,
+              "y": 67
+            },
+            {
+              "wordIndex": 2528,
+              "opcode": 0,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 168,
+              "y": 67
+            },
+            {
+              "wordIndex": 2532,
+              "opcode": 0,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 112,
+              "y": 78
+            },
+            {
+              "wordIndex": 2536,
+              "opcode": 0,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 22,
+              "y": 42
+            }
+          ]
+        }
+      },
+      {
+        "headerWordIndex": 20,
+        "a": {
+          "start": 3000,
+          "end": 3064,
+          "lengthWords": 65,
+          "approximateTupleCount": 16,
+          "topOpcodes": [
+            {
+              "opcode": 4,
+              "count": 6
+            },
+            {
+              "opcode": 2,
+              "count": 6
+            },
+            {
+              "opcode": 1,
+              "count": 4
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 131,
+              "count": 9,
+              "description": "No Item Data"
+            },
+            {
+              "id": 132,
+              "count": 7,
+              "description": "No Item Data"
+            }
+          ],
+          "samples": [
+            {
+              "wordIndex": 3000,
+              "opcode": 4,
+              "target": 131,
+              "description": "No Item Data",
+              "x": 0,
+              "y": 10
+            },
+            {
+              "wordIndex": 3004,
+              "opcode": 4,
+              "target": 131,
+              "description": "No Item Data",
+              "x": 0,
+              "y": 20
+            },
+            {
+              "wordIndex": 3008,
+              "opcode": 4,
+              "target": 131,
+              "description": "No Item Data",
+              "x": 0,
+              "y": 30
+            },
+            {
+              "wordIndex": 3012,
+              "opcode": 2,
+              "target": 131,
+              "description": "No Item Data",
+              "x": 6,
+              "y": 0
+            },
+            {
+              "wordIndex": 3016,
+              "opcode": 2,
+              "target": 131,
+              "description": "No Item Data",
+              "x": 12,
+              "y": 0
+            },
+            {
+              "wordIndex": 3020,
+              "opcode": 2,
+              "target": 131,
+              "description": "No Item Data",
+              "x": 18,
+              "y": 0
+            },
+            {
+              "wordIndex": 3024,
+              "opcode": 1,
+              "target": 131,
+              "description": "No Item Data",
+              "x": 42,
+              "y": 0
+            },
+            {
+              "wordIndex": 3028,
+              "opcode": 1,
+              "target": 131,
+              "description": "No Item Data",
+              "x": 36,
+              "y": 0
+            },
+            {
+              "wordIndex": 3032,
+              "opcode": 1,
+              "target": 131,
+              "description": "No Item Data",
+              "x": 30,
+              "y": 0
+            },
+            {
+              "wordIndex": 3036,
+              "opcode": 1,
+              "target": 132,
+              "description": "No Item Data",
+              "x": 0,
+              "y": 1
+            }
+          ]
+        },
+        "b": {
+          "start": 1000,
+          "end": 1138,
+          "lengthWords": 139,
+          "approximateTupleCount": 34,
+          "topOpcodes": [
+            {
+              "opcode": 7,
+              "count": 34
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 4,
+              "count": 34,
+              "description": "Interface - Main Menu Screen (English)"
+            }
+          ],
+          "samples": [
+            {
+              "wordIndex": 1000,
+              "opcode": 7,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 1004,
+              "opcode": 7,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 1008,
+              "opcode": 7,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 1012,
+              "opcode": 7,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 256,
+              "y": 135
+            },
+            {
+              "wordIndex": 1016,
+              "opcode": 7,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 1020,
+              "opcode": 7,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 1024,
+              "opcode": 7,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 1028,
+              "opcode": 7,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 1032,
+              "opcode": 7,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 94,
+              "y": 73
+            },
+            {
+              "wordIndex": 1036,
+              "opcode": 7,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 128,
+              "y": 73
+            }
+          ]
+        }
+      },
+      {
+        "headerWordIndex": 24,
+        "a": {
+          "start": 1500,
+          "end": 1510,
+          "lengthWords": 11,
+          "approximateTupleCount": 2,
+          "topOpcodes": [
+            {
+              "opcode": 7,
+              "count": 2
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 4,
+              "count": 2,
+              "description": "Interface - Main Menu Screen (English)"
+            }
+          ],
+          "samples": [
+            {
+              "wordIndex": 1500,
+              "opcode": 7,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 321,
+              "y": 85
+            },
+            {
+              "wordIndex": 1504,
+              "opcode": 7,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 223,
+              "y": 85
+            }
+          ]
+        },
+        "b": {
+          "start": 2000,
+          "end": 2008,
+          "lengthWords": 9,
+          "approximateTupleCount": 2,
+          "topOpcodes": [
+            {
+              "opcode": 7,
+              "count": 2
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 4,
+              "count": 2,
+              "description": "Interface - Main Menu Screen (English)"
+            }
+          ],
+          "samples": [
+            {
+              "wordIndex": 2000,
+              "opcode": 7,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 181,
+              "y": 62
+            },
+            {
+              "wordIndex": 2004,
+              "opcode": 7,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 114,
+              "y": 74
+            }
+          ]
+        }
+      },
+      {
+        "headerWordIndex": 28,
+        "a": {
+          "start": 3700,
+          "end": 3809,
+          "lengthWords": 110,
+          "approximateTupleCount": 27,
+          "topOpcodes": [
+            {
+              "opcode": 1,
+              "count": 9
+            },
+            {
+              "opcode": 4,
+              "count": 8
+            },
+            {
+              "opcode": 9,
+              "count": 8
+            },
+            {
+              "opcode": 3,
+              "count": 1
+            },
+            {
+              "opcode": 0,
+              "count": 1
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 101,
+              "count": 11,
+              "description": "Dungeon Graphics - Wall (Left Side 2)"
+            },
+            {
+              "id": 4,
+              "count": 7,
+              "description": "Interface - Main Menu Screen (English)"
+            },
+            {
+              "id": 569,
+              "count": 2,
+              "description": "Item on floor 71"
+            },
+            {
+              "id": 561,
+              "count": 1,
+              "description": "Item on floor 63"
+            },
+            {
+              "id": 563,
+              "count": 1,
+              "description": "Item on floor 65"
+            },
+            {
+              "id": 565,
+              "count": 1,
+              "description": "Item on floor 67"
+            },
+            {
+              "id": 567,
+              "count": 1,
+              "description": "Item on floor 69"
+            },
+            {
+              "id": 572,
+              "count": 1,
+              "description": "Item on floor 74"
+            }
+          ],
+          "samples": [
+            {
+              "wordIndex": 3700,
+              "opcode": 4,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 3,
+              "y": 7
+            },
+            {
+              "wordIndex": 3704,
+              "opcode": 4,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 104,
+              "y": 132
+            },
+            {
+              "wordIndex": 3708,
+              "opcode": 3,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 218,
+              "y": 132
+            },
+            {
+              "wordIndex": 3712,
+              "opcode": 4,
+              "target": 101,
+              "description": "Dungeon Graphics - Wall (Left Side 2)",
+              "x": 28,
+              "y": 7
+            },
+            {
+              "wordIndex": 3716,
+              "opcode": 4,
+              "target": 101,
+              "description": "Dungeon Graphics - Wall (Left Side 2)",
+              "x": 28,
+              "y": 6
+            },
+            {
+              "wordIndex": 3720,
+              "opcode": 4,
+              "target": 101,
+              "description": "Dungeon Graphics - Wall (Left Side 2)",
+              "x": 28,
+              "y": 34
+            },
+            {
+              "wordIndex": 3724,
+              "opcode": 4,
+              "target": 101,
+              "description": "Dungeon Graphics - Wall (Left Side 2)",
+              "x": 94,
+              "y": 34
+            },
+            {
+              "wordIndex": 3728,
+              "opcode": 0,
+              "target": 101,
+              "description": "Dungeon Graphics - Wall (Left Side 2)",
+              "x": 84,
+              "y": 35
+            },
+            {
+              "wordIndex": 3732,
+              "opcode": 9,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 11,
+              "y": 11
+            },
+            {
+              "wordIndex": 3736,
+              "opcode": 1,
+              "target": 561,
+              "description": "Item on floor 63",
+              "x": 179,
+              "y": 2
+            }
+          ]
+        },
+        "b": {
+          "start": 1950,
+          "end": 1953,
+          "lengthWords": 4,
+          "approximateTupleCount": 1,
+          "topOpcodes": [
+            {
+              "opcode": 115,
+              "count": 1
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 74,
+              "count": 1,
+              "description": "Dungeon Graphics - Wall Mask (Left Front 1)"
+            }
+          ],
+          "samples": [
+            {
+              "wordIndex": 1950,
+              "opcode": 115,
+              "target": 74,
+              "description": "Dungeon Graphics - Wall Mask (Left Front 1)",
+              "x": 7,
+              "y": 4
+            }
+          ]
+        }
+      },
+      {
+        "headerWordIndex": 32,
+        "a": {
+          "start": 450,
+          "end": 471,
+          "lengthWords": 22,
+          "approximateTupleCount": 5,
+          "topOpcodes": [
+            {
+              "opcode": 0,
+              "count": 2
+            },
+            {
+              "opcode": 68,
+              "count": 1
+            },
+            {
+              "opcode": 155,
+              "count": 1
+            },
+            {
+              "opcode": 6,
+              "count": 1
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 13,
+              "count": 2,
+              "description": "Interface - Movement Arrows"
+            },
+            {
+              "id": 0,
+              "count": 1,
+              "description": "Interface - Dialog Box"
+            },
+            {
+              "id": 22,
+              "count": 1,
+              "description": "Empty image 16x4"
+            },
+            {
+              "id": 21,
+              "count": 1,
+              "description": "No Item Data"
+            }
+          ],
+          "samples": [
+            {
+              "wordIndex": 450,
+              "opcode": 68,
+              "target": 13,
+              "description": "Interface - Movement Arrows",
+              "x": 1,
+              "y": 4
+            },
+            {
+              "wordIndex": 454,
+              "opcode": 155,
+              "target": 13,
+              "description": "Interface - Movement Arrows",
+              "x": 15,
+              "y": 4
+            },
+            {
+              "wordIndex": 458,
+              "opcode": 0,
+              "target": 0,
+              "description": "Interface - Dialog Box",
+              "x": 11,
+              "y": 4
+            },
+            {
+              "wordIndex": 462,
+              "opcode": 6,
+              "target": 22,
+              "description": "Empty image 16x4",
+              "x": 15,
+              "y": 4
+            },
+            {
+              "wordIndex": 466,
+              "opcode": 0,
+              "target": 21,
+              "description": "No Item Data",
+              "x": 12,
+              "y": 4
+            }
+          ]
+        },
+        "b": {
+          "start": 100,
+          "end": 106,
+          "lengthWords": 7,
+          "approximateTupleCount": 1,
+          "topOpcodes": [
+            {
+              "opcode": 9,
+              "count": 1
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 2,
+              "count": 1,
+              "description": "Interface - Main Menu Left Door"
+            }
+          ],
+          "samples": [
+            {
+              "wordIndex": 100,
+              "opcode": 9,
+              "target": 2,
+              "description": "Interface - Main Menu Left Door",
+              "x": 320,
+              "y": 27
+            }
+          ]
+        }
+      },
+      {
+        "headerWordIndex": 36,
+        "a": {
+          "start": 500,
+          "end": 618,
+          "lengthWords": 119,
+          "approximateTupleCount": 29,
+          "topOpcodes": [
+            {
+              "opcode": 11,
+              "count": 7
+            },
+            {
+              "opcode": 12,
+              "count": 7
+            },
+            {
+              "opcode": 15,
+              "count": 4
+            },
+            {
+              "opcode": 9,
+              "count": 3
+            },
+            {
+              "opcode": 3,
+              "count": 2
+            },
+            {
+              "opcode": 4,
+              "count": 2
+            },
+            {
+              "opcode": 2,
+              "count": 2
+            },
+            {
+              "opcode": 1,
+              "count": 2
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 4,
+              "count": 21,
+              "description": "Interface - Main Menu Screen (English)"
+            },
+            {
+              "id": 738,
+              "count": 2,
+              "description": "Interface - Main Menu Screen (German)"
+            },
+            {
+              "id": 739,
+              "count": 2,
+              "description": "Interface - 'Ende' Label"
+            },
+            {
+              "id": 744,
+              "count": 2,
+              "description": "Interface - Character Sheet - Resurrect And Reincarnate (German)"
+            },
+            {
+              "id": 747,
+              "count": 2,
+              "description": "Miscellaneous Texts (German)"
+            }
+          ],
+          "samples": [
+            {
+              "wordIndex": 500,
+              "opcode": 9,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 72,
+              "y": 26
+            },
+            {
+              "wordIndex": 504,
+              "opcode": 3,
+              "target": 738,
+              "description": "Interface - Main Menu Screen (German)",
+              "x": 111,
+              "y": 135
+            },
+            {
+              "wordIndex": 508,
+              "opcode": 4,
+              "target": 738,
+              "description": "Interface - Main Menu Screen (German)",
+              "x": 112,
+              "y": 135
+            },
+            {
+              "wordIndex": 512,
+              "opcode": 4,
+              "target": 739,
+              "description": "Interface - 'Ende' Label",
+              "x": 112,
+              "y": 114
+            },
+            {
+              "wordIndex": 516,
+              "opcode": 3,
+              "target": 739,
+              "description": "Interface - 'Ende' Label",
+              "x": 111,
+              "y": 114
+            },
+            {
+              "wordIndex": 520,
+              "opcode": 9,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 80,
+              "y": 56
+            },
+            {
+              "wordIndex": 524,
+              "opcode": 2,
+              "target": 744,
+              "description": "Interface - Character Sheet - Resurrect And Reincarnate (German)",
+              "x": 111,
+              "y": 14
+            },
+            {
+              "wordIndex": 528,
+              "opcode": 1,
+              "target": 744,
+              "description": "Interface - Character Sheet - Resurrect And Reincarnate (German)",
+              "x": 112,
+              "y": 14
+            },
+            {
+              "wordIndex": 532,
+              "opcode": 9,
+              "target": 4,
+              "description": "Interface - Main Menu Screen (English)",
+              "x": 48,
+              "y": 56
+            },
+            {
+              "wordIndex": 536,
+              "opcode": 2,
+              "target": 747,
+              "description": "Miscellaneous Texts (German)",
+              "x": 111,
+              "y": 14
+            }
+          ]
+        },
+        "b": {
+          "start": 150,
+          "end": 218,
+          "lengthWords": 69,
+          "approximateTupleCount": 17,
+          "topOpcodes": [
+            {
+              "opcode": 0,
+              "count": 5
+            },
+            {
+              "opcode": 19,
+              "count": 4
+            },
+            {
+              "opcode": 8,
+              "count": 4
+            },
+            {
+              "opcode": 55,
+              "count": 1
+            },
+            {
+              "opcode": 244,
+              "count": 1
+            },
+            {
+              "opcode": 46,
+              "count": 1
+            },
+            {
+              "opcode": 248,
+              "count": 1
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 0,
+              "count": 5,
+              "description": "Interface - Dialog Box"
+            },
+            {
+              "id": 6,
+              "count": 4,
+              "description": "Interface - 'The End' Label"
+            },
+            {
+              "id": 18,
+              "count": 1,
+              "description": "Interface - Character Sheet - Arrow Showing The Content Of A Chest"
+            },
+            {
+              "id": 76,
+              "count": 1,
+              "description": "Dungeon Graphics - Teleporter"
+            },
+            {
+              "id": 14,
+              "count": 1,
+              "description": "Interface - Damage Done"
+            },
+            {
+              "id": 199,
+              "count": 1,
+              "description": "No Item Data"
+            },
+            {
+              "id": 7,
+              "count": 1,
+              "description": "Interface - Champion Information"
+            },
+            {
+              "id": 55,
+              "count": 1,
+              "description": "Dungeon Graphics - Floor Pit (Front 1)"
+            }
+          ],
+          "samples": [
+            {
+              "wordIndex": 150,
+              "opcode": 55,
+              "target": 18,
+              "description": "Interface - Character Sheet - Arrow Showing The Content Of A Chest",
+              "x": 1,
+              "y": 408
+            },
+            {
+              "wordIndex": 154,
+              "opcode": 244,
+              "target": 76,
+              "description": "Dungeon Graphics - Teleporter",
+              "x": 9,
+              "y": 2
+            },
+            {
+              "wordIndex": 158,
+              "opcode": 46,
+              "target": 14,
+              "description": "Interface - Damage Done",
+              "x": 4,
+              "y": 410
+            },
+            {
+              "wordIndex": 162,
+              "opcode": 248,
+              "target": 199,
+              "description": "No Item Data",
+              "x": 1,
+              "y": 2
+            },
+            {
+              "wordIndex": 166,
+              "opcode": 19,
+              "target": 7,
+              "description": "Interface - Champion Information",
+              "x": 1,
+              "y": 2
+            },
+            {
+              "wordIndex": 170,
+              "opcode": 19,
+              "target": 55,
+              "description": "Dungeon Graphics - Floor Pit (Front 1)",
+              "x": 1,
+              "y": 2
+            },
+            {
+              "wordIndex": 174,
+              "opcode": 19,
+              "target": 103,
+              "description": "Dungeon Graphics - Wall (Far Right Side 3)",
+              "x": 1,
+              "y": 2
+            },
+            {
+              "wordIndex": 178,
+              "opcode": 19,
+              "target": 151,
+              "description": "No Item Data",
+              "x": 1,
+              "y": 412
+            },
+            {
+              "wordIndex": 182,
+              "opcode": 8,
+              "target": 6,
+              "description": "Interface - 'The End' Label",
+              "x": 1,
+              "y": 413
+            },
+            {
+              "wordIndex": 186,
+              "opcode": 8,
+              "target": 6,
+              "description": "Interface - 'The End' Label",
+              "x": 1,
+              "y": 414
+            }
+          ]
+        }
+      },
+      {
+        "headerWordIndex": 40,
+        "a": {
+          "start": 220,
+          "end": 264,
+          "lengthWords": 45,
+          "approximateTupleCount": 11,
+          "topOpcodes": [
+            {
+              "opcode": 1,
+              "count": 6
+            },
+            {
+              "opcode": 9,
+              "count": 2
+            },
+            {
+              "opcode": 15,
+              "count": 1
+            },
+            {
+              "opcode": 11,
+              "count": 1
+            },
+            {
+              "opcode": 12,
+              "count": 1
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 2,
+              "count": 5,
+              "description": "Interface - Main Menu Left Door"
+            },
+            {
+              "id": 429,
+              "count": 3,
+              "description": "Floor ornate 08 (Left Side 2)"
+            },
+            {
+              "id": 0,
+              "count": 1,
+              "description": "Interface - Dialog Box"
+            },
+            {
+              "id": 428,
+              "count": 1,
+              "description": "Floor ornate 08 (Front 3)"
+            },
+            {
+              "id": 433,
+              "count": 1,
+              "description": "Floor ornate 09 (Left Side 3)"
+            }
+          ],
+          "samples": [
+            {
+              "wordIndex": 220,
+              "opcode": 15,
+              "target": 2,
+              "description": "Interface - Main Menu Left Door",
+              "x": 0,
+              "y": 118
+            },
+            {
+              "wordIndex": 224,
+              "opcode": 1,
+              "target": 2,
+              "description": "Interface - Main Menu Left Door",
+              "x": 0,
+              "y": 30
+            },
+            {
+              "wordIndex": 228,
+              "opcode": 9,
+              "target": 0,
+              "description": "Interface - Dialog Box",
+              "x": 232,
+              "y": 161
+            },
+            {
+              "wordIndex": 232,
+              "opcode": 1,
+              "target": 428,
+              "description": "Floor ornate 08 (Front 3)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 236,
+              "opcode": 11,
+              "target": 429,
+              "description": "Floor ornate 08 (Left Side 2)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 240,
+              "opcode": 12,
+              "target": 429,
+              "description": "Floor ornate 08 (Left Side 2)",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "wordIndex": 244,
+              "opcode": 1,
+              "target": 429,
+              "description": "Floor ornate 08 (Left Side 2)",
+              "x": 0,
+              "y": 3
+            },
+            {
+              "wordIndex": 248,
+              "opcode": 9,
+              "target": 2,
+              "description": "Interface - Main Menu Left Door",
+              "x": 50,
+              "y": 15
+            },
+            {
+              "wordIndex": 252,
+              "opcode": 1,
+              "target": 433,
+              "description": "Floor ornate 09 (Left Side 3)",
+              "x": 243,
+              "y": 110
+            },
+            {
+              "wordIndex": 256,
+              "opcode": 1,
+              "target": 2,
+              "description": "Interface - Main Menu Left Door",
+              "x": 243,
+              "y": 46
+            }
+          ]
+        },
+        "b": {
+          "start": 75,
+          "end": 98,
+          "lengthWords": 24,
+          "approximateTupleCount": 6,
+          "topOpcodes": [
+            {
+              "opcode": 33,
+              "count": 2
+            },
+            {
+              "opcode": 45,
+              "count": 2
+            },
+            {
+              "opcode": 168,
+              "count": 1
+            },
+            {
+              "opcode": 77,
+              "count": 1
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 9,
+              "count": 3,
+              "description": "Interface - Spell Casting Area"
+            },
+            {
+              "id": 3,
+              "count": 2,
+              "description": "Interface - Main Menu Right Door"
+            },
+            {
+              "id": 2,
+              "count": 1,
+              "description": "Interface - Main Menu Left Door"
+            }
+          ],
+          "samples": [
+            {
+              "wordIndex": 75,
+              "opcode": 33,
+              "target": 9,
+              "description": "Interface - Spell Casting Area",
+              "x": 2,
+              "y": 87
+            },
+            {
+              "wordIndex": 79,
+              "opcode": 45,
+              "target": 3,
+              "description": "Interface - Main Menu Right Door",
+              "x": 8,
+              "y": 319
+            },
+            {
+              "wordIndex": 83,
+              "opcode": 168,
+              "target": 9,
+              "description": "Interface - Spell Casting Area",
+              "x": 2,
+              "y": 87
+            },
+            {
+              "wordIndex": 87,
+              "opcode": 45,
+              "target": 2,
+              "description": "Interface - Main Menu Left Door",
+              "x": 10,
+              "y": 319
+            },
+            {
+              "wordIndex": 91,
+              "opcode": 77,
+              "target": 9,
+              "description": "Interface - Spell Casting Area",
+              "x": 2,
+              "y": 87
+            },
+            {
+              "wordIndex": 95,
+              "opcode": 33,
+              "target": 3,
+              "description": "Interface - Main Menu Right Door",
+              "x": 12,
+              "y": 319
+            }
+          ]
+        }
+      },
+      {
+        "headerWordIndex": 44,
+        "a": {
+          "start": 65,
+          "end": 73,
+          "lengthWords": 9,
+          "approximateTupleCount": 2,
+          "topOpcodes": [
+            {
+              "opcode": 2,
+              "count": 1
+            },
+            {
+              "opcode": 4,
+              "count": 1
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 0,
+              "count": 2,
+              "description": "Interface - Dialog Box"
+            }
+          ],
+          "samples": [
+            {
+              "wordIndex": 65,
+              "opcode": 2,
+              "target": 0,
+              "description": "Interface - Dialog Box",
+              "x": 0,
+              "y": 10
+            },
+            {
+              "wordIndex": 69,
+              "opcode": 4,
+              "target": 0,
+              "description": "Interface - Dialog Box",
+              "x": 0,
+              "y": 1
+            }
+          ]
+        },
+        "b": {
+          "start": 110,
+          "end": 116,
+          "lengthWords": 7,
+          "approximateTupleCount": 1,
+          "topOpcodes": [
+            {
+              "opcode": 87,
+              "count": 1
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 6,
+              "count": 1,
+              "description": "Interface - 'The End' Label"
+            }
+          ],
+          "samples": [
+            {
+              "wordIndex": 110,
+              "opcode": 87,
+              "target": 6,
+              "description": "Interface - 'The End' Label",
+              "x": 1,
+              "y": 16
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "opcodeSummary": [
+    {
+      "opcode": 7,
+      "count": 358,
+      "topResourceIds": [
+        {
+          "id": 4,
+          "count": 346,
+          "description": "Interface - Main Menu Screen (English)"
+        },
+        {
+          "id": 191,
+          "count": 3,
+          "description": "No Item Data"
+        },
+        {
+          "id": 192,
+          "count": 3,
+          "description": "No Item Data"
+        },
+        {
+          "id": 193,
+          "count": 3,
+          "description": "No Item Data"
+        },
+        {
+          "id": 194,
+          "count": 3,
+          "description": "No Item Data"
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 97,
+          "y": 67
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 125,
+          "y": 67
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 129,
+          "y": 72
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 95,
+          "y": 72
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 112,
+          "y": 72
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 35,
+          "y": 68
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 63,
+          "y": 68
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 58,
+          "y": 72
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 27,
+          "y": 72
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 45,
+          "y": 72
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 157,
+          "y": 68
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 181,
+          "y": 67
+        }
+      ]
+    },
+    {
+      "opcode": 1,
+      "count": 256,
+      "topResourceIds": [
+        {
+          "id": 105,
+          "count": 32,
+          "description": "Dungeon Graphics - Wall (Right Side 3)"
+        },
+        {
+          "id": 582,
+          "count": 31,
+          "description": "Item on floor 84"
+        },
+        {
+          "id": 223,
+          "count": 12,
+          "description": "No Item Data"
+        },
+        {
+          "id": 4,
+          "count": 11,
+          "description": "Interface - Main Menu Screen (English)"
+        },
+        {
+          "id": 106,
+          "count": 8,
+          "description": "Dungeon Graphics - Wall (Left Side 3)"
+        },
+        {
+          "id": 2,
+          "count": 7,
+          "description": "Interface - Main Menu Left Door"
+        },
+        {
+          "id": 101,
+          "count": 6,
+          "description": "Dungeon Graphics - Wall (Left Side 2)"
+        },
+        {
+          "id": 244,
+          "count": 6,
+          "description": "No Item Data"
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 1,
+          "description": "Interface - Main Title",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "resourceId": 3,
+          "description": "Interface - Main Menu Right Door",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "resourceId": 3,
+          "description": "Interface - Main Menu Right Door",
+          "x": 0,
+          "y": 33
+        },
+        {
+          "resourceId": 16,
+          "description": "Interface - Damage Received (Big)",
+          "x": 233,
+          "y": 33
+        },
+        {
+          "resourceId": 400,
+          "description": "Floor ornate 03 (Front 2)",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "resourceId": 402,
+          "description": "Floor ornate 03 (Front 1)",
+          "x": 224,
+          "y": 33
+        },
+        {
+          "resourceId": 404,
+          "description": "Floor ornate 04 (Front 3)",
+          "x": 0,
+          "y": 169
+        },
+        {
+          "resourceId": 406,
+          "description": "Floor ornate 04 (Front 2)",
+          "x": 244,
+          "y": 45
+        },
+        {
+          "resourceId": 408,
+          "description": "Floor ornate 04 (Front 1)",
+          "x": 244,
+          "y": 76
+        },
+        {
+          "resourceId": 2,
+          "description": "Interface - Main Menu Left Door",
+          "x": 19,
+          "y": 7
+        },
+        {
+          "resourceId": 2,
+          "description": "Interface - Main Menu Left Door",
+          "x": 19,
+          "y": 55
+        },
+        {
+          "resourceId": 2,
+          "description": "Interface - Main Menu Left Door",
+          "x": 19,
+          "y": 103
+        }
+      ]
+    },
+    {
+      "opcode": 0,
+      "count": 178,
+      "topResourceIds": [
+        {
+          "id": 4,
+          "count": 168,
+          "description": "Interface - Main Menu Screen (English)"
+        },
+        {
+          "id": 0,
+          "count": 4,
+          "description": "Interface - Dialog Box"
+        },
+        {
+          "id": 101,
+          "count": 3,
+          "description": "Dungeon Graphics - Wall (Left Side 2)"
+        },
+        {
+          "id": 468,
+          "count": 1,
+          "description": "Missile 05 (Front)"
+        },
+        {
+          "id": 470,
+          "count": 1,
+          "description": "Missile 05 (Side)"
+        },
+        {
+          "id": 100,
+          "count": 1,
+          "description": "Dungeon Graphics - Wall (Right Side 2)"
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 0,
+          "description": "Interface - Dialog Box",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "resourceId": 0,
+          "description": "Interface - Dialog Box",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "resourceId": 0,
+          "description": "Interface - Dialog Box",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "resourceId": 0,
+          "description": "Interface - Dialog Box",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 112,
+          "y": 53
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 43,
+          "y": 54
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 180,
+          "y": 54
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 112,
+          "y": 59
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 10,
+          "y": 60
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 215,
+          "y": 60
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 112,
+          "y": 70
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 112,
+          "y": 57
+        }
+      ]
+    },
+    {
+      "opcode": 9,
+      "count": 80,
+      "topResourceIds": [
+        {
+          "id": 4,
+          "count": 17,
+          "description": "Interface - Main Menu Screen (English)"
+        },
+        {
+          "id": 2,
+          "count": 13,
+          "description": "Interface - Main Menu Left Door"
+        },
+        {
+          "id": 101,
+          "count": 8,
+          "description": "Dungeon Graphics - Wall (Left Side 2)"
+        },
+        {
+          "id": 0,
+          "count": 7,
+          "description": "Interface - Dialog Box"
+        },
+        {
+          "id": 11,
+          "count": 5,
+          "description": "Interface - Main Menu Switches States"
+        },
+        {
+          "id": 151,
+          "count": 4,
+          "description": "No Item Data"
+        },
+        {
+          "id": 152,
+          "count": 4,
+          "description": "No Item Data"
+        },
+        {
+          "id": 153,
+          "count": 4,
+          "description": "No Item Data"
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 0,
+          "description": "Interface - Dialog Box",
+          "x": 320,
+          "y": 200
+        },
+        {
+          "resourceId": 0,
+          "description": "Interface - Dialog Box",
+          "x": 224,
+          "y": 136
+        },
+        {
+          "resourceId": 2,
+          "description": "Interface - Main Menu Left Door",
+          "x": 87,
+          "y": 45
+        },
+        {
+          "resourceId": 2,
+          "description": "Interface - Main Menu Left Door",
+          "x": 87,
+          "y": 45
+        },
+        {
+          "resourceId": 2,
+          "description": "Interface - Main Menu Left Door",
+          "x": 87,
+          "y": 33
+        },
+        {
+          "resourceId": 2,
+          "description": "Interface - Main Menu Left Door",
+          "x": 320,
+          "y": 27
+        },
+        {
+          "resourceId": 2,
+          "description": "Interface - Main Menu Left Door",
+          "x": 87,
+          "y": 6
+        },
+        {
+          "resourceId": 2,
+          "description": "Interface - Main Menu Left Door",
+          "x": 320,
+          "y": 33
+        },
+        {
+          "resourceId": 2,
+          "description": "Interface - Main Menu Left Door",
+          "x": 96,
+          "y": 137
+        },
+        {
+          "resourceId": 2,
+          "description": "Interface - Main Menu Left Door",
+          "x": 320,
+          "y": 31
+        },
+        {
+          "resourceId": 2,
+          "description": "Interface - Main Menu Left Door",
+          "x": 55,
+          "y": 14
+        },
+        {
+          "resourceId": 2,
+          "description": "Interface - Main Menu Left Door",
+          "x": 55,
+          "y": 18
+        }
+      ]
+    },
+    {
+      "opcode": 4,
+      "count": 49,
+      "topResourceIds": [
+        {
+          "id": 4,
+          "count": 6,
+          "description": "Interface - Main Menu Screen (English)"
+        },
+        {
+          "id": 101,
+          "count": 6,
+          "description": "Dungeon Graphics - Wall (Left Side 2)"
+        },
+        {
+          "id": 129,
+          "count": 3,
+          "description": "No Item Data"
+        },
+        {
+          "id": 130,
+          "count": 3,
+          "description": "No Item Data"
+        },
+        {
+          "id": 131,
+          "count": 3,
+          "description": "No Item Data"
+        },
+        {
+          "id": 132,
+          "count": 3,
+          "description": "No Item Data"
+        },
+        {
+          "id": 133,
+          "count": 3,
+          "description": "No Item Data"
+        },
+        {
+          "id": 134,
+          "count": 3,
+          "description": "No Item Data"
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 14,
+          "description": "Interface - Damage Done",
+          "x": 0,
+          "y": 199
+        },
+        {
+          "resourceId": 410,
+          "description": "Floor ornate 05 (Front 3)",
+          "x": 248,
+          "y": 199
+        },
+        {
+          "resourceId": 738,
+          "description": "Interface - Main Menu Screen (German)",
+          "x": 112,
+          "y": 135
+        },
+        {
+          "resourceId": 739,
+          "description": "Interface - 'Ende' Label",
+          "x": 112,
+          "y": 114
+        },
+        {
+          "resourceId": 129,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 10
+        },
+        {
+          "resourceId": 129,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 20
+        },
+        {
+          "resourceId": 129,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 30
+        },
+        {
+          "resourceId": 130,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 10
+        },
+        {
+          "resourceId": 130,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 20
+        },
+        {
+          "resourceId": 130,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 30
+        },
+        {
+          "resourceId": 131,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 10
+        },
+        {
+          "resourceId": 131,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 20
+        }
+      ]
+    },
+    {
+      "opcode": 2,
+      "count": 46,
+      "topResourceIds": [
+        {
+          "id": 4,
+          "count": 6,
+          "description": "Interface - Main Menu Screen (English)"
+        },
+        {
+          "id": 129,
+          "count": 3,
+          "description": "No Item Data"
+        },
+        {
+          "id": 130,
+          "count": 3,
+          "description": "No Item Data"
+        },
+        {
+          "id": 131,
+          "count": 3,
+          "description": "No Item Data"
+        },
+        {
+          "id": 132,
+          "count": 3,
+          "description": "No Item Data"
+        },
+        {
+          "id": 133,
+          "count": 3,
+          "description": "No Item Data"
+        },
+        {
+          "id": 134,
+          "count": 3,
+          "description": "No Item Data"
+        },
+        {
+          "id": 135,
+          "count": 3,
+          "description": "No Item Data"
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 10,
+          "description": "Interface - Item Actions Area",
+          "x": 319,
+          "y": 77
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 91,
+          "y": 27
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 82,
+          "y": 21
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 68,
+          "y": 13
+        },
+        {
+          "resourceId": 744,
+          "description": "Interface - Character Sheet - Resurrect And Reincarnate (German)",
+          "x": 111,
+          "y": 14
+        },
+        {
+          "resourceId": 747,
+          "description": "Miscellaneous Texts (German)",
+          "x": 111,
+          "y": 14
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 163,
+          "y": 56
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 191,
+          "y": 57
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 191,
+          "y": 62
+        },
+        {
+          "resourceId": 129,
+          "description": "No Item Data",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "resourceId": 129,
+          "description": "No Item Data",
+          "x": 12,
+          "y": 0
+        },
+        {
+          "resourceId": 129,
+          "description": "No Item Data",
+          "x": 18,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "opcode": 10,
+      "count": 32,
+      "topResourceIds": [
+        {
+          "id": 2,
+          "count": 3,
+          "description": "Interface - Main Menu Left Door"
+        },
+        {
+          "id": 4,
+          "count": 1,
+          "description": "Interface - Main Menu Screen (English)"
+        },
+        {
+          "id": 123,
+          "count": 1,
+          "description": "Dungeon Graphics - Stairs Up (Side 2 Left)"
+        },
+        {
+          "id": 124,
+          "count": 1,
+          "description": "Dungeon Graphics - Stairs Down (Side 2 Left)"
+        },
+        {
+          "id": 125,
+          "count": 1,
+          "description": "Dungeon Graphics - Stairs (Side 1)"
+        },
+        {
+          "id": 456,
+          "count": 1,
+          "description": "Missile 00 (Side)"
+        },
+        {
+          "id": 457,
+          "count": 1,
+          "description": "Missile 01 (Front)"
+        },
+        {
+          "id": 458,
+          "count": 1,
+          "description": "Missile 01 (Back)"
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 2,
+          "description": "Interface - Main Menu Left Door",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "resourceId": 2,
+          "description": "Interface - Main Menu Left Door",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "resourceId": 2,
+          "description": "Interface - Main Menu Left Door",
+          "x": 0,
+          "y": -20
+        },
+        {
+          "resourceId": 123,
+          "description": "Dungeon Graphics - Stairs Up (Side 2 Left)",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "resourceId": 124,
+          "description": "Dungeon Graphics - Stairs Down (Side 2 Left)",
+          "x": 0,
+          "y": -2
+        },
+        {
+          "resourceId": 125,
+          "description": "Dungeon Graphics - Stairs (Side 1)",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "resourceId": 456,
+          "description": "Missile 00 (Side)",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "resourceId": 457,
+          "description": "Missile 01 (Front)",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "resourceId": 458,
+          "description": "Missile 01 (Back)",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "resourceId": 459,
+          "description": "Missile 01 (Side)",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "resourceId": 460,
+          "description": "Missile 02 (Front)",
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "opcode": 11,
+      "count": 30,
+      "topResourceIds": [
+        {
+          "id": 4,
+          "count": 29,
+          "description": "Interface - Main Menu Screen (English)"
+        },
+        {
+          "id": 429,
+          "count": 1,
+          "description": "Floor ornate 08 (Left Side 2)"
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 429,
+          "description": "Floor ornate 08 (Left Side 2)",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 25
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 7,
+          "y": 25
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 24
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 19
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 9
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 16,
+          "y": 27
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 6,
+          "y": 22
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 14
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 25
+        }
+      ]
+    },
+    {
+      "opcode": 12,
+      "count": 29,
+      "topResourceIds": [
+        {
+          "id": 4,
+          "count": 28,
+          "description": "Interface - Main Menu Screen (English)"
+        },
+        {
+          "id": 429,
+          "count": 1,
+          "description": "Floor ornate 08 (Left Side 2)"
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 429,
+          "description": "Floor ornate 08 (Left Side 2)",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 25
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": -7,
+          "y": 25
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 24
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 19
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 9
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": -16,
+          "y": 26
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 6,
+          "y": 22
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 14
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 25
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": -14,
+          "y": 26
+        }
+      ]
+    },
+    {
+      "opcode": 15,
+      "count": 25,
+      "topResourceIds": [
+        {
+          "id": 4,
+          "count": 21,
+          "description": "Interface - Main Menu Screen (English)"
+        },
+        {
+          "id": 2,
+          "count": 1,
+          "description": "Interface - Main Menu Left Door"
+        },
+        {
+          "id": 123,
+          "count": 1,
+          "description": "Dungeon Graphics - Stairs Up (Side 2 Left)"
+        },
+        {
+          "id": 124,
+          "count": 1,
+          "description": "Dungeon Graphics - Stairs Down (Side 2 Left)"
+        },
+        {
+          "id": 125,
+          "count": 1,
+          "description": "Dungeon Graphics - Stairs (Side 1)"
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 2,
+          "description": "Interface - Main Menu Left Door",
+          "x": 0,
+          "y": 118
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 25
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 19
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 9
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 21
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 12
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 65
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 35
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 25
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 20
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 9
+        }
+      ]
+    },
+    {
+      "opcode": 5,
+      "count": 15,
+      "topResourceIds": [
+        {
+          "id": 4,
+          "count": 15,
+          "description": "Interface - Main Menu Screen (English)"
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 18,
+          "y": 41
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 205,
+          "y": 38
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 78,
+          "y": 41
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 145,
+          "y": 41
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 44,
+          "y": 38
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 115,
+          "y": 38
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 182,
+          "y": 38
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 69,
+          "y": 38
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 155,
+          "y": 38
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 11,
+          "y": 37
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 113,
+          "y": 37
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 217,
+          "y": 37
+        }
+      ]
+    },
+    {
+      "opcode": 18,
+      "count": 15,
+      "topResourceIds": [
+        {
+          "id": 252,
+          "count": 4,
+          "description": "Door Graphics 2 (Front 3)"
+        },
+        {
+          "id": 159,
+          "count": 1,
+          "description": "No Item Data"
+        },
+        {
+          "id": 160,
+          "count": 1,
+          "description": "No Item Data"
+        },
+        {
+          "id": 161,
+          "count": 1,
+          "description": "No Item Data"
+        },
+        {
+          "id": 162,
+          "count": 1,
+          "description": "No Item Data"
+        },
+        {
+          "id": 224,
+          "count": 1,
+          "description": "No Item Data"
+        },
+        {
+          "id": 230,
+          "count": 1,
+          "description": "No Item Data"
+        },
+        {
+          "id": 236,
+          "count": 1,
+          "description": "No Item Data"
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 159,
+          "description": "No Item Data",
+          "x": 1,
+          "y": 0
+        },
+        {
+          "resourceId": 160,
+          "description": "No Item Data",
+          "x": 1,
+          "y": 0
+        },
+        {
+          "resourceId": 161,
+          "description": "No Item Data",
+          "x": 1,
+          "y": 0
+        },
+        {
+          "resourceId": 162,
+          "description": "No Item Data",
+          "x": 1,
+          "y": 0
+        },
+        {
+          "resourceId": 224,
+          "description": "No Item Data",
+          "x": 2,
+          "y": 1
+        },
+        {
+          "resourceId": 230,
+          "description": "No Item Data",
+          "x": 2,
+          "y": 1
+        },
+        {
+          "resourceId": 236,
+          "description": "No Item Data",
+          "x": 2,
+          "y": 1
+        },
+        {
+          "resourceId": 242,
+          "description": "No Item Data",
+          "x": 2,
+          "y": 1
+        },
+        {
+          "resourceId": 252,
+          "description": "Door Graphics 2 (Front 3)",
+          "x": 8,
+          "y": 0
+        },
+        {
+          "resourceId": 252,
+          "description": "Door Graphics 2 (Front 3)",
+          "x": 17,
+          "y": 0
+        },
+        {
+          "resourceId": 252,
+          "description": "Door Graphics 2 (Front 3)",
+          "x": 26,
+          "y": 0
+        },
+        {
+          "resourceId": 252,
+          "description": "Door Graphics 2 (Front 3)",
+          "x": 35,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "opcode": 3,
+      "count": 8,
+      "topResourceIds": [
+        {
+          "id": 4,
+          "count": 4,
+          "description": "Interface - Main Menu Screen (English)"
+        },
+        {
+          "id": 8,
+          "count": 1,
+          "description": "Interface - Dead Champion Information"
+        },
+        {
+          "id": 12,
+          "count": 1,
+          "description": "No Item Data"
+        },
+        {
+          "id": 738,
+          "count": 1,
+          "description": "Interface - Main Menu Screen (German)"
+        },
+        {
+          "id": 739,
+          "count": 1,
+          "description": "Interface - 'Ende' Label"
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 8,
+          "description": "Interface - Dead Champion Information",
+          "x": 319,
+          "y": 168
+        },
+        {
+          "resourceId": 12,
+          "description": "No Item Data",
+          "x": 319,
+          "y": 74
+        },
+        {
+          "resourceId": 738,
+          "description": "Interface - Main Menu Screen (German)",
+          "x": 111,
+          "y": 135
+        },
+        {
+          "resourceId": 739,
+          "description": "Interface - 'Ende' Label",
+          "x": 111,
+          "y": 114
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 95,
+          "y": 116
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 95,
+          "y": 124
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 95,
+          "y": 132
+        },
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 218,
+          "y": 132
+        }
+      ]
+    },
+    {
+      "opcode": 8,
+      "count": 7,
+      "topResourceIds": [
+        {
+          "id": 101,
+          "count": 4,
+          "description": "Dungeon Graphics - Wall (Left Side 2)"
+        },
+        {
+          "id": 102,
+          "count": 2,
+          "description": "Dungeon Graphics - Wall (Front 2)"
+        },
+        {
+          "id": 4,
+          "count": 1,
+          "description": "Interface - Main Menu Screen (English)"
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 107
+        },
+        {
+          "resourceId": 102,
+          "description": "Dungeon Graphics - Wall (Front 2)",
+          "x": 33,
+          "y": 20
+        },
+        {
+          "resourceId": 102,
+          "description": "Dungeon Graphics - Wall (Front 2)",
+          "x": 33,
+          "y": 43
+        },
+        {
+          "resourceId": 101,
+          "description": "Dungeon Graphics - Wall (Left Side 2)",
+          "x": 32,
+          "y": 13
+        },
+        {
+          "resourceId": 101,
+          "description": "Dungeon Graphics - Wall (Left Side 2)",
+          "x": 32,
+          "y": 36
+        },
+        {
+          "resourceId": 101,
+          "description": "Dungeon Graphics - Wall (Left Side 2)",
+          "x": 32,
+          "y": 58
+        },
+        {
+          "resourceId": 101,
+          "description": "Dungeon Graphics - Wall (Left Side 2)",
+          "x": 54,
+          "y": 16
+        }
+      ]
+    },
+    {
+      "opcode": 17,
+      "count": 3,
+      "topResourceIds": [
+        {
+          "id": 123,
+          "count": 1,
+          "description": "Dungeon Graphics - Stairs Up (Side 2 Left)"
+        },
+        {
+          "id": 124,
+          "count": 1,
+          "description": "Dungeon Graphics - Stairs Down (Side 2 Left)"
+        },
+        {
+          "id": 125,
+          "count": 1,
+          "description": "Dungeon Graphics - Stairs (Side 1)"
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 123,
+          "description": "Dungeon Graphics - Stairs Up (Side 2 Left)",
+          "x": 6,
+          "y": -1
+        },
+        {
+          "resourceId": 124,
+          "description": "Dungeon Graphics - Stairs Down (Side 2 Left)",
+          "x": 8,
+          "y": -8
+        },
+        {
+          "resourceId": 125,
+          "description": "Dungeon Graphics - Stairs (Side 1)",
+          "x": 12,
+          "y": -8
+        }
+      ]
+    },
+    {
+      "opcode": 64525,
+      "count": 1,
+      "topResourceIds": [
+        {
+          "id": 23,
+          "count": 1,
+          "description": "Interface - Character Sheet - Open Scroll"
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 23,
+          "description": "Interface - Character Sheet - Open Scroll",
+          "x": 1,
+          "y": 17
+        }
+      ]
+    },
+    {
+      "opcode": 400,
+      "count": 1,
+      "topResourceIds": [
+        {
+          "id": 436,
+          "count": 1,
+          "description": "Floor ornate 09 (Front 2)"
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 436,
+          "description": "Floor ornate 09 (Front 2)",
+          "x": 120,
+          "y": 139
+        }
+      ]
+    },
+    {
+      "opcode": 700,
+      "count": 1,
+      "topResourceIds": [
+        {
+          "id": 749,
+          "count": 1,
+          "description": null
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 749,
+          "description": null,
+          "x": 800,
+          "y": 833
+        }
+      ]
+    },
+    {
+      "opcode": 850,
+      "count": 1,
+      "topResourceIds": [
+        {
+          "id": 872,
+          "count": 1,
+          "description": null
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 872,
+          "description": null,
+          "x": 3200,
+          "y": 3394
+        }
+      ]
+    },
+    {
+      "opcode": 2900,
+      "count": 1,
+      "topResourceIds": [
+        {
+          "id": 2947,
+          "count": 1,
+          "description": null
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 2947,
+          "description": null,
+          "x": 2500,
+          "y": 2568
+        }
+      ]
+    },
+    {
+      "opcode": 3000,
+      "count": 1,
+      "topResourceIds": [
+        {
+          "id": 3064,
+          "count": 1,
+          "description": null
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 3064,
+          "description": null,
+          "x": 1000,
+          "y": 1138
+        }
+      ]
+    },
+    {
+      "opcode": 1500,
+      "count": 1,
+      "topResourceIds": [
+        {
+          "id": 1510,
+          "count": 1,
+          "description": null
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 1510,
+          "description": null,
+          "x": 2000,
+          "y": 2008
+        }
+      ]
+    },
+    {
+      "opcode": 3700,
+      "count": 1,
+      "topResourceIds": [
+        {
+          "id": 3809,
+          "count": 1,
+          "description": null
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 3809,
+          "description": null,
+          "x": 1950,
+          "y": 1953
+        }
+      ]
+    },
+    {
+      "opcode": 450,
+      "count": 1,
+      "topResourceIds": [
+        {
+          "id": 471,
+          "count": 1,
+          "description": "Missile 06 (Front)"
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 471,
+          "description": "Missile 06 (Front)",
+          "x": 100,
+          "y": 106
+        }
+      ]
+    },
+    {
+      "opcode": 500,
+      "count": 1,
+      "topResourceIds": [
+        {
+          "id": 618,
+          "count": 1,
+          "description": "Creature 11 (Attack)"
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 618,
+          "description": "Creature 11 (Attack)",
+          "x": 150,
+          "y": 218
+        }
+      ]
+    },
+    {
+      "opcode": 220,
+      "count": 1,
+      "topResourceIds": [
+        {
+          "id": 264,
+          "count": 1,
+          "description": "Wall Ornate 02 (Front)"
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 264,
+          "description": "Wall Ornate 02 (Front)",
+          "x": 75,
+          "y": 98
+        }
+      ]
+    },
+    {
+      "opcode": 65,
+      "count": 1,
+      "topResourceIds": [
+        {
+          "id": 73,
+          "count": 1,
+          "description": "Dungeon Graphics - Wall Mask (Left Front 2)"
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 73,
+          "description": "Dungeon Graphics - Wall Mask (Left Front 2)",
+          "x": 110,
+          "y": 116
+        }
+      ]
+    },
+    {
+      "opcode": 14,
+      "count": 1,
+      "topResourceIds": [
+        {
+          "id": 4,
+          "count": 1,
+          "description": "Interface - Main Menu Screen (English)"
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "opcode": 6,
+      "count": 1,
+      "topResourceIds": [
+        {
+          "id": 4,
+          "count": 1,
+          "description": "Interface - Main Menu Screen (English)"
+        }
+      ],
+      "samples": [
+        {
+          "resourceId": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 223,
+          "y": 107
+        }
+      ]
+    }
+  ],
+  "notableRanges": [
+    {
+      "start": 2900,
+      "end": 2947,
+      "lengthWords": 48,
+      "approximateTupleCount": 12,
+      "topOpcodes": [
+        {
+          "opcode": 17,
+          "count": 3
+        },
+        {
+          "opcode": 4,
+          "count": 3
+        },
+        {
+          "opcode": 2,
+          "count": 3
+        },
+        {
+          "opcode": 1,
+          "count": 2
+        },
+        {
+          "opcode": 10,
+          "count": 1
+        }
+      ],
+      "topTargets": [
+        {
+          "id": 129,
+          "count": 8,
+          "description": "No Item Data"
+        },
+        {
+          "id": 125,
+          "count": 2,
+          "description": "Dungeon Graphics - Stairs (Side 1)"
+        },
+        {
+          "id": 123,
+          "count": 1,
+          "description": "Dungeon Graphics - Stairs Up (Side 2 Left)"
+        },
+        {
+          "id": 124,
+          "count": 1,
+          "description": "Dungeon Graphics - Stairs Down (Side 2 Left)"
+        }
+      ],
+      "samples": [
+        {
+          "wordIndex": 2900,
+          "opcode": 10,
+          "target": 125,
+          "description": "Dungeon Graphics - Stairs (Side 1)",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "wordIndex": 2904,
+          "opcode": 17,
+          "target": 123,
+          "description": "Dungeon Graphics - Stairs Up (Side 2 Left)",
+          "x": 6,
+          "y": -1
+        },
+        {
+          "wordIndex": 2908,
+          "opcode": 17,
+          "target": 124,
+          "description": "Dungeon Graphics - Stairs Down (Side 2 Left)",
+          "x": 8,
+          "y": -8
+        },
+        {
+          "wordIndex": 2912,
+          "opcode": 17,
+          "target": 125,
+          "description": "Dungeon Graphics - Stairs (Side 1)",
+          "x": 12,
+          "y": -8
+        },
+        {
+          "wordIndex": 2916,
+          "opcode": 1,
+          "target": 129,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "wordIndex": 2920,
+          "opcode": 4,
+          "target": 129,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 10
+        },
+        {
+          "wordIndex": 2924,
+          "opcode": 4,
+          "target": 129,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 20
+        },
+        {
+          "wordIndex": 2928,
+          "opcode": 4,
+          "target": 129,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 30
+        },
+        {
+          "wordIndex": 2932,
+          "opcode": 2,
+          "target": 129,
+          "description": "No Item Data",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "wordIndex": 2936,
+          "opcode": 2,
+          "target": 129,
+          "description": "No Item Data",
+          "x": 12,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "start": 3000,
+      "end": 3064,
+      "lengthWords": 65,
+      "approximateTupleCount": 16,
+      "topOpcodes": [
+        {
+          "opcode": 4,
+          "count": 6
+        },
+        {
+          "opcode": 2,
+          "count": 6
+        },
+        {
+          "opcode": 1,
+          "count": 4
+        }
+      ],
+      "topTargets": [
+        {
+          "id": 131,
+          "count": 9,
+          "description": "No Item Data"
+        },
+        {
+          "id": 132,
+          "count": 7,
+          "description": "No Item Data"
+        }
+      ],
+      "samples": [
+        {
+          "wordIndex": 3000,
+          "opcode": 4,
+          "target": 131,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 10
+        },
+        {
+          "wordIndex": 3004,
+          "opcode": 4,
+          "target": 131,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 20
+        },
+        {
+          "wordIndex": 3008,
+          "opcode": 4,
+          "target": 131,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 30
+        },
+        {
+          "wordIndex": 3012,
+          "opcode": 2,
+          "target": 131,
+          "description": "No Item Data",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "wordIndex": 3016,
+          "opcode": 2,
+          "target": 131,
+          "description": "No Item Data",
+          "x": 12,
+          "y": 0
+        },
+        {
+          "wordIndex": 3020,
+          "opcode": 2,
+          "target": 131,
+          "description": "No Item Data",
+          "x": 18,
+          "y": 0
+        },
+        {
+          "wordIndex": 3024,
+          "opcode": 1,
+          "target": 131,
+          "description": "No Item Data",
+          "x": 42,
+          "y": 0
+        },
+        {
+          "wordIndex": 3028,
+          "opcode": 1,
+          "target": 131,
+          "description": "No Item Data",
+          "x": 36,
+          "y": 0
+        },
+        {
+          "wordIndex": 3032,
+          "opcode": 1,
+          "target": 131,
+          "description": "No Item Data",
+          "x": 30,
+          "y": 0
+        },
+        {
+          "wordIndex": 3036,
+          "opcode": 1,
+          "target": 132,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 1
+        }
+      ]
+    },
+    {
+      "start": 3200,
+      "end": 3394,
+      "lengthWords": 195,
+      "approximateTupleCount": 48,
+      "topOpcodes": [
+        {
+          "opcode": 1,
+          "count": 18
+        },
+        {
+          "opcode": 4,
+          "count": 13
+        },
+        {
+          "opcode": 2,
+          "count": 12
+        },
+        {
+          "opcode": 0,
+          "count": 4
+        },
+        {
+          "opcode": 9,
+          "count": 1
+        }
+      ],
+      "topTargets": [
+        {
+          "id": 137,
+          "count": 10,
+          "description": "No Item Data"
+        },
+        {
+          "id": 138,
+          "count": 10,
+          "description": "No Item Data"
+        },
+        {
+          "id": 139,
+          "count": 10,
+          "description": "No Item Data"
+        },
+        {
+          "id": 136,
+          "count": 9,
+          "description": "No Item Data"
+        },
+        {
+          "id": 4,
+          "count": 9,
+          "description": "Interface - Main Menu Screen (English)"
+        }
+      ],
+      "samples": [
+        {
+          "wordIndex": 3200,
+          "opcode": 4,
+          "target": 136,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 16
+        },
+        {
+          "wordIndex": 3204,
+          "opcode": 4,
+          "target": 136,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 31
+        },
+        {
+          "wordIndex": 3208,
+          "opcode": 4,
+          "target": 136,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 46
+        },
+        {
+          "wordIndex": 3212,
+          "opcode": 2,
+          "target": 136,
+          "description": "No Item Data",
+          "x": 8,
+          "y": 0
+        },
+        {
+          "wordIndex": 3216,
+          "opcode": 2,
+          "target": 136,
+          "description": "No Item Data",
+          "x": 16,
+          "y": 0
+        },
+        {
+          "wordIndex": 3220,
+          "opcode": 2,
+          "target": 136,
+          "description": "No Item Data",
+          "x": 24,
+          "y": 0
+        },
+        {
+          "wordIndex": 3224,
+          "opcode": 1,
+          "target": 136,
+          "description": "No Item Data",
+          "x": 56,
+          "y": 0
+        },
+        {
+          "wordIndex": 3228,
+          "opcode": 1,
+          "target": 136,
+          "description": "No Item Data",
+          "x": 48,
+          "y": 0
+        },
+        {
+          "wordIndex": 3232,
+          "opcode": 1,
+          "target": 136,
+          "description": "No Item Data",
+          "x": 40,
+          "y": 0
+        },
+        {
+          "wordIndex": 3236,
+          "opcode": 1,
+          "target": 137,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 1
+        }
+      ]
+    },
+    {
+      "start": 3700,
+      "end": 3809,
+      "lengthWords": 110,
+      "approximateTupleCount": 27,
+      "topOpcodes": [
+        {
+          "opcode": 1,
+          "count": 9
+        },
+        {
+          "opcode": 4,
+          "count": 8
+        },
+        {
+          "opcode": 9,
+          "count": 8
+        },
+        {
+          "opcode": 3,
+          "count": 1
+        },
+        {
+          "opcode": 0,
+          "count": 1
+        }
+      ],
+      "topTargets": [
+        {
+          "id": 101,
+          "count": 11,
+          "description": "Dungeon Graphics - Wall (Left Side 2)"
+        },
+        {
+          "id": 4,
+          "count": 7,
+          "description": "Interface - Main Menu Screen (English)"
+        },
+        {
+          "id": 569,
+          "count": 2,
+          "description": "Item on floor 71"
+        },
+        {
+          "id": 561,
+          "count": 1,
+          "description": "Item on floor 63"
+        },
+        {
+          "id": 563,
+          "count": 1,
+          "description": "Item on floor 65"
+        },
+        {
+          "id": 565,
+          "count": 1,
+          "description": "Item on floor 67"
+        },
+        {
+          "id": 567,
+          "count": 1,
+          "description": "Item on floor 69"
+        },
+        {
+          "id": 572,
+          "count": 1,
+          "description": "Item on floor 74"
+        }
+      ],
+      "samples": [
+        {
+          "wordIndex": 3700,
+          "opcode": 4,
+          "target": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 3,
+          "y": 7
+        },
+        {
+          "wordIndex": 3704,
+          "opcode": 4,
+          "target": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 104,
+          "y": 132
+        },
+        {
+          "wordIndex": 3708,
+          "opcode": 3,
+          "target": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 218,
+          "y": 132
+        },
+        {
+          "wordIndex": 3712,
+          "opcode": 4,
+          "target": 101,
+          "description": "Dungeon Graphics - Wall (Left Side 2)",
+          "x": 28,
+          "y": 7
+        },
+        {
+          "wordIndex": 3716,
+          "opcode": 4,
+          "target": 101,
+          "description": "Dungeon Graphics - Wall (Left Side 2)",
+          "x": 28,
+          "y": 6
+        },
+        {
+          "wordIndex": 3720,
+          "opcode": 4,
+          "target": 101,
+          "description": "Dungeon Graphics - Wall (Left Side 2)",
+          "x": 28,
+          "y": 34
+        },
+        {
+          "wordIndex": 3724,
+          "opcode": 4,
+          "target": 101,
+          "description": "Dungeon Graphics - Wall (Left Side 2)",
+          "x": 94,
+          "y": 34
+        },
+        {
+          "wordIndex": 3728,
+          "opcode": 0,
+          "target": 101,
+          "description": "Dungeon Graphics - Wall (Left Side 2)",
+          "x": 84,
+          "y": 35
+        },
+        {
+          "wordIndex": 3732,
+          "opcode": 9,
+          "target": 4,
+          "description": "Interface - Main Menu Screen (English)",
+          "x": 11,
+          "y": 11
+        },
+        {
+          "wordIndex": 3736,
+          "opcode": 1,
+          "target": 561,
+          "description": "Item on floor 63",
+          "x": 179,
+          "y": 2
+        }
+      ]
+    },
+    {
+      "start": 3812,
+      "end": 3963,
+      "lengthWords": 152,
+      "approximateTupleCount": 38,
+      "topOpcodes": [
+        {
+          "opcode": 1,
+          "count": 37
+        },
+        {
+          "opcode": 9,
+          "count": 1
+        }
+      ],
+      "topTargets": [
+        {
+          "id": 582,
+          "count": 31,
+          "description": "Item on floor 84"
+        },
+        {
+          "id": 101,
+          "count": 6,
+          "description": "Dungeon Graphics - Wall (Left Side 2)"
+        },
+        {
+          "id": 580,
+          "count": 1,
+          "description": "Item on floor 82"
+        }
+      ],
+      "samples": [
+        {
+          "wordIndex": 3812,
+          "opcode": 1,
+          "target": 580,
+          "description": "Item on floor 82",
+          "x": 127,
+          "y": 41
+        },
+        {
+          "wordIndex": 3816,
+          "opcode": 9,
+          "target": 101,
+          "description": "Dungeon Graphics - Wall (Left Side 2)",
+          "x": 9,
+          "y": 9
+        },
+        {
+          "wordIndex": 3820,
+          "opcode": 1,
+          "target": 582,
+          "description": "Item on floor 84",
+          "x": 27,
+          "y": 31
+        },
+        {
+          "wordIndex": 3824,
+          "opcode": 1,
+          "target": 582,
+          "description": "Item on floor 84",
+          "x": 37,
+          "y": 31
+        },
+        {
+          "wordIndex": 3828,
+          "opcode": 1,
+          "target": 582,
+          "description": "Item on floor 84",
+          "x": 47,
+          "y": 31
+        },
+        {
+          "wordIndex": 3832,
+          "opcode": 1,
+          "target": 582,
+          "description": "Item on floor 84",
+          "x": 57,
+          "y": 31
+        },
+        {
+          "wordIndex": 3836,
+          "opcode": 1,
+          "target": 582,
+          "description": "Item on floor 84",
+          "x": 67,
+          "y": 31
+        },
+        {
+          "wordIndex": 3840,
+          "opcode": 1,
+          "target": 582,
+          "description": "Item on floor 84",
+          "x": 77,
+          "y": 31
+        },
+        {
+          "wordIndex": 3844,
+          "opcode": 1,
+          "target": 582,
+          "description": "Item on floor 84",
+          "x": 87,
+          "y": 31
+        },
+        {
+          "wordIndex": 3848,
+          "opcode": 1,
+          "target": 582,
+          "description": "Item on floor 84",
+          "x": 97,
+          "y": 31
+        }
+      ]
+    },
+    {
+      "start": 3964,
+      "end": 4247,
+      "lengthWords": 284,
+      "approximateTupleCount": 71,
+      "topOpcodes": [
+        {
+          "opcode": 1,
+          "count": 25
+        },
+        {
+          "opcode": 9,
+          "count": 22
+        },
+        {
+          "opcode": 7,
+          "count": 12
+        },
+        {
+          "opcode": 10,
+          "count": 8
+        },
+        {
+          "opcode": 18,
+          "count": 4
+        }
+      ],
+      "topTargets": [
+        {
+          "id": 150,
+          "count": 4,
+          "description": "No Item Data"
+        },
+        {
+          "id": 151,
+          "count": 4,
+          "description": "No Item Data"
+        },
+        {
+          "id": 152,
+          "count": 4,
+          "description": "No Item Data"
+        },
+        {
+          "id": 153,
+          "count": 4,
+          "description": "No Item Data"
+        },
+        {
+          "id": 154,
+          "count": 4,
+          "description": "No Item Data"
+        },
+        {
+          "id": 191,
+          "count": 3,
+          "description": "No Item Data"
+        },
+        {
+          "id": 192,
+          "count": 3,
+          "description": "No Item Data"
+        },
+        {
+          "id": 193,
+          "count": 3,
+          "description": "No Item Data"
+        }
+      ],
+      "samples": [
+        {
+          "wordIndex": 3964,
+          "opcode": 9,
+          "target": 0,
+          "description": "Interface - Dialog Box",
+          "x": 67,
+          "y": 29
+        },
+        {
+          "wordIndex": 3968,
+          "opcode": 1,
+          "target": 150,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "wordIndex": 3972,
+          "opcode": 1,
+          "target": 150,
+          "description": "No Item Data",
+          "x": 69,
+          "y": 0
+        },
+        {
+          "wordIndex": 3976,
+          "opcode": 1,
+          "target": 150,
+          "description": "No Item Data",
+          "x": 138,
+          "y": 0
+        },
+        {
+          "wordIndex": 3980,
+          "opcode": 1,
+          "target": 150,
+          "description": "No Item Data",
+          "x": 207,
+          "y": 0
+        },
+        {
+          "wordIndex": 3984,
+          "opcode": 9,
+          "target": 151,
+          "description": "No Item Data",
+          "x": 43,
+          "y": 7
+        },
+        {
+          "wordIndex": 3988,
+          "opcode": 9,
+          "target": 152,
+          "description": "No Item Data",
+          "x": 43,
+          "y": 7
+        },
+        {
+          "wordIndex": 3992,
+          "opcode": 9,
+          "target": 153,
+          "description": "No Item Data",
+          "x": 43,
+          "y": 7
+        },
+        {
+          "wordIndex": 3996,
+          "opcode": 9,
+          "target": 154,
+          "description": "No Item Data",
+          "x": 43,
+          "y": 7
+        },
+        {
+          "wordIndex": 4000,
+          "opcode": 1,
+          "target": 155,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "start": 4248,
+      "end": 4327,
+      "lengthWords": 80,
+      "approximateTupleCount": 20,
+      "topOpcodes": [
+        {
+          "opcode": 1,
+          "count": 15
+        },
+        {
+          "opcode": 18,
+          "count": 3
+        },
+        {
+          "opcode": 9,
+          "count": 2
+        }
+      ],
+      "topTargets": [
+        {
+          "id": 223,
+          "count": 12,
+          "description": "No Item Data"
+        },
+        {
+          "id": 222,
+          "count": 3,
+          "description": "No Item Data"
+        },
+        {
+          "id": 221,
+          "count": 2,
+          "description": "No Item Data"
+        },
+        {
+          "id": 224,
+          "count": 1,
+          "description": "No Item Data"
+        },
+        {
+          "id": 230,
+          "count": 1,
+          "description": "No Item Data"
+        },
+        {
+          "id": 236,
+          "count": 1,
+          "description": "No Item Data"
+        }
+      ],
+      "samples": [
+        {
+          "wordIndex": 4248,
+          "opcode": 9,
+          "target": 221,
+          "description": "No Item Data",
+          "x": 45,
+          "y": 8
+        },
+        {
+          "wordIndex": 4252,
+          "opcode": 9,
+          "target": 221,
+          "description": "No Item Data",
+          "x": 12,
+          "y": 7
+        },
+        {
+          "wordIndex": 4256,
+          "opcode": 1,
+          "target": 222,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "wordIndex": 4260,
+          "opcode": 1,
+          "target": 223,
+          "description": "No Item Data",
+          "x": 47,
+          "y": 0
+        },
+        {
+          "wordIndex": 4264,
+          "opcode": 1,
+          "target": 223,
+          "description": "No Item Data",
+          "x": 61,
+          "y": 0
+        },
+        {
+          "wordIndex": 4268,
+          "opcode": 1,
+          "target": 223,
+          "description": "No Item Data",
+          "x": 75,
+          "y": 0
+        },
+        {
+          "wordIndex": 4272,
+          "opcode": 18,
+          "target": 224,
+          "description": "No Item Data",
+          "x": 2,
+          "y": 1
+        },
+        {
+          "wordIndex": 4276,
+          "opcode": 1,
+          "target": 223,
+          "description": "No Item Data",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "wordIndex": 4280,
+          "opcode": 1,
+          "target": 222,
+          "description": "No Item Data",
+          "x": 14,
+          "y": 0
+        },
+        {
+          "wordIndex": 4284,
+          "opcode": 1,
+          "target": 223,
+          "description": "No Item Data",
+          "x": 61,
+          "y": 0
+        }
+      ]
+    }
+  ],
+  "dimensionMatches": [
+    {
+      "wordIndex": 50,
+      "pair": "320x200",
+      "resources": [
+        {
+          "id": 1,
+          "description": "Interface - Main Title"
+        },
+        {
+          "id": 4,
+          "description": "Interface - Main Menu Screen (English)"
+        },
+        {
+          "id": 5,
+          "description": "Interface - Credits"
+        },
+        {
+          "id": 728,
+          "description": "Interface - Main Menu Screen (French)"
+        },
+        {
+          "id": 738,
+          "description": "Interface - Main Menu Screen (German)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 58,
+      "pair": "224x136",
+      "resources": [
+        {
+          "id": 0,
+          "description": "Interface - Dialog Box"
+        },
+        {
+          "id": 17,
+          "description": "Interface - Character Sheet"
+        }
+      ]
+    },
+    {
+      "wordIndex": 68,
+      "pair": "10x4",
+      "resources": [
+        {
+          "id": 503,
+          "description": "Item on floor 05"
+        }
+      ]
+    },
+    {
+      "wordIndex": 78,
+      "pair": "87x45",
+      "resources": [
+        {
+          "id": 10,
+          "description": "Interface - Item Actions Area"
+        },
+        {
+          "id": 13,
+          "description": "Interface - Movement Arrows"
+        }
+      ]
+    },
+    {
+      "wordIndex": 86,
+      "pair": "87x45",
+      "resources": [
+        {
+          "id": 10,
+          "description": "Interface - Item Actions Area"
+        },
+        {
+          "id": 13,
+          "description": "Interface - Movement Arrows"
+        }
+      ]
+    },
+    {
+      "wordIndex": 159,
+      "pair": "14x4",
+      "resources": [
+        {
+          "id": 397,
+          "description": "Floor ornate 03 (Left Side 3)"
+        },
+        {
+          "id": 410,
+          "description": "Floor ornate 05 (Front 3)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 250,
+      "pair": "50x15",
+      "resources": [
+        {
+          "id": 438,
+          "description": "Floor ornate 09 (Front 1)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 266,
+      "pair": "44x38",
+      "resources": [
+        {
+          "id": 246,
+          "description": "Door Graphics 0 (Front 3)"
+        },
+        {
+          "id": 249,
+          "description": "Door Graphics 1 (Front 3)"
+        },
+        {
+          "id": 252,
+          "description": "Door Graphics 2 (Front 3)"
+        },
+        {
+          "id": 255,
+          "description": "Door Graphics 3 (Front 3)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 270,
+      "pair": "64x61",
+      "resources": [
+        {
+          "id": 247,
+          "description": "Door Graphics 0 (Front 2)"
+        },
+        {
+          "id": 250,
+          "description": "Door Graphics 1 (Front 2)"
+        },
+        {
+          "id": 253,
+          "description": "Door Graphics 2 (Front 2)"
+        },
+        {
+          "id": 256,
+          "description": "Door Graphics 3 (Front 2)"
+        },
+        {
+          "id": 594,
+          "description": "Creature 03 (Front)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 274,
+      "pair": "96x88",
+      "resources": [
+        {
+          "id": 248,
+          "description": "Door Graphics 0 (Front 1)"
+        },
+        {
+          "id": 251,
+          "description": "Door Graphics 1 (Front 1)"
+        },
+        {
+          "id": 254,
+          "description": "Door Graphics 2 (Front 1)"
+        },
+        {
+          "id": 257,
+          "description": "Door Graphics 3 (Front 1)"
+        },
+        {
+          "id": 439,
+          "description": "Door Mask 0"
+        }
+      ]
+    },
+    {
+      "wordIndex": 288,
+      "pair": "9x4",
+      "resources": [
+        {
+          "id": 582,
+          "description": "Item on floor 84"
+        }
+      ]
+    },
+    {
+      "wordIndex": 292,
+      "pair": "9x4",
+      "resources": [
+        {
+          "id": 582,
+          "description": "Item on floor 84"
+        }
+      ]
+    },
+    {
+      "wordIndex": 294,
+      "pair": "64x59",
+      "resources": [
+        {
+          "id": 631,
+          "description": "Creature 15 (Front)"
+        },
+        {
+          "id": 633,
+          "description": "Creature 15 (Back)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 296,
+      "pair": "9x4",
+      "resources": [
+        {
+          "id": 582,
+          "description": "Item on floor 84"
+        }
+      ]
+    },
+    {
+      "wordIndex": 348,
+      "pair": "14x4",
+      "resources": [
+        {
+          "id": 397,
+          "description": "Floor ornate 03 (Left Side 3)"
+        },
+        {
+          "id": 410,
+          "description": "Floor ornate 05 (Front 3)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 375,
+      "pair": "24x12",
+      "resources": [
+        {
+          "id": 341,
+          "description": "Wall Ornate 41 (Left Side)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 467,
+      "pair": "21x12",
+      "resources": [
+        {
+          "id": 343,
+          "description": "Wall Ornate 42 (Left Side)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 471,
+      "pair": "22x11",
+      "resources": [
+        {
+          "id": 455,
+          "description": "Missile 00 (Back)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 496,
+      "pair": "9x4",
+      "resources": [
+        {
+          "id": 582,
+          "description": "Item on floor 84"
+        }
+      ]
+    },
+    {
+      "wordIndex": 500,
+      "pair": "9x4",
+      "resources": [
+        {
+          "id": 582,
+          "description": "Item on floor 84"
+        }
+      ]
+    },
+    {
+      "wordIndex": 520,
+      "pair": "9x4",
+      "resources": [
+        {
+          "id": 582,
+          "description": "Item on floor 84"
+        }
+      ]
+    },
+    {
+      "wordIndex": 532,
+      "pair": "9x4",
+      "resources": [
+        {
+          "id": 582,
+          "description": "Item on floor 84"
+        }
+      ]
+    },
+    {
+      "wordIndex": 543,
+      "pair": "14x11",
+      "resources": [
+        {
+          "id": 454,
+          "description": "Missile 00 (Front)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 554,
+      "pair": "14x26",
+      "resources": [
+        {
+          "id": 276,
+          "description": "Wall Ornate 08 (Front)"
+        },
+        {
+          "id": 290,
+          "description": "Wall Ornate 15 (Front)"
+        },
+        {
+          "id": 292,
+          "description": "Wall Ornate 16 (Front)"
+        },
+        {
+          "id": 362,
+          "description": "Wall Ornate 51 (Front)"
+        },
+        {
+          "id": 364,
+          "description": "Wall Ornate 52 (Front)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 575,
+      "pair": "20x11",
+      "resources": [
+        {
+          "id": 458,
+          "description": "Missile 01 (Back)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 623,
+      "pair": "24x12",
+      "resources": [
+        {
+          "id": 341,
+          "description": "Wall Ornate 41 (Left Side)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1303,
+      "pair": "61x7",
+      "resources": [
+        {
+          "id": 534,
+          "description": "Item on floor 36"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1307,
+      "pair": "61x7",
+      "resources": [
+        {
+          "id": 534,
+          "description": "Item on floor 36"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1323,
+      "pair": "61x7",
+      "resources": [
+        {
+          "id": 534,
+          "description": "Item on floor 36"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1327,
+      "pair": "61x7",
+      "resources": [
+        {
+          "id": 534,
+          "description": "Item on floor 36"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1343,
+      "pair": "61x7",
+      "resources": [
+        {
+          "id": 534,
+          "description": "Item on floor 36"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1347,
+      "pair": "61x7",
+      "resources": [
+        {
+          "id": 534,
+          "description": "Item on floor 36"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1363,
+      "pair": "61x7",
+      "resources": [
+        {
+          "id": 534,
+          "description": "Item on floor 36"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1367,
+      "pair": "61x7",
+      "resources": [
+        {
+          "id": 534,
+          "description": "Item on floor 36"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1383,
+      "pair": "61x7",
+      "resources": [
+        {
+          "id": 534,
+          "description": "Item on floor 36"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1387,
+      "pair": "61x7",
+      "resources": [
+        {
+          "id": 534,
+          "description": "Item on floor 36"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1470,
+      "pair": "112x81",
+      "resources": [
+        {
+          "id": 654,
+          "description": "Creature 21 (Side)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1563,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1567,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1579,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1583,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1595,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1599,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1611,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1615,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1627,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1631,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1635,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1643,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1647,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1651,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1655,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1659,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1663,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1667,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1671,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1675,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1679,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1683,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1687,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1691,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1695,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1699,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1703,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1707,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1711,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1715,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1719,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1723,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1727,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1731,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1735,
+      "pair": "47x7",
+      "resources": [
+        {
+          "id": 545,
+          "description": "Item on floor 47"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1943,
+      "pair": "61x7",
+      "resources": [
+        {
+          "id": 534,
+          "description": "Item on floor 36"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1947,
+      "pair": "61x7",
+      "resources": [
+        {
+          "id": 534,
+          "description": "Item on floor 36"
+        }
+      ]
+    },
+    {
+      "wordIndex": 1971,
+      "pair": "61x7",
+      "resources": [
+        {
+          "id": 534,
+          "description": "Item on floor 36"
+        }
+      ]
+    },
+    {
+      "wordIndex": 2414,
+      "pair": "112x64",
+      "resources": [
+        {
+          "id": 597,
+          "description": "Creature 04 (Side)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 2734,
+      "pair": "44x38",
+      "resources": [
+        {
+          "id": 246,
+          "description": "Door Graphics 0 (Front 3)"
+        },
+        {
+          "id": 249,
+          "description": "Door Graphics 1 (Front 3)"
+        },
+        {
+          "id": 252,
+          "description": "Door Graphics 2 (Front 3)"
+        },
+        {
+          "id": 255,
+          "description": "Door Graphics 3 (Front 3)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 2891,
+      "pair": "22x10",
+      "resources": [
+        {
+          "id": 49,
+          "description": "Dungeon Graphics - Floor Pit (Far Left Side 3)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 2923,
+      "pair": "10x4",
+      "resources": [
+        {
+          "id": 503,
+          "description": "Item on floor 05"
+        }
+      ]
+    },
+    {
+      "wordIndex": 2927,
+      "pair": "20x4",
+      "resources": [
+        {
+          "id": 422,
+          "description": "Floor ornate 07 (Front 3)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 2963,
+      "pair": "10x4",
+      "resources": [
+        {
+          "id": 503,
+          "description": "Item on floor 05"
+        }
+      ]
+    },
+    {
+      "wordIndex": 2967,
+      "pair": "20x4",
+      "resources": [
+        {
+          "id": 422,
+          "description": "Floor ornate 07 (Front 3)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3003,
+      "pair": "10x4",
+      "resources": [
+        {
+          "id": 503,
+          "description": "Item on floor 05"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3007,
+      "pair": "20x4",
+      "resources": [
+        {
+          "id": 422,
+          "description": "Floor ornate 07 (Front 3)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3043,
+      "pair": "10x4",
+      "resources": [
+        {
+          "id": 503,
+          "description": "Item on floor 05"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3047,
+      "pair": "20x4",
+      "resources": [
+        {
+          "id": 422,
+          "description": "Floor ornate 07 (Front 3)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3083,
+      "pair": "10x4",
+      "resources": [
+        {
+          "id": 503,
+          "description": "Item on floor 05"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3087,
+      "pair": "20x4",
+      "resources": [
+        {
+          "id": 422,
+          "description": "Floor ornate 07 (Front 3)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3123,
+      "pair": "16x4",
+      "resources": [
+        {
+          "id": 22,
+          "description": "Empty image 16x4"
+        },
+        {
+          "id": 68,
+          "description": "Dungeon Graphics - Ceiling Pit (Left Side 0)"
+        },
+        {
+          "id": 517,
+          "description": "Item on floor 19"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3163,
+      "pair": "16x4",
+      "resources": [
+        {
+          "id": 22,
+          "description": "Empty image 16x4"
+        },
+        {
+          "id": 68,
+          "description": "Dungeon Graphics - Ceiling Pit (Left Side 0)"
+        },
+        {
+          "id": 517,
+          "description": "Item on floor 19"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3203,
+      "pair": "16x4",
+      "resources": [
+        {
+          "id": 22,
+          "description": "Empty image 16x4"
+        },
+        {
+          "id": 68,
+          "description": "Dungeon Graphics - Ceiling Pit (Left Side 0)"
+        },
+        {
+          "id": 517,
+          "description": "Item on floor 19"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3337,
+      "pair": "139x24",
+      "resources": [
+        {
+          "id": 55,
+          "description": "Dungeon Graphics - Floor Pit (Front 1)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3388,
+      "pair": "9x4",
+      "resources": [
+        {
+          "id": 582,
+          "description": "Item on floor 84"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3391,
+      "pair": "17x9",
+      "resources": [
+        {
+          "id": 577,
+          "description": "Item on floor 79"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3392,
+      "pair": "9x4",
+      "resources": [
+        {
+          "id": 582,
+          "description": "Item on floor 84"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3444,
+      "pair": "9x4",
+      "resources": [
+        {
+          "id": 582,
+          "description": "Item on floor 84"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3452,
+      "pair": "9x4",
+      "resources": [
+        {
+          "id": 582,
+          "description": "Item on floor 84"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3459,
+      "pair": "32x9",
+      "resources": [
+        {
+          "id": 514,
+          "description": "Item on floor 16"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3460,
+      "pair": "9x4",
+      "resources": [
+        {
+          "id": 582,
+          "description": "Item on floor 84"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3462,
+      "pair": "144x73",
+      "resources": [
+        {
+          "id": 20,
+          "description": "Interface - Character Sheet - Empty Information Area"
+        },
+        {
+          "id": 23,
+          "description": "Interface - Character Sheet - Open Scroll"
+        },
+        {
+          "id": 25,
+          "description": "Interface - Character Sheet - Open Chest"
+        },
+        {
+          "id": 27,
+          "description": "Interface - Character Sheet - Rename Champion (English)"
+        },
+        {
+          "id": 40,
+          "description": "Interface - Character Sheet - Resurrect And Reincarnate (English)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3480,
+      "pair": "9x4",
+      "resources": [
+        {
+          "id": 582,
+          "description": "Item on floor 84"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3483,
+      "pair": "16x9",
+      "resources": [
+        {
+          "id": 18,
+          "description": "Interface - Character Sheet - Arrow Showing The Content Of A Chest"
+        },
+        {
+          "id": 19,
+          "description": "Interface - Character Sheet - Eye Showing The Properties Of An Item"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3487,
+      "pair": "16x8",
+      "resources": [
+        {
+          "id": 483,
+          "description": "Missile 11 (Front)"
+        },
+        {
+          "id": 557,
+          "description": "Item on floor 59"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3718,
+      "pair": "28x6",
+      "resources": [
+        {
+          "id": 411,
+          "description": "Floor ornate 05 (Left Side 2)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3732,
+      "pair": "9x4",
+      "resources": [
+        {
+          "id": 582,
+          "description": "Item on floor 84"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3740,
+      "pair": "9x4",
+      "resources": [
+        {
+          "id": 582,
+          "description": "Item on floor 84"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3748,
+      "pair": "9x4",
+      "resources": [
+        {
+          "id": 582,
+          "description": "Item on floor 84"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3756,
+      "pair": "9x4",
+      "resources": [
+        {
+          "id": 582,
+          "description": "Item on floor 84"
+        }
+      ]
+    },
+    {
+      "wordIndex": 3966,
+      "pair": "67x29",
+      "resources": [
+        {
+          "id": 7,
+          "description": "Interface - Champion Information"
+        },
+        {
+          "id": 8,
+          "description": "Interface - Dead Champion Information"
+        },
+        {
+          "id": 37,
+          "description": "Interface - Blue Border Around Champion Information (Shield Spell"
+        },
+        {
+          "id": 38,
+          "description": "Interface - Green Border Around Champion Information (Fire Shield Spell"
+        },
+        {
+          "id": 39,
+          "description": "Interface - Cyan Border Around Champion Information (Spellshield Action)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 4050,
+      "pair": "32x29",
+      "resources": [
+        {
+          "id": 16,
+          "description": "Interface - Damage Received (Big)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 4054,
+      "pair": "32x29",
+      "resources": [
+        {
+          "id": 16,
+          "description": "Interface - Damage Received (Big)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 4058,
+      "pair": "32x29",
+      "resources": [
+        {
+          "id": 16,
+          "description": "Interface - Damage Received (Big)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 4062,
+      "pair": "32x29",
+      "resources": [
+        {
+          "id": 16,
+          "description": "Interface - Damage Received (Big)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 4191,
+      "pair": "26x9",
+      "resources": [
+        {
+          "id": 516,
+          "description": "Item on floor 18"
+        }
+      ]
+    },
+    {
+      "wordIndex": 4195,
+      "pair": "16x9",
+      "resources": [
+        {
+          "id": 18,
+          "description": "Interface - Character Sheet - Arrow Showing The Content Of A Chest"
+        },
+        {
+          "id": 19,
+          "description": "Interface - Character Sheet - Eye Showing The Properties Of An Item"
+        }
+      ]
+    },
+    {
+      "wordIndex": 4199,
+      "pair": "16x9",
+      "resources": [
+        {
+          "id": 18,
+          "description": "Interface - Character Sheet - Arrow Showing The Content Of A Chest"
+        },
+        {
+          "id": 19,
+          "description": "Interface - Character Sheet - Eye Showing The Properties Of An Item"
+        }
+      ]
+    },
+    {
+      "wordIndex": 4203,
+      "pair": "16x9",
+      "resources": [
+        {
+          "id": 18,
+          "description": "Interface - Character Sheet - Arrow Showing The Content Of A Chest"
+        },
+        {
+          "id": 19,
+          "description": "Interface - Character Sheet - Eye Showing The Properties Of An Item"
+        }
+      ]
+    },
+    {
+      "wordIndex": 4214,
+      "pair": "24x10",
+      "resources": [
+        {
+          "id": 56,
+          "description": "Dungeon Graphics - Floor Pit (Left Side 0)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 4222,
+      "pair": "24x10",
+      "resources": [
+        {
+          "id": 56,
+          "description": "Dungeon Graphics - Floor Pit (Left Side 0)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 4230,
+      "pair": "24x10",
+      "resources": [
+        {
+          "id": 56,
+          "description": "Dungeon Graphics - Floor Pit (Left Side 0)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 4238,
+      "pair": "24x10",
+      "resources": [
+        {
+          "id": 56,
+          "description": "Dungeon Graphics - Floor Pit (Left Side 0)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 4251,
+      "pair": "8x9",
+      "resources": [
+        {
+          "id": 453,
+          "description": "Door Switch"
+        }
+      ]
+    },
+    {
+      "wordIndex": 4346,
+      "pair": "16x9",
+      "resources": [
+        {
+          "id": 18,
+          "description": "Interface - Character Sheet - Arrow Showing The Content Of A Chest"
+        },
+        {
+          "id": 19,
+          "description": "Interface - Character Sheet - Eye Showing The Properties Of An Item"
+        }
+      ]
+    },
+    {
+      "wordIndex": 4374,
+      "pair": "14x11",
+      "resources": [
+        {
+          "id": 454,
+          "description": "Missile 00 (Front)"
+        }
+      ]
+    },
+    {
+      "wordIndex": 4546,
+      "pair": "30x23",
+      "resources": [
+        {
+          "id": 569,
+          "description": "Item on floor 71"
+        }
+      ]
+    }
+  ]
+}

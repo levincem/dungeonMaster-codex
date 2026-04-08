@@ -1,0 +1,5 @@
+ENDIAN=BIG,FORMAT=DMCSB1
+0000,RAW1,NULL,Array of 50 words,Stored in Segment1_16872 in Hint.cpp in CSBwin source code,
+0001,IMG1,PAL1,Hint Oracle Screen,,
+0002,IMG1,PAL1,Font (3 lines of 32 characters),,
+0003,P4B1,NULL,16 colors palette,,

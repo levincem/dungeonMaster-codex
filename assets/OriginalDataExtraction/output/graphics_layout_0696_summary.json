@@ -1,0 +1,1208 @@
+{
+  "source": "D:\\DungeonMaster-codex\\public\\graphics_layout_0696.json",
+  "generatedAt": "2026-04-06T14:38:03.751Z",
+  "sectionPairs": [
+    {
+      "name": "A",
+      "ranges": [
+        {
+          "index": 0,
+          "startWord": 400,
+          "endWord": 436,
+          "lengthWords": 37,
+          "guess": "ui/layout",
+          "recordCount": 9,
+          "topOpcodes": [
+            {
+              "opcode": 12,
+              "count": 3
+            },
+            {
+              "opcode": 1,
+              "count": 3
+            },
+            {
+              "opcode": 11,
+              "count": 2
+            },
+            {
+              "opcode": 2,
+              "count": 1
+            }
+          ],
+          "familyCounts": [
+            {
+              "family": "ui",
+              "count": 9
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 4,
+              "count": 8,
+              "description": "Interface - Main Menu Screen (English)",
+              "family": "ui"
+            },
+            {
+              "id": 3,
+              "count": 1,
+              "description": "Interface - Main Menu Right Door",
+              "family": "ui"
+            }
+          ],
+          "nullTargetCount": 0,
+          "withNegativeCoords": 1
+        },
+        {
+          "index": 1,
+          "startWord": 120,
+          "endWord": 139,
+          "lengthWords": 20,
+          "guess": "dungeon decorations",
+          "recordCount": 5,
+          "topOpcodes": [
+            {
+              "opcode": 1,
+              "count": 3
+            },
+            {
+              "opcode": 9,
+              "count": 2
+            }
+          ],
+          "familyCounts": [
+            {
+              "family": "floor",
+              "count": 3
+            },
+            {
+              "family": "ui",
+              "count": 2
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 2,
+              "count": 2,
+              "description": "Interface - Main Menu Left Door",
+              "family": "ui"
+            },
+            {
+              "id": 400,
+              "count": 1,
+              "description": "Floor ornate 03 (Front 2)",
+              "family": "floor"
+            },
+            {
+              "id": 402,
+              "count": 1,
+              "description": "Floor ornate 03 (Front 1)",
+              "family": "floor"
+            },
+            {
+              "id": 404,
+              "count": 1,
+              "description": "Floor ornate 04 (Front 3)",
+              "family": "floor"
+            }
+          ],
+          "nullTargetCount": 0,
+          "withNegativeCoords": 0
+        }
+      ]
+    },
+    {
+      "name": "B",
+      "ranges": [
+        {
+          "index": 0,
+          "startWord": 700,
+          "endWord": 749,
+          "lengthWords": 50,
+          "guess": "ui/layout",
+          "recordCount": 12,
+          "topOpcodes": [
+            {
+              "opcode": 11,
+              "count": 4
+            },
+            {
+              "opcode": 15,
+              "count": 4
+            },
+            {
+              "opcode": 12,
+              "count": 4
+            }
+          ],
+          "familyCounts": [
+            {
+              "family": "ui",
+              "count": 12
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 4,
+              "count": 12,
+              "description": "Interface - Main Menu Screen (English)",
+              "family": "ui"
+            }
+          ],
+          "nullTargetCount": 0,
+          "withNegativeCoords": 3
+        },
+        {
+          "index": 1,
+          "startWord": 800,
+          "endWord": 833,
+          "lengthWords": 34,
+          "guess": "ui/layout",
+          "recordCount": 8,
+          "topOpcodes": [
+            {
+              "opcode": 7,
+              "count": 8
+            }
+          ],
+          "familyCounts": [
+            {
+              "family": "ui",
+              "count": 8
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 4,
+              "count": 8,
+              "description": "Interface - Main Menu Screen (English)",
+              "family": "ui"
+            }
+          ],
+          "nullTargetCount": 0,
+          "withNegativeCoords": 0
+        }
+      ]
+    },
+    {
+      "name": "C",
+      "ranges": [
+        {
+          "index": 0,
+          "startWord": 850,
+          "endWord": 872,
+          "lengthWords": 23,
+          "guess": "dungeon decorations",
+          "recordCount": 5,
+          "topOpcodes": [
+            {
+              "opcode": 65521,
+              "count": 1
+            },
+            {
+              "opcode": 219,
+              "count": 1
+            },
+            {
+              "opcode": 251,
+              "count": 1
+            },
+            {
+              "opcode": 267,
+              "count": 1
+            },
+            {
+              "opcode": 226,
+              "count": 1
+            }
+          ],
+          "familyCounts": [
+            {
+              "family": "wall",
+              "count": 4
+            },
+            {
+              "family": "floor",
+              "count": 1
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 70,
+              "count": 3,
+              "description": "Dungeon Graphics - Wall Mask (Left Side 3)",
+              "family": "wall"
+            },
+            {
+              "id": 72,
+              "count": 1,
+              "description": "Dungeon Graphics - Wall Mask (Left Side 2)",
+              "family": "wall"
+            },
+            {
+              "id": 68,
+              "count": 1,
+              "description": "Dungeon Graphics - Ceiling Pit (Left Side 0)",
+              "family": "floor"
+            }
+          ],
+          "nullTargetCount": 0,
+          "withNegativeCoords": 0
+        },
+        {
+          "index": 1,
+          "startWord": 3200,
+          "endWord": 3394,
+          "lengthWords": 195,
+          "guess": "mixed/unknown",
+          "recordCount": 48,
+          "topOpcodes": [
+            {
+              "opcode": 1,
+              "count": 18
+            },
+            {
+              "opcode": 4,
+              "count": 13
+            },
+            {
+              "opcode": 2,
+              "count": 12
+            },
+            {
+              "opcode": 0,
+              "count": 4
+            },
+            {
+              "opcode": 9,
+              "count": 1
+            }
+          ],
+          "familyCounts": [
+            {
+              "family": "other",
+              "count": 39
+            },
+            {
+              "family": "ui",
+              "count": 9
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 137,
+              "count": 10,
+              "description": "No Item Data",
+              "family": "other"
+            },
+            {
+              "id": 138,
+              "count": 10,
+              "description": "No Item Data",
+              "family": "other"
+            },
+            {
+              "id": 139,
+              "count": 10,
+              "description": "No Item Data",
+              "family": "other"
+            },
+            {
+              "id": 136,
+              "count": 9,
+              "description": "No Item Data",
+              "family": "other"
+            },
+            {
+              "id": 4,
+              "count": 9,
+              "description": "Interface - Main Menu Screen (English)",
+              "family": "ui"
+            }
+          ],
+          "nullTargetCount": 0,
+          "withNegativeCoords": 0
+        }
+      ]
+    },
+    {
+      "name": "D",
+      "ranges": [
+        {
+          "index": 0,
+          "startWord": 2900,
+          "endWord": 2947,
+          "lengthWords": 48,
+          "guess": "mixed/unknown",
+          "recordCount": 12,
+          "topOpcodes": [
+            {
+              "opcode": 17,
+              "count": 3
+            },
+            {
+              "opcode": 4,
+              "count": 3
+            },
+            {
+              "opcode": 2,
+              "count": 3
+            },
+            {
+              "opcode": 1,
+              "count": 2
+            },
+            {
+              "opcode": 10,
+              "count": 1
+            }
+          ],
+          "familyCounts": [
+            {
+              "family": "other",
+              "count": 8
+            },
+            {
+              "family": "stairs",
+              "count": 4
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 129,
+              "count": 8,
+              "description": "No Item Data",
+              "family": "other"
+            },
+            {
+              "id": 125,
+              "count": 2,
+              "description": "Dungeon Graphics - Stairs (Side 1)",
+              "family": "stairs"
+            },
+            {
+              "id": 123,
+              "count": 1,
+              "description": "Dungeon Graphics - Stairs Up (Side 2 Left)",
+              "family": "stairs"
+            },
+            {
+              "id": 124,
+              "count": 1,
+              "description": "Dungeon Graphics - Stairs Down (Side 2 Left)",
+              "family": "stairs"
+            }
+          ],
+          "nullTargetCount": 0,
+          "withNegativeCoords": 3
+        },
+        {
+          "index": 1,
+          "startWord": 2500,
+          "endWord": 2568,
+          "lengthWords": 69,
+          "guess": "ui/layout",
+          "recordCount": 17,
+          "topOpcodes": [
+            {
+              "opcode": 0,
+              "count": 17
+            }
+          ],
+          "familyCounts": [
+            {
+              "family": "ui",
+              "count": 17
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 4,
+              "count": 17,
+              "description": "Interface - Main Menu Screen (English)",
+              "family": "ui"
+            }
+          ],
+          "nullTargetCount": 0,
+          "withNegativeCoords": 0
+        }
+      ]
+    },
+    {
+      "name": "E",
+      "ranges": [
+        {
+          "index": 0,
+          "startWord": 3000,
+          "endWord": 3064,
+          "lengthWords": 65,
+          "guess": "mixed/unknown",
+          "recordCount": 16,
+          "topOpcodes": [
+            {
+              "opcode": 4,
+              "count": 6
+            },
+            {
+              "opcode": 2,
+              "count": 6
+            },
+            {
+              "opcode": 1,
+              "count": 4
+            }
+          ],
+          "familyCounts": [
+            {
+              "family": "other",
+              "count": 16
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 131,
+              "count": 9,
+              "description": "No Item Data",
+              "family": "other"
+            },
+            {
+              "id": 132,
+              "count": 7,
+              "description": "No Item Data",
+              "family": "other"
+            }
+          ],
+          "nullTargetCount": 0,
+          "withNegativeCoords": 0
+        },
+        {
+          "index": 1,
+          "startWord": 1000,
+          "endWord": 1138,
+          "lengthWords": 139,
+          "guess": "ui/layout",
+          "recordCount": 34,
+          "topOpcodes": [
+            {
+              "opcode": 7,
+              "count": 34
+            }
+          ],
+          "familyCounts": [
+            {
+              "family": "ui",
+              "count": 34
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 4,
+              "count": 34,
+              "description": "Interface - Main Menu Screen (English)",
+              "family": "ui"
+            }
+          ],
+          "nullTargetCount": 0,
+          "withNegativeCoords": 5
+        }
+      ]
+    },
+    {
+      "name": "F",
+      "ranges": [
+        {
+          "index": 0,
+          "startWord": 1500,
+          "endWord": 1510,
+          "lengthWords": 11,
+          "guess": "ui/layout",
+          "recordCount": 2,
+          "topOpcodes": [
+            {
+              "opcode": 7,
+              "count": 2
+            }
+          ],
+          "familyCounts": [
+            {
+              "family": "ui",
+              "count": 2
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 4,
+              "count": 2,
+              "description": "Interface - Main Menu Screen (English)",
+              "family": "ui"
+            }
+          ],
+          "nullTargetCount": 0,
+          "withNegativeCoords": 0
+        },
+        {
+          "index": 1,
+          "startWord": 2000,
+          "endWord": 2008,
+          "lengthWords": 9,
+          "guess": "ui/layout",
+          "recordCount": 2,
+          "topOpcodes": [
+            {
+              "opcode": 7,
+              "count": 2
+            }
+          ],
+          "familyCounts": [
+            {
+              "family": "ui",
+              "count": 2
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 4,
+              "count": 2,
+              "description": "Interface - Main Menu Screen (English)",
+              "family": "ui"
+            }
+          ],
+          "nullTargetCount": 0,
+          "withNegativeCoords": 0
+        }
+      ]
+    },
+    {
+      "name": "G",
+      "ranges": [
+        {
+          "index": 0,
+          "startWord": 3700,
+          "endWord": 3809,
+          "lengthWords": 110,
+          "guess": "dungeon decorations",
+          "recordCount": 27,
+          "topOpcodes": [
+            {
+              "opcode": 1,
+              "count": 9
+            },
+            {
+              "opcode": 4,
+              "count": 8
+            },
+            {
+              "opcode": 9,
+              "count": 8
+            },
+            {
+              "opcode": 3,
+              "count": 1
+            },
+            {
+              "opcode": 0,
+              "count": 1
+            }
+          ],
+          "familyCounts": [
+            {
+              "family": "wall",
+              "count": 11
+            },
+            {
+              "family": "floor",
+              "count": 9
+            },
+            {
+              "family": "ui",
+              "count": 7
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 101,
+              "count": 11,
+              "description": "Dungeon Graphics - Wall (Left Side 2)",
+              "family": "wall"
+            },
+            {
+              "id": 4,
+              "count": 7,
+              "description": "Interface - Main Menu Screen (English)",
+              "family": "ui"
+            },
+            {
+              "id": 569,
+              "count": 2,
+              "description": "Item on floor 71",
+              "family": "floor"
+            },
+            {
+              "id": 561,
+              "count": 1,
+              "description": "Item on floor 63",
+              "family": "floor"
+            },
+            {
+              "id": 563,
+              "count": 1,
+              "description": "Item on floor 65",
+              "family": "floor"
+            },
+            {
+              "id": 565,
+              "count": 1,
+              "description": "Item on floor 67",
+              "family": "floor"
+            },
+            {
+              "id": 567,
+              "count": 1,
+              "description": "Item on floor 69",
+              "family": "floor"
+            },
+            {
+              "id": 572,
+              "count": 1,
+              "description": "Item on floor 74",
+              "family": "floor"
+            }
+          ],
+          "nullTargetCount": 0,
+          "withNegativeCoords": 0
+        },
+        {
+          "index": 1,
+          "startWord": 1950,
+          "endWord": 1953,
+          "lengthWords": 4,
+          "guess": "dungeon decorations",
+          "recordCount": 1,
+          "topOpcodes": [
+            {
+              "opcode": 115,
+              "count": 1
+            }
+          ],
+          "familyCounts": [
+            {
+              "family": "wall",
+              "count": 1
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 74,
+              "count": 1,
+              "description": "Dungeon Graphics - Wall Mask (Left Front 1)",
+              "family": "wall"
+            }
+          ],
+          "nullTargetCount": 0,
+          "withNegativeCoords": 0
+        }
+      ]
+    },
+    {
+      "name": "H",
+      "ranges": [
+        {
+          "index": 0,
+          "startWord": 450,
+          "endWord": 471,
+          "lengthWords": 22,
+          "guess": "ui/layout",
+          "recordCount": 5,
+          "topOpcodes": [
+            {
+              "opcode": 0,
+              "count": 2
+            },
+            {
+              "opcode": 68,
+              "count": 1
+            },
+            {
+              "opcode": 155,
+              "count": 1
+            },
+            {
+              "opcode": 6,
+              "count": 1
+            }
+          ],
+          "familyCounts": [
+            {
+              "family": "ui",
+              "count": 3
+            },
+            {
+              "family": "other",
+              "count": 2
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 13,
+              "count": 2,
+              "description": "Interface - Movement Arrows",
+              "family": "ui"
+            },
+            {
+              "id": 0,
+              "count": 1,
+              "description": "Interface - Dialog Box",
+              "family": "ui"
+            },
+            {
+              "id": 22,
+              "count": 1,
+              "description": "Empty image 16x4",
+              "family": "other"
+            },
+            {
+              "id": 21,
+              "count": 1,
+              "description": "No Item Data",
+              "family": "other"
+            }
+          ],
+          "nullTargetCount": 0,
+          "withNegativeCoords": 0
+        },
+        {
+          "index": 1,
+          "startWord": 100,
+          "endWord": 106,
+          "lengthWords": 7,
+          "guess": "ui/layout",
+          "recordCount": 1,
+          "topOpcodes": [
+            {
+              "opcode": 9,
+              "count": 1
+            }
+          ],
+          "familyCounts": [
+            {
+              "family": "ui",
+              "count": 1
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 2,
+              "count": 1,
+              "description": "Interface - Main Menu Left Door",
+              "family": "ui"
+            }
+          ],
+          "nullTargetCount": 0,
+          "withNegativeCoords": 0
+        }
+      ]
+    },
+    {
+      "name": "I",
+      "ranges": [
+        {
+          "index": 0,
+          "startWord": 500,
+          "endWord": 618,
+          "lengthWords": 119,
+          "guess": "ui/layout",
+          "recordCount": 29,
+          "topOpcodes": [
+            {
+              "opcode": 11,
+              "count": 7
+            },
+            {
+              "opcode": 12,
+              "count": 7
+            },
+            {
+              "opcode": 15,
+              "count": 4
+            },
+            {
+              "opcode": 9,
+              "count": 3
+            },
+            {
+              "opcode": 3,
+              "count": 2
+            },
+            {
+              "opcode": 4,
+              "count": 2
+            },
+            {
+              "opcode": 2,
+              "count": 2
+            },
+            {
+              "opcode": 1,
+              "count": 2
+            }
+          ],
+          "familyCounts": [
+            {
+              "family": "ui",
+              "count": 27
+            },
+            {
+              "family": "other",
+              "count": 2
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 4,
+              "count": 21,
+              "description": "Interface - Main Menu Screen (English)",
+              "family": "ui"
+            },
+            {
+              "id": 738,
+              "count": 2,
+              "description": "Interface - Main Menu Screen (German)",
+              "family": "ui"
+            },
+            {
+              "id": 739,
+              "count": 2,
+              "description": "Interface - 'Ende' Label",
+              "family": "ui"
+            },
+            {
+              "id": 744,
+              "count": 2,
+              "description": "Interface - Character Sheet - Resurrect And Reincarnate (German)",
+              "family": "ui"
+            },
+            {
+              "id": 747,
+              "count": 2,
+              "description": "Miscellaneous Texts (German)",
+              "family": "other"
+            }
+          ],
+          "nullTargetCount": 0,
+          "withNegativeCoords": 3
+        },
+        {
+          "index": 1,
+          "startWord": 150,
+          "endWord": 218,
+          "lengthWords": 69,
+          "guess": "ui/layout",
+          "recordCount": 17,
+          "topOpcodes": [
+            {
+              "opcode": 0,
+              "count": 5
+            },
+            {
+              "opcode": 19,
+              "count": 4
+            },
+            {
+              "opcode": 8,
+              "count": 4
+            },
+            {
+              "opcode": 55,
+              "count": 1
+            },
+            {
+              "opcode": 244,
+              "count": 1
+            },
+            {
+              "opcode": 46,
+              "count": 1
+            },
+            {
+              "opcode": 248,
+              "count": 1
+            }
+          ],
+          "familyCounts": [
+            {
+              "family": "ui",
+              "count": 12
+            },
+            {
+              "family": "floor",
+              "count": 2
+            },
+            {
+              "family": "other",
+              "count": 2
+            },
+            {
+              "family": "wall",
+              "count": 1
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 0,
+              "count": 5,
+              "description": "Interface - Dialog Box",
+              "family": "ui"
+            },
+            {
+              "id": 6,
+              "count": 4,
+              "description": "Interface - 'The End' Label",
+              "family": "ui"
+            },
+            {
+              "id": 18,
+              "count": 1,
+              "description": "Interface - Character Sheet - Arrow Showing The Content Of A Chest",
+              "family": "ui"
+            },
+            {
+              "id": 76,
+              "count": 1,
+              "description": "Dungeon Graphics - Teleporter",
+              "family": "floor"
+            },
+            {
+              "id": 14,
+              "count": 1,
+              "description": "Interface - Damage Done",
+              "family": "ui"
+            },
+            {
+              "id": 199,
+              "count": 1,
+              "description": "No Item Data",
+              "family": "other"
+            },
+            {
+              "id": 7,
+              "count": 1,
+              "description": "Interface - Champion Information",
+              "family": "ui"
+            },
+            {
+              "id": 55,
+              "count": 1,
+              "description": "Dungeon Graphics - Floor Pit (Front 1)",
+              "family": "floor"
+            }
+          ],
+          "nullTargetCount": 0,
+          "withNegativeCoords": 0
+        }
+      ]
+    },
+    {
+      "name": "J",
+      "ranges": [
+        {
+          "index": 0,
+          "startWord": 220,
+          "endWord": 264,
+          "lengthWords": 45,
+          "guess": "ui/layout",
+          "recordCount": 11,
+          "topOpcodes": [
+            {
+              "opcode": 1,
+              "count": 6
+            },
+            {
+              "opcode": 9,
+              "count": 2
+            },
+            {
+              "opcode": 15,
+              "count": 1
+            },
+            {
+              "opcode": 11,
+              "count": 1
+            },
+            {
+              "opcode": 12,
+              "count": 1
+            }
+          ],
+          "familyCounts": [
+            {
+              "family": "ui",
+              "count": 6
+            },
+            {
+              "family": "floor",
+              "count": 5
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 2,
+              "count": 5,
+              "description": "Interface - Main Menu Left Door",
+              "family": "ui"
+            },
+            {
+              "id": 429,
+              "count": 3,
+              "description": "Floor ornate 08 (Left Side 2)",
+              "family": "floor"
+            },
+            {
+              "id": 0,
+              "count": 1,
+              "description": "Interface - Dialog Box",
+              "family": "ui"
+            },
+            {
+              "id": 428,
+              "count": 1,
+              "description": "Floor ornate 08 (Front 3)",
+              "family": "floor"
+            },
+            {
+              "id": 433,
+              "count": 1,
+              "description": "Floor ornate 09 (Left Side 3)",
+              "family": "floor"
+            }
+          ],
+          "nullTargetCount": 0,
+          "withNegativeCoords": 0
+        },
+        {
+          "index": 1,
+          "startWord": 75,
+          "endWord": 98,
+          "lengthWords": 24,
+          "guess": "ui/layout",
+          "recordCount": 6,
+          "topOpcodes": [
+            {
+              "opcode": 33,
+              "count": 2
+            },
+            {
+              "opcode": 45,
+              "count": 2
+            },
+            {
+              "opcode": 168,
+              "count": 1
+            },
+            {
+              "opcode": 77,
+              "count": 1
+            }
+          ],
+          "familyCounts": [
+            {
+              "family": "ui",
+              "count": 6
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 9,
+              "count": 3,
+              "description": "Interface - Spell Casting Area",
+              "family": "ui"
+            },
+            {
+              "id": 3,
+              "count": 2,
+              "description": "Interface - Main Menu Right Door",
+              "family": "ui"
+            },
+            {
+              "id": 2,
+              "count": 1,
+              "description": "Interface - Main Menu Left Door",
+              "family": "ui"
+            }
+          ],
+          "nullTargetCount": 0,
+          "withNegativeCoords": 0
+        }
+      ]
+    },
+    {
+      "name": "K",
+      "ranges": [
+        {
+          "index": 0,
+          "startWord": 65,
+          "endWord": 73,
+          "lengthWords": 9,
+          "guess": "ui/layout",
+          "recordCount": 2,
+          "topOpcodes": [
+            {
+              "opcode": 2,
+              "count": 1
+            },
+            {
+              "opcode": 4,
+              "count": 1
+            }
+          ],
+          "familyCounts": [
+            {
+              "family": "ui",
+              "count": 2
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 0,
+              "count": 2,
+              "description": "Interface - Dialog Box",
+              "family": "ui"
+            }
+          ],
+          "nullTargetCount": 0,
+          "withNegativeCoords": 0
+        },
+        {
+          "index": 1,
+          "startWord": 110,
+          "endWord": 116,
+          "lengthWords": 7,
+          "guess": "ui/layout",
+          "recordCount": 1,
+          "topOpcodes": [
+            {
+              "opcode": 87,
+              "count": 1
+            }
+          ],
+          "familyCounts": [
+            {
+              "family": "ui",
+              "count": 1
+            }
+          ],
+          "topTargets": [
+            {
+              "id": 6,
+              "count": 1,
+              "description": "Interface - 'The End' Label",
+              "family": "ui"
+            }
+          ],
+          "nullTargetCount": 0,
+          "withNegativeCoords": 0
+        }
+      ]
+    }
+  ],
+  "tailRanges": []
+}

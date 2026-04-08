@@ -1,0 +1,2612 @@
+{
+  "_meta": {
+    "source": "Original source-code enum alignment + current derived game_db values",
+    "generatedAt": "2026-04-07T18:55:00.361Z",
+    "exactConstants": {
+      "initialFood": "1500 + random(256)",
+      "initialWater": "1500 + random(256)",
+      "foodWaterCap": 2048,
+      "waterFlaskRestore": 800,
+      "waterskinRestore": 1600
+    },
+    "caveat": "Table indexes and field semantics come from original source code; most per-entry numeric stats still come from current derived game_db until byte-perfect table extraction is completed."
+  },
+  "monsters": [
+    {
+      "index": 0,
+      "symbol": "mon_Scorpion",
+      "displayName": "Giant Scorpion",
+      "matchedDerived": {
+        "index": 0,
+        "name": "Giant Scorpion",
+        "values": {
+          "baseHP": 150,
+          "armor": 55,
+          "hitProb": 55,
+          "atkSpd": 20,
+          "moveSpd": 8,
+          "exp": 20,
+          "poison": true,
+          "attackTypes": [
+            "Physical"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 1,
+      "symbol": "mon_SlimeDevil",
+      "displayName": "Swamp Slime",
+      "matchedDerived": {
+        "index": 1,
+        "name": "Swamp Slime",
+        "values": {
+          "baseHP": 110,
+          "armor": 20,
+          "hitProb": 20,
+          "atkSpd": 32,
+          "moveSpd": 15,
+          "exp": 12,
+          "poison": true,
+          "attackTypes": [
+            "Physical"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 2,
+      "symbol": "mon_Giggler",
+      "displayName": "Giggler",
+      "matchedDerived": {
+        "index": 2,
+        "name": "Giggler",
+        "values": {
+          "baseHP": 10,
+          "armor": 50,
+          "hitProb": 110,
+          "atkSpd": 5,
+          "moveSpd": 3,
+          "exp": 15,
+          "poison": false,
+          "attackTypes": [
+            "Physical",
+            "Steal"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 3,
+      "symbol": "mon_FlyingEye",
+      "displayName": "Wizard Eye",
+      "matchedDerived": {
+        "index": 3,
+        "name": "Wizard Eye",
+        "values": {
+          "baseHP": 40,
+          "armor": 30,
+          "hitProb": 80,
+          "atkSpd": 21,
+          "moveSpd": 10,
+          "exp": 20,
+          "poison": false,
+          "attackTypes": [
+            "Magic"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 4,
+      "symbol": "mon_Hellhound",
+      "displayName": "Pain Rat",
+      "matchedDerived": {
+        "index": 4,
+        "name": "Pain Rat",
+        "values": {
+          "baseHP": 101,
+          "armor": 45,
+          "hitProb": 65,
+          "atkSpd": 8,
+          "moveSpd": 9,
+          "exp": 10,
+          "poison": false,
+          "attackTypes": [
+            "Physical"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 5,
+      "symbol": "mon_5",
+      "displayName": "Ruster",
+      "matchedDerived": {
+        "index": 5,
+        "name": "Ruster",
+        "values": {
+          "baseHP": 60,
+          "armor": 100,
+          "hitProb": 30,
+          "atkSpd": 18,
+          "moveSpd": 20,
+          "exp": 15,
+          "poison": false,
+          "attackTypes": [
+            "Rust"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 6,
+      "symbol": "mon_Screamer",
+      "displayName": "Screamer",
+      "matchedDerived": {
+        "index": 6,
+        "name": "Screamer",
+        "values": {
+          "baseHP": 165,
+          "armor": 5,
+          "hitProb": 5,
+          "atkSpd": 10,
+          "moveSpd": 120,
+          "exp": 5,
+          "poison": false,
+          "attackTypes": [
+            "Alert"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 7,
+      "symbol": "mon_RockPile",
+      "displayName": "Rock Pile",
+      "matchedDerived": {
+        "index": 7,
+        "name": "Rockpile",
+        "values": {
+          "baseHP": 50,
+          "armor": 170,
+          "hitProb": 10,
+          "atkSpd": 15,
+          "moveSpd": 185,
+          "exp": 30,
+          "poison": true,
+          "attackTypes": [
+            "Physical"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 8,
+      "symbol": "mon_Rive",
+      "displayName": "Ghost",
+      "matchedDerived": {
+        "index": 8,
+        "name": "Ghost",
+        "values": {
+          "baseHP": 30,
+          "armor": 15,
+          "hitProb": 80,
+          "atkSpd": 16,
+          "moveSpd": 11,
+          "exp": 25,
+          "poison": false,
+          "attackTypes": [
+            "StaminaDrain"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 9,
+      "symbol": "mon_StoneGolem",
+      "displayName": "Stone Golem",
+      "matchedDerived": {
+        "index": 9,
+        "name": "Stone Golem",
+        "values": {
+          "baseHP": 120,
+          "armor": 240,
+          "hitProb": 35,
+          "atkSpd": 14,
+          "moveSpd": 21,
+          "exp": 40,
+          "poison": false,
+          "attackTypes": [
+            "Physical"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 10,
+      "symbol": "mon_Mummy",
+      "displayName": "Mummy",
+      "matchedDerived": {
+        "index": 10,
+        "name": "Mummy",
+        "values": {
+          "baseHP": 33,
+          "armor": 25,
+          "hitProb": 40,
+          "atkSpd": 12,
+          "moveSpd": 17,
+          "exp": 25,
+          "poison": false,
+          "attackTypes": [
+            "Physical",
+            "Immobilize"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 11,
+      "symbol": "mon_BlackFlame",
+      "displayName": "Black Flame",
+      "matchedDerived": {
+        "index": 11,
+        "name": "Black Flame",
+        "values": {
+          "baseHP": 80,
+          "armor": 45,
+          "hitProb": 60,
+          "atkSpd": 8,
+          "moveSpd": 255,
+          "exp": 30,
+          "poison": false,
+          "attackTypes": [
+            "Fire"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 12,
+      "symbol": "mon_Skeleton",
+      "displayName": "Skeleton",
+      "matchedDerived": {
+        "index": 12,
+        "name": "Skeleton",
+        "values": {
+          "baseHP": 20,
+          "armor": 22,
+          "hitProb": 80,
+          "atkSpd": 7,
+          "moveSpd": 7,
+          "exp": 20,
+          "poison": false,
+          "attackTypes": [
+            "Physical"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 13,
+      "symbol": "mon_Couatl",
+      "displayName": "Couatl",
+      "matchedDerived": {
+        "index": 13,
+        "name": "Couatl",
+        "values": {
+          "baseHP": 39,
+          "armor": 42,
+          "hitProb": 88,
+          "atkSpd": 10,
+          "moveSpd": 5,
+          "exp": 35,
+          "poison": true,
+          "attackTypes": [
+            "Physical",
+            "Poison"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 14,
+      "symbol": "mon_Vexirk",
+      "displayName": "Vexirk",
+      "matchedDerived": {
+        "index": 14,
+        "name": "Vexirk",
+        "values": {
+          "baseHP": 44,
+          "armor": 47,
+          "hitProb": 90,
+          "atkSpd": 20,
+          "moveSpd": 10,
+          "exp": 40,
+          "poison": false,
+          "attackTypes": [
+            "Magic",
+            "Physical"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 15,
+      "symbol": "mon_Worm",
+      "displayName": "Magenta Worm",
+      "matchedDerived": {
+        "index": 15,
+        "name": "Magenta Worm",
+        "values": {
+          "baseHP": 70,
+          "armor": 72,
+          "hitProb": 35,
+          "atkSpd": 19,
+          "moveSpd": 18,
+          "exp": 50,
+          "poison": true,
+          "attackTypes": [
+            "Physical",
+            "Poison"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 16,
+      "symbol": "mon_AntMan",
+      "displayName": "Trolin",
+      "matchedDerived": {
+        "index": 16,
+        "name": "Trolin",
+        "values": {
+          "baseHP": 20,
+          "armor": 28,
+          "hitProb": 41,
+          "atkSpd": 8,
+          "moveSpd": 13,
+          "exp": 20,
+          "poison": false,
+          "attackTypes": [
+            "Physical"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 17,
+      "symbol": "mon_Muncher",
+      "displayName": "Giant Wasp",
+      "matchedDerived": {
+        "index": 17,
+        "name": "Giant Wasp",
+        "values": {
+          "baseHP": 8,
+          "armor": 180,
+          "hitProb": 150,
+          "atkSpd": 16,
+          "moveSpd": 1,
+          "exp": 20,
+          "poison": true,
+          "attackTypes": [
+            "Physical",
+            "Poison"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 18,
+      "symbol": "mon_DethKnight",
+      "displayName": "Animated Armour",
+      "matchedDerived": {
+        "index": 18,
+        "name": "Animated Armour",
+        "values": {
+          "baseHP": 60,
+          "armor": 140,
+          "hitProb": 70,
+          "atkSpd": 6,
+          "moveSpd": 14,
+          "exp": 45,
+          "poison": false,
+          "attackTypes": [
+            "Physical"
+          ],
+          "drops": [
+            "Falchion",
+            "TorsoPlateCursed"
+          ]
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 19,
+      "symbol": "mon_Zytaz",
+      "displayName": "Materializer",
+      "matchedDerived": {
+        "index": 19,
+        "name": "Materializer",
+        "values": {
+          "baseHP": 33,
+          "armor": 15,
+          "hitProb": 65,
+          "atkSpd": 18,
+          "moveSpd": 5,
+          "exp": 35,
+          "poison": false,
+          "attackTypes": [
+            "Physical",
+            "Teleport"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 20,
+      "symbol": "mon_WaterElemental",
+      "displayName": "Water Elemental",
+      "matchedDerived": {
+        "index": 20,
+        "name": "Water Elemental",
+        "values": {
+          "baseHP": 144,
+          "armor": 75,
+          "hitProb": 50,
+          "atkSpd": 25,
+          "moveSpd": 25,
+          "exp": 40,
+          "poison": false,
+          "attackTypes": [
+            "Physical"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 21,
+      "symbol": "mon_Oitu",
+      "displayName": "Oitu",
+      "matchedDerived": {
+        "index": 21,
+        "name": "Oitu",
+        "values": {
+          "baseHP": 77,
+          "armor": 33,
+          "hitProb": 60,
+          "atkSpd": 15,
+          "moveSpd": 7,
+          "exp": 50,
+          "poison": false,
+          "attackTypes": [
+            "Physical",
+            "Magic"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 22,
+      "symbol": "mon_Demon",
+      "displayName": "Demon",
+      "matchedDerived": {
+        "index": 22,
+        "name": "Demon",
+        "values": {
+          "baseHP": 100,
+          "armor": 68,
+          "hitProb": 75,
+          "atkSpd": 14,
+          "moveSpd": 10,
+          "exp": 60,
+          "poison": false,
+          "attackTypes": [
+            "Physical",
+            "Fire"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 23,
+      "symbol": "mon_LordChaos",
+      "displayName": "Lord Chaos",
+      "matchedDerived": {
+        "index": 23,
+        "name": "Lord Chaos",
+        "values": {
+          "baseHP": 180,
+          "armor": 255,
+          "hitProb": 130,
+          "atkSpd": 22,
+          "moveSpd": 12,
+          "exp": 500,
+          "poison": false,
+          "attackTypes": [
+            "Magic",
+            "Physical",
+            "Fire"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 24,
+      "symbol": "mon_Dragon",
+      "displayName": "Red Dragon",
+      "matchedDerived": {
+        "index": 24,
+        "name": "Red Dragon",
+        "values": {
+          "baseHP": 255,
+          "armor": 110,
+          "hitProb": 70,
+          "atkSpd": 28,
+          "moveSpd": 13,
+          "exp": 200,
+          "poison": false,
+          "attackTypes": [
+            "Fire",
+            "Physical"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 25,
+      "symbol": "mon_25",
+      "displayName": "Lord Order",
+      "matchedDerived": {
+        "index": 25,
+        "name": "Lord Order",
+        "values": {
+          "baseHP": 180,
+          "armor": 255,
+          "hitProb": 130,
+          "atkSpd": 22,
+          "moveSpd": 12,
+          "exp": 100,
+          "poison": false,
+          "attackTypes": [
+            "Physical",
+            "Magic"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 26,
+      "symbol": "mon_GreyLord",
+      "displayName": "Grey Lord",
+      "matchedDerived": {
+        "index": 26,
+        "name": "Grey Lord",
+        "values": {
+          "baseHP": 180,
+          "armor": 255,
+          "hitProb": 130,
+          "atkSpd": 22,
+          "moveSpd": 12,
+          "exp": 100,
+          "poison": false,
+          "attackTypes": [
+            "Physical",
+            "Magic"
+          ],
+          "drops": []
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "monster"
+    },
+    {
+      "index": 99,
+      "symbol": "mon_undefined",
+      "displayName": "undefined",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "monster"
+    }
+  ],
+  "weapons": [
+    {
+      "index": 0,
+      "symbol": "weapon_EyeOfTime",
+      "displayName": "Eye Of Time",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 1,
+      "symbol": "weapon_StormRing",
+      "displayName": "Storm Ring",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 2,
+      "symbol": "weapon_Torch",
+      "displayName": "Torch",
+      "matchedDerived": {
+        "index": 16,
+        "name": "Torch",
+        "values": {
+          "type": "Torch",
+          "damage": [
+            4,
+            8
+          ],
+          "weight": 3,
+          "atkSpd": 20,
+          "twoHanded": false,
+          "luminous": true
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "weapon"
+    },
+    {
+      "index": 3,
+      "symbol": "weapon_Flamitt",
+      "displayName": "Flamitt",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 4,
+      "symbol": "weapon_StaffOfClaws",
+      "displayName": "Staff Of Claws",
+      "matchedDerived": {
+        "index": 20,
+        "name": "Staff of Claws",
+        "values": {
+          "type": "Staff",
+          "damage": [
+            20,
+            35
+          ],
+          "weight": 12,
+          "atkSpd": 24,
+          "twoHanded": true
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "weapon"
+    },
+    {
+      "index": 5,
+      "symbol": "weapon_Storm",
+      "displayName": "Storm",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 6,
+      "symbol": "weapon_RaBlade",
+      "displayName": "Ra Blade",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 7,
+      "symbol": "weapon_TheFirestaffA",
+      "displayName": "The Firestaff",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 8,
+      "symbol": "weapon_Dagger",
+      "displayName": "Dagger",
+      "matchedDerived": {
+        "index": 32,
+        "name": "Dagger",
+        "values": {
+          "type": "Dagger",
+          "damage": [
+            10,
+            18
+          ],
+          "weight": 3,
+          "atkSpd": 14,
+          "twoHanded": false
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "weapon"
+    },
+    {
+      "index": 9,
+      "symbol": "weapon_Falchion",
+      "displayName": "Falchion",
+      "matchedDerived": {
+        "index": 33,
+        "name": "Falchion",
+        "values": {
+          "type": "Sword",
+          "damage": [
+            22,
+            34
+          ],
+          "weight": 10,
+          "atkSpd": 20,
+          "twoHanded": false
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "weapon"
+    },
+    {
+      "index": 10,
+      "symbol": "weapon_Sword",
+      "displayName": "Sword",
+      "matchedDerived": {
+        "index": 36,
+        "name": "Sword",
+        "values": {
+          "type": "Sword",
+          "damage": [
+            24,
+            36
+          ],
+          "weight": 12,
+          "atkSpd": 22,
+          "twoHanded": false
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "weapon"
+    },
+    {
+      "index": 11,
+      "symbol": "weapon_Rapier",
+      "displayName": "Rapier",
+      "matchedDerived": {
+        "index": 34,
+        "name": "Rapier",
+        "values": {
+          "type": "Sword",
+          "damage": [
+            18,
+            28
+          ],
+          "weight": 7,
+          "atkSpd": 16,
+          "twoHanded": false
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "weapon"
+    },
+    {
+      "index": 12,
+      "symbol": "weapon_Biter",
+      "displayName": "Biter",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 13,
+      "symbol": "weapon_SamuraiSword",
+      "displayName": "Samurai Sword",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 14,
+      "symbol": "weapon_SideSplitter",
+      "displayName": "Side Splitter",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 15,
+      "symbol": "weapon_DiamondEdge",
+      "displayName": "Diamond Edge",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 16,
+      "symbol": "weapon_VorpalBlade",
+      "displayName": "Vorpal Blade",
+      "matchedDerived": {
+        "index": 0,
+        "name": "Vorpal Blade",
+        "values": {
+          "type": "Sword",
+          "damage": [
+            10,
+            25
+          ],
+          "weight": 8,
+          "atkSpd": 20,
+          "twoHanded": false
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "weapon"
+    },
+    {
+      "index": 17,
+      "symbol": "weapon_DragonFang",
+      "displayName": "Dragon Fang",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 18,
+      "symbol": "weapon_Axe",
+      "displayName": "Axe",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 19,
+      "symbol": "weapon_Executioner",
+      "displayName": "Executioner",
+      "matchedDerived": {
+        "index": 26,
+        "name": "Executioner",
+        "values": {
+          "type": "Axe",
+          "damage": [
+            35,
+            55
+          ],
+          "weight": 18,
+          "atkSpd": 30,
+          "twoHanded": true
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "weapon"
+    },
+    {
+      "index": 20,
+      "symbol": "weapon_Mace",
+      "displayName": "Mace",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 21,
+      "symbol": "weapon_MaceOfOrder",
+      "displayName": "Mace Of Order",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 22,
+      "symbol": "weapon_Morningstar",
+      "displayName": "Morningstar",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 23,
+      "symbol": "weapon_Club",
+      "displayName": "Club",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 24,
+      "symbol": "weapon_StoneClub",
+      "displayName": "Stone Club",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 25,
+      "symbol": "weapon_ClawBow",
+      "displayName": "Bow",
+      "matchedDerived": {
+        "index": 40,
+        "name": "Bow",
+        "values": {
+          "type": "Bow",
+          "damage": [
+            0,
+            0
+          ],
+          "weight": 8,
+          "atkSpd": 0,
+          "twoHanded": true,
+          "ranged": true
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "weapon"
+    },
+    {
+      "index": 26,
+      "symbol": "weapon_Crossbow",
+      "displayName": "Crossbow",
+      "matchedDerived": {
+        "index": 41,
+        "name": "Crossbow",
+        "values": {
+          "type": "Bow",
+          "damage": [
+            0,
+            0
+          ],
+          "weight": 10,
+          "atkSpd": 0,
+          "twoHanded": true,
+          "ranged": true
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "weapon"
+    },
+    {
+      "index": 27,
+      "symbol": "weapon_Arrow",
+      "displayName": "Arrow",
+      "matchedDerived": {
+        "index": 8,
+        "name": "Arrow",
+        "values": {
+          "type": "Ammo",
+          "damage": [
+            8,
+            15
+          ],
+          "weight": 1,
+          "atkSpd": 0,
+          "twoHanded": false
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "weapon"
+    },
+    {
+      "index": 28,
+      "symbol": "weapon_Slayer",
+      "displayName": "Slayer",
+      "matchedDerived": {
+        "index": 9,
+        "name": "Slayer",
+        "values": {
+          "type": "Ammo",
+          "damage": [
+            20,
+            30
+          ],
+          "weight": 1,
+          "atkSpd": 0,
+          "twoHanded": false
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "weapon"
+    },
+    {
+      "index": 29,
+      "symbol": "weapon_Sling",
+      "displayName": "Sling",
+      "matchedDerived": {
+        "index": 56,
+        "name": "Sling",
+        "values": {
+          "type": "Bow",
+          "damage": [
+            0,
+            0
+          ],
+          "weight": 3,
+          "atkSpd": 0,
+          "twoHanded": true,
+          "ranged": true
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "weapon"
+    },
+    {
+      "index": 30,
+      "symbol": "weapon_Rock",
+      "displayName": "Rock",
+      "matchedDerived": {
+        "index": 48,
+        "name": "Rock",
+        "values": {
+          "type": "Thrown",
+          "damage": [
+            6,
+            12
+          ],
+          "weight": 4,
+          "atkSpd": 0,
+          "twoHanded": false,
+          "thrown": true
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "weapon"
+    },
+    {
+      "index": 31,
+      "symbol": "weapon_PoisonDart",
+      "displayName": "Poison Dart",
+      "matchedDerived": {
+        "index": 49,
+        "name": "Poison Dart",
+        "values": {
+          "type": "Thrown",
+          "damage": [
+            4,
+            8
+          ],
+          "weight": 1,
+          "atkSpd": 0,
+          "twoHanded": false,
+          "thrown": true,
+          "poison": true
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "weapon"
+    },
+    {
+      "index": 32,
+      "symbol": "weapon_ThrowingStar",
+      "displayName": "Throwing Star",
+      "matchedDerived": {
+        "index": 50,
+        "name": "Throwing Star",
+        "values": {
+          "type": "Thrown",
+          "damage": [
+            10,
+            18
+          ],
+          "weight": 2,
+          "atkSpd": 0,
+          "twoHanded": false,
+          "thrown": true
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "weapon"
+    },
+    {
+      "index": 33,
+      "symbol": "weapon_Stick",
+      "displayName": "Stick",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 34,
+      "symbol": "weapon_Staff",
+      "displayName": "Staff",
+      "matchedDerived": {
+        "index": 21,
+        "name": "Staff",
+        "values": {
+          "type": "Staff",
+          "damage": [
+            5,
+            12
+          ],
+          "weight": 8,
+          "atkSpd": 22,
+          "twoHanded": true
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "weapon"
+    },
+    {
+      "index": 35,
+      "symbol": "weapon_Wand",
+      "displayName": "Wand",
+      "matchedDerived": {
+        "index": 22,
+        "name": "Wand",
+        "values": {
+          "type": "Wand",
+          "damage": [
+            5,
+            10
+          ],
+          "weight": 3,
+          "atkSpd": 18,
+          "twoHanded": false
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "weapon"
+    },
+    {
+      "index": 36,
+      "symbol": "weapon_TeoWand",
+      "displayName": "Teo Wand",
+      "matchedDerived": {
+        "index": 23,
+        "name": "Teowand",
+        "values": {
+          "type": "Wand",
+          "damage": [
+            10,
+            20
+          ],
+          "weight": 4,
+          "atkSpd": 18,
+          "twoHanded": false
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "weapon"
+    },
+    {
+      "index": 37,
+      "symbol": "weapon_YewStaff",
+      "displayName": "Yew Staff",
+      "matchedDerived": {
+        "index": 19,
+        "name": "Yew Staff",
+        "values": {
+          "type": "Staff",
+          "damage": [
+            8,
+            18
+          ],
+          "weight": 10,
+          "atkSpd": 24,
+          "twoHanded": true
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "weapon"
+    },
+    {
+      "index": 38,
+      "symbol": "weapon_StaffOfIrra",
+      "displayName": "Staff Of Irra",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 39,
+      "symbol": "weapon_CrossOfNeta",
+      "displayName": "Cross Of Neta",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 40,
+      "symbol": "weapon_SerpentStaff",
+      "displayName": "Snake Staff",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 41,
+      "symbol": "weapon_DragonSpit",
+      "displayName": "Dragon Spit",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 42,
+      "symbol": "weapon_SceptreOfLyf",
+      "displayName": "Sceptre Of Lyf",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 43,
+      "symbol": "weapon_HornOfFear",
+      "displayName": "Horn Of Fear",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 44,
+      "symbol": "weapon_Speedbow",
+      "displayName": "Speedbow",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    },
+    {
+      "index": 45,
+      "symbol": "weapon_TheFirestaffB",
+      "displayName": "The Firestaff",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "weapon"
+    }
+  ],
+  "clothing": [
+    {
+      "index": 0,
+      "symbol": "clothing_Cape",
+      "displayName": "Cape",
+      "matchedDerived": {
+        "index": 0,
+        "name": "Cape",
+        "values": {
+          "slot": "torso",
+          "armor": 0,
+          "weight": 1
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "clothing"
+    },
+    {
+      "index": 1,
+      "symbol": "clothing_CloakOfNight",
+      "displayName": "Cloak Of Night",
+      "matchedDerived": {
+        "index": 1,
+        "name": "Cloak of Night",
+        "values": {
+          "slot": "torso",
+          "armor": 6,
+          "weight": 3
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "clothing"
+    },
+    {
+      "index": 2,
+      "symbol": "clothing_TatteredPants",
+      "displayName": "Tattered Pants",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 3,
+      "symbol": "clothing_Sandals",
+      "displayName": "Sandals",
+      "matchedDerived": {
+        "index": 17,
+        "name": "Sandals",
+        "values": {
+          "slot": "feet",
+          "armor": 2,
+          "weight": 2
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "clothing"
+    },
+    {
+      "index": 4,
+      "symbol": "clothing_LeatherBoots",
+      "displayName": "Leather Boots",
+      "matchedDerived": {
+        "index": 16,
+        "name": "Leather Boots",
+        "values": {
+          "slot": "feet",
+          "armor": 6,
+          "weight": 4
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "clothing"
+    },
+    {
+      "index": 5,
+      "symbol": "clothing_TatteredShirt",
+      "displayName": "Tattered Shirt",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 6,
+      "symbol": "clothing_Robe",
+      "displayName": "Robe",
+      "matchedDerived": {
+        "index": 6,
+        "name": "Robe",
+        "values": {
+          "slot": "torso",
+          "armor": 5,
+          "weight": 4
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "clothing"
+    },
+    {
+      "index": 7,
+      "symbol": "clothing_FineRobeA",
+      "displayName": "Fine Robe (Body)",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 8,
+      "symbol": "clothing_FineRobeB",
+      "displayName": "Fine Robe (Legs)",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 9,
+      "symbol": "clothing_Kirtle",
+      "displayName": "Kirtle",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 10,
+      "symbol": "clothing_SilkShirt",
+      "displayName": "Silk Shirt",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 11,
+      "symbol": "clothing_Tabard",
+      "displayName": "Tabard",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 12,
+      "symbol": "clothing_Gunna",
+      "displayName": "Gunna",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 13,
+      "symbol": "clothing_ElvenDoublet",
+      "displayName": "Elven Doublet",
+      "matchedDerived": {
+        "index": 2,
+        "name": "Elven Doublet",
+        "values": {
+          "slot": "torso",
+          "armor": 10,
+          "weight": 5
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "clothing"
+    },
+    {
+      "index": 14,
+      "symbol": "clothing_ElvenHuke",
+      "displayName": "Elven Huke",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 15,
+      "symbol": "clothing_ElvenBoots",
+      "displayName": "Elven Boots",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 16,
+      "symbol": "clothing_LeatherJerkin",
+      "displayName": "Leather Jerkin",
+      "matchedDerived": {
+        "index": 3,
+        "name": "Leather Jerkin",
+        "values": {
+          "slot": "torso",
+          "armor": 14,
+          "weight": 7
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "clothing"
+    },
+    {
+      "index": 17,
+      "symbol": "clothing_LeatherPants",
+      "displayName": "Leather Pants",
+      "matchedDerived": {
+        "index": 25,
+        "name": "Leather Pants",
+        "values": {
+          "slot": "legs",
+          "armor": 8,
+          "weight": 5
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "clothing"
+    },
+    {
+      "index": 18,
+      "symbol": "clothing_SuedeBoots",
+      "displayName": "Suede Boots",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 19,
+      "symbol": "clothing_BluePants",
+      "displayName": "Blue Pants",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 20,
+      "symbol": "clothing_Tunic",
+      "displayName": "Tunic",
+      "matchedDerived": {
+        "index": 10,
+        "name": "Tunic",
+        "values": {
+          "slot": "torso",
+          "armor": 4,
+          "weight": 3
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "clothing"
+    },
+    {
+      "index": 21,
+      "symbol": "clothing_Ghi",
+      "displayName": "Gi",
+      "matchedDerived": {
+        "index": 8,
+        "name": "Gi",
+        "values": {
+          "slot": "torso",
+          "armor": 8,
+          "weight": 4
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "clothing"
+    },
+    {
+      "index": 22,
+      "symbol": "clothing_GhiTrousers",
+      "displayName": "Ghi Trousers",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 23,
+      "symbol": "clothing_Calista",
+      "displayName": "Calista",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 24,
+      "symbol": "clothing_CrownOfNerra",
+      "displayName": "Crown Of Nerra",
+      "matchedDerived": {
+        "index": 34,
+        "name": "Crown of Nerra",
+        "values": {
+          "slot": "head",
+          "armor": 28,
+          "weight": 10
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "clothing"
+    },
+    {
+      "index": 25,
+      "symbol": "clothing_BezerkerHelm",
+      "displayName": "Bezerker Helm",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 26,
+      "symbol": "clothing_Helmet",
+      "displayName": "Helmet",
+      "matchedDerived": {
+        "index": 32,
+        "name": "Helmet",
+        "values": {
+          "slot": "head",
+          "armor": 15,
+          "weight": 8
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "clothing"
+    },
+    {
+      "index": 27,
+      "symbol": "clothing_Basinet",
+      "displayName": "Basinet",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 28,
+      "symbol": "clothing_NetaShield",
+      "displayName": "Shield",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 29,
+      "symbol": "clothing_CrystalShield",
+      "displayName": "Crystal Shield",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 30,
+      "symbol": "clothing_WoodenShield",
+      "displayName": "Wooden Shield",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 31,
+      "symbol": "clothing_SmallShield",
+      "displayName": "Small Shield",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 32,
+      "symbol": "clothing_MailAketon",
+      "displayName": "Mail Aketon",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 33,
+      "symbol": "clothing_LegMail",
+      "displayName": "Leg Mail",
+      "matchedDerived": {
+        "index": 24,
+        "name": "Leg Mail",
+        "values": {
+          "slot": "legs",
+          "armor": 18,
+          "weight": 12
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "clothing"
+    },
+    {
+      "index": 34,
+      "symbol": "clothing_MithralAketon",
+      "displayName": "Mithral Aketon",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 35,
+      "symbol": "clothing_MithralMail",
+      "displayName": "Mithral Mail",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 36,
+      "symbol": "clothing_CasqueNCoif",
+      "displayName": "Casque'n Coif",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 37,
+      "symbol": "clothing_Hosen",
+      "displayName": "Hosen",
+      "matchedDerived": {
+        "index": 18,
+        "name": "Hosen",
+        "values": {
+          "slot": "feet",
+          "armor": 8,
+          "weight": 5
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "clothing"
+    },
+    {
+      "index": 38,
+      "symbol": "clothing_Armet",
+      "displayName": "Armet",
+      "matchedDerived": {
+        "index": 33,
+        "name": "Armet",
+        "values": {
+          "slot": "head",
+          "armor": 22,
+          "weight": 12
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "clothing"
+    },
+    {
+      "index": 39,
+      "symbol": "clothing_TorsoPlate",
+      "displayName": "Torso Plate",
+      "matchedDerived": {
+        "index": 41,
+        "name": "Torso Plate",
+        "values": {
+          "slot": "torso",
+          "armor": 40,
+          "weight": 30
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "clothing"
+    },
+    {
+      "index": 40,
+      "symbol": "clothing_LegPlate",
+      "displayName": "Leg Plate",
+      "matchedDerived": {
+        "index": 42,
+        "name": "Leg Plate",
+        "values": {
+          "slot": "legs",
+          "armor": 25,
+          "weight": 18
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "clothing"
+    },
+    {
+      "index": 41,
+      "symbol": "clothing_FootPlate",
+      "displayName": "Foot Plate",
+      "matchedDerived": {
+        "index": 43,
+        "name": "Foot Plate",
+        "values": {
+          "slot": "feet",
+          "armor": 18,
+          "weight": 12
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "clothing"
+    },
+    {
+      "index": 42,
+      "symbol": "clothing_SarShield",
+      "displayName": "Shield Of Lyte",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 43,
+      "symbol": "clothing_HelmOfRa",
+      "displayName": "Helm Of Darc",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 44,
+      "symbol": "clothing_PlateOfRa",
+      "displayName": "Plate Of Darc",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 45,
+      "symbol": "clothing_PoleynOfRa",
+      "displayName": "Poleyn Of Darc",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 46,
+      "symbol": "clothing_GreaveOfRa",
+      "displayName": "Greave Of Darc",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 47,
+      "symbol": "clothing_ShieldOfRa",
+      "displayName": "Shield Of Darc",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 48,
+      "symbol": "clothing_DragonHelm",
+      "displayName": "Dragon Helm",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 49,
+      "symbol": "clothing_DragonPlate",
+      "displayName": "Dragon Plate",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 50,
+      "symbol": "clothing_DragonPoleyn",
+      "displayName": "Dragon Poleyn",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 51,
+      "symbol": "clothing_DragonGreave",
+      "displayName": "Dragon Greave",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 52,
+      "symbol": "clothing_DragonShield",
+      "displayName": "Dragon Shield",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 53,
+      "symbol": "clothing_Dexhelm",
+      "displayName": "Dexhelm",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 54,
+      "symbol": "clothing_Flamebain",
+      "displayName": "Flamebain",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 55,
+      "symbol": "clothing_PowerTowers",
+      "displayName": "Power Towers",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 56,
+      "symbol": "clothing_BootsOfSpeed",
+      "displayName": "Boots Of Speed",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    },
+    {
+      "index": 57,
+      "symbol": "clothing_Halter",
+      "displayName": "Halter",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "clothing"
+    }
+  ],
+  "misc": [
+    {
+      "index": 0,
+      "symbol": "misc_Compass",
+      "displayName": "Compass",
+      "matchedDerived": {
+        "index": 0,
+        "name": "Compass",
+        "values": {
+          "usable": true,
+          "description": "Shows current direction",
+          "weight": 1
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "misc"
+    },
+    {
+      "index": 1,
+      "symbol": "misc_Waterskin",
+      "displayName": "Waterskin",
+      "matchedDerived": {
+        "index": 1,
+        "name": "Waterskin",
+        "values": {
+          "usable": true,
+          "description": "Restores stamina when filled",
+          "weight": 2
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "misc"
+    },
+    {
+      "index": 2,
+      "symbol": "misc_JewelSymal",
+      "displayName": "Jewel Symal",
+      "matchedDerived": {
+        "index": 16,
+        "name": "Jewel Symal",
+        "values": {
+          "usable": false,
+          "description": "Rune stone",
+          "weight": 1
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "misc"
+    },
+    {
+      "index": 3,
+      "symbol": "misc_Illumulet",
+      "displayName": "Illumulet",
+      "matchedDerived": {
+        "index": 17,
+        "name": "Illumulet",
+        "values": {
+          "usable": false,
+          "description": "Amulet (equippable)",
+          "weight": 1
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "misc"
+    },
+    {
+      "index": 4,
+      "symbol": "misc_Ashes",
+      "displayName": "Ashes",
+      "matchedDerived": {
+        "index": 24,
+        "name": "Ashes",
+        "values": {
+          "usable": false,
+          "description": "Remains of a champion",
+          "weight": 1
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "misc"
+    },
+    {
+      "index": 5,
+      "symbol": "misc_BonesOfHero",
+      "displayName": "Bones Of Hero",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 6,
+      "symbol": "misc_SarCoin",
+      "displayName": "Copper Coin",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 7,
+      "symbol": "misc_SilverCoin",
+      "displayName": "Silver Coin",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 8,
+      "symbol": "misc_GorCoin",
+      "displayName": "Gold Coin",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 9,
+      "symbol": "misc_IronKey",
+      "displayName": "Iron Key",
+      "matchedDerived": {
+        "index": 48,
+        "name": "Iron Key",
+        "values": {
+          "usable": true,
+          "key": true,
+          "weight": 1
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "misc"
+    },
+    {
+      "index": 10,
+      "symbol": "misc_KeyOfB",
+      "displayName": "Key Of B",
+      "matchedDerived": {
+        "index": 49,
+        "name": "Key of B",
+        "values": {
+          "usable": true,
+          "key": true,
+          "weight": 1
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "misc"
+    },
+    {
+      "index": 11,
+      "symbol": "misc_SolidKey",
+      "displayName": "Solid Key",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 12,
+      "symbol": "misc_SquareKey",
+      "displayName": "Square Key",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 13,
+      "symbol": "misc_TourquoiseKey",
+      "displayName": "Tourquoise Key",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 14,
+      "symbol": "misc_CrossKey",
+      "displayName": "Cross Key",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 15,
+      "symbol": "misc_OnyxKey",
+      "displayName": "Onyx Key",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 16,
+      "symbol": "misc_SkeletonKey",
+      "displayName": "Skeleton Key",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 17,
+      "symbol": "misc_GoldKey",
+      "displayName": "Gold Key",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 18,
+      "symbol": "misc_WingedKey",
+      "displayName": "Winged Key",
+      "matchedDerived": {
+        "index": 50,
+        "name": "Winged Key",
+        "values": {
+          "usable": true,
+          "key": true,
+          "weight": 1
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "misc"
+    },
+    {
+      "index": 19,
+      "symbol": "misc_TopazKey",
+      "displayName": "Topaz Key",
+      "matchedDerived": {
+        "index": 51,
+        "name": "Topaz Key",
+        "values": {
+          "usable": true,
+          "key": true,
+          "weight": 1
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "misc"
+    },
+    {
+      "index": 20,
+      "symbol": "misc_SapphireKey",
+      "displayName": "Sapphire Key",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 21,
+      "symbol": "misc_EmeraldKey",
+      "displayName": "Emerald Key",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 22,
+      "symbol": "misc_RubyKey",
+      "displayName": "Ruby Key",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 23,
+      "symbol": "misc_RaKey",
+      "displayName": "Ra Key",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 24,
+      "symbol": "misc_MasterKey",
+      "displayName": "Master Key",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 25,
+      "symbol": "misc_Boulder",
+      "displayName": "Boulder",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 26,
+      "symbol": "misc_BlueGem",
+      "displayName": "Blue Gem",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 27,
+      "symbol": "misc_OrangeGem",
+      "displayName": "Orange Gem",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 28,
+      "symbol": "misc_GreenGem",
+      "displayName": "Green Gem",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 29,
+      "symbol": "misc_Apple",
+      "displayName": "Apple",
+      "matchedDerived": {
+        "index": 8,
+        "name": "Apple",
+        "values": {
+          "usable": true,
+          "food": true,
+          "nutrition": 500,
+          "weight": 1
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "misc"
+    },
+    {
+      "index": 30,
+      "symbol": "misc_Corn",
+      "displayName": "Corn",
+      "matchedDerived": {
+        "index": 5,
+        "name": "Corn",
+        "values": {
+          "usable": true,
+          "food": true,
+          "nutrition": 600,
+          "weight": 1
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "misc"
+    },
+    {
+      "index": 31,
+      "symbol": "misc_Bread",
+      "displayName": "Bread",
+      "matchedDerived": {
+        "index": 6,
+        "name": "Bread",
+        "values": {
+          "usable": true,
+          "food": true,
+          "nutrition": 650,
+          "weight": 1
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "misc"
+    },
+    {
+      "index": 32,
+      "symbol": "misc_Cheese",
+      "displayName": "Cheese",
+      "matchedDerived": {
+        "index": 9,
+        "name": "Cheese",
+        "values": {
+          "usable": true,
+          "food": true,
+          "nutrition": 820,
+          "weight": 1
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "misc"
+    },
+    {
+      "index": 33,
+      "symbol": "misc_ScreamerSlice",
+      "displayName": "Screamer Slice",
+      "matchedDerived": {
+        "index": 34,
+        "name": "Screamer Slice",
+        "values": {
+          "usable": true,
+          "food": true,
+          "nutrition": 550,
+          "weight": 1
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "misc"
+    },
+    {
+      "index": 34,
+      "symbol": "misc_WormRound",
+      "displayName": "Worm Round",
+      "matchedDerived": {
+        "index": 7,
+        "name": "Worm Round",
+        "values": {
+          "usable": true,
+          "food": true,
+          "nutrition": 350,
+          "weight": 1
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "misc"
+    },
+    {
+      "index": 35,
+      "symbol": "misc_Shank",
+      "displayName": "Shank",
+      "matchedDerived": {
+        "index": 58,
+        "name": "Shank",
+        "values": {
+          "usable": true,
+          "food": true,
+          "nutrition": 990,
+          "weight": 1
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "misc"
+    },
+    {
+      "index": 36,
+      "symbol": "misc_DragonSteak",
+      "displayName": "Dragon Steak",
+      "matchedDerived": {
+        "index": 3,
+        "name": "Dragon Steak",
+        "values": {
+          "usable": true,
+          "food": true,
+          "nutrition": 1400,
+          "weight": 3
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "misc"
+    },
+    {
+      "index": 37,
+      "symbol": "misc_GemOfAges",
+      "displayName": "Gem Of Ages",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 38,
+      "symbol": "misc_EkkhardCross",
+      "displayName": "Ekkhard Cross",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 39,
+      "symbol": "misc_Moonstone",
+      "displayName": "Moonstone",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 40,
+      "symbol": "misc_TheHellion",
+      "displayName": "The Hellion",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 41,
+      "symbol": "misc_PendantFeral",
+      "displayName": "Pendant Feral",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 42,
+      "symbol": "misc_MagicalBoxA",
+      "displayName": "Magical Box A",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 43,
+      "symbol": "misc_MagicalBoxB",
+      "displayName": "Magical Box B",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 44,
+      "symbol": "misc_MirrorOfDawn",
+      "displayName": "Mirror Of Dawn",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 45,
+      "symbol": "misc_Rope",
+      "displayName": "Rope",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 46,
+      "symbol": "misc_RabbitsFoot",
+      "displayName": "Rabbit's Foot",
+      "matchedDerived": {
+        "index": 32,
+        "name": "Rabbit's Foot",
+        "values": {
+          "usable": false,
+          "description": "Luck item",
+          "weight": 1
+        }
+      },
+      "provenance": "derived_game_db_matched_by_name",
+      "kind": "misc"
+    },
+    {
+      "index": 47,
+      "symbol": "misc_Corbum",
+      "displayName": "Orange Gem",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 48,
+      "symbol": "misc_Choker",
+      "displayName": "Choker",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 49,
+      "symbol": "misc_LockPicks",
+      "displayName": "Lock Picks",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 50,
+      "symbol": "misc_Magnifier",
+      "displayName": "Magnifier",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 51,
+      "symbol": "misc_ZokathraSpell",
+      "displayName": "Zokathra Spell",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    },
+    {
+      "index": 52,
+      "symbol": "misc_Bones",
+      "displayName": "Bones",
+      "matchedDerived": null,
+      "provenance": "missing_in_current_game_db",
+      "kind": "misc"
+    }
+  ],
+  "foods": [
+    {
+      "index": 0,
+      "name": "Apple",
+      "nutritionProvenance": "derived_game_db",
+      "nutrition": 500,
+      "weight": 1
+    },
+    {
+      "index": 1,
+      "name": "Corn",
+      "nutritionProvenance": "derived_game_db",
+      "nutrition": 600,
+      "weight": 1
+    },
+    {
+      "index": 2,
+      "name": "Bread",
+      "nutritionProvenance": "derived_game_db",
+      "nutrition": 650,
+      "weight": 1
+    },
+    {
+      "index": 3,
+      "name": "Cheese",
+      "nutritionProvenance": "derived_game_db",
+      "nutrition": 820,
+      "weight": 1
+    },
+    {
+      "index": 4,
+      "name": "Screamer Slice",
+      "nutritionProvenance": "derived_game_db",
+      "nutrition": 550,
+      "weight": 1
+    },
+    {
+      "index": 5,
+      "name": "Worm Round",
+      "nutritionProvenance": "derived_game_db",
+      "nutrition": 350,
+      "weight": 1
+    },
+    {
+      "index": 6,
+      "name": "Shank",
+      "nutritionProvenance": "derived_game_db",
+      "nutrition": 990,
+      "weight": 1
+    },
+    {
+      "index": 7,
+      "name": "Dragon Steak",
+      "nutritionProvenance": "derived_game_db",
+      "nutrition": 1400,
+      "weight": 3
+    }
+  ],
+  "sourceCodeFieldLayout": {
+    "monsterDescriptor": [
+      "uByte0",
+      "attackSound",
+      "word2",
+      "word4",
+      "movementTicks06",
+      "attackTicks07",
+      "defense08",
+      "baseHealth09",
+      "attack10",
+      "poisonAttack11",
+      "dexterity12",
+      "unused13",
+      "word14",
+      "word16",
+      "word18",
+      "word20",
+      "uByte22[4]"
+    ],
+    "weaponDesc": [
+      "weight",
+      "uByte1",
+      "uByte2",
+      "uByte3",
+      "word4"
+    ],
+    "clothingDesc": [
+      "weight",
+      "uByte1",
+      "uByte2"
+    ],
+    "objectDesc": [
+      "objectType",
+      "graphicClass",
+      "attackClass",
+      "word4"
+    ]
+  }
+}

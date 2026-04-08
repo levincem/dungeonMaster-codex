@@ -1,0 +1,7 @@
+ENDIAN=BIG,FORMAT=DMCSB1
+0000,SEQ1,NULL,Music Score (Sequence of Music Parts Numbers),,
+0001,SND2,SPR2,Music Part 1,,
+0002,SND2,SPR2,Music Part 2,,
+0003,SND2,SPR2,Music Part 3,,
+0004,SND2,SPR2,Music Part 4,,
+0005,SND2,SPR2,Music Part 5,,

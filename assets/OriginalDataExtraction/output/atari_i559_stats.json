@@ -1,0 +1,6096 @@
+{
+  "_meta": {
+    "source": "I559 decoded payload",
+    "endian": "be",
+    "start": 0,
+    "consumedBytes": 3086
+  },
+  "creatureFacings": [
+    0,
+    85,
+    170,
+    255
+  ],
+  "foodValues": [
+    500,
+    600,
+    650,
+    820,
+    550,
+    350,
+    990,
+    1400
+  ],
+  "miscWeightsKg": [
+    0.1,
+    0.3,
+    0.2,
+    0.2,
+    0.4,
+    1.5,
+    0.1,
+    0.1,
+    0.1,
+    0.2,
+    0.1,
+    0.1,
+    0.1,
+    0.1,
+    0.1,
+    0.1,
+    0.1,
+    0.1,
+    0.1,
+    0.1,
+    0.1,
+    0.1,
+    0.1,
+    0.1,
+    0.1,
+    8.1,
+    0.2,
+    0.3,
+    0.2,
+    0.4,
+    0.4,
+    0.3,
+    0.8,
+    0.5,
+    1.1,
+    0.4,
+    0.6,
+    0.2,
+    0.3,
+    0.2,
+    0.2,
+    0.2,
+    0.6,
+    0.9,
+    0.3,
+    1,
+    0.1,
+    0,
+    0.1,
+    0.1,
+    0.2,
+    0,
+    0.8,
+    0
+  ],
+  "protection": 4,
+  "creatures": [
+    {
+      "index": 0,
+      "creatureAspectIndex": 0,
+      "attackSoundOrdinal": 4,
+      "sizeOnTile": 2,
+      "attackFromAllSides": false,
+      "preferBackRow": false,
+      "attackAnyChampion": false,
+      "levitates": false,
+      "nonMaterial": false,
+      "dropFixedPossessions": false,
+      "absorbMissiles": true,
+      "seeInvisible": false,
+      "nightVision": false,
+      "archenemy": false,
+      "additionalFrontGraphics": 1,
+      "canMirrorImage": true,
+      "hasSideImage": true,
+      "hasBackImage": true,
+      "hasAttackImage": true,
+      "canMirrorAttackImage": true,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 2,
+      "yShiftGroup": 1,
+      "movementTicks": 8,
+      "attackTicks": 20,
+      "defense": 55,
+      "baseHealth": 150,
+      "attack": 150,
+      "poisonAttack": 240,
+      "dexterity": 55,
+      "byte13": 0,
+      "ranges": {
+        "sight": 3,
+        "smell": 1,
+        "attack": 1
+      },
+      "properties": {
+        "fearResistance": 9,
+        "experienceClass": 9,
+        "wariness": 2
+      },
+      "resistances": {
+        "fire": 7,
+        "poison": 8
+      },
+      "word20": 596,
+      "behaviorAfterAttack": 4,
+      "nonAttackAspect": 5,
+      "attackAspect": 2,
+      "byte22": [
+        253,
+        64,
+        4,
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "creatureAspectIndex": 1,
+      "attackSoundOrdinal": 0,
+      "sizeOnTile": 0,
+      "attackFromAllSides": false,
+      "preferBackRow": false,
+      "attackAnyChampion": false,
+      "levitates": false,
+      "nonMaterial": false,
+      "dropFixedPossessions": false,
+      "absorbMissiles": true,
+      "seeInvisible": false,
+      "nightVision": false,
+      "archenemy": false,
+      "additionalFrontGraphics": 1,
+      "canMirrorImage": true,
+      "hasSideImage": false,
+      "hasBackImage": false,
+      "hasAttackImage": true,
+      "canMirrorAttackImage": true,
+      "cannotMirrorWhileAttacking": true,
+      "xShiftGroup": 2,
+      "yShiftGroup": 2,
+      "movementTicks": 15,
+      "attackTicks": 32,
+      "defense": 20,
+      "baseHealth": 110,
+      "attack": 80,
+      "poisonAttack": 15,
+      "dexterity": 20,
+      "byte13": 0,
+      "ranges": {
+        "sight": 2,
+        "smell": 1,
+        "attack": 3
+      },
+      "properties": {
+        "fearResistance": 10,
+        "experienceClass": 3,
+        "wariness": 3
+      },
+      "resistances": {
+        "fire": 4,
+        "poison": 14
+      },
+      "word20": 900,
+      "behaviorAfterAttack": 4,
+      "nonAttackAspect": 8,
+      "attackAspect": 3,
+      "byte22": [
+        252,
+        65,
+        3,
+        0
+      ]
+    },
+    {
+      "index": 2,
+      "creatureAspectIndex": 2,
+      "attackSoundOrdinal": 6,
+      "sizeOnTile": 0,
+      "attackFromAllSides": false,
+      "preferBackRow": false,
+      "attackAnyChampion": true,
+      "levitates": false,
+      "nonMaterial": false,
+      "dropFixedPossessions": false,
+      "absorbMissiles": true,
+      "seeInvisible": false,
+      "nightVision": false,
+      "archenemy": false,
+      "additionalFrontGraphics": 0,
+      "canMirrorImage": false,
+      "hasSideImage": true,
+      "hasBackImage": true,
+      "hasAttackImage": false,
+      "canMirrorAttackImage": false,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 2,
+      "yShiftGroup": 1,
+      "movementTicks": 3,
+      "attackTicks": 5,
+      "defense": 50,
+      "baseHealth": 10,
+      "attack": 10,
+      "poisonAttack": 0,
+      "dexterity": 110,
+      "byte13": 0,
+      "ranges": {
+        "sight": 6,
+        "smell": 3,
+        "attack": 1
+      },
+      "properties": {
+        "fearResistance": 0,
+        "experienceClass": 1,
+        "wariness": 7
+      },
+      "resistances": {
+        "fire": 3,
+        "poison": 2
+      },
+      "word20": 546,
+      "behaviorAfterAttack": 2,
+      "nonAttackAspect": 2,
+      "attackAspect": 2,
+      "byte22": [
+        253,
+        32,
+        0,
+        0
+      ]
+    },
+    {
+      "index": 3,
+      "creatureAspectIndex": 3,
+      "attackSoundOrdinal": 0,
+      "sizeOnTile": 0,
+      "attackFromAllSides": true,
+      "preferBackRow": false,
+      "attackAnyChampion": true,
+      "levitates": true,
+      "nonMaterial": false,
+      "dropFixedPossessions": false,
+      "absorbMissiles": true,
+      "seeInvisible": false,
+      "nightVision": false,
+      "archenemy": false,
+      "additionalFrontGraphics": 1,
+      "canMirrorImage": true,
+      "hasSideImage": false,
+      "hasBackImage": false,
+      "hasAttackImage": true,
+      "canMirrorAttackImage": true,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 3,
+      "yShiftGroup": 2,
+      "movementTicks": 10,
+      "attackTicks": 21,
+      "defense": 30,
+      "baseHealth": 40,
+      "attack": 58,
+      "poisonAttack": 0,
+      "dexterity": 80,
+      "byte13": 0,
+      "ranges": {
+        "sight": 10,
+        "smell": 2,
+        "attack": 3
+      },
+      "properties": {
+        "fearResistance": 10,
+        "experienceClass": 6,
+        "wariness": 9
+      },
+      "resistances": {
+        "fire": 3,
+        "poison": 11
+      },
+      "word20": 275,
+      "behaviorAfterAttack": 3,
+      "nonAttackAspect": 1,
+      "attackAspect": 1,
+      "byte22": [
+        249,
+        16,
+        5,
+        0
+      ]
+    },
+    {
+      "index": 4,
+      "creatureAspectIndex": 4,
+      "attackSoundOrdinal": 1,
+      "sizeOnTile": 1,
+      "attackFromAllSides": false,
+      "preferBackRow": false,
+      "attackAnyChampion": false,
+      "levitates": false,
+      "nonMaterial": false,
+      "dropFixedPossessions": true,
+      "absorbMissiles": true,
+      "seeInvisible": false,
+      "nightVision": false,
+      "archenemy": false,
+      "additionalFrontGraphics": 0,
+      "canMirrorImage": false,
+      "hasSideImage": true,
+      "hasBackImage": true,
+      "hasAttackImage": true,
+      "canMirrorAttackImage": true,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 2,
+      "yShiftGroup": 2,
+      "movementTicks": 9,
+      "attackTicks": 8,
+      "defense": 45,
+      "baseHealth": 101,
+      "attack": 90,
+      "poisonAttack": 0,
+      "dexterity": 65,
+      "byte13": 0,
+      "ranges": {
+        "sight": 4,
+        "smell": 5,
+        "attack": 1
+      },
+      "properties": {
+        "fearResistance": 15,
+        "experienceClass": 8,
+        "wariness": 5
+      },
+      "resistances": {
+        "fire": 3,
+        "poison": 10
+      },
+      "word20": 323,
+      "behaviorAfterAttack": 3,
+      "nonAttackAspect": 4,
+      "attackAspect": 1,
+      "byte22": [
+        254,
+        147,
+        4,
+        0
+      ]
+    },
+    {
+      "index": 5,
+      "creatureAspectIndex": 5,
+      "attackSoundOrdinal": 0,
+      "sizeOnTile": 1,
+      "attackFromAllSides": false,
+      "preferBackRow": false,
+      "attackAnyChampion": false,
+      "levitates": false,
+      "nonMaterial": false,
+      "dropFixedPossessions": false,
+      "absorbMissiles": true,
+      "seeInvisible": false,
+      "nightVision": false,
+      "archenemy": false,
+      "additionalFrontGraphics": 1,
+      "canMirrorImage": true,
+      "hasSideImage": true,
+      "hasBackImage": true,
+      "hasAttackImage": false,
+      "canMirrorAttackImage": true,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 1,
+      "yShiftGroup": 1,
+      "movementTicks": 20,
+      "attackTicks": 18,
+      "defense": 100,
+      "baseHealth": 60,
+      "attack": 30,
+      "poisonAttack": 0,
+      "dexterity": 30,
+      "byte13": 0,
+      "ranges": {
+        "sight": 2,
+        "smell": 2,
+        "attack": 1
+      },
+      "properties": {
+        "fearResistance": 3,
+        "experienceClass": 3,
+        "wariness": 4
+      },
+      "resistances": {
+        "fire": 8,
+        "poison": 5
+      },
+      "word20": 613,
+      "behaviorAfterAttack": 5,
+      "nonAttackAspect": 6,
+      "attackAspect": 2,
+      "byte22": [
+        255,
+        214,
+        3,
+        0
+      ]
+    },
+    {
+      "index": 6,
+      "creatureAspectIndex": 6,
+      "attackSoundOrdinal": 3,
+      "sizeOnTile": 0,
+      "attackFromAllSides": true,
+      "preferBackRow": true,
+      "attackAnyChampion": false,
+      "levitates": false,
+      "nonMaterial": false,
+      "dropFixedPossessions": true,
+      "absorbMissiles": true,
+      "seeInvisible": false,
+      "nightVision": false,
+      "archenemy": false,
+      "additionalFrontGraphics": 0,
+      "canMirrorImage": false,
+      "hasSideImage": false,
+      "hasBackImage": false,
+      "hasAttackImage": true,
+      "canMirrorAttackImage": false,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 0,
+      "yShiftGroup": 0,
+      "movementTicks": 120,
+      "attackTicks": 10,
+      "defense": 5,
+      "baseHealth": 165,
+      "attack": 5,
+      "poisonAttack": 0,
+      "dexterity": 5,
+      "byte13": 0,
+      "ranges": {
+        "sight": 1,
+        "smell": 1,
+        "attack": 1
+      },
+      "properties": {
+        "fearResistance": 15,
+        "experienceClass": 0,
+        "wariness": 1
+      },
+      "resistances": {
+        "fire": 6,
+        "poison": 7
+      },
+      "word20": 754,
+      "behaviorAfterAttack": 2,
+      "nonAttackAspect": 15,
+      "attackAspect": 2,
+      "byte22": [
+        252,
+        132,
+        6,
+        0
+      ]
+    },
+    {
+      "index": 7,
+      "creatureAspectIndex": 7,
+      "attackSoundOrdinal": 0,
+      "sizeOnTile": 0,
+      "attackFromAllSides": false,
+      "preferBackRow": false,
+      "attackAnyChampion": false,
+      "levitates": false,
+      "nonMaterial": false,
+      "dropFixedPossessions": true,
+      "absorbMissiles": false,
+      "seeInvisible": false,
+      "nightVision": false,
+      "archenemy": false,
+      "additionalFrontGraphics": 0,
+      "canMirrorImage": false,
+      "hasSideImage": false,
+      "hasBackImage": false,
+      "hasAttackImage": true,
+      "canMirrorAttackImage": true,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 0,
+      "yShiftGroup": 0,
+      "movementTicks": 185,
+      "attackTicks": 15,
+      "defense": 170,
+      "baseHealth": 50,
+      "attack": 40,
+      "poisonAttack": 5,
+      "dexterity": 10,
+      "byte13": 0,
+      "ranges": {
+        "sight": 3,
+        "smell": 4,
+        "attack": 1
+      },
+      "properties": {
+        "fearResistance": 12,
+        "experienceClass": 5,
+        "wariness": 2
+      },
+      "resistances": {
+        "fire": 14,
+        "poison": 6
+      },
+      "word20": 500,
+      "behaviorAfterAttack": 4,
+      "nonAttackAspect": 15,
+      "attackAspect": 1,
+      "byte22": [
+        253,
+        147,
+        4,
+        0
+      ]
+    },
+    {
+      "index": 8,
+      "creatureAspectIndex": 8,
+      "attackSoundOrdinal": 2,
+      "sizeOnTile": 0,
+      "attackFromAllSides": true,
+      "preferBackRow": false,
+      "attackAnyChampion": false,
+      "levitates": true,
+      "nonMaterial": true,
+      "dropFixedPossessions": false,
+      "absorbMissiles": false,
+      "seeInvisible": true,
+      "nightVision": true,
+      "archenemy": false,
+      "additionalFrontGraphics": 1,
+      "canMirrorImage": true,
+      "hasSideImage": false,
+      "hasBackImage": false,
+      "hasAttackImage": true,
+      "canMirrorAttackImage": true,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 1,
+      "yShiftGroup": 1,
+      "movementTicks": 11,
+      "attackTicks": 16,
+      "defense": 15,
+      "baseHealth": 30,
+      "attack": 55,
+      "poisonAttack": 0,
+      "dexterity": 80,
+      "byte13": 0,
+      "ranges": {
+        "sight": 3,
+        "smell": 4,
+        "attack": 1
+      },
+      "properties": {
+        "fearResistance": 6,
+        "experienceClass": 6,
+        "wariness": 4
+      },
+      "resistances": {
+        "fire": 12,
+        "poison": 15
+      },
+      "word20": 278,
+      "behaviorAfterAttack": 6,
+      "nonAttackAspect": 1,
+      "attackAspect": 1,
+      "byte22": [
+        251,
+        48,
+        6,
+        0
+      ]
+    },
+    {
+      "index": 9,
+      "creatureAspectIndex": 9,
+      "attackSoundOrdinal": 7,
+      "sizeOnTile": 2,
+      "attackFromAllSides": false,
+      "preferBackRow": false,
+      "attackAnyChampion": false,
+      "levitates": false,
+      "nonMaterial": false,
+      "dropFixedPossessions": true,
+      "absorbMissiles": false,
+      "seeInvisible": false,
+      "nightVision": false,
+      "archenemy": false,
+      "additionalFrontGraphics": 0,
+      "canMirrorImage": false,
+      "hasSideImage": true,
+      "hasBackImage": true,
+      "hasAttackImage": true,
+      "canMirrorAttackImage": false,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 3,
+      "yShiftGroup": 1,
+      "movementTicks": 21,
+      "attackTicks": 14,
+      "defense": 240,
+      "baseHealth": 120,
+      "attack": 219,
+      "poisonAttack": 0,
+      "dexterity": 35,
+      "byte13": 0,
+      "ranges": {
+        "sight": 3,
+        "smell": 0,
+        "attack": 1
+      },
+      "properties": {
+        "fearResistance": 15,
+        "experienceClass": 11,
+        "wariness": 3
+      },
+      "resistances": {
+        "fire": 15,
+        "poison": 15
+      },
+      "word20": 1267,
+      "behaviorAfterAttack": 3,
+      "nonAttackAspect": 15,
+      "attackAspect": 4,
+      "byte22": [
+        249,
+        32,
+        3,
+        0
+      ]
+    },
+    {
+      "index": 10,
+      "creatureAspectIndex": 10,
+      "attackSoundOrdinal": 2,
+      "sizeOnTile": 0,
+      "attackFromAllSides": false,
+      "preferBackRow": false,
+      "attackAnyChampion": false,
+      "levitates": false,
+      "nonMaterial": false,
+      "dropFixedPossessions": false,
+      "absorbMissiles": true,
+      "seeInvisible": false,
+      "nightVision": true,
+      "archenemy": false,
+      "additionalFrontGraphics": 0,
+      "canMirrorImage": false,
+      "hasSideImage": true,
+      "hasBackImage": true,
+      "hasAttackImage": true,
+      "canMirrorAttackImage": false,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 1,
+      "yShiftGroup": 0,
+      "movementTicks": 17,
+      "attackTicks": 12,
+      "defense": 25,
+      "baseHealth": 33,
+      "attack": 20,
+      "poisonAttack": 0,
+      "dexterity": 40,
+      "byte13": 0,
+      "ranges": {
+        "sight": 4,
+        "smell": 2,
+        "attack": 1
+      },
+      "properties": {
+        "fearResistance": 9,
+        "experienceClass": 4,
+        "wariness": 5
+      },
+      "resistances": {
+        "fire": 1,
+        "poison": 15
+      },
+      "word20": 1155,
+      "behaviorAfterAttack": 3,
+      "nonAttackAspect": 8,
+      "attackAspect": 4,
+      "byte22": [
+        251,
+        32,
+        3,
+        0
+      ]
+    },
+    {
+      "index": 11,
+      "creatureAspectIndex": 11,
+      "attackSoundOrdinal": 0,
+      "sizeOnTile": 2,
+      "attackFromAllSides": true,
+      "preferBackRow": false,
+      "attackAnyChampion": false,
+      "levitates": false,
+      "nonMaterial": true,
+      "dropFixedPossessions": false,
+      "absorbMissiles": false,
+      "seeInvisible": true,
+      "nightVision": true,
+      "archenemy": false,
+      "additionalFrontGraphics": 1,
+      "canMirrorImage": true,
+      "hasSideImage": false,
+      "hasBackImage": false,
+      "hasAttackImage": true,
+      "canMirrorAttackImage": true,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 0,
+      "yShiftGroup": 0,
+      "movementTicks": 255,
+      "attackTicks": 8,
+      "defense": 45,
+      "baseHealth": 80,
+      "attack": 105,
+      "poisonAttack": 0,
+      "dexterity": 60,
+      "byte13": 0,
+      "ranges": {
+        "sight": 4,
+        "smell": 3,
+        "attack": 1
+      },
+      "properties": {
+        "fearResistance": 10,
+        "experienceClass": 5,
+        "wariness": 5
+      },
+      "resistances": {
+        "fire": 15,
+        "poison": 15
+      },
+      "word20": 276,
+      "behaviorAfterAttack": 4,
+      "nonAttackAspect": 1,
+      "attackAspect": 1,
+      "byte22": [
+        253,
+        149,
+        1,
+        0
+      ]
+    },
+    {
+      "index": 12,
+      "creatureAspectIndex": 12,
+      "attackSoundOrdinal": 8,
+      "sizeOnTile": 0,
+      "attackFromAllSides": false,
+      "preferBackRow": false,
+      "attackAnyChampion": false,
+      "levitates": false,
+      "nonMaterial": false,
+      "dropFixedPossessions": true,
+      "absorbMissiles": false,
+      "seeInvisible": false,
+      "nightVision": true,
+      "archenemy": false,
+      "additionalFrontGraphics": 0,
+      "canMirrorImage": false,
+      "hasSideImage": true,
+      "hasBackImage": true,
+      "hasAttackImage": true,
+      "canMirrorAttackImage": false,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 2,
+      "yShiftGroup": 1,
+      "movementTicks": 7,
+      "attackTicks": 7,
+      "defense": 22,
+      "baseHealth": 20,
+      "attack": 22,
+      "poisonAttack": 0,
+      "dexterity": 80,
+      "byte13": 0,
+      "ranges": {
+        "sight": 3,
+        "smell": 0,
+        "attack": 1
+      },
+      "properties": {
+        "fearResistance": 9,
+        "experienceClass": 5,
+        "wariness": 6
+      },
+      "resistances": {
+        "fire": 6,
+        "poison": 15
+      },
+      "word20": 306,
+      "behaviorAfterAttack": 2,
+      "nonAttackAspect": 3,
+      "attackAspect": 1,
+      "byte22": [
+        250,
+        48,
+        4,
+        0
+      ]
+    },
+    {
+      "index": 13,
+      "creatureAspectIndex": 13,
+      "attackSoundOrdinal": 0,
+      "sizeOnTile": 2,
+      "attackFromAllSides": false,
+      "preferBackRow": false,
+      "attackAnyChampion": false,
+      "levitates": true,
+      "nonMaterial": false,
+      "dropFixedPossessions": false,
+      "absorbMissiles": true,
+      "seeInvisible": false,
+      "nightVision": true,
+      "archenemy": false,
+      "additionalFrontGraphics": 1,
+      "canMirrorImage": true,
+      "hasSideImage": true,
+      "hasBackImage": true,
+      "hasAttackImage": true,
+      "canMirrorAttackImage": true,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 3,
+      "yShiftGroup": 2,
+      "movementTicks": 5,
+      "attackTicks": 10,
+      "defense": 42,
+      "baseHealth": 39,
+      "attack": 90,
+      "poisonAttack": 100,
+      "dexterity": 88,
+      "byte13": 0,
+      "ranges": {
+        "sight": 3,
+        "smell": 3,
+        "attack": 1
+      },
+      "properties": {
+        "fearResistance": 3,
+        "experienceClass": 7,
+        "wariness": 5
+      },
+      "resistances": {
+        "fire": 3,
+        "poison": 6
+      },
+      "word20": 274,
+      "behaviorAfterAttack": 2,
+      "nonAttackAspect": 1,
+      "attackAspect": 1,
+      "byte22": [
+        250,
+        48,
+        4,
+        0
+      ]
+    },
+    {
+      "index": 14,
+      "creatureAspectIndex": 14,
+      "attackSoundOrdinal": 0,
+      "sizeOnTile": 0,
+      "attackFromAllSides": false,
+      "preferBackRow": true,
+      "attackAnyChampion": true,
+      "levitates": true,
+      "nonMaterial": false,
+      "dropFixedPossessions": false,
+      "absorbMissiles": true,
+      "seeInvisible": false,
+      "nightVision": false,
+      "archenemy": false,
+      "additionalFrontGraphics": 0,
+      "canMirrorImage": false,
+      "hasSideImage": true,
+      "hasBackImage": true,
+      "hasAttackImage": true,
+      "canMirrorAttackImage": true,
+      "cannotMirrorWhileAttacking": true,
+      "xShiftGroup": 1,
+      "yShiftGroup": 0,
+      "movementTicks": 10,
+      "attackTicks": 20,
+      "defense": 47,
+      "baseHealth": 44,
+      "attack": 75,
+      "poisonAttack": 0,
+      "dexterity": 90,
+      "byte13": 0,
+      "ranges": {
+        "sight": 5,
+        "smell": 3,
+        "attack": 4
+      },
+      "properties": {
+        "fearResistance": 5,
+        "experienceClass": 9,
+        "wariness": 13
+      },
+      "resistances": {
+        "fire": 5,
+        "poison": 3
+      },
+      "word20": 1636,
+      "behaviorAfterAttack": 4,
+      "nonAttackAspect": 6,
+      "attackAspect": 6,
+      "byte22": [
+        253,
+        96,
+        5,
+        0
+      ]
+    },
+    {
+      "index": 15,
+      "creatureAspectIndex": 15,
+      "attackSoundOrdinal": 5,
+      "sizeOnTile": 1,
+      "attackFromAllSides": false,
+      "preferBackRow": false,
+      "attackAnyChampion": false,
+      "levitates": false,
+      "nonMaterial": false,
+      "dropFixedPossessions": true,
+      "absorbMissiles": false,
+      "seeInvisible": false,
+      "nightVision": false,
+      "archenemy": false,
+      "additionalFrontGraphics": 1,
+      "canMirrorImage": true,
+      "hasSideImage": true,
+      "hasBackImage": true,
+      "hasAttackImage": true,
+      "canMirrorAttackImage": true,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 1,
+      "yShiftGroup": 1,
+      "movementTicks": 18,
+      "attackTicks": 19,
+      "defense": 72,
+      "baseHealth": 70,
+      "attack": 45,
+      "poisonAttack": 35,
+      "dexterity": 35,
+      "byte13": 0,
+      "ranges": {
+        "sight": 1,
+        "smell": 10,
+        "attack": 1
+      },
+      "properties": {
+        "fearResistance": 10,
+        "experienceClass": 5,
+        "wariness": 1
+      },
+      "resistances": {
+        "fire": 9,
+        "poison": 11
+      },
+      "word20": 595,
+      "behaviorAfterAttack": 3,
+      "nonAttackAspect": 5,
+      "attackAspect": 2,
+      "byte22": [
+        255,
+        197,
+        4,
+        0
+      ]
+    },
+    {
+      "index": 16,
+      "creatureAspectIndex": 16,
+      "attackSoundOrdinal": 7,
+      "sizeOnTile": 0,
+      "attackFromAllSides": false,
+      "preferBackRow": false,
+      "attackAnyChampion": false,
+      "levitates": false,
+      "nonMaterial": false,
+      "dropFixedPossessions": true,
+      "absorbMissiles": true,
+      "seeInvisible": false,
+      "nightVision": false,
+      "archenemy": false,
+      "additionalFrontGraphics": 0,
+      "canMirrorImage": false,
+      "hasSideImage": true,
+      "hasBackImage": true,
+      "hasAttackImage": true,
+      "canMirrorAttackImage": false,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 2,
+      "yShiftGroup": 2,
+      "movementTicks": 13,
+      "attackTicks": 8,
+      "defense": 28,
+      "baseHealth": 20,
+      "attack": 25,
+      "poisonAttack": 0,
+      "dexterity": 41,
+      "byte13": 0,
+      "ranges": {
+        "sight": 3,
+        "smell": 3,
+        "attack": 1
+      },
+      "properties": {
+        "fearResistance": 4,
+        "experienceClass": 1,
+        "wariness": 2
+      },
+      "resistances": {
+        "fire": 2,
+        "poison": 3
+      },
+      "word20": 818,
+      "behaviorAfterAttack": 2,
+      "nonAttackAspect": 3,
+      "attackAspect": 3,
+      "byte22": [
+        252,
+        48,
+        3,
+        0
+      ]
+    },
+    {
+      "index": 17,
+      "creatureAspectIndex": 17,
+      "attackSoundOrdinal": 0,
+      "sizeOnTile": 0,
+      "attackFromAllSides": false,
+      "preferBackRow": false,
+      "attackAnyChampion": false,
+      "levitates": true,
+      "nonMaterial": false,
+      "dropFixedPossessions": false,
+      "absorbMissiles": true,
+      "seeInvisible": false,
+      "nightVision": false,
+      "archenemy": false,
+      "additionalFrontGraphics": 1,
+      "canMirrorImage": true,
+      "hasSideImage": true,
+      "hasBackImage": true,
+      "hasAttackImage": true,
+      "canMirrorAttackImage": true,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 3,
+      "yShiftGroup": 3,
+      "movementTicks": 1,
+      "attackTicks": 16,
+      "defense": 180,
+      "baseHealth": 8,
+      "attack": 28,
+      "poisonAttack": 20,
+      "dexterity": 150,
+      "byte13": 0,
+      "ranges": {
+        "sight": 2,
+        "smell": 4,
+        "attack": 1
+      },
+      "properties": {
+        "fearResistance": 15,
+        "experienceClass": 9,
+        "wariness": 1
+      },
+      "resistances": {
+        "fire": 0,
+        "poison": 0
+      },
+      "word20": 274,
+      "behaviorAfterAttack": 2,
+      "nonAttackAspect": 1,
+      "attackAspect": 1,
+      "byte22": [
+        247,
+        16,
+        4,
+        0
+      ]
+    },
+    {
+      "index": 18,
+      "creatureAspectIndex": 18,
+      "attackSoundOrdinal": 8,
+      "sizeOnTile": 0,
+      "attackFromAllSides": false,
+      "preferBackRow": false,
+      "attackAnyChampion": false,
+      "levitates": false,
+      "nonMaterial": false,
+      "dropFixedPossessions": true,
+      "absorbMissiles": false,
+      "seeInvisible": false,
+      "nightVision": false,
+      "archenemy": false,
+      "additionalFrontGraphics": 1,
+      "canMirrorImage": true,
+      "hasSideImage": true,
+      "hasBackImage": true,
+      "hasAttackImage": true,
+      "canMirrorAttackImage": true,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 2,
+      "yShiftGroup": 2,
+      "movementTicks": 14,
+      "attackTicks": 6,
+      "defense": 140,
+      "baseHealth": 60,
+      "attack": 105,
+      "poisonAttack": 0,
+      "dexterity": 70,
+      "byte13": 0,
+      "ranges": {
+        "sight": 5,
+        "smell": 0,
+        "attack": 1
+      },
+      "properties": {
+        "fearResistance": 15,
+        "experienceClass": 10,
+        "wariness": 7
+      },
+      "resistances": {
+        "fire": 15,
+        "poison": 15
+      },
+      "word20": 323,
+      "behaviorAfterAttack": 3,
+      "nonAttackAspect": 4,
+      "attackAspect": 1,
+      "byte22": [
+        250,
+        48,
+        4,
+        0
+      ]
+    },
+    {
+      "index": 19,
+      "creatureAspectIndex": 19,
+      "attackSoundOrdinal": 0,
+      "sizeOnTile": 0,
+      "attackFromAllSides": false,
+      "preferBackRow": false,
+      "attackAnyChampion": false,
+      "levitates": true,
+      "nonMaterial": true,
+      "dropFixedPossessions": false,
+      "absorbMissiles": false,
+      "seeInvisible": false,
+      "nightVision": false,
+      "archenemy": false,
+      "additionalFrontGraphics": 1,
+      "canMirrorImage": true,
+      "hasSideImage": true,
+      "hasBackImage": true,
+      "hasAttackImage": true,
+      "canMirrorAttackImage": true,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 2,
+      "yShiftGroup": 3,
+      "movementTicks": 5,
+      "attackTicks": 18,
+      "defense": 15,
+      "baseHealth": 33,
+      "attack": 61,
+      "poisonAttack": 0,
+      "dexterity": 65,
+      "byte13": 0,
+      "ranges": {
+        "sight": 8,
+        "smell": 2,
+        "attack": 3
+      },
+      "properties": {
+        "fearResistance": 7,
+        "experienceClass": 12,
+        "wariness": 10
+      },
+      "resistances": {
+        "fire": 5,
+        "poison": 15
+      },
+      "word20": 279,
+      "behaviorAfterAttack": 7,
+      "nonAttackAspect": 1,
+      "attackAspect": 1,
+      "byte22": [
+        252,
+        64,
+        5,
+        0
+      ]
+    },
+    {
+      "index": 20,
+      "creatureAspectIndex": 20,
+      "attackSoundOrdinal": 0,
+      "sizeOnTile": 2,
+      "attackFromAllSides": true,
+      "preferBackRow": true,
+      "attackAnyChampion": true,
+      "levitates": false,
+      "nonMaterial": true,
+      "dropFixedPossessions": false,
+      "absorbMissiles": false,
+      "seeInvisible": false,
+      "nightVision": true,
+      "archenemy": false,
+      "additionalFrontGraphics": 1,
+      "canMirrorImage": true,
+      "hasSideImage": false,
+      "hasBackImage": false,
+      "hasAttackImage": true,
+      "canMirrorAttackImage": true,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 0,
+      "yShiftGroup": 0,
+      "movementTicks": 25,
+      "attackTicks": 25,
+      "defense": 75,
+      "baseHealth": 144,
+      "attack": 66,
+      "poisonAttack": 0,
+      "dexterity": 50,
+      "byte13": 0,
+      "ranges": {
+        "sight": 1,
+        "smell": 3,
+        "attack": 1
+      },
+      "properties": {
+        "fearResistance": 7,
+        "experienceClass": 6,
+        "wariness": 7
+      },
+      "resistances": {
+        "fire": 10,
+        "poison": 14
+      },
+      "word20": 837,
+      "behaviorAfterAttack": 5,
+      "nonAttackAspect": 4,
+      "attackAspect": 3,
+      "byte22": [
+        253,
+        147,
+        3,
+        0
+      ]
+    },
+    {
+      "index": 21,
+      "creatureAspectIndex": 21,
+      "attackSoundOrdinal": 3,
+      "sizeOnTile": 2,
+      "attackFromAllSides": false,
+      "preferBackRow": false,
+      "attackAnyChampion": false,
+      "levitates": false,
+      "nonMaterial": false,
+      "dropFixedPossessions": false,
+      "absorbMissiles": false,
+      "seeInvisible": false,
+      "nightVision": false,
+      "archenemy": false,
+      "additionalFrontGraphics": 1,
+      "canMirrorImage": true,
+      "hasSideImage": true,
+      "hasBackImage": true,
+      "hasAttackImage": true,
+      "canMirrorAttackImage": true,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 2,
+      "yShiftGroup": 2,
+      "movementTicks": 7,
+      "attackTicks": 15,
+      "defense": 33,
+      "baseHealth": 77,
+      "attack": 130,
+      "poisonAttack": 0,
+      "dexterity": 60,
+      "byte13": 0,
+      "ranges": {
+        "sight": 2,
+        "smell": 5,
+        "attack": 1
+      },
+      "properties": {
+        "fearResistance": 6,
+        "experienceClass": 9,
+        "wariness": 6
+      },
+      "resistances": {
+        "fire": 5,
+        "poison": 8
+      },
+      "word20": 548,
+      "behaviorAfterAttack": 4,
+      "nonAttackAspect": 2,
+      "attackAspect": 2,
+      "byte22": [
+        252,
+        48,
+        4,
+        0
+      ]
+    },
+    {
+      "index": 22,
+      "creatureAspectIndex": 22,
+      "attackSoundOrdinal": 0,
+      "sizeOnTile": 0,
+      "attackFromAllSides": false,
+      "preferBackRow": false,
+      "attackAnyChampion": false,
+      "levitates": false,
+      "nonMaterial": false,
+      "dropFixedPossessions": false,
+      "absorbMissiles": true,
+      "seeInvisible": false,
+      "nightVision": true,
+      "archenemy": false,
+      "additionalFrontGraphics": 1,
+      "canMirrorImage": true,
+      "hasSideImage": true,
+      "hasBackImage": true,
+      "hasAttackImage": true,
+      "canMirrorAttackImage": true,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 1,
+      "yShiftGroup": 1,
+      "movementTicks": 10,
+      "attackTicks": 14,
+      "defense": 68,
+      "baseHealth": 100,
+      "attack": 100,
+      "poisonAttack": 0,
+      "dexterity": 75,
+      "byte13": 0,
+      "ranges": {
+        "sight": 4,
+        "smell": 3,
+        "attack": 4
+      },
+      "properties": {
+        "fearResistance": 15,
+        "experienceClass": 13,
+        "wariness": 11
+      },
+      "resistances": {
+        "fire": 5,
+        "poison": 10
+      },
+      "word20": 292,
+      "behaviorAfterAttack": 4,
+      "nonAttackAspect": 2,
+      "attackAspect": 1,
+      "byte22": [
+        249,
+        32,
+        3,
+        0
+      ]
+    },
+    {
+      "index": 23,
+      "creatureAspectIndex": 23,
+      "attackSoundOrdinal": 0,
+      "sizeOnTile": 2,
+      "attackFromAllSides": false,
+      "preferBackRow": true,
+      "attackAnyChampion": false,
+      "levitates": true,
+      "nonMaterial": false,
+      "dropFixedPossessions": false,
+      "absorbMissiles": false,
+      "seeInvisible": true,
+      "nightVision": true,
+      "archenemy": true,
+      "additionalFrontGraphics": 0,
+      "canMirrorImage": false,
+      "hasSideImage": true,
+      "hasBackImage": true,
+      "hasAttackImage": true,
+      "canMirrorAttackImage": false,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 0,
+      "yShiftGroup": 0,
+      "movementTicks": 12,
+      "attackTicks": 22,
+      "defense": 255,
+      "baseHealth": 180,
+      "attack": 210,
+      "poisonAttack": 0,
+      "dexterity": 130,
+      "byte13": 0,
+      "ranges": {
+        "sight": 9,
+        "smell": 3,
+        "attack": 6
+      },
+      "properties": {
+        "fearResistance": 3,
+        "experienceClass": 15,
+        "wariness": 15
+      },
+      "resistances": {
+        "fire": 11,
+        "poison": 15
+      },
+      "word20": 1380,
+      "behaviorAfterAttack": 4,
+      "nonAttackAspect": 6,
+      "attackAspect": 5,
+      "byte22": [
+        251,
+        82,
+        5,
+        0
+      ]
+    },
+    {
+      "index": 24,
+      "creatureAspectIndex": 24,
+      "attackSoundOrdinal": 1,
+      "sizeOnTile": 2,
+      "attackFromAllSides": false,
+      "preferBackRow": true,
+      "attackAnyChampion": false,
+      "levitates": false,
+      "nonMaterial": false,
+      "dropFixedPossessions": true,
+      "absorbMissiles": true,
+      "seeInvisible": false,
+      "nightVision": false,
+      "archenemy": false,
+      "additionalFrontGraphics": 1,
+      "canMirrorImage": true,
+      "hasSideImage": true,
+      "hasBackImage": true,
+      "hasAttackImage": true,
+      "canMirrorAttackImage": true,
+      "cannotMirrorWhileAttacking": true,
+      "xShiftGroup": 1,
+      "yShiftGroup": 2,
+      "movementTicks": 13,
+      "attackTicks": 28,
+      "defense": 110,
+      "baseHealth": 255,
+      "attack": 255,
+      "poisonAttack": 0,
+      "dexterity": 70,
+      "byte13": 0,
+      "ranges": {
+        "sight": 5,
+        "smell": 6,
+        "attack": 3
+      },
+      "properties": {
+        "fearResistance": 7,
+        "experienceClass": 15,
+        "wariness": 11
+      },
+      "resistances": {
+        "fire": 12,
+        "poison": 6
+      },
+      "word20": 1093,
+      "behaviorAfterAttack": 5,
+      "nonAttackAspect": 4,
+      "attackAspect": 4,
+      "byte22": [
+        252,
+        48,
+        4,
+        0
+      ]
+    },
+    {
+      "index": 25,
+      "creatureAspectIndex": 25,
+      "attackSoundOrdinal": 0,
+      "sizeOnTile": 2,
+      "attackFromAllSides": false,
+      "preferBackRow": true,
+      "attackAnyChampion": false,
+      "levitates": true,
+      "nonMaterial": false,
+      "dropFixedPossessions": false,
+      "absorbMissiles": false,
+      "seeInvisible": true,
+      "nightVision": true,
+      "archenemy": true,
+      "additionalFrontGraphics": 0,
+      "canMirrorImage": false,
+      "hasSideImage": false,
+      "hasBackImage": false,
+      "hasAttackImage": false,
+      "canMirrorAttackImage": false,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 0,
+      "yShiftGroup": 0,
+      "movementTicks": 12,
+      "attackTicks": 22,
+      "defense": 255,
+      "baseHealth": 180,
+      "attack": 210,
+      "poisonAttack": 0,
+      "dexterity": 130,
+      "byte13": 0,
+      "ranges": {
+        "sight": 9,
+        "smell": 3,
+        "attack": 6
+      },
+      "properties": {
+        "fearResistance": 3,
+        "experienceClass": 15,
+        "wariness": 15
+      },
+      "resistances": {
+        "fire": 11,
+        "poison": 15
+      },
+      "word20": 1380,
+      "behaviorAfterAttack": 4,
+      "nonAttackAspect": 6,
+      "attackAspect": 5,
+      "byte22": [
+        251,
+        82,
+        5,
+        0
+      ]
+    },
+    {
+      "index": 26,
+      "creatureAspectIndex": 26,
+      "attackSoundOrdinal": 0,
+      "sizeOnTile": 2,
+      "attackFromAllSides": false,
+      "preferBackRow": true,
+      "attackAnyChampion": false,
+      "levitates": true,
+      "nonMaterial": false,
+      "dropFixedPossessions": false,
+      "absorbMissiles": false,
+      "seeInvisible": true,
+      "nightVision": true,
+      "archenemy": true,
+      "additionalFrontGraphics": 0,
+      "canMirrorImage": false,
+      "hasSideImage": false,
+      "hasBackImage": false,
+      "hasAttackImage": false,
+      "canMirrorAttackImage": false,
+      "cannotMirrorWhileAttacking": false,
+      "xShiftGroup": 0,
+      "yShiftGroup": 0,
+      "movementTicks": 12,
+      "attackTicks": 22,
+      "defense": 255,
+      "baseHealth": 180,
+      "attack": 210,
+      "poisonAttack": 0,
+      "dexterity": 130,
+      "byte13": 0,
+      "ranges": {
+        "sight": 9,
+        "smell": 3,
+        "attack": 6
+      },
+      "properties": {
+        "fearResistance": 3,
+        "experienceClass": 15,
+        "wariness": 15
+      },
+      "resistances": {
+        "fire": 11,
+        "poison": 15
+      },
+      "word20": 1380,
+      "behaviorAfterAttack": 4,
+      "nonAttackAspect": 6,
+      "attackAspect": 5,
+      "byte22": [
+        251,
+        82,
+        5,
+        0
+      ]
+    }
+  ],
+  "weapons": [
+    {
+      "index": 0,
+      "weightKg": 0.1,
+      "rawClass": 130,
+      "damage": 2,
+      "kineticEnergy": 0,
+      "shootDamage": 0,
+      "throwGraphic": 0
+    },
+    {
+      "index": 1,
+      "weightKg": 0.1,
+      "rawClass": 131,
+      "damage": 2,
+      "kineticEnergy": 0,
+      "shootDamage": 0,
+      "throwGraphic": 0
+    },
+    {
+      "index": 2,
+      "weightKg": 1.1,
+      "rawClass": 0,
+      "damage": 8,
+      "kineticEnergy": 2,
+      "shootDamage": 0,
+      "throwGraphic": 0
+    },
+    {
+      "index": 3,
+      "weightKg": 1.2,
+      "rawClass": 112,
+      "damage": 10,
+      "kineticEnergy": 80,
+      "shootDamage": 40,
+      "throwGraphic": 0
+    },
+    {
+      "index": 4,
+      "weightKg": 0.9,
+      "rawClass": 129,
+      "damage": 16,
+      "kineticEnergy": 7,
+      "shootDamage": 0,
+      "throwGraphic": 0
+    },
+    {
+      "index": 5,
+      "weightKg": 3,
+      "rawClass": 113,
+      "damage": 49,
+      "kineticEnergy": 110,
+      "shootDamage": 66,
+      "throwGraphic": 9
+    },
+    {
+      "index": 6,
+      "weightKg": 4.7,
+      "rawClass": 0,
+      "damage": 55,
+      "kineticEnergy": 20,
+      "shootDamage": 0,
+      "throwGraphic": 9
+    },
+    {
+      "index": 7,
+      "weightKg": 2.4,
+      "rawClass": 255,
+      "damage": 25,
+      "kineticEnergy": 10,
+      "shootDamage": 255,
+      "throwGraphic": 0
+    },
+    {
+      "index": 8,
+      "weightKg": 0.5,
+      "rawClass": 2,
+      "damage": 10,
+      "kineticEnergy": 19,
+      "shootDamage": 0,
+      "throwGraphic": 2
+    },
+    {
+      "index": 9,
+      "weightKg": 3.3,
+      "rawClass": 0,
+      "damage": 30,
+      "kineticEnergy": 8,
+      "shootDamage": 0,
+      "throwGraphic": 9
+    },
+    {
+      "index": 10,
+      "weightKg": 3.2,
+      "rawClass": 0,
+      "damage": 34,
+      "kineticEnergy": 10,
+      "shootDamage": 0,
+      "throwGraphic": 9
+    },
+    {
+      "index": 11,
+      "weightKg": 2.6,
+      "rawClass": 0,
+      "damage": 38,
+      "kineticEnergy": 10,
+      "shootDamage": 0,
+      "throwGraphic": 9
+    },
+    {
+      "index": 12,
+      "weightKg": 3.5,
+      "rawClass": 0,
+      "damage": 42,
+      "kineticEnergy": 11,
+      "shootDamage": 0,
+      "throwGraphic": 9
+    },
+    {
+      "index": 13,
+      "weightKg": 3.6,
+      "rawClass": 0,
+      "damage": 46,
+      "kineticEnergy": 12,
+      "shootDamage": 0,
+      "throwGraphic": 9
+    },
+    {
+      "index": 14,
+      "weightKg": 3.3,
+      "rawClass": 0,
+      "damage": 50,
+      "kineticEnergy": 14,
+      "shootDamage": 0,
+      "throwGraphic": 9
+    },
+    {
+      "index": 15,
+      "weightKg": 3.7,
+      "rawClass": 0,
+      "damage": 62,
+      "kineticEnergy": 14,
+      "shootDamage": 0,
+      "throwGraphic": 9
+    },
+    {
+      "index": 16,
+      "weightKg": 3,
+      "rawClass": 0,
+      "damage": 48,
+      "kineticEnergy": 13,
+      "shootDamage": 0,
+      "throwGraphic": 0
+    },
+    {
+      "index": 17,
+      "weightKg": 3.9,
+      "rawClass": 0,
+      "damage": 58,
+      "kineticEnergy": 15,
+      "shootDamage": 0,
+      "throwGraphic": 9
+    },
+    {
+      "index": 18,
+      "weightKg": 4.3,
+      "rawClass": 2,
+      "damage": 49,
+      "kineticEnergy": 33,
+      "shootDamage": 0,
+      "throwGraphic": 3
+    },
+    {
+      "index": 19,
+      "weightKg": 6.5,
+      "rawClass": 2,
+      "damage": 70,
+      "kineticEnergy": 44,
+      "shootDamage": 0,
+      "throwGraphic": 3
+    },
+    {
+      "index": 20,
+      "weightKg": 3.1,
+      "rawClass": 0,
+      "damage": 32,
+      "kineticEnergy": 10,
+      "shootDamage": 0,
+      "throwGraphic": 0
+    },
+    {
+      "index": 21,
+      "weightKg": 4.1,
+      "rawClass": 0,
+      "damage": 42,
+      "kineticEnergy": 13,
+      "shootDamage": 0,
+      "throwGraphic": 0
+    },
+    {
+      "index": 22,
+      "weightKg": 5,
+      "rawClass": 0,
+      "damage": 60,
+      "kineticEnergy": 15,
+      "shootDamage": 0,
+      "throwGraphic": 0
+    },
+    {
+      "index": 23,
+      "weightKg": 3.6,
+      "rawClass": 0,
+      "damage": 19,
+      "kineticEnergy": 10,
+      "shootDamage": 0,
+      "throwGraphic": 7
+    },
+    {
+      "index": 24,
+      "weightKg": 11,
+      "rawClass": 0,
+      "damage": 44,
+      "kineticEnergy": 22,
+      "shootDamage": 0,
+      "throwGraphic": 6
+    },
+    {
+      "index": 25,
+      "weightKg": 1,
+      "rawClass": 20,
+      "damage": 1,
+      "kineticEnergy": 50,
+      "shootDamage": 50,
+      "throwGraphic": 0
+    },
+    {
+      "index": 26,
+      "weightKg": 2.8,
+      "rawClass": 30,
+      "damage": 1,
+      "kineticEnergy": 180,
+      "shootDamage": 120,
+      "throwGraphic": 0
+    },
+    {
+      "index": 27,
+      "weightKg": 0.2,
+      "rawClass": 10,
+      "damage": 2,
+      "kineticEnergy": 10,
+      "shootDamage": 0,
+      "throwGraphic": 1
+    },
+    {
+      "index": 28,
+      "weightKg": 0.2,
+      "rawClass": 10,
+      "damage": 2,
+      "kineticEnergy": 28,
+      "shootDamage": 0,
+      "throwGraphic": 5
+    },
+    {
+      "index": 29,
+      "weightKg": 1.9,
+      "rawClass": 39,
+      "damage": 5,
+      "kineticEnergy": 20,
+      "shootDamage": 50,
+      "throwGraphic": 0
+    },
+    {
+      "index": 30,
+      "weightKg": 1,
+      "rawClass": 11,
+      "damage": 6,
+      "kineticEnergy": 18,
+      "shootDamage": 0,
+      "throwGraphic": 0
+    },
+    {
+      "index": 31,
+      "weightKg": 0.3,
+      "rawClass": 12,
+      "damage": 7,
+      "kineticEnergy": 23,
+      "shootDamage": 0,
+      "throwGraphic": 8
+    },
+    {
+      "index": 32,
+      "weightKg": 0.1,
+      "rawClass": 1,
+      "damage": 3,
+      "kineticEnergy": 19,
+      "shootDamage": 0,
+      "throwGraphic": 10
+    },
+    {
+      "index": 33,
+      "weightKg": 0.8,
+      "rawClass": 0,
+      "damage": 4,
+      "kineticEnergy": 4,
+      "shootDamage": 0,
+      "throwGraphic": 0
+    },
+    {
+      "index": 34,
+      "weightKg": 2.6,
+      "rawClass": 129,
+      "damage": 12,
+      "kineticEnergy": 4,
+      "shootDamage": 0,
+      "throwGraphic": 0
+    },
+    {
+      "index": 35,
+      "weightKg": 0.1,
+      "rawClass": 130,
+      "damage": 0,
+      "kineticEnergy": 0,
+      "shootDamage": 0,
+      "throwGraphic": 0
+    },
+    {
+      "index": 36,
+      "weightKg": 0.2,
+      "rawClass": 140,
+      "damage": 1,
+      "kineticEnergy": 20,
+      "shootDamage": 0,
+      "throwGraphic": 0
+    },
+    {
+      "index": 37,
+      "weightKg": 3.5,
+      "rawClass": 128,
+      "damage": 18,
+      "kineticEnergy": 6,
+      "shootDamage": 0,
+      "throwGraphic": 0
+    },
+    {
+      "index": 38,
+      "weightKg": 2.9,
+      "rawClass": 159,
+      "damage": 0,
+      "kineticEnergy": 4,
+      "shootDamage": 0,
+      "throwGraphic": 0
+    },
+    {
+      "index": 39,
+      "weightKg": 2.1,
+      "rawClass": 131,
+      "damage": 0,
+      "kineticEnergy": 3,
+      "shootDamage": 0,
+      "throwGraphic": 0
+    },
+    {
+      "index": 40,
+      "weightKg": 3.3,
+      "rawClass": 136,
+      "damage": 0,
+      "kineticEnergy": 7,
+      "shootDamage": 0,
+      "throwGraphic": 0
+    },
+    {
+      "index": 41,
+      "weightKg": 0.8,
+      "rawClass": 132,
+      "damage": 3,
+      "kineticEnergy": 1,
+      "shootDamage": 0,
+      "throwGraphic": 0
+    },
+    {
+      "index": 42,
+      "weightKg": 1.8,
+      "rawClass": 131,
+      "damage": 9,
+      "kineticEnergy": 4,
+      "shootDamage": 0,
+      "throwGraphic": 0
+    },
+    {
+      "index": 43,
+      "weightKg": 0.8,
+      "rawClass": 192,
+      "damage": 1,
+      "kineticEnergy": 1,
+      "shootDamage": 0,
+      "throwGraphic": 0
+    },
+    {
+      "index": 44,
+      "weightKg": 3,
+      "rawClass": 26,
+      "damage": 1,
+      "kineticEnergy": 220,
+      "shootDamage": 125,
+      "throwGraphic": 0
+    },
+    {
+      "index": 45,
+      "weightKg": 3.6,
+      "rawClass": 255,
+      "damage": 100,
+      "kineticEnergy": 50,
+      "shootDamage": 255,
+      "throwGraphic": 0
+    }
+  ],
+  "cloths": [
+    {
+      "index": 0,
+      "weightKg": 0.3,
+      "protection": 5,
+      "sharpDefense": 1,
+      "isShield": false
+    },
+    {
+      "index": 1,
+      "weightKg": 0.4,
+      "protection": 10,
+      "sharpDefense": 1,
+      "isShield": false
+    },
+    {
+      "index": 2,
+      "weightKg": 0.3,
+      "protection": 4,
+      "sharpDefense": 1,
+      "isShield": false
+    },
+    {
+      "index": 3,
+      "weightKg": 0.6,
+      "protection": 5,
+      "sharpDefense": 2,
+      "isShield": false
+    },
+    {
+      "index": 4,
+      "weightKg": 1.6,
+      "protection": 25,
+      "sharpDefense": 4,
+      "isShield": false
+    },
+    {
+      "index": 5,
+      "weightKg": 0.4,
+      "protection": 5,
+      "sharpDefense": 0,
+      "isShield": false
+    },
+    {
+      "index": 6,
+      "weightKg": 0.4,
+      "protection": 5,
+      "sharpDefense": 0,
+      "isShield": false
+    },
+    {
+      "index": 7,
+      "weightKg": 0.3,
+      "protection": 7,
+      "sharpDefense": 1,
+      "isShield": false
+    },
+    {
+      "index": 8,
+      "weightKg": 0.3,
+      "protection": 7,
+      "sharpDefense": 1,
+      "isShield": false
+    },
+    {
+      "index": 9,
+      "weightKg": 0.4,
+      "protection": 6,
+      "sharpDefense": 1,
+      "isShield": false
+    },
+    {
+      "index": 10,
+      "weightKg": 0.2,
+      "protection": 4,
+      "sharpDefense": 0,
+      "isShield": false
+    },
+    {
+      "index": 11,
+      "weightKg": 0.4,
+      "protection": 5,
+      "sharpDefense": 1,
+      "isShield": false
+    },
+    {
+      "index": 12,
+      "weightKg": 0.5,
+      "protection": 7,
+      "sharpDefense": 1,
+      "isShield": false
+    },
+    {
+      "index": 13,
+      "weightKg": 0.3,
+      "protection": 11,
+      "sharpDefense": 2,
+      "isShield": false
+    },
+    {
+      "index": 14,
+      "weightKg": 0.3,
+      "protection": 13,
+      "sharpDefense": 2,
+      "isShield": false
+    },
+    {
+      "index": 15,
+      "weightKg": 0.4,
+      "protection": 13,
+      "sharpDefense": 2,
+      "isShield": false
+    },
+    {
+      "index": 16,
+      "weightKg": 0.6,
+      "protection": 17,
+      "sharpDefense": 3,
+      "isShield": false
+    },
+    {
+      "index": 17,
+      "weightKg": 0.8,
+      "protection": 20,
+      "sharpDefense": 3,
+      "isShield": false
+    },
+    {
+      "index": 18,
+      "weightKg": 1.4,
+      "protection": 20,
+      "sharpDefense": 3,
+      "isShield": false
+    },
+    {
+      "index": 19,
+      "weightKg": 0.6,
+      "protection": 12,
+      "sharpDefense": 2,
+      "isShield": false
+    },
+    {
+      "index": 20,
+      "weightKg": 0.5,
+      "protection": 9,
+      "sharpDefense": 1,
+      "isShield": false
+    },
+    {
+      "index": 21,
+      "weightKg": 0.5,
+      "protection": 8,
+      "sharpDefense": 1,
+      "isShield": false
+    },
+    {
+      "index": 22,
+      "weightKg": 0.5,
+      "protection": 9,
+      "sharpDefense": 1,
+      "isShield": false
+    },
+    {
+      "index": 23,
+      "weightKg": 0.4,
+      "protection": 1,
+      "sharpDefense": 4,
+      "isShield": false
+    },
+    {
+      "index": 24,
+      "weightKg": 0.6,
+      "protection": 5,
+      "sharpDefense": 4,
+      "isShield": false
+    },
+    {
+      "index": 25,
+      "weightKg": 1.1,
+      "protection": 12,
+      "sharpDefense": 5,
+      "isShield": false
+    },
+    {
+      "index": 26,
+      "weightKg": 1.4,
+      "protection": 17,
+      "sharpDefense": 5,
+      "isShield": false
+    },
+    {
+      "index": 27,
+      "weightKg": 1.5,
+      "protection": 20,
+      "sharpDefense": 5,
+      "isShield": false
+    },
+    {
+      "index": 28,
+      "weightKg": 1.1,
+      "protection": 22,
+      "sharpDefense": 5,
+      "isShield": true
+    },
+    {
+      "index": 29,
+      "weightKg": 1,
+      "protection": 16,
+      "sharpDefense": 2,
+      "isShield": true
+    },
+    {
+      "index": 30,
+      "weightKg": 1.4,
+      "protection": 20,
+      "sharpDefense": 3,
+      "isShield": true
+    },
+    {
+      "index": 31,
+      "weightKg": 2.1,
+      "protection": 35,
+      "sharpDefense": 4,
+      "isShield": true
+    },
+    {
+      "index": 32,
+      "weightKg": 6.5,
+      "protection": 35,
+      "sharpDefense": 5,
+      "isShield": false
+    },
+    {
+      "index": 33,
+      "weightKg": 5.3,
+      "protection": 35,
+      "sharpDefense": 5,
+      "isShield": false
+    },
+    {
+      "index": 34,
+      "weightKg": 5.2,
+      "protection": 70,
+      "sharpDefense": 7,
+      "isShield": false
+    },
+    {
+      "index": 35,
+      "weightKg": 4.1,
+      "protection": 55,
+      "sharpDefense": 7,
+      "isShield": false
+    },
+    {
+      "index": 36,
+      "weightKg": 1.6,
+      "protection": 25,
+      "sharpDefense": 6,
+      "isShield": false
+    },
+    {
+      "index": 37,
+      "weightKg": 1.6,
+      "protection": 30,
+      "sharpDefense": 6,
+      "isShield": false
+    },
+    {
+      "index": 38,
+      "weightKg": 1.9,
+      "protection": 40,
+      "sharpDefense": 7,
+      "isShield": false
+    },
+    {
+      "index": 39,
+      "weightKg": 12,
+      "protection": 65,
+      "sharpDefense": 4,
+      "isShield": false
+    },
+    {
+      "index": 40,
+      "weightKg": 8,
+      "protection": 56,
+      "sharpDefense": 4,
+      "isShield": false
+    },
+    {
+      "index": 41,
+      "weightKg": 2.8,
+      "protection": 37,
+      "sharpDefense": 5,
+      "isShield": false
+    },
+    {
+      "index": 42,
+      "weightKg": 3.4,
+      "protection": 56,
+      "sharpDefense": 4,
+      "isShield": true
+    },
+    {
+      "index": 43,
+      "weightKg": 1.7,
+      "protection": 62,
+      "sharpDefense": 5,
+      "isShield": false
+    },
+    {
+      "index": 44,
+      "weightKg": 10.8,
+      "protection": 125,
+      "sharpDefense": 4,
+      "isShield": false
+    },
+    {
+      "index": 45,
+      "weightKg": 7.2,
+      "protection": 90,
+      "sharpDefense": 4,
+      "isShield": false
+    },
+    {
+      "index": 46,
+      "weightKg": 2.4,
+      "protection": 50,
+      "sharpDefense": 5,
+      "isShield": false
+    },
+    {
+      "index": 47,
+      "weightKg": 3,
+      "protection": 85,
+      "sharpDefense": 4,
+      "isShield": true
+    },
+    {
+      "index": 48,
+      "weightKg": 3.5,
+      "protection": 76,
+      "sharpDefense": 4,
+      "isShield": false
+    },
+    {
+      "index": 49,
+      "weightKg": 14.1,
+      "protection": 160,
+      "sharpDefense": 4,
+      "isShield": false
+    },
+    {
+      "index": 50,
+      "weightKg": 9,
+      "protection": 101,
+      "sharpDefense": 4,
+      "isShield": false
+    },
+    {
+      "index": 51,
+      "weightKg": 3.1,
+      "protection": 60,
+      "sharpDefense": 5,
+      "isShield": false
+    },
+    {
+      "index": 52,
+      "weightKg": 4,
+      "protection": 100,
+      "sharpDefense": 4,
+      "isShield": true
+    },
+    {
+      "index": 53,
+      "weightKg": 1.4,
+      "protection": 54,
+      "sharpDefense": 6,
+      "isShield": false
+    },
+    {
+      "index": 54,
+      "weightKg": 5.7,
+      "protection": 60,
+      "sharpDefense": 7,
+      "isShield": false
+    },
+    {
+      "index": 55,
+      "weightKg": 8.1,
+      "protection": 88,
+      "sharpDefense": 4,
+      "isShield": false
+    },
+    {
+      "index": 56,
+      "weightKg": 0.3,
+      "protection": 16,
+      "sharpDefense": 2,
+      "isShield": false
+    },
+    {
+      "index": 57,
+      "weightKg": 0.2,
+      "protection": 3,
+      "sharpDefense": 3,
+      "isShield": false
+    }
+  ],
+  "objectInfo": [
+    {
+      "index": 0,
+      "type": 30,
+      "graphicClass": 1,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 1,
+      "type": 144,
+      "graphicClass": 0,
+      "attackClass": 0,
+      "allowedSlotsMask": 512,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": true,
+        "chest": false
+      }
+    },
+    {
+      "index": 2,
+      "type": 148,
+      "graphicClass": 67,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 3,
+      "type": 149,
+      "graphicClass": 67,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 4,
+      "type": 150,
+      "graphicClass": 67,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 5,
+      "type": 151,
+      "graphicClass": 67,
+      "attackClass": 42,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 6,
+      "type": 152,
+      "graphicClass": 67,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 7,
+      "type": 153,
+      "graphicClass": 67,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 8,
+      "type": 154,
+      "graphicClass": 2,
+      "attackClass": 0,
+      "allowedSlotsMask": 1281,
+      "allowedSlots": {
+        "mouth": true,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 9,
+      "type": 155,
+      "graphicClass": 2,
+      "attackClass": 0,
+      "allowedSlotsMask": 1281,
+      "allowedSlots": {
+        "mouth": true,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 10,
+      "type": 156,
+      "graphicClass": 2,
+      "attackClass": 0,
+      "allowedSlotsMask": 1281,
+      "allowedSlots": {
+        "mouth": true,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 11,
+      "type": 157,
+      "graphicClass": 2,
+      "attackClass": 0,
+      "allowedSlotsMask": 1281,
+      "allowedSlots": {
+        "mouth": true,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 12,
+      "type": 158,
+      "graphicClass": 2,
+      "attackClass": 0,
+      "allowedSlotsMask": 1281,
+      "allowedSlots": {
+        "mouth": true,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 13,
+      "type": 159,
+      "graphicClass": 2,
+      "attackClass": 0,
+      "allowedSlotsMask": 1281,
+      "allowedSlots": {
+        "mouth": true,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 14,
+      "type": 160,
+      "graphicClass": 2,
+      "attackClass": 0,
+      "allowedSlotsMask": 1281,
+      "allowedSlots": {
+        "mouth": true,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 15,
+      "type": 161,
+      "graphicClass": 2,
+      "attackClass": 0,
+      "allowedSlotsMask": 1281,
+      "allowedSlots": {
+        "mouth": true,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 16,
+      "type": 162,
+      "graphicClass": 2,
+      "attackClass": 0,
+      "allowedSlotsMask": 1281,
+      "allowedSlots": {
+        "mouth": true,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 17,
+      "type": 163,
+      "graphicClass": 2,
+      "attackClass": 0,
+      "allowedSlotsMask": 1281,
+      "allowedSlots": {
+        "mouth": true,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 18,
+      "type": 164,
+      "graphicClass": 68,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 19,
+      "type": 165,
+      "graphicClass": 68,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 20,
+      "type": 166,
+      "graphicClass": 68,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 21,
+      "type": 167,
+      "graphicClass": 68,
+      "attackClass": 42,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 22,
+      "type": 195,
+      "graphicClass": 80,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 23,
+      "type": 16,
+      "graphicClass": 38,
+      "attackClass": 43,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 24,
+      "type": 18,
+      "graphicClass": 38,
+      "attackClass": 7,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 25,
+      "type": 4,
+      "graphicClass": 35,
+      "attackClass": 5,
+      "allowedSlotsMask": 1024,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 26,
+      "type": 14,
+      "graphicClass": 37,
+      "attackClass": 6,
+      "allowedSlotsMask": 1024,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 27,
+      "type": 20,
+      "graphicClass": 11,
+      "attackClass": 8,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 28,
+      "type": 23,
+      "graphicClass": 12,
+      "attackClass": 9,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 29,
+      "type": 25,
+      "graphicClass": 12,
+      "attackClass": 10,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 30,
+      "type": 27,
+      "graphicClass": 39,
+      "attackClass": 11,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 31,
+      "type": 32,
+      "graphicClass": 17,
+      "attackClass": 12,
+      "allowedSlotsMask": 1472,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": true,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 32,
+      "type": 33,
+      "graphicClass": 12,
+      "attackClass": 13,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 33,
+      "type": 34,
+      "graphicClass": 12,
+      "attackClass": 13,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 34,
+      "type": 35,
+      "graphicClass": 12,
+      "attackClass": 14,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 35,
+      "type": 36,
+      "graphicClass": 12,
+      "attackClass": 15,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 36,
+      "type": 37,
+      "graphicClass": 12,
+      "attackClass": 15,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 37,
+      "type": 38,
+      "graphicClass": 12,
+      "attackClass": 16,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 38,
+      "type": 39,
+      "graphicClass": 12,
+      "attackClass": 17,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 39,
+      "type": 40,
+      "graphicClass": 42,
+      "attackClass": 18,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 40,
+      "type": 41,
+      "graphicClass": 12,
+      "attackClass": 19,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 41,
+      "type": 42,
+      "graphicClass": 13,
+      "attackClass": 20,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 42,
+      "type": 43,
+      "graphicClass": 13,
+      "attackClass": 21,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 43,
+      "type": 44,
+      "graphicClass": 21,
+      "attackClass": 22,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 44,
+      "type": 45,
+      "graphicClass": 21,
+      "attackClass": 22,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 45,
+      "type": 46,
+      "graphicClass": 33,
+      "attackClass": 23,
+      "allowedSlotsMask": 1088,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 46,
+      "type": 47,
+      "graphicClass": 43,
+      "attackClass": 24,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 47,
+      "type": 48,
+      "graphicClass": 44,
+      "attackClass": 24,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 48,
+      "type": 49,
+      "graphicClass": 14,
+      "attackClass": 27,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 49,
+      "type": 50,
+      "graphicClass": 45,
+      "attackClass": 27,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 50,
+      "type": 51,
+      "graphicClass": 16,
+      "attackClass": 26,
+      "allowedSlotsMask": 1472,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": true,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 51,
+      "type": 52,
+      "graphicClass": 46,
+      "attackClass": 26,
+      "allowedSlotsMask": 1472,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": true,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 52,
+      "type": 53,
+      "graphicClass": 11,
+      "attackClass": 27,
+      "allowedSlotsMask": 1088,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 53,
+      "type": 54,
+      "graphicClass": 47,
+      "attackClass": 42,
+      "allowedSlotsMask": 1472,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": true,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 54,
+      "type": 55,
+      "graphicClass": 48,
+      "attackClass": 40,
+      "allowedSlotsMask": 1472,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": true,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 55,
+      "type": 56,
+      "graphicClass": 49,
+      "attackClass": 42,
+      "allowedSlotsMask": 1472,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": true,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 56,
+      "type": 57,
+      "graphicClass": 50,
+      "attackClass": 5,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 57,
+      "type": 58,
+      "graphicClass": 11,
+      "attackClass": 5,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 58,
+      "type": 59,
+      "graphicClass": 31,
+      "attackClass": 28,
+      "allowedSlotsMask": 1344,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 59,
+      "type": 60,
+      "graphicClass": 31,
+      "attackClass": 29,
+      "allowedSlotsMask": 1344,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 60,
+      "type": 61,
+      "graphicClass": 11,
+      "attackClass": 30,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 61,
+      "type": 62,
+      "graphicClass": 11,
+      "attackClass": 31,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 62,
+      "type": 63,
+      "graphicClass": 11,
+      "attackClass": 32,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 63,
+      "type": 64,
+      "graphicClass": 51,
+      "attackClass": 33,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 64,
+      "type": 65,
+      "graphicClass": 32,
+      "attackClass": 5,
+      "allowedSlotsMask": 1088,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 65,
+      "type": 66,
+      "graphicClass": 30,
+      "attackClass": 35,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 66,
+      "type": 135,
+      "graphicClass": 65,
+      "attackClass": 36,
+      "allowedSlotsMask": 1088,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 67,
+      "type": 143,
+      "graphicClass": 45,
+      "attackClass": 27,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 68,
+      "type": 28,
+      "graphicClass": 82,
+      "attackClass": 1,
+      "allowedSlotsMask": 64,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": true,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 69,
+      "type": 80,
+      "graphicClass": 23,
+      "attackClass": 0,
+      "allowedSlotsMask": 1036,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": true,
+        "torso": true,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 70,
+      "type": 81,
+      "graphicClass": 23,
+      "attackClass": 0,
+      "allowedSlotsMask": 1036,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": true,
+        "torso": true,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 71,
+      "type": 82,
+      "graphicClass": 23,
+      "attackClass": 0,
+      "allowedSlotsMask": 1040,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": true,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 72,
+      "type": 112,
+      "graphicClass": 55,
+      "attackClass": 0,
+      "allowedSlotsMask": 1056,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": true,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 73,
+      "type": 114,
+      "graphicClass": 8,
+      "attackClass": 0,
+      "allowedSlotsMask": 1056,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": true,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 74,
+      "type": 67,
+      "graphicClass": 24,
+      "attackClass": 0,
+      "allowedSlotsMask": 1032,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": true,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 75,
+      "type": 83,
+      "graphicClass": 24,
+      "attackClass": 0,
+      "allowedSlotsMask": 1040,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": true,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 76,
+      "type": 68,
+      "graphicClass": 24,
+      "attackClass": 0,
+      "allowedSlotsMask": 1032,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": true,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 77,
+      "type": 84,
+      "graphicClass": 24,
+      "attackClass": 0,
+      "allowedSlotsMask": 1040,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": true,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 78,
+      "type": 69,
+      "graphicClass": 69,
+      "attackClass": 0,
+      "allowedSlotsMask": 1032,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": true,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 79,
+      "type": 70,
+      "graphicClass": 24,
+      "attackClass": 0,
+      "allowedSlotsMask": 1032,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": true,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 80,
+      "type": 85,
+      "graphicClass": 24,
+      "attackClass": 0,
+      "allowedSlotsMask": 1040,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": true,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 81,
+      "type": 86,
+      "graphicClass": 69,
+      "attackClass": 0,
+      "allowedSlotsMask": 1040,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": true,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 82,
+      "type": 71,
+      "graphicClass": 7,
+      "attackClass": 0,
+      "allowedSlotsMask": 1032,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": true,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 83,
+      "type": 87,
+      "graphicClass": 7,
+      "attackClass": 0,
+      "allowedSlotsMask": 1040,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": true,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 84,
+      "type": 119,
+      "graphicClass": 57,
+      "attackClass": 0,
+      "allowedSlotsMask": 1056,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": true,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 85,
+      "type": 72,
+      "graphicClass": 23,
+      "attackClass": 0,
+      "allowedSlotsMask": 1032,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": true,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 86,
+      "type": 88,
+      "graphicClass": 23,
+      "attackClass": 0,
+      "allowedSlotsMask": 1040,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": true,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 87,
+      "type": 113,
+      "graphicClass": 29,
+      "attackClass": 0,
+      "allowedSlotsMask": 1056,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": true,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 88,
+      "type": 89,
+      "graphicClass": 69,
+      "attackClass": 0,
+      "allowedSlotsMask": 1040,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": true,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 89,
+      "type": 73,
+      "graphicClass": 69,
+      "attackClass": 0,
+      "allowedSlotsMask": 1032,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": true,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 90,
+      "type": 74,
+      "graphicClass": 24,
+      "attackClass": 0,
+      "allowedSlotsMask": 1032,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": true,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 91,
+      "type": 90,
+      "graphicClass": 24,
+      "attackClass": 0,
+      "allowedSlotsMask": 1040,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": true,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 92,
+      "type": 103,
+      "graphicClass": 53,
+      "attackClass": 0,
+      "allowedSlotsMask": 1026,
+      "allowedSlots": {
+        "mouth": false,
+        "head": true,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 93,
+      "type": 104,
+      "graphicClass": 53,
+      "attackClass": 0,
+      "allowedSlotsMask": 1026,
+      "allowedSlots": {
+        "mouth": false,
+        "head": true,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 94,
+      "type": 96,
+      "graphicClass": 9,
+      "attackClass": 0,
+      "allowedSlotsMask": 1026,
+      "allowedSlots": {
+        "mouth": false,
+        "head": true,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 95,
+      "type": 97,
+      "graphicClass": 9,
+      "attackClass": 0,
+      "allowedSlotsMask": 1026,
+      "allowedSlots": {
+        "mouth": false,
+        "head": true,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 96,
+      "type": 98,
+      "graphicClass": 9,
+      "attackClass": 0,
+      "allowedSlotsMask": 1026,
+      "allowedSlots": {
+        "mouth": false,
+        "head": true,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 97,
+      "type": 105,
+      "graphicClass": 54,
+      "attackClass": 41,
+      "allowedSlotsMask": 1024,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 98,
+      "type": 106,
+      "graphicClass": 54,
+      "attackClass": 41,
+      "allowedSlotsMask": 512,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": true,
+        "chest": false
+      }
+    },
+    {
+      "index": 99,
+      "type": 108,
+      "graphicClass": 10,
+      "attackClass": 41,
+      "allowedSlotsMask": 512,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": true,
+        "chest": false
+      }
+    },
+    {
+      "index": 100,
+      "type": 107,
+      "graphicClass": 54,
+      "attackClass": 41,
+      "allowedSlotsMask": 512,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": true,
+        "chest": false
+      }
+    },
+    {
+      "index": 101,
+      "type": 75,
+      "graphicClass": 19,
+      "attackClass": 0,
+      "allowedSlotsMask": 1032,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": true,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 102,
+      "type": 91,
+      "graphicClass": 19,
+      "attackClass": 0,
+      "allowedSlotsMask": 1040,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": true,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 103,
+      "type": 76,
+      "graphicClass": 19,
+      "attackClass": 0,
+      "allowedSlotsMask": 1032,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": true,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 104,
+      "type": 92,
+      "graphicClass": 19,
+      "attackClass": 0,
+      "allowedSlotsMask": 1040,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": true,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 105,
+      "type": 99,
+      "graphicClass": 9,
+      "attackClass": 0,
+      "allowedSlotsMask": 1026,
+      "allowedSlots": {
+        "mouth": false,
+        "head": true,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 106,
+      "type": 115,
+      "graphicClass": 19,
+      "attackClass": 0,
+      "allowedSlotsMask": 1056,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": true,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 107,
+      "type": 100,
+      "graphicClass": 52,
+      "attackClass": 0,
+      "allowedSlotsMask": 1026,
+      "allowedSlots": {
+        "mouth": false,
+        "head": true,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 108,
+      "type": 77,
+      "graphicClass": 20,
+      "attackClass": 0,
+      "allowedSlotsMask": 8,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": true,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 109,
+      "type": 93,
+      "graphicClass": 22,
+      "attackClass": 0,
+      "allowedSlotsMask": 16,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": true,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 110,
+      "type": 116,
+      "graphicClass": 56,
+      "attackClass": 0,
+      "allowedSlotsMask": 1056,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": true,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 111,
+      "type": 109,
+      "graphicClass": 10,
+      "attackClass": 41,
+      "allowedSlotsMask": 512,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": true,
+        "chest": false
+      }
+    },
+    {
+      "index": 112,
+      "type": 101,
+      "graphicClass": 52,
+      "attackClass": 0,
+      "allowedSlotsMask": 1026,
+      "allowedSlots": {
+        "mouth": false,
+        "head": true,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 113,
+      "type": 78,
+      "graphicClass": 20,
+      "attackClass": 0,
+      "allowedSlotsMask": 8,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": true,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 114,
+      "type": 94,
+      "graphicClass": 22,
+      "attackClass": 0,
+      "allowedSlotsMask": 16,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": true,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 115,
+      "type": 117,
+      "graphicClass": 56,
+      "attackClass": 0,
+      "allowedSlotsMask": 1056,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": true,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 116,
+      "type": 110,
+      "graphicClass": 10,
+      "attackClass": 41,
+      "allowedSlotsMask": 512,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": true,
+        "chest": false
+      }
+    },
+    {
+      "index": 117,
+      "type": 102,
+      "graphicClass": 52,
+      "attackClass": 0,
+      "allowedSlotsMask": 1026,
+      "allowedSlots": {
+        "mouth": false,
+        "head": true,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 118,
+      "type": 79,
+      "graphicClass": 20,
+      "attackClass": 0,
+      "allowedSlotsMask": 8,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": true,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 119,
+      "type": 95,
+      "graphicClass": 22,
+      "attackClass": 0,
+      "allowedSlotsMask": 16,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": true,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 120,
+      "type": 118,
+      "graphicClass": 56,
+      "attackClass": 0,
+      "allowedSlotsMask": 1056,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": true,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 121,
+      "type": 111,
+      "graphicClass": 10,
+      "attackClass": 41,
+      "allowedSlotsMask": 512,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": true,
+        "chest": false
+      }
+    },
+    {
+      "index": 122,
+      "type": 140,
+      "graphicClass": 52,
+      "attackClass": 0,
+      "allowedSlotsMask": 1026,
+      "allowedSlots": {
+        "mouth": false,
+        "head": true,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 123,
+      "type": 141,
+      "graphicClass": 19,
+      "attackClass": 0,
+      "allowedSlotsMask": 1032,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": true,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 124,
+      "type": 142,
+      "graphicClass": 22,
+      "attackClass": 0,
+      "allowedSlotsMask": 16,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": true,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 125,
+      "type": 194,
+      "graphicClass": 81,
+      "attackClass": 0,
+      "allowedSlotsMask": 1056,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": true,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 126,
+      "type": 196,
+      "graphicClass": 84,
+      "attackClass": 0,
+      "allowedSlotsMask": 1032,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": true,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 127,
+      "type": 0,
+      "graphicClass": 34,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 128,
+      "type": 8,
+      "graphicClass": 6,
+      "attackClass": 0,
+      "allowedSlotsMask": 1281,
+      "allowedSlots": {
+        "mouth": true,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 129,
+      "type": 10,
+      "graphicClass": 15,
+      "attackClass": 0,
+      "allowedSlotsMask": 1284,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": true,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 130,
+      "type": 12,
+      "graphicClass": 15,
+      "attackClass": 0,
+      "allowedSlotsMask": 1284,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": true,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 131,
+      "type": 146,
+      "graphicClass": 40,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 132,
+      "type": 147,
+      "graphicClass": 41,
+      "attackClass": 0,
+      "allowedSlotsMask": 1024,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 133,
+      "type": 125,
+      "graphicClass": 4,
+      "attackClass": 37,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 134,
+      "type": 126,
+      "graphicClass": 83,
+      "attackClass": 37,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 135,
+      "type": 127,
+      "graphicClass": 4,
+      "attackClass": 37,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 136,
+      "type": 176,
+      "graphicClass": 18,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 137,
+      "type": 177,
+      "graphicClass": 18,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 138,
+      "type": 178,
+      "graphicClass": 18,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 139,
+      "type": 179,
+      "graphicClass": 18,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 140,
+      "type": 180,
+      "graphicClass": 18,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 141,
+      "type": 181,
+      "graphicClass": 18,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 142,
+      "type": 182,
+      "graphicClass": 18,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 143,
+      "type": 183,
+      "graphicClass": 18,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 144,
+      "type": 184,
+      "graphicClass": 62,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 145,
+      "type": 185,
+      "graphicClass": 62,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 146,
+      "type": 186,
+      "graphicClass": 62,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 147,
+      "type": 187,
+      "graphicClass": 62,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 148,
+      "type": 188,
+      "graphicClass": 62,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 149,
+      "type": 189,
+      "graphicClass": 62,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 150,
+      "type": 190,
+      "graphicClass": 62,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 151,
+      "type": 191,
+      "graphicClass": 62,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 152,
+      "type": 128,
+      "graphicClass": 76,
+      "attackClass": 0,
+      "allowedSlotsMask": 512,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": true,
+        "chest": false
+      }
+    },
+    {
+      "index": 153,
+      "type": 129,
+      "graphicClass": 3,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 154,
+      "type": 130,
+      "graphicClass": 60,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 155,
+      "type": 131,
+      "graphicClass": 61,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 156,
+      "type": 168,
+      "graphicClass": 27,
+      "attackClass": 0,
+      "allowedSlotsMask": 1281,
+      "allowedSlots": {
+        "mouth": true,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 157,
+      "type": 169,
+      "graphicClass": 28,
+      "attackClass": 0,
+      "allowedSlotsMask": 1281,
+      "allowedSlots": {
+        "mouth": true,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 158,
+      "type": 170,
+      "graphicClass": 25,
+      "attackClass": 0,
+      "allowedSlotsMask": 1281,
+      "allowedSlots": {
+        "mouth": true,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 159,
+      "type": 171,
+      "graphicClass": 26,
+      "attackClass": 0,
+      "allowedSlotsMask": 1281,
+      "allowedSlots": {
+        "mouth": true,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 160,
+      "type": 172,
+      "graphicClass": 71,
+      "attackClass": 0,
+      "allowedSlotsMask": 1025,
+      "allowedSlots": {
+        "mouth": true,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 161,
+      "type": 173,
+      "graphicClass": 70,
+      "attackClass": 0,
+      "allowedSlotsMask": 1025,
+      "allowedSlots": {
+        "mouth": true,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 162,
+      "type": 174,
+      "graphicClass": 5,
+      "attackClass": 0,
+      "allowedSlotsMask": 1281,
+      "allowedSlots": {
+        "mouth": true,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 163,
+      "type": 175,
+      "graphicClass": 66,
+      "attackClass": 0,
+      "allowedSlotsMask": 1281,
+      "allowedSlots": {
+        "mouth": true,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 164,
+      "type": 120,
+      "graphicClass": 15,
+      "attackClass": 0,
+      "allowedSlotsMask": 1284,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": true,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 165,
+      "type": 121,
+      "graphicClass": 15,
+      "attackClass": 0,
+      "allowedSlotsMask": 1284,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": true,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 166,
+      "type": 122,
+      "graphicClass": 58,
+      "attackClass": 0,
+      "allowedSlotsMask": 1284,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": true,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 167,
+      "type": 123,
+      "graphicClass": 59,
+      "attackClass": 0,
+      "allowedSlotsMask": 1284,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": true,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 168,
+      "type": 124,
+      "graphicClass": 59,
+      "attackClass": 0,
+      "allowedSlotsMask": 1284,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": true,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 169,
+      "type": 132,
+      "graphicClass": 79,
+      "attackClass": 38,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 170,
+      "type": 133,
+      "graphicClass": 63,
+      "attackClass": 38,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 171,
+      "type": 134,
+      "graphicClass": 64,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 172,
+      "type": 136,
+      "graphicClass": 72,
+      "attackClass": 39,
+      "allowedSlotsMask": 1024,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 173,
+      "type": 137,
+      "graphicClass": 73,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 174,
+      "type": 138,
+      "graphicClass": 74,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 175,
+      "type": 139,
+      "graphicClass": 75,
+      "attackClass": 0,
+      "allowedSlotsMask": 1284,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": true,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 176,
+      "type": 192,
+      "graphicClass": 77,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 177,
+      "type": 193,
+      "graphicClass": 78,
+      "attackClass": 0,
+      "allowedSlotsMask": 1280,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": true,
+        "hands": false,
+        "chest": true
+      }
+    },
+    {
+      "index": 178,
+      "type": 197,
+      "graphicClass": 74,
+      "attackClass": 0,
+      "allowedSlotsMask": 0,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": false
+      }
+    },
+    {
+      "index": 179,
+      "type": 198,
+      "graphicClass": 41,
+      "attackClass": 0,
+      "allowedSlotsMask": 1024,
+      "allowedSlots": {
+        "mouth": false,
+        "head": false,
+        "neck": false,
+        "torso": false,
+        "legs": false,
+        "feet": false,
+        "quiver1": false,
+        "quiver2": false,
+        "pouch": false,
+        "hands": false,
+        "chest": true
+      }
+    }
+  ],
+  "extraDBEntries": [
+    0,
+    0,
+    0,
+    0,
+    75,
+    100,
+    120,
+    0,
+    5,
+    0,
+    140,
+    0,
+    0,
+    0,
+    60,
+    50
+  ],
+  "sizeDBEntries": [
+    4,
+    6,
+    4,
+    8,
+    16,
+    4,
+    4,
+    4,
+    4,
+    8,
+    4,
+    0,
+    0,
+    0,
+    8,
+    4
+  ],
+  "deltaY": [
+    -1,
+    0,
+    1,
+    0
+  ],
+  "deltaX": [
+    0,
+    1,
+    0,
+    -1
+  ]
+}

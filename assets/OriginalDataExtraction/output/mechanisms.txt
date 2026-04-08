@@ -1,0 +1,693 @@
+
+══════════════════════════════════════════════════════════════════════
+  HALL OF CHAMPIONS  (map 0)
+══════════════════════════════════════════════════════════════════════
+
+  ── DALLES DE PRESSION ──
+    ( 1, 3)  Teleporter face:North  [Set]  🗝  requis: THE FIRESTAFF  → (1,3)  [USAGE UNIQUE]
+    ( 1, 3)  Teleporter face:North  [Set]  🗝  requis: THE FIRESTAFF  → (1,2)  [USAGE UNIQUE]
+    ( 1, 4)  Floor face:North  [Set]  🗝  requis: THE FIRESTAFF  → (1,4)  [USAGE UNIQUE]
+    ( 6, 9)  Floor face:North  [Set]  → (5,9)
+    ( 9, 1)  Teleporter face:North  [Hold]  → (9,1)
+    ( 9, 1)  Teleporter face:North  [Set]  → (10,1)
+
+  ── AUTRES MÉCANISMES ──
+    ( 3,14)  Wall face:East   [Set]  📦 objet: TORCH
+    (10, 1)  Wall face:North  [Set]  → (9,0)
+    (10, 1)  Wall face:North  [Set]  → (10,1)
+
+══════════════════════════════════════════════════════════════════════
+  LEVEL 1  (map 1)
+══════════════════════════════════════════════════════════════════════
+
+  ── SERRURES ──
+    ( 0, 3)  Wall face:North  [Set]  🗝  requis: GOLD KEY  → (1,3)  [USAGE UNIQUE]
+    ( 2,12)  Wall face:South  [Set]  🗝  requis: IRON KEY  → (3,13)  [USAGE UNIQUE]
+    ( 3, 4)  Wall face:South  [Set]  🗝  requis: TOPAZ KEY  → (4,5)  [USAGE UNIQUE]
+    ( 5, 4)  Wall face:South  [Set]  🗝  requis: GOLD KEY  → (6,5)  [USAGE UNIQUE]
+    ( 5,12)  Wall face:South  [Set]  🗝  requis: SOLID KEY  → (6,13)  [USAGE UNIQUE]
+    (10, 1)  Wall face:North  [Set]  🗝  requis: GOLD KEY  → (11,0)  [USAGE UNIQUE]
+    (12,13)  Wall face:West   [Set]  🗝  requis: EMERALD KEY  → (11,12)  [USAGE UNIQUE]
+    (18,25)  Wall face:South  [Set]  🗝  requis: COPPER COIN  → (17,26)
+    (21,22)  Wall face:North  [Set]  🗝  requis: GOLD KEY  → (22,21)
+    (23, 5)  Wall face:West   [Set]  🗝  requis: GOLD KEY  → (22,4)
+    (24,11)  Wall face:North  [Set]  🗝  requis: KEY OF B  → (25,11)
+    (28, 5)  Wall face:North  [Set]  🗝  requis: GOLD KEY  → (27,4)  [USAGE UNIQUE]
+    (30, 8)  Wall face:North  [Set]  🗝  requis: IRON KEY  → (31,8)
+
+  ── LEVIERS / BOUTONS ──
+    ( 4,10)  Wall face:South  [Set]
+    ( 4,10)  Wall face:South  [Toggle]  → (5,9)
+    ( 6, 4)  Wall face:North  [Set]  [USAGE UNIQUE]
+    ( 6, 8)  Wall face:North  [Set]
+    ( 6, 8)  Wall face:North  [Toggle]  → (7,8)
+    (13,19)  Wall face:East   [Set]
+    (13,19)  Wall face:East   [Toggle]  → (17,20)
+    (15,28)  Wall face:East   [Set]
+    (15,28)  Wall face:East   [Toggle]  → (14,29)
+    (15,28)  Wall face:West   [Set]
+    (15,28)  Wall face:West   [Toggle]  → (16,27)
+    (20,18)  Wall face:North  [Toggle]
+    (20,18)  Wall face:North  [Toggle]  → (18,18)
+    (23,19)  Wall face:West   [Set]
+    (23,19)  Wall face:West   [Toggle]  → (17,20)
+
+  ── DALLES DE PRESSION ──
+    ( 2,15)  Floor face:North  [Set]  → (5,15)
+    ( 3,15)  Floor face:North  [Clear]  → (5,15)
+    (14,14)  Floor face:North  [Clear]  → (13,15)
+    (15, 0)  Floor face:North  [Toggle]  → (18,1)
+    (15, 1)  Floor face:North  [Toggle]  → (18,1)
+    (15, 2)  Floor face:North  [Toggle]  → (18,1)
+    (16, 0)  Floor face:North  [Toggle]  → (19,1)
+    (16, 1)  Floor face:North  [Toggle]  → (18,1)
+    (16, 2)  Floor face:North  [Toggle]  → (19,1)
+    (17, 0)  Floor face:North  [Toggle]  → (19,1)
+    (17, 1)  Floor face:North  [Toggle]  → (19,1)
+    (17, 2)  Floor face:North  [Toggle]  → (19,1)
+    (19,17)  Floor face:North  [Clear]  → (18,18)
+    (23, 8)  Floor face:North  [Hold]  → (21,8)
+    (25, 1)  Floor face:North  [Hold]  → (27,0)
+    (25, 3)  Floor face:North  [Hold]  → (24,5)
+    (27,27)  Floor face:North  [Clear]  → (29,27)
+
+  ── AUTRES MÉCANISMES ──
+    ( 5,29)  Wall face:East   [Set]  📦 objet: TORCH
+    (15, 8)  Wall face:West   [Set]  📦 objet: TORCH
+    (15,13)  Wall face:East   [Set]  📦 objet: TORCH
+    (17,20)  Wall face:South  [Hold]  → (18,20)
+    (30,26)  Wall face:North  [Set]  📦 objet: TORCH
+
+══════════════════════════════════════════════════════════════════════
+  LEVEL 2  (map 2)
+══════════════════════════════════════════════════════════════════════
+
+  ── SERRURES ──
+    ( 0,12)  Wall face:South  [Toggle]  🗝  requis: COPPER COIN  → (1,13)
+    ( 6,23)  Wall face:South  [Set]  🗝  requis: MIRROR OF DAWN  → (7,23)
+    ( 7,19)  Wall face:West   [Set]  🗝  requis: SILVER COIN  → (6,20)  [USAGE UNIQUE]
+    ( 8,14)  Wall face:East   [Clear]  🗝  requis: GOLD COIN  → (10,13)
+    (21,15)  Wall face:North  [Set]  🗝  requis: BLUE GEM  → (22,14)
+    (21,29)  Wall face:South  [Set]  🗝  requis: GOLD KEY  → (22,30)  [USAGE UNIQUE]
+    (23,29)  Wall face:South  [Set]  🗝  requis: GOLD KEY  → (24,30)  [USAGE UNIQUE]
+    (25,29)  Wall face:South  [Set]  🗝  requis: GOLD KEY  → (26,30)  [USAGE UNIQUE]
+    (28,25)  Wall face:North  [Set]  🗝  requis: GOLD KEY  → (27,25)  [USAGE UNIQUE]
+    (30,26)  Wall face:East   [Set]  🗝  requis: GOLD KEY  → (31,25)  [USAGE UNIQUE]
+
+  ── LEVIERS / BOUTONS ──
+    ( 0, 5)  Wall face:South  [Set]  [USAGE UNIQUE]
+    ( 0, 5)  Wall face:South  [Set]  → (0,9)
+    ( 1,14)  Wall face:North  [Set]  → (2,15)
+    ( 1,25)  Wall face:North  [Clear]  → (0,26)
+    ( 1,25)  Wall face:North  [Set]  → (0,26)
+    ( 3,25)  Wall face:North  [Clear]  → (2,26)
+    ( 3,25)  Wall face:North  [Set]  → (2,26)
+    ( 5,17)  Wall face:West   [Hold]  → (5,18)
+    ( 5,25)  Wall face:North  [Clear]  → (4,26)
+    ( 5,25)  Wall face:North  [Set]  → (4,26)
+    ( 7,25)  Wall face:North  [Clear]  → (6,26)
+    ( 7,25)  Wall face:North  [Set]  → (6,26)
+    ( 9,25)  Wall face:North  [Clear]  → (8,26)
+    ( 9,25)  Wall face:North  [Set]  → (8,26)
+    ( 9,29)  Wall face:South  [Set]
+    ( 9,29)  Wall face:South  [Toggle]  → (10,29)
+    (11,25)  Wall face:North  [Clear]  → (10,26)
+    (11,25)  Wall face:North  [Set]  → (10,26)
+    (13,25)  Wall face:North  [Clear]  → (12,26)
+    (13,25)  Wall face:North  [Set]  → (12,26)
+    (14, 1)  Wall face:West   [Toggle]
+    (14, 1)  Wall face:West   [Toggle]  → (15,3)
+    (15, 7)  Wall face:South  [Clear]  → (11,7)
+    (15, 7)  Wall face:South  [Set]  → (11,7)
+    (17, 3)  Wall face:West   [Set]  → (15,3)
+    (17, 3)  Wall face:West   [Clear]  → (15,3)
+    (17, 6)  Wall face:West   [Clear]  → (16,4)
+    (17, 6)  Wall face:West   [Set]  → (16,4)
+    (21,11)  Wall face:South  [Set]  [USAGE UNIQUE]
+    (21,11)  Wall face:South  [Set]  → (20,14)
+    (21,11)  Wall face:South  [Clear]  → (20,14)
+    (21,11)  Wall face:South  [Set]  → (22,12)
+    (26, 2)  Wall face:East   [Toggle]
+    (26, 2)  Wall face:East   [Set]  → (27,1)
+    (28,26)  Wall face:West   [Set]  → (29,25)  [USAGE UNIQUE]
+
+  ── DALLES DE PRESSION ──
+    ( 4,16)  Floor face:North  [Clear]  → (6,16)
+    (10,28)  Floor face:North  [Clear]  → (4,27)  [USAGE UNIQUE]
+    (14, 6)  Floor face:North  [Set]  → (11,7)
+    (17, 4)  Floor face:North  [Clear]  → (16,5)
+    (20,14)  Teleporter face:North  [Hold]  → (20,13)
+    (20,17)  Floor face:North  [Set]  → (24,28)
+
+  ── AUTRES MÉCANISMES ──
+    ( 4,27)  Wall face:North  [Toggle]  → (4,28)
+    ( 4,27)  Wall face:North  [Clear]  → (4,27)
+    (10,13)  Wall face:West   [Set]  → (9,13)
+    (28,29)  Wall face:East   [Set]  📦 objet: TORCH
+    (31,29)  Wall face:West   [Set]  📦 objet: TORCH
+
+══════════════════════════════════════════════════════════════════════
+  LEVEL 3  (map 3)
+══════════════════════════════════════════════════════════════════════
+
+  ── SERRURES ──
+    (24,13)  Wall face:East   [Set]  🗝  requis: GOLD COIN  → (23,15)  [USAGE UNIQUE]
+    (28, 8)  Wall face:North  [Set]  🗝  requis: GOLD KEY  → (15,17)  [USAGE UNIQUE]
+    (28, 8)  Wall face:North  [Set]  🗝  requis: GOLD KEY  → (15,18)  [USAGE UNIQUE]
+    (28, 8)  Wall face:North  [Set]  🗝  requis: GOLD KEY  → (30,7)  [USAGE UNIQUE]
+
+  ── LEVIERS / BOUTONS ──
+    ( 6,11)  Wall face:South  [Set]  → (5,12)
+    (13,29)  Wall face:South  [Set]
+    (13,29)  Wall face:South  [Toggle]  → (14,30)
+    (17,31)  Wall face:North  [Clear]  → (17,30)
+    (17,31)  Wall face:North  [Set]  → (17,30)
+
+  ── DALLES DE PRESSION ──
+    ( 0,11)  Floor face:North  [Clear]  → (1,13)
+    ( 2,12)  Floor face:North  [Set]  → (0,17)
+    ( 2,20)  Floor face:North  [Set]  → (4,15)
+    ( 2,27)  Floor face:North  [Set]  → (4,23)
+    ( 4,14)  Floor face:North  [Clear]  → (1,13)
+    ( 7, 5)  Floor face:North  [Set]  → (6,5)  [USAGE UNIQUE]
+    ( 7, 5)  Floor face:North  [Set]  → (6,4)
+    ( 7, 5)  Floor face:North  [Set]  → (6,7)
+    ( 7, 5)  Floor face:North  [Set]  → (6,1)
+    ( 7, 5)  Floor face:North  [Set]  → (5,1)
+    ( 7, 5)  Floor face:North  [Set]  → (3,1)
+    ( 7, 5)  Floor face:North  [Set]  → (2,1)
+    ( 7,16)  Floor face:North  [Set]  → (7,23)
+    ( 7,16)  Floor face:North  [Set]  → (8,14)
+    (12, 5)  Floor face:North  [Set]  → (15,6)
+    (12,11)  Floor face:North  [Set]  → (10,17)
+    (17,30)  Teleporter face:North  [Hold]  → (14,30)
+    (20, 8)  Floor face:North  [Set]  → (15,6)
+    (27, 2)  Floor face:North  [Set]  → (24,5)
+
+  ── AUTRES MÉCANISMES ──
+    (10,30)  Wall face:North  [Set]  📦 objet: GOLD KEY  [USAGE UNIQUE]
+
+══════════════════════════════════════════════════════════════════════
+  LEVEL 4  (map 4)
+══════════════════════════════════════════════════════════════════════
+
+  ── LEVIERS / BOUTONS ──
+    ( 7, 6)  Wall face:North  [Set]  → (4,9)
+    ( 8,22)  Wall face:South  [Set]
+    ( 8,22)  Wall face:South  [Toggle]  → (8,25)
+    (13,29)  Wall face:East   [Set]  [USAGE UNIQUE]
+    (13,29)  Wall face:East   [Set]  → (13,28)  [USAGE UNIQUE]
+    (20,20)  Wall face:East   [Clear]  → (24,14)
+    (20,26)  Wall face:East   [Toggle]  → (21,27)
+    (20,26)  Wall face:East   [Toggle]  → (25,25)
+    (20,27)  Wall face:East   [Clear]  → (25,25)
+    (21,29)  Wall face:East   [Toggle]  → (21,26)
+    (21,29)  Wall face:East   [Toggle]  → (23,29)
+    (24,29)  Wall face:West   [Clear]  → (21,26)
+    (26,25)  Wall face:West   [Toggle]  → (25,27)
+
+  ── DALLES DE PRESSION ──
+    ( 5, 9)  Floor face:North  [Set]  → (0,17)
+    ( 8,27)  Floor face:North  [Toggle]  → (8,25)
+    (13, 5)  Pit face:North  [Clear]  → (14,5)
+    (13, 8)  Pit face:North  [Clear]  → (13,9)
+    (13, 8)  Pit face:North  [Set]  → (14,8)
+    (13, 8)  Pit face:North  [Toggle]  → (13,6)
+    (13, 9)  Pit face:North  [Toggle]  → (13,7)
+    (14, 1)  Floor face:North  [Set]  → (22,11)  [USAGE UNIQUE]
+    (14, 5)  Pit face:North  [Clear]  → (15,5)
+    (14, 6)  Pit face:North  [Set]  → (13,6)
+    (14, 6)  Pit face:North  [Set]  → (14,5)
+    (14, 7)  Pit face:North  [Set]  → (13,7)
+    (14, 9)  Pit face:North  [Toggle]  → (13,9)
+    (14, 9)  Pit face:North  [Toggle]  → (14,8)
+    (15, 5)  Pit face:North  [Toggle]  → (13,5)
+    (15, 5)  Pit face:North  [Set]  → (14,5)
+    (15, 6)  Pit face:North  [Set]  → (14,6)
+    (15, 6)  Pit face:North  [Set]  → (15,5)
+    (15, 7)  Pit face:North  [Set]  → (12,5)
+    (15, 7)  Pit face:North  [Clear]  → (15,8)
+    (15, 7)  Pit face:North  [Set]  → (14,7)
+    (15, 7)  Pit face:North  [Set]  → (16,7)
+    (15, 7)  Pit face:North  [Set]  → (15,6)
+    (15, 8)  Pit face:North  [Clear]  → (15,9)
+    (15, 9)  Pit face:North  [Toggle]  → (16,9)
+    (15, 9)  Pit face:North  [Toggle]  → (14,9)
+    (15,10)  Floor face:North  [Set]  → (14,9)
+    (15,10)  Floor face:North  [Set]  → (16,9)
+    (15,10)  Floor face:North  [Set]  → (15,8)
+    (15,10)  Floor face:North  [Clear]  → (15,9)
+    (15,12)  Floor face:North  [Set]  → (13,5)
+    (16, 5)  Pit face:North  [Set]  → (17,5)
+    (16, 6)  Pit face:North  [Clear]  → (15,6)
+    (16, 6)  Pit face:North  [Set]  → (16,7)
+    (16, 6)  Pit face:North  [Set]  → (17,6)
+    (16, 8)  Pit face:North  [Clear]  → (16,7)
+    (16, 8)  Pit face:North  [Toggle]  → (17,7)
+    (16, 8)  Pit face:North  [Toggle]  → (16,9)
+    (16, 9)  Pit face:North  [Clear]  → (17,9)
+    (16, 9)  Pit face:North  [Toggle]  → (16,8)
+    (16, 9)  Pit face:North  [Toggle]  → (15,9)
+    (17, 5)  Pit face:North  [Clear]  → (15,5)
+    (17, 6)  Pit face:North  [Set]  → (17,7)
+    (17, 7)  Pit face:North  [Clear]  → (17,6)
+    (17, 7)  Pit face:North  [Toggle]  → (17,5)
+    (17, 8)  Pit face:North  [Set]  → (17,9)
+    (17, 8)  Pit face:North  [Toggle]  → (17,7)
+    (17, 9)  Pit face:North  [Toggle]  → (16,8)
+    (17, 9)  Pit face:North  [Toggle]  → (17,8)
+
+  ── AUTRES MÉCANISMES ──
+    (13,17)  Wall face:North  [Set]  📦 objet: TORCH
+    (22, 6)  Wall face:West   [Set]  📦 objet: TORCH
+
+══════════════════════════════════════════════════════════════════════
+  LEVEL 5  (map 5)
+══════════════════════════════════════════════════════════════════════
+
+  ── SERRURES ──
+    ( 7,11)  Wall face:East   [Set]  🗝  requis: IRON KEY  → (7,10)  [USAGE UNIQUE]
+    (16,14)  Wall face:West   [Set]  🗝  requis: IRON KEY  → (16,13)  [USAGE UNIQUE]
+    (17,19)  Wall face:North  [Set]  🗝  requis: GOLD COIN  → (20,16)  [USAGE UNIQUE]
+    (18,14)  Wall face:West   [Set]  🗝  requis: IRON KEY  → (18,13)  [USAGE UNIQUE]
+    (20, 9)  Wall face:North  [Clear]  🗝  requis: SOLID KEY  → (21,4)
+    (20, 9)  Wall face:North  [Clear]  🗝  requis: SOLID KEY  → (21,6)
+    (20, 9)  Wall face:North  [Set]  🗝  requis: SOLID KEY  → (19,5)  [USAGE UNIQUE]
+    (20, 9)  Wall face:North  [Set]  🗝  requis: SOLID KEY  → (19,8)  [USAGE UNIQUE]
+    (22,11)  Wall face:South  [Set]  🗝  requis: IRON KEY  → (23,12)  [USAGE UNIQUE]
+    (24,11)  Wall face:East   [Set]  🗝  requis: IRON KEY  → (24,10)  [USAGE UNIQUE]
+
+  ── LEVIERS / BOUTONS ──
+    ( 4,14)  Wall face:South  [Set]
+    ( 4,14)  Wall face:South  [Toggle]  → (5,15)
+    ( 6, 4)  Wall face:South  [Set]  → (8,4)
+    ( 8,15)  Wall face:West   [Set]
+    ( 8,15)  Wall face:West   [Toggle]  → (5,15)
+    ( 8,29)  Wall face:West   [Set]
+    ( 8,29)  Wall face:West   [Toggle]  → (8,25)
+    ( 9,17)  Wall face:South  [Hold]  → (13,23)
+    ( 9,23)  Wall face:North  [Hold]  → (13,23)
+    (10,15)  Wall face:South  [Set]
+    (10,15)  Wall face:South  [Toggle]  → (10,17)
+    (11, 4)  Wall face:North  [Set]  [USAGE UNIQUE]
+    (11, 4)  Wall face:North  [Set]  → (12,3)
+    (12,17)  Wall face:South  [Hold]  → (13,23)
+    (12,23)  Wall face:North  [Hold]  → (13,23)
+    (12,27)  Wall face:East   [Toggle]  → (14,27)
+    (12,27)  Wall face:East   [Toggle]
+    (12,28)  Wall face:West   [Set]
+    (12,28)  Wall face:West   [Toggle]  → (8,25)
+    (14,28)  Wall face:East   [Set]  [USAGE UNIQUE]
+    (14,28)  Wall face:East   [Clear]  → (15,27)
+    (17,24)  Wall face:East   [Toggle]  → (21,24)
+    (18,20)  Wall face:East   [Toggle]  → (21,24)
+    (20,22)  Wall face:South  [Toggle]  → (21,24)
+    (20,24)  Wall face:North  [Toggle]  → (21,24)
+    (22,22)  Wall face:South  [Set]  [USAGE UNIQUE]
+    (22,22)  Wall face:South  [Set]  → (23,23)
+    (25, 3)  Wall face:North  [Set]  → (25,1)  [USAGE UNIQUE]
+    (26,11)  Wall face:West   [Set]  → (26,10)  [USAGE UNIQUE]
+    (28,15)  Wall face:South  [Set]  → (29,27)  [USAGE UNIQUE]
+    (30,27)  Wall face:West   [Set]  → (29,16)  [USAGE UNIQUE]
+
+  ── DALLES DE PRESSION ──
+    ( 2, 8)  Floor face:North  [Set]  → (0,19)
+    ( 4,15)  Floor face:North  [Set]  → (5,22)
+    ( 6,15)  Floor face:North  [Set]  → (5,18)
+    ( 7,25)  Floor face:North  [Clear]  → (8,25)
+    ( 7,27)  Floor face:North  [Set]  → (11,27)
+    ( 7,27)  Floor face:North  [Set]  → (10,28)
+    ( 9,25)  Floor face:North  [Clear]  → (8,25)
+    (10,10)  Floor face:North  [Set]  → (10,9)  [USAGE UNIQUE]
+    (11,10)  Teleporter face:North  [Hold]  → (11,10)
+    (11,28)  Floor face:North  [Set]  → (7,28)
+    (12,10)  Teleporter face:North  [Hold]  → (12,10)
+    (13,10)  Teleporter face:North  [Hold]  → (13,10)
+    (14,10)  Teleporter face:North  [Hold]  → (14,10)
+    (14,26)  Floor face:North  [Clear]  → (13,28)
+    (15,10)  Teleporter face:North  [Hold]  → (15,10)
+    (15,26)  Floor face:North  [Set]  → (13,28)
+    (15,26)  Floor face:North  [Set]  → (15,27)
+    (15,28)  Floor face:North  [Set]  → (13,28)
+    (16,10)  Teleporter face:North  [Hold]  → (16,10)
+    (17,10)  Teleporter face:North  [Hold]  → (17,10)
+    (18, 8)  Floor face:North  [Set]  → (24,8)  [USAGE UNIQUE]
+    (22, 8)  Floor face:North  [Clear]  → (19,5)  [USAGE UNIQUE]
+    (22, 8)  Floor face:North  [Clear]  → (24,8)  [USAGE UNIQUE]
+    (24,15)  Floor face:North  [Set]  → (29,17)
+    (24,20)  Floor face:North  [Hold]  → (23,23)
+    (25,14)  Floor face:North  [Set]  → (25,18)
+    (25,27)  Floor face:North  [Set]  → (0,19)
+
+  ── AUTRES MÉCANISMES ──
+    ( 2,26)  Wall face:North  [Set]  📦 objet: TORCH
+    ( 3,12)  Wall face:East   [Set]  📦 objet: TORCH
+    (10, 2)  Wall face:West   [Set]  📦 objet: TORCH
+    (13,19)  Wall face:West   [Set]
+    (13,23)  Wall face:West   [Clear]  → (13,19)
+    (13,23)  Wall face:West   [Set]  → (13,20)
+    (19, 5)  Wall face:South  [Toggle]  → (21,6)
+    (19, 5)  Wall face:North  [Toggle]  → (21,4)
+    (19, 5)  Wall face:East   [Clear]  → (19,5)
+    (21,24)  Wall face:West   [Set]  → (20,21)
+
+══════════════════════════════════════════════════════════════════════
+  LEVEL 6  (map 6)
+══════════════════════════════════════════════════════════════════════
+
+  ── SERRURES ──
+    ( 3, 4)  Wall face:South  [Set]  🗝  requis: RUBY KEY  → (4,4)
+    ( 3, 7)  Wall face:North  [Set]  🗝  requis: RA KEY  → (2,7)  [USAGE UNIQUE]
+    ( 8, 4)  Wall face:South  [Set]  🗝  requis: TOURQUOISE KEY  → (7,4)  [USAGE UNIQUE]
+    (12, 4)  Wall face:South  [Set]  🗝  requis: TOURQUOISE KEY  → (11,4)  [USAGE UNIQUE]
+    (13,16)  Wall face:West   [Set]  🗝  requis: MASTER KEY  → (13,15)  [USAGE UNIQUE]
+    (15,16)  Wall face:East   [Set]  🗝  requis: MASTER KEY  → (15,15)  [USAGE UNIQUE]
+    (16, 4)  Wall face:South  [Set]  🗝  requis: TOURQUOISE KEY  → (15,4)  [USAGE UNIQUE]
+    (20, 4)  Wall face:South  [Set]  🗝  requis: TOURQUOISE KEY  → (19,4)  [USAGE UNIQUE]
+    (27,14)  Wall face:South  [Set]  🗝  requis: RA KEY  → (26,14)  [USAGE UNIQUE]
+    (27,19)  Wall face:South  [Set]  🗝  requis: RA KEY  → (26,19)  [USAGE UNIQUE]
+    (27,22)  Wall face:South  [Set]  🗝  requis: RA KEY  → (26,22)  [USAGE UNIQUE]
+
+  ── LEVIERS / BOUTONS ──
+    ( 1,10)  Wall face:West   [Set]  → (0,2)  [USAGE UNIQUE]
+    (14,16)  Wall face:North  [Set]  → (13,15)  [USAGE UNIQUE]
+    (14,16)  Wall face:North  [Set]  → (15,15)  [USAGE UNIQUE]
+    (14,16)  Wall face:North  [Set]  → (14,17)  [USAGE UNIQUE]
+    (14,16)  Wall face:North  [Clear]  → (16,17)  [USAGE UNIQUE]
+    (14,16)  Wall face:North  [Clear]  → (12,17)  [USAGE UNIQUE]
+    (19, 0)  Wall face:South  [Set]  → (3,1)  [USAGE UNIQUE]
+    (25,20)  Wall face:East   [Set]  [USAGE UNIQUE]
+    (27, 5)  Wall face:North  [Toggle]  → (28,5)
+
+══════════════════════════════════════════════════════════════════════
+  LEVEL 7  (map 7)
+══════════════════════════════════════════════════════════════════════
+
+  ── SERRURES ──
+    ( 1,11)  Wall face:East   [Set]  🗝  requis: SOLID KEY  → (2,12)  [USAGE UNIQUE]
+    ( 6,21)  Wall face:West   [Set]  🗝  requis: SKELETON KEY  → (6,20)  [USAGE UNIQUE]
+    ( 6,21)  Wall face:West   [Set]  🗝  requis: SKELETON KEY  → (10,18)  [USAGE UNIQUE]
+
+  ── LEVIERS / BOUTONS ──
+    ( 0, 4)  Wall face:South  [Set]  → (1,6)
+    ( 8, 1)  Wall face:South  [Set]  → (9,1)  [USAGE UNIQUE]
+    ( 9, 0)  Wall face:South  [Set]
+    ( 9, 0)  Wall face:South  [Toggle]  → (9,2)
+    ( 9,22)  Wall face:West   [Set]
+    ( 9,22)  Wall face:West   [Toggle]  → (8,21)
+    (10,16)  Wall face:North  [Set]  → (6,15)
+    (10,24)  Wall face:South  [Set]  → (11,24)  [USAGE UNIQUE]
+    (16,25)  Wall face:East   [Set]
+    (16,25)  Wall face:East   [Toggle]  → (15,24)
+    (22,27)  Wall face:North  [Set]  → (23,26)  [USAGE UNIQUE]
+    (26, 7)  Wall face:North  [Set]  [USAGE UNIQUE]
+    (26, 7)  Wall face:North  [Set]  → (29,7)  [USAGE UNIQUE]
+    (28,18)  Wall face:West   [Set]
+    (28,18)  Wall face:West   [Toggle]  → (29,19)
+
+  ── DALLES DE PRESSION ──
+    ( 2,10)  Floor face:North  [Set]  → (2,19)
+    ( 2,26)  Floor face:North  [Set]  → (2,2)
+    ( 4,30)  Floor face:North  [Set]  → (5,29)
+    (12,15)  Floor face:North  [Toggle]  → (10,15)
+    (13,14)  Floor face:North  [Toggle]  → (13,12)
+    (13,20)  Pit face:North  [Set]  → (13,15)
+    (14,19)  Floor face:North  [Set]  → (17,8)
+    (14,20)  Floor face:North  [Set]  → (12,6)
+    (14,20)  Floor face:North  [Set]  → (3,9)
+    (14,20)  Floor face:North  [Toggle]  → (13,20)
+    (14,21)  Floor face:North  [Set]  → (13,15)
+    (14,30)  Floor face:North  [Set]  → (24,20)
+    (15,13)  Floor face:North  [Set]  → (17,8)
+    (15,20)  Floor face:North  [Set]  → (24,20)
+    (17,15)  Floor face:North  [Toggle]  → (17,13)
+    (17,23)  Floor face:North  [Clear]  → (18,24)
+    (19,17)  Floor face:North  [Toggle]  → (21,17)
+    (20,17)  Floor face:North  [Set]  → (24,20)
+    (24,30)  Floor face:North  [Clear]  → (5,29)
+
+══════════════════════════════════════════════════════════════════════
+  LEVEL 8  (map 8)
+══════════════════════════════════════════════════════════════════════
+
+  ── SERRURES ──
+    (15,25)  Wall face:West   [Set]  🗝  requis: SKELETON KEY  → (15,26)  [USAGE UNIQUE]
+
+  ── LEVIERS / BOUTONS ──
+    ( 1,15)  Wall face:North  [Set]  [USAGE UNIQUE]
+    ( 1,15)  Wall face:North  [Set]  → (1,12)  [USAGE UNIQUE]
+    ( 4, 2)  Wall face:West   [Set]  → (2,1)  [USAGE UNIQUE]
+    (10, 8)  Wall face:North  [Set]
+    (10, 8)  Wall face:North  [Toggle]  → (9,8)
+    (10, 8)  Wall face:South  [Toggle]
+    (10, 8)  Wall face:South  [Toggle]  → (9,7)
+    (23,16)  Wall face:North  [Set]  → (22,15)  [USAGE UNIQUE]
+    (24,26)  Wall face:East   [Set]  [USAGE UNIQUE]
+    (24,26)  Wall face:East   [Set]  → (20,28)  [USAGE UNIQUE]
+
+  ── DALLES DE PRESSION ──
+    ( 8,13)  Floor face:North  [Set]  → (9,27)
+    ( 9, 7)  Pit face:North  [Set]  🗝  requis: GREEN GEM  → (9,8)  [USAGE UNIQUE]
+    ( 9,11)  Floor face:North  [Set]  → (28,0)  [USAGE UNIQUE]
+    (18, 3)  Floor face:North  [Set]  → (22,3)
+    (18, 4)  Floor face:North  [Set]  → (22,4)
+    (19, 3)  Floor face:North  [Set]  → (22,3)
+    (19, 4)  Floor face:North  [Set]  → (22,4)
+    (20, 3)  Floor face:North  [Set]  → (22,3)
+    (20, 4)  Floor face:North  [Set]  → (22,4)
+    (25,14)  Floor face:North  [Set]  → (23,0)
+
+══════════════════════════════════════════════════════════════════════
+  LEVEL 9  (map 9)
+══════════════════════════════════════════════════════════════════════
+
+  ── SERRURES ──
+    ( 2,11)  Wall face:East   [Set]  🗝  requis: KEY OF B  → (2,10)  [USAGE UNIQUE]
+    ( 2,13)  Wall face:East   [Set]  🗝  requis: KEY OF B  → (2,14)  [USAGE UNIQUE]
+    (19,11)  Wall face:South  [Set]  🗝  requis: KEY OF B  → (20,12)  [USAGE UNIQUE]
+    (19,22)  Wall face:East   [Set]  🗝  requis: SKELETON KEY  → (19,23)  [USAGE UNIQUE]
+
+  ── LEVIERS / BOUTONS ──
+    ( 1,22)  Wall face:South  [Set]  → (0,22)  [USAGE UNIQUE]
+    ( 6,24)  Wall face:North  [Set]
+    ( 6,24)  Wall face:North  [Clear]  → (3,28)
+    ( 6,24)  Wall face:North  [Clear]  → (1,23)
+    ( 6,24)  Wall face:North  [Clear]  → (5,24)
+    (11,26)  Wall face:North  [Set]  [USAGE UNIQUE]
+    (11,26)  Wall face:North  [Set]  → (12,26)  [USAGE UNIQUE]
+    (16, 4)  Wall face:North  [Set]  → (14,24)
+    (16, 4)  Wall face:North  [Set]  → (16,3)
+    (19,25)  Wall face:South  [Set]  → (23,29)  [USAGE UNIQUE]
+    (22, 6)  Wall face:East   [Set]  → (26,1)  [USAGE UNIQUE]
+    (22, 6)  Wall face:South  [Set]  → (23,7)  [USAGE UNIQUE]
+    (24,29)  Wall face:West   [Set]  → (18,26)  [USAGE UNIQUE]
+
+  ── DALLES DE PRESSION ──
+    ( 1,31)  Floor face:North  [Clear]  → (1,24)
+    ( 1,31)  Floor face:North  [Clear]  → (1,29)
+    ( 6,23)  Floor face:North  [Set]  → (2,31)
+    ( 9,29)  Floor face:North  [Set]  → (16,29)
+    (14, 5)  Floor face:North  [Set]  → (27,15)
+    (14,12)  Floor face:North  [Set]  → (5,12)
+    (18,10)  Floor face:North  [Set]  → (18,11)  [USAGE UNIQUE]
+    (18,14)  Floor face:North  [Set]  → (18,13)  [USAGE UNIQUE]
+    (22,14)  Teleporter face:North  [Hold]  → (22,14)
+    (22,15)  Teleporter face:North  [Hold]  → (22,15)
+    (22,16)  Teleporter face:North  [Hold]  → (22,16)
+    (22,17)  Teleporter face:North  [Hold]  → (22,17)
+    (22,18)  Teleporter face:North  [Hold]  → (22,18)
+    (23,14)  Teleporter face:North  [Hold]  → (23,14)
+    (23,18)  Teleporter face:North  [Hold]  → (23,18)
+    (24,14)  Teleporter face:North  [Hold]  → (24,14)
+    (24,15)  Teleporter face:North  [Hold]  → (24,15)
+    (24,16)  Teleporter face:North  [Hold]  → (24,16)
+    (24,17)  Teleporter face:North  [Hold]  → (24,17)
+    (24,18)  Teleporter face:North  [Hold]  → (24,18)
+    (24,27)  Floor face:North  [Set]  → (21,7)
+
+  ── AUTRES MÉCANISMES ──
+    (16,17)  Wall face:East   [Set]  📦 objet: TORCH
+
+══════════════════════════════════════════════════════════════════════
+  LEVEL 10  (map 10)
+══════════════════════════════════════════════════════════════════════
+
+  ── SERRURES ──
+    ( 0, 5)  Wall face:South  [Set]  🗝  requis: SOLID KEY  → (3,12)  [USAGE UNIQUE]
+    ( 0, 5)  Wall face:South  [Set]  🗝  requis: SOLID KEY  → (2,11)  [USAGE UNIQUE]
+    ( 0, 5)  Wall face:South  [Set]  🗝  requis: SOLID KEY  → (1,12)  [USAGE UNIQUE]
+    ( 0, 5)  Wall face:South  [Set]  🗝  requis: SOLID KEY  → (0,11)  [USAGE UNIQUE]
+    ( 0, 5)  Wall face:South  [Set]  🗝  requis: SOLID KEY  → (12,6)  [USAGE UNIQUE]
+    ( 9, 5)  Wall face:South  [Set]  🗝  requis: IRON KEY  → (10,6)  [USAGE UNIQUE]
+    (17,11)  Wall face:South  [Set]  🗝  requis: CROSS KEY  → (16,12)  [USAGE UNIQUE]
+    (18,13)  Wall face:North  [Set]  🗝  requis: CROSS KEY  → (19,13)  [USAGE UNIQUE]
+    (19,24)  Wall face:East   [Set]  🗝  requis: SKELETON KEY  → (19,25)  [USAGE UNIQUE]
+    (21,11)  Wall face:South  [Set]  🗝  requis: CROSS KEY  → (22,12)  [USAGE UNIQUE]
+    (25,27)  Wall face:East   [Set]  🗝  requis: COPPER COIN  [USAGE UNIQUE]
+    (25,28)  Wall face:East   [Set]  🗝  requis: COPPER COIN  [USAGE UNIQUE]
+    (26,26)  Wall face:South  [Set]  🗝  requis: COPPER COIN  [USAGE UNIQUE]
+    (26,29)  Wall face:North  [Set]  🗝  requis: COPPER COIN  [USAGE UNIQUE]
+    (27,26)  Wall face:South  [Set]  🗝  requis: COPPER COIN  [USAGE UNIQUE]
+    (28,27)  Wall face:West   [Set]  🗝  requis: COPPER COIN  [USAGE UNIQUE]
+    (28,28)  Wall face:West   [Set]  🗝  requis: COPPER COIN  [USAGE UNIQUE]
+
+  ── LEVIERS / BOUTONS ──
+    ( 0,14)  Wall face:East   [Set]  → (2,12)  [USAGE UNIQUE]
+    ( 1,28)  Wall face:South  [Set]  → (1,31)  [USAGE UNIQUE]
+    (15,25)  Wall face:East   [Set]  [USAGE UNIQUE]
+    (21,24)  Wall face:West   [Set]  → (21,23)  [USAGE UNIQUE]
+    (22,19)  Wall face:South  [Set]  → (22,20)  [USAGE UNIQUE]
+    (23, 3)  Wall face:East   [Set]  → (24,4)  [USAGE UNIQUE]
+
+  ── DALLES DE PRESSION ──
+    ( 0, 0)  Teleporter face:North  [Set]
+    ( 0, 0)  Teleporter face:North  [Clear]
+    ( 0, 8)  Teleporter face:North  [Clear]  → (0,8)
+    ( 0, 8)  Teleporter face:North  [Set]  → (0,8)
+    ( 1, 6)  Floor face:North  [Set]  → (17,29)
+    ( 2,14)  Floor face:North  [Set]  🗝  requis: DIAMOND EDGE  → (2,12)  [USAGE UNIQUE]
+    ( 4,14)  Floor face:North  [Set]  🗝  requis: DIAMOND EDGE  → (2,12)  [USAGE UNIQUE]
+    ( 6,14)  Floor face:North  [Set]  🗝  requis: DIAMOND EDGE  → (2,12)  [USAGE UNIQUE]
+    ( 8, 9)  Teleporter face:North  [Clear]  → (8,9)
+    ( 8, 9)  Teleporter face:North  [Set]  → (8,9)
+    ( 9, 1)  Teleporter face:North  [Clear]  → (9,1)
+    ( 9, 1)  Teleporter face:North  [Set]  → (9,1)
+    ( 9, 9)  Floor face:North  [Set]  → (5,4)
+    ( 9,15)  Floor face:North  [Set]  → (3,16)
+    ( 9,25)  Floor face:North  [Set]  → (3,16)
+    (10,23)  Floor face:North  [Set]  → (6,22)
+    (10,25)  Floor face:North  [Set]  → (11,25)  [USAGE UNIQUE]
+    (11,23)  Floor face:North  [Set]  → (12,23)  [USAGE UNIQUE]
+    (17,20)  Floor face:North  [Set]  → (17,21)  [USAGE UNIQUE]
+    (18,20)  Floor face:North  [Set]  → (29,3)
+    (18,20)  Floor face:North  [Set]  → (25,20)
+    (19,14)  Teleporter face:North  [Set]  → (6,22)
+    (20,20)  Teleporter face:North  [Hold]  → (20,20)
+    (20,21)  Teleporter face:North  [Hold]  → (20,21)
+    (20,22)  Teleporter face:North  [Hold]  → (20,22)
+    (20,23)  Floor face:North  [Set]  → (20,22)
+    (20,23)  Floor face:North  [Clear]  → (22,20)
+    (21,20)  Teleporter face:North  [Hold]  → (21,20)
+    (22,21)  Teleporter face:North  [Hold]  → (22,21)
+    (22,22)  Teleporter face:North  [Hold]  → (22,22)
+    (22,23)  Teleporter face:North  [Hold]  → (22,23)
+    (23, 1)  Floor face:North  [Set]  → (24,3)  [USAGE UNIQUE]
+    (23,10)  Floor face:North  [Set]  → (25,20)
+    (23,10)  Floor face:North  [Set]  → (29,3)
+
+  ── AUTRES MÉCANISMES ──
+    ( 2,12)  Wall face:North  [Clear]  → (8,12)
+    ( 2,12)  Wall face:North  [Set]  → (7,14)
+    ( 2,12)  Wall face:North  [Set]  → (7,11)
+    ( 2,12)  Wall face:North  [Set]  → (6,12)
+    ( 2,12)  Wall face:North  [Set]  → (6,12)
+    ( 2,12)  Wall face:North  [Set]  → (8,13)
+    ( 2,12)  Wall face:North  [Set]  → (5,13)
+    ( 2,12)  Wall face:North  [Set]  → (6,15)
+    ( 2,12)  Wall face:North  [Set]  → (7,14)
+    ( 2,12)  Wall face:North  [Set]  → (5,15)
+    ( 2,12)  Wall face:North  [Set]  → (4,15)
+    ( 2,12)  Wall face:North  [Set]  → (3,15)
+    ( 2,12)  Wall face:North  [Set]  → (2,15)
+    ( 2,12)  Wall face:North  [Set]  → (1,15)
+
+══════════════════════════════════════════════════════════════════════
+  LEVEL 11  (map 11)
+══════════════════════════════════════════════════════════════════════
+
+  ── SERRURES ──
+    ( 3,22)  Wall face:East   [Set]  🗝  requis: EMERALD KEY  → (3,21)  [USAGE UNIQUE]
+    ( 5,25)  Wall face:South  [Set]  🗝  requis: TOPAZ KEY  → (6,25)  [USAGE UNIQUE]
+    (10,16)  Wall face:South  [Set]  🗝  requis: SKELETON KEY  → (9,17)  [USAGE UNIQUE]
+
+  ── LEVIERS / BOUTONS ──
+    ( 3,16)  Wall face:South  [Set]  [USAGE UNIQUE]
+    ( 3,16)  Wall face:South  [Set]  → (28,3)
+    ( 3,26)  Wall face:West   [Set]  → (1,25)  [USAGE UNIQUE]
+    ( 4,28)  Wall face:South  [Set]
+    ( 4,28)  Wall face:South  [Set]  → (19,22)  [USAGE UNIQUE]
+    ( 9, 1)  Wall face:East   [Toggle]  → (10,2)
+    (19, 9)  Wall face:West   [Set]  [USAGE UNIQUE]
+    (19, 9)  Wall face:West   [Clear]  → (16,9)  [USAGE UNIQUE]
+    (19, 9)  Wall face:West   [Set]  → (18,10)  [USAGE UNIQUE]
+    (19, 9)  Wall face:West   [Clear]  → (19,11)  [USAGE UNIQUE]
+    (21, 7)  Wall face:North  [Toggle]  → (24,9)
+    (23,21)  Wall face:East   [Set]  → (26,22)  [USAGE UNIQUE]
+
+  ── DALLES DE PRESSION ──
+    ( 8, 7)  Floor face:North  [Set]  → (16,1)
+    (12,25)  Floor face:North  [Toggle]  → (10,29)
+    (12,25)  Floor face:North  [Toggle]  → (10,28)
+    (12,25)  Floor face:North  [Toggle]  → (10,27)
+    (12,25)  Floor face:North  [Toggle]  → (10,26)
+    (13,12)  Floor face:North  [Set]  → (16,9)  [USAGE UNIQUE]
+    (22, 7)  Floor face:North  [Set]  → (15,6)
+    (24,11)  Floor face:North  [Set]  → (27,11)
+    (24,11)  Floor face:North  [Set]  → (21,11)
+    (24,11)  Floor face:North  [Set]  → (23,11)
+    (24,11)  Floor face:North  [Set]  → (24,12)
+    (24,11)  Floor face:North  [Set]  → (25,11)
+    (26, 7)  Floor face:North  [Clear]  → (27,7)
+
+  ── AUTRES MÉCANISMES ──
+    (19,11)  Wall face:South  [Hold]  → (15,12)
+    (19,11)  Wall face:South  [Hold]  → (16,12)
+    (19,11)  Wall face:South  [Hold]  → (16,11)
+    (19,11)  Wall face:South  [Hold]  → (15,11)
+    (19,11)  Wall face:North  [Toggle]  → (19,11)
+    (19,11)  Wall face:North  [Toggle]  → (19,11)
+    (19,11)  Wall face:North  [Toggle]  → (19,11)
+    (19,11)  Wall face:North  [Toggle]  → (19,11)
+    (27, 7)  Wall face:West   [Set]  → (27,6)  [USAGE UNIQUE]
+
+══════════════════════════════════════════════════════════════════════
+  LEVEL 12  (map 12)
+══════════════════════════════════════════════════════════════════════
+
+  ── SERRURES ──
+    ( 1, 8)  Wall face:West   [Set]  🗝  requis: SKELETON KEY  → (1,9)  [USAGE UNIQUE]
+
+  ── LEVIERS / BOUTONS ──
+    ( 7, 5)  Wall face:North  [Set]
+    ( 7, 5)  Wall face:North  [Toggle]  → (6,4)
+
+  ── DALLES DE PRESSION ──
+    ( 3,18)  Floor face:North  [Set]  → (2,18)
+    ( 5, 9)  Floor face:North  [Clear]  → (3,9)  [USAGE UNIQUE]
+    ( 5, 9)  Floor face:North  [Clear]  → (8,8)  [USAGE UNIQUE]
+    ( 8, 1)  Floor face:North  [Set]  → (7,1)
+    (11,11)  Teleporter face:North  [Set]  → (13,12)
+    (11,11)  Teleporter face:North  [Set]  → (13,10)
+    (11,11)  Teleporter face:North  [Set]  → (12,12)
+    (11,11)  Teleporter face:North  [Set]  → (19,4)
+    (11,11)  Teleporter face:North  [Set]  → (14,10)
+    (12,11)  Floor face:North  [Set]  → (14,10)
+    (14, 3)  Floor face:North  [Set]  → (14,3)
+    (18,13)  Floor face:North  [Set]  → (20,9)
+    (18,13)  Floor face:North  [Set]  → (19,10)
+    (18,13)  Floor face:North  [Set]  → (18,11)
+    (18,16)  Floor face:North  [Set]  → (18,16)
+
+══════════════════════════════════════════════════════════════════════
+  LORD CHAOS'S LAIR  (map 13)
+══════════════════════════════════════════════════════════════════════
+
+  ── SERRURES ──
+    ( 4, 9)  Wall face:West   [Set]  🗝  requis: WINGED KEY  → (2,9)  [USAGE UNIQUE]
+    (22, 6)  Wall face:East   [Set]  🗝  requis: GOLD COIN  → (22,5)
+    (22, 6)  Wall face:East   [Set]  🗝  requis: SILVER COIN  → (22,5)
+    (22, 6)  Wall face:East   [Set]  🗝  requis: COPPER COIN  → (22,5)
+    (23, 8)  Wall face:South  [Set]  🗝  requis: SQUARE KEY  → (24,8)  [USAGE UNIQUE]
+    (24, 3)  Wall face:South  [Set]  🗝  requis: ZOKATHRA SPELL
+
+  ── LEVIERS / BOUTONS ──
+    (18, 5)  Wall face:West   [Toggle]
+    (18, 5)  Wall face:West   [Toggle]  → (17,6)
+
+  ── DALLES DE PRESSION ──
+    (21, 5)  Floor face:North  [Set]  → (22,5)
+    (24, 7)  Floor face:North  [Clear]  → (22,5)
+    (24, 7)  Floor face:North  [Set]  🗝  requis: THE FIRESTAFF  → (23,1)  [USAGE UNIQUE]
+
+  ── AUTRES MÉCANISMES ──
+    (24, 3)  Wall face:South  [Set]  📦 objet: THE FIRESTAFF  [USAGE UNIQUE]

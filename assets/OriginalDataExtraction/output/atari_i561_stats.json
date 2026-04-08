@@ -1,0 +1,1493 @@
+{
+  "_meta": {
+    "sourceGraphic": "0x231 / 0561",
+    "endian": "be",
+    "startOffset": 0,
+    "fileBytes": 2004,
+    "shortAtariVariant": true,
+    "omittedRuntimePrefixBytes": 2,
+    "structuredBytes": 2004,
+    "trailingRawByteCount": 0,
+    "consumedBytes": 2004
+  },
+  "provenance": {
+    "source": "Canonical Atari graphics payload 0x231 / 0561",
+    "note": "This block is predominantly UI/input infrastructure. The short Atari variant omits the final four Buttons16932 entries; those are restored exactly from the fallback constants used by the original source."
+  },
+  "moveButtons18496": [
+    {
+      "x1": 263,
+      "x2": 289,
+      "y1": 125,
+      "y2": 145
+    },
+    {
+      "x1": 291,
+      "x2": 318,
+      "y1": 147,
+      "y2": 167
+    },
+    {
+      "x1": 263,
+      "x2": 289,
+      "y1": 147,
+      "y2": 167
+    },
+    {
+      "x1": 234,
+      "x2": 261,
+      "y1": 147,
+      "y2": 167
+    }
+  ],
+  "dropAreas": [
+    24,
+    111,
+    148,
+    168,
+    112,
+    199,
+    148,
+    168,
+    112,
+    183,
+    122,
+    147,
+    40,
+    111,
+    122,
+    147
+  ],
+  "directionalDeltaX": [
+    0,
+    1,
+    0,
+    -1
+  ],
+  "directionalDeltaY": [
+    1,
+    0,
+    -1,
+    0
+  ],
+  "keyTranslationGroups": {
+    "keyXlate18448": [
+      {
+        "mouse": 148,
+        "keyscan": 27
+      },
+      {
+        "mouse": 0,
+        "keyscan": 0
+      }
+    ],
+    "keyXlate18440": [
+      {
+        "mouse": 146,
+        "keyscan": 13
+      },
+      {
+        "mouse": 147,
+        "keyscan": 27
+      },
+      {
+        "mouse": 0,
+        "keyscan": 0
+      }
+    ],
+    "keyXlate18428": [
+      {
+        "mouse": 1,
+        "keyscan": 20992
+      },
+      {
+        "mouse": 3,
+        "keyscan": 18432
+      },
+      {
+        "mouse": 2,
+        "keyscan": 18176
+      },
+      {
+        "mouse": 6,
+        "keyscan": 19200
+      },
+      {
+        "mouse": 5,
+        "keyscan": 20480
+      },
+      {
+        "mouse": 4,
+        "keyscan": 19712
+      },
+      {
+        "mouse": 0,
+        "keyscan": 0
+      }
+    ],
+    "keyXlate18400": [
+      {
+        "mouse": 7,
+        "keyscan": 15104
+      },
+      {
+        "mouse": 8,
+        "keyscan": 15360
+      },
+      {
+        "mouse": 9,
+        "keyscan": 15616
+      },
+      {
+        "mouse": 10,
+        "keyscan": 15872
+      },
+      {
+        "mouse": 140,
+        "keyscan": 19
+      },
+      {
+        "mouse": 147,
+        "keyscan": 27
+      },
+      {
+        "mouse": 0,
+        "keyscan": 0
+      }
+    ]
+  },
+  "buttonGroups": {
+    "buttons18936": [
+      {
+        "word0": 210,
+        "xMin": 63,
+        "xMax": 148,
+        "yMin": 101,
+        "yMax": 115,
+        "button": 2
+      },
+      {
+        "word0": 211,
+        "xMin": 170,
+        "xMax": 254,
+        "yMin": 101,
+        "yMax": 115,
+        "button": 2
+      },
+      {
+        "word0": 212,
+        "xMin": 63,
+        "xMax": 148,
+        "yMin": 138,
+        "yMax": 152,
+        "button": 2
+      },
+      {
+        "word0": 213,
+        "xMin": 170,
+        "xMax": 254,
+        "yMin": 138,
+        "yMax": 152,
+        "button": 2
+      },
+      {
+        "word0": 0,
+        "xMin": 0,
+        "xMax": 0,
+        "yMin": 0,
+        "yMax": 0,
+        "button": 0
+      }
+    ],
+    "buttons18876": [
+      {
+        "word0": 210,
+        "xMin": 63,
+        "xMax": 254,
+        "yMin": 101,
+        "yMax": 115,
+        "button": 2
+      },
+      {
+        "word0": 211,
+        "xMin": 63,
+        "xMax": 148,
+        "yMin": 138,
+        "yMax": 152,
+        "button": 2
+      },
+      {
+        "word0": 212,
+        "xMin": 170,
+        "xMax": 254,
+        "yMin": 138,
+        "yMax": 152,
+        "button": 2
+      },
+      {
+        "word0": 0,
+        "xMin": 0,
+        "xMax": 0,
+        "yMin": 0,
+        "yMax": 0,
+        "button": 0
+      }
+    ],
+    "buttons18828": [
+      {
+        "word0": 210,
+        "xMin": 63,
+        "xMax": 254,
+        "yMin": 101,
+        "yMax": 115,
+        "button": 2
+      },
+      {
+        "word0": 211,
+        "xMin": 63,
+        "xMax": 254,
+        "yMin": 138,
+        "yMax": 152,
+        "button": 2
+      },
+      {
+        "word0": 0,
+        "xMin": 0,
+        "xMax": 0,
+        "yMin": 0,
+        "yMax": 0,
+        "button": 0
+      }
+    ],
+    "buttons18792": [
+      {
+        "word0": 210,
+        "xMin": 63,
+        "xMax": 254,
+        "yMin": 138,
+        "yMax": 152,
+        "button": 2
+      },
+      {
+        "word0": 0,
+        "xMin": 0,
+        "xMax": 0,
+        "yMin": 0,
+        "yMax": 0,
+        "button": 0
+      }
+    ],
+    "buttons18768": [
+      {
+        "word0": 210,
+        "xMin": 16,
+        "xMax": 101,
+        "yMin": 101,
+        "yMax": 115,
+        "button": 2
+      },
+      {
+        "word0": 211,
+        "xMin": 123,
+        "xMax": 207,
+        "yMin": 101,
+        "yMax": 115,
+        "button": 2
+      },
+      {
+        "word0": 212,
+        "xMin": 16,
+        "xMax": 101,
+        "yMin": 138,
+        "yMax": 152,
+        "button": 2
+      },
+      {
+        "word0": 213,
+        "xMin": 123,
+        "xMax": 207,
+        "yMin": 138,
+        "yMax": 152,
+        "button": 2
+      },
+      {
+        "word0": 0,
+        "xMin": 0,
+        "xMax": 0,
+        "yMin": 0,
+        "yMax": 0,
+        "button": 0
+      }
+    ],
+    "buttons18708": [
+      {
+        "word0": 210,
+        "xMin": 16,
+        "xMax": 207,
+        "yMin": 101,
+        "yMax": 115,
+        "button": 2
+      },
+      {
+        "word0": 211,
+        "xMin": 16,
+        "xMax": 101,
+        "yMin": 138,
+        "yMax": 152,
+        "button": 2
+      },
+      {
+        "word0": 212,
+        "xMin": 123,
+        "xMax": 207,
+        "yMin": 138,
+        "yMax": 152,
+        "button": 2
+      },
+      {
+        "word0": 0,
+        "xMin": 0,
+        "xMax": 0,
+        "yMin": 0,
+        "yMax": 0,
+        "button": 0
+      }
+    ],
+    "buttons18660": [
+      {
+        "word0": 210,
+        "xMin": 16,
+        "xMax": 207,
+        "yMin": 101,
+        "yMax": 115,
+        "button": 2
+      },
+      {
+        "word0": 211,
+        "xMin": 16,
+        "xMax": 207,
+        "yMin": 138,
+        "yMax": 152,
+        "button": 2
+      },
+      {
+        "word0": 0,
+        "xMin": 0,
+        "xMax": 0,
+        "yMin": 0,
+        "yMax": 0,
+        "button": 0
+      }
+    ],
+    "buttons18624": [
+      {
+        "word0": 210,
+        "xMin": 16,
+        "xMax": 207,
+        "yMin": 138,
+        "yMax": 152,
+        "button": 2
+      },
+      {
+        "word0": 0,
+        "xMin": 0,
+        "xMax": 0,
+        "yMin": 0,
+        "yMax": 0,
+        "button": 0
+      }
+    ],
+    "buttons18372": [
+      {
+        "word0": 160,
+        "xMin": 104,
+        "xMax": 158,
+        "yMin": 86,
+        "yMax": 142,
+        "button": 2
+      },
+      {
+        "word0": 161,
+        "xMin": 163,
+        "xMax": 217,
+        "yMin": 86,
+        "yMax": 142,
+        "button": 2
+      },
+      {
+        "word0": 162,
+        "xMin": 104,
+        "xMax": 217,
+        "yMin": 146,
+        "yMax": 156,
+        "button": 2
+      },
+      {
+        "word0": 0,
+        "xMin": 0,
+        "xMax": 0,
+        "yMin": 0,
+        "yMax": 0,
+        "button": 0
+      }
+    ],
+    "buttons18324": [
+      {
+        "word0": 58,
+        "xMin": 117,
+        "xMax": 132,
+        "yMin": 92,
+        "yMax": 107,
+        "button": 2
+      },
+      {
+        "word0": 59,
+        "xMin": 106,
+        "xMax": 121,
+        "yMin": 109,
+        "yMax": 124,
+        "button": 2
+      },
+      {
+        "word0": 60,
+        "xMin": 111,
+        "xMax": 126,
+        "yMin": 126,
+        "yMax": 141,
+        "button": 2
+      },
+      {
+        "word0": 61,
+        "xMin": 128,
+        "xMax": 143,
+        "yMin": 131,
+        "yMax": 146,
+        "button": 2
+      },
+      {
+        "word0": 62,
+        "xMin": 145,
+        "xMax": 160,
+        "yMin": 134,
+        "yMax": 149,
+        "button": 2
+      },
+      {
+        "word0": 63,
+        "xMin": 162,
+        "xMax": 177,
+        "yMin": 136,
+        "yMax": 151,
+        "button": 2
+      },
+      {
+        "word0": 64,
+        "xMin": 179,
+        "xMax": 194,
+        "yMin": 137,
+        "yMax": 152,
+        "button": 2
+      },
+      {
+        "word0": 65,
+        "xMin": 196,
+        "xMax": 211,
+        "yMin": 138,
+        "yMax": 153,
+        "button": 2
+      },
+      {
+        "word0": 0,
+        "xMin": 0,
+        "xMax": 0,
+        "yMin": 0,
+        "yMax": 0,
+        "button": 0
+      }
+    ],
+    "buttons18216": [
+      {
+        "word0": 16,
+        "xMin": 0,
+        "xMax": 42,
+        "yMin": 0,
+        "yMax": 6,
+        "button": 2
+      },
+      {
+        "word0": 17,
+        "xMin": 69,
+        "xMax": 111,
+        "yMin": 0,
+        "yMax": 6,
+        "button": 2
+      },
+      {
+        "word0": 18,
+        "xMin": 138,
+        "xMax": 180,
+        "yMin": 0,
+        "yMax": 6,
+        "button": 2
+      },
+      {
+        "word0": 19,
+        "xMin": 207,
+        "xMax": 249,
+        "yMin": 0,
+        "yMax": 6,
+        "button": 2
+      },
+      {
+        "word0": 20,
+        "xMin": 4,
+        "xMax": 19,
+        "yMin": 10,
+        "yMax": 25,
+        "button": 2
+      },
+      {
+        "word0": 21,
+        "xMin": 24,
+        "xMax": 39,
+        "yMin": 10,
+        "yMax": 25,
+        "button": 2
+      },
+      {
+        "word0": 22,
+        "xMin": 73,
+        "xMax": 88,
+        "yMin": 10,
+        "yMax": 25,
+        "button": 2
+      },
+      {
+        "word0": 23,
+        "xMin": 93,
+        "xMax": 108,
+        "yMin": 10,
+        "yMax": 25,
+        "button": 2
+      },
+      {
+        "word0": 24,
+        "xMin": 142,
+        "xMax": 157,
+        "yMin": 10,
+        "yMax": 25,
+        "button": 2
+      },
+      {
+        "word0": 25,
+        "xMin": 162,
+        "xMax": 177,
+        "yMin": 10,
+        "yMax": 25,
+        "button": 2
+      },
+      {
+        "word0": 26,
+        "xMin": 211,
+        "xMax": 226,
+        "yMin": 10,
+        "yMax": 25,
+        "button": 2
+      },
+      {
+        "word0": 27,
+        "xMin": 231,
+        "xMax": 246,
+        "yMin": 10,
+        "yMax": 25,
+        "button": 2
+      },
+      {
+        "word0": 0,
+        "xMin": 0,
+        "xMax": 0,
+        "yMin": 0,
+        "yMax": 0,
+        "button": 0
+      }
+    ],
+    "buttons18060": [
+      {
+        "word0": 101,
+        "xMin": 235,
+        "xMax": 247,
+        "yMin": 51,
+        "yMax": 61,
+        "button": 2
+      },
+      {
+        "word0": 102,
+        "xMin": 249,
+        "xMax": 261,
+        "yMin": 51,
+        "yMax": 61,
+        "button": 2
+      },
+      {
+        "word0": 103,
+        "xMin": 263,
+        "xMax": 275,
+        "yMin": 51,
+        "yMax": 61,
+        "button": 2
+      },
+      {
+        "word0": 104,
+        "xMin": 277,
+        "xMax": 289,
+        "yMin": 51,
+        "yMax": 61,
+        "button": 2
+      },
+      {
+        "word0": 105,
+        "xMin": 291,
+        "xMax": 303,
+        "yMin": 51,
+        "yMax": 61,
+        "button": 2
+      },
+      {
+        "word0": 106,
+        "xMin": 305,
+        "xMax": 317,
+        "yMin": 51,
+        "yMax": 61,
+        "button": 2
+      },
+      {
+        "word0": 108,
+        "xMin": 234,
+        "xMax": 303,
+        "yMin": 63,
+        "yMax": 73,
+        "button": 2
+      },
+      {
+        "word0": 107,
+        "xMin": 305,
+        "xMax": 318,
+        "yMin": 63,
+        "yMax": 73,
+        "button": 2
+      },
+      {
+        "word0": 0,
+        "xMin": 0,
+        "xMax": 0,
+        "yMin": 0,
+        "yMax": 0,
+        "button": 0
+      }
+    ],
+    "buttons17952": [
+      {
+        "word0": 116,
+        "xMin": 233,
+        "xMax": 252,
+        "yMin": 86,
+        "yMax": 120,
+        "button": 2
+      },
+      {
+        "word0": 117,
+        "xMin": 255,
+        "xMax": 274,
+        "yMin": 86,
+        "yMax": 120,
+        "button": 2
+      },
+      {
+        "word0": 118,
+        "xMin": 277,
+        "xMax": 296,
+        "yMin": 86,
+        "yMax": 120,
+        "button": 2
+      },
+      {
+        "word0": 119,
+        "xMin": 299,
+        "xMax": 318,
+        "yMin": 86,
+        "yMax": 120,
+        "button": 2
+      },
+      {
+        "word0": 0,
+        "xMin": 0,
+        "xMax": 0,
+        "yMin": 0,
+        "yMax": 0,
+        "button": 0
+      }
+    ],
+    "buttons17892": [
+      {
+        "word0": 112,
+        "xMin": 285,
+        "xMax": 318,
+        "yMin": 77,
+        "yMax": 83,
+        "button": 2
+      },
+      {
+        "word0": 113,
+        "xMin": 234,
+        "xMax": 318,
+        "yMin": 86,
+        "yMax": 96,
+        "button": 2
+      },
+      {
+        "word0": 114,
+        "xMin": 234,
+        "xMax": 318,
+        "yMin": 98,
+        "yMax": 108,
+        "button": 2
+      },
+      {
+        "word0": 115,
+        "xMin": 234,
+        "xMax": 318,
+        "yMin": 110,
+        "yMax": 120,
+        "button": 2
+      },
+      {
+        "word0": 0,
+        "xMin": 0,
+        "xMax": 0,
+        "yMin": 0,
+        "yMax": 0,
+        "button": 0
+      }
+    ],
+    "buttons17832": [
+      {
+        "word0": 148,
+        "xMin": 0,
+        "xMax": 319,
+        "yMin": 0,
+        "yMax": 199,
+        "button": 2
+      },
+      {
+        "word0": 148,
+        "xMin": 0,
+        "xMax": 319,
+        "yMin": 0,
+        "yMax": 199,
+        "button": 1
+      },
+      {
+        "word0": 0,
+        "xMin": 0,
+        "xMax": 0,
+        "yMin": 0,
+        "yMax": 0,
+        "button": 0
+      }
+    ],
+    "buttons17796": [
+      {
+        "word0": 146,
+        "xMin": 0,
+        "xMax": 223,
+        "yMin": 33,
+        "yMax": 168,
+        "button": 2
+      },
+      {
+        "word0": 146,
+        "xMin": 0,
+        "xMax": 223,
+        "yMin": 33,
+        "yMax": 168,
+        "button": 1
+      },
+      {
+        "word0": 0,
+        "xMin": 0,
+        "xMax": 0,
+        "yMin": 0,
+        "yMax": 0,
+        "button": 0
+      }
+    ],
+    "buttons17760": [
+      {
+        "word0": 11,
+        "xMin": 0,
+        "xMax": 319,
+        "yMin": 0,
+        "yMax": 199,
+        "button": 1
+      },
+      {
+        "word0": 140,
+        "xMin": 174,
+        "xMax": 182,
+        "yMin": 36,
+        "yMax": 44,
+        "button": 2
+      },
+      {
+        "word0": 145,
+        "xMin": 188,
+        "xMax": 204,
+        "yMin": 36,
+        "yMax": 44,
+        "button": 2
+      },
+      {
+        "word0": 11,
+        "xMin": 210,
+        "xMax": 218,
+        "yMin": 36,
+        "yMax": 44,
+        "button": 2
+      },
+      {
+        "word0": 28,
+        "xMin": 6,
+        "xMax": 21,
+        "yMin": 86,
+        "yMax": 101,
+        "button": 2
+      },
+      {
+        "word0": 29,
+        "xMin": 62,
+        "xMax": 77,
+        "yMin": 86,
+        "yMax": 101,
+        "button": 2
+      },
+      {
+        "word0": 30,
+        "xMin": 34,
+        "xMax": 49,
+        "yMin": 59,
+        "yMax": 74,
+        "button": 2
+      },
+      {
+        "word0": 31,
+        "xMin": 34,
+        "xMax": 49,
+        "yMin": 79,
+        "yMax": 94,
+        "button": 2
+      },
+      {
+        "word0": 32,
+        "xMin": 34,
+        "xMax": 49,
+        "yMin": 99,
+        "yMax": 114,
+        "button": 2
+      },
+      {
+        "word0": 33,
+        "xMin": 34,
+        "xMax": 49,
+        "yMin": 119,
+        "yMax": 134,
+        "button": 2
+      },
+      {
+        "word0": 34,
+        "xMin": 6,
+        "xMax": 21,
+        "yMin": 123,
+        "yMax": 138,
+        "button": 2
+      },
+      {
+        "word0": 70,
+        "xMin": 56,
+        "xMax": 71,
+        "yMin": 46,
+        "yMax": 61,
+        "button": 2
+      },
+      {
+        "word0": 71,
+        "xMin": 12,
+        "xMax": 27,
+        "yMin": 46,
+        "yMax": 61,
+        "button": 2
+      },
+      {
+        "word0": 35,
+        "xMin": 79,
+        "xMax": 94,
+        "yMin": 106,
+        "yMax": 121,
+        "button": 2
+      },
+      {
+        "word0": 36,
+        "xMin": 62,
+        "xMax": 77,
+        "yMin": 123,
+        "yMax": 138,
+        "button": 2
+      },
+      {
+        "word0": 37,
+        "xMin": 79,
+        "xMax": 94,
+        "yMin": 123,
+        "yMax": 138,
+        "button": 2
+      },
+      {
+        "word0": 38,
+        "xMin": 6,
+        "xMax": 21,
+        "yMin": 66,
+        "yMax": 81,
+        "button": 2
+      },
+      {
+        "word0": 39,
+        "xMin": 6,
+        "xMax": 21,
+        "yMin": 106,
+        "yMax": 121,
+        "button": 2
+      },
+      {
+        "word0": 40,
+        "xMin": 62,
+        "xMax": 77,
+        "yMin": 106,
+        "yMax": 121,
+        "button": 2
+      },
+      {
+        "word0": 41,
+        "xMin": 66,
+        "xMax": 81,
+        "yMin": 66,
+        "yMax": 81,
+        "button": 2
+      },
+      {
+        "word0": 42,
+        "xMin": 83,
+        "xMax": 98,
+        "yMin": 49,
+        "yMax": 64,
+        "button": 2
+      },
+      {
+        "word0": 43,
+        "xMin": 100,
+        "xMax": 115,
+        "yMin": 49,
+        "yMax": 64,
+        "button": 2
+      },
+      {
+        "word0": 44,
+        "xMin": 117,
+        "xMax": 132,
+        "yMin": 49,
+        "yMax": 64,
+        "button": 2
+      },
+      {
+        "word0": 45,
+        "xMin": 134,
+        "xMax": 149,
+        "yMin": 49,
+        "yMax": 64,
+        "button": 2
+      },
+      {
+        "word0": 46,
+        "xMin": 151,
+        "xMax": 166,
+        "yMin": 49,
+        "yMax": 64,
+        "button": 2
+      },
+      {
+        "word0": 47,
+        "xMin": 168,
+        "xMax": 183,
+        "yMin": 49,
+        "yMax": 64,
+        "button": 2
+      },
+      {
+        "word0": 48,
+        "xMin": 185,
+        "xMax": 200,
+        "yMin": 49,
+        "yMax": 64,
+        "button": 2
+      },
+      {
+        "word0": 49,
+        "xMin": 202,
+        "xMax": 217,
+        "yMin": 49,
+        "yMax": 64,
+        "button": 2
+      },
+      {
+        "word0": 50,
+        "xMin": 83,
+        "xMax": 98,
+        "yMin": 66,
+        "yMax": 81,
+        "button": 2
+      },
+      {
+        "word0": 51,
+        "xMin": 100,
+        "xMax": 115,
+        "yMin": 66,
+        "yMax": 81,
+        "button": 2
+      },
+      {
+        "word0": 52,
+        "xMin": 117,
+        "xMax": 132,
+        "yMin": 66,
+        "yMax": 81,
+        "button": 2
+      },
+      {
+        "word0": 53,
+        "xMin": 134,
+        "xMax": 149,
+        "yMin": 66,
+        "yMax": 81,
+        "button": 2
+      },
+      {
+        "word0": 54,
+        "xMin": 151,
+        "xMax": 166,
+        "yMin": 66,
+        "yMax": 81,
+        "button": 2
+      },
+      {
+        "word0": 55,
+        "xMin": 168,
+        "xMax": 183,
+        "yMin": 66,
+        "yMax": 81,
+        "button": 2
+      },
+      {
+        "word0": 56,
+        "xMin": 185,
+        "xMax": 200,
+        "yMin": 66,
+        "yMax": 81,
+        "button": 2
+      },
+      {
+        "word0": 57,
+        "xMin": 202,
+        "xMax": 217,
+        "yMin": 66,
+        "yMax": 81,
+        "button": 2
+      },
+      {
+        "word0": 81,
+        "xMin": 96,
+        "xMax": 223,
+        "yMin": 83,
+        "yMax": 167,
+        "button": 2
+      },
+      {
+        "word0": 0,
+        "xMin": 0,
+        "xMax": 0,
+        "yMin": 0,
+        "yMax": 0,
+        "button": 0
+      }
+    ],
+    "buttons17304": [
+      {
+        "word0": 1,
+        "xMin": 234,
+        "xMax": 261,
+        "yMin": 125,
+        "yMax": 145,
+        "button": 2
+      },
+      {
+        "word0": 3,
+        "xMin": 263,
+        "xMax": 289,
+        "yMin": 125,
+        "yMax": 145,
+        "button": 2
+      },
+      {
+        "word0": 2,
+        "xMin": 291,
+        "xMax": 318,
+        "yMin": 125,
+        "yMax": 145,
+        "button": 2
+      },
+      {
+        "word0": 6,
+        "xMin": 234,
+        "xMax": 261,
+        "yMin": 147,
+        "yMax": 167,
+        "button": 2
+      },
+      {
+        "word0": 5,
+        "xMin": 263,
+        "xMax": 289,
+        "yMin": 147,
+        "yMax": 167,
+        "button": 2
+      },
+      {
+        "word0": 4,
+        "xMin": 291,
+        "xMax": 318,
+        "yMin": 147,
+        "yMax": 167,
+        "button": 2
+      },
+      {
+        "word0": 80,
+        "xMin": 0,
+        "xMax": 223,
+        "yMin": 33,
+        "yMax": 168,
+        "button": 2
+      },
+      {
+        "word0": 83,
+        "xMin": 0,
+        "xMax": 319,
+        "yMin": 33,
+        "yMax": 199,
+        "button": 1
+      },
+      {
+        "word0": 0,
+        "xMin": 0,
+        "xMax": 0,
+        "yMin": 0,
+        "yMax": 0,
+        "button": 0
+      }
+    ],
+    "buttons17196": [
+      {
+        "word0": 12,
+        "xMin": 0,
+        "xMax": 42,
+        "yMin": 0,
+        "yMax": 28,
+        "button": 2
+      },
+      {
+        "word0": 13,
+        "xMin": 69,
+        "xMax": 111,
+        "yMin": 0,
+        "yMax": 28,
+        "button": 2
+      },
+      {
+        "word0": 14,
+        "xMin": 138,
+        "xMax": 180,
+        "yMin": 0,
+        "yMax": 28,
+        "button": 2
+      },
+      {
+        "word0": 15,
+        "xMin": 207,
+        "xMax": 249,
+        "yMin": 0,
+        "yMax": 28,
+        "button": 2
+      },
+      {
+        "word0": 125,
+        "xMin": 274,
+        "xMax": 299,
+        "yMin": 0,
+        "yMax": 13,
+        "button": 2
+      },
+      {
+        "word0": 126,
+        "xMin": 301,
+        "xMax": 319,
+        "yMin": 0,
+        "yMax": 13,
+        "button": 2
+      },
+      {
+        "word0": 127,
+        "xMin": 301,
+        "xMax": 319,
+        "yMin": 15,
+        "yMax": 28,
+        "button": 2
+      },
+      {
+        "word0": 128,
+        "xMin": 274,
+        "xMax": 299,
+        "yMin": 15,
+        "yMax": 28,
+        "button": 2
+      },
+      {
+        "word0": 7,
+        "xMin": 0,
+        "xMax": 66,
+        "yMin": 0,
+        "yMax": 28,
+        "button": 1
+      },
+      {
+        "word0": 8,
+        "xMin": 69,
+        "xMax": 135,
+        "yMin": 0,
+        "yMax": 28,
+        "button": 1
+      },
+      {
+        "word0": 9,
+        "xMin": 138,
+        "xMax": 204,
+        "yMin": 0,
+        "yMax": 28,
+        "button": 1
+      },
+      {
+        "word0": 10,
+        "xMin": 207,
+        "xMax": 273,
+        "yMin": 0,
+        "yMax": 28,
+        "button": 1
+      },
+      {
+        "word0": 100,
+        "xMin": 233,
+        "xMax": 319,
+        "yMin": 42,
+        "yMax": 73,
+        "button": 2
+      },
+      {
+        "word0": 111,
+        "xMin": 233,
+        "xMax": 319,
+        "yMin": 77,
+        "yMax": 121,
+        "button": 2
+      },
+      {
+        "word0": 147,
+        "xMin": 0,
+        "xMax": 1,
+        "yMin": 198,
+        "yMax": 199,
+        "button": 2
+      },
+      {
+        "word0": 0,
+        "xMin": 0,
+        "xMax": 0,
+        "yMin": 0,
+        "yMax": 0,
+        "button": 0
+      },
+      {
+        "word0": 215,
+        "xMin": 103,
+        "xMax": 217,
+        "yMin": 145,
+        "yMax": 159,
+        "button": 2
+      },
+      {
+        "word0": 0,
+        "xMin": 0,
+        "xMax": 0,
+        "yMin": 0,
+        "yMax": 0,
+        "button": 0
+      },
+      {
+        "word0": 200,
+        "xMin": 244,
+        "xMax": 298,
+        "yMin": 45,
+        "yMax": 58,
+        "button": 2
+      },
+      {
+        "word0": 201,
+        "xMin": 244,
+        "xMax": 298,
+        "yMin": 76,
+        "yMax": 93,
+        "button": 2
+      }
+    ],
+    "buttons16956": [
+      {
+        "word0": 202,
+        "xMin": 248,
+        "xMax": 293,
+        "yMin": 187,
+        "yMax": 199,
+        "button": 2
+      },
+      {
+        "word0": 0,
+        "xMin": 0,
+        "xMax": 0,
+        "yMin": 0,
+        "yMax": 0,
+        "button": 0
+      }
+    ],
+    "buttons16932": [
+      {
+        "word0": 200,
+        "xMin": 244,
+        "xMax": 298,
+        "yMin": 45,
+        "yMax": 58,
+        "button": 2
+      },
+      {
+        "word0": 201,
+        "xMin": 244,
+        "xMax": 298,
+        "yMin": 76,
+        "yMax": 93,
+        "button": 2
+      },
+      {
+        "word0": 202,
+        "xMin": 248,
+        "xMax": 293,
+        "yMin": 187,
+        "yMax": 199,
+        "button": 2
+      },
+      {
+        "word0": 0,
+        "xMin": 0,
+        "xMax": 0,
+        "yMin": 0,
+        "yMax": 0,
+        "button": 0
+      }
+    ]
+  },
+  "rawTables": {
+    "byte18938": null,
+    "byte18600": [
+      0,
+      102,
+      0,
+      122,
+      0,
+      62,
+      0,
+      97
+    ],
+    "byte18592": [
+      0,
+      102,
+      0,
+      122,
+      0,
+      89,
+      0,
+      125
+    ],
+    "byte18584": [
+      0,
+      0,
+      0,
+      -33,
+      0,
+      51,
+      0,
+      125
+    ],
+    "byte18576": [
+      0,
+      0,
+      0,
+      -33,
+      0,
+      0,
+      0,
+      74
+    ],
+    "word18552": [
+      235,
+      247,
+      51,
+      61,
+      249,
+      261,
+      51,
+      61,
+      263,
+      275,
+      51,
+      61,
+      277,
+      289,
+      51,
+      61,
+      291,
+      303,
+      51,
+      61,
+      305,
+      317,
+      51,
+      61,
+      305,
+      318,
+      63,
+      73
+    ],
+    "trailingRawBytes": []
+  }
+}

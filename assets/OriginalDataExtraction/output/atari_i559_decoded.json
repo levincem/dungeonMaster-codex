@@ -1,0 +1,2718 @@
+{
+  "start": 0,
+  "end": 3086,
+  "consumedBytes": 3086,
+  "expectedBytes": 3086,
+  "endian": "be",
+  "creatureFacings": [
+    0,
+    85,
+    170,
+    255
+  ],
+  "wallTextEncoding": [
+    [],
+    [],
+    [
+      19,
+      7,
+      4,
+      26
+    ],
+    [
+      24,
+      14,
+      20,
+      26
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    []
+  ],
+  "characterEncoding": [
+    "a",
+    "b",
+    "c",
+    "d",
+    "e",
+    "f",
+    "g",
+    "h",
+    "i",
+    "j",
+    "k",
+    "l",
+    "m",
+    "n",
+    "o",
+    "p",
+    "q",
+    "r",
+    "s",
+    "t",
+    "u",
+    "v",
+    "w",
+    "x",
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7"
+  ],
+  "textEncoding": [
+    [
+      63
+    ],
+    [
+      33
+    ],
+    [
+      84,
+      72,
+      69,
+      32
+    ],
+    [
+      89,
+      79,
+      85,
+      32
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    []
+  ],
+  "doorCharacteristics": [
+    878,
+    42,
+    230,
+    1535
+  ],
+  "creatureDroppings": [
+    163,
+    163,
+    163,
+    163,
+    163,
+    163,
+    163,
+    163,
+    32931,
+    32931,
+    0,
+    161,
+    32929,
+    32929,
+    0,
+    160,
+    32928,
+    0,
+    162,
+    32930,
+    0,
+    152,
+    32920,
+    32821,
+    32821,
+    0,
+    110,
+    109,
+    108,
+    33,
+    107,
+    33,
+    0,
+    46,
+    0,
+    47,
+    0,
+    32,
+    99,
+    0
+  ],
+  "sounds": [
+    3,
+    7,
+    14,
+    15,
+    19,
+    21,
+    4,
+    16
+  ],
+  "creatures": [
+    {
+      "creatureAspectIndex": 0,
+      "attackSoundOrdinal": 4,
+      "attributes": 1154,
+      "graphicInfo": 25149,
+      "movementTicks": 8,
+      "attackTicks": 20,
+      "defense": 55,
+      "baseHealth": 150,
+      "attack": 150,
+      "poisonAttack": 240,
+      "dexterity": 55,
+      "byte13": 0,
+      "ranges": 4435,
+      "properties": 10651,
+      "resistances": 2166,
+      "word20": 596,
+      "byte22": [
+        253,
+        64,
+        4,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 1,
+      "attackSoundOrdinal": 0,
+      "attributes": 1152,
+      "graphicInfo": 42533,
+      "movementTicks": 15,
+      "attackTicks": 32,
+      "defense": 20,
+      "baseHealth": 110,
+      "attack": 80,
+      "poisonAttack": 15,
+      "dexterity": 20,
+      "byte13": 0,
+      "ranges": 12594,
+      "properties": 13225,
+      "resistances": 3650,
+      "word20": 900,
+      "byte22": [
+        252,
+        65,
+        3,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 2,
+      "attackSoundOrdinal": 6,
+      "attributes": 1296,
+      "graphicInfo": 24984,
+      "movementTicks": 3,
+      "attackTicks": 5,
+      "defense": 50,
+      "baseHealth": 10,
+      "attack": 10,
+      "poisonAttack": 0,
+      "dexterity": 110,
+      "byte13": 0,
+      "ranges": 4982,
+      "properties": 28938,
+      "resistances": 565,
+      "word20": 546,
+      "byte22": [
+        253,
+        32,
+        0,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 3,
+      "attackSoundOrdinal": 0,
+      "attributes": 1204,
+      "graphicInfo": 45605,
+      "movementTicks": 10,
+      "attackTicks": 21,
+      "defense": 30,
+      "baseHealth": 40,
+      "attack": 58,
+      "poisonAttack": 0,
+      "dexterity": 80,
+      "byte13": 0,
+      "ranges": 12810,
+      "properties": 38570,
+      "resistances": 2876,
+      "word20": 275,
+      "byte22": [
+        249,
+        16,
+        5,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 4,
+      "attackSoundOrdinal": 1,
+      "attributes": 1793,
+      "graphicInfo": 41912,
+      "movementTicks": 9,
+      "attackTicks": 8,
+      "defense": 45,
+      "baseHealth": 101,
+      "attack": 90,
+      "poisonAttack": 0,
+      "dexterity": 65,
+      "byte13": 0,
+      "ranges": 5460,
+      "properties": 22783,
+      "resistances": 2612,
+      "word20": 323,
+      "byte22": [
+        254,
+        147,
+        4,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 5,
+      "attackSoundOrdinal": 0,
+      "attributes": 1409,
+      "graphicInfo": 21405,
+      "movementTicks": 20,
+      "attackTicks": 18,
+      "defense": 100,
+      "baseHealth": 60,
+      "attack": 30,
+      "poisonAttack": 0,
+      "dexterity": 30,
+      "byte13": 0,
+      "ranges": 4658,
+      "properties": 17208,
+      "resistances": 1411,
+      "word20": 613,
+      "byte22": [
+        255,
+        214,
+        3,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 6,
+      "attackSoundOrdinal": 3,
+      "attributes": 1804,
+      "graphicInfo": 32,
+      "movementTicks": 120,
+      "attackTicks": 10,
+      "defense": 5,
+      "baseHealth": 165,
+      "attack": 5,
+      "poisonAttack": 0,
+      "dexterity": 5,
+      "byte13": 0,
+      "ranges": 4369,
+      "properties": 4337,
+      "resistances": 1892,
+      "word20": 754,
+      "byte22": [
+        252,
+        132,
+        6,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 7,
+      "attackSoundOrdinal": 0,
+      "attributes": 768,
+      "graphicInfo": 544,
+      "movementTicks": 185,
+      "attackTicks": 15,
+      "defense": 170,
+      "baseHealth": 50,
+      "attack": 40,
+      "poisonAttack": 5,
+      "dexterity": 10,
+      "byte13": 0,
+      "ranges": 5219,
+      "properties": 9668,
+      "resistances": 1763,
+      "word20": 500,
+      "byte22": [
+        253,
+        147,
+        4,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 8,
+      "attackSoundOrdinal": 2,
+      "attributes": 6244,
+      "graphicInfo": 21029,
+      "movementTicks": 11,
+      "attackTicks": 16,
+      "defense": 15,
+      "baseHealth": 30,
+      "attack": 55,
+      "poisonAttack": 0,
+      "dexterity": 80,
+      "byte13": 0,
+      "ranges": 5155,
+      "properties": 18020,
+      "resistances": 4040,
+      "word20": 278,
+      "byte22": [
+        251,
+        48,
+        6,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 9,
+      "attackSoundOrdinal": 7,
+      "attributes": 642,
+      "graphicInfo": 29112,
+      "movementTicks": 21,
+      "attackTicks": 14,
+      "defense": 240,
+      "baseHealth": 120,
+      "attack": 219,
+      "poisonAttack": 0,
+      "dexterity": 35,
+      "byte13": 0,
+      "ranges": 4131,
+      "properties": 15359,
+      "resistances": 4087,
+      "word20": 1267,
+      "byte22": [
+        249,
+        32,
+        3,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 10,
+      "attackSoundOrdinal": 2,
+      "attributes": 5248,
+      "graphicInfo": 4536,
+      "movementTicks": 17,
+      "attackTicks": 12,
+      "defense": 25,
+      "baseHealth": 33,
+      "attack": 20,
+      "poisonAttack": 0,
+      "dexterity": 40,
+      "byte13": 0,
+      "ranges": 4644,
+      "properties": 21655,
+      "resistances": 3861,
+      "word20": 1155,
+      "byte22": [
+        251,
+        32,
+        3,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 11,
+      "attackSoundOrdinal": 0,
+      "attributes": 6342,
+      "graphicInfo": 549,
+      "movementTicks": 255,
+      "attackTicks": 8,
+      "defense": 45,
+      "baseHealth": 80,
+      "attack": 105,
+      "poisonAttack": 0,
+      "dexterity": 60,
+      "byte13": 0,
+      "ranges": 4884,
+      "properties": 21925,
+      "resistances": 4089,
+      "word20": 276,
+      "byte22": [
+        253,
+        149,
+        1,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 12,
+      "attackSoundOrdinal": 8,
+      "attributes": 4736,
+      "graphicInfo": 24632,
+      "movementTicks": 7,
+      "attackTicks": 7,
+      "defense": 22,
+      "baseHealth": 20,
+      "attack": 22,
+      "poisonAttack": 0,
+      "dexterity": 80,
+      "byte13": 0,
+      "ranges": 4115,
+      "properties": 26006,
+      "resistances": 3939,
+      "word20": 306,
+      "byte22": [
+        250,
+        48,
+        4,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 13,
+      "attackSoundOrdinal": 0,
+      "attributes": 5282,
+      "graphicInfo": 45629,
+      "movementTicks": 5,
+      "attackTicks": 10,
+      "defense": 42,
+      "baseHealth": 39,
+      "attack": 90,
+      "poisonAttack": 100,
+      "dexterity": 88,
+      "byte13": 0,
+      "ranges": 4931,
+      "properties": 22324,
+      "resistances": 1592,
+      "word20": 274,
+      "byte22": [
+        250,
+        48,
+        4,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 14,
+      "attackSoundOrdinal": 0,
+      "attributes": 1464,
+      "graphicInfo": 5688,
+      "movementTicks": 10,
+      "attackTicks": 20,
+      "defense": 47,
+      "baseHealth": 44,
+      "attack": 75,
+      "poisonAttack": 0,
+      "dexterity": 90,
+      "byte13": 0,
+      "ranges": 17205,
+      "properties": 55634,
+      "resistances": 859,
+      "word20": 1636,
+      "byte22": [
+        253,
+        96,
+        5,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 15,
+      "attackSoundOrdinal": 5,
+      "attributes": 897,
+      "graphicInfo": 21053,
+      "movementTicks": 18,
+      "attackTicks": 19,
+      "defense": 72,
+      "baseHealth": 70,
+      "attack": 45,
+      "poisonAttack": 35,
+      "dexterity": 35,
+      "byte13": 0,
+      "ranges": 6817,
+      "properties": 5547,
+      "resistances": 2963,
+      "word20": 595,
+      "byte22": [
+        255,
+        197,
+        4,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 16,
+      "attackSoundOrdinal": 7,
+      "attributes": 1664,
+      "graphicInfo": 41016,
+      "movementTicks": 13,
+      "attackTicks": 8,
+      "defense": 28,
+      "baseHealth": 20,
+      "attack": 25,
+      "poisonAttack": 0,
+      "dexterity": 41,
+      "byte13": 0,
+      "ranges": 4931,
+      "properties": 8520,
+      "resistances": 801,
+      "word20": 818,
+      "byte22": [
+        252,
+        48,
+        3,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 17,
+      "attackSoundOrdinal": 0,
+      "attributes": 1184,
+      "graphicInfo": 62013,
+      "movementTicks": 1,
+      "attackTicks": 16,
+      "defense": 180,
+      "baseHealth": 8,
+      "attack": 28,
+      "poisonAttack": 20,
+      "dexterity": 150,
+      "byte13": 0,
+      "ranges": 5170,
+      "properties": 6653,
+      "resistances": 4,
+      "word20": 274,
+      "byte22": [
+        247,
+        16,
+        4,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 18,
+      "attackSoundOrdinal": 8,
+      "attributes": 640,
+      "graphicInfo": 41917,
+      "movementTicks": 14,
+      "attackTicks": 6,
+      "defense": 140,
+      "baseHealth": 60,
+      "attack": 105,
+      "poisonAttack": 0,
+      "dexterity": 70,
+      "byte13": 0,
+      "ranges": 4101,
+      "properties": 31487,
+      "resistances": 4090,
+      "word20": 323,
+      "byte22": [
+        250,
+        48,
+        4,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 19,
+      "attackSoundOrdinal": 0,
+      "attributes": 96,
+      "graphicInfo": 57917,
+      "movementTicks": 5,
+      "attackTicks": 18,
+      "defense": 15,
+      "baseHealth": 33,
+      "attack": 61,
+      "poisonAttack": 0,
+      "dexterity": 65,
+      "byte13": 0,
+      "ranges": 12888,
+      "properties": 44151,
+      "resistances": 3926,
+      "word20": 279,
+      "byte22": [
+        252,
+        64,
+        5,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 20,
+      "attackSoundOrdinal": 0,
+      "attributes": 4318,
+      "graphicInfo": 549,
+      "movementTicks": 25,
+      "attackTicks": 25,
+      "defense": 75,
+      "baseHealth": 144,
+      "attack": 66,
+      "poisonAttack": 0,
+      "dexterity": 50,
+      "byte13": 0,
+      "ranges": 4993,
+      "properties": 30329,
+      "resistances": 3751,
+      "word20": 837,
+      "byte22": [
+        253,
+        147,
+        3,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 21,
+      "attackSoundOrdinal": 3,
+      "attributes": 130,
+      "graphicInfo": 41917,
+      "movementTicks": 7,
+      "attackTicks": 15,
+      "defense": 33,
+      "baseHealth": 77,
+      "attack": 130,
+      "poisonAttack": 0,
+      "dexterity": 60,
+      "byte13": 0,
+      "ranges": 5522,
+      "properties": 26986,
+      "resistances": 2137,
+      "word20": 548,
+      "byte22": [
+        252,
+        48,
+        4,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 22,
+      "attackSoundOrdinal": 0,
+      "attributes": 5248,
+      "graphicInfo": 21437,
+      "movementTicks": 10,
+      "attackTicks": 14,
+      "defense": 68,
+      "baseHealth": 100,
+      "attack": 100,
+      "poisonAttack": 0,
+      "dexterity": 75,
+      "byte13": 0,
+      "ranges": 17220,
+      "properties": 48633,
+      "resistances": 2653,
+      "word20": 292,
+      "byte22": [
+        249,
+        32,
+        3,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 23,
+      "attackSoundOrdinal": 0,
+      "attributes": 14506,
+      "graphicInfo": 56,
+      "movementTicks": 12,
+      "attackTicks": 22,
+      "defense": 255,
+      "baseHealth": 180,
+      "attack": 210,
+      "poisonAttack": 0,
+      "dexterity": 130,
+      "byte13": 0,
+      "ranges": 25449,
+      "properties": 65335,
+      "resistances": 4031,
+      "word20": 1380,
+      "byte22": [
+        251,
+        82,
+        5,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 24,
+      "attackSoundOrdinal": 1,
+      "attributes": 1674,
+      "graphicInfo": 38845,
+      "movementTicks": 13,
+      "attackTicks": 28,
+      "defense": 110,
+      "baseHealth": 255,
+      "attack": 255,
+      "poisonAttack": 0,
+      "dexterity": 70,
+      "byte13": 0,
+      "ranges": 13893,
+      "properties": 49020,
+      "resistances": 1741,
+      "word20": 1093,
+      "byte22": [
+        252,
+        48,
+        4,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 25,
+      "attackSoundOrdinal": 0,
+      "attributes": 14506,
+      "graphicInfo": 0,
+      "movementTicks": 12,
+      "attackTicks": 22,
+      "defense": 255,
+      "baseHealth": 180,
+      "attack": 210,
+      "poisonAttack": 0,
+      "dexterity": 130,
+      "byte13": 0,
+      "ranges": 25449,
+      "properties": 65335,
+      "resistances": 4031,
+      "word20": 1380,
+      "byte22": [
+        251,
+        82,
+        5,
+        0
+      ]
+    },
+    {
+      "creatureAspectIndex": 26,
+      "attackSoundOrdinal": 0,
+      "attributes": 14506,
+      "graphicInfo": 0,
+      "movementTicks": 12,
+      "attackTicks": 22,
+      "defense": 255,
+      "baseHealth": 180,
+      "attack": 210,
+      "poisonAttack": 0,
+      "dexterity": 130,
+      "byte13": 0,
+      "ranges": 25449,
+      "properties": 65335,
+      "resistances": 4031,
+      "word20": 1380,
+      "byte22": [
+        251,
+        82,
+        5,
+        0
+      ]
+    }
+  ],
+  "foodValues": [
+    500,
+    600,
+    650,
+    820,
+    550,
+    350,
+    990,
+    1400
+  ],
+  "miscWeights": [
+    1,
+    3,
+    2,
+    2,
+    4,
+    15,
+    1,
+    1,
+    1,
+    2,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    81,
+    2,
+    3,
+    2,
+    4,
+    4,
+    3,
+    8,
+    5,
+    11,
+    4,
+    6,
+    2,
+    3,
+    2,
+    2,
+    2,
+    6,
+    9,
+    3,
+    10,
+    1,
+    0,
+    1,
+    1,
+    2,
+    0,
+    8,
+    0
+  ],
+  "protection": 4,
+  "cloths": [
+    {
+      "weight": 3,
+      "defense": 5,
+      "attributes": 1,
+      "padding": 0
+    },
+    {
+      "weight": 4,
+      "defense": 10,
+      "attributes": 1,
+      "padding": 0
+    },
+    {
+      "weight": 3,
+      "defense": 4,
+      "attributes": 1,
+      "padding": 0
+    },
+    {
+      "weight": 6,
+      "defense": 5,
+      "attributes": 2,
+      "padding": 0
+    },
+    {
+      "weight": 16,
+      "defense": 25,
+      "attributes": 4,
+      "padding": 0
+    },
+    {
+      "weight": 4,
+      "defense": 5,
+      "attributes": 0,
+      "padding": 0
+    },
+    {
+      "weight": 4,
+      "defense": 5,
+      "attributes": 0,
+      "padding": 0
+    },
+    {
+      "weight": 3,
+      "defense": 7,
+      "attributes": 1,
+      "padding": 0
+    },
+    {
+      "weight": 3,
+      "defense": 7,
+      "attributes": 1,
+      "padding": 0
+    },
+    {
+      "weight": 4,
+      "defense": 6,
+      "attributes": 1,
+      "padding": 0
+    },
+    {
+      "weight": 2,
+      "defense": 4,
+      "attributes": 0,
+      "padding": 0
+    },
+    {
+      "weight": 4,
+      "defense": 5,
+      "attributes": 1,
+      "padding": 0
+    },
+    {
+      "weight": 5,
+      "defense": 7,
+      "attributes": 1,
+      "padding": 0
+    },
+    {
+      "weight": 3,
+      "defense": 11,
+      "attributes": 2,
+      "padding": 0
+    },
+    {
+      "weight": 3,
+      "defense": 13,
+      "attributes": 2,
+      "padding": 0
+    },
+    {
+      "weight": 4,
+      "defense": 13,
+      "attributes": 2,
+      "padding": 0
+    },
+    {
+      "weight": 6,
+      "defense": 17,
+      "attributes": 3,
+      "padding": 0
+    },
+    {
+      "weight": 8,
+      "defense": 20,
+      "attributes": 3,
+      "padding": 0
+    },
+    {
+      "weight": 14,
+      "defense": 20,
+      "attributes": 3,
+      "padding": 0
+    },
+    {
+      "weight": 6,
+      "defense": 12,
+      "attributes": 2,
+      "padding": 0
+    },
+    {
+      "weight": 5,
+      "defense": 9,
+      "attributes": 1,
+      "padding": 0
+    },
+    {
+      "weight": 5,
+      "defense": 8,
+      "attributes": 1,
+      "padding": 0
+    },
+    {
+      "weight": 5,
+      "defense": 9,
+      "attributes": 1,
+      "padding": 0
+    },
+    {
+      "weight": 4,
+      "defense": 1,
+      "attributes": 4,
+      "padding": 0
+    },
+    {
+      "weight": 6,
+      "defense": 5,
+      "attributes": 4,
+      "padding": 0
+    },
+    {
+      "weight": 11,
+      "defense": 12,
+      "attributes": 5,
+      "padding": 0
+    },
+    {
+      "weight": 14,
+      "defense": 17,
+      "attributes": 5,
+      "padding": 0
+    },
+    {
+      "weight": 15,
+      "defense": 20,
+      "attributes": 5,
+      "padding": 0
+    },
+    {
+      "weight": 11,
+      "defense": 22,
+      "attributes": 133,
+      "padding": 0
+    },
+    {
+      "weight": 10,
+      "defense": 16,
+      "attributes": 130,
+      "padding": 0
+    },
+    {
+      "weight": 14,
+      "defense": 20,
+      "attributes": 131,
+      "padding": 0
+    },
+    {
+      "weight": 21,
+      "defense": 35,
+      "attributes": 132,
+      "padding": 0
+    },
+    {
+      "weight": 65,
+      "defense": 35,
+      "attributes": 5,
+      "padding": 0
+    },
+    {
+      "weight": 53,
+      "defense": 35,
+      "attributes": 5,
+      "padding": 0
+    },
+    {
+      "weight": 52,
+      "defense": 70,
+      "attributes": 7,
+      "padding": 0
+    },
+    {
+      "weight": 41,
+      "defense": 55,
+      "attributes": 7,
+      "padding": 0
+    },
+    {
+      "weight": 16,
+      "defense": 25,
+      "attributes": 6,
+      "padding": 0
+    },
+    {
+      "weight": 16,
+      "defense": 30,
+      "attributes": 6,
+      "padding": 0
+    },
+    {
+      "weight": 19,
+      "defense": 40,
+      "attributes": 7,
+      "padding": 0
+    },
+    {
+      "weight": 120,
+      "defense": 65,
+      "attributes": 4,
+      "padding": 0
+    },
+    {
+      "weight": 80,
+      "defense": 56,
+      "attributes": 4,
+      "padding": 0
+    },
+    {
+      "weight": 28,
+      "defense": 37,
+      "attributes": 5,
+      "padding": 0
+    },
+    {
+      "weight": 34,
+      "defense": 56,
+      "attributes": 132,
+      "padding": 0
+    },
+    {
+      "weight": 17,
+      "defense": 62,
+      "attributes": 5,
+      "padding": 0
+    },
+    {
+      "weight": 108,
+      "defense": 125,
+      "attributes": 4,
+      "padding": 0
+    },
+    {
+      "weight": 72,
+      "defense": 90,
+      "attributes": 4,
+      "padding": 0
+    },
+    {
+      "weight": 24,
+      "defense": 50,
+      "attributes": 5,
+      "padding": 0
+    },
+    {
+      "weight": 30,
+      "defense": 85,
+      "attributes": 132,
+      "padding": 0
+    },
+    {
+      "weight": 35,
+      "defense": 76,
+      "attributes": 4,
+      "padding": 0
+    },
+    {
+      "weight": 141,
+      "defense": 160,
+      "attributes": 4,
+      "padding": 0
+    },
+    {
+      "weight": 90,
+      "defense": 101,
+      "attributes": 4,
+      "padding": 0
+    },
+    {
+      "weight": 31,
+      "defense": 60,
+      "attributes": 5,
+      "padding": 0
+    },
+    {
+      "weight": 40,
+      "defense": 100,
+      "attributes": 132,
+      "padding": 0
+    },
+    {
+      "weight": 14,
+      "defense": 54,
+      "attributes": 6,
+      "padding": 0
+    },
+    {
+      "weight": 57,
+      "defense": 60,
+      "attributes": 7,
+      "padding": 0
+    },
+    {
+      "weight": 81,
+      "defense": 88,
+      "attributes": 4,
+      "padding": 0
+    },
+    {
+      "weight": 3,
+      "defense": 16,
+      "attributes": 2,
+      "padding": 0
+    },
+    {
+      "weight": 2,
+      "defense": 3,
+      "attributes": 3,
+      "padding": 0
+    }
+  ],
+  "weapons": [
+    {
+      "weight": 1,
+      "weaponClass": 130,
+      "strength": 2,
+      "kineticEnergy": 0,
+      "attributes": 8192
+    },
+    {
+      "weight": 1,
+      "weaponClass": 131,
+      "strength": 2,
+      "kineticEnergy": 0,
+      "attributes": 8192
+    },
+    {
+      "weight": 11,
+      "weaponClass": 0,
+      "strength": 8,
+      "kineticEnergy": 2,
+      "attributes": 8192
+    },
+    {
+      "weight": 12,
+      "weaponClass": 112,
+      "strength": 10,
+      "kineticEnergy": 80,
+      "attributes": 8232
+    },
+    {
+      "weight": 9,
+      "weaponClass": 129,
+      "strength": 16,
+      "kineticEnergy": 7,
+      "attributes": 8192
+    },
+    {
+      "weight": 30,
+      "weaponClass": 113,
+      "strength": 49,
+      "kineticEnergy": 110,
+      "attributes": 2370
+    },
+    {
+      "weight": 47,
+      "weaponClass": 0,
+      "strength": 55,
+      "kineticEnergy": 20,
+      "attributes": 2304
+    },
+    {
+      "weight": 24,
+      "weaponClass": 255,
+      "strength": 25,
+      "kineticEnergy": 10,
+      "attributes": 8447
+    },
+    {
+      "weight": 5,
+      "weaponClass": 2,
+      "strength": 10,
+      "kineticEnergy": 19,
+      "attributes": 512
+    },
+    {
+      "weight": 33,
+      "weaponClass": 0,
+      "strength": 30,
+      "kineticEnergy": 8,
+      "attributes": 2304
+    },
+    {
+      "weight": 32,
+      "weaponClass": 0,
+      "strength": 34,
+      "kineticEnergy": 10,
+      "attributes": 2304
+    },
+    {
+      "weight": 26,
+      "weaponClass": 0,
+      "strength": 38,
+      "kineticEnergy": 10,
+      "attributes": 2304
+    },
+    {
+      "weight": 35,
+      "weaponClass": 0,
+      "strength": 42,
+      "kineticEnergy": 11,
+      "attributes": 2304
+    },
+    {
+      "weight": 36,
+      "weaponClass": 0,
+      "strength": 46,
+      "kineticEnergy": 12,
+      "attributes": 2304
+    },
+    {
+      "weight": 33,
+      "weaponClass": 0,
+      "strength": 50,
+      "kineticEnergy": 14,
+      "attributes": 2304
+    },
+    {
+      "weight": 37,
+      "weaponClass": 0,
+      "strength": 62,
+      "kineticEnergy": 14,
+      "attributes": 2304
+    },
+    {
+      "weight": 30,
+      "weaponClass": 0,
+      "strength": 48,
+      "kineticEnergy": 13,
+      "attributes": 0
+    },
+    {
+      "weight": 39,
+      "weaponClass": 0,
+      "strength": 58,
+      "kineticEnergy": 15,
+      "attributes": 2304
+    },
+    {
+      "weight": 43,
+      "weaponClass": 2,
+      "strength": 49,
+      "kineticEnergy": 33,
+      "attributes": 768
+    },
+    {
+      "weight": 65,
+      "weaponClass": 2,
+      "strength": 70,
+      "kineticEnergy": 44,
+      "attributes": 768
+    },
+    {
+      "weight": 31,
+      "weaponClass": 0,
+      "strength": 32,
+      "kineticEnergy": 10,
+      "attributes": 8192
+    },
+    {
+      "weight": 41,
+      "weaponClass": 0,
+      "strength": 42,
+      "kineticEnergy": 13,
+      "attributes": 8192
+    },
+    {
+      "weight": 50,
+      "weaponClass": 0,
+      "strength": 60,
+      "kineticEnergy": 15,
+      "attributes": 8192
+    },
+    {
+      "weight": 36,
+      "weaponClass": 0,
+      "strength": 19,
+      "kineticEnergy": 10,
+      "attributes": 9984
+    },
+    {
+      "weight": 110,
+      "weaponClass": 0,
+      "strength": 44,
+      "kineticEnergy": 22,
+      "attributes": 9728
+    },
+    {
+      "weight": 10,
+      "weaponClass": 20,
+      "strength": 1,
+      "kineticEnergy": 50,
+      "attributes": 8242
+    },
+    {
+      "weight": 28,
+      "weaponClass": 30,
+      "strength": 1,
+      "kineticEnergy": 180,
+      "attributes": 8312
+    },
+    {
+      "weight": 2,
+      "weaponClass": 10,
+      "strength": 2,
+      "kineticEnergy": 10,
+      "attributes": 256
+    },
+    {
+      "weight": 2,
+      "weaponClass": 10,
+      "strength": 2,
+      "kineticEnergy": 28,
+      "attributes": 1280
+    },
+    {
+      "weight": 19,
+      "weaponClass": 39,
+      "strength": 5,
+      "kineticEnergy": 20,
+      "attributes": 8242
+    },
+    {
+      "weight": 10,
+      "weaponClass": 11,
+      "strength": 6,
+      "kineticEnergy": 18,
+      "attributes": 8192
+    },
+    {
+      "weight": 3,
+      "weaponClass": 12,
+      "strength": 7,
+      "kineticEnergy": 23,
+      "attributes": 2048
+    },
+    {
+      "weight": 1,
+      "weaponClass": 1,
+      "strength": 3,
+      "kineticEnergy": 19,
+      "attributes": 2560
+    },
+    {
+      "weight": 8,
+      "weaponClass": 0,
+      "strength": 4,
+      "kineticEnergy": 4,
+      "attributes": 8192
+    },
+    {
+      "weight": 26,
+      "weaponClass": 129,
+      "strength": 12,
+      "kineticEnergy": 4,
+      "attributes": 8192
+    },
+    {
+      "weight": 1,
+      "weaponClass": 130,
+      "strength": 0,
+      "kineticEnergy": 0,
+      "attributes": 8192
+    },
+    {
+      "weight": 2,
+      "weaponClass": 140,
+      "strength": 1,
+      "kineticEnergy": 20,
+      "attributes": 8192
+    },
+    {
+      "weight": 35,
+      "weaponClass": 128,
+      "strength": 18,
+      "kineticEnergy": 6,
+      "attributes": 8192
+    },
+    {
+      "weight": 29,
+      "weaponClass": 159,
+      "strength": 0,
+      "kineticEnergy": 4,
+      "attributes": 8192
+    },
+    {
+      "weight": 21,
+      "weaponClass": 131,
+      "strength": 0,
+      "kineticEnergy": 3,
+      "attributes": 8192
+    },
+    {
+      "weight": 33,
+      "weaponClass": 136,
+      "strength": 0,
+      "kineticEnergy": 7,
+      "attributes": 8192
+    },
+    {
+      "weight": 8,
+      "weaponClass": 132,
+      "strength": 3,
+      "kineticEnergy": 1,
+      "attributes": 8192
+    },
+    {
+      "weight": 18,
+      "weaponClass": 131,
+      "strength": 9,
+      "kineticEnergy": 4,
+      "attributes": 8192
+    },
+    {
+      "weight": 8,
+      "weaponClass": 192,
+      "strength": 1,
+      "kineticEnergy": 1,
+      "attributes": 8192
+    },
+    {
+      "weight": 30,
+      "weaponClass": 26,
+      "strength": 1,
+      "kineticEnergy": 220,
+      "attributes": 8317
+    },
+    {
+      "weight": 36,
+      "weaponClass": 255,
+      "strength": 100,
+      "kineticEnergy": 50,
+      "attributes": 8447
+    }
+  ],
+  "objects": [
+    {
+      "type": 30,
+      "objectAspectIndex": 1,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 144,
+      "objectAspectIndex": 0,
+      "actionSetIndex": 0,
+      "allowedSlots": 512
+    },
+    {
+      "type": 148,
+      "objectAspectIndex": 67,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 149,
+      "objectAspectIndex": 67,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 150,
+      "objectAspectIndex": 67,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 151,
+      "objectAspectIndex": 67,
+      "actionSetIndex": 42,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 152,
+      "objectAspectIndex": 67,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 153,
+      "objectAspectIndex": 67,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 154,
+      "objectAspectIndex": 2,
+      "actionSetIndex": 0,
+      "allowedSlots": 1281
+    },
+    {
+      "type": 155,
+      "objectAspectIndex": 2,
+      "actionSetIndex": 0,
+      "allowedSlots": 1281
+    },
+    {
+      "type": 156,
+      "objectAspectIndex": 2,
+      "actionSetIndex": 0,
+      "allowedSlots": 1281
+    },
+    {
+      "type": 157,
+      "objectAspectIndex": 2,
+      "actionSetIndex": 0,
+      "allowedSlots": 1281
+    },
+    {
+      "type": 158,
+      "objectAspectIndex": 2,
+      "actionSetIndex": 0,
+      "allowedSlots": 1281
+    },
+    {
+      "type": 159,
+      "objectAspectIndex": 2,
+      "actionSetIndex": 0,
+      "allowedSlots": 1281
+    },
+    {
+      "type": 160,
+      "objectAspectIndex": 2,
+      "actionSetIndex": 0,
+      "allowedSlots": 1281
+    },
+    {
+      "type": 161,
+      "objectAspectIndex": 2,
+      "actionSetIndex": 0,
+      "allowedSlots": 1281
+    },
+    {
+      "type": 162,
+      "objectAspectIndex": 2,
+      "actionSetIndex": 0,
+      "allowedSlots": 1281
+    },
+    {
+      "type": 163,
+      "objectAspectIndex": 2,
+      "actionSetIndex": 0,
+      "allowedSlots": 1281
+    },
+    {
+      "type": 164,
+      "objectAspectIndex": 68,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 165,
+      "objectAspectIndex": 68,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 166,
+      "objectAspectIndex": 68,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 167,
+      "objectAspectIndex": 68,
+      "actionSetIndex": 42,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 195,
+      "objectAspectIndex": 80,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 16,
+      "objectAspectIndex": 38,
+      "actionSetIndex": 43,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 18,
+      "objectAspectIndex": 38,
+      "actionSetIndex": 7,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 4,
+      "objectAspectIndex": 35,
+      "actionSetIndex": 5,
+      "allowedSlots": 1024
+    },
+    {
+      "type": 14,
+      "objectAspectIndex": 37,
+      "actionSetIndex": 6,
+      "allowedSlots": 1024
+    },
+    {
+      "type": 20,
+      "objectAspectIndex": 11,
+      "actionSetIndex": 8,
+      "allowedSlots": 64
+    },
+    {
+      "type": 23,
+      "objectAspectIndex": 12,
+      "actionSetIndex": 9,
+      "allowedSlots": 64
+    },
+    {
+      "type": 25,
+      "objectAspectIndex": 12,
+      "actionSetIndex": 10,
+      "allowedSlots": 64
+    },
+    {
+      "type": 27,
+      "objectAspectIndex": 39,
+      "actionSetIndex": 11,
+      "allowedSlots": 64
+    },
+    {
+      "type": 32,
+      "objectAspectIndex": 17,
+      "actionSetIndex": 12,
+      "allowedSlots": 1472
+    },
+    {
+      "type": 33,
+      "objectAspectIndex": 12,
+      "actionSetIndex": 13,
+      "allowedSlots": 64
+    },
+    {
+      "type": 34,
+      "objectAspectIndex": 12,
+      "actionSetIndex": 13,
+      "allowedSlots": 64
+    },
+    {
+      "type": 35,
+      "objectAspectIndex": 12,
+      "actionSetIndex": 14,
+      "allowedSlots": 64
+    },
+    {
+      "type": 36,
+      "objectAspectIndex": 12,
+      "actionSetIndex": 15,
+      "allowedSlots": 64
+    },
+    {
+      "type": 37,
+      "objectAspectIndex": 12,
+      "actionSetIndex": 15,
+      "allowedSlots": 64
+    },
+    {
+      "type": 38,
+      "objectAspectIndex": 12,
+      "actionSetIndex": 16,
+      "allowedSlots": 64
+    },
+    {
+      "type": 39,
+      "objectAspectIndex": 12,
+      "actionSetIndex": 17,
+      "allowedSlots": 64
+    },
+    {
+      "type": 40,
+      "objectAspectIndex": 42,
+      "actionSetIndex": 18,
+      "allowedSlots": 64
+    },
+    {
+      "type": 41,
+      "objectAspectIndex": 12,
+      "actionSetIndex": 19,
+      "allowedSlots": 64
+    },
+    {
+      "type": 42,
+      "objectAspectIndex": 13,
+      "actionSetIndex": 20,
+      "allowedSlots": 64
+    },
+    {
+      "type": 43,
+      "objectAspectIndex": 13,
+      "actionSetIndex": 21,
+      "allowedSlots": 64
+    },
+    {
+      "type": 44,
+      "objectAspectIndex": 21,
+      "actionSetIndex": 22,
+      "allowedSlots": 64
+    },
+    {
+      "type": 45,
+      "objectAspectIndex": 21,
+      "actionSetIndex": 22,
+      "allowedSlots": 64
+    },
+    {
+      "type": 46,
+      "objectAspectIndex": 33,
+      "actionSetIndex": 23,
+      "allowedSlots": 1088
+    },
+    {
+      "type": 47,
+      "objectAspectIndex": 43,
+      "actionSetIndex": 24,
+      "allowedSlots": 64
+    },
+    {
+      "type": 48,
+      "objectAspectIndex": 44,
+      "actionSetIndex": 24,
+      "allowedSlots": 64
+    },
+    {
+      "type": 49,
+      "objectAspectIndex": 14,
+      "actionSetIndex": 27,
+      "allowedSlots": 64
+    },
+    {
+      "type": 50,
+      "objectAspectIndex": 45,
+      "actionSetIndex": 27,
+      "allowedSlots": 64
+    },
+    {
+      "type": 51,
+      "objectAspectIndex": 16,
+      "actionSetIndex": 26,
+      "allowedSlots": 1472
+    },
+    {
+      "type": 52,
+      "objectAspectIndex": 46,
+      "actionSetIndex": 26,
+      "allowedSlots": 1472
+    },
+    {
+      "type": 53,
+      "objectAspectIndex": 11,
+      "actionSetIndex": 27,
+      "allowedSlots": 1088
+    },
+    {
+      "type": 54,
+      "objectAspectIndex": 47,
+      "actionSetIndex": 42,
+      "allowedSlots": 1472
+    },
+    {
+      "type": 55,
+      "objectAspectIndex": 48,
+      "actionSetIndex": 40,
+      "allowedSlots": 1472
+    },
+    {
+      "type": 56,
+      "objectAspectIndex": 49,
+      "actionSetIndex": 42,
+      "allowedSlots": 1472
+    },
+    {
+      "type": 57,
+      "objectAspectIndex": 50,
+      "actionSetIndex": 5,
+      "allowedSlots": 64
+    },
+    {
+      "type": 58,
+      "objectAspectIndex": 11,
+      "actionSetIndex": 5,
+      "allowedSlots": 64
+    },
+    {
+      "type": 59,
+      "objectAspectIndex": 31,
+      "actionSetIndex": 28,
+      "allowedSlots": 1344
+    },
+    {
+      "type": 60,
+      "objectAspectIndex": 31,
+      "actionSetIndex": 29,
+      "allowedSlots": 1344
+    },
+    {
+      "type": 61,
+      "objectAspectIndex": 11,
+      "actionSetIndex": 30,
+      "allowedSlots": 64
+    },
+    {
+      "type": 62,
+      "objectAspectIndex": 11,
+      "actionSetIndex": 31,
+      "allowedSlots": 64
+    },
+    {
+      "type": 63,
+      "objectAspectIndex": 11,
+      "actionSetIndex": 32,
+      "allowedSlots": 64
+    },
+    {
+      "type": 64,
+      "objectAspectIndex": 51,
+      "actionSetIndex": 33,
+      "allowedSlots": 64
+    },
+    {
+      "type": 65,
+      "objectAspectIndex": 32,
+      "actionSetIndex": 5,
+      "allowedSlots": 1088
+    },
+    {
+      "type": 66,
+      "objectAspectIndex": 30,
+      "actionSetIndex": 35,
+      "allowedSlots": 64
+    },
+    {
+      "type": 135,
+      "objectAspectIndex": 65,
+      "actionSetIndex": 36,
+      "allowedSlots": 1088
+    },
+    {
+      "type": 143,
+      "objectAspectIndex": 45,
+      "actionSetIndex": 27,
+      "allowedSlots": 64
+    },
+    {
+      "type": 28,
+      "objectAspectIndex": 82,
+      "actionSetIndex": 1,
+      "allowedSlots": 64
+    },
+    {
+      "type": 80,
+      "objectAspectIndex": 23,
+      "actionSetIndex": 0,
+      "allowedSlots": 1036
+    },
+    {
+      "type": 81,
+      "objectAspectIndex": 23,
+      "actionSetIndex": 0,
+      "allowedSlots": 1036
+    },
+    {
+      "type": 82,
+      "objectAspectIndex": 23,
+      "actionSetIndex": 0,
+      "allowedSlots": 1040
+    },
+    {
+      "type": 112,
+      "objectAspectIndex": 55,
+      "actionSetIndex": 0,
+      "allowedSlots": 1056
+    },
+    {
+      "type": 114,
+      "objectAspectIndex": 8,
+      "actionSetIndex": 0,
+      "allowedSlots": 1056
+    },
+    {
+      "type": 67,
+      "objectAspectIndex": 24,
+      "actionSetIndex": 0,
+      "allowedSlots": 1032
+    },
+    {
+      "type": 83,
+      "objectAspectIndex": 24,
+      "actionSetIndex": 0,
+      "allowedSlots": 1040
+    },
+    {
+      "type": 68,
+      "objectAspectIndex": 24,
+      "actionSetIndex": 0,
+      "allowedSlots": 1032
+    },
+    {
+      "type": 84,
+      "objectAspectIndex": 24,
+      "actionSetIndex": 0,
+      "allowedSlots": 1040
+    },
+    {
+      "type": 69,
+      "objectAspectIndex": 69,
+      "actionSetIndex": 0,
+      "allowedSlots": 1032
+    },
+    {
+      "type": 70,
+      "objectAspectIndex": 24,
+      "actionSetIndex": 0,
+      "allowedSlots": 1032
+    },
+    {
+      "type": 85,
+      "objectAspectIndex": 24,
+      "actionSetIndex": 0,
+      "allowedSlots": 1040
+    },
+    {
+      "type": 86,
+      "objectAspectIndex": 69,
+      "actionSetIndex": 0,
+      "allowedSlots": 1040
+    },
+    {
+      "type": 71,
+      "objectAspectIndex": 7,
+      "actionSetIndex": 0,
+      "allowedSlots": 1032
+    },
+    {
+      "type": 87,
+      "objectAspectIndex": 7,
+      "actionSetIndex": 0,
+      "allowedSlots": 1040
+    },
+    {
+      "type": 119,
+      "objectAspectIndex": 57,
+      "actionSetIndex": 0,
+      "allowedSlots": 1056
+    },
+    {
+      "type": 72,
+      "objectAspectIndex": 23,
+      "actionSetIndex": 0,
+      "allowedSlots": 1032
+    },
+    {
+      "type": 88,
+      "objectAspectIndex": 23,
+      "actionSetIndex": 0,
+      "allowedSlots": 1040
+    },
+    {
+      "type": 113,
+      "objectAspectIndex": 29,
+      "actionSetIndex": 0,
+      "allowedSlots": 1056
+    },
+    {
+      "type": 89,
+      "objectAspectIndex": 69,
+      "actionSetIndex": 0,
+      "allowedSlots": 1040
+    },
+    {
+      "type": 73,
+      "objectAspectIndex": 69,
+      "actionSetIndex": 0,
+      "allowedSlots": 1032
+    },
+    {
+      "type": 74,
+      "objectAspectIndex": 24,
+      "actionSetIndex": 0,
+      "allowedSlots": 1032
+    },
+    {
+      "type": 90,
+      "objectAspectIndex": 24,
+      "actionSetIndex": 0,
+      "allowedSlots": 1040
+    },
+    {
+      "type": 103,
+      "objectAspectIndex": 53,
+      "actionSetIndex": 0,
+      "allowedSlots": 1026
+    },
+    {
+      "type": 104,
+      "objectAspectIndex": 53,
+      "actionSetIndex": 0,
+      "allowedSlots": 1026
+    },
+    {
+      "type": 96,
+      "objectAspectIndex": 9,
+      "actionSetIndex": 0,
+      "allowedSlots": 1026
+    },
+    {
+      "type": 97,
+      "objectAspectIndex": 9,
+      "actionSetIndex": 0,
+      "allowedSlots": 1026
+    },
+    {
+      "type": 98,
+      "objectAspectIndex": 9,
+      "actionSetIndex": 0,
+      "allowedSlots": 1026
+    },
+    {
+      "type": 105,
+      "objectAspectIndex": 54,
+      "actionSetIndex": 41,
+      "allowedSlots": 1024
+    },
+    {
+      "type": 106,
+      "objectAspectIndex": 54,
+      "actionSetIndex": 41,
+      "allowedSlots": 512
+    },
+    {
+      "type": 108,
+      "objectAspectIndex": 10,
+      "actionSetIndex": 41,
+      "allowedSlots": 512
+    },
+    {
+      "type": 107,
+      "objectAspectIndex": 54,
+      "actionSetIndex": 41,
+      "allowedSlots": 512
+    },
+    {
+      "type": 75,
+      "objectAspectIndex": 19,
+      "actionSetIndex": 0,
+      "allowedSlots": 1032
+    },
+    {
+      "type": 91,
+      "objectAspectIndex": 19,
+      "actionSetIndex": 0,
+      "allowedSlots": 1040
+    },
+    {
+      "type": 76,
+      "objectAspectIndex": 19,
+      "actionSetIndex": 0,
+      "allowedSlots": 1032
+    },
+    {
+      "type": 92,
+      "objectAspectIndex": 19,
+      "actionSetIndex": 0,
+      "allowedSlots": 1040
+    },
+    {
+      "type": 99,
+      "objectAspectIndex": 9,
+      "actionSetIndex": 0,
+      "allowedSlots": 1026
+    },
+    {
+      "type": 115,
+      "objectAspectIndex": 19,
+      "actionSetIndex": 0,
+      "allowedSlots": 1056
+    },
+    {
+      "type": 100,
+      "objectAspectIndex": 52,
+      "actionSetIndex": 0,
+      "allowedSlots": 1026
+    },
+    {
+      "type": 77,
+      "objectAspectIndex": 20,
+      "actionSetIndex": 0,
+      "allowedSlots": 8
+    },
+    {
+      "type": 93,
+      "objectAspectIndex": 22,
+      "actionSetIndex": 0,
+      "allowedSlots": 16
+    },
+    {
+      "type": 116,
+      "objectAspectIndex": 56,
+      "actionSetIndex": 0,
+      "allowedSlots": 1056
+    },
+    {
+      "type": 109,
+      "objectAspectIndex": 10,
+      "actionSetIndex": 41,
+      "allowedSlots": 512
+    },
+    {
+      "type": 101,
+      "objectAspectIndex": 52,
+      "actionSetIndex": 0,
+      "allowedSlots": 1026
+    },
+    {
+      "type": 78,
+      "objectAspectIndex": 20,
+      "actionSetIndex": 0,
+      "allowedSlots": 8
+    },
+    {
+      "type": 94,
+      "objectAspectIndex": 22,
+      "actionSetIndex": 0,
+      "allowedSlots": 16
+    },
+    {
+      "type": 117,
+      "objectAspectIndex": 56,
+      "actionSetIndex": 0,
+      "allowedSlots": 1056
+    },
+    {
+      "type": 110,
+      "objectAspectIndex": 10,
+      "actionSetIndex": 41,
+      "allowedSlots": 512
+    },
+    {
+      "type": 102,
+      "objectAspectIndex": 52,
+      "actionSetIndex": 0,
+      "allowedSlots": 1026
+    },
+    {
+      "type": 79,
+      "objectAspectIndex": 20,
+      "actionSetIndex": 0,
+      "allowedSlots": 8
+    },
+    {
+      "type": 95,
+      "objectAspectIndex": 22,
+      "actionSetIndex": 0,
+      "allowedSlots": 16
+    },
+    {
+      "type": 118,
+      "objectAspectIndex": 56,
+      "actionSetIndex": 0,
+      "allowedSlots": 1056
+    },
+    {
+      "type": 111,
+      "objectAspectIndex": 10,
+      "actionSetIndex": 41,
+      "allowedSlots": 512
+    },
+    {
+      "type": 140,
+      "objectAspectIndex": 52,
+      "actionSetIndex": 0,
+      "allowedSlots": 1026
+    },
+    {
+      "type": 141,
+      "objectAspectIndex": 19,
+      "actionSetIndex": 0,
+      "allowedSlots": 1032
+    },
+    {
+      "type": 142,
+      "objectAspectIndex": 22,
+      "actionSetIndex": 0,
+      "allowedSlots": 16
+    },
+    {
+      "type": 194,
+      "objectAspectIndex": 81,
+      "actionSetIndex": 0,
+      "allowedSlots": 1056
+    },
+    {
+      "type": 196,
+      "objectAspectIndex": 84,
+      "actionSetIndex": 0,
+      "allowedSlots": 1032
+    },
+    {
+      "type": 0,
+      "objectAspectIndex": 34,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 8,
+      "objectAspectIndex": 6,
+      "actionSetIndex": 0,
+      "allowedSlots": 1281
+    },
+    {
+      "type": 10,
+      "objectAspectIndex": 15,
+      "actionSetIndex": 0,
+      "allowedSlots": 1284
+    },
+    {
+      "type": 12,
+      "objectAspectIndex": 15,
+      "actionSetIndex": 0,
+      "allowedSlots": 1284
+    },
+    {
+      "type": 146,
+      "objectAspectIndex": 40,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 147,
+      "objectAspectIndex": 41,
+      "actionSetIndex": 0,
+      "allowedSlots": 1024
+    },
+    {
+      "type": 125,
+      "objectAspectIndex": 4,
+      "actionSetIndex": 37,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 126,
+      "objectAspectIndex": 83,
+      "actionSetIndex": 37,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 127,
+      "objectAspectIndex": 4,
+      "actionSetIndex": 37,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 176,
+      "objectAspectIndex": 18,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 177,
+      "objectAspectIndex": 18,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 178,
+      "objectAspectIndex": 18,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 179,
+      "objectAspectIndex": 18,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 180,
+      "objectAspectIndex": 18,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 181,
+      "objectAspectIndex": 18,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 182,
+      "objectAspectIndex": 18,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 183,
+      "objectAspectIndex": 18,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 184,
+      "objectAspectIndex": 62,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 185,
+      "objectAspectIndex": 62,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 186,
+      "objectAspectIndex": 62,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 187,
+      "objectAspectIndex": 62,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 188,
+      "objectAspectIndex": 62,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 189,
+      "objectAspectIndex": 62,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 190,
+      "objectAspectIndex": 62,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 191,
+      "objectAspectIndex": 62,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 128,
+      "objectAspectIndex": 76,
+      "actionSetIndex": 0,
+      "allowedSlots": 512
+    },
+    {
+      "type": 129,
+      "objectAspectIndex": 3,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 130,
+      "objectAspectIndex": 60,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 131,
+      "objectAspectIndex": 61,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 168,
+      "objectAspectIndex": 27,
+      "actionSetIndex": 0,
+      "allowedSlots": 1281
+    },
+    {
+      "type": 169,
+      "objectAspectIndex": 28,
+      "actionSetIndex": 0,
+      "allowedSlots": 1281
+    },
+    {
+      "type": 170,
+      "objectAspectIndex": 25,
+      "actionSetIndex": 0,
+      "allowedSlots": 1281
+    },
+    {
+      "type": 171,
+      "objectAspectIndex": 26,
+      "actionSetIndex": 0,
+      "allowedSlots": 1281
+    },
+    {
+      "type": 172,
+      "objectAspectIndex": 71,
+      "actionSetIndex": 0,
+      "allowedSlots": 1025
+    },
+    {
+      "type": 173,
+      "objectAspectIndex": 70,
+      "actionSetIndex": 0,
+      "allowedSlots": 1025
+    },
+    {
+      "type": 174,
+      "objectAspectIndex": 5,
+      "actionSetIndex": 0,
+      "allowedSlots": 1281
+    },
+    {
+      "type": 175,
+      "objectAspectIndex": 66,
+      "actionSetIndex": 0,
+      "allowedSlots": 1281
+    },
+    {
+      "type": 120,
+      "objectAspectIndex": 15,
+      "actionSetIndex": 0,
+      "allowedSlots": 1284
+    },
+    {
+      "type": 121,
+      "objectAspectIndex": 15,
+      "actionSetIndex": 0,
+      "allowedSlots": 1284
+    },
+    {
+      "type": 122,
+      "objectAspectIndex": 58,
+      "actionSetIndex": 0,
+      "allowedSlots": 1284
+    },
+    {
+      "type": 123,
+      "objectAspectIndex": 59,
+      "actionSetIndex": 0,
+      "allowedSlots": 1284
+    },
+    {
+      "type": 124,
+      "objectAspectIndex": 59,
+      "actionSetIndex": 0,
+      "allowedSlots": 1284
+    },
+    {
+      "type": 132,
+      "objectAspectIndex": 79,
+      "actionSetIndex": 38,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 133,
+      "objectAspectIndex": 63,
+      "actionSetIndex": 38,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 134,
+      "objectAspectIndex": 64,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 136,
+      "objectAspectIndex": 72,
+      "actionSetIndex": 39,
+      "allowedSlots": 1024
+    },
+    {
+      "type": 137,
+      "objectAspectIndex": 73,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 138,
+      "objectAspectIndex": 74,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 139,
+      "objectAspectIndex": 75,
+      "actionSetIndex": 0,
+      "allowedSlots": 1284
+    },
+    {
+      "type": 192,
+      "objectAspectIndex": 77,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 193,
+      "objectAspectIndex": 78,
+      "actionSetIndex": 0,
+      "allowedSlots": 1280
+    },
+    {
+      "type": 197,
+      "objectAspectIndex": 74,
+      "actionSetIndex": 0,
+      "allowedSlots": 0
+    },
+    {
+      "type": 198,
+      "objectAspectIndex": 41,
+      "actionSetIndex": 0,
+      "allowedSlots": 1024
+    }
+  ],
+  "extraDBEntries": [
+    0,
+    0,
+    0,
+    0,
+    75,
+    100,
+    120,
+    0,
+    5,
+    0,
+    140,
+    0,
+    0,
+    0,
+    60,
+    50
+  ],
+  "sizeDBEntries": [
+    4,
+    6,
+    4,
+    8,
+    16,
+    4,
+    4,
+    4,
+    4,
+    8,
+    4,
+    0,
+    0,
+    0,
+    8,
+    4
+  ],
+  "deltaY": [
+    -1,
+    0,
+    1,
+    0
+  ],
+  "deltaX": [
+    0,
+    1,
+    0,
+    -1
+  ]
+}

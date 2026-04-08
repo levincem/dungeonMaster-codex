@@ -1,0 +1,2528 @@
+{
+  "_meta": {
+    "source": "I560 decoded payload",
+    "endian": "be",
+    "start": 0,
+    "consumedBytes": 1256
+  },
+  "attacks": [
+    {
+      "index": 0,
+      "enumName": "Juggle",
+      "displayName": "N",
+      "experienceForAttacking": 0,
+      "skillNumber": 0,
+      "defenseModifier": 0,
+      "staminaCost": 0,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 0
+    },
+    {
+      "index": 1,
+      "enumName": "Block",
+      "displayName": "BLOCK",
+      "experienceForAttacking": 8,
+      "skillNumber": 7,
+      "defenseModifier": 36,
+      "staminaCost": 4,
+      "strengthRequired": 22,
+      "baseDamage": 15,
+      "disableTime": 6
+    },
+    {
+      "index": 2,
+      "enumName": "Chop",
+      "displayName": "CHOP",
+      "experienceForAttacking": 10,
+      "skillNumber": 6,
+      "defenseModifier": 0,
+      "staminaCost": 10,
+      "strengthRequired": 48,
+      "baseDamage": 48,
+      "disableTime": 8
+    },
+    {
+      "index": 3,
+      "enumName": "Speed",
+      "displayName": "X",
+      "experienceForAttacking": 0,
+      "skillNumber": 0,
+      "defenseModifier": 0,
+      "staminaCost": 0,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 0
+    },
+    {
+      "index": 4,
+      "enumName": "Blow Horn",
+      "displayName": "BLOW HORN",
+      "experienceForAttacking": 0,
+      "skillNumber": 14,
+      "defenseModifier": -4,
+      "staminaCost": 1,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 6
+    },
+    {
+      "index": 5,
+      "enumName": "Flip",
+      "displayName": "FLIP",
+      "experienceForAttacking": 0,
+      "skillNumber": 12,
+      "defenseModifier": -10,
+      "staminaCost": 0,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 3
+    },
+    {
+      "index": 6,
+      "enumName": "Punch",
+      "displayName": "PUNCH",
+      "experienceForAttacking": 8,
+      "skillNumber": 9,
+      "defenseModifier": -10,
+      "staminaCost": 1,
+      "strengthRequired": 38,
+      "baseDamage": 32,
+      "disableTime": 1
+    },
+    {
+      "index": 7,
+      "enumName": "Kick",
+      "displayName": "KICK",
+      "experienceForAttacking": 13,
+      "skillNumber": 9,
+      "defenseModifier": -5,
+      "staminaCost": 3,
+      "strengthRequired": 28,
+      "baseDamage": 48,
+      "disableTime": 5
+    },
+    {
+      "index": 8,
+      "enumName": "War Cry",
+      "displayName": "WAR CRY",
+      "experienceForAttacking": 7,
+      "skillNumber": 14,
+      "defenseModifier": 4,
+      "staminaCost": 1,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 3
+    },
+    {
+      "index": 9,
+      "enumName": "Stab",
+      "displayName": "STAB",
+      "experienceForAttacking": 15,
+      "skillNumber": 9,
+      "defenseModifier": -20,
+      "staminaCost": 3,
+      "strengthRequired": 30,
+      "baseDamage": 48,
+      "disableTime": 5
+    },
+    {
+      "index": 10,
+      "enumName": "Climb Down",
+      "displayName": "CLIMB DOWN",
+      "experienceForAttacking": 15,
+      "skillNumber": 8,
+      "defenseModifier": -15,
+      "staminaCost": 40,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 35
+    },
+    {
+      "index": 11,
+      "enumName": "Freeze Life",
+      "displayName": "FREEZE LIFE",
+      "experienceForAttacking": 22,
+      "skillNumber": 14,
+      "defenseModifier": -10,
+      "staminaCost": 3,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 20
+    },
+    {
+      "index": 12,
+      "enumName": "Hit",
+      "displayName": "HIT",
+      "experienceForAttacking": 10,
+      "skillNumber": 9,
+      "defenseModifier": 16,
+      "staminaCost": 3,
+      "strengthRequired": 20,
+      "baseDamage": 20,
+      "disableTime": 4
+    },
+    {
+      "index": 13,
+      "enumName": "Swing",
+      "displayName": "SWING",
+      "experienceForAttacking": 6,
+      "skillNumber": 4,
+      "defenseModifier": 5,
+      "staminaCost": 2,
+      "strengthRequired": 32,
+      "baseDamage": 16,
+      "disableTime": 6
+    },
+    {
+      "index": 14,
+      "enumName": "Stab 2",
+      "displayName": "STAB",
+      "experienceForAttacking": 12,
+      "skillNumber": 5,
+      "defenseModifier": -15,
+      "staminaCost": 4,
+      "strengthRequired": 42,
+      "baseDamage": 60,
+      "disableTime": 10
+    },
+    {
+      "index": 15,
+      "enumName": "Thrust",
+      "displayName": "THRUST",
+      "experienceForAttacking": 19,
+      "skillNumber": 5,
+      "defenseModifier": -17,
+      "staminaCost": 17,
+      "strengthRequired": 57,
+      "baseDamage": 66,
+      "disableTime": 16
+    },
+    {
+      "index": 16,
+      "enumName": "Jab",
+      "displayName": "JAB",
+      "experienceForAttacking": 11,
+      "skillNumber": 5,
+      "defenseModifier": -5,
+      "staminaCost": 3,
+      "strengthRequired": 70,
+      "baseDamage": 8,
+      "disableTime": 2
+    },
+    {
+      "index": 17,
+      "enumName": "Parry",
+      "displayName": "PARRY",
+      "experienceForAttacking": 17,
+      "skillNumber": 7,
+      "defenseModifier": 29,
+      "staminaCost": 1,
+      "strengthRequired": 18,
+      "baseDamage": 8,
+      "disableTime": 18
+    },
+    {
+      "index": 18,
+      "enumName": "Hack",
+      "displayName": "HACK",
+      "experienceForAttacking": 9,
+      "skillNumber": 4,
+      "defenseModifier": 10,
+      "staminaCost": 6,
+      "strengthRequired": 27,
+      "baseDamage": 25,
+      "disableTime": 8
+    },
+    {
+      "index": 19,
+      "enumName": "Berzerk",
+      "displayName": "BERZERK",
+      "experienceForAttacking": 40,
+      "skillNumber": 4,
+      "defenseModifier": -10,
+      "staminaCost": 40,
+      "strengthRequired": 46,
+      "baseDamage": 96,
+      "disableTime": 30
+    },
+    {
+      "index": 20,
+      "enumName": "Fireball",
+      "displayName": "FIREBALL",
+      "experienceForAttacking": 35,
+      "skillNumber": 16,
+      "defenseModifier": -7,
+      "staminaCost": 5,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 42
+    },
+    {
+      "index": 21,
+      "enumName": "Dispell",
+      "displayName": "DISPELL",
+      "experienceForAttacking": 25,
+      "skillNumber": 17,
+      "defenseModifier": -7,
+      "staminaCost": 2,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 31
+    },
+    {
+      "index": 22,
+      "enumName": "Confuse",
+      "displayName": "CONFUSE",
+      "experienceForAttacking": 0,
+      "skillNumber": 14,
+      "defenseModifier": -7,
+      "staminaCost": 2,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 10
+    },
+    {
+      "index": 23,
+      "enumName": "Lightning",
+      "displayName": "LIGHTNING",
+      "experienceForAttacking": 30,
+      "skillNumber": 17,
+      "defenseModifier": -7,
+      "staminaCost": 4,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 38
+    },
+    {
+      "index": 24,
+      "enumName": "Disrupt",
+      "displayName": "DISRUPT",
+      "experienceForAttacking": 10,
+      "skillNumber": 17,
+      "defenseModifier": -7,
+      "staminaCost": 5,
+      "strengthRequired": 46,
+      "baseDamage": 55,
+      "disableTime": 9
+    },
+    {
+      "index": 25,
+      "enumName": "Melee",
+      "displayName": "MELEE",
+      "experienceForAttacking": 24,
+      "skillNumber": 6,
+      "defenseModifier": -5,
+      "staminaCost": 25,
+      "strengthRequired": 64,
+      "baseDamage": 60,
+      "disableTime": 20
+    },
+    {
+      "index": 26,
+      "enumName": "Pray",
+      "displayName": "X",
+      "experienceForAttacking": 0,
+      "skillNumber": 8,
+      "defenseModifier": -15,
+      "staminaCost": 1,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 10
+    },
+    {
+      "index": 27,
+      "enumName": "Invoke",
+      "displayName": "INVOKE",
+      "experienceForAttacking": 25,
+      "skillNumber": 3,
+      "defenseModifier": -9,
+      "staminaCost": 2,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 16
+    },
+    {
+      "index": 28,
+      "enumName": "Slash",
+      "displayName": "SLASH",
+      "experienceForAttacking": 9,
+      "skillNumber": 4,
+      "defenseModifier": 4,
+      "staminaCost": 2,
+      "strengthRequired": 26,
+      "baseDamage": 16,
+      "disableTime": 4
+    },
+    {
+      "index": 29,
+      "enumName": "Cleave",
+      "displayName": "CLEAVE",
+      "experienceForAttacking": 12,
+      "skillNumber": 4,
+      "defenseModifier": 0,
+      "staminaCost": 10,
+      "strengthRequired": 40,
+      "baseDamage": 48,
+      "disableTime": 12
+    },
+    {
+      "index": 30,
+      "enumName": "Bash",
+      "displayName": "BASH",
+      "experienceForAttacking": 11,
+      "skillNumber": 6,
+      "defenseModifier": 0,
+      "staminaCost": 9,
+      "strengthRequired": 32,
+      "baseDamage": 50,
+      "disableTime": 20
+    },
+    {
+      "index": 31,
+      "enumName": "Stun",
+      "displayName": "STUN",
+      "experienceForAttacking": 10,
+      "skillNumber": 6,
+      "defenseModifier": 5,
+      "staminaCost": 2,
+      "strengthRequired": 50,
+      "baseDamage": 16,
+      "disableTime": 7
+    },
+    {
+      "index": 32,
+      "enumName": "Shoot",
+      "displayName": "SHOOT",
+      "experienceForAttacking": 20,
+      "skillNumber": 11,
+      "defenseModifier": -15,
+      "staminaCost": 3,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 14
+    },
+    {
+      "index": 33,
+      "enumName": "Spellshield",
+      "displayName": "SPELLSHIELD",
+      "experienceForAttacking": 20,
+      "skillNumber": 15,
+      "defenseModifier": -7,
+      "staminaCost": 1,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 30
+    },
+    {
+      "index": 34,
+      "enumName": "Fireshield",
+      "displayName": "FIRESHIELD",
+      "experienceForAttacking": 20,
+      "skillNumber": 15,
+      "defenseModifier": -7,
+      "staminaCost": 2,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 35
+    },
+    {
+      "index": 35,
+      "enumName": "Fluxcage",
+      "displayName": "FLUXCAGE",
+      "experienceForAttacking": 12,
+      "skillNumber": 3,
+      "defenseModifier": 8,
+      "staminaCost": 6,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 2
+    },
+    {
+      "index": 36,
+      "enumName": "Heal",
+      "displayName": "HEAL",
+      "experienceForAttacking": 0,
+      "skillNumber": 13,
+      "defenseModifier": -20,
+      "staminaCost": 1,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 19
+    },
+    {
+      "index": 37,
+      "enumName": "Calm",
+      "displayName": "CALM",
+      "experienceForAttacking": 0,
+      "skillNumber": 14,
+      "defenseModifier": -5,
+      "staminaCost": 1,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 9
+    },
+    {
+      "index": 38,
+      "enumName": "Light",
+      "displayName": "LIGHT",
+      "experienceForAttacking": 20,
+      "skillNumber": 17,
+      "defenseModifier": 0,
+      "staminaCost": 3,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 10
+    },
+    {
+      "index": 39,
+      "enumName": "Window",
+      "displayName": "WINDOW",
+      "experienceForAttacking": 30,
+      "skillNumber": 18,
+      "defenseModifier": -15,
+      "staminaCost": 2,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 15
+    },
+    {
+      "index": 40,
+      "enumName": "Spit",
+      "displayName": "SPIT",
+      "experienceForAttacking": 25,
+      "skillNumber": 16,
+      "defenseModifier": -7,
+      "staminaCost": 3,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 22
+    },
+    {
+      "index": 41,
+      "enumName": "Brandish",
+      "displayName": "BRANDISH",
+      "experienceForAttacking": 0,
+      "skillNumber": 14,
+      "defenseModifier": -4,
+      "staminaCost": 2,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 10
+    },
+    {
+      "index": 42,
+      "enumName": "Throw",
+      "displayName": "THROW",
+      "experienceForAttacking": 5,
+      "skillNumber": 10,
+      "defenseModifier": 0,
+      "staminaCost": 0,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 0
+    },
+    {
+      "index": 43,
+      "enumName": "Fuse",
+      "displayName": "FUSE",
+      "experienceForAttacking": 1,
+      "skillNumber": 3,
+      "defenseModifier": 8,
+      "staminaCost": 2,
+      "strengthRequired": 0,
+      "baseDamage": 0,
+      "disableTime": 2
+    }
+  ],
+  "legalAttackClasses": [
+    {
+      "index": 0,
+      "raw": [
+        255,
+        255,
+        255,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 255,
+        "enumName": "Unknown(255)",
+        "displayName": null
+      },
+      "optionalAttacks": [],
+      "unknownByte3": 0,
+      "unknownByte6": 0,
+      "unknownByte7": 0
+    },
+    {
+      "index": 1,
+      "raw": [
+        27,
+        43,
+        35,
+        0,
+        0,
+        0,
+        3,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 27,
+        "enumName": "Invoke",
+        "displayName": "INVOKE"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 43,
+          "enumName": "Fuse",
+          "displayName": "FUSE",
+          "requiresCharges": false,
+          "masteryThreshold": 0
+        },
+        {
+          "attackType": 35,
+          "enumName": "Fluxcage",
+          "displayName": "FLUXCAGE",
+          "requiresCharges": false,
+          "masteryThreshold": 0
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 3,
+      "unknownByte7": 0
+    },
+    {
+      "index": 2,
+      "raw": [
+        6,
+        7,
+        8,
+        0,
+        0,
+        0,
+        9,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 6,
+        "enumName": "Punch",
+        "displayName": "PUNCH"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 7,
+          "enumName": "Kick",
+          "displayName": "KICK",
+          "requiresCharges": false,
+          "masteryThreshold": 0
+        },
+        {
+          "attackType": 8,
+          "enumName": "War Cry",
+          "displayName": "WAR CRY",
+          "requiresCharges": false,
+          "masteryThreshold": 0
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 9,
+      "unknownByte7": 0
+    },
+    {
+      "index": 3,
+      "raw": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 0,
+        "enumName": "Juggle",
+        "displayName": "N"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 0,
+          "enumName": "Juggle",
+          "displayName": "N",
+          "requiresCharges": false,
+          "masteryThreshold": 0
+        },
+        {
+          "attackType": 0,
+          "enumName": "Juggle",
+          "displayName": "N",
+          "requiresCharges": false,
+          "masteryThreshold": 0
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 0,
+      "unknownByte7": 0
+    },
+    {
+      "index": 4,
+      "raw": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 0,
+        "enumName": "Juggle",
+        "displayName": "N"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 0,
+          "enumName": "Juggle",
+          "displayName": "N",
+          "requiresCharges": false,
+          "masteryThreshold": 0
+        },
+        {
+          "attackType": 0,
+          "enumName": "Juggle",
+          "displayName": "N",
+          "requiresCharges": false,
+          "masteryThreshold": 0
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 0,
+      "unknownByte7": 0
+    },
+    {
+      "index": 5,
+      "raw": [
+        13,
+        255,
+        255,
+        0,
+        0,
+        0,
+        4,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 13,
+        "enumName": "Swing",
+        "displayName": "SWING"
+      },
+      "optionalAttacks": [],
+      "unknownByte3": 0,
+      "unknownByte6": 4,
+      "unknownByte7": 0
+    },
+    {
+      "index": 6,
+      "raw": [
+        13,
+        20,
+        255,
+        0,
+        135,
+        0,
+        16,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 13,
+        "enumName": "Swing",
+        "displayName": "SWING"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 20,
+          "enumName": "Fireball",
+          "displayName": "FIREBALL",
+          "requiresCharges": true,
+          "masteryThreshold": 7
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 16,
+      "unknownByte7": 0
+    },
+    {
+      "index": 7,
+      "raw": [
+        13,
+        23,
+        255,
+        0,
+        131,
+        0,
+        17,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 13,
+        "enumName": "Swing",
+        "displayName": "SWING"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 23,
+          "enumName": "Lightning",
+          "displayName": "LIGHTNING",
+          "requiresCharges": true,
+          "masteryThreshold": 3
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 17,
+      "unknownByte7": 0
+    },
+    {
+      "index": 8,
+      "raw": [
+        28,
+        41,
+        22,
+        0,
+        2,
+        131,
+        14,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 28,
+        "enumName": "Slash",
+        "displayName": "SLASH"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 41,
+          "enumName": "Brandish",
+          "displayName": "BRANDISH",
+          "requiresCharges": false,
+          "masteryThreshold": 2
+        },
+        {
+          "attackType": 22,
+          "enumName": "Confuse",
+          "displayName": "CONFUSE",
+          "requiresCharges": true,
+          "masteryThreshold": 3
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 14,
+      "unknownByte7": 0
+    },
+    {
+      "index": 9,
+      "raw": [
+        16,
+        2,
+        23,
+        0,
+        0,
+        132,
+        17,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 16,
+        "enumName": "Jab",
+        "displayName": "JAB"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 2,
+          "enumName": "Chop",
+          "displayName": "CHOP",
+          "requiresCharges": false,
+          "masteryThreshold": 0
+        },
+        {
+          "attackType": 23,
+          "enumName": "Lightning",
+          "displayName": "LIGHTNING",
+          "requiresCharges": true,
+          "masteryThreshold": 4
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 17,
+      "unknownByte7": 0
+    },
+    {
+      "index": 10,
+      "raw": [
+        2,
+        25,
+        20,
+        0,
+        2,
+        134,
+        16,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 2,
+        "enumName": "Chop",
+        "displayName": "CHOP"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 25,
+          "enumName": "Melee",
+          "displayName": "MELEE",
+          "requiresCharges": false,
+          "masteryThreshold": 2
+        },
+        {
+          "attackType": 20,
+          "enumName": "Fireball",
+          "displayName": "FIREBALL",
+          "requiresCharges": true,
+          "masteryThreshold": 6
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 16,
+      "unknownByte7": 0
+    },
+    {
+      "index": 11,
+      "raw": [
+        17,
+        41,
+        34,
+        0,
+        3,
+        5,
+        16,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 17,
+        "enumName": "Parry",
+        "displayName": "PARRY"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 41,
+          "enumName": "Brandish",
+          "displayName": "BRANDISH",
+          "requiresCharges": false,
+          "masteryThreshold": 3
+        },
+        {
+          "attackType": 34,
+          "enumName": "Fireshield",
+          "displayName": "FIRESHIELD",
+          "requiresCharges": false,
+          "masteryThreshold": 5
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 16,
+      "unknownByte7": 0
+    },
+    {
+      "index": 12,
+      "raw": [
+        42,
+        9,
+        28,
+        0,
+        0,
+        2,
+        9,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 42,
+        "enumName": "Throw",
+        "displayName": "THROW"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 9,
+          "enumName": "Stab",
+          "displayName": "STAB",
+          "requiresCharges": false,
+          "masteryThreshold": 0
+        },
+        {
+          "attackType": 28,
+          "enumName": "Slash",
+          "displayName": "SLASH",
+          "requiresCharges": false,
+          "masteryThreshold": 2
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 9,
+      "unknownByte7": 0
+    },
+    {
+      "index": 13,
+      "raw": [
+        13,
+        17,
+        2,
+        0,
+        2,
+        3,
+        4,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 13,
+        "enumName": "Swing",
+        "displayName": "SWING"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 17,
+          "enumName": "Parry",
+          "displayName": "PARRY",
+          "requiresCharges": false,
+          "masteryThreshold": 2
+        },
+        {
+          "attackType": 2,
+          "enumName": "Chop",
+          "displayName": "CHOP",
+          "requiresCharges": false,
+          "masteryThreshold": 3
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 4,
+      "unknownByte7": 0
+    },
+    {
+      "index": 14,
+      "raw": [
+        16,
+        17,
+        15,
+        0,
+        1,
+        5,
+        5,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 16,
+        "enumName": "Jab",
+        "displayName": "JAB"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 17,
+          "enumName": "Parry",
+          "displayName": "PARRY",
+          "requiresCharges": false,
+          "masteryThreshold": 1
+        },
+        {
+          "attackType": 15,
+          "enumName": "Thrust",
+          "displayName": "THRUST",
+          "requiresCharges": false,
+          "masteryThreshold": 5
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 5,
+      "unknownByte7": 0
+    },
+    {
+      "index": 15,
+      "raw": [
+        28,
+        17,
+        25,
+        0,
+        1,
+        5,
+        4,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 28,
+        "enumName": "Slash",
+        "displayName": "SLASH"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 17,
+          "enumName": "Parry",
+          "displayName": "PARRY",
+          "requiresCharges": false,
+          "masteryThreshold": 1
+        },
+        {
+          "attackType": 25,
+          "enumName": "Melee",
+          "displayName": "MELEE",
+          "requiresCharges": false,
+          "masteryThreshold": 5
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 4,
+      "unknownByte7": 0
+    },
+    {
+      "index": 16,
+      "raw": [
+        2,
+        25,
+        15,
+        0,
+        5,
+        6,
+        5,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 2,
+        "enumName": "Chop",
+        "displayName": "CHOP"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 25,
+          "enumName": "Melee",
+          "displayName": "MELEE",
+          "requiresCharges": false,
+          "masteryThreshold": 5
+        },
+        {
+          "attackType": 15,
+          "enumName": "Thrust",
+          "displayName": "THRUST",
+          "requiresCharges": false,
+          "masteryThreshold": 6
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 5,
+      "unknownByte7": 0
+    },
+    {
+      "index": 17,
+      "raw": [
+        9,
+        2,
+        29,
+        0,
+        2,
+        5,
+        4,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 9,
+        "enumName": "Stab",
+        "displayName": "STAB"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 2,
+          "enumName": "Chop",
+          "displayName": "CHOP",
+          "requiresCharges": false,
+          "masteryThreshold": 2
+        },
+        {
+          "attackType": 29,
+          "enumName": "Cleave",
+          "displayName": "CLEAVE",
+          "requiresCharges": false,
+          "masteryThreshold": 5
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 4,
+      "unknownByte7": 0
+    },
+    {
+      "index": 18,
+      "raw": [
+        16,
+        29,
+        24,
+        0,
+        2,
+        4,
+        3,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 16,
+        "enumName": "Jab",
+        "displayName": "JAB"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 29,
+          "enumName": "Cleave",
+          "displayName": "CLEAVE",
+          "requiresCharges": false,
+          "masteryThreshold": 2
+        },
+        {
+          "attackType": 24,
+          "enumName": "Disrupt",
+          "displayName": "DISRUPT",
+          "requiresCharges": false,
+          "masteryThreshold": 4
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 3,
+      "unknownByte7": 0
+    },
+    {
+      "index": 19,
+      "raw": [
+        13,
+        15,
+        19,
+        0,
+        5,
+        7,
+        4,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 13,
+        "enumName": "Swing",
+        "displayName": "SWING"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 15,
+          "enumName": "Thrust",
+          "displayName": "THRUST",
+          "requiresCharges": false,
+          "masteryThreshold": 5
+        },
+        {
+          "attackType": 19,
+          "enumName": "Berzerk",
+          "displayName": "BERZERK",
+          "requiresCharges": false,
+          "masteryThreshold": 7
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 4,
+      "unknownByte7": 0
+    },
+    {
+      "index": 20,
+      "raw": [
+        13,
+        2,
+        25,
+        0,
+        0,
+        5,
+        4,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 13,
+        "enumName": "Swing",
+        "displayName": "SWING"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 2,
+          "enumName": "Chop",
+          "displayName": "CHOP",
+          "requiresCharges": false,
+          "masteryThreshold": 0
+        },
+        {
+          "attackType": 25,
+          "enumName": "Melee",
+          "displayName": "MELEE",
+          "requiresCharges": false,
+          "masteryThreshold": 5
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 4,
+      "unknownByte7": 0
+    },
+    {
+      "index": 21,
+      "raw": [
+        2,
+        29,
+        19,
+        0,
+        3,
+        8,
+        4,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 2,
+        "enumName": "Chop",
+        "displayName": "CHOP"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 29,
+          "enumName": "Cleave",
+          "displayName": "CLEAVE",
+          "requiresCharges": false,
+          "masteryThreshold": 3
+        },
+        {
+          "attackType": 19,
+          "enumName": "Berzerk",
+          "displayName": "BERZERK",
+          "requiresCharges": false,
+          "masteryThreshold": 8
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 4,
+      "unknownByte7": 0
+    },
+    {
+      "index": 22,
+      "raw": [
+        13,
+        30,
+        31,
+        0,
+        2,
+        4,
+        6,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 13,
+        "enumName": "Swing",
+        "displayName": "SWING"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 30,
+          "enumName": "Bash",
+          "displayName": "BASH",
+          "requiresCharges": false,
+          "masteryThreshold": 2
+        },
+        {
+          "attackType": 31,
+          "enumName": "Stun",
+          "displayName": "STUN",
+          "requiresCharges": false,
+          "masteryThreshold": 4
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 6,
+      "unknownByte7": 0
+    },
+    {
+      "index": 23,
+      "raw": [
+        13,
+        31,
+        25,
+        0,
+        3,
+        6,
+        6,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 13,
+        "enumName": "Swing",
+        "displayName": "SWING"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 31,
+          "enumName": "Stun",
+          "displayName": "STUN",
+          "requiresCharges": false,
+          "masteryThreshold": 3
+        },
+        {
+          "attackType": 25,
+          "enumName": "Melee",
+          "displayName": "MELEE",
+          "requiresCharges": false,
+          "masteryThreshold": 6
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 6,
+      "unknownByte7": 0
+    },
+    {
+      "index": 24,
+      "raw": [
+        42,
+        30,
+        255,
+        0,
+        0,
+        0,
+        6,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 42,
+        "enumName": "Throw",
+        "displayName": "THROW"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 30,
+          "enumName": "Bash",
+          "displayName": "BASH",
+          "requiresCharges": false,
+          "masteryThreshold": 0
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 6,
+      "unknownByte7": 0
+    },
+    {
+      "index": 25,
+      "raw": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 0,
+        "enumName": "Juggle",
+        "displayName": "N"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 0,
+          "enumName": "Juggle",
+          "displayName": "N",
+          "requiresCharges": false,
+          "masteryThreshold": 0
+        },
+        {
+          "attackType": 0,
+          "enumName": "Juggle",
+          "displayName": "N",
+          "requiresCharges": false,
+          "masteryThreshold": 0
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 0,
+      "unknownByte7": 0
+    },
+    {
+      "index": 26,
+      "raw": [
+        42,
+        9,
+        255,
+        0,
+        0,
+        0,
+        9,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 42,
+        "enumName": "Throw",
+        "displayName": "THROW"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 9,
+          "enumName": "Stab",
+          "displayName": "STAB",
+          "requiresCharges": false,
+          "masteryThreshold": 0
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 9,
+      "unknownByte7": 0
+    },
+    {
+      "index": 27,
+      "raw": [
+        32,
+        255,
+        255,
+        0,
+        0,
+        0,
+        11,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 32,
+        "enumName": "Shoot",
+        "displayName": "SHOOT"
+      },
+      "optionalAttacks": [],
+      "unknownByte3": 0,
+      "unknownByte6": 11,
+      "unknownByte7": 0
+    },
+    {
+      "index": 28,
+      "raw": [
+        37,
+        33,
+        36,
+        0,
+        130,
+        3,
+        15,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 37,
+        "enumName": "Calm",
+        "displayName": "CALM"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 33,
+          "enumName": "Spellshield",
+          "displayName": "SPELLSHIELD",
+          "requiresCharges": true,
+          "masteryThreshold": 2
+        },
+        {
+          "attackType": 36,
+          "enumName": "Heal",
+          "displayName": "HEAL",
+          "requiresCharges": false,
+          "masteryThreshold": 3
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 15,
+      "unknownByte7": 0
+    },
+    {
+      "index": 29,
+      "raw": [
+        37,
+        33,
+        34,
+        0,
+        131,
+        132,
+        15,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 37,
+        "enumName": "Calm",
+        "displayName": "CALM"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 33,
+          "enumName": "Spellshield",
+          "displayName": "SPELLSHIELD",
+          "requiresCharges": true,
+          "masteryThreshold": 3
+        },
+        {
+          "attackType": 34,
+          "enumName": "Fireshield",
+          "displayName": "FIRESHIELD",
+          "requiresCharges": true,
+          "masteryThreshold": 4
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 15,
+      "unknownByte7": 0
+    },
+    {
+      "index": 30,
+      "raw": [
+        17,
+        38,
+        21,
+        0,
+        128,
+        131,
+        16,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 17,
+        "enumName": "Parry",
+        "displayName": "PARRY"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 38,
+          "enumName": "Light",
+          "displayName": "LIGHT",
+          "requiresCharges": true,
+          "masteryThreshold": 0
+        },
+        {
+          "attackType": 21,
+          "enumName": "Dispell",
+          "displayName": "DISPELL",
+          "requiresCharges": true,
+          "masteryThreshold": 3
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 16,
+      "unknownByte7": 0
+    },
+    {
+      "index": 31,
+      "raw": [
+        13,
+        21,
+        34,
+        0,
+        131,
+        132,
+        16,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 13,
+        "enumName": "Swing",
+        "displayName": "SWING"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 21,
+          "enumName": "Dispell",
+          "displayName": "DISPELL",
+          "requiresCharges": true,
+          "masteryThreshold": 3
+        },
+        {
+          "attackType": 34,
+          "enumName": "Fireshield",
+          "displayName": "FIRESHIELD",
+          "requiresCharges": true,
+          "masteryThreshold": 4
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 16,
+      "unknownByte7": 0
+    },
+    {
+      "index": 32,
+      "raw": [
+        36,
+        37,
+        41,
+        0,
+        2,
+        3,
+        18,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 36,
+        "enumName": "Heal",
+        "displayName": "HEAL"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 37,
+          "enumName": "Calm",
+          "displayName": "CALM",
+          "requiresCharges": false,
+          "masteryThreshold": 2
+        },
+        {
+          "attackType": 41,
+          "enumName": "Brandish",
+          "displayName": "BRANDISH",
+          "requiresCharges": false,
+          "masteryThreshold": 3
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 18,
+      "unknownByte7": 0
+    },
+    {
+      "index": 33,
+      "raw": [
+        13,
+        23,
+        39,
+        0,
+        130,
+        132,
+        17,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 13,
+        "enumName": "Swing",
+        "displayName": "SWING"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 23,
+          "enumName": "Lightning",
+          "displayName": "LIGHTNING",
+          "requiresCharges": true,
+          "masteryThreshold": 2
+        },
+        {
+          "attackType": 39,
+          "enumName": "Window",
+          "displayName": "WINDOW",
+          "requiresCharges": true,
+          "masteryThreshold": 4
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 17,
+      "unknownByte7": 0
+    },
+    {
+      "index": 34,
+      "raw": [
+        13,
+        17,
+        40,
+        0,
+        0,
+        131,
+        17,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 13,
+        "enumName": "Swing",
+        "displayName": "SWING"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 17,
+          "enumName": "Parry",
+          "displayName": "PARRY",
+          "requiresCharges": false,
+          "masteryThreshold": 0
+        },
+        {
+          "attackType": 40,
+          "enumName": "Spit",
+          "displayName": "SPIT",
+          "requiresCharges": true,
+          "masteryThreshold": 3
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 17,
+      "unknownByte7": 0
+    },
+    {
+      "index": 35,
+      "raw": [
+        17,
+        36,
+        38,
+        0,
+        3,
+        132,
+        19,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 17,
+        "enumName": "Parry",
+        "displayName": "PARRY"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 36,
+          "enumName": "Heal",
+          "displayName": "HEAL",
+          "requiresCharges": false,
+          "masteryThreshold": 3
+        },
+        {
+          "attackType": 38,
+          "enumName": "Light",
+          "displayName": "LIGHT",
+          "requiresCharges": true,
+          "masteryThreshold": 4
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 19,
+      "unknownByte7": 0
+    },
+    {
+      "index": 36,
+      "raw": [
+        4,
+        255,
+        255,
+        0,
+        0,
+        0,
+        14,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 4,
+        "enumName": "Blow Horn",
+        "displayName": "BLOW HORN"
+      },
+      "optionalAttacks": [],
+      "unknownByte3": 0,
+      "unknownByte6": 14,
+      "unknownByte7": 0
+    },
+    {
+      "index": 37,
+      "raw": [
+        5,
+        255,
+        255,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 5,
+        "enumName": "Flip",
+        "displayName": "FLIP"
+      },
+      "optionalAttacks": [],
+      "unknownByte3": 0,
+      "unknownByte6": 0,
+      "unknownByte7": 0
+    },
+    {
+      "index": 38,
+      "raw": [
+        11,
+        255,
+        255,
+        0,
+        0,
+        0,
+        14,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 11,
+        "enumName": "Freeze Life",
+        "displayName": "FREEZE LIFE"
+      },
+      "optionalAttacks": [],
+      "unknownByte3": 0,
+      "unknownByte6": 14,
+      "unknownByte7": 0
+    },
+    {
+      "index": 39,
+      "raw": [
+        10,
+        255,
+        255,
+        0,
+        0,
+        0,
+        8,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 10,
+        "enumName": "Climb Down",
+        "displayName": "CLIMB DOWN"
+      },
+      "optionalAttacks": [],
+      "unknownByte3": 0,
+      "unknownByte6": 8,
+      "unknownByte7": 0
+    },
+    {
+      "index": 40,
+      "raw": [
+        42,
+        9,
+        255,
+        0,
+        0,
+        0,
+        9,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 42,
+        "enumName": "Throw",
+        "displayName": "THROW"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 9,
+          "enumName": "Stab",
+          "displayName": "STAB",
+          "requiresCharges": false,
+          "masteryThreshold": 0
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 9,
+      "unknownByte7": 0
+    },
+    {
+      "index": 41,
+      "raw": [
+        1,
+        12,
+        255,
+        0,
+        2,
+        0,
+        9,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 1,
+        "enumName": "Block",
+        "displayName": "BLOCK"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 12,
+          "enumName": "Hit",
+          "displayName": "HIT",
+          "requiresCharges": false,
+          "masteryThreshold": 2
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 9,
+      "unknownByte7": 0
+    },
+    {
+      "index": 42,
+      "raw": [
+        42,
+        255,
+        255,
+        0,
+        0,
+        0,
+        10,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 42,
+        "enumName": "Throw",
+        "displayName": "THROW"
+      },
+      "optionalAttacks": [],
+      "unknownByte3": 0,
+      "unknownByte6": 10,
+      "unknownByte7": 0
+    },
+    {
+      "index": 43,
+      "raw": [
+        6,
+        11,
+        255,
+        0,
+        128,
+        0,
+        3,
+        0
+      ],
+      "primaryAttack": {
+        "attackType": 6,
+        "enumName": "Punch",
+        "displayName": "PUNCH"
+      },
+      "optionalAttacks": [
+        {
+          "attackType": 11,
+          "enumName": "Freeze Life",
+          "displayName": "FREEZE LIFE",
+          "requiresCharges": true,
+          "masteryThreshold": 0
+        }
+      ],
+      "unknownByte3": 0,
+      "unknownByte6": 3,
+      "unknownByte7": 0
+    }
+  ],
+  "spells": [
+    {
+      "index": 0,
+      "spellID": 6713088,
+      "spellIDHex": "0x00666f00",
+      "bytes": [
+        102,
+        111
+      ],
+      "runeOrdinals": [
+        6,
+        15
+      ],
+      "skillRequired": 2,
+      "byte5": 15,
+      "word6": 30787,
+      "spellType": 3,
+      "missileTypeBits": 4,
+      "recoveryTicks": 30
+    },
+    {
+      "index": 1,
+      "spellID": 6713459,
+      "spellIDHex": "0x00667073",
+      "bytes": [
+        102,
+        112,
+        115
+      ],
+      "runeOrdinals": [
+        6,
+        16,
+        19
+      ],
+      "skillRequired": 1,
+      "byte5": 18,
+      "word6": 18531,
+      "spellType": 3,
+      "missileTypeBits": 6,
+      "recoveryTicks": 18
+    },
+    {
+      "index": 2,
+      "spellID": 6843767,
+      "spellIDHex": "0x00686d77",
+      "bytes": [
+        104,
+        109,
+        119
+      ],
+      "runeOrdinals": [
+        8,
+        13,
+        23
+      ],
+      "skillRequired": 3,
+      "byte5": 17,
+      "word6": 46131,
+      "spellType": 3,
+      "missileTypeBits": 3,
+      "recoveryTicks": 45
+    },
+    {
+      "index": 3,
+      "spellID": 6843392,
+      "spellIDHex": "0x00686c00",
+      "bytes": [
+        104,
+        108
+      ],
+      "runeOrdinals": [
+        8,
+        12
+      ],
+      "skillRequired": 3,
+      "byte5": 19,
+      "word6": 27762,
+      "spellType": 2,
+      "missileTypeBits": 7,
+      "recoveryTicks": 27
+    },
+    {
+      "index": 4,
+      "spellID": 6843766,
+      "spellIDHex": "0x00686d76",
+      "bytes": [
+        104,
+        109,
+        118
+      ],
+      "runeOrdinals": [
+        8,
+        13,
+        22
+      ],
+      "skillRequired": 3,
+      "byte5": 18,
+      "word6": 33827,
+      "spellType": 3,
+      "missileTypeBits": 2,
+      "recoveryTicks": 33
+    },
+    {
+      "index": 5,
+      "spellID": 6844022,
+      "spellIDHex": "0x00686e76",
+      "bytes": [
+        104,
+        110,
+        118
+      ],
+      "runeOrdinals": [
+        8,
+        14,
+        22
+      ],
+      "skillRequired": 4,
+      "byte5": 17,
+      "word6": 30754,
+      "spellType": 2,
+      "missileTypeBits": 2,
+      "recoveryTicks": 30
+    },
+    {
+      "index": 6,
+      "spellID": 6844278,
+      "spellIDHex": "0x00686f76",
+      "bytes": [
+        104,
+        111,
+        118
+      ],
+      "runeOrdinals": [
+        8,
+        15,
+        22
+      ],
+      "skillRequired": 4,
+      "byte5": 17,
+      "word6": 22531,
+      "spellType": 3,
+      "missileTypeBits": 0,
+      "recoveryTicks": 22
+    },
+    {
+      "index": 7,
+      "spellID": 6881280,
+      "spellIDHex": "0x00690000",
+      "bytes": [
+        105
+      ],
+      "runeOrdinals": [
+        9
+      ],
+      "skillRequired": 1,
+      "byte5": 16,
+      "word6": 15443,
+      "spellType": 3,
+      "missileTypeBits": 5,
+      "recoveryTicks": 15
+    },
+    {
+      "index": 8,
+      "spellID": 6909696,
+      "spellIDHex": "0x00696f00",
+      "bytes": [
+        105,
+        111
+      ],
+      "runeOrdinals": [
+        9,
+        15
+      ],
+      "skillRequired": 3,
+      "byte5": 16,
+      "word6": 43010,
+      "spellType": 2,
+      "missileTypeBits": 0,
+      "recoveryTicks": 42
+    },
+    {
+      "index": 9,
+      "spellID": 6910066,
+      "spellIDHex": "0x00697072",
+      "bytes": [
+        105,
+        112,
+        114
+      ],
+      "runeOrdinals": [
+        9,
+        16,
+        18
+      ],
+      "skillRequired": 4,
+      "byte5": 13,
+      "word6": 15473,
+      "spellType": 1,
+      "missileTypeBits": 7,
+      "recoveryTicks": 15
+    },
+    {
+      "index": 10,
+      "spellID": 6910069,
+      "spellIDHex": "0x00697075",
+      "bytes": [
+        105,
+        112,
+        117
+      ],
+      "runeOrdinals": [
+        9,
+        16,
+        21
+      ],
+      "skillRequired": 4,
+      "byte5": 15,
+      "word6": 28803,
+      "spellType": 3,
+      "missileTypeBits": 8,
+      "recoveryTicks": 28
+    },
+    {
+      "index": 11,
+      "spellID": 6974720,
+      "spellIDHex": "0x006a6d00",
+      "bytes": [
+        106,
+        109
+      ],
+      "runeOrdinals": [
+        10,
+        13
+      ],
+      "skillRequired": 1,
+      "byte5": 18,
+      "word6": 20530,
+      "spellType": 2,
+      "missileTypeBits": 3,
+      "recoveryTicks": 20
+    },
+    {
+      "index": 12,
+      "spellID": 6974464,
+      "spellIDHex": "0x006a6c00",
+      "bytes": [
+        106,
+        108
+      ],
+      "runeOrdinals": [
+        10,
+        12
+      ],
+      "skillRequired": 1,
+      "byte5": 19,
+      "word6": 16482,
+      "spellType": 2,
+      "missileTypeBits": 6,
+      "recoveryTicks": 16
+    },
+    {
+      "index": 13,
+      "spellID": 6975351,
+      "spellIDHex": "0x006a6f77",
+      "bytes": [
+        106,
+        111,
+        119
+      ],
+      "runeOrdinals": [
+        10,
+        15,
+        23
+      ],
+      "skillRequired": 1,
+      "byte5": 15,
+      "word6": 12307,
+      "spellType": 3,
+      "missileTypeBits": 1,
+      "recoveryTicks": 12
+    },
+    {
+      "index": 14,
+      "spellID": 7012352,
+      "spellIDHex": "0x006b0000",
+      "bytes": [
+        107
+      ],
+      "runeOrdinals": [
+        11
+      ],
+      "skillRequired": 1,
+      "byte5": 17,
+      "word6": 15426,
+      "spellType": 2,
+      "missileTypeBits": 4,
+      "recoveryTicks": 15
+    },
+    {
+      "index": 15,
+      "spellID": 6713344,
+      "spellIDHex": "0x00667000",
+      "bytes": [
+        102,
+        112
+      ],
+      "runeOrdinals": [
+        6,
+        16
+      ],
+      "skillRequired": 2,
+      "byte5": 15,
+      "word6": 25793,
+      "spellType": 1,
+      "missileTypeBits": 12,
+      "recoveryTicks": 25
+    },
+    {
+      "index": 16,
+      "spellID": 6684672,
+      "spellIDHex": "0x00660000",
+      "bytes": [
+        102
+      ],
+      "runeOrdinals": [
+        6
+      ],
+      "skillRequired": 2,
+      "byte5": 13,
+      "word6": 15537,
+      "spellType": 1,
+      "missileTypeBits": 11,
+      "recoveryTicks": 15
+    },
+    {
+      "index": 17,
+      "spellID": 6713460,
+      "spellIDHex": "0x00667074",
+      "bytes": [
+        102,
+        112,
+        116
+      ],
+      "runeOrdinals": [
+        6,
+        16,
+        20
+      ],
+      "skillRequired": 4,
+      "byte5": 13,
+      "word6": 15489,
+      "spellType": 1,
+      "missileTypeBits": 8,
+      "recoveryTicks": 15
+    },
+    {
+      "index": 18,
+      "spellID": 6713461,
+      "spellIDHex": "0x00667075",
+      "bytes": [
+        102,
+        112,
+        117
+      ],
+      "runeOrdinals": [
+        6,
+        16,
+        21
+      ],
+      "skillRequired": 4,
+      "byte5": 13,
+      "word6": 15505,
+      "spellType": 1,
+      "missileTypeBits": 9,
+      "recoveryTicks": 15
+    },
+    {
+      "index": 19,
+      "spellID": 6750208,
+      "spellIDHex": "0x00670000",
+      "bytes": [
+        103
+      ],
+      "runeOrdinals": [
+        7
+      ],
+      "skillRequired": 1,
+      "byte5": 13,
+      "word6": 32993,
+      "spellType": 1,
+      "missileTypeBits": 14,
+      "recoveryTicks": 32
+    },
+    {
+      "index": 20,
+      "spellID": 6778880,
+      "spellIDHex": "0x00677000",
+      "bytes": [
+        103,
+        112
+      ],
+      "runeOrdinals": [
+        7,
+        16
+      ],
+      "skillRequired": 1,
+      "byte5": 13,
+      "word6": 26785,
+      "spellType": 1,
+      "missileTypeBits": 10,
+      "recoveryTicks": 26
+    },
+    {
+      "index": 21,
+      "spellID": 6844531,
+      "spellIDHex": "0x00687073",
+      "bytes": [
+        104,
+        112,
+        115
+      ],
+      "runeOrdinals": [
+        8,
+        16,
+        19
+      ],
+      "skillRequired": 4,
+      "byte5": 13,
+      "word6": 15457,
+      "spellType": 1,
+      "missileTypeBits": 6,
+      "recoveryTicks": 15
+    },
+    {
+      "index": 22,
+      "spellID": 7041142,
+      "spellIDHex": "0x006b7076",
+      "bytes": [
+        107,
+        112,
+        118
+      ],
+      "runeOrdinals": [
+        11,
+        16,
+        22
+      ],
+      "skillRequired": 3,
+      "byte5": 2,
+      "word6": 64721,
+      "spellType": 1,
+      "missileTypeBits": 13,
+      "recoveryTicks": 63
+    },
+    {
+      "index": 23,
+      "spellID": 7040000,
+      "spellIDHex": "0x006b6c00",
+      "bytes": [
+        107,
+        108
+      ],
+      "runeOrdinals": [
+        11,
+        12
+      ],
+      "skillRequired": 2,
+      "byte5": 19,
+      "word6": 30769,
+      "spellType": 1,
+      "missileTypeBits": 3,
+      "recoveryTicks": 30
+    },
+    {
+      "index": 24,
+      "spellID": 7040630,
+      "spellIDHex": "0x006b6e76",
+      "bytes": [
+        107,
+        110,
+        118
+      ],
+      "runeOrdinals": [
+        11,
+        14,
+        22
+      ],
+      "skillRequired": 0,
+      "byte5": 3,
+      "word6": 15475,
+      "spellType": 3,
+      "missileTypeBits": 7,
+      "recoveryTicks": 15
+    }
+  ],
+  "byte19016": [
+    8,
+    12,
+    16,
+    20,
+    24,
+    28
+  ],
+  "byte19010": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    4,
+    5,
+    6,
+    7,
+    7,
+    9,
+    2,
+    2,
+    3,
+    4,
+    6,
+    7
+  ]
+}

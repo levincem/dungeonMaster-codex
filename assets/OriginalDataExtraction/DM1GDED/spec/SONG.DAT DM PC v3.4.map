@@ -1,0 +1,11 @@
+ENDIAN=LITTLE,FORMAT=DMCSB2
+0000,SEQ2,NULL,Music Score (Sequence of Music Parts Numbers),,
+0001,RAW1,NULL,Music Part 1,Unknown compression (PCM 8 bit mono signed),
+0002,RAW1,NULL,Music Part 2,Unknown compression (PCM 8 bit mono signed),
+0003,RAW1,NULL,Music Part 3,Unknown compression (PCM 8 bit mono signed),
+0004,RAW1,NULL,Music Part 4,Unknown compression (PCM 8 bit mono signed),
+0005,RAW1,NULL,Music Part 5,Unknown compression (PCM 8 bit mono signed),
+0006,RAW1,NULL,Music Part 6,Unknown compression (PCM 8 bit mono signed),
+0007,RAW1,NULL,Music Part 7,Unknown compression (PCM 8 bit mono signed),
+0008,RAW1,NULL,Music Part 8,Unknown compression (PCM 8 bit mono signed),
+0009,RAW1,NULL,Music Part 9,Unknown compression (PCM 8 bit mono signed),
