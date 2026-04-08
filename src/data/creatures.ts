@@ -1,6 +1,7 @@
 // Creature definitions — sourced from Old_data/game_db.json creatureTypes
 // 27 creature types (IDs 0–26)
 
+import gameDb from '../../public/game_db.json';
 import originalCreatures from '../../public/original_creatures_runtime.json';
 
 export type AttackType =
@@ -27,9 +28,15 @@ export interface CreatureDef {
     poison: boolean;
     attackTypes: AttackType[];
     drops: string[];    // item names dropped on death
+    rawAttack: number;
+    poisonAttack: number;
+    nonMaterial: boolean;
+    attackAnyChampion: boolean;
 }
 
-const LEGACY_CREATURE_TYPES: Record<number, CreatureDef> = {
+type LegacyCreatureDef = Omit<CreatureDef, 'rawAttack' | 'poisonAttack' | 'nonMaterial' | 'attackAnyChampion'>;
+
+const LEGACY_CREATURE_TYPES: Record<number, LegacyCreatureDef> = {
     0:  { id: 0,  name: 'Giant Scorpion',    baseHP: 150, armor: 55, hitProb: 55, atkSpd: 20, moveSpd:  8, exp:  20, poison: true,  attackTypes: ['Physical'],                  drops: [] },
     1:  { id: 1,  name: 'Swamp Slime',       baseHP: 110, armor: 20, hitProb: 20, atkSpd: 32, moveSpd: 15, exp:  12, poison: false, attackTypes: ['Physical'],                  drops: [] },
     2:  { id: 2,  name: 'Giggler',           baseHP:  40, armor: 10, hitProb: 60, atkSpd: 15, moveSpd: 15, exp:  15, poison: false, attackTypes: ['Physical', 'Steal'],         drops: [] },
@@ -80,6 +87,23 @@ interface OriginalCreaturesDataset {
     creatures: OriginalCreatureDef[];
 }
 
+type RawI559Creature = {
+    index: number;
+    attack?: number;
+    poisonAttack?: number;
+    nonMaterial?: boolean;
+    attackAnyChampion?: boolean;
+};
+
+const originalAtariI559Creatures =
+    ((gameDb as unknown as {
+        originalAtari?: { i559?: { creatures?: RawI559Creature[] } };
+    }).originalAtari?.i559?.creatures ?? []) as RawI559Creature[];
+
+const I559_CREATURES_BY_INDEX = new Map<number, RawI559Creature>(
+    originalAtariI559Creatures.map((creature) => [creature.index, creature]),
+);
+
 const BASE_ATTACK_TYPE_MAP: Record<OriginalAttackType, AttackType[]> = {
     Unconditional: ['Physical'],
     Fire: ['Fire'],
@@ -96,12 +120,12 @@ const LEGACY_ATTACK_TYPE_OVERRIDES: Partial<Record<number, AttackType[]>> = {
     5: ['Physical', 'Rust'],
     6: ['Alert'],
     8: ['StaminaDrain'],
-    10: ['Physical', 'Immobilize'],
+    10: ['Physical'],
     13: ['Physical', 'Poison'],
     14: ['Magic', 'Physical'],
     15: ['Physical', 'Poison'],
     17: ['Physical', 'Poison'],
-    19: ['Magic', 'Teleport'],
+    19: ['Magic', 'Physical'],
     21: ['Physical', 'Magic'],
     22: ['Physical', 'Fire'],
     23: ['Magic', 'Physical', 'Fire'],
@@ -119,6 +143,7 @@ const dataset = originalCreatures as OriginalCreaturesDataset;
 export const CREATURE_TYPES: Record<number, CreatureDef> = Object.fromEntries(
     dataset.creatures.map(creature => {
         const legacy = LEGACY_CREATURE_TYPES[creature.id];
+        const original = I559_CREATURES_BY_INDEX.get(creature.id);
         const attackTypes =
             LEGACY_ATTACK_TYPE_OVERRIDES[creature.id] ??
             BASE_ATTACK_TYPE_MAP[creature.attackType] ??
@@ -137,6 +162,10 @@ export const CREATURE_TYPES: Record<number, CreatureDef> = Object.fromEntries(
             poison: creature.poison,
             attackTypes,
             drops: LEGACY_DROP_OVERRIDES[creature.id] ?? legacy?.drops ?? [],
+            rawAttack: original?.attack ?? creature.baseHP,
+            poisonAttack: original?.poisonAttack ?? 0,
+            nonMaterial: Boolean(original?.nonMaterial),
+            attackAnyChampion: Boolean(original?.attackAnyChampion),
         } satisfies CreatureDef];
     }),
 );

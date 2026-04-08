@@ -1,22 +1,22 @@
 # Missing Wall Overlay Images
 
-This file tracks the original wall overlay families that still do not have a dedicated image asset in the current runtime.
+This file tracks the current runtime status of original wall overlay families after the latest asset pass.
 
 Notes:
-- Yes, [public/misc/serrure.png](D:\DungeonMaster-codex\public\misc\serrure.png) is already used as a generic lock/slot sprite for many lock families.
-- [public/misc/wall_foutain_overlay.png](D:\DungeonMaster-codex\public\misc\wall_foutain_overlay.png) is already used for `Fountain`.
-- `Champion Mirror` and wall inscriptions are intentionally excluded here because they are already rendered through their own special systems.
-- `Lord Order (Outside)` is listed for completeness as an original wall overlay family, even if the character itself also exists elsewhere as a creature concept.
+- [public/misc/serrure.png](D:\DungeonMaster-codex\public\misc\serrure.png) is still intentionally used as a generic lock or slot sprite for many lock families.
+- [public/misc/wall_foutain_overlay.png](D:\DungeonMaster-codex\public\misc\wall_foutain_overlay.png) is the active runtime sprite for `Fountain`.
+- `Champion Mirror` and wall inscriptions are intentionally excluded here because they are rendered through dedicated systems.
 
-## Already Covered
+## Runtime Status
 
-These overlay families already have a real image in the runtime:
+The following families now have a dedicated image mapped in [src/data/originalWallOverlays.ts](D:\DungeonMaster-codex\src\data\originalWallOverlays.ts):
 
 - `Fountain`
 - `Vi Altar`
 - `Lever Up`
 - `Lever Down`
 - `Iron Lock`
+- `Double Iron Lock`
 - `Square Lock`
 - `Winged Lock`
 - `Onyx Lock`
@@ -33,185 +33,47 @@ These overlay families already have a real image in the runtime:
 - `Coin Slot`
 - `Gem Hole`
 - `Full Torch Holder`
-
-## Missing Images
-
-### High Priority
-
-These are the most useful missing assets for readability and gameplay:
-
-- `Small Switch`
-  occurrences: `32`
-  class: `interactive`
-  description: Wall switch or hidden button family.
-  suggested file: `public/misc/wall_switch_small.png`
-
-- `Square Alcove`
-  occurrences: `22`
-  class: `interactive`
-  description: Wall container or deposit niche.
-  suggested file: `public/misc/wall_alcove_square.png`
-
-- `Arched Alcove`
-  occurrences: `16`
-  class: `interactive`
-  description: Wall container or deposit niche.
-  suggested file: `public/misc/wall_alcove_arched.png`
-
 - `Empty Torch Holder`
-  occurrences: `13`
-  class: `interactive`
-  description: Empty state of a torch holder on the wall.
-  suggested file: `public/misc/wall_torch_holder_empty.png`
-
-- `Blue Switch Out`
-  occurrences: `12`
-  class: `interactive`
-  description: Wall switch or hidden button family.
-  suggested file: `public/misc/wall_switch_blue_out.png`
-
-- `Green Switch In`
-  occurrences: `12`
-  class: `interactive`
-  description: Wall switch or hidden button family.
-  suggested file: `public/misc/wall_switch_green_in.png`
-
-- `Green Switch Out`
-  occurrences: `12`
-  class: `interactive`
-  description: Wall switch or hidden button family.
-  suggested file: `public/misc/wall_switch_green_out.png`
-
+- `Square Alcove`
+- `Arched Alcove`
+- `Small Switch`
 - `Tiny Switch`
-  occurrences: `9`
-  class: `interactive`
-  description: Wall switch or hidden button family.
-  suggested file: `public/misc/wall_switch_tiny.png`
-
-- `Big Switch Out`
-  occurrences: `8`
-  class: `interactive`
-  description: Wall switch or hidden button family.
-  suggested file: `public/misc/wall_switch_big_out.png`
-
 - `Big Switch In`
-  occurrences: `7`
-  class: `interactive`
-  description: Wall switch or hidden button family.
-  suggested file: `public/misc/wall_switch_big_in.png`
-
-- `Crack Switch In`
-  occurrences: `4`
-  class: `interactive`
-  description: Wall switch or hidden button family.
-  suggested file: `public/misc/wall_switch_crack_in.png`
-
-- `Crack Switch Out`
-  occurrences: `4`
-  class: `interactive`
-  description: Wall switch or hidden button family.
-  suggested file: `public/misc/wall_switch_crack_out.png`
-
-- `Red Switch Out`
-  occurrences: `4`
-  class: `interactive`
-  description: Wall switch or hidden button family.
-  suggested file: `public/misc/wall_switch_red_out.png`
-
-- `Red Switch In`
-  occurrences: `3`
-  class: `interactive`
-  description: Wall switch or hidden button family.
-  suggested file: `public/misc/wall_switch_red_in.png`
-
+- `Big Switch Out`
 - `Blue Switch In`
-  occurrences: `2`
-  class: `interactive`
-  description: Wall switch or hidden button family.
-  suggested file: `public/misc/wall_switch_blue_in.png`
-
+- `Blue Switch Out`
+- `Green Switch In`
+- `Green Switch Out`
+- `Red Switch In`
+- `Red Switch Out`
+- `Crack Switch In`
+- `Crack Switch Out`
 - `Eye Switch`
-  occurrences: `2`
-  class: `interactive`
-  description: Wall switch or hidden button family.
-  suggested file: `public/misc/wall_switch_eye.png`
-
-### Trap / Hazard Priority
-
 - `Fireball Holes`
-  occurrences: `14`
-  class: `hazard`
-  description: Hazard emitter or trap outlet.
-  suggested file: `public/misc/wall_hazard_fireball_holes.png`
-
 - `Dagger Holes`
-  occurrences: `1`
-  class: `hazard`
-  description: Hazard emitter or trap outlet.
-  suggested file: `public/misc/wall_hazard_dagger_holes.png`
-
 - `Poison Holes`
-  occurrences: `1`
-  class: `hazard`
-  description: Hazard emitter or trap outlet.
-  suggested file: `public/misc/wall_hazard_poison_holes.png`
-
 - `Slime Outlet`
-  occurrences: `1`
-  class: `hazard`
-  description: Hazard emitter or trap outlet.
-  suggested file: `public/misc/wall_hazard_slime_outlet.png`
-
-### Endgame / Stateful Priority
-
 - `Amalgam (Encased Gem)`
-  occurrences: `1`
-  class: `stateful`
-  description: Stateful Firestaff/Gem endgame wall decoration.
-  suggested file: `public/misc/wall_amalgam_encased_gem.png`
-
 - `Amalgam (Free Gem)`
-  occurrences: `1`
-  class: `stateful`
-  description: Stateful Firestaff/Gem endgame wall decoration.
-  suggested file: `public/misc/wall_amalgam_free_gem.png`
-
 - `Amalgam (Without Gem)`
-  occurrences: `1`
-  class: `stateful`
-  description: Stateful Firestaff/Gem endgame wall decoration.
-  suggested file: `public/misc/wall_amalgam_without_gem.png`
-
-### Low Priority Decorative
-
 - `Lord Order (Outside)`
-  occurrences: `2`
-  class: `decorative`
-  description: Primarily decorative or ambiance-facing.
-  suggested file: `public/misc/wall_lord_order_outside.png`
-
 - `Crack`
-  occurrences: `1`
-  class: `decorative`
-  description: Primarily decorative or ambiance-facing.
-  suggested file: `public/misc/wall_crack.png`
-
 - `Iron Ring`
-  occurrences: `1`
-  class: `decorative`
-  description: Primarily decorative or ambiance-facing.
-  suggested file: `public/misc/wall_iron_ring.png`
-
 - `Manacles`
-  occurrences: `1`
-  class: `decorative`
-  description: Primarily decorative or ambiance-facing.
-  suggested file: `public/misc/wall_manacles.png`
 
-## Suggested Asset Batches
+## Still Missing
 
-- Batch 1: all switch families
-- Batch 2: alcoves + empty torch holder
-- Batch 3: trap emitters
-- Batch 4: amalgam states
-- Batch 5: decorative leftovers
+No gameplay-relevant wall overlay family is currently missing a dedicated image asset.
+
+## Files Present But Not Used By Wall Overlay Mapping
+
+These files exist in [public/misc](D:\DungeonMaster-codex\public\misc) but are not currently used by the wall overlay runtime mapping:
+
+- `Dm_logo.png`
+- `grille_metal.png`
+- `parchemin.png`
+- `stairs_down.png`
+- `stairs_up.png`
+- `wall_crack2.png`
+
+This is not necessarily a problem. Some of these belong to other systems or may be future alternates.

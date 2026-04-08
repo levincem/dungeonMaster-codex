@@ -19,6 +19,8 @@ Relevant files:
 
 ## Short Version
 
+At this point, the extracted original tables should be treated as the trusted source. When the current runtime still differs from them, that difference should be read as an integration gap, not as a lack of source data.
+
 There are two different layers in the current data pipeline:
 
 - [public/dungeon.json](D:\DungeonMaster-codex\public\dungeon.json)

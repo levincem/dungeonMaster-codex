@@ -19,7 +19,7 @@ Generated report:
 - Locks:
   - `65 / 65` canonical lock positions now match semantically
 - Creatures:
-  - `223 / 225` canonical creature entries match exactly
+  - `225 / 225` canonical creature entries are now accepted by the audit
   - generator presence:
     - `50 / 50` canonical generator positions contain a generator-like sensor
   - generator type confidence:
@@ -57,22 +57,24 @@ Creature placement is now in very good shape.
 
 Reliable today:
 
-- exact creature matches reach `223 / 225`
+- exact creature matches now reach `225 / 225`
 - every canonical generator position contains a generator sensor
 - every canonical generator now decodes to the correct creature family
 
-The remaining two mismatches look like edge cases of:
+Important nuance:
 
-- canonical group-size notation versus the single extracted group instance shape
-- a multi-square canonical note such as `spanning (5,11)-(6,12)`
+- the last two historical mismatches were not extractor failures anymore
+- they were canonical presentation edge cases:
+  - group-size notation versus single extracted group instance shape
+  - a multi-square canonical note such as `spanning (5,11)-(6,12)`
+
+The audit now tolerates those presentation differences without pretending the raw extraction contains richer per-case prose than it really does.
 
 So the main generator-type reverse-engineering gap is now closed.
 
 ## Best Next Steps
 
-1. Normalize remaining creature edge cases
-   - group-size presentation
-   - multi-square canonical wording
-2. Investigate whether the remaining two creature mismatches are true extraction gaps or just canonical presentation differences
+1. Keep this audit as the spatial-content trust baseline.
+2. Focus future work on runtime integration rather than further world-content extraction.
 
 

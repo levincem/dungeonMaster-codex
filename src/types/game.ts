@@ -213,6 +213,7 @@ export interface CreatureInstance {
     alive: boolean;
     /** Sub-position within the tile — 'left' or 'right' (at most 2 per tile) */
     side: CreatureSide;
+    carriedItems?: FloorItem[];
 }
 
 /** An item lying on the dungeon floor */

@@ -9,6 +9,70 @@ import { getWaterContainerState } from './waterContainers';
 
 const BASE = '/items/';
 
+function normaliseItemName(name?: string): string | null {
+    if (!name) return null;
+    return name
+        .trim()
+        .toLowerCase()
+        .replace(/[’']/g, "'")
+        .replace(/\s+/g, ' ');
+}
+
+const NAME_IMG_OVERRIDES: Record<string, string> = {
+    'the firestaff': 'the_firestaff.png',
+    'the firestaff complete': 'the_firestaff_complete.png',
+    'diamond edge': 'diamond_edge.png',
+    'the inquisitor': 'the_inquisitor.png',
+    'hardcleave': 'hardcleave.png',
+    'mace of order': 'mace_of_order.png',
+    'morningstar': 'morningstar.png',
+    'club': 'club.png',
+    'staff of manar': 'staff_of_manar.png',
+    'snake staff': 'snake_staff.png',
+    'dragon spit': 'dragon_spit.png',
+    'sceptre of lyf': 'sceptre_of_lyf.png',
+    'horn of fear': 'horn_of_fear.png',
+    'speedbow': 'speedbow.png',
+    'bolt blade': 'bolt_blade_full.png',
+    'flamitt': 'flamitt_full.png',
+    'storm ring': 'stormring_full.png',
+    'the hellion': 'the_hellion.png',
+    'calista': 'calista.png',
+    'fine robe (body)': 'fine_robe_body.png',
+    'fine robe (legs)': 'fine_robe_legs.png',
+    'elven huke': 'elven_huke.png',
+    'mithral aketon': 'mithral_aketon.png',
+    'mithral mail': 'mithral_mail.png',
+    'bezerker helm': 'bezerker_helm.png',
+    'wooden shield': 'wooden_shield.png',
+    'small shield': 'small_shield.png',
+    'boots of speed': 'boots_of_speed.png',
+    'flamebain': 'flamebain.png',
+    'blue gem': 'blue_gem.png',
+    'orange gem': 'orange_gem.png',
+    'green gem': 'green_gem.png',
+    'ra key': 'ra_key.png',
+    'ruby key': 'ruby_key.png',
+    'emerald key': 'emerald_key.png',
+    'tourquoise key': 'tourquoise_key.png',
+    'solid key': 'solid_key.png',
+    'skeleton key': 'skeleton_key.png',
+    'square key': 'square_key.png',
+    'water': 'water.png',
+    'power towers': 'powertowers.png',
+    'eye of time': 'eye_of_time_full.png',
+    'magical box (blue)': 'magical_box_blue.png',
+    'magical box (green)': 'magical_box_green.png',
+    'cross of neta': 'cross_key.png',
+};
+
+function getNameOverrideImage(rawName?: string): string | undefined {
+    const key = normaliseItemName(rawName);
+    if (!key) return undefined;
+    const filename = NAME_IMG_OVERRIDES[key];
+    return filename ? BASE + filename : undefined;
+}
+
 // ─── Weapon images ────────────────────────────────────────────────────────────
 const WEAPON_IMG: Record<number, string> = {
      0: 'vorpal_blade.png',
@@ -16,6 +80,7 @@ const WEAPON_IMG: Record<number, string> = {
      8: 'arrow.png',
      9: 'slayer.png',
     10: 'rocket.png',
+    13: 'samurai_sword.png',
     16: 'torch_unlit.png',
     17: 'gem_of_ages.png',
     18: 'etoile.png',
@@ -239,7 +304,10 @@ const CATEGORY_FALLBACK: Record<string, string> = {
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
-export function getItemImage(category: string, typeId: number): string {
+export function getItemImage(category: string, typeId: number, rawName?: string): string {
+    const nameOverride = getNameOverrideImage(rawName);
+    if (nameOverride) return nameOverride;
+
     let filename: string | undefined;
     switch (category) {
         case 'Weapon':    filename = WEAPON_IMG[typeId];    break;
@@ -259,5 +327,5 @@ export function getFloorItemImage(item: FloorItem): string {
         }
         return BASE + (waterState.charges > 0 ? 'water_flask.png' : 'empty_flask.png');
     }
-    return getItemImage(item.category, item.typeId);
+    return getItemImage(item.category, item.typeId, item.rawName);
 }

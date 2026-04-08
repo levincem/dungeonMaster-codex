@@ -5,6 +5,7 @@ import { MirrorPopup } from './components/UI/MirrorPopup';
 import { ChampionSheet } from './components/UI/ChampionSheet';
 import { useStore } from './engine/store';
 import { preloadAllSounds } from './engine/sounds';
+import { clampFrameDeltaSeconds } from './engine/time';
 import './App.css';
 
 function GameRoot() {
@@ -27,7 +28,7 @@ function GameRoot() {
 
     const tick = (now: number) => {
       if (lastTimeRef.current !== null) {
-        const delta = Math.min((now - lastTimeRef.current) / 1000, 0.1);
+        const delta = clampFrameDeltaSeconds((now - lastTimeRef.current) / 1000);
         regenTick(delta);
         tickCombat(delta);
         tickMonsters(delta);

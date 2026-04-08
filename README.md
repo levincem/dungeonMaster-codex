@@ -19,8 +19,12 @@ The project is already playable and includes a substantial part of the core runt
 - hunger and thirst with water containers and fountains
 - original wall overlays positioned from extracted data
 - maps and runtime content loaded from reconstructed original data
+- canonical starter equipment for champions
+- multi-attack HUD flow for weapons with more than one action
 
 It is not a finished remake yet. Save/load, full game flow, some special-case mechanics, final balancing, and part of the remaining artwork still need work.
+
+The important shift is that the project is no longer mainly blocked by missing original data. Most of the core original data we needed is now extracted and documented; the main work left is integrating it faithfully into the runtime.
 
 ## Tech Stack
 
@@ -93,14 +97,17 @@ That directory contains:
 The most useful project-level summaries are:
 
 - [docs/REMAKE_STATUS.md](/D:/DungeonMaster-codex/docs/REMAKE_STATUS.md)
+- [docs/RUNTIME_ALIGNMENT_AUDIT.md](/D:/DungeonMaster-codex/docs/RUNTIME_ALIGNMENT_AUDIT.md)
 - [docs/STATS_PROVENANCE.md](/D:/DungeonMaster-codex/docs/STATS_PROVENANCE.md)
 - [docs/ATARI_STATS_RECONCILIATION.md](/D:/DungeonMaster-codex/docs/ATARI_STATS_RECONCILIATION.md)
+- [docs/WORLD_CONTENT_AUDIT.md](/D:/DungeonMaster-codex/docs/WORLD_CONTENT_AUDIT.md)
 
 ## Notes
 
 - The production build is valid.
 - The bundle is still fairly heavy because of the 3D stack and game assets.
-- Some gameplay numbers are already reconciled with original Atari data, while a few remake-facing interpretations still remain on top.
+- The world-content extraction is now treated as reliable.
+- Some gameplay layers are already reconciled with original Atari data, while part of the runtime still remains an interpretation layer that is being reduced over time.
 
 ## Credits
 

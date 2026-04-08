@@ -1,8 +1,25 @@
 # Dungeon Master (FTL 1987) – Research Notes
-## Objectif
+
+## Statut du document
+
+Document conservé comme **journal de recherche historique**.
+
+Important :
+
+- plusieurs sections ci-dessous décrivent des hypothèses ou des blocages intermédiaires qui ne sont **plus** l'état actuel du projet
+- ce fichier est gardé pour mémoire, pas comme source de vérité finale
+- pour l'état actuel, voir plutôt :
+  - [docs/I559_STATS_EXTRACTION.md](/D:/DungeonMaster-codex/docs/I559_STATS_EXTRACTION.md)
+  - [docs/I560_ATTACKS_EXTRACTION.md](/D:/DungeonMaster-codex/docs/I560_ATTACKS_EXTRACTION.md)
+  - [docs/I561_UI_TABLES_EXTRACTION.md](/D:/DungeonMaster-codex/docs/I561_UI_TABLES_EXTRACTION.md)
+  - [docs/I562_RUNTIME_TABLES_EXTRACTION.md](/D:/DungeonMaster-codex/docs/I562_RUNTIME_TABLES_EXTRACTION.md)
+  - [docs/STATS_PROVENANCE.md](/D:/DungeonMaster-codex/docs/STATS_PROVENANCE.md)
+  - [docs/ATARI_STATS_RECONCILIATION.md](/D:/DungeonMaster-codex/docs/ATARI_STATS_RECONCILIATION.md)
+
+## Objectif initial
 Extraire toutes les données du jeu vers `output/dungeon.json` et `output/game_db.json`
 pour un remake TypeScript/Three.js/Vite.js.
-Working directory : `c:\Users\Vince\Desktop\DMDisquette\`
+Working directory historique : `c:\Users\Vince\Desktop\DMDisquette\`
 
 ---
 
@@ -17,7 +34,7 @@ Working directory : `c:\Users\Vince\Desktop\DMDisquette\`
 | `FIRES.EXE` | ~94 Ko | Exécutable principal, compressé PKLITE/LZ91 |
 | `FIRES_decompressed.bin` | 167 584 o | FIRES.EXE décompressé (généré par unpklite.js) |
 | `unpklite.js` | — | Décompresseur PKLITE/LZ91 maison (fonctionnel) |
-| `parse_full.js` | — | Parser DUNGEON.DAT → JSON (fonctionnel mais noms d'armes incorrects) |
+| `parse_full.js` | — | Parser DUNGEON.DAT → JSON (note historique : cette ligne n'est plus à jour) |
 | `ReDMCSB/SOURCE/ENGINE/` | — | Code source reverse-engineered (Atari ST, MegaMax C) |
 | `ReDMCSB/ORIGINAL/` | — | PRG décompressés Atari ST (DM10aEN, DM10bEN, DM11EN, DM12EN, CSB…) |
 
@@ -25,11 +42,17 @@ Working directory : `c:\Users\Vince\Desktop\DMDisquette\`
 
 ## Ce qui fonctionne
 
+Note historique :
+
+- cette section décrit un état intermédiaire
+- `parse_full.js` n'est plus dans l'état “noms d'armes incorrects”
+- plusieurs limitations mentionnées plus bas ont depuis été résolues ou fortement réduites
+
 ### parse_full.js
 - Parse correctement DUNGEON.DAT (little-endian, format PC DOS)
 - Extrait : maps, tiles, portes, téléporteurs, textes muraux, capteurs, créatures, armes, armures, parchemins, potions, conteneurs, misc
 - Génère `output/dungeon.json` et `output/game_db.json`
-- **Problème** : la table `WEAPON_NAMES` interne est FAUSSE (types mal assignés)
+- Note historique : le problème de noms d'armes mentionné ici a été corrigé depuis
 
 ### unpklite.js
 - Décompresse correctement les exécutables PKLITE/LZ91
@@ -182,7 +205,13 @@ G237_as_Graphic559_ObjectInfo[180]  // 180 entrées × 6 bytes = 1080 bytes
 
 ---
 
-## Le problème non résolu : table ObjectInfo
+## Ancien problème : table ObjectInfo
+
+Note historique :
+
+- cette section documente un blocage ancien
+- aujourd'hui, `0559` et les tables associées ont été décodés proprement côté Atari
+- ce n'est plus un “problème non résolu” au sens où ce document le présentait
 
 ### Où elle est stockée
 La table `G237_as_Graphic559_ObjectInfo[180]` est **chargée à l'exécution** depuis le graphique #559 de GRAPHICS.DAT (code Atari ST) via :
@@ -193,7 +222,14 @@ F490_lzzz_MEMORY_LoadDecompressAndExpandGraphic(
 ```
 Elle est compressée en LZW dans ce graphique. Elle n'est PAS présente en clair dans l'exécutable.
 
-### Le format de GRAPHICS.DAT — NON RÉSOLU
+### Ancienne note : format de GRAPHICS.DAT côté PC DOS
+
+Note historique :
+
+- la formule “NON RÉSOLU” n'est plus appropriée comme état global
+- le format PC DOS n'a pas été intégralement élégamment spécifié dans tous ses détails internes
+- en revanche, le projet n'est plus bloqué sur ce point pour l'extraction utile
+- les besoins pratiques ont été couverts par l'extraction Atari canonique, les outils d'analyse et la réconciliation documentée ailleurs
 
 **Ce qu'on sait du code source (Atari ST) :**
 ```
@@ -239,7 +275,12 @@ Standard LZW 9→12 bits, LSB-first dans le buffer (voir `ReDMCSB/SOURCE/ENGINE/
 
 ---
 
-## Ce qu'il reste à faire
+## Ce qu'il restait à faire à ce stade
+
+Note historique :
+
+- cette to-do list est conservée comme trace de raisonnement
+- elle ne doit plus être lue comme feuille de route actuelle
 
 ### Option A — Chercher la DM Encyclopedia
 Le site dmwiki.net / dungeon-master.com documente les type numbers de tous les items.
@@ -327,7 +368,12 @@ mais ces quatre codes forment très probablement une petite enum interne côté 
 
 ---
 
-## Noms incorrects dans parse_full.js (à corriger)
+## Ancienne note : noms incorrects dans parse_full.js
+
+Note historique :
+
+- cette correction a depuis été traitée
+- la section est conservée pour mémoire sur l'ancien état du parser
 
 La table `WEAPON_NAMES` actuelle dans parse_full.js est fausse :
 ```js

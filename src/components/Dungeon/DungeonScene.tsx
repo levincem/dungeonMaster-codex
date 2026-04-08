@@ -1,7 +1,7 @@
 import { useRef, useMemo, memo, useCallback, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import type { ThreeEvent } from '@react-three/fiber';
-import { PerspectiveCamera, Plane, Html, useTexture } from '@react-three/drei';
+import { PerspectiveCamera, Plane, Html, useTexture, Billboard } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore, MIRROR_WALL_MAP, MIRROR_FACE_MAP, STAIR_CONNECTIONS } from '../../engine/store';
 import { getMapMechanisms } from '../../data/mechanisms';
@@ -19,6 +19,8 @@ import { FloorItemMesh } from './FloorItemMesh';
 import { WallSensor } from './WallSensor';
 import { WallDecal } from './WallDecal';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
+import { getFloorItemImage } from '../../data/itemImages';
+import type { FloorItem } from '../../types/game';
 
 const HALF = GRID_SIZE / 2;
 const BASE_FOG_NEAR = GRID_SIZE * 2;
@@ -265,7 +267,7 @@ const LightController: React.FC = () => {
 
 // ─── Projectile renderer ──────────────────────────────────────────────────────
 const PROJ_COLORS: Record<ProjectileEffect, string> = {
-    fireball: '#ff6200', lightning: '#aaddff', poison: '#44ff66', plasma: '#cc44ff',
+    fireball: '#ff6200', lightning: '#aaddff', poison: '#44ff66', plasma: '#cc44ff', physical: '#d8c49a',
 };
 
 const ProjectileRenderer: React.FC = () => {
@@ -303,16 +305,20 @@ const ProjectileRenderer: React.FC = () => {
     return (
         <>
             {activeProjectiles.map((p, index) => (
-                <ProjectileOrb
-                    key={p.id}
-                    projectile={p}
-                    index={index}
-                    outerGeometry={outerGeometry}
-                    glowGeometry={glowGeometry}
-                    coreGeometry={coreGeometry}
-                    coreMaterial={coreMaterial}
-                    glowMaterial={glowMaterials[p.effect]}
-                />
+                p.effect === 'physical' && p.physicalItem ? (
+                    <PhysicalProjectileSprite key={p.id} projectile={{ ...p, physicalItem: p.physicalItem }} />
+                ) : (
+                    <ProjectileOrb
+                        key={p.id}
+                        projectile={p}
+                        index={index}
+                        outerGeometry={outerGeometry}
+                        glowGeometry={glowGeometry}
+                        coreGeometry={coreGeometry}
+                        coreMaterial={coreMaterial}
+                        glowMaterial={glowMaterials[p.effect as Exclude<ProjectileEffect, 'physical'>]}
+                    />
+                )
             ))}
         </>
     );
@@ -346,6 +352,46 @@ const ProjectileOrb: React.FC<{
             <mesh ref={glowRef} geometry={glowGeometry} material={glowMaterial} />
             <mesh geometry={coreGeometry} material={coreMaterial} />
         </group>
+    );
+};
+
+const PhysicalProjectileSprite: React.FC<{
+    projectile: { x: number; y: number; physicalItem: FloorItem };
+}> = ({ projectile }) => {
+    const imagePath = getFloorItemImage(projectile.physicalItem);
+    const baseTex = useTexture(imagePath);
+    const tex = useMemo(() => {
+        const next = baseTex.clone();
+        next.colorSpace = THREE.SRGBColorSpace;
+        next.needsUpdate = true;
+        return next;
+    }, [baseTex]);
+
+    useEffect(() => () => tex.dispose(), [tex]);
+
+    const image = tex.image as { width: number; height: number } | undefined;
+    const aspect = image ? image.width / image.height : 1;
+    const width = GRID_SIZE * 0.34;
+    const height = width / aspect;
+
+    return (
+        <Billboard
+            position={[projectile.x * GRID_SIZE, GRID_SIZE * 0.05, projectile.y * GRID_SIZE]}
+            follow
+            lockX={false}
+            lockY={false}
+            lockZ={false}
+        >
+            <Plane args={[width, height]}>
+                <meshBasicMaterial
+                    map={tex}
+                    transparent
+                    alphaTest={0.05}
+                    side={THREE.DoubleSide}
+                    depthWrite={false}
+                />
+            </Plane>
+        </Billboard>
     );
 };
 

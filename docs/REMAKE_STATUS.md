@@ -1,12 +1,17 @@
 ﻿# Dungeon Master Remake - Etat du projet
 
-Version remise a jour a partir du code observe le 2026-04-07.
+Version remise a jour a partir du code observe le 2026-04-08.
 
 ## Resume rapide
 
 Le projet est deja une base jouable et serieuse, avec un vrai runtime de dungeon, une UI exploitable et un chargement de donnees originales consolidees.
 
 Ce n'est pas encore un remake complet, mais ce n'est plus un simple prototype.
+
+Point important :
+
+- l'extraction des donnees originales essentielles est maintenant consideree comme fiable
+- le travail restant concerne surtout l'integration fidele de ces donnees dans le runtime
 
 ## Ce qui est effectivement en place
 
@@ -22,6 +27,9 @@ Ce n'est pas encore un remake complet, mais ce n'est plus un simple prototype.
 - degats flottants, projectiles et lumiere dynamique
 - inventaire, equipement, transfert et ramassage d'objets
 - portes, trick walls, teleporteurs et une partie des senseurs
+- starters des champions injectes depuis une source canonique dediee
+- menu d'attaque sur le HUD quand plusieurs actions sont disponibles
+- faim / soif, contenants d'eau et fontaines jouables
 
 ### Donnees et catalogues
 
@@ -30,6 +38,13 @@ Ce n'est pas encore un remake complet, mais ce n'est plus un simple prototype.
 - definitions de portes originales branchees
 - noms d'objets consolides via `resolveItemName(...)`
 - regles d'equipement centralisees dans `src/data/equipment.ts`
+- contenu spatial du donjon reconcilie :
+  - items `300 / 300`
+  - inscriptions `61 / 61`
+  - locks `65 / 65`
+  - creatures `225 / 225`
+  - generators `50 / 50`
+- tables Atari `0559`, `0560`, `0561`, `0562` extraites et documentees
 
 ### UI et presentation
 
@@ -38,7 +53,8 @@ Ce n'est pas encore un remake complet, mais ce n'est plus un simple prototype.
 - MirrorPopup branche
 - LoadingScreen branche
 - textes muraux graves en 3D
-- overlays muraux et decals mieux cales qu'avant
+- overlays muraux et decals bien mieux cales sur l'original
+- objets speciaux mieux relies a leurs vrais sprites
 
 ## Ce qui est encore partiel ou incomplet
 
@@ -76,9 +92,9 @@ Les autres effets existent dans les definitions mais demandent encore une verifi
 ### Objets et statuts
 
 - equipement, poids et quelques bonus passifs sont en place
-- poison persistant, faim, soif et usages speciaux restent incomplets
-- cles / serrures / alcoves sont partiellement cablees mais pas encore closes systemiquement
-- conteneurs et objets speciaux ne semblent pas encore complets
+- poison persistant, faim, soif, contenants d'eau et fontaines sont jouables
+- plusieurs objets speciaux ont maintenant leur vrai visuel via override par nom canonique
+- il reste encore des comportements speciaux et des etats fins a finaliser
 
 ### Carte et interactions
 
@@ -89,15 +105,17 @@ Les autres effets existent dans les definitions mais demandent encore une verifi
 ### Combat
 
 - le combat est jouable
-- les formules restent simplifiees
-- les resistances et comportements speciaux ne paraissent pas encore au niveau d'un remake fini
-- les armes a distance / lancers / munitions sont encore a consolider
+- les attaques multiples par arme sont maintenant mieux gerees dans le HUD
+- projectiles physiques et munitions ont beaucoup progresse
+- poison et steal sont branches cote monstres
+- les formules restent encore partiellement simplifiees
+- les sorts et plusieurs effets speciaux demandent encore un recollage plus fin
 
 ### Assets et finition
 
-- `MISSING_IMAGES.md` montre qu'il reste des images a mapper ou a creer
+- les overlays muraux gameplay sont maintenant presque completement couverts
+- il reste surtout du polish, quelques images specifiques et un meilleur rangement futur des assets
 - le preload d'images est volontairement permissif
-- README et docs etaient en retard sur l'etat reel
 - quelques soucis d'encodage restent visibles dans certains fichiers historiques
 
 ## Point important sur les maps
@@ -122,9 +140,11 @@ Conclusion:
 
 ## Priorites recommandees
 
-### 1. Clarifier la reference documentaire
+### 1. Continuer l'integration fidele
 
-- garder `CODEBASE_REFERENCE.md` et `REMAKE_STATUS.md` alignes sur le runtime reel
+- recoller les sorts et les durees a la base originale
+- etendre l'echelle de temps commune
+- reduire les couches runtime encore interpretatives
 
 ### 2. Stabiliser le flow de jeu
 
@@ -147,5 +167,5 @@ Conclusion:
 ## Notes de confiance
 
 - La structure generale et la base technique sont bonnes.
-- Les docs d'etat precedentes surestimaient certains points et oubliaient plusieurs modules reels.
-- Le projet a maintenant plus besoin d'alignement, de tri et de finition que d'une reecriture complete.
+- Les donnees extraites doivent maintenant etre traitees comme la base fiable.
+- Le projet a maintenant plus besoin d'integration fidele, d'alignement et de finition que d'une reecriture complete.

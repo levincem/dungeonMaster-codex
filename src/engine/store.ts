@@ -10,12 +10,28 @@ import type {
 import type { EquipSlotKey } from '../types/items';
 import type { Champion } from '../data/champions';
 import { CHAMPION_BY_ID } from '../data/champions';
+import { buildChampionStarterLoadout } from '../data/championStarterItems';
 import { CREATURE_TYPES } from '../data/creatures';
 import { findSpell, getSkillLevel } from '../data/runes';
 import type { CastSkill } from '../data/runes';
-import { WEAPON_TYPES, POTION_TYPES, MISC_TYPES, normalizeScrollText, resolveItemName } from '../data/items';
-import { canEquipItemInSlot, getEffectiveChampionStats } from '../data/equipment';
+import { ARMOR_TYPES, WEAPON_TYPES, POTION_TYPES, MISC_TYPES, normalizeScrollText, resolveItemName } from '../data/items';
+import { canEquipItemInSlot, getChampionMaxLoad, getEffectiveChampionStats, getTotalWeight } from '../data/equipment';
 import { hasOriginalWallOverlayAt } from '../data/originalWallOverlays';
+import {
+    getAttackOptionUnusableReason,
+    getAttackCooldownSeconds,
+    getDefaultAttackOption,
+    getOriginalWeaponReference,
+    getRequiredAmmoRawClass,
+    getWeaponAttackOptions,
+    isAttackOptionUsableAtMastery,
+    isPhysicalAttack,
+    isShootAttack,
+    isThrowAttack,
+    mapOriginalSkillNumberToBasicSkill,
+    matchesRequiredAmmoRawClass,
+    type WeaponAttackOption,
+} from '../data/weaponAttacks';
 import {
     canFillWaterContainer,
     consumeWaterContainer,
@@ -25,6 +41,7 @@ import {
 } from '../data/waterContainers';
 import { doorBlocksThrownItems, doorBlocksVision } from '../data/doors';
 import { playPartyAttack, playCreatureMove, playCreatureAttack, playPlate } from './sounds';
+import { originalTimerTicksToSeconds } from './time';
 
 export type Direction = 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
 export type GamePhase = 'exploration' | 'mirror_open';
@@ -36,6 +53,7 @@ export interface ChampionVitals {
     mana:    number;  // current mana       (0 … champion.mana)
     food:    number;  // hunger reserve     (0 … 2000)
     water:   number;  // thirst reserve     (0 … 2000)
+    poisonEntries: { remaining: number; nextTickIn: number }[];
 }
 
 export interface CastResult {
@@ -106,7 +124,7 @@ export function computeLightLevel(
 }
 
 // ─── Active projectiles (fireball, lightning, poison, plasma) ─────────────────
-export type ProjectileEffect = 'fireball' | 'lightning' | 'poison' | 'plasma';
+export type ProjectileEffect = 'fireball' | 'lightning' | 'poison' | 'plasma' | 'physical';
 
 export interface Projectile {
     id: string;
@@ -117,6 +135,10 @@ export interface Projectile {
     effect: ProjectileEffect;
     damage: [number, number]; // [min, max]
     nextMoveAt: number;  // Date.now() ms — when to advance to next tile
+    remainingRange?: number;
+    remainingAttack?: number;
+    stepDecay?: number;
+    physicalItem?: FloorItem;
 }
 
 // ─── Party shields (magic shield / fire shield spells) ────────────────────────
@@ -147,10 +169,12 @@ export function xpToLevel(xp: number): number {
 export interface ChampionCombat {
     cooldown:    number; // seconds remaining
     cooldownMax: number; // full duration (for overlay ratio)
+    defenseModifier: number; // temporary defensive posture during attack recovery
 }
 
 const MAX_PARTY = 4;
 type MirrorRecruitMode = 'resurrect' | 'reincarnate';
+const QUIVER_SLOTS: EquipSlotKey[] = ['quiver1', 'quiver2', 'quiver3', 'quiver4'];
 
 export const MAX_FOOD = 2000;
 export const MAX_WATER = 2000;
@@ -165,14 +189,54 @@ const FOOD_STAMINA_DRAIN_PER_SEC = 0.65;
 const WATER_STAMINA_DRAIN_PER_SEC = 1.1;
 const STARVATION_HP_DRAIN_PER_SEC = 0.22;
 const DEHYDRATION_HP_DRAIN_PER_SEC = 0.36;
+const POISON_TICK_INTERVAL_SEC = originalTimerTicksToSeconds(36);
 
 function clampVital(value: number, max: number): number {
     return Math.max(0, Math.min(max, value));
 }
 
+function createChampionVitals(
+    hp: number,
+    stamina: number,
+    mana: number,
+    food = MAX_FOOD,
+    water = MAX_WATER,
+): ChampionVitals {
+    return {
+        hp,
+        stamina,
+        mana,
+        food,
+        water,
+        poisonEntries: [],
+    };
+}
+
 function getResourcePenalty(value: number, criticalThreshold: number): number {
     if (value >= criticalThreshold) return 0;
     return 1 - (value / criticalThreshold);
+}
+
+function adjustByAttributeApprox(value: number, currentAttribute: number): number {
+    const factor = 170 - currentAttribute;
+    if (factor < 16) return Math.floor(value / 8);
+    return Math.floor((value * factor) / 128);
+}
+
+function applyPoisonCharacterApprox(
+    vitals: ChampionVitals,
+    poisonStrength: number,
+): ChampionVitals {
+    if (poisonStrength <= 0) return vitals;
+    const immediateDamage = Math.max(1, Math.floor(poisonStrength / 64));
+    const remaining = poisonStrength - 1;
+    return {
+        ...vitals,
+        hp: Math.max(0, vitals.hp - immediateDamage),
+        poisonEntries: remaining > 0
+            ? [...vitals.poisonEntries, { remaining, nextTickIn: POISON_TICK_INTERVAL_SEC }]
+            : vitals.poisonEntries,
+    };
 }
 
 /** Back-calculate starting XP from a champion's initial skill levels. */
@@ -192,21 +256,411 @@ function getRightHandStats(equip: import('../types/game').ChampionEquipment | un
     name: string; dmgMin: number; dmgMax: number; cooldownSec: number; skill: CastSkill;
 } {
     const item = equip?.rightHand;
+    const selectedAttack = getDefaultAttackOption(item);
     if (item?.category === 'Weapon') {
         const wt = WEAPON_TYPES[item.typeId];
         if (wt && wt.atkSpd > 0) {
-            const skill: CastSkill =
-                wt.type === 'Staff' || wt.type === 'Wand' ? 'wizard' : 'fighter';
+            const skill = selectedAttack
+                ? mapOriginalSkillNumberToBasicSkill(selectedAttack.attack.skillNumber)
+                : wt.type === 'Staff' || wt.type === 'Wand' ? 'wizard' : 'fighter';
             return {
-                name: wt.name,
+                name: selectedAttack?.displayName ?? wt.name,
                 dmgMin: wt.damage[0],
                 dmgMax: wt.damage[1],
-                cooldownSec: wt.atkSpd / 10,
+                cooldownSec: selectedAttack ? getAttackCooldownSeconds(selectedAttack) : wt.atkSpd / 10,
                 skill,
             };
         }
     }
     return { name: 'Poing', dmgMin: 1, dmgMax: 4, cooldownSec: 2.0, skill: 'fighter' };
+}
+
+function buildAttackResultMessage(message: string, success = false): CastResult {
+    return { success, message, ts: Date.now() };
+}
+
+function getFrontPosition(position: [number, number], direction: Direction): { x: number; y: number } {
+    const [y, x] = position;
+    if (direction === 'NORTH') return { x, y: y - 1 };
+    if (direction === 'SOUTH') return { x, y: y + 1 };
+    if (direction === 'EAST') return { x: x + 1, y };
+    return { x: x - 1, y };
+}
+
+function applyChampionAttackVitals(
+    state: GameState,
+    championId: number,
+    champion: Champion,
+    option: WeaponAttackOption | null,
+) {
+    const current = state.championVitals[championId];
+    if (!current) return null;
+    const effective = getEffectiveChampionStats(champion, state.championEquipment[championId] ?? {});
+    const staminaCost = option ? option.attack.staminaCost + randomInt(2) : 0;
+    const nextVitals = {
+        ...current,
+        stamina: clampVital(current.stamina - staminaCost, effective.stamina),
+    };
+    return { current, nextVitals, effective };
+}
+
+function createChampionCombatState(cooldownSec: number, defenseModifier = 0): ChampionCombat {
+    return {
+        cooldown: cooldownSec,
+        cooldownMax: cooldownSec > 0 ? cooldownSec : 1,
+        defenseModifier,
+    };
+}
+
+function getChampionMasteryLevel(
+    state: GameState,
+    championId: number,
+    champion: Champion,
+    skill: CastSkill,
+): number {
+    const xp = state.championXP[championId]?.[skill];
+    if (xp !== undefined) return xpToLevel(xp);
+    return getSkillLevel(champion.skills, skill);
+}
+
+function originalThrowingDistance(
+    champion: Champion,
+    equip: ChampionEquipment | undefined,
+    currentStamina: number | undefined,
+    item: FloorItem,
+    descriptor: ReturnType<typeof getOriginalWeaponReference>,
+    fighterMastery: number,
+    ninjaMastery: number,
+): number {
+    const effective = getEffectiveChampionStats(champion, equip ?? {});
+    let value = (Math.floor(Math.random() * 16)) + effective.strength;
+    const itemWeight = descriptor?.weightKg ?? 0;
+    const maxLoadThreshold = getChampionMaxLoad(champion, equip, undefined) / 16;
+
+    if (itemWeight <= maxLoadThreshold) {
+        value += itemWeight - 12;
+    } else {
+        const upperThreshold = ((maxLoadThreshold - 12) / 2) + maxLoadThreshold;
+        if (itemWeight <= upperThreshold) {
+            value += (itemWeight - maxLoadThreshold) / 2;
+        } else {
+            value -= 2 * (itemWeight - upperThreshold);
+        }
+    }
+
+    if (item.category === 'Weapon' && descriptor) {
+        value += descriptor.damage;
+        let masteryBonus = 0;
+        if (descriptor.rawClass === 0 || descriptor.rawClass === 2) masteryBonus = fighterMastery;
+        if (descriptor.rawClass !== 0 && descriptor.rawClass < 16) masteryBonus += ninjaMastery;
+        if (descriptor.rawClass >= 16 && descriptor.rawClass < 112) masteryBonus += ninjaMastery;
+        value += 2 * masteryBonus;
+    }
+
+    const maxStamina = Math.max(1, champion.stamina);
+    const stamina = Math.max(0, currentStamina ?? maxStamina);
+    value *= stamina / maxStamina;
+
+    return Math.max(0, Math.min(100, Math.floor(value / 2)));
+}
+
+function buildDroppedItem(item: FloorItem, level: number, x: number, y: number): FloorItem {
+    return {
+        ...item,
+        mapIndex: level,
+        x,
+        y,
+        tilePos: 'North',
+    };
+}
+
+function buildDroppedItems(items: FloorItem[], level: number, x: number, y: number): FloorItem[] {
+    return items.map((item) => buildDroppedItem(item, level, x, y));
+}
+
+function findQuiverAmmo(
+    equip: ChampionEquipment | undefined,
+    requiredRawClass: number | null,
+): { slot: EquipSlotKey; item: FloorItem } | null {
+    if (!equip || requiredRawClass === null) return null;
+    for (const slot of QUIVER_SLOTS) {
+        const item = equip[slot];
+        if (item && matchesRequiredAmmoRawClass(item, requiredRawClass)) {
+            return { slot, item };
+        }
+    }
+    return null;
+}
+
+function randomInt(maxExclusive: number): number {
+    if (maxExclusive <= 0) return 0;
+    return Math.floor(Math.random() * maxExclusive);
+}
+
+function applyLimits(min: number, value: number, max: number): number {
+    return Math.max(min, Math.min(max, value));
+}
+
+function isCharacterLuckyApprox(luck: number, luckNeeded: number): boolean {
+    if (Math.random() < 0.5 && randomInt(100) > luckNeeded) return true;
+    if (luck <= 0) return false;
+    return randomInt(luck) > luckNeeded;
+}
+
+function tryStealBackpackItemApprox(
+    championId: number,
+    champion: Champion,
+    state: GameState,
+): { stolenItem: FloorItem | null; nextInventory: FloorItem[] } {
+    const inventory = state.championInventories[championId] ?? [];
+    if (inventory.length === 0) return { stolenItem: null, nextInventory: inventory };
+
+    const equip = state.championEquipment[championId] ?? {};
+    const effective = getEffectiveChampionStats(champion, equip);
+    let percentage = 100 - effective.dexterity;
+
+    for (let attempts = 0; attempts < 8 && percentage > 0; attempts += 1) {
+        if (isCharacterLuckyApprox(effective.luck, percentage)) {
+            percentage -= 10;
+            continue;
+        }
+        const index = randomInt(inventory.length);
+        const stolenItem = inventory[index] ?? null;
+        if (!stolenItem) break;
+        return {
+            stolenItem,
+            nextInventory: inventory.filter((_, itemIndex) => itemIndex !== index),
+        };
+    }
+
+    return { stolenItem: null, nextInventory: inventory };
+}
+
+function dropCreatureCarriedItems(
+    creatures: CreatureInstance[],
+    floorItems: FloorItem[],
+    creatureId: string,
+): { creatures: CreatureInstance[]; floorItems: FloorItem[] } {
+    const index = creatures.findIndex((creature) => creature.id === creatureId);
+    if (index < 0) return { creatures, floorItems };
+
+    const creature = creatures[index];
+    if (!creature) return { creatures, floorItems };
+    const carriedItems = creature.carriedItems ?? [];
+    if (carriedItems.length === 0) return { creatures, floorItems };
+
+    const nextCreatures = [...creatures];
+    nextCreatures[index] = { ...creature, carriedItems: [] };
+
+    return {
+        creatures: nextCreatures,
+        floorItems: [...floorItems, ...buildDroppedItems(carriedItems, creature.mapIndex, creature.x, creature.y)],
+    };
+}
+
+function computeOriginalQuicknessApprox(
+    champion: Champion,
+    equip: ChampionEquipment | undefined,
+    inventory: FloorItem[] | undefined,
+    currentStamina: number | undefined,
+): number {
+    const effective = getEffectiveChampionStats(champion, equip ?? {});
+    let quickness = effective.dexterity + randomInt(8);
+    const load = getTotalWeight(equip ?? {}, inventory ?? []);
+    const maxLoad = Math.max(1, getChampionMaxLoad(champion, equip, currentStamina));
+    quickness -= Math.floor(((quickness / 2) * load) / maxLoad);
+    quickness = Math.floor(quickness / 2);
+    const lowLimit = randomInt(8) + 1;
+    const highLimit = 100 - randomInt(8);
+    return applyLimits(lowLimit, quickness, highLimit);
+}
+
+function isLikelyNonMaterial(target: CreatureInstance): boolean {
+    const def = CREATURE_TYPES[target.typeId];
+    if (def) return def.nonMaterial;
+    const name = CREATURE_TYPES[target.typeId]?.name ?? '';
+    return /ghost|materializer|wizard eye|black flame|lord chaos/i.test(name);
+}
+
+function getEquippedArmorValue(equip: ChampionEquipment | undefined): number {
+    if (!equip) return 0;
+    let armor = 0;
+    for (const item of Object.values(equip)) {
+        if (!item || item.category !== 'Armor') continue;
+        armor += ARMOR_TYPES[item.typeId]?.armor ?? 0;
+    }
+    return armor;
+}
+
+function computeChampionProtectionApprox(
+    state: GameState,
+    championId: number,
+    champion: Champion,
+    currentVitals: ChampionVitals | undefined,
+): number {
+    const equip = state.championEquipment[championId] ?? {};
+    const effective = getEffectiveChampionStats(champion, equip);
+    const armorValue = getEquippedArmorValue(equip);
+    const vitalityRoll = randomInt(Math.max(1, Math.floor(effective.vitality / 8) + 1));
+    const staminaGuard = currentVitals
+        ? Math.floor((clampVital(currentVitals.stamina, effective.stamina) * 8) / Math.max(1, effective.stamina))
+        : 0;
+    const defenseModifier = state.championCombat[championId]?.defenseModifier ?? 0;
+    const rawProtection = vitalityRoll + defenseModifier + Math.floor(armorValue / 2) + staminaGuard;
+    return applyLimits(0, Math.floor(rawProtection / 2), 100);
+}
+
+function determineMonsterAttackDamageApprox(
+    state: GameState,
+    targetChampion: Champion,
+    targetVitals: ChampionVitals,
+    attacker: CreatureInstance,
+): number {
+    const def = CREATURE_TYPES[attacker.typeId];
+    if (!def) return 0;
+
+    const equip = state.championEquipment[targetChampion.id] ?? {};
+    const inventory = state.championInventories[targetChampion.id] ?? [];
+    const effective = getEffectiveChampionStats(targetChampion, equip);
+    const quickness = computeOriginalQuicknessApprox(targetChampion, equip, inventory, targetVitals.stamina);
+    const levelDifficulty = getMap(state.level).difficulty * 2;
+    const requiredQuickness = randomInt(32) + def.hitProb + levelDifficulty - 16;
+
+    if (
+        quickness >= requiredQuickness &&
+        randomInt(4) !== 0 &&
+        isCharacterLuckyApprox(effective.luck, 60)
+    ) {
+        return 0;
+    }
+
+    let attackValue = levelDifficulty + randomInt(16) + Math.max(1, Math.floor(def.rawAttack / 16));
+    attackValue = Math.floor((attackValue - computeChampionProtectionApprox(state, targetChampion.id, targetChampion, targetVitals)) / 2);
+
+    if (attackValue <= 1) {
+        if (randomInt(2) !== 0) return 0;
+        attackValue = randomInt(4) + 2;
+    }
+
+    const firstSpread = attackValue > 0 ? randomInt(attackValue) : 0;
+    attackValue += firstSpread + randomInt(4);
+    if (attackValue > 0) {
+        attackValue += randomInt(attackValue);
+    }
+    attackValue = Math.floor(attackValue / 4);
+    attackValue += randomInt(4) + 1;
+
+    if (randomInt(2) !== 0) {
+        attackValue -= randomInt(Math.floor(attackValue / 2) + 1) - 1;
+    }
+
+    return Math.max(0, attackValue);
+}
+
+function getWeaponName(item: FloorItem | undefined): string {
+    if (!item) return '';
+    if (item.category === 'Weapon') return WEAPON_TYPES[item.typeId]?.name ?? item.rawName ?? '';
+    return item.rawName ?? '';
+}
+
+function determineMeleeDamageApprox(
+    state: GameState,
+    championId: number,
+    champion: Champion,
+    equip: ChampionEquipment | undefined,
+    attackOption: WeaponAttackOption | null,
+    currentStamina: number | undefined,
+    target: CreatureInstance,
+): number {
+    const inventory = state.championInventories[championId] ?? [];
+    const effective = getEffectiveChampionStats(champion, equip ?? {});
+    const descriptor = getOriginalWeaponReference(equip?.rightHand);
+    const attackBaseDamage = attackOption?.attack.baseDamage ?? 32;
+    const strengthRequired = attackOption?.attack.strengthRequired ?? 0;
+    const levelDifficulty = getMap(state.level).difficulty;
+    const targetDef = CREATURE_TYPES[target.typeId];
+    const weaponName = getWeaponName(equip?.rightHand);
+    const nonMaterial = isLikelyNonMaterial(target);
+    const isDisrupt = attackOption?.enumName === 'Disrupt';
+    const vorpalOrDisrupt = /vorpal blade/i.test(weaponName) || isDisrupt;
+
+    if (nonMaterial && !vorpalOrDisrupt) {
+        return 0;
+    }
+
+    const quickness = computeOriginalQuicknessApprox(champion, equip, inventory, currentStamina);
+    const requiredQuickness = randomInt(32) + (targetDef?.hitProb ?? 40) + levelDifficulty - 16;
+    const luckyHit = randomInt(4) === 0;
+    if (
+        quickness <= requiredQuickness &&
+        !luckyHit &&
+        !isCharacterLuckyApprox(effective.luck, 75 - strengthRequired)
+    ) {
+        return 0;
+    }
+
+    const throwingDistance = equip?.rightHand
+        ? originalThrowingDistance(
+            champion,
+            equip,
+            currentStamina,
+            equip.rightHand,
+            descriptor,
+            getChampionMasteryLevel(state, championId, champion, 'fighter'),
+            getChampionMasteryLevel(state, championId, champion, 'ninja'),
+        )
+        : Math.max(0, Math.floor((effective.strength + randomInt(16)) / 2));
+
+    let attackValue = 0;
+    if (throwingDistance !== 0) {
+        attackValue = throwingDistance + randomInt(Math.floor(throwingDistance / 2) + 1);
+        attackValue = Math.floor((attackValue * attackBaseDamage) / 32);
+
+        let defenseValue = randomInt(32) + (targetDef?.armor ?? 20) + levelDifficulty;
+        if (/diamond edge/i.test(weaponName)) defenseValue -= Math.floor(defenseValue / 4);
+        else if (/executioner/i.test(weaponName)) defenseValue -= Math.floor(defenseValue / 8);
+
+        attackValue = attackValue + randomInt(32) - defenseValue;
+    }
+
+    if (throwingDistance === 0 || attackValue <= 1) {
+        let salvageRoll = randomInt(4);
+        if (salvageRoll === 0) return 0;
+        attackValue += randomInt(16);
+        if (attackValue > 0 || randomInt(2) !== 0) {
+            salvageRoll += randomInt(4);
+            if (randomInt(4) === 0) {
+                salvageRoll += Math.max(0, randomInt(16) + attackValue);
+            }
+        }
+        attackValue = salvageRoll;
+    }
+
+    attackValue = Math.floor(attackValue / 2);
+    const firstSpread = attackValue > 0 ? randomInt(attackValue) : 0;
+    attackValue += randomInt(4) + firstSpread;
+    if (attackValue > 0) {
+        attackValue += randomInt(attackValue);
+    }
+    attackValue = Math.floor(attackValue / 4);
+    attackValue += randomInt(4) + 1;
+
+    const mastery = getChampionMasteryLevel(
+        state,
+        championId,
+        champion,
+        attackOption ? mapOriginalSkillNumberToBasicSkill(attackOption.attack.skillNumber) : 'fighter',
+    );
+    if (randomInt(64) < mastery) {
+        attackValue += 10;
+    }
+
+    if (/vorpal blade/i.test(weaponName) && !nonMaterial) {
+        attackValue = Math.floor(attackValue / 2);
+        if (attackValue === 0) return 0;
+    }
+
+    return Math.max(0, attackValue);
 }
 
 /** Living creatures directly in front of the party (up to 2, left then right). */
@@ -334,6 +788,7 @@ function buildCreatureInstances(): CreatureInstance[] {
                         currentHP: co.hp > 0 ? co.hp : def.baseHP,
                         alive: true,
                         side,
+                        carriedItems: [],
                     });
                 }
             }
@@ -385,53 +840,14 @@ function buildFloorItems(): FloorItem[] {
     return items;
 }
 
-function buildChampionStarterItems(): Record<number, FloorItem[]> {
-    const hall = GAME_MAPS[0];
-    if (!hall) return {};
-
-    const starterItems: Record<number, FloorItem[]> = {};
-    for (const row of hall.tiles) {
-        for (const tile of row) {
-            const championSensor = tile.objects.find(obj =>
-                obj.category === 'Sensor' &&
-                (obj as SensorObject & { championGraphic?: number }).championGraphic !== undefined
-            ) as (SensorObject & { championGraphic?: number }) | undefined;
-
-            if (!championSensor || championSensor.championGraphic === undefined) continue;
-
-            const championId = championSensor.championGraphic;
-            const items = tile.objects
-                .filter(obj => ITEM_CATEGORIES.has(obj.category))
-                .map(obj => {
-                    const rawObj = obj as unknown as { type: number; name?: string; text?: string };
-                    return {
-                        id: `starter_${championId}_${obj.category}_${obj.index}`,
-                        category: obj.category as FloorItem['category'],
-                        typeId: rawObj.type ?? 0,
-                        rawName: resolveItemName(
-                            obj.category as FloorItem['category'],
-                            rawObj.type ?? 0,
-                            obj.category === 'Scroll'
-                                ? normalizeScrollText(rawObj.text ?? rawObj.name)
-                                : (rawObj.text ?? rawObj.name),
-                        ),
-                        mapIndex: 0,
-                        x: tile.x,
-                        y: tile.y,
-                        tilePos: obj.tilePos,
-                    } satisfies FloorItem;
-                });
-
-            starterItems[championId] = items.map(item => normaliseWaterContainer(item));
-        }
-    }
-    return starterItems;
-}
-
-const CHAMPION_STARTER_ITEMS = buildChampionStarterItems();
-
-function getChampionStarterItems(championId: number): FloorItem[] {
-    return (CHAMPION_STARTER_ITEMS[championId] ?? []).map(item => ({ ...item }));
+function getChampionStarterLoadout(championId: number): { equipment: ChampionEquipment; inventory: FloorItem[] } {
+    const loadout = buildChampionStarterLoadout(championId);
+    return {
+        equipment: Object.fromEntries(
+            Object.entries(loadout.equipment).map(([slot, item]) => [slot, item ? normaliseWaterContainer({ ...item }) : item]),
+        ) as ChampionEquipment,
+        inventory: loadout.inventory.map((item) => normaliseWaterContainer({ ...item })),
+    };
 }
 
 function createReincarnatedChampion(champion: Champion): Champion {
@@ -1007,7 +1423,7 @@ interface GameState {
     castSpell: (championId: number, runeIds: string[]) => void;
     regenTick: (delta: number) => void;
     gainXP: (championId: number, skill: CastSkill, amount: number) => void;
-    attackFront: (championId: number) => void;
+    attackFront: (championId: number, attackType?: number) => void;
     tickCombat: (delta: number) => void;
     tickMonsters: (delta: number) => void;
     tickDoors: (delta: number) => void;
@@ -1212,26 +1628,26 @@ export const useStore = create<GameState>((set) => ({
             ? createReincarnatedChampion(champion)
             : champion;
         const newParty = [...state.party, recruitedChampion];
-        const starterItems = getChampionStarterItems(champion.id);
+        const starterLoadout = getChampionStarterLoadout(champion.id);
         return {
             party: newParty,
             gateOpen: false,
             championInventories: champion.id in state.championInventories
                 ? state.championInventories
-                : { ...state.championInventories, [champion.id]: starterItems },
+                : { ...state.championInventories, [champion.id]: starterLoadout.inventory },
             championEquipment: champion.id in state.championEquipment
                 ? state.championEquipment
-                : { ...state.championEquipment, [champion.id]: {} },
+                : { ...state.championEquipment, [champion.id]: starterLoadout.equipment },
             championVitals: champion.id in state.championVitals
                 ? state.championVitals
                 : {
                     ...state.championVitals,
                     [champion.id]: {
-                        hp:      recruitedChampion.health,
-                        stamina: recruitedChampion.stamina,
-                        mana:    recruitedChampion.mana,
-                        food:    MAX_FOOD,
-                        water:   MAX_WATER,
+                        ...createChampionVitals(
+                            recruitedChampion.health,
+                            recruitedChampion.stamina,
+                            recruitedChampion.mana,
+                        ),
                     },
                 },
             championXP: champion.id in state.championXP
@@ -1244,7 +1660,7 @@ export const useStore = create<GameState>((set) => ({
                 },
             championCombat: champion.id in state.championCombat
                 ? state.championCombat
-                : { ...state.championCombat, [champion.id]: { cooldown: 0, cooldownMax: 1 } },
+                : { ...state.championCombat, [champion.id]: createChampionCombatState(0) },
         };
     }),
 
@@ -1324,9 +1740,14 @@ export const useStore = create<GameState>((set) => ({
         return computeSensorEffect(sensor, mapIndex, ss);
     }),
 
-    killCreature: (id) => set((state) => ({
-        creatures: state.creatures.map(c => c.id === id ? { ...c, alive: false } : c),
-    })),
+    killCreature: (id) => set((state) => {
+        const creatures = state.creatures.map(c => c.id === id ? { ...c, alive: false } : c);
+        const dropped = dropCreatureCarriedItems(creatures, state.floorItems, id);
+        return {
+            creatures: dropped.creatures,
+            floorItems: dropped.floorItems,
+        };
+    }),
 
     killChampion: (championId) => set((state) => {
         const v = state.championVitals[championId];
@@ -1388,7 +1809,7 @@ export const useStore = create<GameState>((set) => ({
                     party: [...state.party, deadChamp],
                     championVitals: {
                         ...state.championVitals,
-                        [deadChampId]: { hp: 1, stamina: 0, mana: 0, food: Math.round(MAX_FOOD * 0.35), water: Math.round(MAX_WATER * 0.35) },
+                        [deadChampId]: createChampionVitals(1, 0, 0, Math.round(MAX_FOOD * 0.35), Math.round(MAX_WATER * 0.35)),
                     },
                     championInventories: { ...state.championInventories, [championId]: newInv, [deadChampId]: [] },
                     championEquipment: { ...state.championEquipment, [deadChampId]: {} },
@@ -1496,7 +1917,7 @@ export const useStore = create<GameState>((set) => ({
             party: [...state.party, deadChamp],
             championVitals: {
                 ...state.championVitals,
-                [deadChampId]: { hp: 1, stamina: 0, mana: 0, food: Math.round(MAX_FOOD * 0.35), water: Math.round(MAX_WATER * 0.35) },
+                [deadChampId]: createChampionVitals(1, 0, 0, Math.round(MAX_FOOD * 0.35), Math.round(MAX_WATER * 0.35)),
             },
             championInventories: carriedBy !== null
                 ? { ...state.championInventories, [carriedBy]: newInv, [deadChampId]: [] }
@@ -1536,7 +1957,7 @@ export const useStore = create<GameState>((set) => ({
                 if (def.effect === 'health')  newVitals.hp      = Math.min(effective.health,  vitals.hp      + def.restore);
                 if (def.effect === 'stamina') newVitals.stamina = Math.min(effective.stamina, vitals.stamina + def.restore);
                 if (def.effect === 'mana')    newVitals.mana    = Math.min(effective.mana,    vitals.mana    + def.restore);
-                if (def.effect === 'poison')  { /* clears poison — placeholder */ }
+                if (def.effect === 'poison')  newVitals.poisonEntries = [];
             }
         } else if (item.category === 'Misc') {
             const def = MISC_TYPES[item.typeId];
@@ -1594,11 +2015,14 @@ export const useStore = create<GameState>((set) => ({
         for (const champ of state.party) {
             const current = state.championVitals[champ.id];
             newVitals[champ.id] = {
-                hp: champ.health,
-                stamina: champ.stamina,
-                mana: champ.mana,
-                food: current?.food ?? MAX_FOOD,
-                water: current?.water ?? MAX_WATER,
+                ...createChampionVitals(
+                    champ.health,
+                    champ.stamina,
+                    champ.mana,
+                    current?.food ?? MAX_FOOD,
+                    current?.water ?? MAX_WATER,
+                ),
+                poisonEntries: current?.poisonEntries ?? [],
             };
         }
         return { championVitals: newVitals };
@@ -1879,13 +2303,31 @@ export const useStore = create<GameState>((set) => ({
             }
 
             const nextMana = maxMana > 0 ? Math.min(maxMana, v.mana + manaRegen) : v.mana;
+            let poisonEntries = v.poisonEntries;
+            if (poisonEntries.length > 0) {
+                const updatedEntries: { remaining: number; nextTickIn: number }[] = [];
+                for (const entry of poisonEntries) {
+                    const nextTickIn = entry.nextTickIn - delta;
+                    if (nextTickIn > 0) {
+                        updatedEntries.push({ ...entry, nextTickIn });
+                        continue;
+                    }
+                    nextHP = Math.max(0, nextHP - Math.max(1, Math.floor(entry.remaining / 64)));
+                    const nextRemaining = entry.remaining - 1;
+                    if (nextRemaining > 0) {
+                        updatedEntries.push({ remaining: nextRemaining, nextTickIn: POISON_TICK_INTERVAL_SEC });
+                    }
+                }
+                poisonEntries = updatedEntries;
+            }
 
             if (
                 nextHP !== v.hp ||
                 nextStamina !== v.stamina ||
                 nextMana !== v.mana ||
                 nextFood !== v.food ||
-                nextWater !== v.water
+                nextWater !== v.water ||
+                poisonEntries !== v.poisonEntries
             ) {
                 newVitals[champ.id] = {
                     hp: nextHP,
@@ -1893,6 +2335,7 @@ export const useStore = create<GameState>((set) => ({
                     mana: nextMana,
                     food: nextFood,
                     water: nextWater,
+                    poisonEntries,
                 };
                 changed = true;
             }
@@ -1912,13 +2355,264 @@ export const useStore = create<GameState>((set) => ({
         };
     }),
 
-    // ─── Physical attack ──────────────────────────────────────────────────────
-    attackFront: (championId) => set((state) => {
+    // ─── Weapon action / physical attack ─────────────────────────────────────
+    attackFront: (championId, attackType) => set((state) => {
         const combat = state.championCombat[championId];
         if (!combat || combat.cooldown > 0) return state;
 
         const champion = state.party.find(c => c.id === championId);
         if (!champion) return state;
+
+        const equip = state.championEquipment[championId] ?? {};
+        const rightHand = equip.rightHand;
+        const availableAttacks = getWeaponAttackOptions(rightHand);
+        const requestedAttack = availableAttacks.find((option) => option.attackType === attackType) ?? null;
+        const usableAttacks = availableAttacks.filter((option) => {
+            const skill = mapOriginalSkillNumberToBasicSkill(option.attack.skillNumber);
+            const masteryLevel = getChampionMasteryLevel(state, championId, champion, skill);
+            return isAttackOptionUsableAtMastery(option, masteryLevel);
+        });
+        const selectedAttack = attackType !== undefined
+            ? requestedAttack
+            : (usableAttacks[0] ?? availableAttacks[0] ?? null);
+        const selectedSkill = selectedAttack
+            ? mapOriginalSkillNumberToBasicSkill(selectedAttack.attack.skillNumber)
+            : 'fighter';
+
+        if (selectedAttack) {
+            const masteryLevel = getChampionMasteryLevel(state, championId, champion, selectedSkill);
+            const unusableReason = getAttackOptionUnusableReason(selectedAttack, masteryLevel);
+            if (unusableReason) {
+                return {
+                    lastCastResult: buildAttackResultMessage(`${selectedAttack.displayName} indisponible: ${unusableReason}.`),
+                };
+            }
+        }
+
+        if (selectedAttack && isShootAttack(selectedAttack)) {
+            const requiredAmmoRawClass = getRequiredAmmoRawClass(rightHand);
+            const ammo = findQuiverAmmo(equip, requiredAmmoRawClass);
+            if (!ammo) {
+                return {
+                    lastCastResult: buildAttackResultMessage('Aucune munition compatible dans le carquois.'),
+                };
+            }
+        }
+
+        const stats = getRightHandStats(state.championEquipment[championId]);
+        const cooldownSec = selectedAttack ? getAttackCooldownSeconds(selectedAttack) : stats.cooldownSec;
+        const newCombat = createChampionCombatState(
+            cooldownSec,
+            selectedAttack?.attack.defenseModifier ?? 0,
+        );
+        const vitalsUpdate = applyChampionAttackVitals(state, championId, champion, selectedAttack);
+        const championVitals = vitalsUpdate
+            ? { ...state.championVitals, [championId]: vitalsUpdate.nextVitals }
+            : state.championVitals;
+
+        if (selectedAttack?.requiresCharges) {
+            return {
+                championCombat: { ...state.championCombat, [championId]: newCombat },
+                championVitals,
+                lastCastResult: buildAttackResultMessage(`Charges d'objet non gerees pour ${selectedAttack.displayName}.`),
+            };
+        }
+
+        if (selectedAttack && isThrowAttack(selectedAttack) && rightHand) {
+            const descriptor = getOriginalWeaponReference(rightHand);
+            const fighterMastery = getChampionMasteryLevel(state, championId, champion, 'fighter');
+            const ninjaMastery = getChampionMasteryLevel(state, championId, champion, 'ninja');
+            const throwRange = originalThrowingDistance(
+                champion,
+                equip,
+                vitalsUpdate?.nextVitals.stamina,
+                rightHand,
+                descriptor,
+                fighterMastery,
+                ninjaMastery,
+            );
+            const launchBonus = descriptor && descriptor.rawClass <= 12 ? descriptor.kineticEnergy : 1;
+            const rawRange = throwRange + launchBonus;
+            const finalRange = rawRange + Math.floor(Math.random() * 16) + Math.floor(rawRange / 2) + ninjaMastery;
+            const rawDamage = Math.max(40, Math.min(200, 8 * ninjaMastery + Math.floor(Math.random() * 32)));
+            const minDamage = Math.max(8, Math.floor(rawDamage * 0.65));
+            const decay = Math.max(5, 11 - ninjaMastery);
+            const projectile: Projectile = {
+                id: `throw_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+                level: state.level,
+                x: state.position[1],
+                y: state.position[0],
+                direction: state.direction,
+                effect: 'physical',
+                damage: [minDamage, rawDamage],
+                nextMoveAt: Date.now(),
+                remainingRange: Math.max(1, finalRange),
+                remainingAttack: rawDamage,
+                stepDecay: decay,
+                physicalItem: buildDroppedItem(rightHand, state.level, state.position[1], state.position[0]),
+            };
+            const attackerXP = state.championXP[championId] ?? { fighter: 0, ninja: 0, priest: 0, wizard: 0 };
+            return {
+                championCombat: { ...state.championCombat, [championId]: newCombat },
+                championVitals,
+                championEquipment: { ...state.championEquipment, [championId]: { ...equip, rightHand: undefined } },
+                championXP: {
+                    ...state.championXP,
+                    [championId]: {
+                        ...attackerXP,
+                        [selectedSkill]: attackerXP[selectedSkill] + selectedAttack.attack.experienceForAttacking,
+                    },
+                },
+                projectiles: [...state.projectiles, projectile],
+                lastCastResult: buildAttackResultMessage(selectedAttack.displayName, true),
+            };
+        }
+
+        if (selectedAttack && isShootAttack(selectedAttack)) {
+            const launcher = getOriginalWeaponReference(rightHand);
+            const requiredAmmoRawClass = getRequiredAmmoRawClass(rightHand);
+            const ammo = findQuiverAmmo(equip, requiredAmmoRawClass);
+            if (!ammo) {
+                return {
+                    lastCastResult: buildAttackResultMessage('Aucune munition compatible dans le carquois.'),
+                };
+            }
+            const ammoDescriptor = getOriginalWeaponReference(ammo.item);
+            const mastery = getChampionMasteryLevel(state, championId, champion, 'ninja');
+            const maxDamage = Math.max(6, 2 * ((launcher?.shootDamage ?? 4) + mastery));
+            const minDamage = Math.max(2, Math.floor(maxDamage * 0.55));
+            const range = Math.max(1, (launcher?.kineticEnergy ?? 1) + (ammoDescriptor?.kineticEnergy ?? 1));
+            const decay = Math.max(1, maxDamage & 0x0f);
+            const projectile: Projectile = {
+                id: `shoot_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+                level: state.level,
+                x: state.position[1],
+                y: state.position[0],
+                direction: state.direction,
+                effect: 'physical',
+                damage: [minDamage, maxDamage],
+                nextMoveAt: Date.now(),
+                remainingRange: range,
+                remainingAttack: maxDamage,
+                stepDecay: decay,
+                physicalItem: buildDroppedItem(ammo.item, state.level, state.position[1], state.position[0]),
+            };
+            const nextEquip = { ...equip, [ammo.slot]: undefined };
+            const attackerXP = state.championXP[championId] ?? { fighter: 0, ninja: 0, priest: 0, wizard: 0 };
+            return {
+                championCombat: { ...state.championCombat, [championId]: newCombat },
+                championVitals,
+                championEquipment: { ...state.championEquipment, [championId]: nextEquip },
+                championXP: {
+                    ...state.championXP,
+                    [championId]: {
+                        ...attackerXP,
+                        [selectedSkill]: attackerXP[selectedSkill] + selectedAttack.attack.experienceForAttacking,
+                    },
+                },
+                projectiles: [...state.projectiles, projectile],
+                lastCastResult: buildAttackResultMessage(selectedAttack.displayName, true),
+            };
+        }
+
+        const performSupportedUtilityAction = (): Partial<GameState> | null => {
+            if (!selectedAttack) return null;
+            const now = Date.now();
+            const base = {
+                championCombat: { ...state.championCombat, [championId]: newCombat },
+                championVitals,
+                championXP: state.championXP,
+                lastCastResult: buildAttackResultMessage(selectedAttack.displayName, true),
+            } satisfies Partial<GameState>;
+
+            switch (selectedAttack.enumName) {
+                case 'Heal': {
+                    const currentVitals = championVitals[championId];
+                    if (!currentVitals) return base;
+                    const healAmount = 25;
+                    return {
+                        ...base,
+                        championVitals: {
+                            ...championVitals,
+                            [championId]: {
+                                ...currentVitals,
+                                hp: Math.min(champion.health, currentVitals.hp + healAmount),
+                            },
+                        },
+                    };
+                }
+                case 'Light': {
+                    const newLight: SpellLight = {
+                        id: `weapon_light_${now}_${Math.random().toString(36).slice(2)}`,
+                        lightContrib: 0.5,
+                        expiresAt: now + 10 * 60_000,
+                    };
+                    return {
+                        ...base,
+                        spellLights: [...state.spellLights, newLight],
+                    };
+                }
+                case 'Spellshield': {
+                    const shield: PartyShield = {
+                        id: `weapon_spellshield_${now}_${Math.random().toString(36).slice(2)}`,
+                        expiresAt: now + 90_000,
+                        protection: 0.35,
+                        fireOnly: false,
+                    };
+                    return {
+                        ...base,
+                        activeShields: [...state.activeShields, shield],
+                    };
+                }
+                case 'Fireshield': {
+                    const shield: PartyShield = {
+                        id: `weapon_fireshield_${now}_${Math.random().toString(36).slice(2)}`,
+                        expiresAt: now + 90_000,
+                        protection: 0.35,
+                        fireOnly: true,
+                    };
+                    return {
+                        ...base,
+                        activeShields: [...state.activeShields, shield],
+                    };
+                }
+                case 'Lightning': {
+                    const { x, y } = getFrontPosition(state.position, state.direction);
+                    const newProj: Projectile = {
+                        id: `weapon_lightning_${now}_${Math.random().toString(36).slice(2)}`,
+                        level: state.level,
+                        x,
+                        y,
+                        direction: state.direction,
+                        effect: 'lightning',
+                        damage: [20, 45],
+                        nextMoveAt: now,
+                    };
+                    return {
+                        ...base,
+                        projectiles: [...state.projectiles, newProj],
+                    };
+                }
+                case 'Window': {
+                    return {
+                        ...base,
+                        magicVisionUntil: Math.max(state.magicVisionUntil, now + 120_000),
+                    };
+                }
+                default:
+                    return null;
+            }
+        };
+
+        if (selectedAttack && !isPhysicalAttack(selectedAttack)) {
+            const handled = performSupportedUtilityAction();
+            if (handled) return handled;
+            return {
+                championCombat: { ...state.championCombat, [championId]: newCombat },
+                championVitals,
+                lastCastResult: buildAttackResultMessage(`Action originale non encore integree: ${selectedAttack.displayName}.`),
+            };
+        }
 
         // Determine champion's column: party[0/2] = left, party[1/3] = right
         const champIdx = state.party.findIndex(c => c.id === championId);
@@ -1929,33 +2623,52 @@ export const useStore = create<GameState>((set) => ({
         // Prefer same-column side, fall back to any
         const target = front.find(c => c.side === preferredSide) ?? front[0] ?? null;
 
-        // Start cooldown even if nothing to hit (swing in the air)
-        const stats = getRightHandStats(state.championEquipment[championId]);
-        const newCombat: ChampionCombat = { cooldown: stats.cooldownSec, cooldownMax: stats.cooldownSec };
-
         playPartyAttack();
 
         if (!target) {
-            return { championCombat: { ...state.championCombat, [championId]: newCombat } };
+            return {
+                championCombat: { ...state.championCombat, [championId]: newCombat },
+                championVitals,
+            };
         }
 
-        // Damage
-        const effective = getEffectiveChampionStats(champion, state.championEquipment[championId]);
-        const baseDmg = stats.dmgMin + Math.floor(Math.random() * (stats.dmgMax - stats.dmgMin + 1));
-        const strBonus = Math.floor(effective.strength / 10);
-        const totalDmg = Math.max(1, baseDmg + strBonus); // party attacks creatures — no shield applies here
+        const totalDmg = determineMeleeDamageApprox(
+            state,
+            championId,
+            champion,
+            equip,
+            selectedAttack,
+            vitalsUpdate?.nextVitals.stamina,
+            target,
+        );
+
+        if (totalDmg <= 0) {
+            return {
+                championCombat: { ...state.championCombat, [championId]: newCombat },
+                championVitals,
+            };
+        }
 
         const newHP = target.currentHP - totalDmg;
         const killed = newHP <= 0;
-        const newCreatures = state.creatures.map(c =>
+        let newCreatures = state.creatures.map(c =>
             c.id === target.id ? { ...c, currentHP: Math.max(0, newHP), alive: !killed } : c
         );
+        let newFloorItems = state.floorItems;
+        if (killed) {
+            const dropped = dropCreatureCarriedItems(newCreatures, newFloorItems, target.id);
+            newCreatures = dropped.creatures;
+            newFloorItems = dropped.floorItems;
+        }
 
         // XP: attacker gains fighter/wizard XP = damage dealt
         const attackerXP = state.championXP[championId] ?? { fighter: 0, ninja: 0, priest: 0, wizard: 0 };
+        const attackSkill = selectedAttack
+            ? mapOriginalSkillNumberToBasicSkill(selectedAttack.attack.skillNumber)
+            : stats.skill;
         let newChampXP: Record<number, ChampionXP> = {
             ...state.championXP,
-            [championId]: { ...attackerXP, [stats.skill]: attackerXP[stats.skill] + totalDmg },
+            [championId]: { ...attackerXP, [attackSkill]: attackerXP[attackSkill] + totalDmg },
         };
 
         // Kill XP: shared equally among living party members
@@ -1982,6 +2695,8 @@ export const useStore = create<GameState>((set) => ({
 
         return {
             creatures: newCreatures,
+            ...(newFloorItems !== state.floorItems ? { floorItems: newFloorItems } : {}),
+            championVitals,
             championXP: newChampXP,
             championCombat: { ...state.championCombat, [championId]: newCombat },
             damageEvents: [...state.damageEvents, newDmgEvent],
@@ -2089,6 +2804,7 @@ export const useStore = create<GameState>((set) => ({
         let creatures  = state.creatures as CreatureInstance[];
         let vitals     = state.championVitals;
         let dmgEvts    = state.damageEvents;
+        let championInventories = state.championInventories;
         let anyChange  = false;
         // Champions that reach 0 HP this tick — processed after the loop
         const newlyDead: number[] = [];
@@ -2097,7 +2813,11 @@ export const useStore = create<GameState>((set) => ({
         //   left creature → prefers left column (party[0,2]), falls back to right (party[1,3])
         //   right creature → prefers right column (party[1,3]), falls back to left (party[0,2])
         // Uses `vitals` (not state.championVitals) so kills earlier this tick are respected.
-        const getTarget = (side: CreatureSide) => {
+        const getTarget = (side: CreatureSide, attackAnyChampion = false) => {
+            if (attackAnyChampion) {
+                const alive = state.party.filter((c) => (vitals[c.id]?.hp ?? 0) > 0);
+                return alive.length > 0 ? alive[Math.floor(Math.random() * alive.length)] : null;
+            }
             const preferIdx = side === 'left' ? [0, 2] : [1, 3];
             const fallbackIdx = side === 'left' ? [1, 3] : [0, 2];
             for (const indices of [preferIdx, fallbackIdx]) {
@@ -2193,21 +2913,51 @@ export const useStore = create<GameState>((set) => ({
                 playCreatureAttack(c.typeId);
                 notifyCreatureAction(c.id, 'attack');
 
-                const target = getTarget(c.side);
+                const target = getTarget(c.side, def.attackAnyChampion);
                 if (target) {
                     const tv = vitals[target.id];
                     if (tv && tv.hp > 0) {
-                        // Damage formula: based on creature exp reward (tier proxy)
-                        const dmgMin = Math.max(1, Math.floor(def.exp / 8));
-                        const dmgMax = Math.max(2, Math.floor(def.exp / 4));
-                        const raw  = dmgMin + Math.floor(Math.random() * (dmgMax - dmgMin + 1));
+                        const targetChampion = state.party.find((partyChampion) => partyChampion.id === target.id);
+                        if (targetChampion && def.attackTypes.includes('Steal')) {
+                            const { stolenItem, nextInventory } = tryStealBackpackItemApprox(target.id, targetChampion, {
+                                ...state,
+                                championVitals: vitals,
+                                championInventories,
+                            });
+                            if (stolenItem) {
+                                if (creatures === state.creatures) creatures = [...creatures];
+                                creatures[i] = {
+                                    ...c,
+                                    carriedItems: [...(c.carriedItems ?? []), stolenItem],
+                                };
+                                championInventories = {
+                                    ...championInventories,
+                                    [target.id]: nextInventory,
+                                };
+                                anyChange = true;
+                            }
+                            continue;
+                        }
+                        const raw = targetChampion
+                            ? determineMonsterAttackDamageApprox(state, targetChampion, tv, c)
+                            : 0;
+                        if (raw <= 0) continue;
                         // Apply non-fire shield protection
                         const shieldProt = state.activeShields
                             .filter(s => s.expiresAt > nowMs && !s.fireOnly)
                             .reduce((max, s) => Math.max(max, s.protection), 0);
                         const dmg   = Math.max(1, Math.round(raw * (1 - shieldProt)));
-                        const newHP = Math.max(0, tv.hp - dmg);
-                        vitals = { ...vitals, [target.id]: { ...tv, hp: newHP } };
+                        let nextTargetVitals = { ...tv, hp: Math.max(0, tv.hp - dmg) };
+                        if (nextTargetVitals.hp > 0 && def.poisonAttack > 0 && randomInt(2) !== 0) {
+                            const equip = state.championEquipment[target.id] ?? {};
+                            if (targetChampion) {
+                                const effective = getEffectiveChampionStats(targetChampion, equip);
+                                const poisonStrength = adjustByAttributeApprox(def.poisonAttack, effective.vitality);
+                                nextTargetVitals = applyPoisonCharacterApprox(nextTargetVitals, poisonStrength);
+                            }
+                        }
+                        const newHP = nextTargetVitals.hp;
+                        vitals = { ...vitals, [target.id]: nextTargetVitals };
                         if (newHP === 0 && !newlyDead.includes(target.id))
                             newlyDead.push(target.id);
                         dmgEvts = [...dmgEvts, {
@@ -2242,7 +2992,6 @@ export const useStore = create<GameState>((set) => ({
         // ── Process champion deaths ───────────────────────────────────────────
         let party                = state.party;
         let floorItems           = state.floorItems;
-        let championInventories  = state.championInventories;
         let championEquipment    = state.championEquipment;
         let deadChampions        = state.deadChampions;
 
@@ -2269,11 +3018,11 @@ export const useStore = create<GameState>((set) => ({
             creatures,
             ...(vitals !== state.championVitals             ? { championVitals: vitals }                     : {}),
             ...(dmgEvts !== state.damageEvents              ? { damageEvents: dmgEvts }                      : {}),
+            ...(championInventories !== state.championInventories ? { championInventories } : {}),
             ...(party !== state.party ? {
                 party,
                 selectedChampionIndex,
                 floorItems,
-                championInventories,
                 championEquipment,
                 deadChampions,
             } : {}),
@@ -2290,6 +3039,7 @@ export const useStore = create<GameState>((set) => ({
         const keepProjectiles: Projectile[] = [];
         let creatures = state.creatures as CreatureInstance[];
         let dmgEvts = state.damageEvents;
+        let floorItems = state.floorItems;
 
         for (const proj of state.projectiles) {
             // Not yet time to move
@@ -2316,23 +3066,59 @@ export const useStore = create<GameState>((set) => ({
                 return doorBlocksThrownItems(door?.doorType);
             })();
             if (!tile || tile.type === 'Wall' || (tile.type === 'TrickWall' && !state.openWalls.has(wallKey)) || closedDoorBlocksProjectile) {
+                if (proj.effect === 'physical' && proj.physicalItem) {
+                    if (floorItems === state.floorItems) floorItems = [...floorItems];
+                    floorItems.push(buildDroppedItem(proj.physicalItem, proj.level, proj.x, proj.y));
+                }
                 continue; // projectile absorbed by wall
             }
 
             // Creature hit → deal damage and despawn
             const hit = creatures.find(c => c.alive && c.mapIndex === proj.level && c.x === nx && c.y === ny);
             if (hit) {
-                const dmg = proj.damage[0] + Math.floor(Math.random() * (proj.damage[1] - proj.damage[0] + 1));
+                const dmg = proj.effect === 'physical'
+                    ? Math.max(1, Math.round(proj.remainingAttack ?? proj.damage[1]))
+                    : proj.damage[0] + Math.floor(Math.random() * (proj.damage[1] - proj.damage[0] + 1));
                 const newHP = Math.max(0, hit.currentHP - dmg);
                 const killed = newHP <= 0;
                 if (creatures === state.creatures) creatures = [...creatures];
                 const idx = creatures.findIndex(c => c.id === hit.id);
                 if (idx >= 0) creatures[idx] = { ...creatures[idx], currentHP: newHP, alive: !killed };
+                if (killed) {
+                    const dropped = dropCreatureCarriedItems(creatures, floorItems, hit.id);
+                    creatures = dropped.creatures;
+                    floorItems = dropped.floorItems;
+                }
                 dmgEvts = [...dmgEvts, {
                     id: `pdmg_${now}_${Math.random().toString(36).slice(2)}`,
                     x: nx, y: ny, amount: dmg, ts: now,
                 }];
+                if (proj.effect === 'physical' && proj.physicalItem) {
+                    if (floorItems === state.floorItems) floorItems = [...floorItems];
+                    floorItems.push(buildDroppedItem(proj.physicalItem, proj.level, nx, ny));
+                }
                 continue; // projectile consumed
+            }
+
+            if (proj.effect === 'physical') {
+                const remainingRange = (proj.remainingRange ?? 1) - 1;
+                const remainingAttack = Math.max(0, (proj.remainingAttack ?? proj.damage[1]) - (proj.stepDecay ?? 1));
+                if (remainingRange <= 0 || remainingAttack <= 0) {
+                    if (proj.physicalItem) {
+                        if (floorItems === state.floorItems) floorItems = [...floorItems];
+                        floorItems.push(buildDroppedItem(proj.physicalItem, proj.level, nx, ny));
+                    }
+                    continue;
+                }
+                keepProjectiles.push({
+                    ...proj,
+                    x: nx,
+                    y: ny,
+                    nextMoveAt: now + 220,
+                    remainingRange,
+                    remainingAttack,
+                });
+                continue;
             }
 
             // Move forward, schedule next step in 300 ms
@@ -2349,17 +3135,19 @@ export const useStore = create<GameState>((set) => ({
             keepProjectiles.some((p, i) => p !== state.projectiles[i]);
         const creaturesChanged    = creatures !== state.creatures;
         const dmgChanged          = dmgEvts !== state.damageEvents;
+        const floorItemsChanged   = floorItems !== state.floorItems;
         const shieldsChanged      = activeShields.length !== state.activeShields.length;
         const footprintsChanged   = footprintHistory.length !== state.footprintHistory.length;
 
         if (!lightsChanged && !projectilesChanged && !creaturesChanged &&
-            !dmgChanged && !shieldsChanged && !footprintsChanged) return state;
+            !dmgChanged && !floorItemsChanged && !shieldsChanged && !footprintsChanged) return state;
 
         return {
             ...(lightsChanged      ? { spellLights }                   : {}),
             ...(projectilesChanged ? { projectiles: keepProjectiles }   : {}),
             ...(creaturesChanged   ? { creatures }                      : {}),
             ...(dmgChanged         ? { damageEvents: dmgEvts }          : {}),
+            ...(floorItemsChanged  ? { floorItems }                     : {}),
             ...(shieldsChanged     ? { activeShields }                  : {}),
             ...(footprintsChanged  ? { footprintHistory }               : {}),
         };
@@ -2370,8 +3158,17 @@ export const useStore = create<GameState>((set) => ({
         let combatChanged = false;
         for (const c of state.party) {
             const cb = state.championCombat[c.id];
-            if (cb && cb.cooldown > 0) {
-                updates[c.id] = { ...cb, cooldown: Math.max(0, cb.cooldown - delta) };
+            if (!cb) continue;
+            if (cb.cooldown > 0) {
+                const nextCooldown = Math.max(0, cb.cooldown - delta);
+                updates[c.id] = {
+                    ...cb,
+                    cooldown: nextCooldown,
+                    defenseModifier: nextCooldown > 0 ? cb.defenseModifier : 0,
+                };
+                combatChanged = true;
+            } else if (cb.defenseModifier !== 0) {
+                updates[c.id] = { ...cb, defenseModifier: 0 };
                 combatChanged = true;
             }
         }

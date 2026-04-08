@@ -15,9 +15,16 @@ import { WEAPON_TYPES } from '../../data/items';
 import { getGameMap } from '../../data/mapLoader';
 import type { Champion } from '../../data/champions';
 import type { ChampionEquipment } from '../../types/game';
-import { getItemImage, getTorchImage } from '../../data/itemImages';
+import { getFloorItemImage, getTorchImage } from '../../data/itemImages';
 import { RUNES_BY_FAMILY, RUNES_BY_ID, findSpell } from '../../data/runes';
 import type { RuneFamily } from '../../data/runes';
+import {
+    getAttackOptionUnusableReason,
+    getWeaponAttackOptions,
+    isAttackOptionUsableAtMastery,
+    mapOriginalSkillNumberToBasicSkill,
+    type WeaponAttackOption,
+} from '../../data/weaponAttacks';
 
 const HAND_SLOT_LABELS = {
     leftHand: 'MG',
@@ -30,15 +37,35 @@ const CombatGrid: React.FC<{
     championCombat: Record<number, ChampionCombat>;
     championEquipment: Record<number, ChampionEquipment>;
     championXP: Record<number, ChampionXP>;
-    attackFront: (id: number) => void;
+    attackFront: (id: number, attackType?: number) => void;
 }> = ({ party, championCombat, championEquipment, championXP, attackFront }) => {
     const [flash, setFlash] = useState([false, false, false, false]);
+    const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null);
 
-    const handleClick = (i: number, champ: Champion | undefined, ready: boolean) => {
-        if (!champ || !ready) return;
-        attackFront(champ.id);
+    const triggerAttack = (i: number, champ: Champion, attackType?: number) => {
+        attackFront(champ.id, attackType);
+        setOpenMenuIndex(null);
         setFlash(prev => { const n = [...prev] as typeof prev; n[i] = true; return n; });
         setTimeout(() => setFlash(prev => { const n = [...prev] as typeof prev; n[i] = false; return n; }), 130);
+    };
+
+    const handleClick = (
+        i: number,
+        champ: Champion | undefined,
+        ready: boolean,
+        allAttacks: WeaponAttackOption[],
+        usableAttacks: WeaponAttackOption[],
+    ) => {
+        if (!champ || !ready) return;
+        if (allAttacks.length === 0) {
+            triggerAttack(i, champ, usableAttacks[0]?.attackType);
+            return;
+        }
+        if (allAttacks.length === 1 && usableAttacks.length === 1) {
+            triggerAttack(i, champ, usableAttacks[0].attackType);
+            return;
+        }
+        setOpenMenuIndex((current) => current === i ? null : i);
     };
 
     return (
@@ -50,17 +77,27 @@ const CombatGrid: React.FC<{
                 const ready = !cb || cb.cooldown <= 0;
                 const equip = champ ? (championEquipment[champ.id] ?? {}) : {};
                 const weapon = (equip as ChampionEquipment).rightHand;
+                const allAttacks = getWeaponAttackOptions(weapon);
+                const getMasteryForAttack = (attack: WeaponAttackOption) => {
+                    if (!champ) return 0;
+                    const skill = mapOriginalSkillNumberToBasicSkill(attack.attack.skillNumber);
+                    return xpToLevel(championXP[champ.id]?.[skill] ?? 0);
+                };
+                const usableAttacks = allAttacks.filter((attack) =>
+                    isAttackOptionUsableAtMastery(attack, getMasteryForAttack(attack)),
+                );
                 const weaponName = weapon?.category === 'Weapon'
                     ? (WEAPON_TYPES[weapon.typeId]?.name ?? weapon.rawName ?? '?')
                     : '✊ Poing';
                 const xp  = champ ? (championXP[champ.id] ?? null) : null;
                 const lvl = xp ? xpToLevel(xp.fighter) : 0;
                 const isFlash = flash[i];
+                const menuOpen = openMenuIndex === i && ready && !!champ && allAttacks.length > 1;
 
                 return (
                     <div
                         key={i}
-                        onClick={() => handleClick(i, champ, ready)}
+                        onClick={() => handleClick(i, champ, ready, allAttacks, usableAttacks)}
                         style={{
                             position: 'relative', overflow: 'hidden',
                             background: isFlash
@@ -91,6 +128,54 @@ const CombatGrid: React.FC<{
                                     transition: 'height 0.08s linear',
                                     borderRadius: '0 0 3px 3px',
                                 }} />
+                                {menuOpen && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        inset: 0,
+                                        background: 'rgba(8,5,16,0.96)',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 3,
+                                        padding: 4,
+                                        zIndex: 2,
+                                    }}>
+                                        {allAttacks.map((attack) => {
+                                            const masteryLevel = getMasteryForAttack(attack);
+                                            const usable = isAttackOptionUsableAtMastery(attack, masteryLevel);
+                                            const unusableReason = getAttackOptionUnusableReason(attack, masteryLevel);
+                                            return (
+                                                <button
+                                                    key={attack.attackType}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        if (!usable) return;
+                                                        triggerAttack(i, champ, attack.attackType);
+                                                    }}
+                                                    style={{
+                                                        flex: 1,
+                                                        minHeight: 0,
+                                                        background: usable ? 'rgba(70,46,20,0.95)' : 'rgba(26,22,34,0.95)',
+                                                        border: `1px solid ${usable ? 'rgba(212,184,112,0.55)' : 'rgba(96,86,110,0.35)'}`,
+                                                        color: usable ? '#e4c684' : '#756b84',
+                                                        borderRadius: 3,
+                                                        fontSize: 9,
+                                                        fontWeight: 'bold',
+                                                        letterSpacing: 0.5,
+                                                        cursor: usable ? 'pointer' : 'default',
+                                                        padding: '2px 4px',
+                                                        textAlign: 'center',
+                                                    }}
+                                                    title={usable
+                                                        ? `${attack.displayName} · fatigue ${attack.attack.staminaCost} · tempo ${attack.attack.disableTime}/6s`
+                                                        : `${attack.displayName} · ${unusableReason ?? 'attaque indisponible'}`}
+                                                >
+                                                    {attack.displayName}
+                                                    {!usable && attack.masteryThreshold > 0 ? ` [${attack.masteryThreshold}]` : ''}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
                             </>
                         ) : (
                             <div style={{ color: '#251e35', fontSize: 10, textAlign: 'center', paddingTop: 8 }}>—</div>
@@ -120,7 +205,7 @@ const HandSlot: React.FC<{
     const torchBurnStart = useStore(s => s.torchBurnStart);
     const isTorch = item?.category === 'Weapon' && item.typeId === 16;
     const imageSrc = item
-        ? (isTorch ? getTorchImage(item.id, torchBurnStart) : getItemImage(item.category, item.typeId))
+        ? (isTorch ? getTorchImage(item.id, torchBurnStart) : getFloorItemImage(item))
         : null;
 
     return (

@@ -173,7 +173,7 @@ const LEGACY_ARMOR_TYPES: Record<number, ArmorDef> = {
      5: { id:  5, name: 'Robe of the Kite Lord',  slot: 'torso', armor: 25, weight:  8 },
      6: { id:  6, name: 'Robe',                   slot: 'torso', armor:  5, weight:  4 },
      7: { id:  7, name: 'Barbarian Doublet',      slot: 'torso', armor: 16, weight:  8 },
-     8: { id:  8, name: 'Gi',                     slot: 'torso', armor:  8, weight:  4 },
+    8: { id:  8, name: 'Ghi',                    slot: 'torso', armor:  8, weight:  4 },
      9: { id:  9, name: 'Plate Mail',             slot: 'torso', armor: 35, weight: 25 },
     10: { id: 10, name: 'Tunic',                  slot: 'torso', armor:  4, weight:  3 },
     41: { id: 41, name: 'Torso Plate',            slot: 'torso', armor: 40, weight: 30 },
@@ -255,7 +255,7 @@ const LEGACY_MISC_TYPES: Record<number, MiscDef> = {
     49: { id: 49, name: 'Key of B',       usable: true,  description: 'Opens specific locks' },
     50: { id: 50, name: 'Winged Key',     usable: true,  description: 'Opens specific locks' },
     51: { id: 51, name: 'Topaz Key',      usable: true,  description: 'Opens specific locks' },
-    52: { id: 52, name: 'Cross of Neta',  usable: true,  description: 'Opens specific locks' },
+    52: { id: 52, name: 'Cross Key',      usable: true,  description: 'Opens specific locks' },
     // ── Other items (IDs from game_db — may be inaccurate) ────────────────
      0: { id:  0, name: 'Compass',        usable: true,  description: 'Shows current direction' },
      2: { id:  2, name: 'Torch',          usable: true,  description: 'Provides light', luminous: true },

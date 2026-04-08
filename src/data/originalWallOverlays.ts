@@ -70,7 +70,7 @@ const OMITTED_OVERLAYS = new Set([
 ]);
 
 const VISUALS_BY_NAME: Record<string, OverlayVisual> = {
-    Fountain: { image: '/misc/wall_foutain_overlay.png', accent: '#78a8d8', width: 0.8, height: 1.06 },
+    'Fountain': { image: '/misc/wall_foutain_overlay.png', accent: '#78a8d8', width: 0.8, height: 1.06 },
     'Vi Altar': { image: '/misc/autel.png', accent: '#d5b175', width: 0.74, height: 0.74 },
     'Lever Up': { image: '/misc/levier_haut.png', accent: '#cda467', width: 0.32, height: 0.84 },
     'Lever Down': { image: '/misc/levier_bas.png', accent: '#cda467', width: 0.32, height: 0.84 },
@@ -92,7 +92,33 @@ const VISUALS_BY_NAME: Record<string, OverlayVisual> = {
     'Coin Slot': { image: '/misc/serrure.png', accent: '#ccb173', width: 0.34, height: 0.34 },
     'Gem Hole': { image: '/misc/serrure.png', accent: '#5bbad6', width: 0.34, height: 0.34 },
     'Full Torch Holder': { image: '/items/torch_unlit.png', accent: '#d59a54', width: 0.24, height: 0.92 },
-    'Empty Torch Holder': { label: 'Torch', accent: '#7e6c5c', width: 0.42, height: 0.48 },
+    'Empty Torch Holder': { image: '/misc/wall_torch_holder_empty.png', accent: '#7e6c5c', width: 0.42, height: 0.48 },
+    'Square Alcove': { image: '/misc/wall_alcove_square.png', accent: '#8c7a66', width: 0.72, height: 0.74 },
+    'Arched Alcove': { image: '/misc/wall_alcove_arched.png', accent: '#92785f', width: 0.74, height: 0.86 },
+    'Small Switch': { image: '/misc/wall_switch_small.png', accent: '#bea06e', width: 0.42, height: 0.42 },
+    'Tiny Switch': { image: '/misc/wall_switch_tiny.png', accent: '#bea06e', width: 0.32, height: 0.32 },
+    'Big Switch In': { image: '/misc/wall_switch_big_in.png', accent: '#c18a5c', width: 0.5, height: 0.5 },
+    'Big Switch Out': { image: '/misc/wall_switch_big_out.png', accent: '#c18a5c', width: 0.5, height: 0.5 },
+    'Blue Switch In': { image: '/misc/wall_switch_blue_in.png', accent: '#64a9d9', width: 0.5, height: 0.5 },
+    'Blue Switch Out': { image: '/misc/wall_switch_blue_out.png', accent: '#64a9d9', width: 0.5, height: 0.5 },
+    'Green Switch In': { image: '/misc/wall_switch_green_in.png', accent: '#63b06d', width: 0.5, height: 0.5 },
+    'Green Switch Out': { image: '/misc/wall_switch_green_out.png', accent: '#63b06d', width: 0.5, height: 0.5 },
+    'Red Switch In': { image: '/misc/wall_switch_red_in.png', accent: '#c86161', width: 0.5, height: 0.5 },
+    'Red Switch Out': { image: '/misc/wall_switch_red_out.png', accent: '#c86161', width: 0.5, height: 0.5 },
+    'Crack Switch In': { image: '/misc/wall_switch_crack_in.png', accent: '#9d7d68', width: 0.5, height: 0.5 },
+    'Crack Switch Out': { image: '/misc/wall_switch_crack_out.png', accent: '#9d7d68', width: 0.5, height: 0.5 },
+    'Eye Switch': { image: '/misc/wall_switch_eye.png', accent: '#b87e58', width: 0.48, height: 0.48 },
+    'Fireball Holes': { image: '/misc/wall_hazard_fireball_holes.png', accent: '#bf5b4e', width: 0.68, height: 0.52 },
+    'Dagger Holes': { image: '/misc/wall_hazard_dagger_holes.png', accent: '#9c9aa4', width: 0.68, height: 0.52 },
+    'Poison Holes': { image: '/misc/wall_hazard_poison_holes.png', accent: '#65a96c', width: 0.68, height: 0.52 },
+    'Slime Outlet': { image: '/misc/wall_hazard_slime_outlet.png', accent: '#6ea16a', width: 0.68, height: 0.52 },
+    'Amalgam (Encased Gem)': { image: '/misc/wall_amalgam_encased_gem.png', accent: '#d1bf81', width: 0.78, height: 0.9 },
+    'Amalgam (Free Gem)': { image: '/misc/wall_amalgam_free_gem.png', accent: '#d1bf81', width: 0.78, height: 0.9 },
+    'Amalgam (Without Gem)': { image: '/misc/wall_amalgam_without_gem.png', accent: '#d1bf81', width: 0.78, height: 0.9 },
+    'Crack': { image: '/misc/wall_crack.png', accent: '#8e8f9b', width: 0.56, height: 0.8 },
+    'Iron Ring': { image: '/misc/wall_iron_ring.png', accent: '#a0a0a6', width: 0.42, height: 0.58 },
+    'Manacles': { image: '/misc/wall_manacles.png', accent: '#9c9aa4', width: 0.56, height: 0.66 },
+    'Lord Order (Outside)': { image: '/misc/wall_lord_order_outside.png', accent: '#bf8b54', width: 0.78, height: 1.0 },
 };
 
 function isFaceActive(level: number, face: FixedFace, activeSensors: Set<string>): boolean {
