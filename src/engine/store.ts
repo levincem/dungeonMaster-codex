@@ -16,7 +16,14 @@ import type { CreatureDef } from '../data/creatures';
 import { findSpell, getSkillLevel } from '../data/runes';
 import type { CastSkill } from '../data/runes';
 import { ARMOR_TYPES, WEAPON_TYPES, POTION_TYPES, MISC_TYPES, normalizeScrollText, resolveItemName } from '../data/items';
-import { canEquipItemInSlot, getChampionMaxLoad, getEffectiveChampionStats, getTotalWeight } from '../data/equipment';
+import {
+    canEquipItemInSlot,
+    EMPTY_CHAMPION_WOUNDS,
+    getChampionMaxLoad,
+    getEffectiveChampionStats,
+    getTotalWeight,
+} from '../data/equipment';
+import type { ChampionWoundSlot, ChampionWounds } from '../data/equipment';
 import { hasOriginalWallOverlayAt } from '../data/originalWallOverlays';
 import {
     getAttackOptionUnusableReason,
@@ -42,6 +49,7 @@ import {
 } from '../data/waterContainers';
 import { doorBlocksThrownItems, doorBlocksVision } from '../data/doors';
 import { playPartyAttack, playCreatureMove, playCreatureAttack, playPlate } from './sounds';
+import { readPersistedSave, writePersistedSave } from './saveGame';
 import {
     ORIGINAL_TIMER_TICK_SECONDS,
     originalTimerTicksToSeconds,
@@ -59,7 +67,7 @@ import {
 } from './time';
 
 export type Direction = 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
-export type GamePhase = 'exploration' | 'mirror_open';
+export type GamePhase = 'title' | 'exploration' | 'mirror_open';
 
 // ─── Champion vitals (live HP / Stamina / Mana) ───────────────────────────────
 export interface ChampionVitals {
@@ -68,6 +76,7 @@ export interface ChampionVitals {
     mana:    number;  // current mana       (0 … champion.mana)
     food:    number;  // hunger reserve     (-1024 … 2048)
     water:   number;  // thirst reserve     (-1024 … 2048)
+    wounds: ChampionWounds;
     poisonEntries: { remaining: number; nextTickIn: number }[];
 }
 
@@ -231,8 +240,88 @@ function createChampionVitals(
         mana,
         food,
         water,
+        wounds: { ...EMPTY_CHAMPION_WOUNDS },
         poisonEntries: [],
     };
+}
+
+function chooseChampionWoundSlotsFromZones(
+    hitZones: readonly ArmorCoverageZone[] | undefined,
+): ChampionWoundSlot[] {
+    if (!hitZones || hitZones.length === 0) return ['torso'];
+    const slots = new Set<ChampionWoundSlot>();
+    for (const zone of hitZones) {
+        if (zone === 'hands') {
+            slots.add('rightHand');
+            slots.add('leftHand');
+            continue;
+        }
+        slots.add(zone);
+    }
+    return [...slots];
+}
+
+function applyChampionWound(vitals: ChampionVitals, slot: ChampionWoundSlot): ChampionVitals {
+    if (vitals.wounds[slot]) return vitals;
+    return {
+        ...vitals,
+        wounds: {
+            ...vitals.wounds,
+            [slot]: true,
+        },
+    };
+}
+
+function healChampionWoundsApprox(vitals: ChampionVitals, iterations = 1): ChampionVitals {
+    let current = vitals;
+    for (let i = 0; i < iterations; i += 1) {
+        const woundedSlots = (Object.entries(current.wounds) as [ChampionWoundSlot, boolean][])
+            .filter(([, wounded]) => wounded)
+            .map(([slot]) => slot);
+        if (woundedSlots.length === 0) break;
+        const healedSlot = woundedSlots[randomInt(woundedSlots.length)];
+        if (!healedSlot) break;
+        current = {
+            ...current,
+            wounds: {
+                ...current.wounds,
+                [healedSlot]: false,
+            },
+        };
+    }
+    return current;
+}
+
+function applyChampionHitWoundsApprox(
+    vitals: ChampionVitals,
+    champion: Champion,
+    equip: ChampionEquipment | undefined,
+    damage: number,
+    hitZones: readonly ArmorCoverageZone[] | undefined,
+): ChampionVitals {
+    const allowedSlots = chooseChampionWoundSlotsFromZones(hitZones);
+    if (allowedSlots.length === 0 || damage <= 0 || randomInt(3) !== 0) return vitals;
+
+    const effective = getEffectiveChampionStats(champion, equip);
+    const armorDefense = getAverageArmorForZones(equip, hitZones);
+    let woundDefense = randomInt(Math.max(1, Math.floor(effective.vitality / 8) + 1));
+    woundDefense += Math.floor(armorDefense / 2);
+
+    let adjustedAttack = (damage * 3) + randomInt(24) + 6;
+    if (adjustedAttack <= woundDefense) return vitals;
+
+    let nextVitals = vitals;
+    let woundThreshold = Math.max(1, woundDefense);
+    do {
+        const unwounded = allowedSlots.filter((slot) => !nextVitals.wounds[slot]);
+        const pool = unwounded.length > 0 ? unwounded : allowedSlots;
+        const slot = pool[randomInt(pool.length)];
+        if (slot) nextVitals = applyChampionWound(nextVitals, slot);
+        adjustedAttack >>= 1;
+        woundThreshold <<= 1;
+    } while (adjustedAttack > woundThreshold && adjustedAttack > 0);
+
+    return nextVitals;
 }
 
 function adjustByAttributeApprox(value: number, currentAttribute: number): number {
@@ -423,6 +512,39 @@ function buildDroppedItems(items: FloorItem[], level: number, x: number, y: numb
     return items.map((item) => buildDroppedItem(item, level, x, y));
 }
 
+function parseItemCharges(rawName: string | undefined): { charges?: number; maxCharges?: number } {
+    if (!rawName) return {};
+    const match = rawName.match(/\(Charges=(\d+)\)/i);
+    if (!match) return {};
+    const charges = Number(match[1]);
+    return Number.isFinite(charges) ? { charges, maxCharges: charges } : {};
+}
+
+function getActionCharges(item: FloorItem | undefined): number | null {
+    if (!item) return null;
+    if (typeof item.actionCharges === 'number') return item.actionCharges;
+    const parsed = parseItemCharges(item.rawName);
+    return typeof parsed.charges === 'number' ? parsed.charges : null;
+}
+
+function updateEquippedItemCharges(
+    equip: ChampionEquipment,
+    slot: 'rightHand' | 'leftHand',
+    remainingCharges: number | null,
+): ChampionEquipment {
+    if (remainingCharges === null) return equip;
+    const item = equip[slot];
+    if (!item) return equip;
+    return {
+        ...equip,
+        [slot]: {
+            ...item,
+            actionCharges: remainingCharges,
+            actionMaxCharges: item.actionMaxCharges ?? getActionCharges(item) ?? undefined,
+        },
+    };
+}
+
 function findQuiverAmmo(
     equip: ChampionEquipment | undefined,
     requiredRawClass: number | null,
@@ -508,11 +630,12 @@ function computeOriginalQuicknessApprox(
     equip: ChampionEquipment | undefined,
     inventory: FloorItem[] | undefined,
     currentStamina: number | undefined,
+    wounds?: ChampionWounds,
 ): number {
     const effective = getEffectiveChampionStats(champion, equip ?? {});
     let quickness = effective.dexterity + randomInt(8);
     const load = getTotalWeight(equip ?? {}, inventory ?? []);
-    const maxLoad = Math.max(1, getChampionMaxLoad(champion, equip, currentStamina));
+    const maxLoad = Math.max(1, getChampionMaxLoad(champion, equip, currentStamina, wounds));
     quickness -= Math.floor(((quickness / 2) * load) / maxLoad);
     quickness = Math.floor(quickness / 2);
     const lowLimit = randomInt(8) + 1;
@@ -696,31 +819,31 @@ function determineMonsterAttackDamageApprox(
     targetVitals: ChampionVitals,
     attacker: CreatureInstance,
     damageClass?: MonsterDamageClassApprox,
-): number {
+): { damage: number; hitZones?: readonly ArmorCoverageZone[] } {
     const def = CREATURE_TYPES[attacker.typeId];
-    if (!def) return 0;
+    if (!def) return { damage: 0 };
 
     const equip = state.championEquipment[targetChampion.id] ?? {};
     const inventory = state.championInventories[targetChampion.id] ?? [];
     const effective = getEffectiveChampionStats(targetChampion, equip);
     const resolvedDamageClass = damageClass ?? chooseMonsterDamageClassApprox(def);
     const hitZones = chooseMonsterHitZonesApprox(resolvedDamageClass);
-    const quickness = computeOriginalQuicknessApprox(targetChampion, equip, inventory, targetVitals.stamina);
+    const quickness = computeOriginalQuicknessApprox(targetChampion, equip, inventory, targetVitals.stamina, targetVitals.wounds);
     const levelDifficulty = getMap(state.level).difficulty * 2;
     const requiredQuickness = randomInt(32) + def.hitProb + levelDifficulty - 16;
 
     if (quickness >= requiredQuickness && randomInt(4) !== 0) {
-        return 0;
+        return { damage: 0, hitZones };
     }
 
     if (isCharacterLuckyApprox(effective.luck, 60)) {
-        return 0;
+        return { damage: 0, hitZones };
     }
 
     let attackValue = levelDifficulty + randomInt(16) + Math.max(1, Math.floor(def.rawAttack / 16));
 
     if (attackValue <= 1) {
-        if (randomInt(2) !== 0) return 0;
+        if (randomInt(2) !== 0) return { damage: 0, hitZones };
         attackValue = randomInt(4) + 2;
     }
 
@@ -747,7 +870,7 @@ function determineMonsterAttackDamageApprox(
         ) / 2,
     );
 
-    return Math.max(0, attackValue);
+    return { damage: Math.max(0, attackValue), hitZones };
 }
 
 function getWeaponName(item: FloorItem | undefined): string {
@@ -781,7 +904,7 @@ function determineMeleeDamageApprox(
         return 0;
     }
 
-    const quickness = computeOriginalQuicknessApprox(champion, equip, inventory, currentStamina);
+    const quickness = computeOriginalQuicknessApprox(champion, equip, inventory, currentStamina, state.championVitals[championId]?.wounds);
     const requiredQuickness = randomInt(32) + (targetDef?.hitProb ?? 40) + levelDifficulty - 16;
     const luckyHit = randomInt(4) === 0;
     if (
@@ -945,6 +1068,8 @@ function notifyCreatureAction(id: string, action: 'move' | 'attack'): void {
 // ─── Creature timers (mutable, kept outside Zustand to avoid per-frame re-renders) ──
 const creatureTimers = new Map<string, { mt: number; at: number }>();
 const creatureAttackWindows = new Map<string, number>();
+const creatureConfusedUntil = new Map<string, number>();
+const creatureFluxcageUntil = new Map<string, number>();
 
 // ─── Creature initialisation ──────────────────────────────────────────────────
 
@@ -1025,6 +1150,8 @@ function buildFloorItems(): FloorItem[] {
                         x: tile.x,
                         y: tile.y,
                         tilePos: obj.tilePos,
+                        actionCharges: parseItemCharges(rawObj.text ?? rawObj.name).charges,
+                        actionMaxCharges: parseItemCharges(rawObj.text ?? rawObj.name).maxCharges,
                     });
                     items[items.length - 1] = normaliseWaterContainer(items[items.length - 1]!);
                 }
@@ -1593,8 +1720,10 @@ interface GameState {
     activeShields: PartyShield[];
     /** Party is invisible until this timestamp (0 = not invisible) */
     invisibleUntil: number;
-    /** Magic vision active until this timestamp (0 = inactive) */
+    /** Reveal hidden active until this timestamp (0 = inactive) */
     magicVisionUntil: number;
+    /** See-through-walls active until this timestamp (0 = inactive) */
+    seeThroughWallsUntil: number;
     /** Footprint spell active until this timestamp (0 = inactive) */
     footprintsUntil: number;
     /** Tile positions visited while footprint spell was active */
@@ -1644,6 +1773,10 @@ interface GameState {
     useItem: (championId: number, itemId: string) => void;
     fillWaterContainer: (championId: number, itemId: string) => void;
     sleep: () => void;
+    enterDungeon: () => void;
+    saveGame: () => boolean;
+    loadGame: () => boolean;
+    returnToTitle: () => void;
 }
 
 const DIRECTIONS: Direction[] = ['NORTH', 'EAST', 'SOUTH', 'WEST'];
@@ -1790,7 +1923,7 @@ function applyPartyMoveFatigue(state: Pick<GameState, 'party' | 'championVitals'
         const inventory = state.championInventories[champ.id] ?? [];
         const effective = getEffectiveChampionStats(champ, equip);
         const load = getTotalWeight(equip, inventory);
-        const maxLoad = Math.max(1, getChampionMaxLoad(champ, equip, current.stamina));
+        const maxLoad = Math.max(1, getChampionMaxLoad(champ, equip, current.stamina, current.wounds));
         const staminaCost = Math.floor((load * 3) / maxLoad) + 1;
         const next = applyChampionStaminaDeltaOriginal(current, effective.health, effective.stamina, -staminaCost);
 
@@ -1811,15 +1944,30 @@ function computeChampionMovementTicksApprox(
 ): number {
     if (!vitals || vitals.hp <= 0) return 1;
     const load = getTotalWeight(equip ?? {}, inventory ?? []);
-    const maxLoad = Math.max(1, getChampionMaxLoad(champion, equip, vitals.stamina));
+    const maxLoad = Math.max(1, getChampionMaxLoad(champion, equip, vitals.stamina, vitals.wounds));
+
+    let ticks: number;
+    let woundTicks: number;
 
     if (maxLoad > load) {
-        let ticks = 2;
+        ticks = 2;
         if ((load << 3) > (maxLoad * 5)) ticks += 1;
-        return ticks;
+        woundTicks = 1;
+    } else {
+        ticks = 4 + Math.floor((((load - maxLoad) << 2) / maxLoad));
+        woundTicks = 2;
     }
 
-    return 4 + Math.floor((((load - maxLoad) << 2) / maxLoad));
+    if (vitals.wounds.feet) {
+        ticks += woundTicks;
+    }
+
+    const feetName = equip?.feet?.rawName ?? '';
+    if (/boots of speed/i.test(feetName)) {
+        ticks -= 1;
+    }
+
+    return Math.max(1, ticks);
 }
 
 function computePartyMovementCooldownSecondsApprox(
@@ -1860,8 +2008,166 @@ function ageTimedEffectsByMs(state: GameState, advanceMs: number): Partial<GameS
         activeShields,
         invisibleUntil: Math.max(0, state.invisibleUntil - advanceMs),
         magicVisionUntil: Math.max(0, state.magicVisionUntil - advanceMs),
+        seeThroughWallsUntil: Math.max(0, state.seeThroughWallsUntil - advanceMs),
         footprintsUntil: Math.max(0, state.footprintsUntil - advanceMs),
     };
+}
+
+interface PersistedCreatureTimers {
+    moveRemaining: number;
+    attackRemaining: number;
+    attackWindowRemainingMs: number;
+    confusedRemainingMs: number;
+    fluxcageRemainingMs: number;
+}
+
+interface PersistedSaveData {
+    version: 1;
+    savedAt: number;
+    level: number;
+    position: [number, number];
+    direction: Direction;
+    party: Champion[];
+    gateOpen: boolean;
+    openDoors: string[];
+    openTeleporters: string[];
+    openWalls: string[];
+    activeSensors: string[];
+    firedSensors: string[];
+    visibleTexts: string[];
+    creatures: CreatureInstance[];
+    floorItems: FloorItem[];
+    championInventories: Record<number, FloorItem[]>;
+    championEquipment: Record<number, ChampionEquipment>;
+    championVitals: Record<number, ChampionVitals>;
+    elapsedGameTimeTicks: number;
+    regenTickRemainder: number;
+    lastPartyMoveGameTick: number;
+    movementCooldown: number;
+    championXP: Record<number, ChampionXP>;
+    championCombat: Record<number, ChampionCombat>;
+    crushingDoors: Record<string, { phase: 'closing' | 'bouncing'; timer: number }>;
+    torchBurnElapsed: Record<string, number>;
+    spellLights: Array<Omit<SpellLight, 'expiresAt'> & { remainingMs: number }>;
+    projectiles: Array<Omit<Projectile, 'nextMoveAt'> & { nextMoveInMs: number }>;
+    activeShields: Array<Omit<PartyShield, 'expiresAt'> & { remainingMs: number }>;
+    invisibleRemainingMs: number;
+    magicVisionRemainingMs: number;
+    seeThroughWallsRemainingMs: number;
+    footprintsRemainingMs: number;
+    footprintHistory: FootprintEntry[];
+    deadChampions: Record<number, Champion>;
+    creatureTimers: Record<string, PersistedCreatureTimers>;
+}
+
+function buildPersistedSaveData(state: GameState): PersistedSaveData {
+    const now = Date.now();
+    const timerIds = new Set<string>([
+        ...state.creatures.map((creature) => creature.id),
+        ...creatureTimers.keys(),
+        ...creatureAttackWindows.keys(),
+        ...creatureConfusedUntil.keys(),
+        ...creatureFluxcageUntil.keys(),
+    ]);
+    const serializedCreatureTimers: Record<string, PersistedCreatureTimers> = {};
+    for (const id of timerIds) {
+        const timers = creatureTimers.get(id);
+        serializedCreatureTimers[id] = {
+            moveRemaining: Math.max(0, timers?.mt ?? 0),
+            attackRemaining: Math.max(0, timers?.at ?? 0),
+            attackWindowRemainingMs: Math.max(0, (creatureAttackWindows.get(id) ?? 0) - now),
+            confusedRemainingMs: Math.max(0, (creatureConfusedUntil.get(id) ?? 0) - now),
+            fluxcageRemainingMs: Math.max(0, (creatureFluxcageUntil.get(id) ?? 0) - now),
+        };
+    }
+
+    return {
+        version: 1,
+        savedAt: now,
+        level: state.level,
+        position: state.position,
+        direction: state.direction,
+        party: state.party,
+        gateOpen: state.gateOpen,
+        openDoors: [...state.openDoors],
+        openTeleporters: [...state.openTeleporters],
+        openWalls: [...state.openWalls],
+        activeSensors: [...state.activeSensors],
+        firedSensors: [...state.firedSensors],
+        visibleTexts: [...state.visibleTexts],
+        creatures: state.creatures,
+        floorItems: state.floorItems,
+        championInventories: state.championInventories,
+        championEquipment: state.championEquipment,
+        championVitals: state.championVitals,
+        elapsedGameTimeTicks: state.elapsedGameTimeTicks,
+        regenTickRemainder: state.regenTickRemainder,
+        lastPartyMoveGameTick: state.lastPartyMoveGameTick,
+        movementCooldown: state.movementCooldown,
+        championXP: state.championXP,
+        championCombat: state.championCombat,
+        crushingDoors: state.crushingDoors,
+        torchBurnElapsed: Object.fromEntries(
+            Object.entries(state.torchBurnStart).map(([itemId, litAt]) => [itemId, Math.max(0, now - litAt)]),
+        ),
+        spellLights: state.spellLights.map((light) => ({
+            id: light.id,
+            lightContrib: light.lightContrib,
+            remainingMs: Math.max(0, light.expiresAt - now),
+        })),
+        projectiles: state.projectiles.map((projectile) => ({
+            ...projectile,
+            nextMoveInMs: Math.max(0, projectile.nextMoveAt - now),
+        })),
+        activeShields: state.activeShields.map((shield) => ({
+            ...shield,
+            remainingMs: Math.max(0, shield.expiresAt - now),
+        })),
+        invisibleRemainingMs: Math.max(0, state.invisibleUntil - now),
+        magicVisionRemainingMs: Math.max(0, state.magicVisionUntil - now),
+        seeThroughWallsRemainingMs: Math.max(0, state.seeThroughWallsUntil - now),
+        footprintsRemainingMs: Math.max(0, state.footprintsUntil - now),
+        footprintHistory: state.footprintHistory,
+        deadChampions: state.deadChampions,
+        creatureTimers: serializedCreatureTimers,
+    };
+}
+
+function tryParsePersistedSaveData(raw: string | null): PersistedSaveData | null {
+    if (!raw) return null;
+    try {
+        const parsed = JSON.parse(raw) as PersistedSaveData;
+        if (parsed?.version !== 1) return null;
+        if (!Array.isArray(parsed.position) || parsed.position.length !== 2) return null;
+        if (!Array.isArray(parsed.party) || !Array.isArray(parsed.creatures) || !Array.isArray(parsed.floorItems)) return null;
+        return parsed;
+    } catch {
+        return null;
+    }
+}
+
+function restoreExternalCreatureRuntimeFromSave(data: PersistedSaveData): void {
+    const now = Date.now();
+    creatureTimers.clear();
+    creatureAttackWindows.clear();
+    creatureConfusedUntil.clear();
+    creatureFluxcageUntil.clear();
+
+    for (const [id, timers] of Object.entries(data.creatureTimers)) {
+        creatureTimers.set(id, {
+            mt: Math.max(0, timers.moveRemaining),
+            at: Math.max(0, timers.attackRemaining),
+        });
+        if (timers.attackWindowRemainingMs > 0) {
+            creatureAttackWindows.set(id, now + timers.attackWindowRemainingMs);
+        }
+        if (timers.confusedRemainingMs > 0) {
+            creatureConfusedUntil.set(id, now + timers.confusedRemainingMs);
+        }
+        if (timers.fluxcageRemainingMs > 0) {
+            creatureFluxcageUntil.set(id, now + timers.fluxcageRemainingMs);
+        }
+    }
 }
 
 // ─── Store ────────────────────────────────────────────────────────────────────
@@ -1872,7 +2178,7 @@ export const useStore = create<GameState>((set) => ({
     direction: HALL_START_DIR,
     party: [],
     selectedChampionIndex: 0,
-    gamePhase: 'exploration',
+    gamePhase: 'title',
     activeMirrorChampionId: null,
     activePartyMemberId: null,
     gateOpen: false,
@@ -1902,6 +2208,7 @@ export const useStore = create<GameState>((set) => ({
     activeShields: [],
     invisibleUntil: 0,
     magicVisionUntil: 0,
+    seeThroughWallsUntil: 0,
     footprintsUntil: 0,
     footprintHistory: [],
     deadChampions: {},
@@ -2431,7 +2738,10 @@ export const useStore = create<GameState>((set) => ({
         } else if (item.category === 'Potion') {
             const def = POTION_TYPES[item.typeId];
             if (def?.restore !== undefined) {
-                if (def.effect === 'health')  newVitals.hp      = Math.min(effective.health,  vitals.hp      + def.restore);
+                if (def.effect === 'health') {
+                    newVitals.hp = Math.min(effective.health, vitals.hp + def.restore);
+                    Object.assign(newVitals, healChampionWoundsApprox(newVitals, Math.max(1, Math.floor(def.restore / 42))));
+                }
                 if (def.effect === 'stamina') newVitals.stamina = Math.min(effective.stamina, vitals.stamina + def.restore);
                 if (def.effect === 'mana')    newVitals.mana    = Math.min(effective.mana,    vitals.mana    + def.restore);
                 if (def.effect === 'poison')  newVitals.poisonEntries = [];
@@ -2527,6 +2837,88 @@ export const useStore = create<GameState>((set) => ({
     // ya,bro → Anti-Magic/Shield (17) | zo,bro,ra → Mana (10)
 
     // ─── Spell casting ────────────────────────────────────────────────────────
+    enterDungeon: () => set({
+        gamePhase: 'exploration',
+        activeMirrorChampionId: null,
+        activePartyMemberId: null,
+        lastCastResult: null,
+    }),
+
+    saveGame: () => {
+        const state = useStore.getState();
+        const payload = JSON.stringify(buildPersistedSaveData(state));
+        return writePersistedSave(payload);
+    },
+
+    loadGame: () => {
+        const data = tryParsePersistedSaveData(readPersistedSave());
+        if (!data) return false;
+        const now = Date.now();
+        restoreExternalCreatureRuntimeFromSave(data);
+        set({
+            level: data.level,
+            position: data.position,
+            direction: data.direction,
+            party: data.party,
+            selectedChampionIndex: 0,
+            gamePhase: 'exploration',
+            activeMirrorChampionId: null,
+            activePartyMemberId: null,
+            gateOpen: data.gateOpen,
+            openDoors: new Set<string>(data.openDoors),
+            openTeleporters: new Set<string>(data.openTeleporters),
+            openWalls: new Set<string>(data.openWalls),
+            activeSensors: new Set<string>(data.activeSensors),
+            firedSensors: new Set<string>(data.firedSensors),
+            visibleTexts: new Set<string>(data.visibleTexts),
+            creatures: data.creatures,
+            floorItems: data.floorItems,
+            championInventories: data.championInventories,
+            championEquipment: data.championEquipment,
+            championVitals: data.championVitals,
+            elapsedGameTimeTicks: data.elapsedGameTimeTicks,
+            regenTickRemainder: data.regenTickRemainder,
+            lastPartyMoveGameTick: data.lastPartyMoveGameTick,
+            movementCooldown: data.movementCooldown,
+            lastCastResult: null,
+            championXP: data.championXP,
+            championCombat: data.championCombat,
+            damageEvents: [],
+            crushingDoors: data.crushingDoors,
+            torchBurnStart: Object.fromEntries(
+                Object.entries(data.torchBurnElapsed).map(([itemId, elapsed]) => [itemId, now - elapsed]),
+            ),
+            spellLights: data.spellLights
+                .map((light) => ({ id: light.id, lightContrib: light.lightContrib, expiresAt: now + light.remainingMs }))
+                .filter((light) => light.expiresAt > now),
+            projectiles: data.projectiles.map((projectile) => {
+                const { nextMoveInMs, ...rest } = projectile;
+                return { ...rest, nextMoveAt: now + nextMoveInMs };
+            }),
+            activeShields: data.activeShields
+                .map((shield) => {
+                    const { remainingMs, ...rest } = shield;
+                    return { ...rest, expiresAt: now + remainingMs };
+                })
+                .filter((shield) => shield.expiresAt > now),
+            invisibleUntil: data.invisibleRemainingMs > 0 ? now + data.invisibleRemainingMs : 0,
+            magicVisionUntil: data.magicVisionRemainingMs > 0 ? now + data.magicVisionRemainingMs : 0,
+            seeThroughWallsUntil: data.seeThroughWallsRemainingMs > 0 ? now + data.seeThroughWallsRemainingMs : 0,
+            footprintsUntil: data.footprintsRemainingMs > 0 ? now + data.footprintsRemainingMs : 0,
+            footprintHistory: data.footprintHistory,
+            deadChampions: data.deadChampions,
+        });
+        return true;
+    },
+
+    returnToTitle: () => set({
+        gamePhase: 'title',
+        activeMirrorChampionId: null,
+        activePartyMemberId: null,
+        lastCastResult: null,
+        damageEvents: [],
+    }),
+
     castSpell: (championId, runeIds) => set((state) => {
         const champion = state.party.find(c => c.id === championId);
         if (!champion) return state;
@@ -2749,12 +3141,12 @@ export const useStore = create<GameState>((set) => ({
                 };
             }
 
-            case 'magic_vision': {
+            case 'see_through_walls': {
                 const durationMs = quantizeMsToOriginalTimerTicks(spell.manaCost * 10_000);
                 return {
                     ...base,
                     championVitals: { ...state.championVitals, [championId]: newVitals },
-                    magicVisionUntil: Math.max(state.magicVisionUntil, now + durationMs),
+                    seeThroughWallsUntil: Math.max(state.seeThroughWallsUntil, now + durationMs),
                 };
             }
 
@@ -2912,14 +3304,17 @@ export const useStore = create<GameState>((set) => ({
         const championVitals = vitalsUpdate
             ? { ...state.championVitals, [championId]: vitalsUpdate.nextVitals }
             : state.championVitals;
-
-        if (selectedAttack?.requiresCharges) {
+        const rightHandCharges = getActionCharges(rightHand);
+        if (selectedAttack?.requiresCharges && rightHandCharges !== null && rightHandCharges <= 0) {
             return {
                 championCombat: { ...state.championCombat, [championId]: newCombat },
                 championVitals,
-                lastCastResult: buildAttackResultMessage(`Charges d'objet non gerees pour ${selectedAttack.displayName}.`),
+                lastCastResult: buildAttackResultMessage(`${selectedAttack.displayName} impossible: plus de charges.`),
             };
         }
+        const chargedEquip = selectedAttack?.requiresCharges
+            ? updateEquippedItemCharges(equip, 'rightHand', rightHandCharges === null ? null : Math.max(0, rightHandCharges - 1))
+            : equip;
 
         if (selectedAttack && isThrowAttack(selectedAttack) && rightHand) {
             const descriptor = getOriginalWeaponReference(rightHand);
@@ -3021,10 +3416,16 @@ export const useStore = create<GameState>((set) => ({
         const performSupportedUtilityAction = (): Partial<GameState> | null => {
             if (!selectedAttack) return null;
             const now = Date.now();
+            const champIdx = state.party.findIndex(c => c.id === championId);
+            const isLeftCol = champIdx === 0 || champIdx === 2;
+            const preferredSide: CreatureSide = isLeftCol ? 'left' : 'right';
+            const front = creaturesInFront(state.level, state.position, state.direction, state.creatures);
+            const target = front.find(c => c.side === preferredSide) ?? front[0] ?? null;
             const base = {
                 championCombat: { ...state.championCombat, [championId]: newCombat },
                 championVitals,
                 championXP: state.championXP,
+                ...(chargedEquip !== equip ? { championEquipment: { ...state.championEquipment, [championId]: chargedEquip } } : {}),
                 lastCastResult: buildAttackResultMessage(selectedAttack.displayName, true),
             } satisfies Partial<GameState>;
 
@@ -3096,10 +3497,148 @@ export const useStore = create<GameState>((set) => ({
                         projectiles: [...state.projectiles, newProj],
                     };
                 }
+                case 'Fireball': {
+                    const { x, y } = getFrontPosition(state.position, state.direction);
+                    const newProj: Projectile = {
+                        id: `weapon_fireball_${now}_${Math.random().toString(36).slice(2)}`,
+                        level: state.level,
+                        x,
+                        y,
+                        direction: state.direction,
+                        effect: 'fireball',
+                        damage: [18, 42],
+                        nextMoveAt: now,
+                    };
+                    return {
+                        ...base,
+                        projectiles: [...state.projectiles, newProj],
+                    };
+                }
+                case 'Dispell': {
+                    const { x, y } = getFrontPosition(state.position, state.direction);
+                    const newProj: Projectile = {
+                        id: `weapon_dispell_${now}_${Math.random().toString(36).slice(2)}`,
+                        level: state.level,
+                        x,
+                        y,
+                        direction: state.direction,
+                        effect: 'disrupt_nonmaterial',
+                        damage: [14, 34],
+                        nextMoveAt: now,
+                    };
+                    return {
+                        ...base,
+                        projectiles: [...state.projectiles, newProj],
+                    };
+                }
+                case 'Confuse': {
+                    if (!target) {
+                        return {
+                            ...base,
+                            lastCastResult: buildAttackResultMessage('CONFUSE sans cible.'),
+                        };
+                    }
+                    creatureConfusedUntil.set(target.id, now + quantizeMsToOriginalTimerTicks(90_000));
+                    const timers = creatureTimers.get(target.id);
+                    if (timers) {
+                        creatureTimers.set(target.id, {
+                            mt: Math.max(timers.mt, 0.75),
+                            at: Math.max(timers.at, 1.25),
+                        });
+                    }
+                    return base;
+                }
+                case 'Fluxcage': {
+                    if (!target) {
+                        return {
+                            ...base,
+                            lastCastResult: buildAttackResultMessage('FLUXCAGE sans cible.'),
+                        };
+                    }
+                    creatureFluxcageUntil.set(target.id, now + quantizeMsToOriginalTimerTicks(120_000));
+                    const timers = creatureTimers.get(target.id);
+                    if (timers) {
+                        creatureTimers.set(target.id, {
+                            mt: Math.max(timers.mt, 1.5),
+                            at: Math.max(timers.at, 0.6),
+                        });
+                    }
+                    return base;
+                }
+                case 'Fuse': {
+                    if (!target) {
+                        return {
+                            ...base,
+                            lastCastResult: buildAttackResultMessage('FUSE sans cible.'),
+                        };
+                    }
+                    const firestaffName = rightHand ? getWeaponName(rightHand).toLowerCase() : '';
+                    const completeFirestaff =
+                        Boolean(rightHand) &&
+                        (
+                            (rightHand?.typeId === 45) ||
+                            (/firestaff/.test(firestaffName) && /complete|final/i.test((rightHand?.rawName ?? '').toLowerCase()))
+                        );
+                    if (!completeFirestaff) {
+                        return {
+                            ...base,
+                            lastCastResult: buildAttackResultMessage('FUSE requiert le Firestaff complet.'),
+                        };
+                    }
+                    const trapped = (creatureFluxcageUntil.get(target.id) ?? 0) > now;
+                    if (target.typeId === 23 && !trapped) {
+                        return {
+                            ...base,
+                            lastCastResult: buildAttackResultMessage('Lord Chaos doit etre fluxcage avant FUSE.'),
+                        };
+                    }
+                    const fuseDamage = target.typeId === 23 ? Math.max(999, target.currentHP) : 90;
+                    const newHP = Math.max(0, target.currentHP - fuseDamage);
+                    const killed = newHP <= 0;
+                    let newCreatures = state.creatures.map(c =>
+                        c.id === target.id ? { ...c, currentHP: newHP, alive: !killed } : c
+                    );
+                    let newFloorItems = state.floorItems;
+                    if (killed) {
+                        const dropped = dropCreatureCarriedItems(newCreatures, newFloorItems, target.id);
+                        newCreatures = dropped.creatures;
+                        newFloorItems = dropped.floorItems;
+                    }
+                    const dmgEvt: DamageEvent = {
+                        id: `fuse_${Date.now()}_${target.id}`,
+                        x: target.x,
+                        y: target.y,
+                        amount: fuseDamage,
+                        ts: Date.now(),
+                    };
+                    return {
+                        ...base,
+                        creatures: newCreatures,
+                        ...(newFloorItems !== state.floorItems ? { floorItems: newFloorItems } : {}),
+                        damageEvents: [...state.damageEvents, dmgEvt],
+                    };
+                }
+                case 'Invoke': {
+                    const { x, y } = getFrontPosition(state.position, state.direction);
+                    const newProj: Projectile = {
+                        id: `weapon_invoke_${now}_${Math.random().toString(36).slice(2)}`,
+                        level: state.level,
+                        x,
+                        y,
+                        direction: state.direction,
+                        effect: 'plasma',
+                        damage: [20, 50],
+                        nextMoveAt: now,
+                    };
+                    return {
+                        ...base,
+                        projectiles: [...state.projectiles, newProj],
+                    };
+                }
                 case 'Window': {
                     return {
                         ...base,
-                        magicVisionUntil: Math.max(state.magicVisionUntil, now + quantizeMsToOriginalTimerTicks(120_000)),
+                        seeThroughWallsUntil: Math.max(state.seeThroughWallsUntil, now + quantizeMsToOriginalTimerTicks(120_000)),
                     };
                 }
                 default:
@@ -3360,12 +3899,23 @@ export const useStore = create<GameState>((set) => ({
             const dist = Math.abs(dx) + Math.abs(dy);
             const adjacent = dist === 1;
             const canSee   = dist <= 8 && hasLineOfSight(map, state.level, state.openDoors, c.x, c.y, px, py);
+            const nowMs = Date.now();
+            const confused = (creatureConfusedUntil.get(c.id) ?? 0) > nowMs;
+            const fluxcaged = (creatureFluxcageUntil.get(c.id) ?? 0) > nowMs;
 
             let nx = c.x, ny = c.y;
 
             // ── Movement ──────────────────────────────────────────────────────
             if (moveTimer === 0 && !adjacent) {
                 moveTimer = nextMonsterMoveDelaySecondsApprox(def.moveSpd);
+                if (fluxcaged) {
+                    creatureTimers.set(c.id, { mt: moveTimer, at: atkTimer });
+                    continue;
+                }
+                if (confused && randomInt(2) === 0) {
+                    creatureTimers.set(c.id, { mt: moveTimer, at: atkTimer });
+                    continue;
+                }
 
                 // Count alive creatures per tile (max 2 per tile with different sides)
                 const tileCounts: Record<string, number> = {};
@@ -3409,10 +3959,13 @@ export const useStore = create<GameState>((set) => ({
             }
 
             // ── Attack ────────────────────────────────────────────────────────
-            const nowMs = Date.now();
             const partyInvisible = nowMs < state.invisibleUntil;
             if (atkTimer === 0 && adjacent && !partyInvisible) {
                 atkTimer = nextMonsterAttackDelaySecondsApprox(def.atkSpd);
+                if (confused && randomInt(2) === 0) {
+                    creatureTimers.set(c.id, { mt: moveTimer, at: atkTimer });
+                    continue;
+                }
                 playCreatureAttack(c.typeId);
                 notifyCreatureAction(c.id, 'attack');
                 creatureAttackWindows.set(c.id, nowMs + CREATURE_ATTACK_WINDOW_MS);
@@ -3443,9 +3996,10 @@ export const useStore = create<GameState>((set) => ({
                             continue;
                         }
                         const damageClass = chooseMonsterDamageClassApprox(def);
-                        const raw = targetChampion
+                        const attackResolution = targetChampion
                             ? determineMonsterAttackDamageApprox(state, targetChampion, tv, c, damageClass)
-                            : 0;
+                            : { damage: 0 as number, hitZones: undefined };
+                        const raw = attackResolution.damage;
                         if (raw <= 0) continue;
                         const equip = state.championEquipment[target.id] ?? {};
                         const shieldProt = getActiveShieldProtectionApprox(state.activeShields, nowMs, damageClass);
@@ -3467,6 +4021,15 @@ export const useStore = create<GameState>((set) => ({
                                 const poisonStrength = adjustByAttributeApprox(def.poisonAttack, effective.vitality);
                                 nextTargetVitals = applyPoisonCharacterApprox(nextTargetVitals, poisonStrength);
                             }
+                        }
+                        if (nextTargetVitals.hp > 0 && damageClass === 'physical' && targetChampion) {
+                            nextTargetVitals = applyChampionHitWoundsApprox(
+                                nextTargetVitals,
+                                targetChampion,
+                                equip,
+                                dmg,
+                                attackResolution.hitZones,
+                            );
                         }
                         const newHP = nextTargetVitals.hp;
                         vitals = { ...vitals, [target.id]: nextTargetVitals };

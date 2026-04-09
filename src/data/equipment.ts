@@ -27,6 +27,26 @@ export interface EffectiveChampionStats {
     luck: number;
 }
 
+export type ChampionWoundSlot = 'rightHand' | 'leftHand' | 'head' | 'torso' | 'legs' | 'feet';
+
+export interface ChampionWounds {
+    rightHand: boolean;
+    leftHand: boolean;
+    head: boolean;
+    torso: boolean;
+    legs: boolean;
+    feet: boolean;
+}
+
+export const EMPTY_CHAMPION_WOUNDS: ChampionWounds = {
+    rightHand: false,
+    leftHand: false,
+    head: false,
+    torso: false,
+    legs: false,
+    feet: false,
+};
+
 const ARMOR_SLOT_TO_EQUIP_SLOT: Record<ArmorSlot, EquipSlotKey> = {
     head: 'head',
     neck: 'neck',
@@ -119,7 +139,17 @@ export function getEffectiveChampionStats(champion: Champion, equip: ChampionEqu
     };
 }
 
-export function getChampionMaxLoad(champion: Champion, equip: ChampionEquipment | undefined, currentStamina?: number): number {
+export function hasAnyChampionWound(wounds: ChampionWounds | undefined): boolean {
+    if (!wounds) return false;
+    return Object.values(wounds).some(Boolean);
+}
+
+export function getChampionMaxLoad(
+    champion: Champion,
+    equip: ChampionEquipment | undefined,
+    currentStamina?: number,
+    wounds?: ChampionWounds,
+): number {
     const effective = getEffectiveChampionStats(champion, equip);
     let baseMaxLoadTenths = (8 * effective.strength) + 100;
     const stamina = currentStamina ?? champion.stamina;
@@ -129,10 +159,16 @@ export function getChampionMaxLoad(champion: Champion, equip: ChampionEquipment 
         baseMaxLoadTenths = halfBase + Math.floor((halfBase * Math.max(0, stamina)) / Math.max(1, Math.floor(maxStamina / 2)));
     }
 
+    if (hasAnyChampionWound(wounds)) {
+        baseMaxLoadTenths -= Math.floor(baseMaxLoadTenths / (wounds?.legs ? 4 : 8));
+    }
+
     const feet = equip?.feet;
     if (feet?.category === 'Armor' && feet.typeId === 20) {
         baseMaxLoadTenths += Math.floor(baseMaxLoadTenths / 16);
     }
 
-    return Math.ceil(baseMaxLoadTenths / 10);
+    baseMaxLoadTenths += 9;
+    baseMaxLoadTenths -= baseMaxLoadTenths % 10;
+    return Math.max(1, Math.floor(baseMaxLoadTenths / 10));
 }

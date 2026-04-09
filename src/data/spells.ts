@@ -58,7 +58,7 @@ export const SPELLS: Spell[] = [
     { name: 'Torch (light)',    runes: [10],         runeStr: 'FUL',         effect: 'Creates a magic torch in hand',                          skill: 'Wizard',  manaBase: 1, note: 'INVOKE FUL FOR A MAGIC TORCH' },
     { name: 'Darkness',         runes: [11, 16, 19], runeStr: 'DES IR SAR',  effect: 'Extinguishes all light sources nearby',                  skill: 'Wizard',  manaBase: 2 },
     { name: 'Light',            runes: [8, 16, 22],  runeStr: 'OH IR RA',    effect: 'Creates a powerful sustained light',                     skill: 'Wizard',  manaBase: 3, note: 'LIGHT / OH IR RA' },
-    { name: 'Magic Vision',     runes: [8, 21, 22],  runeStr: 'OH EW RA',    effect: 'Reveals invisible objects and secret doors',             skill: 'Wizard',  manaBase: 4, note: 'OH EW RA BESTOWS MAGIC VISION' },
+    { name: 'See Through Walls',runes: [8, 21, 22],  runeStr: 'OH EW RA',    effect: 'Lets the party see through walls while keeping them solid', skill: 'Wizard',  manaBase: 4, note: 'OH EW RA / SEE THROUGH WALLS' },
     { name: 'Invisibility',     runes: [8, 21, 19],  runeStr: 'OH EW SAR',   effect: 'Makes the party invisible to monsters',                  skill: 'Wizard',  manaBase: 5, note: 'INVISIBILITY / OH EW SAR' },
     { name: 'Fireball',         runes: [10, 16],     runeStr: 'FUL IR',      effect: 'Launches a fireball projectile',                         skill: 'Wizard',  manaBase: 4, note: 'FIREBALL / FUL IR' },
     { name: 'Fire Shield',      runes: [10, 17, 13], runeStr: 'FUL BRO NETA',effect: 'Creates a protective fire shield potion',               skill: 'Wizard',  manaBase: 3, note: 'FIRE SHIELD / FUL BRO NETA' },
@@ -78,7 +78,6 @@ export const SPELLS: Spell[] = [
     { name: 'Magic Shield',    runes: [6, 16],        runeStr: 'YA IR',       effect: 'Creates a magical shield (defence boost)',               skill: 'Fighter', manaBase: 3, note: 'MAGIC SHIELD / YA IR' },
     // Ninja spells
     { name: 'Weaken Nonmaterial Beings', runes: [11, 21], runeStr: 'DES EW', effect: 'Launches a magical projectile effective against nonmaterial beings', skill: 'Wizard', manaBase: 2 },
-    { name: 'Speed',           runes: [6, 15],        runeStr: 'YA KU',       effect: 'Temporarily increases movement speed',                   skill: 'Ninja',   manaBase: 3 },
 ];
 
 // Build a lookup map from sorted rune ID sequence → Spell

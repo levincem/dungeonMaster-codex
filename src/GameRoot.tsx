@@ -3,6 +3,7 @@ import { DungeonScene } from './components/Dungeon/DungeonScene';
 import { HUD } from './components/UI/HUD';
 import { MirrorPopup } from './components/UI/MirrorPopup';
 import { ChampionSheet } from './components/UI/ChampionSheet';
+import { TitleScreen } from './components/UI/TitleScreen';
 import { useStore } from './engine/store';
 import { preloadAllSounds } from './engine/sounds';
 import { clampFrameDeltaSeconds } from './engine/time';
@@ -12,6 +13,8 @@ function GameRoot() {
   const {
     gamePhase,
     activePartyMemberId,
+    enterDungeon,
+    loadGame,
     closeMirror,
     closePartyMember,
     regenTick,
@@ -28,7 +31,7 @@ function GameRoot() {
     let rafId: number;
 
     const tick = (now: number) => {
-      if (lastTimeRef.current !== null) {
+      if (lastTimeRef.current !== null && gamePhase !== 'title') {
         const delta = clampFrameDeltaSeconds((now - lastTimeRef.current) / 1000);
         const wallClockNow = Date.now();
         regenTick(delta);
@@ -45,7 +48,7 @@ function GameRoot() {
 
     rafId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafId);
-  }, [regenTick, tickMovement, tickCombat, tickMonsters, tickDoors, tickSpells]);
+  }, [gamePhase, regenTick, tickMovement, tickCombat, tickMonsters, tickDoors, tickSpells]);
 
   useEffect(() => { preloadAllSounds(); }, []);
 
@@ -64,10 +67,16 @@ function GameRoot() {
 
   return (
     <div className="app">
-      <DungeonScene />
-      <HUD />
-      {gamePhase === 'mirror_open' && <MirrorPopup />}
-      {activePartyMemberId !== null && <ChampionSheet />}
+      {gamePhase === 'title' ? (
+        <TitleScreen onEnter={enterDungeon} onResume={loadGame} />
+      ) : (
+        <>
+          <DungeonScene />
+          <HUD />
+          {gamePhase === 'mirror_open' && <MirrorPopup />}
+          {activePartyMemberId !== null && <ChampionSheet />}
+        </>
+      )}
     </div>
   );
 }

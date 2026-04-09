@@ -11,6 +11,7 @@ This is a non-commercial amateur project. The visuals are a mix of hand-made wor
 The project is already playable and includes a substantial part of the core runtime:
 
 - 3D dungeon exploration with grid-based movement
+- title screen flow with dungeon entrance, `Enter The Dungeon`, and `Resume`
 - champion recruitment through mirrors
 - HUD and detailed champion sheets
 - inventory, equipment, drag and drop, pickup and drop
@@ -21,8 +22,16 @@ The project is already playable and includes a substantial part of the core runt
 - maps and runtime content loaded from reconstructed original data
 - canonical starter equipment for champions
 - multi-attack HUD flow for weapons with more than one action
+- persistent save / resume of the mutable game state
 
-It is not a finished remake yet. Save/load, full game flow, some special-case mechanics, final balancing, and part of the remaining artwork still need work.
+It is not a finished remake yet. Some special-case mechanics, final balancing, broader game-flow polish, and part of the remaining artwork still need work.
+
+Current save/load behavior:
+
+- `SAVE` writes the current mutable runtime state
+- `MENU` returns to the title screen
+- `Resume` reloads the latest persisted save
+- time does not continue to elapse while the game is closed; a loaded save resumes from the exact saved state
 
 The important shift is that the project is no longer mainly blocked by missing original data. Most of the core original data we needed is now extracted and documented; the main work left is integrating it faithfully into the runtime.
 
@@ -74,7 +83,7 @@ assets/
   OriginalDataExtraction/       Reverse-engineering base, scripts, source references, audits
 
 docs/
-  REMAKE_STATUS.md              High-level project state
+  REMAKE_STATUS.md              Internal running status / alignment notes
   CODEBASE_REFERENCE.md         Codebase map
   *_EXTRACTION.md               Original-data extraction notes
 ```
@@ -94,7 +103,7 @@ That directory contains:
 - generated comparison outputs
 - notes explaining what is proven, derived, or still interpretive
 
-The most useful project-level summaries are:
+The most useful detailed internal summaries are:
 
 - [docs/REMAKE_STATUS.md](/D:/DungeonMaster-codex/docs/REMAKE_STATUS.md)
 - [docs/RUNTIME_ALIGNMENT_AUDIT.md](/D:/DungeonMaster-codex/docs/RUNTIME_ALIGNMENT_AUDIT.md)
@@ -108,6 +117,7 @@ The most useful project-level summaries are:
 - The bundle is still fairly heavy because of the 3D stack and game assets.
 - The world-content extraction is now treated as reliable.
 - Some gameplay layers are already reconciled with original Atari data, while part of the runtime still remains an interpretation layer that is being reduced over time.
+- `docs/` is mainly used as detailed project memory and implementation notes; the README should stay as the concise project-facing overview.
 
 ## Credits
 

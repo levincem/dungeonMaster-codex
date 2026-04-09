@@ -90,7 +90,7 @@ Effets deja reels et branches dans le runtime:
 - `shield`
 - `fire_shield`
 - `invisibility`
-- `magic_vision`
+- `see_through_walls` (`Oh Ew Ra`)
 - `reveal_hidden` (`Oh Gor Ros`)
 - `footprints`
 - `potion`
@@ -108,11 +108,14 @@ Sorts / comportements encore manquants ou incomplets dans la base runtime actuel
 
 - `Dispell` ne doit pas etre traite comme un sort de runes standard
   - a ce stade il doit etre considere comme une action d'objet a charges
-- `Speed` n'est pas encore branche comme effet runtime distinct
-- les interactions speciales type `Fluxcage`, `Fuse`, `Invoke`, `Confuse` existent surtout cote actions d'objet / references originales et demandent encore un recollage
+- les actions d'objet a charges `Dispell`, `Confuse`, `Fluxcage`, `Invoke` et `Fuse` sont maintenant recablees cote runtime
+- `Confuse` et `Fluxcage` sont maintenant relies a l'IA monstre, pas seulement a une action visuelle
+- `Fuse` reste encore a reverifier en fin de jeu quand le wiring definitif du `Firestaff complet` sera totalement fige
 - la distinction visuelle et mecanique fine entre certains missiles speciaux reste encore a faire
 - `Oh Gor Ros` utilise pour l'instant une logique de revelation locale lisible
   - il faudra encore affiner exactement quels elements caches doivent luire et a quelle portee
+- `Oh Ew Ra` permet maintenant de voir a travers les murs avec un rendu translucide
+  - l'effet reste encore a affiner visuellement pour mieux evoquer une vision spectrale de l'original
 
 Le cas de fin de jeu est maintenant mieux cerne cote data :
 
@@ -182,14 +185,37 @@ Conclusion:
 
 ## Priorites recommandees
 
+### Flow d'entree / menu
+
+- le flow vise est maintenant clarifie :
+  - logo `Dungeon Master`
+  - scene d'entree devant la grande porte
+  - bouton vert `Enter The Dungeon`
+  - bouton rouge `Resume`
+- `Resume` doit charger la sauvegarde persistente, pas juste reprendre un etat RAM
+- le runtime demarre maintenant sur un ecran titre dedie au lieu d'entrer directement en exploration
+- la sauvegarde doit se brancher sur ce point d'entree plutot que d'ajouter un flux parallele
+- premiere boucle maintenant en place :
+  - bouton `SAVE` en jeu
+  - retour `MENU`
+  - bouton `Resume` qui recharge la derniere sauvegarde persistante
+- la sauvegarde stocke l'etat mutable du donjon, du groupe et des effets temporels, pas l'etat d'UI transitoire
+
 ### 1. Continuer l'integration fidele
 
 - recoller les sorts et les durees a la base originale
-- etendre l'echelle de temps commune
 - reduire les couches runtime encore interpretatives
-- terminer la gestion du temps
+- consolider les derniers details de fidelite gameplay
+- terminer le recollage fin des blessures localisees et des effets magiques speciaux
   - l'essentiel de l'horloge gameplay est maintenant recale
-  - il reste surtout des details de fidelite, notamment autour des blessures localisees jambes/pieds et de quelques cas speciaux
+  - les blessures localisees existent maintenant cote runtime
+  - les jambes blesses reduisent la charge max, et les pieds blesses ralentissent davantage les deplacements
+  - la fiche champion colore maintenant la charge en jaune au-dessus de 5/8 et en rouge en surcharge, comme dans l'original
+  - il reste surtout des cas speciaux et du polissage sur la magie
+  - point deja corrige : `Oh Ew Ra` a maintenant son propre effet `see through walls`, distinct de `Oh Gor Ros`
+  - point deja corrige : `Des Ew` est traite comme projectile anti non-materiel, avec cas special `Materializer / Zytaz`
+  - point deja corrige : `Poison Bolt` et `Poison Cloud` sont maintenant separes cote gameplay
+  - point deja corrige : les principales actions magiques d'objet a charges (`Dispell`, `Confuse`, `Fluxcage`, `Invoke`, `Fuse`) sont maintenant integrees au runtime
   - point deja corrige : les expirations de sorts / projectiles utilisent maintenant la meme horloge murale que le reste du runtime, il n'y a plus de melange `requestAnimationFrame(now)` / `Date.now()` sur ce chemin critique
   - point deja corrige : plusieurs durees gameplay sont maintenant quantifiees sur une grille temporelle originale (VBL / timer ticks) au lieu de ms libres
   - point deja corrige : les lumieres, portes ecrasantes et plusieurs buffs / projectiles ont maintenant des constantes temporelles partagees au lieu de nombres disperses

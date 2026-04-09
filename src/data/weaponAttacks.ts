@@ -219,17 +219,15 @@ export function getAttackCooldownSeconds(option: WeaponAttackOption | null): num
 }
 
 export function isAttackOptionUsable(option: WeaponAttackOption): boolean {
-    return !option.requiresCharges;
+    void option;
+    return true;
 }
 
 export function isAttackOptionUsableAtMastery(option: WeaponAttackOption, masteryLevel: number): boolean {
-    return !option.requiresCharges && masteryLevel >= option.masteryThreshold;
+    return masteryLevel >= option.masteryThreshold;
 }
 
 export function getAttackOptionUnusableReason(option: WeaponAttackOption, masteryLevel: number): string | null {
-    if (option.requiresCharges) {
-        return "charges d'objet non gerees";
-    }
     if (masteryLevel < option.masteryThreshold) {
         return `niveau requis ${option.masteryThreshold}`;
     }

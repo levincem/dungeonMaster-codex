@@ -1,8 +1,9 @@
 import { useRef, useEffect, useMemo } from 'react';
 import { useTexture } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
-import { MIRROR_WALL_MAP } from '../../engine/store';
+import { MIRROR_WALL_MAP, useStore } from '../../engine/store';
 import type { GameMap } from '../../types/game';
 
 const HALF = GRID_SIZE / 2;
@@ -13,11 +14,13 @@ interface Props {
 }
 
 export const InstancedTiles = ({ map, openWalls }: Props) => {
+    const seeThroughWallsUntil = useStore(s => s.seeThroughWallsUntil);
     const { floor, ceiling, wall } = useTexture({
         floor:   '/textures/floor.png?v=2',
         ceiling: '/textures/ceiling.png?v=2',
         wall:    '/textures/wall.png?v=2',
     });
+    const wallMaterialRef = useRef<THREE.MeshBasicMaterial>(null);
     [floor, ceiling, wall].forEach(t => {
         t.wrapS = t.wrapT = THREE.RepeatWrapping;
         t.repeat.set(1, 1);
@@ -91,6 +94,14 @@ export const InstancedTiles = ({ map, openWalls }: Props) => {
         }
     }, [floorPositions, ceilPositions, wallEntries, openWalls]);
 
+    useFrame(() => {
+        if (!wallMaterialRef.current) return;
+        const active = Date.now() < seeThroughWallsUntil;
+        wallMaterialRef.current.transparent = active;
+        wallMaterialRef.current.opacity = active ? 0.34 : 1;
+        wallMaterialRef.current.depthWrite = !active;
+    });
+
     return (
         <>
             <instancedMesh
@@ -117,7 +128,7 @@ export const InstancedTiles = ({ map, openWalls }: Props) => {
                 frustumCulled={false}
             >
                 <boxGeometry args={[GRID_SIZE, WALL_HEIGHT, GRID_SIZE]} />
-                <meshBasicMaterial map={wall} />
+                <meshBasicMaterial ref={wallMaterialRef} map={wall} />
             </instancedMesh>
         </>
     );

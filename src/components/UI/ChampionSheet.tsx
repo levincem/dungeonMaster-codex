@@ -23,6 +23,7 @@ import {
     getTotalWeight,
     getChampionMaxLoad,
     getEffectiveChampionStats,
+    hasAnyChampionWound,
 } from '../../data/equipment';
 
 // ─── Slot highlight animation ─────────────────────────────────────────────────
@@ -147,15 +148,16 @@ const SLOT_LABELS: Record<EquipSlotKey, string> = {
 
 const EquipSlot: React.FC<{
     slotKey: EquipSlotKey; item?: FloorItem; championId: number;
-    size?: number; highlight?: boolean;
+    size?: number; highlight?: boolean; wounded?: boolean;
     onDrop: (p: DragPayload, slot: EquipSlotKey) => void; onUnequip: () => void;
     onDragBegin?: (p: DragPayload) => void; onDragEnd?: () => void;
-}> = ({ slotKey, item, championId, size = 48, highlight = false, onDrop, onUnequip, onDragBegin, onDragEnd }) => {
+}> = ({ slotKey, item, championId, size = 48, highlight = false, wounded = false, onDrop, onUnequip, onDragBegin, onDragEnd }) => {
     const [over, setOver] = useState(false);
+    const borderColor = over ? T.gold : wounded ? T.red : item ? T.panelBorder : T.slotBorder;
     return (
         <div
             className={highlight && !over ? 'slot-valid' : undefined}
-            style={{ width: size, height: size, border: `1px solid ${over ? T.gold : item ? T.panelBorder : T.slotBorder}`, borderRadius: 3, background: over ? 'rgba(30,18,0,0.9)' : T.slotBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, cursor: item ? 'grab' : 'default', position: 'relative', transition: over ? undefined : 'border-color 0.1s', padding: 2, boxSizing: 'border-box' }}
+            style={{ width: size, height: size, border: `1px solid ${borderColor}`, borderRadius: 3, background: over ? 'rgba(30,18,0,0.9)' : T.slotBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, cursor: item ? 'grab' : 'default', position: 'relative', transition: over ? undefined : 'border-color 0.1s', padding: 2, boxSizing: 'border-box', boxShadow: wounded ? `0 0 10px ${T.red}55` : undefined }}
             onDragOver={e => { e.preventDefault(); setOver(true); }}
             onDragLeave={() => setOver(false)}
             onDrop={e => { e.preventDefault(); setOver(false); const p = getDrag(e); if (p) onDrop(p, slotKey); }}
@@ -172,7 +174,7 @@ const EquipSlot: React.FC<{
                     <button onClick={onUnequip} title="Déséquiper" style={{ position: 'absolute', top: 1, right: 2, background: 'none', border: 'none', color: T.goldDim, fontSize: 8, cursor: 'pointer', padding: 0, lineHeight: 1 }}>↩</button>
                 </>
             ) : (
-                <div style={{ width: size - 18, height: size - 18, border: `1px dashed ${T.slotBorder}`, borderRadius: 2, opacity: 0.35 }} />
+                <div style={{ width: size - 18, height: size - 18, border: `1px dashed ${wounded ? T.red : T.slotBorder}`, borderRadius: 2, opacity: wounded ? 0.65 : 0.35 }} />
             )}
         </div>
     );
@@ -320,8 +322,16 @@ export const ChampionSheet: React.FC = () => {
     const xp         = championXP?.[champion.id];
     const effectiveStats = getEffectiveChampionStats(champion, equip);
     const weight     = getTotalWeight(equip, inv);
-    const maxWeight  = getChampionMaxLoad(champion, equip, vitals?.stamina);
+    const maxWeight  = getChampionMaxLoad(champion, equip, vitals?.stamina, vitals?.wounds);
     const overloaded = weight > maxWeight;
+    const loadWarn   = !overloaded && (weight * 8) > (maxWeight * 5);
+    const loadColor  = overloaded ? T.red : loadWarn ? T.yellow : T.cream;
+    const woundText  = hasAnyChampionWound(vitals?.wounds)
+        ? [
+            vitals?.wounds.legs ? 'jambes blessees' : null,
+            vitals?.wounds.feet ? 'pieds blesses' : null,
+        ].filter(Boolean).join(' · ')
+        : '';
 
     const hp      = vitals?.hp      ?? champion.health;
     const stamina = vitals?.stamina ?? champion.stamina;
@@ -406,6 +416,14 @@ export const ChampionSheet: React.FC = () => {
     const BODY_SLOTS: EquipSlotKey[] = ['head','neck','torso','rightHand','leftHand','legs','feet'];
     const QUIVER_SLOTS: EquipSlotKey[] = ['quiver1','quiver2','quiver3','quiver4'];
     const POCKET_SLOTS: EquipSlotKey[] = ['pocket1','pocket2'];
+    const slotWounds: Partial<Record<EquipSlotKey, boolean>> = {
+        head: vitals?.wounds.head,
+        torso: vitals?.wounds.torso,
+        rightHand: vitals?.wounds.rightHand,
+        leftHand: vitals?.wounds.leftHand,
+        legs: vitals?.wounds.legs,
+        feet: vitals?.wounds.feet,
+    };
 
     const otherMembers = party.filter(c => c.id !== champion.id);
 
@@ -491,10 +509,16 @@ export const ChampionSheet: React.FC = () => {
                         {/* Header: title + weight on same line */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
                             <span style={{ fontSize: 9, letterSpacing: 3, color: T.gold }}>ÉQUIPEMENT</span>
-                            <span style={{ fontSize: 11, fontWeight: 'bold', color: overloaded ? T.red : T.cream }}>
+                            <span style={{ fontSize: 11, fontWeight: 'bold', color: loadColor }}>
                                 ⚖ {weight}<span style={{ fontSize: 10, color: T.creamDim, fontWeight: 'normal' }}>/{maxWeight} kg</span>{overloaded && <span style={{ color: T.red }}> ⚠</span>}
                             </span>
                         </div>
+
+                        {woundText && (
+                            <div style={{ marginTop: -2, marginBottom: 4, fontSize: 9, color: '#d88b2d', letterSpacing: 1 }}>
+                                {woundText.toUpperCase()}
+                            </div>
+                        )}
 
                         {/* Eye + Mouth at top */}
                         <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 4 }}>
@@ -540,7 +564,7 @@ export const ChampionSheet: React.FC = () => {
                                 {/* Body slots */}
                                 {BODY_SLOTS.map(s => (
                                     <div key={s} style={{ gridArea: s === 'rightHand' ? 'rhand' : s === 'leftHand' ? 'lhand' : s, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                        <EquipSlot slotKey={s} item={equip[s]} championId={champion.id} size={80} highlight={validSlots.has(s)}
+                                        <EquipSlot slotKey={s} item={equip[s]} championId={champion.id} size={80} highlight={validSlots.has(s)} wounded={!!slotWounds[s]}
                                             onDrop={handleDropOnSlot} onUnequip={() => unequipItem(champion.id, s)}
                                             onDragBegin={p => handleDragBegin(p, equip, inv)} onDragEnd={handleDragEnd} />
                                     </div>

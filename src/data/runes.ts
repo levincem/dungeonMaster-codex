@@ -67,7 +67,7 @@ export const RUNES_BY_FAMILY: Record<RuneFamily, RuneDef[]> = {
 export type SpellEffect =
     | 'light'        | 'heal'        | 'fireball'   | 'lightning'
     | 'poison_bolt'  | 'poison_cloud'| 'shield'     | 'fire_shield'| 'open'
-    | 'darkness'     | 'invisibility'| 'magic_vision'| 'plasma'
+    | 'darkness'     | 'invisibility'| 'see_through_walls'| 'plasma'
     | 'reveal_hidden'| 'disrupt_nonmaterial'
     | 'potion'       | 'footprints'  | 'unknown';
 
@@ -221,7 +221,7 @@ export const SPELLS: SpellDef[] = [
     ...variants(4, 'wizard', ['oh', 'ew', 'ra'],
         ['Vision Magique (faible)', 'Vision Magique', 'Vision Magique (forte)',
          'Grande Vision Magique', 'Vision Suprême', 'Vision Absolue'],
-        'magic_vision',
+        'see_through_walls',
         ['Révèle légèrement les objets cachés.', 'Révèle les objets invisibles et portes secrètes.',
          'Vision magique puissante.', 'Grande vision magique.',
          'Vision suprême.', 'Vision absolue.'],

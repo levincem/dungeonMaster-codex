@@ -1,4 +1,4 @@
-import { useRef, useMemo, memo, useCallback, useEffect } from 'react';
+import { useRef, useMemo, memo, useCallback, useEffect, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import type { ThreeEvent } from '@react-three/fiber';
 import { PerspectiveCamera, Plane, Html, useTexture, Billboard } from '@react-three/drei';
@@ -73,6 +73,8 @@ const CameraController = () => {
 
 // ─── Boundary wall planes ─────────────────────────────────────────────────────
 const BoundaryWalls = memo(({ map }: { map: GameMap }) => {
+    const seeThroughWallsUntil = useStore(s => s.seeThroughWallsUntil);
+    const [wallTransparent, setWallTransparent] = useState(false);
     const { wall: baseWall } = useTexture({ wall: '/textures/wall.png?v=2' });
     const wall = useMemo(
         () => cloneTexture(baseWall, next => {
@@ -82,6 +84,10 @@ const BoundaryWalls = memo(({ map }: { map: GameMap }) => {
         [baseWall],
     );
     useEffect(() => () => wall.dispose(), [wall]);
+    useFrame(() => {
+        const active = Date.now() < seeThroughWallsUntil;
+        setWallTransparent(prev => (prev === active ? prev : active));
+    });
 
     const planes: React.ReactElement[] = [];
     for (const row of map.tiles) {
@@ -89,7 +95,7 @@ const BoundaryWalls = memo(({ map }: { map: GameMap }) => {
             if (tile.type === 'Wall') continue;
             const wx = tile.x * GRID_SIZE;
             const wz = tile.y * GRID_SIZE;
-            const mat = <meshBasicMaterial map={wall} side={THREE.DoubleSide} />;
+            const mat = <meshBasicMaterial map={wall} side={THREE.DoubleSide} transparent={wallTransparent} opacity={wallTransparent ? 0.34 : 1} depthWrite={!wallTransparent} />;
             if (tile.y === 0)
                 planes.push(<Plane key={`N-${tile.x}-${tile.y}`} args={[GRID_SIZE, WALL_HEIGHT]} position={[wx, 0, wz - HALF]} rotation={[0, Math.PI, 0]}>{mat}</Plane>);
             if (tile.y === map.height - 1)
