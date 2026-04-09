@@ -94,11 +94,6 @@ docs/
   *_EXTRACTION.md               Original-data extraction notes
 ```
 
-## Working Rules
-
-- We do not leave a work session with a broken build without explicitly calling it out.
-- After each major change, `README.md` and the relevant files under `docs/` must be updated to match the actual project state.
-
 ## Data Sources
 
 The runtime now relies primarily on reconstructed data mirrored into `src/assets/data/` for critical boot-time modules, with `public/` kept as the browser-served/static copy.
