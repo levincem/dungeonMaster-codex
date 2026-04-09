@@ -15,6 +15,7 @@ function GameRoot() {
     closeMirror,
     closePartyMember,
     regenTick,
+    tickMovement,
     tickCombat,
     tickMonsters,
     tickDoors,
@@ -29,11 +30,13 @@ function GameRoot() {
     const tick = (now: number) => {
       if (lastTimeRef.current !== null) {
         const delta = clampFrameDeltaSeconds((now - lastTimeRef.current) / 1000);
+        const wallClockNow = Date.now();
         regenTick(delta);
+        tickMovement(delta);
         tickCombat(delta);
         tickMonsters(delta);
         tickDoors(delta);
-        tickSpells(now);
+        tickSpells(wallClockNow);
       }
 
       lastTimeRef.current = now;
@@ -42,7 +45,7 @@ function GameRoot() {
 
     rafId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafId);
-  }, [regenTick, tickCombat, tickMonsters, tickDoors, tickSpells]);
+  }, [regenTick, tickMovement, tickCombat, tickMonsters, tickDoors, tickSpells]);
 
   useEffect(() => { preloadAllSounds(); }, []);
 

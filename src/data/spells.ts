@@ -1,6 +1,9 @@
-// Runes and spells — sourced from Old_data/game_db.json
-// 24 rune symbols organised in 4 rows × 6 columns
-// 20+ spells defined by rune combinations
+// Legacy spell reference table sourced from Old_data/game_db.json.
+//
+// Important:
+// - the current runtime spell-casting pipeline uses `src/data/runes.ts`
+// - this file is kept as a parallel reference and should not be treated as the
+//   live source of truth for gameplay behavior until the two models are merged
 
 import type { RuneSymbol, Spell, SpellCastingRules } from '../types/spells';
 
@@ -70,10 +73,11 @@ export const SPELLS: Spell[] = [
     { name: 'Heal (major)',     runes: [8, 7, 13],    runeStr: 'OH VI NETA',  effect: 'Restores a large amount of health',                      skill: 'Priest',  manaBase: 5 },
     { name: 'Antidote',        runes: [8, 14, 7],    runeStr: 'OH VEN VI',   effect: 'Cures poison',                                           skill: 'Priest',  manaBase: 3, note: 'OH VEN VI CURES POISON' },
     { name: 'Stamina',         runes: [6, 7],         runeStr: 'YA VI',       effect: 'Restores stamina',                                       skill: 'Priest',  manaBase: 2 },
-    { name: 'Dispell Illusion', runes: [8, 12, 22],   runeStr: 'OH ZO RA',    effect: 'Dispels magical illusions',                              skill: 'Priest',  manaBase: 3 },
+    { name: 'Reveal Hidden',    runes: [8, 18, 20],   runeStr: 'OH GOR ROS',  effect: 'Reveals fake walls, hidden pits and concealed mechanisms', skill: 'Priest',  manaBase: 4 },
     // Fighter spells
     { name: 'Magic Shield',    runes: [6, 16],        runeStr: 'YA IR',       effect: 'Creates a magical shield (defence boost)',               skill: 'Fighter', manaBase: 3, note: 'MAGIC SHIELD / YA IR' },
     // Ninja spells
+    { name: 'Weaken Nonmaterial Beings', runes: [11, 21], runeStr: 'DES EW', effect: 'Launches a magical projectile effective against nonmaterial beings', skill: 'Wizard', manaBase: 2 },
     { name: 'Speed',           runes: [6, 15],        runeStr: 'YA KU',       effect: 'Temporarily increases movement speed',                   skill: 'Ninja',   manaBase: 3 },
 ];
 

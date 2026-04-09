@@ -1,4 +1,4 @@
-﻿# Dungeon Master Remake - Etat du projet
+# Dungeon Master Remake - Etat du projet
 
 Version remise a jour a partir du code observe le 2026-04-08.
 
@@ -67,32 +67,72 @@ Point important :
 
 ### Magie
 
-Le systeme de runes et de sorts est riche cote data, mais tous les effets ne sont pas egalement finalises cote gameplay.
+Le systeme de runes et de sorts existe deja cote runtime, mais il n'est pas encore completement unifie.
 
-Les effets clairement presents dans le runtime actuel incluent au minimum:
+Point important:
+
+- la source de verite runtime actuelle est `src/data/runes.ts`
+- `src/data/spells.ts` existe encore, mais ne pilote pas le lancement reel des sorts
+- il faut donc juger l'etat actuel de la magie a partir de `runes.ts` + `store.ts`
+
+Effets deja reels et branches dans le runtime:
 
 - `heal`
 - `light`
+- `darkness`
 - `open`
 - `fireball`
 - `lightning`
-- `poison`
+- `poison_bolt`
+- `poison_cloud`
+- `disrupt_nonmaterial` (`Des Ew`)
 - `plasma`
-
-Les autres effets existent dans les definitions mais demandent encore une verification ou un approfondissement gameplay:
-
 - `shield`
 - `fire_shield`
-- `darkness`
 - `invisibility`
 - `magic_vision`
-- `potion`
+- `reveal_hidden` (`Oh Gor Ros`)
 - `footprints`
+- `potion`
+
+Nuances importantes:
+
+- les projectiles magiques existent, mais leurs comportements sont encore simplifies
+  - pas encore de logique fine par type de missile comme dans le runtime FTL
+- `Des Ew` est maintenant traite comme projectile anti non-materiel
+  - cas special source-backed : `Materializer / Zytaz` ne doivent etre endommages que pendant leur phase d'attaque
+- les visuels de sorts sont presents a un niveau fonctionnel
+  - mais pas encore a un niveau de fidelite original complete
+
+Sorts / comportements encore manquants ou incomplets dans la base runtime actuelle:
+
+- `Dispell` ne doit pas etre traite comme un sort de runes standard
+  - a ce stade il doit etre considere comme une action d'objet a charges
+- `Speed` n'est pas encore branche comme effet runtime distinct
+- les interactions speciales type `Fluxcage`, `Fuse`, `Invoke`, `Confuse` existent surtout cote actions d'objet / references originales et demandent encore un recollage
+- la distinction visuelle et mecanique fine entre certains missiles speciaux reste encore a faire
+- `Oh Gor Ros` utilise pour l'instant une logique de revelation locale lisible
+  - il faudra encore affiner exactement quels elements caches doivent luire et a quelle portee
+
+Le cas de fin de jeu est maintenant mieux cerne cote data :
+
+- `Zo Kath Ra` intervient bien dans la salle finale
+- l'interaction utile est sur le mur nord du niveau 13, autour de `global (49,35)` / `(49,36)`
+- l'Amalgam recoit d'abord le plasma de `Zo Kath Ra`, puis `The Firestaff`
+- le resultat attendu est `The Firestaff (Complete)`
+
+Autrement dit, la fin semble reposer sur un mecanisme mural special de transformation, pas sur un simple item de sol standard.
 
 ### Objets et statuts
 
 - equipement, poids et quelques bonus passifs sont en place
 - poison persistant, faim, soif, contenants d'eau et fontaines sont jouables
+- faim / soif / regeneration / fatigue suivent maintenant une boucle de survie beaucoup plus proche du code original
+  - cap `2048`, reserves initiales `1500 + random(256)`, reserves negatives jusqu'a `-1024`
+  - mana / stamina / health utilisent des paliers de regen source-backed au lieu d'un simple flux par seconde
+  - les deplacements du groupe consomment maintenant de la stamina selon la charge, au lieu d'etre gratuits
+  - les deplacements du groupe appliquent maintenant un cooldown derive des `movement ticks` de l'original, au lieu d'etre spammables sans rythme
+  - `sleep()` n'est plus un remplissage instantane : il avance le temps, use les torches et laisse faim/soif continuer
 - plusieurs objets speciaux ont maintenant leur vrai visuel via override par nom canonique
 - il reste encore des comportements speciaux et des etats fins a finaliser
 
@@ -108,6 +148,8 @@ Les autres effets existent dans les definitions mais demandent encore une verifi
 - les attaques multiples par arme sont maintenant mieux gerees dans le HUD
 - projectiles physiques et munitions ont beaucoup progresse
 - poison et steal sont branches cote monstres
+- `Rust`, `Teleport` et `Immobilize` ne doivent pas etre consideres comme implementes en gameplay reel
+- ces tags peuvent encore exister dans les donnees runtime / references creatures, mais ils ne correspondent pas aujourd'hui a une reproduction fidele de leurs effets originaux
 - les formules restent encore partiellement simplifiees
 - les sorts et plusieurs effets speciaux demandent encore un recollage plus fin
 
@@ -145,6 +187,15 @@ Conclusion:
 - recoller les sorts et les durees a la base originale
 - etendre l'echelle de temps commune
 - reduire les couches runtime encore interpretatives
+- terminer la gestion du temps
+  - l'essentiel de l'horloge gameplay est maintenant recale
+  - il reste surtout des details de fidelite, notamment autour des blessures localisees jambes/pieds et de quelques cas speciaux
+  - point deja corrige : les expirations de sorts / projectiles utilisent maintenant la meme horloge murale que le reste du runtime, il n'y a plus de melange `requestAnimationFrame(now)` / `Date.now()` sur ce chemin critique
+  - point deja corrige : plusieurs durees gameplay sont maintenant quantifiees sur une grille temporelle originale (VBL / timer ticks) au lieu de ms libres
+  - point deja corrige : les lumieres, portes ecrasantes et plusieurs buffs / projectiles ont maintenant des constantes temporelles partagees au lieu de nombres disperses
+  - point deja corrige : le cycle `food / water / stamina / mana / health` s'appuie maintenant sur une boucle de game time discrète et sur les paliers principaux de `CHAMPION.C`
+  - point deja corrige : le sommeil se comporte maintenant comme une avance rapide de temps au lieu d'une restauration instantanee
+  - point deja corrige : le rythme de deplacement du groupe suit maintenant un cooldown derive de `F310_AA08_CHAMPION_GetMovementTicks(...)`
 
 ### 2. Stabiliser le flow de jeu
 
@@ -157,6 +208,7 @@ Conclusion:
 - objets / statuts
 - serrures / cles / alcoves
 - pits / eau / interactions de niveau
+- sequence de fin `Amalgam / Zo Kath Ra / The Firestaff (Complete)`
 
 ### 4. Finir le contenu visible
 

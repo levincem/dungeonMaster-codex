@@ -121,12 +121,18 @@ export function getEffectiveChampionStats(champion: Champion, equip: ChampionEqu
 
 export function getChampionMaxLoad(champion: Champion, equip: ChampionEquipment | undefined, currentStamina?: number): number {
     const effective = getEffectiveChampionStats(champion, equip);
-    const baseMaxLoad = Math.round((8 * effective.strength + 100) / 10);
+    let baseMaxLoadTenths = (8 * effective.strength) + 100;
     const stamina = currentStamina ?? champion.stamina;
     const maxStamina = champion.stamina;
-    if (maxStamina <= 0 || stamina >= maxStamina / 2) return baseMaxLoad;
+    if (maxStamina > 0 && stamina < maxStamina / 2) {
+        const halfBase = Math.floor(baseMaxLoadTenths / 2);
+        baseMaxLoadTenths = halfBase + Math.floor((halfBase * Math.max(0, stamina)) / Math.max(1, Math.floor(maxStamina / 2)));
+    }
 
-    const halfBase = baseMaxLoad / 2;
-    const adjusted = halfBase + ((halfBase * stamina) / (maxStamina / 2));
-    return Math.round(adjusted);
+    const feet = equip?.feet;
+    if (feet?.category === 'Armor' && feet.typeId === 20) {
+        baseMaxLoadTenths += Math.floor(baseMaxLoadTenths / 16);
+    }
+
+    return Math.ceil(baseMaxLoadTenths / 10);
 }

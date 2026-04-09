@@ -4,6 +4,7 @@ import type { ThreeEvent } from '@react-three/fiber';
 import { PerspectiveCamera, Plane, Html, useTexture, Billboard } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore, MIRROR_WALL_MAP, MIRROR_FACE_MAP, STAIR_CONNECTIONS } from '../../engine/store';
+import { FOOTPRINT_LIFETIME_MS } from '../../engine/time';
 import { getMapMechanisms } from '../../data/mechanisms';
 import { getOriginalWallOverlaysForMap, type OriginalWallOverlayRender } from '../../data/originalWallOverlays';
 import type { ProjectileEffect, FootprintEntry } from '../../engine/store';
@@ -399,13 +400,17 @@ const PhysicalProjectileSprite: React.FC<{
 const MagicVisionLayer: React.FC<{
     wallButtons: { tileX: number; tileY: number; face: CardinalDir }[];
     pressurePlates: { tileX: number; tileY: number }[];
-}> = ({ wallButtons, pressurePlates }) => {
+    trickWalls: { tileX: number; tileY: number }[];
+    pits: { tileX: number; tileY: number }[];
+}> = ({ wallButtons, pressurePlates, trickWalls, pits }) => {
     const magicVisionUntil = useStore(s => s.magicVisionUntil);
     const groupRef = useRef<THREE.Group>(null);
     const buttonGeometry = useMemo(() => new THREE.SphereGeometry(0.22, 10, 10), []);
     const plateGeometry = useMemo(() => new THREE.RingGeometry(GRID_SIZE * 0.18, GRID_SIZE * 0.38, 24), []);
     const buttonMaterial = useMemo(() => createPulseMaterial('#ff3f2f', 0.55), []);
     const plateMaterial = useMemo(() => createPulseMaterial('#ff5544', 0.34), []);
+    const trickWallMaterial = useMemo(() => createPulseMaterial('#ffd166', 0.28), []);
+    const pitMaterial = useMemo(() => createPulseMaterial('#62e0ff', 0.3), []);
 
     useFrame(() => {
         if (groupRef.current) groupRef.current.visible = Date.now() < magicVisionUntil;
@@ -416,7 +421,9 @@ const MagicVisionLayer: React.FC<{
         plateGeometry.dispose();
         buttonMaterial.dispose();
         plateMaterial.dispose();
-    }, [buttonGeometry, plateGeometry, buttonMaterial, plateMaterial]);
+        trickWallMaterial.dispose();
+        pitMaterial.dispose();
+    }, [buttonGeometry, plateGeometry, buttonMaterial, plateMaterial, trickWallMaterial, pitMaterial]);
 
     const FACE_OFFSET: Record<CardinalDir, [number, number]> = {
         North: [0, -HALF], South: [0, HALF], East: [HALF, 0], West: [-HALF, 0],
@@ -442,6 +449,24 @@ const MagicVisionLayer: React.FC<{
                     geometry={plateGeometry}
                     material={plateMaterial}
                     seed={tileX * 0.5 + tileY * 0.4}
+                />
+            ))}
+            {trickWalls.map(({ tileX, tileY }) => (
+                <MagicVisionButton
+                    key={`mv_trickwall_${tileX}_${tileY}`}
+                    position={[tileX * GRID_SIZE, 0, tileY * GRID_SIZE]}
+                    geometry={buttonGeometry}
+                    material={trickWallMaterial}
+                    seed={tileX * 0.33 + tileY * 0.67}
+                />
+            ))}
+            {pits.map(({ tileX, tileY }) => (
+                <MagicVisionPlate
+                    key={`mv_pit_${tileX}_${tileY}`}
+                    position={[tileX * GRID_SIZE, -WALL_HEIGHT / 2 + 0.03, tileY * GRID_SIZE]}
+                    geometry={plateGeometry}
+                    material={pitMaterial}
+                    seed={tileX * 0.71 + tileY * 0.19}
                 />
             ))}
         </group>
@@ -502,8 +527,6 @@ const MagicVisionPlate: React.FC<{
 };
 
 // ─── Footprint trail — fading floor planes ────────────────────────────────────
-const FOOTPRINT_LIFETIME_MS = 60_000;
-
 const FootprintLayer: React.FC = () => {
     const footprintHistory = useStore(s => s.footprintHistory);
     const level = useStore(s => s.level);
@@ -796,6 +819,29 @@ export const DungeonScene = () => {
         return plates;
     }, [map, level]);
 
+    const trickWalls = useMemo(() => {
+        const walls: { tileX: number; tileY: number }[] = [];
+        for (const row of map.tiles) {
+            for (const tile of row) {
+                if (tile.type !== 'TrickWall') continue;
+                if (openWalls.has(`${level},${tile.y},${tile.x}`)) continue;
+                walls.push({ tileX: tile.x, tileY: tile.y });
+            }
+        }
+        return walls;
+    }, [map, level, openWalls]);
+
+    const pits = useMemo(() => {
+        const out: { tileX: number; tileY: number }[] = [];
+        for (const row of map.tiles) {
+            for (const tile of row) {
+                if (tile.type !== 'Pit') continue;
+                out.push({ tileX: tile.x, tileY: tile.y });
+            }
+        }
+        return out;
+    }, [map]);
+
     const handleCellClick = useCallback((
         e: ThreeEvent<MouseEvent>, renderType: CellRenderType, x: number, y: number,
     ) => {
@@ -832,7 +878,12 @@ export const DungeonScene = () => {
                 />
 
                 <FootprintLayer />
-                <MagicVisionLayer wallButtons={wallButtons} pressurePlates={pressurePlates} />
+                <MagicVisionLayer
+                    wallButtons={wallButtons}
+                    pressurePlates={pressurePlates}
+                    trickWalls={trickWalls}
+                    pits={pits}
+                />
                 <CreaturesLayer />
                 <DamageLayer />
                 <FloorItemsLayer />

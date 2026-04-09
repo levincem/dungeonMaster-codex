@@ -66,8 +66,9 @@ export const RUNES_BY_FAMILY: Record<RuneFamily, RuneDef[]> = {
 // ─── Spell effects ────────────────────────────────────────────────────────────
 export type SpellEffect =
     | 'light'        | 'heal'        | 'fireball'   | 'lightning'
-    | 'poison'       | 'shield'      | 'fire_shield'| 'open'
+    | 'poison_bolt'  | 'poison_cloud'| 'shield'     | 'fire_shield'| 'open'
     | 'darkness'     | 'invisibility'| 'magic_vision'| 'plasma'
+    | 'reveal_hidden'| 'disrupt_nonmaterial'
     | 'potion'       | 'footprints'  | 'unknown';
 
 export interface SpellDef {
@@ -160,7 +161,7 @@ export const SPELLS: SpellDef[] = [
     ...variants(3, 'wizard', ['oh', 'ven'],
         ['Nuage Toxique (faible)', 'Nuage Toxique', 'Nuage Toxique (fort)',
          'Grand Nuage Toxique', 'Brume Mortelle', 'Brume Mortelle Suprême'],
-        'poison',
+        'poison_cloud',
         ['Nuage de poison léger.', 'Nuage de poison.', 'Nuage de poison puissant.',
          'Nuage de poison dévastateur.', 'Brume mortelle.', 'Poison maximal.'],
         true),
@@ -170,12 +171,21 @@ export const SPELLS: SpellDef[] = [
     ...variants(3, 'wizard', ['des', 'ven'],
         ['Dard Toxique (faible)', 'Dard Toxique', 'Dard Toxique (fort)',
          'Grand Dard Toxique', 'Flèche Mortelle', 'Flèche Mortelle Suprême'],
-        'poison',
+        'poison_bolt',
         ['Projectile de poison léger.', 'Projectile de poison.', 'Projectile de poison puissant.',
          'Projectile dévastateur.', 'Flèche empoisonnée mortelle.', 'Poison maximal.'],
         true),
 
     // ── Magic Shield : Power + YA + IR ───────────────────────────────────────
+    ...variants(2, 'wizard', ['des', 'ew'],
+        ['Affaiblit l\'immateriel (faible)', 'Affaiblit l\'immateriel', 'Affaiblit l\'immateriel (fort)',
+         'Grand Affaiblissement', 'Disruption spectrale', 'Disruption absolue'],
+        'disrupt_nonmaterial',
+        ['Projectile faible contre les etres non materiels.', 'Projectile magique contre les etres non materiels.',
+         'Projectile puissant contre les etres non materiels.', 'Affaiblit fortement les creatures immaterielles.',
+         'Disruption spectrale majeure.', 'Disruption maximale des etres non materiels.'],
+        true),
+
     // Confirmed: "MAGIC SHIELD / YA IR"
     ...variants(3, 'fighter', ['ya', 'ir'],
         ['Armure Magique (faible)', 'Armure Magique', 'Armure Magique (forte)',
@@ -218,6 +228,15 @@ export const SPELLS: SpellDef[] = [
         true),
 
     // ── Open Door : Power + ZO ────────────────────────────────────────────────
+    ...variants(4, 'priest', ['oh', 'gor', 'ros'],
+        ['Revelation (faible)', 'Revelation', 'Revelation (forte)',
+         'Grande Revelation', 'Revelation Supreme', 'Revelation Absolue'],
+        'reveal_hidden',
+        ['Fait luire brievement les elements caches.', 'Fait apparaitre les faux murs, dalles et fosses cachees.',
+         'Revelation prolongee des elements caches.', 'Grande revelation de l\'architecture cachee.',
+         'Revele durablement les elements caches.', 'Revele au maximum les pieges et passages caches.'],
+        true),
+
     // Confirmed: "SOME DOORS CAN BE OPENED WITH A ZO SPELL"
     ...variants(2, 'priest', ['zo'],
         ['Ouvre-Serrure (faible)', 'Ouvre-Serrure', 'Ouvre-Serrure (fort)',

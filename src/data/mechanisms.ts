@@ -1,7 +1,7 @@
 // Mechanisms loader — parses Old_data/mechanisms.json into typed structures.
 // Each mechanism describes a dungeon interaction: locks, levers, pressure plates, etc.
 
-// @ts-ignore — JSON import resolved by Vite
+// @ts-expect-error — JSON import resolved by Vite
 import rawMechanisms from '../../Old_data/mechanisms.json';
 import type { CardinalDir } from '../types/game';
 

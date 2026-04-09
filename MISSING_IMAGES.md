@@ -1,9 +1,8 @@
-# Images manquantes — DungeonMaster
+# Images manquantes - DungeonMaster
 
 ============================================================
-SECTION 1 — Images deja creees, a mapper dans itemImages.ts (60)
+SECTION 1 - Images deja creees, a mapper dans itemImages.ts
 Ces fichiers sont dans public/items/ mais pas encore references.
-A toi de confirmer le typeId de chaque image.
 ============================================================
 
 ## Armes
@@ -75,30 +74,15 @@ A toi de confirmer le typeId de chaque image.
   ven_potion.png
 
 ============================================================
-SECTION 2 — Items dans le donjon SANS image du tout (21)
-Ces items sont places dans les maps mais typeId non mappe.
-Creer ou assigner une image pour chacun.
+SECTION 2 - Etat apres raccord des overrides
+Les anciens noms inconnus de cette section ont ete reconcilies
+et les images identifiables ont ete branchees dans itemImages.ts.
+Le seul cas encore special est `typeId 45`.
 ============================================================
 
-## Weapon
-  typeId   1  Scalex Blade                   -> ???.png
-  typeId   3  (nom inconnu)                  -> ???.png
-  typeId   4  (nom inconnu)                  -> ???.png
-  typeId   5  (nom inconnu)                  -> ???.png
-  typeId   6  (nom inconnu)                  -> ???.png
-  typeId   7  (nom inconnu)                  -> ???.png
-  typeId  11  (nom inconnu)                  -> ???.png
-  typeId  12  (nom inconnu)                  -> ???.png
-  typeId  13  (nom inconnu)                  -> ???.png
-  typeId  14  (nom inconnu)                  -> ???.png
-  typeId  15  (nom inconnu)                  -> ???.png
-  typeId  28  (nom inconnu)                  -> ???.png
-  typeId  29  (nom inconnu)                  -> ???.png
-  typeId  30  (nom inconnu)                  -> ???.png
-  typeId  31  (nom inconnu)                  -> ???.png
-  typeId  37  (nom inconnu)                  -> ???.png
-  typeId  38  (nom inconnu)                  -> ???.png
-  typeId  39  (nom inconnu)                  -> ???.png
-  typeId  43  (nom inconnu)                  -> ???.png
-  typeId  44  (nom inconnu)                  -> ???.png
-  typeId  45  (nom inconnu)                  -> ???.png
+## Note sur `typeId 45`
+
+- Placement observe : niveau 13, mur nord de la salle finale, global `(49,35)`.
+- Le contexte original/runtime l'associe a l'Amalgam et a la sequence `Zo Kath Ra` -> insertion du `The Firestaff` -> obtention du `The Firestaff (Complete)`.
+- Ce placeholder ne doit pas etre interprete comme un item de sol generique manquant du meme type que les autres armes.
+- La cible visuelle utile pour le jeu fini est surtout `the_firestaff_complete.png` une fois la transformation terminee.

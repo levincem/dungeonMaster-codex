@@ -16,6 +16,10 @@ export type AttackType =
     | 'Immobilize'
     | 'Teleport';
 
+// Important: some tags below are kept as data/reference labels only.
+// `Rust`, `Teleport`, and `Immobilize` are not currently implemented as
+// faithful gameplay effects and must not be treated as feature-complete.
+
 export interface CreatureDef {
     id: number;
     name: string;

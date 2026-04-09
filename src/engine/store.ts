@@ -12,6 +12,7 @@ import type { Champion } from '../data/champions';
 import { CHAMPION_BY_ID } from '../data/champions';
 import { buildChampionStarterLoadout } from '../data/championStarterItems';
 import { CREATURE_TYPES } from '../data/creatures';
+import type { CreatureDef } from '../data/creatures';
 import { findSpell, getSkillLevel } from '../data/runes';
 import type { CastSkill } from '../data/runes';
 import { ARMOR_TYPES, WEAPON_TYPES, POTION_TYPES, MISC_TYPES, normalizeScrollText, resolveItemName } from '../data/items';
@@ -41,7 +42,21 @@ import {
 } from '../data/waterContainers';
 import { doorBlocksThrownItems, doorBlocksVision } from '../data/doors';
 import { playPartyAttack, playCreatureMove, playCreatureAttack, playPlate } from './sounds';
-import { originalTimerTicksToSeconds } from './time';
+import {
+    ORIGINAL_TIMER_TICK_SECONDS,
+    originalTimerTicksToSeconds,
+    quantizeMsToOriginalTimerTicks,
+    minutesToMs,
+    DAMAGE_EVENT_LIFETIME_MS,
+    TRANSIENT_MESSAGE_LIFETIME_MS,
+    FOOTPRINT_LIFETIME_MS,
+    CREATURE_ATTACK_WINDOW_MS,
+    PROJECTILE_STEP_MS,
+    PHYSICAL_PROJECTILE_STEP_MS,
+    DOOR_CLOSE_DURATION_SECONDS,
+    DOOR_REBOUND_DURATION_SECONDS,
+    DOOR_RECLOSE_DURATION_SECONDS,
+} from './time';
 
 export type Direction = 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
 export type GamePhase = 'exploration' | 'mirror_open';
@@ -51,8 +66,8 @@ export interface ChampionVitals {
     hp:      number;  // current hit points (0 … champion.health)
     stamina: number;  // current stamina    (0 … champion.stamina)
     mana:    number;  // current mana       (0 … champion.mana)
-    food:    number;  // hunger reserve     (0 … 2000)
-    water:   number;  // thirst reserve     (0 … 2000)
+    food:    number;  // hunger reserve     (-1024 … 2048)
+    water:   number;  // thirst reserve     (-1024 … 2048)
     poisonEntries: { remaining: number; nextTickIn: number }[];
 }
 
@@ -74,8 +89,8 @@ export interface DamageEvent {
 }
 
 // ─── Torch burn lifecycle ──────────────────────────────────────────────────────
-export const TORCH_LIFETIME_MS  = 15 * 60 * 1000;  // 15 min total
-export const TORCH_STATE_MS     =  5 * 60 * 1000;  // 5 min per visual state
+export const TORCH_LIFETIME_MS  = quantizeMsToOriginalTimerTicks(minutesToMs(15));  // 15 min total
+export const TORCH_STATE_MS     = quantizeMsToOriginalTimerTicks(minutesToMs(5));   // 5 min per visual state
 
 /** Return 0=unlit, 1=used_2, 2=used_1, 3=lit based on ms elapsed since lit */
 export function torchStateIndex(elapsedMs: number): number {
@@ -123,8 +138,14 @@ export function computeLightLevel(
     return Math.max(0, Math.min(1, torchContrib + spellContrib));
 }
 
-// ─── Active projectiles (fireball, lightning, poison, plasma) ─────────────────
-export type ProjectileEffect = 'fireball' | 'lightning' | 'poison' | 'plasma' | 'physical';
+// ─── Active projectiles (fireball, lightning, poison bolt, plasma) ────────────
+export type ProjectileEffect =
+    | 'fireball'
+    | 'lightning'
+    | 'poison_bolt'
+    | 'disrupt_nonmaterial'
+    | 'plasma'
+    | 'physical';
 
 export interface Projectile {
     id: string;
@@ -176,31 +197,33 @@ const MAX_PARTY = 4;
 type MirrorRecruitMode = 'resurrect' | 'reincarnate';
 const QUIVER_SLOTS: EquipSlotKey[] = ['quiver1', 'quiver2', 'quiver3', 'quiver4'];
 
-export const MAX_FOOD = 2000;
-export const MAX_WATER = 2000;
-export const LOW_FOOD_THRESHOLD = 1000;
-export const CRITICAL_FOOD_THRESHOLD = 500;
-export const LOW_WATER_THRESHOLD = 1000;
-export const CRITICAL_WATER_THRESHOLD = 500;
-
-const FOOD_DECAY_PER_SEC = 0.42;
-const WATER_DECAY_PER_SEC = 0.7;
-const FOOD_STAMINA_DRAIN_PER_SEC = 0.65;
-const WATER_STAMINA_DRAIN_PER_SEC = 1.1;
-const STARVATION_HP_DRAIN_PER_SEC = 0.22;
-const DEHYDRATION_HP_DRAIN_PER_SEC = 0.36;
+export const MAX_FOOD = 2048;
+export const MAX_WATER = 2048;
+export const LOW_FOOD_THRESHOLD = 1024;
+export const CRITICAL_FOOD_THRESHOLD = 512;
+export const LOW_WATER_THRESHOLD = 1024;
+export const CRITICAL_WATER_THRESHOLD = 512;
+const MIN_FOOD_WATER = -1024;
 const POISON_TICK_INTERVAL_SEC = originalTimerTicksToSeconds(36);
 
 function clampVital(value: number, max: number): number {
     return Math.max(0, Math.min(max, value));
 }
 
+function clampFoodWater(value: number, max: number): number {
+    return Math.max(MIN_FOOD_WATER, Math.min(max, value));
+}
+
+function rollInitialFoodWaterReserve(): number {
+    return 1500 + randomInt(256);
+}
+
 function createChampionVitals(
     hp: number,
     stamina: number,
     mana: number,
-    food = MAX_FOOD,
-    water = MAX_WATER,
+    food = rollInitialFoodWaterReserve(),
+    water = rollInitialFoodWaterReserve(),
 ): ChampionVitals {
     return {
         hp,
@@ -210,11 +233,6 @@ function createChampionVitals(
         water,
         poisonEntries: [],
     };
-}
-
-function getResourcePenalty(value: number, criticalThreshold: number): number {
-    if (value >= criticalThreshold) return 0;
-    return 1 - (value / criticalThreshold);
 }
 
 function adjustByAttributeApprox(value: number, currentAttribute: number): number {
@@ -236,6 +254,33 @@ function applyPoisonCharacterApprox(
         poisonEntries: remaining > 0
             ? [...vitals.poisonEntries, { remaining, nextTickIn: POISON_TICK_INTERVAL_SEC }]
             : vitals.poisonEntries,
+    };
+}
+
+function computeOriginalTimeCriteria(gameTimeTicks: number): number {
+    return (((gameTimeTicks & 0x0080) + ((gameTimeTicks & 0x0100) >> 2) + ((gameTimeTicks & 0x0040) << 2)) >> 2);
+}
+
+function applyChampionStaminaDeltaOriginal(
+    vitals: ChampionVitals,
+    maxHp: number,
+    maxStamina: number,
+    staminaDelta: number,
+): ChampionVitals {
+    if (staminaDelta === 0) return vitals;
+
+    const rawStamina = vitals.stamina + staminaDelta;
+    if (rawStamina >= 0) {
+        return {
+            ...vitals,
+            stamina: Math.min(maxStamina, rawStamina),
+        };
+    }
+
+    return {
+        ...vitals,
+        stamina: 0,
+        hp: Math.max(0, vitals.hp - Math.floor((-rawStamina) / 2)),
     };
 }
 
@@ -482,6 +527,45 @@ function isLikelyNonMaterial(target: CreatureInstance): boolean {
     return /ghost|materializer|wizard eye|black flame|lord chaos/i.test(name);
 }
 
+function isMaterializerLike(target: CreatureInstance): boolean {
+    const name = CREATURE_TYPES[target.typeId]?.name ?? '';
+    return target.typeId === 19 || /materializer|zytaz/i.test(name);
+}
+
+function canDisruptNonMaterialTarget(nowMs: number, target: CreatureInstance): boolean {
+    if (!isLikelyNonMaterial(target)) return false;
+    if (!isMaterializerLike(target)) return true;
+    return (creatureAttackWindows.get(target.id) ?? 0) > nowMs;
+}
+
+function nextMonsterMoveDelaySecondsApprox(moveTicks: number): number {
+    return Math.max(1, moveTicks + randomInt(4) - 1) / 6;
+}
+
+function nextMonsterAttackDelaySecondsApprox(attackTicks: number): number {
+    let ticks = attackTicks + randomInt(4) - 1;
+    if (attackTicks > 15) {
+        ticks += randomInt(8) - 2;
+    }
+    return Math.max(1, ticks) / 6;
+}
+
+type MonsterDamageClassApprox = 'physical' | 'fire' | 'magic';
+type ArmorCoverageZone = 'head' | 'torso' | 'legs' | 'feet' | 'hands';
+
+const MONSTER_HIT_ZONE_PATTERNS: readonly ArmorCoverageZone[][] = [
+    ['head'],
+    ['torso'],
+    ['hands'],
+    ['legs'],
+    ['feet'],
+    ['head', 'torso'],
+    ['torso', 'hands'],
+    ['torso', 'legs'],
+    ['legs', 'feet'],
+    ['head', 'hands'],
+];
+
 function getEquippedArmorValue(equip: ChampionEquipment | undefined): number {
     if (!equip) return 0;
     let armor = 0;
@@ -492,22 +576,118 @@ function getEquippedArmorValue(equip: ChampionEquipment | undefined): number {
     return armor;
 }
 
+function getArmorValueForZone(equip: ChampionEquipment | undefined, zone: ArmorCoverageZone): number {
+    if (!equip) return 0;
+
+    const armorAt = (slot: keyof ChampionEquipment): number => {
+        const item = equip[slot];
+        return item?.category === 'Armor' ? (ARMOR_TYPES[item.typeId]?.armor ?? 0) : 0;
+    };
+
+    switch (zone) {
+        case 'head':
+            return armorAt('head') + Math.floor(armorAt('neck') / 2);
+        case 'torso':
+            return armorAt('torso') + Math.floor((armorAt('neck') + armorAt('belt')) / 2);
+        case 'legs':
+            return armorAt('legs') + Math.floor(armorAt('belt') / 2);
+        case 'feet':
+            return armorAt('feet');
+        case 'hands':
+            return armorAt('hands');
+    }
+}
+
+function getAverageArmorForZones(
+    equip: ChampionEquipment | undefined,
+    zones: readonly ArmorCoverageZone[] | undefined,
+): number {
+    if (!zones || zones.length === 0) return getEquippedArmorValue(equip);
+    const total = zones.reduce((sum, zone) => sum + getArmorValueForZone(equip, zone), 0);
+    return Math.floor(total / zones.length);
+}
+
+function chooseMonsterDamageClassApprox(def: CreatureDef): MonsterDamageClassApprox {
+    const weighted: MonsterDamageClassApprox[] = [];
+    if (def.attackTypes.includes('Physical')) weighted.push('physical', 'physical');
+    if (def.attackTypes.includes('Fire')) weighted.push('fire');
+    if (def.attackTypes.includes('Magic') || def.attackTypes.includes('StaminaDrain')) weighted.push('magic');
+    if (weighted.length === 0) return 'physical';
+    return weighted[randomInt(weighted.length)] ?? 'physical';
+}
+
+function chooseMonsterHitZonesApprox(damageClass: MonsterDamageClassApprox): readonly ArmorCoverageZone[] | undefined {
+    if (damageClass !== 'physical') return undefined;
+    return MONSTER_HIT_ZONE_PATTERNS[randomInt(MONSTER_HIT_ZONE_PATTERNS.length)] ?? ['torso'];
+}
+
+function computeChampionResistanceApprox(
+    champion: Champion,
+    equip: ChampionEquipment | undefined,
+    damageClass: MonsterDamageClassApprox,
+): number {
+    const effective = getEffectiveChampionStats(champion, equip ?? {});
+    if (damageClass === 'fire') {
+        return Math.min(0.45, Math.max(0, effective.antiFire) / 220);
+    }
+    if (damageClass === 'magic') {
+        return Math.min(0.45, Math.max(0, effective.antiMagic) / 220);
+    }
+    return 0;
+}
+
+function getActiveShieldProtectionApprox(
+    shields: PartyShield[],
+    nowMs: number,
+    damageClass: MonsterDamageClassApprox,
+): number {
+    if (damageClass === 'fire') {
+        return shields
+            .filter((shield) => shield.expiresAt > nowMs)
+            .reduce((max, shield) => Math.max(max, shield.protection), 0);
+    }
+
+    if (damageClass === 'magic') {
+        return shields
+            .filter((shield) => shield.expiresAt > nowMs && !shield.fireOnly)
+            .reduce((max, shield) => Math.max(max, shield.protection), 0);
+    }
+
+    return shields
+        .filter((shield) => shield.expiresAt > nowMs && !shield.fireOnly)
+        .reduce((max, shield) => Math.max(max, shield.protection), 0);
+}
+
 function computeChampionProtectionApprox(
     state: GameState,
     championId: number,
     champion: Champion,
     currentVitals: ChampionVitals | undefined,
+    damageClass: MonsterDamageClassApprox = 'physical',
+    hitZones?: readonly ArmorCoverageZone[],
 ): number {
     const equip = state.championEquipment[championId] ?? {};
     const effective = getEffectiveChampionStats(champion, equip);
-    const armorValue = getEquippedArmorValue(equip);
-    const vitalityRoll = randomInt(Math.max(1, Math.floor(effective.vitality / 8) + 1));
+    const armorValue = getAverageArmorForZones(equip, hitZones);
+    const vitalityRoll = randomInt(Math.max(1, Math.floor(effective.vitality / 16) + 1));
     const staminaGuard = currentVitals
-        ? Math.floor((clampVital(currentVitals.stamina, effective.stamina) * 8) / Math.max(1, effective.stamina))
-        : 0;
+        ? Math.floor((clampVital(currentVitals.stamina, effective.stamina) * 6) / Math.max(1, effective.stamina))
+        : 6;
     const defenseModifier = state.championCombat[championId]?.defenseModifier ?? 0;
-    const rawProtection = vitalityRoll + defenseModifier + Math.floor(armorValue / 2) + staminaGuard;
-    return applyLimits(0, Math.floor(rawProtection / 2), 100);
+    const armorContribution =
+        damageClass === 'physical'
+            ? Math.floor(armorValue / 2)
+            : damageClass === 'fire'
+                ? Math.floor(armorValue / 4)
+                : Math.floor(armorValue / 6);
+    const elementalResistance =
+        damageClass === 'fire'
+            ? Math.floor(Math.max(0, effective.antiFire) / 8)
+            : damageClass === 'magic'
+                ? Math.floor(Math.max(0, effective.antiMagic) / 8)
+                : 0;
+    const rawProtection = vitalityRoll + defenseModifier + armorContribution + staminaGuard + elementalResistance;
+    return applyLimits(0, rawProtection, 100);
 }
 
 function determineMonsterAttackDamageApprox(
@@ -515,6 +695,7 @@ function determineMonsterAttackDamageApprox(
     targetChampion: Champion,
     targetVitals: ChampionVitals,
     attacker: CreatureInstance,
+    damageClass?: MonsterDamageClassApprox,
 ): number {
     const def = CREATURE_TYPES[attacker.typeId];
     if (!def) return 0;
@@ -522,20 +703,21 @@ function determineMonsterAttackDamageApprox(
     const equip = state.championEquipment[targetChampion.id] ?? {};
     const inventory = state.championInventories[targetChampion.id] ?? [];
     const effective = getEffectiveChampionStats(targetChampion, equip);
+    const resolvedDamageClass = damageClass ?? chooseMonsterDamageClassApprox(def);
+    const hitZones = chooseMonsterHitZonesApprox(resolvedDamageClass);
     const quickness = computeOriginalQuicknessApprox(targetChampion, equip, inventory, targetVitals.stamina);
     const levelDifficulty = getMap(state.level).difficulty * 2;
     const requiredQuickness = randomInt(32) + def.hitProb + levelDifficulty - 16;
 
-    if (
-        quickness >= requiredQuickness &&
-        randomInt(4) !== 0 &&
-        isCharacterLuckyApprox(effective.luck, 60)
-    ) {
+    if (quickness >= requiredQuickness && randomInt(4) !== 0) {
+        return 0;
+    }
+
+    if (isCharacterLuckyApprox(effective.luck, 60)) {
         return 0;
     }
 
     let attackValue = levelDifficulty + randomInt(16) + Math.max(1, Math.floor(def.rawAttack / 16));
-    attackValue = Math.floor((attackValue - computeChampionProtectionApprox(state, targetChampion.id, targetChampion, targetVitals)) / 2);
 
     if (attackValue <= 1) {
         if (randomInt(2) !== 0) return 0;
@@ -553,6 +735,17 @@ function determineMonsterAttackDamageApprox(
     if (randomInt(2) !== 0) {
         attackValue -= randomInt(Math.floor(attackValue / 2) + 1) - 1;
     }
+
+    attackValue -= Math.floor(
+        computeChampionProtectionApprox(
+            state,
+            targetChampion.id,
+            targetChampion,
+            targetVitals,
+            resolvedDamageClass,
+            hitZones,
+        ) / 2,
+    );
 
     return Math.max(0, attackValue);
 }
@@ -645,6 +838,11 @@ function determineMeleeDamageApprox(
     attackValue = Math.floor(attackValue / 4);
     attackValue += randomInt(4) + 1;
 
+    if (/vorpal blade/i.test(weaponName) && !nonMaterial) {
+        attackValue = Math.floor(attackValue / 2);
+        if (attackValue === 0) return 0;
+    }
+
     const mastery = getChampionMasteryLevel(
         state,
         championId,
@@ -653,11 +851,6 @@ function determineMeleeDamageApprox(
     );
     if (randomInt(64) < mastery) {
         attackValue += 10;
-    }
-
-    if (/vorpal blade/i.test(weaponName) && !nonMaterial) {
-        attackValue = Math.floor(attackValue / 2);
-        if (attackValue === 0) return 0;
     }
 
     return Math.max(0, attackValue);
@@ -712,7 +905,7 @@ function isHallEntryPressurePlate(level: number, x: number, y: number): boolean 
     return level === 0 && x === 6 && y === 9;
 }
 
-function queueTransientMessage(message: string, success = false, durationMs = 3000) {
+function queueTransientMessage(message: string, success = false, durationMs = TRANSIENT_MESSAGE_LIFETIME_MS) {
     const ts = Date.now();
     useStore.setState({ lastCastResult: { success, message, ts } });
     if (castResultTimeout) clearTimeout(castResultTimeout);
@@ -751,6 +944,7 @@ function notifyCreatureAction(id: string, action: 'move' | 'attack'): void {
 
 // ─── Creature timers (mutable, kept outside Zustand to avoid per-frame re-renders) ──
 const creatureTimers = new Map<string, { mt: number; at: number }>();
+const creatureAttackWindows = new Map<string, number>();
 
 // ─── Creature initialisation ──────────────────────────────────────────────────
 
@@ -903,7 +1097,10 @@ function buildOpenTeleporters(): Set<string> {
                     const tKey = `${map.index},${s.targetY},${s.targetX}`;
                     if (s.action === 'Set') open.add(tKey);
                     else if (s.action === 'Clear') open.delete(tKey);
-                    else if (s.action === 'Toggle') open.has(tKey) ? open.delete(tKey) : open.add(tKey);
+                    else if (s.action === 'Toggle') {
+                        if (open.has(tKey)) open.delete(tKey);
+                        else open.add(tKey);
+                    }
                 }
             }
         }
@@ -1068,7 +1265,10 @@ function applyToSet(s: Set<string>, key: string, action: string): Set<string> {
     const next = new Set(s);
     if (action === 'Set') next.add(key);
     else if (action === 'Clear') next.delete(key);
-    else if (action === 'Toggle') next.has(key) ? next.delete(key) : next.add(key);
+    else if (action === 'Toggle') {
+        if (next.has(key)) next.delete(key);
+        else next.add(key);
+    }
     return next;
 }
 
@@ -1369,6 +1569,10 @@ interface GameState {
     championEquipment: Record<number, ChampionEquipment>;
     /** Live HP / Stamina / Mana, keyed by champion.id */
     championVitals: Record<number, ChampionVitals>;
+    elapsedGameTimeTicks: number;
+    regenTickRemainder: number;
+    lastPartyMoveGameTick: number;
+    movementCooldown: number;
     /** Result of the most recent spell cast attempt */
     lastCastResult: CastResult | null;
     /** Per-champion accumulated XP, keyed by champion.id */
@@ -1425,6 +1629,7 @@ interface GameState {
     gainXP: (championId: number, skill: CastSkill, amount: number) => void;
     attackFront: (championId: number, attackType?: number) => void;
     tickCombat: (delta: number) => void;
+    tickMovement: (delta: number) => void;
     tickMonsters: (delta: number) => void;
     tickDoors: (delta: number) => void;
     tickSpells: (now: number) => void;
@@ -1442,6 +1647,222 @@ interface GameState {
 }
 
 const DIRECTIONS: Direction[] = ['NORTH', 'EAST', 'SOUTH', 'WEST'];
+
+function advanceSurvivalTimeApprox(
+    state: Pick<GameState, 'party' | 'championVitals' | 'championEquipment' | 'championXP' | 'elapsedGameTimeTicks' | 'lastPartyMoveGameTick'>,
+    stepCount: number,
+): { championVitals: Record<number, ChampionVitals>; elapsedGameTimeTicks: number; advancedMs: number } {
+    let elapsedGameTimeTicks = state.elapsedGameTimeTicks;
+    const championVitals: Record<number, ChampionVitals> = { ...state.championVitals };
+
+    for (let step = 0; step < stepCount; step += 1) {
+        elapsedGameTimeTicks += 1;
+        const timeCriteria = computeOriginalTimeCriteria(elapsedGameTimeTicks);
+        const timeSinceLastPartyMove = elapsedGameTimeTicks - state.lastPartyMoveGameTick;
+
+        for (const champ of state.party) {
+            const current = championVitals[champ.id];
+            if (!current || current.hp <= 0) continue;
+
+            const effective = getEffectiveChampionStats(champ, state.championEquipment[champ.id] ?? {});
+            const maxHP = effective.health;
+            const maxStamina = effective.stamina;
+            const maxMana = effective.mana;
+            const wizardSkill = xpToLevel(state.championXP[champ.id]?.wizard ?? 0) + xpToLevel(state.championXP[champ.id]?.priest ?? 0);
+
+            let next = current;
+
+            if (maxMana > 0 && next.mana < maxMana && timeCriteria < (effective.wisdom + wizardSkill)) {
+                const manaGain = Math.floor(maxMana / 40) + 1;
+                const staminaCost = manaGain * Math.max(7, 16 - wizardSkill);
+                next = applyChampionStaminaDeltaOriginal(next, maxHP, maxStamina, -staminaCost);
+                next = {
+                    ...next,
+                    mana: next.mana + Math.min(manaGain, maxMana - next.mana),
+                };
+            } else if (next.mana > maxMana) {
+                next = { ...next, mana: next.mana - 1 };
+            }
+
+            let staminaGainCycleCount = 4;
+            let staminaMagnitude = maxStamina;
+            while (next.stamina < (staminaMagnitude >>= 1)) {
+                staminaGainCycleCount += 2;
+            }
+
+            let staminaDelta = 0;
+            let staminaAmount = applyLimits(1, (maxStamina >> 8) - 1, 6);
+            if (timeSinceLastPartyMove > 80) {
+                staminaAmount += 1;
+                if (timeSinceLastPartyMove > 250) {
+                    staminaAmount += 1;
+                }
+            }
+
+            let food = next.food;
+            let water = next.water;
+            do {
+                const staminaAboveHalf = staminaGainCycleCount <= 4;
+                if (food < -512) {
+                    if (staminaAboveHalf) {
+                        staminaDelta -= staminaAmount;
+                        food -= 2;
+                    }
+                } else {
+                    if (food >= 0) {
+                        staminaDelta += staminaAmount;
+                    }
+                    food -= staminaAboveHalf ? 2 : staminaGainCycleCount >> 1;
+                }
+
+                if (water < -512) {
+                    if (staminaAboveHalf) {
+                        staminaDelta -= staminaAmount;
+                        water -= 1;
+                    }
+                } else {
+                    if (water >= 0) {
+                        staminaDelta += staminaAmount;
+                    }
+                    water -= staminaAboveHalf ? 1 : staminaGainCycleCount >> 2;
+                }
+                staminaGainCycleCount -= 1;
+            } while (staminaGainCycleCount > 0 && ((next.stamina + staminaDelta) < maxStamina));
+
+            next = applyChampionStaminaDeltaOriginal(next, maxHP, maxStamina, staminaDelta);
+            next = {
+                ...next,
+                food: clampFoodWater(food, MAX_FOOD),
+                water: clampFoodWater(water, MAX_WATER),
+            };
+
+            if (next.hp < maxHP && next.stamina >= (maxStamina >> 2) && timeCriteria < (effective.vitality + 12)) {
+                let healthGain = (maxHP >> 7) + 1;
+                if (state.championEquipment[champ.id]?.neck?.category === 'Misc' && state.championEquipment[champ.id]?.neck?.typeId === 44) {
+                    healthGain += (healthGain >> 1) + 1;
+                }
+                next = {
+                    ...next,
+                    hp: Math.min(maxHP, next.hp + healthGain),
+                };
+            }
+
+            if (next.poisonEntries.length > 0) {
+                const updatedEntries: { remaining: number; nextTickIn: number }[] = [];
+                for (const entry of next.poisonEntries) {
+                    const nextTickIn = entry.nextTickIn - ORIGINAL_TIMER_TICK_SECONDS;
+                    if (nextTickIn > 0) {
+                        updatedEntries.push({ ...entry, nextTickIn });
+                        continue;
+                    }
+                    next = {
+                        ...next,
+                        hp: Math.max(0, next.hp - Math.max(1, Math.floor(entry.remaining / 64))),
+                    };
+                    const nextRemaining = entry.remaining - 1;
+                    if (nextRemaining > 0) {
+                        updatedEntries.push({ remaining: nextRemaining, nextTickIn: POISON_TICK_INTERVAL_SEC });
+                    }
+                }
+                next = { ...next, poisonEntries: updatedEntries };
+            }
+
+            championVitals[champ.id] = next;
+        }
+    }
+
+    return {
+        championVitals,
+        elapsedGameTimeTicks,
+        advancedMs: stepCount * (ORIGINAL_TIMER_TICK_SECONDS * 1000),
+    };
+}
+
+function applyPartyMoveFatigue(state: Pick<GameState, 'party' | 'championVitals' | 'championEquipment' | 'championInventories'>): Record<number, ChampionVitals> | null {
+    let changed = false;
+    const nextVitals: Record<number, ChampionVitals> = { ...state.championVitals };
+
+    for (const champ of state.party) {
+        const current = state.championVitals[champ.id];
+        if (!current || current.hp <= 0) continue;
+
+        const equip = state.championEquipment[champ.id] ?? {};
+        const inventory = state.championInventories[champ.id] ?? [];
+        const effective = getEffectiveChampionStats(champ, equip);
+        const load = getTotalWeight(equip, inventory);
+        const maxLoad = Math.max(1, getChampionMaxLoad(champ, equip, current.stamina));
+        const staminaCost = Math.floor((load * 3) / maxLoad) + 1;
+        const next = applyChampionStaminaDeltaOriginal(current, effective.health, effective.stamina, -staminaCost);
+
+        if (next !== current && (next.hp !== current.hp || next.stamina !== current.stamina)) {
+            nextVitals[champ.id] = next;
+            changed = true;
+        }
+    }
+
+    return changed ? nextVitals : null;
+}
+
+function computeChampionMovementTicksApprox(
+    champion: Champion,
+    vitals: ChampionVitals | undefined,
+    equip: ChampionEquipment | undefined,
+    inventory: FloorItem[] | undefined,
+): number {
+    if (!vitals || vitals.hp <= 0) return 1;
+    const load = getTotalWeight(equip ?? {}, inventory ?? []);
+    const maxLoad = Math.max(1, getChampionMaxLoad(champion, equip, vitals.stamina));
+
+    if (maxLoad > load) {
+        let ticks = 2;
+        if ((load << 3) > (maxLoad * 5)) ticks += 1;
+        return ticks;
+    }
+
+    return 4 + Math.floor((((load - maxLoad) << 2) / maxLoad));
+}
+
+function computePartyMovementCooldownSecondsApprox(
+    state: Pick<GameState, 'party' | 'championVitals' | 'championEquipment' | 'championInventories'>,
+): number {
+    let ticks = 1;
+    for (const champ of state.party) {
+        ticks = Math.max(
+            ticks,
+            computeChampionMovementTicksApprox(
+                champ,
+                state.championVitals[champ.id],
+                state.championEquipment[champ.id] ?? {},
+                state.championInventories[champ.id] ?? [],
+            ),
+        );
+    }
+    return ticks / 6;
+}
+
+function ageTimedEffectsByMs(state: GameState, advanceMs: number): Partial<GameState> {
+    if (advanceMs <= 0) return {};
+    const now = Date.now();
+
+    const torchBurnStart = Object.fromEntries(
+        Object.entries(state.torchBurnStart).map(([itemId, litAt]) => [itemId, litAt - advanceMs]),
+    );
+    const spellLights = state.spellLights
+        .map((light) => ({ ...light, expiresAt: light.expiresAt - advanceMs }))
+        .filter((light) => light.expiresAt > now);
+    const activeShields = state.activeShields
+        .map((shield) => ({ ...shield, expiresAt: shield.expiresAt - advanceMs }))
+        .filter((shield) => shield.expiresAt > now);
+
+    return {
+        torchBurnStart,
+        spellLights,
+        activeShields,
+        invisibleUntil: Math.max(0, state.invisibleUntil - advanceMs),
+        magicVisionUntil: Math.max(0, state.magicVisionUntil - advanceMs),
+        footprintsUntil: Math.max(0, state.footprintsUntil - advanceMs),
+    };
+}
 
 // ─── Store ────────────────────────────────────────────────────────────────────
 
@@ -1466,6 +1887,10 @@ export const useStore = create<GameState>((set) => ({
     championInventories: {},
     championEquipment: {},
     championVitals: {},
+    elapsedGameTimeTicks: 0,
+    regenTickRemainder: 0,
+    lastPartyMoveGameTick: 0,
+    movementCooldown: 0,
     lastCastResult: null,
     championXP: {},
     championCombat: {},
@@ -1483,6 +1908,8 @@ export const useStore = create<GameState>((set) => ({
 
     moveForward: () => set((state) => {
         if (state.gamePhase !== 'exploration') return state;
+        if (state.movementCooldown > 0) return state;
+        const movedVitals = applyPartyMoveFatigue(state);
         const [y, x] = state.position;
         let ny = y, nx = x;
         if (state.direction === 'NORTH') ny = y - 1;
@@ -1496,8 +1923,9 @@ export const useStore = create<GameState>((set) => ({
             const pushState = Object.keys(pushChanges).length > 0 ? { ...ss, ...pushChanges } as SensorState : ss;
             const { sensorChanges, newInventories } = triggerLockSensors(state.level, nx, ny, face, pushState, state.championInventories);
             const anyChange = Object.keys(pushChanges).length > 0 || Object.keys(sensorChanges).length > 0;
-            if (!anyChange) return state;
+            if (!anyChange) return movedVitals ? { championVitals: movedVitals } : state;
             return {
+                ...(movedVitals ? { championVitals: movedVitals } : {}),
                 ...sensorChanges,
                 ...(newInventories ? { championInventories: newInventories } : {}),
             };
@@ -1516,21 +1944,41 @@ export const useStore = create<GameState>((set) => ({
                     NORTH: [-1, 0], SOUTH: [1, 0], EAST: [0, 1], WEST: [0, -1],
                 };
                 const [dy, dx] = DIR_STEP[link.dir];
-                return { level: link.toLevel, position: [link.toY + dy, link.toX + dx] as [number, number], direction: link.dir };
+                return {
+                    level: link.toLevel,
+                    position: [link.toY + dy, link.toX + dx] as [number, number],
+                    direction: link.dir,
+                    lastPartyMoveGameTick: state.elapsedGameTimeTicks,
+                    movementCooldown: computePartyMovementCooldownSecondsApprox(state),
+                    ...(movedVitals ? { championVitals: movedVitals } : {}),
+                };
             }
         }
         if (tile.type === 'Teleporter') {
             const tp = getTeleporter(tile);
             if (tp && tp.destMap !== state.level) {
                 if (!state.gateOpen) return state;
-                return { level: tp.destMap, position: [tp.destY, tp.destX] as [number, number], direction: state.direction };
+                return {
+                    level: tp.destMap,
+                    position: [tp.destY, tp.destX] as [number, number],
+                    direction: state.direction,
+                    lastPartyMoveGameTick: state.elapsedGameTimeTicks,
+                    movementCooldown: computePartyMovementCooldownSecondsApprox(state),
+                    ...(movedVitals ? { championVitals: movedVitals } : {}),
+                };
             }
             if (tp && tp.destMap === state.level) {
                 const tpKey = `${state.level},${ny},${nx}`;
                 if (state.openTeleporters.has(tpKey)) {
                     const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, openWalls: state.openWalls, activeSensors: state.activeSensors, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
                     const sensorChanges = triggerFloorSensors(state.level, tp.destX, tp.destY, ss);
-                    return { position: [tp.destY, tp.destX] as [number, number], ...sensorChanges };
+                    return {
+                        position: [tp.destY, tp.destX] as [number, number],
+                        lastPartyMoveGameTick: state.elapsedGameTimeTicks,
+                        movementCooldown: computePartyMovementCooldownSecondsApprox(state),
+                        ...(movedVitals ? { championVitals: movedVitals } : {}),
+                        ...sensorChanges,
+                    };
                 }
             }
         }
@@ -1541,18 +1989,28 @@ export const useStore = create<GameState>((set) => ({
         const footprintChanges = Date.now() < state.footprintsUntil
             ? { footprintHistory: [...state.footprintHistory, { x: nx, y: ny, level: state.level, ts: Date.now() }] }
             : {};
-        return { position: [ny, nx] as [number, number], ...sensorChanges, ...hallGateChanges, ...footprintChanges };
+        return {
+            position: [ny, nx] as [number, number],
+            lastPartyMoveGameTick: state.elapsedGameTimeTicks,
+            movementCooldown: computePartyMovementCooldownSecondsApprox(state),
+            ...(movedVitals ? { championVitals: movedVitals } : {}),
+            ...sensorChanges,
+            ...hallGateChanges,
+            ...footprintChanges,
+        };
     }),
 
     moveBackward: () => set((state) => {
         if (state.gamePhase !== 'exploration') return state;
+        if (state.movementCooldown > 0) return state;
+        const movedVitals = applyPartyMoveFatigue(state);
         const [y, x] = state.position;
         let ny = y, nx = x;
         if (state.direction === 'NORTH') ny = y + 1;
         if (state.direction === 'SOUTH') ny = y - 1;
         if (state.direction === 'EAST')  nx = x - 1;
         if (state.direction === 'WEST')  nx = x + 1;
-        if (!isWalkable(state.level, ny, nx, state.openDoors, state.openWalls)) return state;
+        if (!isWalkable(state.level, ny, nx, state.openDoors, state.openWalls)) return movedVitals ? { championVitals: movedVitals } : state;
         const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, openWalls: state.openWalls, activeSensors: state.activeSensors, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
         const suppressHallPlateSensors = isHallEntryPressurePlate(state.level, nx, ny) && state.party.length < MAX_PARTY;
         const sensorChanges = suppressHallPlateSensors ? {} : triggerFloorSensors(state.level, nx, ny, ss);
@@ -1560,24 +2018,37 @@ export const useStore = create<GameState>((set) => ({
         const footprintChanges = Date.now() < state.footprintsUntil
             ? { footprintHistory: [...state.footprintHistory, { x: nx, y: ny, level: state.level, ts: Date.now() }] }
             : {};
-        return { position: [ny, nx] as [number, number], ...sensorChanges, ...hallGateChanges, ...footprintChanges };
+        return {
+            position: [ny, nx] as [number, number],
+            lastPartyMoveGameTick: state.elapsedGameTimeTicks,
+            movementCooldown: computePartyMovementCooldownSecondsApprox(state),
+            ...(movedVitals ? { championVitals: movedVitals } : {}),
+            ...sensorChanges,
+            ...hallGateChanges,
+            ...footprintChanges,
+        };
     }),
 
     strafeLeft: () => set((state) => {
         if (state.gamePhase !== 'exploration') return state;
+        if (state.movementCooldown > 0) return state;
+        const movedVitals = applyPartyMoveFatigue(state);
         const [y, x] = state.position;
         let ny = y, nx = x;
         if (state.direction === 'NORTH') nx = x - 1;
         if (state.direction === 'SOUTH') nx = x + 1;
         if (state.direction === 'EAST')  ny = y - 1;
         if (state.direction === 'WEST')  ny = y + 1;
-        if (!isWalkable(state.level, ny, nx, state.openDoors, state.openWalls)) return state;
+        if (!isWalkable(state.level, ny, nx, state.openDoors, state.openWalls)) return movedVitals ? { championVitals: movedVitals } : state;
         const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, openWalls: state.openWalls, activeSensors: state.activeSensors, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
         const fpL = Date.now() < state.footprintsUntil
             ? { footprintHistory: [...state.footprintHistory, { x: nx, y: ny, level: state.level, ts: Date.now() }] }
             : {};
         return {
             position: [ny, nx] as [number, number],
+            lastPartyMoveGameTick: state.elapsedGameTimeTicks,
+            movementCooldown: computePartyMovementCooldownSecondsApprox(state),
+            ...(movedVitals ? { championVitals: movedVitals } : {}),
             ...(isHallEntryPressurePlate(state.level, nx, ny) && state.party.length < MAX_PARTY
                 ? {}
                 : triggerFloorSensors(state.level, nx, ny, ss)),
@@ -1588,19 +2059,24 @@ export const useStore = create<GameState>((set) => ({
 
     strafeRight: () => set((state) => {
         if (state.gamePhase !== 'exploration') return state;
+        if (state.movementCooldown > 0) return state;
+        const movedVitals = applyPartyMoveFatigue(state);
         const [y, x] = state.position;
         let ny = y, nx = x;
         if (state.direction === 'NORTH') nx = x + 1;
         if (state.direction === 'SOUTH') nx = x - 1;
         if (state.direction === 'EAST')  ny = y + 1;
         if (state.direction === 'WEST')  ny = y - 1;
-        if (!isWalkable(state.level, ny, nx, state.openDoors, state.openWalls)) return state;
+        if (!isWalkable(state.level, ny, nx, state.openDoors, state.openWalls)) return movedVitals ? { championVitals: movedVitals } : state;
         const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, openWalls: state.openWalls, activeSensors: state.activeSensors, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
         const fpR = Date.now() < state.footprintsUntil
             ? { footprintHistory: [...state.footprintHistory, { x: nx, y: ny, level: state.level, ts: Date.now() }] }
             : {};
         return {
             position: [ny, nx] as [number, number],
+            lastPartyMoveGameTick: state.elapsedGameTimeTicks,
+            movementCooldown: computePartyMovementCooldownSecondsApprox(state),
+            ...(movedVitals ? { championVitals: movedVitals } : {}),
             ...(isHallEntryPressurePlate(state.level, nx, ny) && state.party.length < MAX_PARTY
                 ? {}
                 : triggerFloorSensors(state.level, nx, ny, ss)),
@@ -1689,7 +2165,7 @@ export const useStore = create<GameState>((set) => ({
 
       tryOpenGate: () => set((state) => ({ gateOpen: state.party.length >= MAX_PARTY })),
 
-    showTransientMessage: (message, success = false, durationMs = 3000) => {
+    showTransientMessage: (message, success = false, durationMs = TRANSIENT_MESSAGE_LIFETIME_MS) => {
         const ts = Date.now();
         set({ lastCastResult: { success, message, ts } });
         if (castResultTimeout) clearTimeout(castResultTimeout);
@@ -1710,7 +2186,8 @@ export const useStore = create<GameState>((set) => ({
         if (!next.has(key)) {
             // Door is closed → open it, cancel any crush
             next.add(key);
-            const { [key]: _removed, ...remaining } = state.crushingDoors;
+            const remaining = { ...state.crushingDoors };
+            delete remaining[key];
             return { openDoors: next, crushingDoors: remaining };
         }
 
@@ -1723,7 +2200,7 @@ export const useStore = create<GameState>((set) => ({
             // Start crush cycle
             return {
                 openDoors: next,
-                crushingDoors: { ...state.crushingDoors, [key]: { phase: 'closing' as const, timer: 0.55 } },
+                crushingDoors: { ...state.crushingDoors, [key]: { phase: 'closing' as const, timer: DOOR_CLOSE_DURATION_SECONDS } },
             };
         }
         return { openDoors: next };
@@ -1940,14 +2417,14 @@ export const useStore = create<GameState>((set) => ({
         if (!champ) return state;
         const effective = getEffectiveChampionStats(champ, state.championEquipment[championId] ?? {});
 
-        let newVitals = { ...vitals };
+        const newVitals = { ...vitals };
         let replacementItem: FloorItem | null = null;
         let shouldConsumeOriginal = true;
 
         const waterUse = consumeWaterContainer(item);
         if (isWaterContainer(item) && !waterUse) return state;
         if (waterUse) {
-            newVitals.water = clampVital(vitals.water + waterUse.waterGain, MAX_WATER);
+            newVitals.water = clampFoodWater(vitals.water + waterUse.waterGain, MAX_WATER);
             newVitals.stamina = Math.min(effective.stamina, vitals.stamina + waterUse.staminaGain);
             replacementItem = waterUse.nextItem;
             shouldConsumeOriginal = false;
@@ -1962,7 +2439,7 @@ export const useStore = create<GameState>((set) => ({
         } else if (item.category === 'Misc') {
             const def = MISC_TYPES[item.typeId];
             if (def?.food && def.nutrition) {
-                newVitals.food = clampVital(vitals.food + def.nutrition, MAX_FOOD);
+                newVitals.food = clampFoodWater(vitals.food + def.nutrition, MAX_FOOD);
                 newVitals.stamina = Math.min(effective.stamina, vitals.stamina + def.nutrition / 20);
             }
         }
@@ -2011,21 +2488,37 @@ export const useStore = create<GameState>((set) => ({
     }),
 
     sleep: () => set((state) => {
-        const newVitals: Record<number, ChampionVitals> = { ...state.championVitals };
-        for (const champ of state.party) {
-            const current = state.championVitals[champ.id];
-            newVitals[champ.id] = {
-                ...createChampionVitals(
-                    champ.health,
-                    champ.stamina,
-                    champ.mana,
-                    current?.food ?? MAX_FOOD,
-                    current?.water ?? MAX_WATER,
-                ),
-                poisonEntries: current?.poisonEntries ?? [],
+        let workingState: GameState = state;
+        let totalAdvancedTicks = 0;
+        const MAX_SLEEP_TICKS = 1200;
+        const SLEEP_CHUNK_TICKS = 20;
+
+        const isRested = (candidate: GameState) =>
+            candidate.party.every((champ) => {
+                const vitals = candidate.championVitals[champ.id];
+                if (!vitals || vitals.hp <= 0) return true;
+                const effective = getEffectiveChampionStats(champ, candidate.championEquipment[champ.id] ?? {});
+                return vitals.hp >= effective.health && vitals.stamina >= effective.stamina && vitals.mana >= effective.mana;
+            });
+
+        while (totalAdvancedTicks < MAX_SLEEP_TICKS && !isRested(workingState)) {
+            const chunk = Math.min(SLEEP_CHUNK_TICKS, MAX_SLEEP_TICKS - totalAdvancedTicks);
+            const advanced = advanceSurvivalTimeApprox(workingState, chunk);
+            workingState = {
+                ...workingState,
+                championVitals: advanced.championVitals,
+                elapsedGameTimeTicks: advanced.elapsedGameTimeTicks,
             };
+            totalAdvancedTicks += chunk;
         }
-        return { championVitals: newVitals };
+
+        const advanceMs = totalAdvancedTicks * (ORIGINAL_TIMER_TICK_SECONDS * 1000);
+        return {
+            championVitals: workingState.championVitals,
+            elapsedGameTimeTicks: workingState.elapsedGameTimeTicks,
+            regenTickRemainder: 0,
+            ...ageTimedEffectsByMs(state, advanceMs),
+        };
     }),
 
     // ─── Potion rune → typeId mapping (spell runes without power rune) ──────────
@@ -2095,7 +2588,9 @@ export const useStore = create<GameState>((set) => ({
                 // FUL = +0.25 / 10 min ; OH IR RA = +0.50 / 15 min
                 const isFul = spell.runes.slice(1).join(',') === 'ful';
                 const lightContrib = isFul ? 0.25 : 0.50;
-                const durationMs   = isFul ? 10 * 60_000 : 15 * 60_000;
+                const durationMs   = isFul
+                    ? quantizeMsToOriginalTimerTicks(minutesToMs(10))
+                    : quantizeMsToOriginalTimerTicks(minutesToMs(15));
                 const newLight: SpellLight = {
                     id: `light_${now}_${Math.random().toString(36).slice(2)}`,
                     lightContrib,
@@ -2131,7 +2626,8 @@ export const useStore = create<GameState>((set) => ({
 
             case 'fireball':
             case 'lightning':
-            case 'poison':
+            case 'poison_bolt':
+            case 'disrupt_nonmaterial':
             case 'plasma': {
                 const [py, px] = state.position;
                 // Start one tile ahead of the player so it's visible from cast
@@ -2148,7 +2644,7 @@ export const useStore = create<GameState>((set) => ({
                     direction: state.direction,
                     effect: spell.effect as ProjectileEffect,
                     damage: [Math.round(spell.manaCost * 3), Math.round(spell.manaCost * 5)],
-                    nextMoveAt: now + 300,
+                    nextMoveAt: now + PROJECTILE_STEP_MS,
                 };
                 return {
                     ...base,
@@ -2157,9 +2653,62 @@ export const useStore = create<GameState>((set) => ({
                 };
             }
 
+            case 'poison_cloud': {
+                const { x: fx, y: fy } = getFrontPosition(state.position, state.direction);
+                const frontTargets = state.creatures.filter(
+                    (creature) =>
+                        creature.alive &&
+                        creature.mapIndex === state.level &&
+                        creature.x === fx &&
+                        creature.y === fy,
+                );
+
+                if (frontTargets.length === 0) {
+                    return { ...base, championVitals: { ...state.championVitals, [championId]: newVitals } };
+                }
+
+                let creatures = state.creatures as CreatureInstance[];
+                let floorItems = state.floorItems;
+                const damageEvents = [...state.damageEvents];
+                const baseDamage = Math.max(2, Math.round(spell.manaCost * 1.5));
+                const maxDamage = Math.max(baseDamage + 2, Math.round(spell.manaCost * 2.5));
+
+                for (const target of frontTargets) {
+                    const damage =
+                        baseDamage + Math.floor(Math.random() * (maxDamage - baseDamage + 1));
+                    const newHP = Math.max(0, target.currentHP - damage);
+                    const killed = newHP <= 0;
+                    if (creatures === state.creatures) creatures = [...creatures];
+                    const index = creatures.findIndex((creature) => creature.id === target.id);
+                    if (index >= 0) {
+                        creatures[index] = { ...creatures[index], currentHP: newHP, alive: !killed };
+                    }
+                    if (killed) {
+                        const dropped = dropCreatureCarriedItems(creatures, floorItems, target.id);
+                        creatures = dropped.creatures;
+                        floorItems = dropped.floorItems;
+                    }
+                    damageEvents.push({
+                        id: `spell_poison_cloud_${now}_${target.id}`,
+                        x: fx,
+                        y: fy,
+                        amount: damage,
+                        ts: now,
+                    });
+                }
+
+                return {
+                    ...base,
+                    championVitals: { ...state.championVitals, [championId]: newVitals },
+                    creatures,
+                    floorItems,
+                    damageEvents,
+                };
+            }
+
             case 'darkness': {
                 // Negative light contribution — inverse of light
-                const durationMs = 10 * 60_000;
+                const durationMs = quantizeMsToOriginalTimerTicks(minutesToMs(10));
                 const darkEntry: SpellLight = {
                     id: `dark_${now}_${Math.random().toString(36).slice(2)}`,
                     lightContrib: -0.5,
@@ -2176,7 +2725,7 @@ export const useStore = create<GameState>((set) => ({
             case 'fire_shield': {
                 // protection: scales from ~25% (Lo) to ~75% (Mon), capped at 0.75
                 const protection = Math.min(0.75, spell.manaCost * 0.022);
-                const durationMs = Math.round(spell.manaCost * 8_000);
+                const durationMs = quantizeMsToOriginalTimerTicks(spell.manaCost * 8_000);
                 const shield: PartyShield = {
                     id: `shield_${now}_${Math.random().toString(36).slice(2)}`,
                     expiresAt: now + durationMs,
@@ -2192,7 +2741,7 @@ export const useStore = create<GameState>((set) => ({
 
             case 'invisibility': {
                 // mana costs (17,25,35,43,53,61) → duration 2m16s … 8m8s
-                const durationMs = spell.manaCost * 8_000;
+                const durationMs = quantizeMsToOriginalTimerTicks(spell.manaCost * 8_000);
                 return {
                     ...base,
                     championVitals: { ...state.championVitals, [championId]: newVitals },
@@ -2201,7 +2750,16 @@ export const useStore = create<GameState>((set) => ({
             }
 
             case 'magic_vision': {
-                const durationMs = spell.manaCost * 10_000;
+                const durationMs = quantizeMsToOriginalTimerTicks(spell.manaCost * 10_000);
+                return {
+                    ...base,
+                    championVitals: { ...state.championVitals, [championId]: newVitals },
+                    magicVisionUntil: Math.max(state.magicVisionUntil, now + durationMs),
+                };
+            }
+
+            case 'reveal_hidden': {
+                const durationMs = quantizeMsToOriginalTimerTicks(spell.manaCost * 12_000);
                 return {
                     ...base,
                     championVitals: { ...state.championVitals, [championId]: newVitals },
@@ -2210,7 +2768,7 @@ export const useStore = create<GameState>((set) => ({
             }
 
             case 'footprints': {
-                const durationMs = spell.manaCost * 20_000;
+                const durationMs = quantizeMsToOriginalTimerTicks(spell.manaCost * 20_000);
                 return {
                     ...base,
                     championVitals: { ...state.championVitals, [championId]: newVitals },
@@ -2263,84 +2821,29 @@ export const useStore = create<GameState>((set) => ({
         }
     }),
 
-    // ─── Vitals regeneration (call each frame with delta in seconds) ──────────
-    // Rates (per second, based on DM1 approximations):
-    //   HP      → vitality / 600   (≈ 12 s/pt for vit=50)
-    //   Stamina → vitality / 200   (≈  4 s/pt for vit=50)
-    //   Mana    → wisdom   / 150   (≈  3 s/pt for wis=50) — only if maxMana > 0
     regenTick: (delta) => set((state) => {
-        const newVitals: Record<number, ChampionVitals> = {};
-        let changed = false;
-        for (const champ of state.party) {
-            const v = state.championVitals[champ.id];
-            if (!v) continue;
-            const effective = getEffectiveChampionStats(champ, state.championEquipment[champ.id] ?? {});
-            const maxHP      = effective.health;
-            const maxStamina = effective.stamina;
-            const maxMana    = effective.mana;
+        let regenTickRemainder = state.regenTickRemainder + delta;
+        const stepCount = Math.floor(regenTickRemainder / ORIGINAL_TIMER_TICK_SECONDS);
+        regenTickRemainder -= stepCount * ORIGINAL_TIMER_TICK_SECONDS;
 
-            const nextFood = clampVital(v.food - FOOD_DECAY_PER_SEC * delta, MAX_FOOD);
-            const nextWater = clampVital(v.water - WATER_DECAY_PER_SEC * delta, MAX_WATER);
-
-            const foodPenalty = getResourcePenalty(nextFood, CRITICAL_FOOD_THRESHOLD);
-            const waterPenalty = getResourcePenalty(nextWater, CRITICAL_WATER_THRESHOLD);
-            const staminaDrain = (foodPenalty * FOOD_STAMINA_DRAIN_PER_SEC) + (waterPenalty * WATER_STAMINA_DRAIN_PER_SEC);
-            const staminaRegenFactor = Math.max(0, 1 - foodPenalty * 0.55 - waterPenalty * 0.75);
-
-            const hpRegen = maxHP > v.hp ? effective.vitality / 600 * delta : 0;
-            const staminaRegen = maxStamina > v.stamina ? effective.vitality / 200 * delta * staminaRegenFactor : 0;
-            const manaRegen = maxMana > 0 && maxMana > v.mana ? effective.wisdom / 150 * delta : 0;
-
-            const nextStamina = clampVital(v.stamina + staminaRegen - staminaDrain * delta, maxStamina);
-
-            let nextHP = clampVital(v.hp + hpRegen, maxHP);
-            if (nextStamina <= 0) {
-                const starvationDamage = nextFood <= 0 ? STARVATION_HP_DRAIN_PER_SEC : 0;
-                const dehydrationDamage = nextWater <= 0 ? DEHYDRATION_HP_DRAIN_PER_SEC : 0;
-                if (starvationDamage > 0 || dehydrationDamage > 0) {
-                    nextHP = clampVital(nextHP - (starvationDamage + dehydrationDamage) * delta, maxHP);
-                }
-            }
-
-            const nextMana = maxMana > 0 ? Math.min(maxMana, v.mana + manaRegen) : v.mana;
-            let poisonEntries = v.poisonEntries;
-            if (poisonEntries.length > 0) {
-                const updatedEntries: { remaining: number; nextTickIn: number }[] = [];
-                for (const entry of poisonEntries) {
-                    const nextTickIn = entry.nextTickIn - delta;
-                    if (nextTickIn > 0) {
-                        updatedEntries.push({ ...entry, nextTickIn });
-                        continue;
-                    }
-                    nextHP = Math.max(0, nextHP - Math.max(1, Math.floor(entry.remaining / 64)));
-                    const nextRemaining = entry.remaining - 1;
-                    if (nextRemaining > 0) {
-                        updatedEntries.push({ remaining: nextRemaining, nextTickIn: POISON_TICK_INTERVAL_SEC });
-                    }
-                }
-                poisonEntries = updatedEntries;
-            }
-
-            if (
-                nextHP !== v.hp ||
-                nextStamina !== v.stamina ||
-                nextMana !== v.mana ||
-                nextFood !== v.food ||
-                nextWater !== v.water ||
-                poisonEntries !== v.poisonEntries
-            ) {
-                newVitals[champ.id] = {
-                    hp: nextHP,
-                    stamina: nextStamina,
-                    mana: nextMana,
-                    food: nextFood,
-                    water: nextWater,
-                    poisonEntries,
-                };
-                changed = true;
-            }
+        if (stepCount <= 0) {
+            return regenTickRemainder !== state.regenTickRemainder
+                ? { regenTickRemainder }
+                : state;
         }
-        return changed ? { championVitals: { ...state.championVitals, ...newVitals } } : state;
+
+        const advanced = advanceSurvivalTimeApprox(state, stepCount);
+
+        return {
+            championVitals: advanced.championVitals,
+            elapsedGameTimeTicks: advanced.elapsedGameTimeTicks,
+            regenTickRemainder,
+        };
+    }),
+
+    tickMovement: (delta) => set((state) => {
+        if (state.movementCooldown <= 0) return state;
+        return { movementCooldown: Math.max(0, state.movementCooldown - delta) };
     }),
 
     // ─── XP ───────────────────────────────────────────────────────────────────
@@ -2545,7 +3048,7 @@ export const useStore = create<GameState>((set) => ({
                     const newLight: SpellLight = {
                         id: `weapon_light_${now}_${Math.random().toString(36).slice(2)}`,
                         lightContrib: 0.5,
-                        expiresAt: now + 10 * 60_000,
+                        expiresAt: now + quantizeMsToOriginalTimerTicks(minutesToMs(10)),
                     };
                     return {
                         ...base,
@@ -2555,7 +3058,7 @@ export const useStore = create<GameState>((set) => ({
                 case 'Spellshield': {
                     const shield: PartyShield = {
                         id: `weapon_spellshield_${now}_${Math.random().toString(36).slice(2)}`,
-                        expiresAt: now + 90_000,
+                        expiresAt: now + quantizeMsToOriginalTimerTicks(90_000),
                         protection: 0.35,
                         fireOnly: false,
                     };
@@ -2567,7 +3070,7 @@ export const useStore = create<GameState>((set) => ({
                 case 'Fireshield': {
                     const shield: PartyShield = {
                         id: `weapon_fireshield_${now}_${Math.random().toString(36).slice(2)}`,
-                        expiresAt: now + 90_000,
+                        expiresAt: now + quantizeMsToOriginalTimerTicks(90_000),
                         protection: 0.35,
                         fireOnly: true,
                     };
@@ -2596,7 +3099,7 @@ export const useStore = create<GameState>((set) => ({
                 case 'Window': {
                     return {
                         ...base,
-                        magicVisionUntil: Math.max(state.magicVisionUntil, now + 120_000),
+                        magicVisionUntil: Math.max(state.magicVisionUntil, now + quantizeMsToOriginalTimerTicks(120_000)),
                     };
                 }
                 default:
@@ -2666,7 +3169,7 @@ export const useStore = create<GameState>((set) => ({
         const attackSkill = selectedAttack
             ? mapOriginalSkillNumberToBasicSkill(selectedAttack.attack.skillNumber)
             : stats.skill;
-        let newChampXP: Record<number, ChampionXP> = {
+        const newChampXP: Record<number, ChampionXP> = {
             ...state.championXP,
             [championId]: { ...attackerXP, [attackSkill]: attackerXP[attackSkill] + totalDmg },
         };
@@ -2758,7 +3261,7 @@ export const useStore = create<GameState>((set) => ({
                         delete crush[key]; // door stays closed, creature dead
                     } else {
                         // Bounce door open, then try again
-                        crush[key] = { phase: 'bouncing', timer: 0.38 };
+                        crush[key] = { phase: 'bouncing', timer: DOOR_REBOUND_DURATION_SECONDS };
                         doors = new Set(doors); doors.add(key);
                     }
                     changed = true;
@@ -2773,7 +3276,7 @@ export const useStore = create<GameState>((set) => ({
                     // Close again and start next crush countdown
                     doors = new Set(doors); doors.delete(key);
                     if (crush === state.crushingDoors) crush = { ...crush };
-                    crush[key] = { phase: 'closing', timer: 0.50 };
+                    crush[key] = { phase: 'closing', timer: DOOR_RECLOSE_DURATION_SECONDS };
                     changed = true;
                 }
             }
@@ -2844,11 +3347,11 @@ export const useStore = create<GameState>((set) => ({
             const def = CREATURE_TYPES[c.typeId];
             if (!def) continue;
 
-            const moveSec = def.moveSpd / 6;
-            const atkSec  = def.atkSpd  / 6;
-
             // Read timers from external mutable Map (avoids per-frame Zustand updates)
-            const timers = creatureTimers.get(c.id) ?? { mt: Math.random() * moveSec, at: Math.random() * atkSec };
+            const timers = creatureTimers.get(c.id) ?? {
+                mt: Math.random() * nextMonsterMoveDelaySecondsApprox(def.moveSpd),
+                at: Math.random() * nextMonsterAttackDelaySecondsApprox(def.atkSpd),
+            };
             let moveTimer = Math.max(0, timers.mt - delta);
             let atkTimer  = Math.max(0, timers.at  - delta);
 
@@ -2862,7 +3365,7 @@ export const useStore = create<GameState>((set) => ({
 
             // ── Movement ──────────────────────────────────────────────────────
             if (moveTimer === 0 && !adjacent) {
-                moveTimer = moveSec * (0.85 + Math.random() * 0.3);
+                moveTimer = nextMonsterMoveDelaySecondsApprox(def.moveSpd);
 
                 // Count alive creatures per tile (max 2 per tile with different sides)
                 const tileCounts: Record<string, number> = {};
@@ -2900,7 +3403,7 @@ export const useStore = create<GameState>((set) => ({
                             notifyCreatureAction(c.id, 'move');
                         }
                     } else {
-                        moveTimer = moveSec * (1.0 + Math.random() * 0.5);
+                        moveTimer = nextMonsterMoveDelaySecondsApprox(def.moveSpd);
                     }
                 }
             }
@@ -2909,9 +3412,10 @@ export const useStore = create<GameState>((set) => ({
             const nowMs = Date.now();
             const partyInvisible = nowMs < state.invisibleUntil;
             if (atkTimer === 0 && adjacent && !partyInvisible) {
-                atkTimer = atkSec * (0.9 + Math.random() * 0.2);
+                atkTimer = nextMonsterAttackDelaySecondsApprox(def.atkSpd);
                 playCreatureAttack(c.typeId);
                 notifyCreatureAction(c.id, 'attack');
+                creatureAttackWindows.set(c.id, nowMs + CREATURE_ATTACK_WINDOW_MS);
 
                 const target = getTarget(c.side, def.attackAnyChampion);
                 if (target) {
@@ -2938,18 +3442,26 @@ export const useStore = create<GameState>((set) => ({
                             }
                             continue;
                         }
+                        const damageClass = chooseMonsterDamageClassApprox(def);
                         const raw = targetChampion
-                            ? determineMonsterAttackDamageApprox(state, targetChampion, tv, c)
+                            ? determineMonsterAttackDamageApprox(state, targetChampion, tv, c, damageClass)
                             : 0;
                         if (raw <= 0) continue;
-                        // Apply non-fire shield protection
-                        const shieldProt = state.activeShields
-                            .filter(s => s.expiresAt > nowMs && !s.fireOnly)
-                            .reduce((max, s) => Math.max(max, s.protection), 0);
-                        const dmg   = Math.max(1, Math.round(raw * (1 - shieldProt)));
+                        const equip = state.championEquipment[target.id] ?? {};
+                        const shieldProt = getActiveShieldProtectionApprox(state.activeShields, nowMs, damageClass);
+                        const resistProt = computeChampionResistanceApprox(targetChampion, equip, damageClass);
+                        const totalMitigation = 1 - Math.min(0.9, shieldProt + resistProt - shieldProt * resistProt);
+                        const dmg = Math.max(1, Math.round(raw * totalMitigation));
                         let nextTargetVitals = { ...tv, hp: Math.max(0, tv.hp - dmg) };
+                        if (def.attackTypes.includes('StaminaDrain')) {
+                            const staminaDamage = Math.max(1, Math.floor(dmg / 2) + randomInt(4));
+                            const effective = getEffectiveChampionStats(targetChampion, equip);
+                            nextTargetVitals = {
+                                ...nextTargetVitals,
+                                stamina: clampVital(nextTargetVitals.stamina - staminaDamage, effective.stamina),
+                            };
+                        }
                         if (nextTargetVitals.hp > 0 && def.poisonAttack > 0 && randomInt(2) !== 0) {
-                            const equip = state.championEquipment[target.id] ?? {};
                             if (targetChampion) {
                                 const effective = getEffectiveChampionStats(targetChampion, equip);
                                 const poisonStrength = adjustByAttributeApprox(def.poisonAttack, effective.vitality);
@@ -3076,9 +3588,13 @@ export const useStore = create<GameState>((set) => ({
             // Creature hit → deal damage and despawn
             const hit = creatures.find(c => c.alive && c.mapIndex === proj.level && c.x === nx && c.y === ny);
             if (hit) {
-                const dmg = proj.effect === 'physical'
+                const disruptCanDamage = canDisruptNonMaterialTarget(now, hit);
+                const rolledDamage = proj.effect === 'physical'
                     ? Math.max(1, Math.round(proj.remainingAttack ?? proj.damage[1]))
                     : proj.damage[0] + Math.floor(Math.random() * (proj.damage[1] - proj.damage[0] + 1));
+                const dmg = proj.effect === 'disrupt_nonmaterial'
+                    ? disruptCanDamage ? rolledDamage : 0
+                    : rolledDamage;
                 const newHP = Math.max(0, hit.currentHP - dmg);
                 const killed = newHP <= 0;
                 if (creatures === state.creatures) creatures = [...creatures];
@@ -3089,10 +3605,12 @@ export const useStore = create<GameState>((set) => ({
                     creatures = dropped.creatures;
                     floorItems = dropped.floorItems;
                 }
-                dmgEvts = [...dmgEvts, {
-                    id: `pdmg_${now}_${Math.random().toString(36).slice(2)}`,
-                    x: nx, y: ny, amount: dmg, ts: now,
-                }];
+                if (dmg > 0) {
+                    dmgEvts = [...dmgEvts, {
+                        id: `pdmg_${now}_${Math.random().toString(36).slice(2)}`,
+                        x: nx, y: ny, amount: dmg, ts: now,
+                    }];
+                }
                 if (proj.effect === 'physical' && proj.physicalItem) {
                     if (floorItems === state.floorItems) floorItems = [...floorItems];
                     floorItems.push(buildDroppedItem(proj.physicalItem, proj.level, nx, ny));
@@ -3114,7 +3632,7 @@ export const useStore = create<GameState>((set) => ({
                     ...proj,
                     x: nx,
                     y: ny,
-                    nextMoveAt: now + 220,
+                    nextMoveAt: now + PHYSICAL_PROJECTILE_STEP_MS,
                     remainingRange,
                     remainingAttack,
                 });
@@ -3122,13 +3640,13 @@ export const useStore = create<GameState>((set) => ({
             }
 
             // Move forward, schedule next step in 300 ms
-            keepProjectiles.push({ ...proj, x: nx, y: ny, nextMoveAt: now + 300 });
+            keepProjectiles.push({ ...proj, x: nx, y: ny, nextMoveAt: now + PROJECTILE_STEP_MS });
         }
 
         // 3. Clean expired shields
         const activeShields = state.activeShields.filter(s => s.expiresAt > now);
         // 4. Clean footprints older than 60 s
-        const footprintHistory = state.footprintHistory.filter(e => now - e.ts < 60_000);
+        const footprintHistory = state.footprintHistory.filter(e => now - e.ts < FOOTPRINT_LIFETIME_MS);
 
         const lightsChanged       = spellLights.length !== state.spellLights.length;
         const projectilesChanged  = keepProjectiles.length !== state.projectiles.length ||
@@ -3173,7 +3691,7 @@ export const useStore = create<GameState>((set) => ({
             }
         }
         const now = Date.now();
-        const newEvents = state.damageEvents.filter(e => now - e.ts < 600);
+        const newEvents = state.damageEvents.filter(e => now - e.ts < DAMAGE_EVENT_LIFETIME_MS);
         const eventsChanged = newEvents.length !== state.damageEvents.length;
         if (!combatChanged && !eventsChanged) return state;
         return {

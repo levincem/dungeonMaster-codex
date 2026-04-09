@@ -486,20 +486,26 @@ const RuneBtn: React.FC<{
 
 // ─── Movement button ───────────────────────────────────────────────────────────
 const MoveBtn: React.FC<{
-    label: string; flash: boolean; onClick: () => void; title?: string;
-}> = ({ label, flash, onClick, title }) => (
+    label: string; flash: boolean; onClick: () => void; title?: string; disabled?: boolean;
+}> = ({ label, flash, onClick, title, disabled = false }) => (
     <button
         onClick={onClick}
+        disabled={disabled}
         title={title}
         style={{
             width: '100%', aspectRatio: '1',
-            background: flash ? 'rgba(220,195,110,0.40)' : 'rgba(14,10,26,0.90)',
-            border: `1px solid ${flash ? 'rgba(240,210,100,0.80)' : 'rgba(100,85,130,0.60)'}`,
+            background: disabled
+                ? 'rgba(10,8,18,0.75)'
+                : flash ? 'rgba(220,195,110,0.40)' : 'rgba(14,10,26,0.90)',
+            border: `1px solid ${disabled
+                ? 'rgba(54,48,72,0.55)'
+                : flash ? 'rgba(240,210,100,0.80)' : 'rgba(100,85,130,0.60)'}`,
             borderRadius: 6,
-            color: flash ? '#ffe898' : '#aa99cc',
-            fontSize: 16, cursor: 'pointer', fontFamily: 'monospace',
+            color: disabled ? '#5a526c' : flash ? '#ffe898' : '#aa99cc',
+            fontSize: 16, cursor: disabled ? 'default' : 'pointer', fontFamily: 'monospace',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             transition: 'background 0.05s, border-color 0.05s, color 0.05s',
+            opacity: disabled ? 0.7 : 1,
         }}
     >
         {label}
@@ -514,6 +520,7 @@ export const HUD = () => {
         party, level, position, direction,
         selectedChampionIndex, selectChampion, openPartyMember, reorderParty,
         moveForward, moveBackward, strafeLeft, strafeRight, turnLeft, turnRight,
+        movementCooldown,
         championVitals, castSpell: storeCastSpell, lastCastResult,
         championXP, championCombat, attackFront, championEquipment,
     } = useStore();
@@ -539,6 +546,7 @@ export const HUD = () => {
 
     // Like flash but also plays footstep/cry sound for movement actions
     const move = useCallback((key: string, action: () => void) => {
+        if (useStore.getState().movementCooldown > 0) return;
         const posBefore = useStore.getState().position;
         action();
         const posAfter = useStore.getState().position;
@@ -598,6 +606,7 @@ export const HUD = () => {
     // Disable LANCER if no mana or insufficient mana for the matched spell
     const canCast = selectedRunes.length >= 2 && selectedChamp &&
         (spell ? (selectedVitals?.mana ?? 0) >= spell.manaCost : true);
+    const movementBlocked = movementCooldown > 0;
 
     // ── Panel wrapper (subtle border/bg, no title) ──────────────────────────
     const panel: React.CSSProperties = {
@@ -817,11 +826,11 @@ export const HUD = () => {
                         alignContent: 'center',
                     }}>
                         <MoveBtn label="↺" flash={flashKey === 'tl'}  title="Tourner gauche (Q)"  onClick={() => flash('tl',  turnLeft)} />
-                        <MoveBtn label="↑" flash={flashKey === 'fwd'} title="Avancer (Z)"          onClick={() => move('fwd', moveForward)} />
+                        <MoveBtn label="↑" flash={flashKey === 'fwd'} title="Avancer (Z)"          onClick={() => move('fwd', moveForward)} disabled={movementBlocked} />
                         <MoveBtn label="↻" flash={flashKey === 'tr'}  title="Tourner droite (D)"  onClick={() => flash('tr',  turnRight)} />
-                        <MoveBtn label="←" flash={flashKey === 'sl'}  title="Pas gauche (A)"       onClick={() => move('sl',  strafeLeft)} />
-                        <MoveBtn label="↓" flash={flashKey === 'bck'} title="Reculer (S)"          onClick={() => move('bck', moveBackward)} />
-                        <MoveBtn label="→" flash={flashKey === 'sr'}  title="Pas droite (E)"       onClick={() => move('sr',  strafeRight)} />
+                        <MoveBtn label="←" flash={flashKey === 'sl'}  title="Pas gauche (A)"       onClick={() => move('sl',  strafeLeft)} disabled={movementBlocked} />
+                        <MoveBtn label="↓" flash={flashKey === 'bck'} title="Reculer (S)"          onClick={() => move('bck', moveBackward)} disabled={movementBlocked} />
+                        <MoveBtn label="→" flash={flashKey === 'sr'}  title="Pas droite (E)"       onClick={() => move('sr',  strafeRight)} disabled={movementBlocked} />
                     </div>
                 </div>
             </div>
