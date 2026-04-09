@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { StateCreator } from 'zustand';
 import { getGameMap, GAME_MAPS, CHAMPION_START_POSITIONS } from '../data/mapLoader';
 import { itemToLockData } from '../data/mechanisms';
 import type {
@@ -352,7 +353,6 @@ function computeOriginalTimeCriteria(gameTimeTicks: number): number {
 
 function applyChampionStaminaDeltaOriginal(
     vitals: ChampionVitals,
-    maxHp: number,
     maxStamina: number,
     staminaDelta: number,
 ): ChampionVitals {
@@ -1808,7 +1808,7 @@ function advanceSurvivalTimeApprox(
             if (maxMana > 0 && next.mana < maxMana && timeCriteria < (effective.wisdom + wizardSkill)) {
                 const manaGain = Math.floor(maxMana / 40) + 1;
                 const staminaCost = manaGain * Math.max(7, 16 - wizardSkill);
-                next = applyChampionStaminaDeltaOriginal(next, maxHP, maxStamina, -staminaCost);
+                next = applyChampionStaminaDeltaOriginal(next, maxStamina, -staminaCost);
                 next = {
                     ...next,
                     mana: next.mana + Math.min(manaGain, maxMana - next.mana),
@@ -1862,7 +1862,7 @@ function advanceSurvivalTimeApprox(
                 staminaGainCycleCount -= 1;
             } while (staminaGainCycleCount > 0 && ((next.stamina + staminaDelta) < maxStamina));
 
-            next = applyChampionStaminaDeltaOriginal(next, maxHP, maxStamina, staminaDelta);
+            next = applyChampionStaminaDeltaOriginal(next, maxStamina, staminaDelta);
             next = {
                 ...next,
                 food: clampFoodWater(food, MAX_FOOD),
@@ -1925,7 +1925,7 @@ function applyPartyMoveFatigue(state: Pick<GameState, 'party' | 'championVitals'
         const load = getTotalWeight(equip, inventory);
         const maxLoad = Math.max(1, getChampionMaxLoad(champ, equip, current.stamina, current.wounds));
         const staminaCost = Math.floor((load * 3) / maxLoad) + 1;
-        const next = applyChampionStaminaDeltaOriginal(current, effective.health, effective.stamina, -staminaCost);
+        const next = applyChampionStaminaDeltaOriginal(current, effective.stamina, -staminaCost);
 
         if (next !== current && (next.hp !== current.hp || next.stamina !== current.stamina)) {
             nextVitals[champ.id] = next;
@@ -2172,7 +2172,7 @@ function restoreExternalCreatureRuntimeFromSave(data: PersistedSaveData): void {
 
 // ─── Store ────────────────────────────────────────────────────────────────────
 
-export const useStore = create<GameState>((set) => ({
+const storeCreator: StateCreator<GameState> = (set, get) => ({
     level: 0,
     position: HALL_START,
     direction: HALL_START_DIR,
@@ -2844,13 +2844,13 @@ export const useStore = create<GameState>((set) => ({
         lastCastResult: null,
     }),
 
-    saveGame: () => {
-        const state = useStore.getState();
+    saveGame: (): boolean => {
+        const state: GameState = get();
         const payload = JSON.stringify(buildPersistedSaveData(state));
         return writePersistedSave(payload);
     },
 
-    loadGame: () => {
+    loadGame: (): boolean => {
         const data = tryParsePersistedSaveData(readPersistedSave());
         if (!data) return false;
         const now = Date.now();
@@ -3975,6 +3975,7 @@ export const useStore = create<GameState>((set) => ({
                     const tv = vitals[target.id];
                     if (tv && tv.hp > 0) {
                         const targetChampion = state.party.find((partyChampion) => partyChampion.id === target.id);
+                        if (!targetChampion) continue;
                         if (targetChampion && def.attackTypes.includes('Steal')) {
                             const { stolenItem, nextInventory } = tryStealBackpackItemApprox(target.id, targetChampion, {
                                 ...state,
@@ -4262,4 +4263,6 @@ export const useStore = create<GameState>((set) => ({
             ...(eventsChanged ? { damageEvents: newEvents } : {}),
         };
     }),
-}));
+});
+
+export const useStore = create<GameState>()(storeCreator);

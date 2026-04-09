@@ -1,6 +1,6 @@
 ﻿# DungeonMaster Codex - Reference codebase
 
-Document vivant. Cette version de reference decrit l'etat observe dans le code au 2026-04-07.
+Document vivant. Cette version de reference decrit l'etat observe dans le code au 2026-04-09.
 
 ## Stack
 
@@ -17,7 +17,7 @@ Document vivant. Cette version de reference decrit l'etat observe dans le code a
 1. `src/main.tsx` monte l'application React et charge `src/index.css`.
 2. `src/App.tsx` affiche `LoadingScreen` puis lazy-load `GameRoot`.
 3. `src/components/UI/LoadingScreen.tsx` precharge une selection d'images et appelle `preloadDungeonData()`.
-4. `src/GameRoot.tsx` lance la boucle `requestAnimationFrame`, monte `DungeonScene`, `HUD`, `MirrorPopup` et `ChampionSheet`.
+4. `src/GameRoot.tsx` lance la boucle `requestAnimationFrame`, monte `TitleScreen` tant que `gamePhase === 'title'`, puis `DungeonScene`, `HUD`, `MirrorPopup` et `ChampionSheet` en exploration.
 
 ## Source de verite des maps
 
@@ -57,6 +57,7 @@ src/
 |   |   `-- Torch.tsx
 |   `-- UI/
 |       |-- LoadingScreen.tsx
+|       |-- TitleScreen.tsx
 |       |-- HUD.tsx
 |       |-- ChampionSheet.tsx
 |       |-- MirrorPopup.tsx
@@ -75,6 +76,7 @@ src/
 |   `-- spells.ts
 |-- engine/
 |   |-- store.ts
+|   |-- saveGame.ts
 |   |-- sounds.ts
 |   `-- constants.ts
 `-- types/
@@ -154,6 +156,32 @@ Contient:
 - runes disponibles et journal court de cast
 - infos de position / niveau
 - ouverture de la fiche champion
+- actions `SAVE` et `MENU`
+
+### `src/components/UI/TitleScreen.tsx`
+
+Ecran d'entree actuel.
+
+Contient:
+
+- logo et mise en scene de la porte principale
+- bouton `Enter The Dungeon` qui bascule en exploration
+- bouton `Resume` active seulement si une sauvegarde persistente existe
+- animation d'ouverture des portes avant l'entree
+
+### `src/engine/saveGame.ts`
+
+Couche minimale de persistance.
+
+Expose:
+
+- `SAVE_STORAGE_KEY`
+- `hasPersistedSave()`
+- `readPersistedSave()`
+- `writePersistedSave()`
+- `clearPersistedSave()`
+
+La persistance passe actuellement par `window.localStorage`.
 
 ### `src/components/UI/ChampionSheet.tsx`
 
@@ -221,9 +249,17 @@ Le store s'en sert pour:
 
 ## Flow de jeu actuellement branche
 
-- L'application demarre directement dans le Hall of Champions.
+- L'application demarre sur un `TitleScreen`.
+- `Enter The Dungeon` fait passer `gamePhase` de `title` a `exploration`.
+- `Resume` recharge la derniere sauvegarde persistente si elle existe.
+- `SAVE` ecrit l'etat mutable courant et `MENU` retourne a l'ecran titre.
 - Le recrutement passe par les miroirs.
 - Le gate d'entree depend de `gateOpen` et donc de la taille du groupe.
+
+## Regles de maintenance
+
+- On ne termine pas une session en laissant un build casse sans le signaler explicitement.
+- Apres chaque gros changement, les fichiers de documentation touches par ce changement doivent etre remis a jour.
 
 ## Nettoyage recemment acte
 

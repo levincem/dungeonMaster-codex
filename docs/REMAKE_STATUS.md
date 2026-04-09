@@ -1,6 +1,6 @@
 # Dungeon Master Remake - Etat du projet
 
-Version remise a jour a partir du code observe le 2026-04-08.
+Version remise a jour a partir du code observe le 2026-04-09.
 
 ## Resume rapide
 
@@ -60,10 +60,11 @@ Point important :
 
 ### Flow global
 
-- pas de vrai menu principal
+- ecran titre jouable avec entree dans le donjon
 - pas de game over complet
 - pas d'ecran de victoire / fin
-- sauvegarde / chargement absents
+- sauvegarde / chargement persistents via `localStorage`
+- build de production valide a la date de cette mise a jour
 
 ### Magie
 
@@ -192,10 +193,10 @@ Conclusion:
   - scene d'entree devant la grande porte
   - bouton vert `Enter The Dungeon`
   - bouton rouge `Resume`
-- `Resume` doit charger la sauvegarde persistente, pas juste reprendre un etat RAM
+- `Resume` charge maintenant la derniere sauvegarde persistente, pas juste un etat RAM
 - le runtime demarre maintenant sur un ecran titre dedie au lieu d'entrer directement en exploration
 - la sauvegarde doit se brancher sur ce point d'entree plutot que d'ajouter un flux parallele
-- premiere boucle maintenant en place :
+- boucle actuellement en place :
   - bouton `SAVE` en jeu
   - retour `MENU`
   - bouton `Resume` qui recharge la derniere sauvegarde persistante
@@ -247,3 +248,8 @@ Conclusion:
 - La structure generale et la base technique sont bonnes.
 - Les donnees extraites doivent maintenant etre traitees comme la base fiable.
 - Le projet a maintenant plus besoin d'integration fidele, d'alignement et de finition que d'une reecriture complete.
+
+## Discipline de maintenance
+
+- On ne quitte pas une session avec un build casse sans le signaler clairement.
+- Apres chaque gros changement, il faut mettre a jour `README.md` et les notes pertinentes sous `docs/`.

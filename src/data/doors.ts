@@ -1,4 +1,3 @@
-// @ts-expect-error - JSON import resolved by Vite/TS config in app build
 import rawDoors from '../../public/original_doors_runtime.json';
 
 export interface OriginalDoorDefinition {

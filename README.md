@@ -65,6 +65,8 @@ npm run dev
 npm run build
 ```
 
+Le build de production passe a nouveau a la date de cette mise a jour (`2026-04-09`).
+
 ## Project Structure
 
 ```text
@@ -87,6 +89,11 @@ docs/
   CODEBASE_REFERENCE.md         Codebase map
   *_EXTRACTION.md               Original-data extraction notes
 ```
+
+## Working Rules
+
+- We do not leave a work session with a broken build without explicitly calling it out.
+- After each major change, `README.md` and the relevant files under `docs/` must be updated to match the actual project state.
 
 ## Data Sources
 
@@ -113,7 +120,7 @@ The most useful detailed internal summaries are:
 
 ## Notes
 
-- The production build is valid.
+- The production build currently passes.
 - The bundle is still fairly heavy because of the 3D stack and game assets.
 - The world-content extraction is now treated as reliable.
 - Some gameplay layers are already reconciled with original Atari data, while part of the runtime still remains an interpretation layer that is being reduced over time.

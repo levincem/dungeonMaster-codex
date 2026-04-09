@@ -28,6 +28,7 @@ const BASE_FOG_NEAR = GRID_SIZE * 2;
 const BASE_FOG_FAR = GRID_SIZE * 7;
 const DUNGEON_AMBIENT_COLOR = new THREE.Color('#f4e2ba');
 const DUNGEON_DARK_AMBIENT_COLOR = new THREE.Color('#8ea0c0');
+type MagicProjectileEffect = Exclude<ProjectileEffect, 'physical'>;
 
 function cloneTexture<T extends THREE.Texture>(
     texture: T,
@@ -273,8 +274,12 @@ const LightController: React.FC = () => {
 };
 
 // ─── Projectile renderer ──────────────────────────────────────────────────────
-const PROJ_COLORS: Record<ProjectileEffect, string> = {
-    fireball: '#ff6200', lightning: '#aaddff', poison: '#44ff66', plasma: '#cc44ff', physical: '#d8c49a',
+const PROJ_COLORS: Record<MagicProjectileEffect, string> = {
+    fireball: '#ff6200',
+    lightning: '#aaddff',
+    poison_bolt: '#44ff66',
+    disrupt_nonmaterial: '#c8f6ff',
+    plasma: '#cc44ff',
 };
 
 const ProjectileRenderer: React.FC = () => {
@@ -291,11 +296,12 @@ const ProjectileRenderer: React.FC = () => {
         () => new THREE.MeshBasicMaterial({ color: '#ffffff', toneMapped: false }),
         [],
     );
-    const glowMaterials = useMemo(
+    const glowMaterials = useMemo<Record<MagicProjectileEffect, THREE.MeshBasicMaterial>>(
         () => ({
             fireball: createPulseMaterial(PROJ_COLORS.fireball, 0.22),
             lightning: createPulseMaterial(PROJ_COLORS.lightning, 0.2),
-            poison: createPulseMaterial(PROJ_COLORS.poison, 0.18),
+            poison_bolt: createPulseMaterial(PROJ_COLORS.poison_bolt, 0.18),
+            disrupt_nonmaterial: createPulseMaterial(PROJ_COLORS.disrupt_nonmaterial, 0.18),
             plasma: createPulseMaterial(PROJ_COLORS.plasma, 0.2),
         }),
         [],
@@ -323,7 +329,7 @@ const ProjectileRenderer: React.FC = () => {
                         glowGeometry={glowGeometry}
                         coreGeometry={coreGeometry}
                         coreMaterial={coreMaterial}
-                        glowMaterial={glowMaterials[p.effect as Exclude<ProjectileEffect, 'physical'>]}
+                        glowMaterial={glowMaterials[p.effect as MagicProjectileEffect]}
                     />
                 )
             ))}
