@@ -1,4 +1,4 @@
-import rawDoors from '../../public/original_doors_runtime.json';
+import rawDoorsText from '../assets/data/original_doors_runtime.json?raw';
 
 export interface OriginalDoorDefinition {
     id: number;
@@ -13,7 +13,7 @@ interface OriginalDoorsPayload {
     doors: OriginalDoorDefinition[];
 }
 
-const payload = rawDoors as OriginalDoorsPayload;
+const payload = JSON.parse(rawDoorsText) as OriginalDoorsPayload;
 
 export const ORIGINAL_DOOR_DEFS = payload.doors.reduce<Record<number, OriginalDoorDefinition>>((acc, door) => {
     acc[door.id] = door;

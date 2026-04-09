@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { StateCreator } from 'zustand';
-import { getGameMap, GAME_MAPS, CHAMPION_START_POSITIONS } from '../data/mapLoader';
+import { getGameMap, getGameMaps, getChampionStartPositions } from '../data/mapLoader';
 import { itemToLockData } from '../data/mechanisms';
 import type {
     GameMap, GameTile, TeleporterObject,
@@ -1078,7 +1078,7 @@ function buildCreatureInstances(): CreatureInstance[] {
     // Track how many creatures already placed per tile key
     const tileSides = new Map<string, CreatureSide>();
 
-    for (const map of GAME_MAPS) {
+    for (const map of getGameMaps()) {
         for (const row of map.tiles) {
             for (const tile of row) {
                 for (const obj of tile.objects) {
@@ -1122,7 +1122,7 @@ const ITEM_CATEGORIES = new Set(['Weapon', 'Armor', 'Potion', 'Scroll', 'Misc', 
 
 function buildFloorItems(): FloorItem[] {
     const items: FloorItem[] = [];
-    for (const map of GAME_MAPS) {
+    for (const map of getGameMaps()) {
         for (const row of map.tiles) {
             for (const tile of row) {
                 const isHallChampionTile =
@@ -1199,7 +1199,7 @@ function createReincarnatedChampion(champion: Champion): Champion {
 
 function buildOpenTeleporters(): Set<string> {
     const open = new Set<string>();
-    for (const map of GAME_MAPS) {
+    for (const map of getGameMaps()) {
         for (const row of map.tiles) {
             for (const tile of row) {
                 if (tile.type === 'Teleporter' && tile.open) {
@@ -1209,7 +1209,7 @@ function buildOpenTeleporters(): Set<string> {
         }
     }
     const fired = new Set<string>();
-    for (const map of GAME_MAPS) {
+    for (const map of getGameMaps()) {
         for (const row of map.tiles) {
             for (const tile of row) {
                 for (const obj of tile.objects) {
@@ -1239,7 +1239,7 @@ function buildOpenTeleporters(): Set<string> {
 
 function buildVisibleTexts(): Set<string> {
     const visible = new Set<string>();
-    for (const map of GAME_MAPS) {
+    for (const map of getGameMaps()) {
         for (const row of map.tiles) {
             for (const tile of row) {
                 for (const obj of tile.objects) {
@@ -1259,10 +1259,10 @@ function buildVisibleTexts(): Set<string> {
 const getMap = (level: number): GameMap => getGameMap(level);
 
 export const MIRROR_WALL_MAP: Map<string, Champion> = new Map(
-    CHAMPION_START_POSITIONS.map(pos => [`${pos.mapIndex},${pos.x},${pos.y}`, CHAMPION_BY_ID[pos.portraitId]])
+    getChampionStartPositions().map(pos => [`${pos.mapIndex},${pos.x},${pos.y}`, CHAMPION_BY_ID[pos.portraitId]])
 );
 export const MIRROR_FACE_MAP: Map<string, CardinalDir> = new Map(
-    CHAMPION_START_POSITIONS.map(pos => [`${pos.mapIndex},${pos.x},${pos.y}`, pos.wallFace])
+    getChampionStartPositions().map(pos => [`${pos.mapIndex},${pos.x},${pos.y}`, pos.wallFace])
 );
 
 // ─── Vi Altar detection ───────────────────────────────────────────────────────

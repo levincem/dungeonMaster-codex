@@ -120,12 +120,24 @@ function buildMap(raw: RawMap): GameMap {
     };
 }
 
-const dungeon = getDungeonDataSync<RawDungeon>();
+let cachedDungeon: RawDungeon | null = null;
+let cachedGameMaps: GameMap[] | null = null;
+let cachedChampionStartPositions: ChampionStartPos[] | null = null;
 
-export const GAME_MAPS: GameMap[] = dungeon.maps.map(buildMap);
+function getDungeon(): RawDungeon {
+    if (cachedDungeon) return cachedDungeon;
+    cachedDungeon = getDungeonDataSync<RawDungeon>();
+    return cachedDungeon;
+}
+
+export function getGameMaps(): GameMap[] {
+    if (cachedGameMaps) return cachedGameMaps;
+    cachedGameMaps = getDungeon().maps.map(buildMap);
+    return cachedGameMaps;
+}
 
 export function getGameMap(index: number): GameMap {
-    const map = GAME_MAPS[index];
+    const map = getGameMaps()[index];
     if (!map) throw new Error(`Map index ${index} does not exist`);
     return map;
 }
@@ -154,11 +166,14 @@ export interface ChampionStartPos {
     wallFace: CardinalDir;
 }
 
-export const CHAMPION_START_POSITIONS: ChampionStartPos[] =
-    dungeon.champions.map(c => ({
+export function getChampionStartPositions(): ChampionStartPos[] {
+    if (cachedChampionStartPositions) return cachedChampionStartPositions;
+    cachedChampionStartPositions = getDungeon().champions.map(c => ({
         portraitId: c.portraitId,
         mapIndex: (c as { map?: number }).map ?? 0,
         x: c.x,
         y: c.y,
         wallFace: c.wallFace as CardinalDir,
     }));
+    return cachedChampionStartPositions;
+}

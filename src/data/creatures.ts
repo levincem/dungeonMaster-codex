@@ -1,8 +1,11 @@
 // Creature definitions — sourced from Old_data/game_db.json creatureTypes
 // 27 creature types (IDs 0–26)
 
-import gameDb from '../../public/game_db.json';
-import originalCreatures from '../../public/original_creatures_runtime.json';
+import gameDbRaw from '../assets/data/game_db.json?raw';
+import originalCreaturesRaw from '../assets/data/original_creatures_runtime.json?raw';
+
+const gameDb = JSON.parse(gameDbRaw) as unknown;
+const originalCreatures = JSON.parse(originalCreaturesRaw) as unknown;
 
 export type AttackType =
     | 'Physical'

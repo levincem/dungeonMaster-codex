@@ -96,7 +96,7 @@ export const LoadingScreen = ({ onDone, autoStart = true }: Props) => {
             }} />
 
             <img
-                src="/logo.png"
+                src="/misc/Dm_logo.png"
                 alt="Dungeon Master"
                 draggable={false}
                 onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}

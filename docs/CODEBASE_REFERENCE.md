@@ -21,15 +21,16 @@ Document vivant. Cette version de reference decrit l'etat observe dans le code a
 
 ## Source de verite des maps
 
-La source de verite runtime est `public/dungeon.json`, chargee par `src/data/dungeonData.ts` puis parsee par `src/data/mapLoader.ts`.
+La source de verite runtime utilisee au boot est maintenant `src/assets/data/dungeon.json`, exposee par `src/data/dungeonData.ts` puis parsee par `src/data/mapLoader.ts`.
 
 Points importants:
 
-- `GAME_MAPS` et `getGameMap()` sont derives du JSON runtime.
+- `getGameMaps()` et `getGameMap()` sont derives du JSON runtime embarque.
 - Les tiles sont remappees en grille 2D `tiles[y][x]`.
-- `CHAMPION_START_POSITIONS` vient aussi du JSON runtime.
+- `getChampionStartPositions()` vient aussi du JSON runtime embarque.
 - Les anciens snapshots `src/data/level0.ts` et `src/data/level1.ts` ont ete supprimes.
 - Le runtime ne depend plus que des maps parsees depuis le JSON complet.
+- La copie `public/dungeon.json` reste utile comme reference statique, mais n'est plus la source de boot critique.
 
 Constat rapide sur les vraies maps chargees aujourd'hui:
 
@@ -79,6 +80,11 @@ src/
 |   |-- saveGame.ts
 |   |-- sounds.ts
 |   `-- constants.ts
+|-- assets/
+|   `-- data/
+|       |-- dungeon.json
+|       |-- game_db.json
+|       `-- original_*.json
 `-- types/
     |-- game.ts
     |-- items.ts
@@ -156,7 +162,7 @@ Contient:
 - runes disponibles et journal court de cast
 - infos de position / niveau
 - ouverture de la fiche champion
-- actions `SAVE` et `MENU`
+- pas de boutons `SAVE` / `MENU` persistants en bas du HUD actuellement
 
 ### `src/components/UI/TitleScreen.tsx`
 
@@ -195,13 +201,14 @@ Fonctionnalites:
 - sac a dos complet
 - drag and drop entre inventaire, equipement et autres champions
 - consommation et lecture via zones de drop
+- sauvegarde persistente via le bouton de la fiche
 - retrait du groupe depuis la fiche
 
 ### `src/data/items.ts`
 
 Catalogue objets hybride:
 
-- consomme les JSON runtime `public/original_*_catalog.json`
+- consomme les JSON runtime embarques sous `src/assets/data/original_*_catalog.json`
 - garde des fallback legacy integres
 - centralise `resolveItemName(...)`
 - expose `WEAPON_TYPES`, `ARMOR_TYPES`, `POTION_TYPES`, `MISC_TYPES`
@@ -218,7 +225,7 @@ Regles d'equipement partagees entre UI et runtime:
 
 ### `src/data/doors.ts`
 
-Branche les proprietes originales des portes a partir de `public/original_doors_runtime.json`.
+Branche les proprietes originales des portes a partir de `src/assets/data/original_doors_runtime.json`.
 
 Expose:
 
@@ -229,7 +236,7 @@ Expose:
 
 ### `src/data/mechanisms.ts`
 
-Parse `Old_data/mechanisms.json` et fournit les mecanismes par map / tile / face.
+Parse `src/assets/data/mechanisms.json` et fournit les mecanismes par map / tile / face.
 
 Le store s'en sert pour:
 
@@ -252,7 +259,8 @@ Le store s'en sert pour:
 - L'application demarre sur un `TitleScreen`.
 - `Enter The Dungeon` fait passer `gamePhase` de `title` a `exploration`.
 - `Resume` recharge la derniere sauvegarde persistente si elle existe.
-- `SAVE` ecrit l'etat mutable courant et `MENU` retourne a l'ecran titre.
+- le bouton de sauvegarde de `ChampionSheet` ecrit l'etat mutable courant.
+- il n'y a pas de bouton `MENU` expose au joueur dans le HUD pour le moment.
 - Le recrutement passe par les miroirs.
 - Le gate d'entree depend de `gateOpen` et donc de la taille du groupe.
 
@@ -260,6 +268,11 @@ Le store s'en sert pour:
 
 - On ne termine pas une session en laissant un build casse sans le signaler explicitement.
 - Apres chaque gros changement, les fichiers de documentation touches par ce changement doivent etre remis a jour.
+
+## Notes recentes
+
+- Les JSON critiques de runtime ont ete copies sous `src/assets/data/` pour fiabiliser `npm run dev` et `npm run preview`.
+- Contrepartie actuelle: le chunk `game-core` est nettement plus lourd tant que ces donnees restent embarquees dans le bundle JS.
 
 ## Nettoyage recemment acte
 

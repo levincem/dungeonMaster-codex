@@ -18,7 +18,14 @@ function normaliseItemName(name?: string): string | null {
         .replace(/\s+/g, ' ');
 }
 
+export function isTorchItem(item: FloorItem | undefined): boolean {
+    if (!item) return false;
+    const normalizedName = normaliseItemName(item.rawName);
+    return normalizedName === 'torch' || (item.category === 'Weapon' && item.typeId === 16) || (item.category === 'Misc' && item.typeId === 2);
+}
+
 const NAME_IMG_OVERRIDES: Record<string, string> = {
+    'torch': 'torch_unlit.png',
     'the firestaff': 'the_firestaff.png',
     'the firestaff complete': 'the_firestaff_complete.png',
     'staff of claws': 'staff_of_claws_full.png',
@@ -149,6 +156,16 @@ export function getTorchImage(itemId: string, torchBurnStart: Record<string, num
     else if (elapsed >= TORCH_STATE_MS)     idx = 2;
     else                                     idx = 3;
     return BASE + TORCH_STATE_IMAGES[idx];
+}
+
+export function getInventoryItemImage(item: FloorItem): string {
+    if (isTorchItem(item)) return BASE + 'torch_unlit.png';
+    return getFloorItemImage(item);
+}
+
+export function getEquippedItemImage(item: FloorItem, torchBurnStart: Record<string, number>): string {
+    if (isTorchItem(item)) return getTorchImage(item.id, torchBurnStart);
+    return getFloorItemImage(item);
 }
 
 // ─── Armor images ─────────────────────────────────────────────────────────────

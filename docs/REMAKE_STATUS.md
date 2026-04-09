@@ -18,7 +18,7 @@ Point important :
 ### Base runtime
 
 - rendu 3D du donjon avec React Three Fiber
-- maps chargees depuis `public/dungeon.json`
+- maps runtime chargees depuis `src/assets/data/dungeon.json`
 - loop de jeu centralisee dans `GameRoot` + `store`
 - HUD d'exploration jouable
 - recrutement via miroirs
@@ -33,8 +33,8 @@ Point important :
 
 ### Donnees et catalogues
 
-- catalogues runtime `public/original_*`
-- parse des mechanisms depuis `Old_data/mechanisms.json`
+- catalogues runtime embarques sous `src/assets/data/original_*`
+- parse des mechanisms depuis `src/assets/data/mechanisms.json`
 - definitions de portes originales branchees
 - noms d'objets consolides via `resolveItemName(...)`
 - regles d'equipement centralisees dans `src/data/equipment.ts`
@@ -64,6 +64,7 @@ Point important :
 - pas de game over complet
 - pas d'ecran de victoire / fin
 - sauvegarde / chargement persistents via `localStorage`
+- la sauvegarde joueur est actuellement exposee par le bouton de la fiche champion, pas par un bouton permanent dans le HUD
 - build de production valide a la date de cette mise a jour
 
 ### Magie
@@ -163,6 +164,8 @@ Autrement dit, la fin semble reposer sur un mecanisme mural special de transform
 - il reste surtout du polish, quelques images specifiques et un meilleur rangement futur des assets
 - le preload d'images est volontairement permissif
 - quelques soucis d'encodage restent visibles dans certains fichiers historiques
+- point recent important: `npm run dev` et `npm run preview` sont plus fiables depuis que les JSON critiques sont embarques cote `src/assets/data`
+  - contrepartie provisoire: le bundle runtime est plus gros, surtout `game-core`
 
 ## Point important sur les maps
 
@@ -170,7 +173,7 @@ La source de verite actuelle n'a jamais ete les anciens scaffolds `src/data/leve
 
 Le runtime utilise:
 
-- `public/dungeon.json`
+- `src/assets/data/dungeon.json`
 - `src/data/dungeonData.ts`
 - `src/data/mapLoader.ts`
 
@@ -182,7 +185,8 @@ Constat:
 
 Conclusion:
 
-- le runtime de map doit etre juge uniquement a partir de `public/dungeon.json` et `mapLoader.ts`
+- le runtime de map doit etre juge a partir de `src/assets/data/dungeon.json` et `mapLoader.ts`
+- `public/dungeon.json` reste une copie statique utile, mais n'est plus le point de chargement critique au boot
 
 ## Priorites recommandees
 
@@ -197,8 +201,7 @@ Conclusion:
 - le runtime demarre maintenant sur un ecran titre dedie au lieu d'entrer directement en exploration
 - la sauvegarde doit se brancher sur ce point d'entree plutot que d'ajouter un flux parallele
 - boucle actuellement en place :
-  - bouton `SAVE` en jeu
-  - retour `MENU`
+  - bouton de sauvegarde dans `ChampionSheet`
   - bouton `Resume` qui recharge la derniere sauvegarde persistante
 - la sauvegarde stocke l'etat mutable du donjon, du groupe et des effets temporels, pas l'etat d'UI transitoire
 

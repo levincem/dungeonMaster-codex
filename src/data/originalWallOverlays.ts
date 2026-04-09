@@ -1,4 +1,4 @@
-import overlayPositions from '../assets/original_wall_overlay_positions.json';
+import overlayPositionsRaw from '../assets/original_wall_overlay_positions.json?raw';
 import type { CardinalDir, GameMap } from '../types/game';
 
 type OverlayClassification = 'interactive' | 'stateful' | 'hazard' | 'decorative' | 'unclear';
@@ -51,7 +51,7 @@ export type OriginalWallOverlayRender = {
     height?: number;
 };
 
-const data = overlayPositions as OverlayPositionsData;
+const data = JSON.parse(overlayPositionsRaw) as OverlayPositionsData;
 
 const FIXED_FACES_BY_MAP = new Map<number, FixedFace[]>();
 const FIXED_FACE_NAME_KEYS = new Set<string>();

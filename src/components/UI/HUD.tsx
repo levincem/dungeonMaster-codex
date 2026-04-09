@@ -15,7 +15,7 @@ import { WEAPON_TYPES } from '../../data/items';
 import { getGameMap } from '../../data/mapLoader';
 import type { Champion } from '../../data/champions';
 import type { ChampionEquipment } from '../../types/game';
-import { getFloorItemImage, getTorchImage } from '../../data/itemImages';
+import { getEquippedItemImage } from '../../data/itemImages';
 import { RUNES_BY_FAMILY, RUNES_BY_ID, findSpell } from '../../data/runes';
 import type { RuneFamily } from '../../data/runes';
 import {
@@ -203,9 +203,8 @@ const HandSlot: React.FC<{
     item?: ChampionEquipment['leftHand'];
 }> = ({ slotKey, item }) => {
     const torchBurnStart = useStore(s => s.torchBurnStart);
-    const isTorch = item?.category === 'Weapon' && item.typeId === 16;
     const imageSrc = item
-        ? (isTorch ? getTorchImage(item.id, torchBurnStart) : getFloorItemImage(item))
+        ? getEquippedItemImage(item, torchBurnStart)
         : null;
 
     return (
@@ -523,7 +522,6 @@ export const HUD = () => {
         movementCooldown,
         championVitals, castSpell: storeCastSpell, lastCastResult,
         championXP, championCombat, attackFront, championEquipment,
-        saveGame, returnToTitle, showTransientMessage,
     } = useStore();
     const currentMap = getGameMap(level);
     const globalX = (currentMap.mapOffset?.x ?? 0) + position[1];
@@ -837,48 +835,6 @@ export const HUD = () => {
             </div>
 
             <div style={{ flex: 1 }} />
-
-            <div style={{ ...panel, marginTop: 4 }}>
-                <div style={{ display: 'flex', gap: 8 }}>
-                    <button
-                        onClick={() => {
-                            const ok = saveGame();
-                            showTransientMessage(ok ? 'Sauvegarde ecrite.' : 'Echec de sauvegarde.', ok);
-                        }}
-                        style={{
-                            flex: 1,
-                            padding: '7px 10px',
-                            background: 'rgba(34,22,8,0.9)',
-                            border: '1px solid rgba(200,170,110,0.3)',
-                            borderRadius: 4,
-                            color: '#d8c28a',
-                            fontSize: 11,
-                            letterSpacing: 1,
-                            cursor: 'pointer',
-                            fontFamily: '"Courier New", monospace',
-                        }}
-                    >
-                        SAVE
-                    </button>
-                    <button
-                        onClick={returnToTitle}
-                        style={{
-                            flex: 1,
-                            padding: '7px 10px',
-                            background: 'rgba(24,12,10,0.9)',
-                            border: '1px solid rgba(180,110,90,0.26)',
-                            borderRadius: 4,
-                            color: '#c8a090',
-                            fontSize: 11,
-                            letterSpacing: 1,
-                            cursor: 'pointer',
-                            fontFamily: '"Courier New", monospace',
-                        }}
-                    >
-                        MENU
-                    </button>
-                </div>
-            </div>
 
             {/* Debug */}
             <div style={{ fontSize: 10, color: '#993322', fontFamily: 'monospace', textAlign: 'center', opacity: 0.6 }}>

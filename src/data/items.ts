@@ -1,11 +1,16 @@
 // Item definitions — sourced from Old_data/game_db.json
 // Weapons, Armor, Potions, Misc
 
-import weaponsCatalog from '../../public/original_weapons_catalog.json';
-import armorCatalog from '../../public/original_armor_catalog.json';
-import potionsCatalog from '../../public/original_potions_catalog.json';
-import miscCatalog from '../../public/original_misc_catalog.json';
+import weaponsCatalogRaw from '../assets/data/original_weapons_catalog.json?raw';
+import armorCatalogRaw from '../assets/data/original_armor_catalog.json?raw';
+import potionsCatalogRaw from '../assets/data/original_potions_catalog.json?raw';
+import miscCatalogRaw from '../assets/data/original_misc_catalog.json?raw';
 import type { WeaponDef, ArmorDef, PotionDef, MiscDef } from '../types/items';
+
+const weaponsCatalog = JSON.parse(weaponsCatalogRaw) as unknown;
+const armorCatalog = JSON.parse(armorCatalogRaw) as unknown;
+const potionsCatalog = JSON.parse(potionsCatalogRaw) as unknown;
+const miscCatalog = JSON.parse(miscCatalogRaw) as unknown;
 
 const PLACEHOLDER_NAME_RE = /^([A-Za-z]+_\d+|\(W\d+\))$/;
 
@@ -190,6 +195,8 @@ const LEGACY_ARMOR_TYPES: Record<number, ArmorDef> = {
     23: { id: 23, name: 'Mail Aketon',            slot: 'legs',  armor: 14, weight:  8 },
     24: { id: 24, name: 'Leg Mail',               slot: 'legs',  armor: 18, weight: 12 },
     25: { id: 25, name: 'Leather Pants',          slot: 'legs',  armor:  8, weight:  5 },
+    26: { id: 26, name: 'Robe Legs',              slot: 'legs',  armor:  5, weight:  3 },
+    27: { id: 27, name: 'Fine Robe Legs',         slot: 'legs',  armor:  7, weight:  3 },
     42: { id: 42, name: 'Leg Plate',              slot: 'legs',  armor: 25, weight: 18 },
     // Head
     32: { id: 32, name: 'Helmet',                 slot: 'head',  armor: 15, weight:  8 },

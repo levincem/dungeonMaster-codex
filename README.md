@@ -28,8 +28,7 @@ It is not a finished remake yet. Some special-case mechanics, final balancing, b
 
 Current save/load behavior:
 
-- `SAVE` writes the current mutable runtime state
-- `MENU` returns to the title screen
+- the save button in the champion sheet writes the current mutable runtime state
 - `Resume` reloads the latest persisted save
 - time does not continue to elapse while the game is closed; a loaded save resumes from the exact saved state
 
@@ -77,9 +76,14 @@ src/
   types/        Shared types
 
 public/
-  dungeon.json                  Reconstructed dungeon runtime data
-  game_db.json                  Remake-facing gameplay/reference database
-  original_*.json               Extracted original reference tables
+  dungeon.json                  Static/browser-served reference copy
+  game_db.json                  Static/browser-served reference copy
+  original_*.json               Static/browser-served reference copies
+
+src/assets/data/
+  dungeon.json                  Embedded runtime dungeon data used at boot
+  game_db.json                  Embedded reference data used by runtime modules
+  original_*.json               Embedded catalogs/runtime tables used by the game
 
 assets/
   OriginalDataExtraction/       Reverse-engineering base, scripts, source references, audits
@@ -97,7 +101,7 @@ docs/
 
 ## Data Sources
 
-The runtime now relies primarily on reconstructed data under `public/`, not on the old placeholder level files.
+The runtime now relies primarily on reconstructed data mirrored into `src/assets/data/` for critical boot-time modules, with `public/` kept as the browser-served/static copy.
 
 The reverse-engineering and provenance work lives under:
 
@@ -121,7 +125,9 @@ The most useful detailed internal summaries are:
 ## Notes
 
 - The production build currently passes.
+- `npm run preview` now boots correctly with the dungeon data embedded in `src/assets/data/dungeon.json`.
 - The bundle is still fairly heavy because of the 3D stack and game assets.
+- The bundle is currently extra heavy because several critical JSON datasets are embedded in the JS runtime to keep dev / preview startup reliable.
 - The world-content extraction is now treated as reliable.
 - Some gameplay layers are already reconciled with original Atari data, while part of the runtime still remains an interpretation layer that is being reduced over time.
 - `docs/` is mainly used as detailed project memory and implementation notes; the README should stay as the concise project-facing overview.

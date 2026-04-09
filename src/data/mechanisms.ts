@@ -1,7 +1,7 @@
 // Mechanisms loader — parses Old_data/mechanisms.json into typed structures.
 // Each mechanism describes a dungeon interaction: locks, levers, pressure plates, etc.
 
-import rawMechanisms from '../../Old_data/mechanisms.json';
+import rawMechanismsText from '../assets/data/mechanisms.json?raw';
 import type { CardinalDir } from '../types/game';
 
 export type MechAction = 'Set' | 'Hold' | 'Clear' | 'Toggle';
@@ -21,7 +21,7 @@ export interface Mechanism {
 
 // ─── Lookup by level ──────────────────────────────────────────────────────────
 
-const RAW = rawMechanisms as { maps: Array<{ name: string; index: number; mechanisms: unknown[] }> };
+const RAW = JSON.parse(rawMechanismsText) as { maps: Array<{ name: string; index: number; mechanisms: unknown[] }> };
 
 export function getMapMechanisms(level: number): Mechanism[] {
     return (RAW.maps[level]?.mechanisms ?? []) as Mechanism[];

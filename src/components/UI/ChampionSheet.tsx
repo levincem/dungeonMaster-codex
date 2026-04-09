@@ -16,7 +16,7 @@ import {
 import { MISC_TYPES, resolveItemName } from '../../data/items';
 import type { EquipSlotKey } from '../../types/items';
 import type { FloorItem, ChampionEquipment } from '../../types/game';
-import { getFloorItemImage, getTorchImage } from '../../data/itemImages';
+import { getEquippedItemImage, getInventoryItemImage } from '../../data/itemImages';
 import { canDrinkFromContainer, canFillWaterContainer, isWaterContainer } from '../../data/waterContainers';
 import {
     getEquippableSlots,
@@ -93,10 +93,11 @@ function setDrag(e: React.DragEvent, p: DragPayload) { e.dataTransfer.setData('a
 function getDrag(e: React.DragEvent): DragPayload | null { try { return JSON.parse(e.dataTransfer.getData('application/json')); } catch { return null; } }
 
 // ─── Item thumbnail ───────────────────────────────────────────────────────────
-const ItemThumb: React.FC<{ item: FloorItem; size?: number }> = ({ item, size = 32 }) => {
+const ItemThumb: React.FC<{ item: FloorItem; size?: number; equipped?: boolean }> = ({ item, size = 32, equipped = false }) => {
     const torchBurnStart = useStore(s => s.torchBurnStart);
-    const isTorch = item.category === 'Weapon' && item.typeId === 16;
-    const src = isTorch ? getTorchImage(item.id, torchBurnStart) : getFloorItemImage(item);
+    const src = equipped
+        ? getEquippedItemImage(item, torchBurnStart)
+        : getInventoryItemImage(item);
     return (
         <img
             src={src}
@@ -169,7 +170,7 @@ const EquipSlot: React.FC<{
                         onDragStart={e => { setDrag(e, { itemId: item.id, fromChampionId: championId, fromSlot: slotKey }); onDragBegin?.({ itemId: item.id, fromChampionId: championId, fromSlot: slotKey }); }}
                         onDragEnd={onDragEnd}
                     >
-                        <ItemThumb item={item} size={size - 16} />
+                        <ItemThumb item={item} size={size - 16} equipped />
                     </span>
                     <button onClick={onUnequip} title="Déséquiper" style={{ position: 'absolute', top: 1, right: 2, background: 'none', border: 'none', color: T.goldDim, fontSize: 8, cursor: 'pointer', padding: 0, lineHeight: 1 }}>↩</button>
                 </>
@@ -292,7 +293,7 @@ export const ChampionSheet: React.FC = () => {
         closePartyMember, removeFromParty,
         championInventories, championEquipment, championVitals, championXP,
         equipItem, unequipItem, dropItem, giveItem, giveEquippedItem,
-        useItem: consumeItem, fillWaterContainer, sleep,
+        useItem: consumeItem, fillWaterContainer, sleep, saveGame, showTransientMessage,
     } = useStore();
 
     const [scrollItem, setScrollItem] = useState<FloorItem | null>(null);
@@ -452,7 +453,16 @@ export const ChampionSheet: React.FC = () => {
                     </div>
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                         <button onClick={() => sleep()} title="Dormir (temps accelere, faim/soif/torches continuent)" style={{ width: 36, height: 36, background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 4, color: T.cream, fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🛏</button>
-                        <button onClick={() => alert('Sauvegarde non implémentée.')} title="Sauvegarder" style={{ width: 36, height: 36, background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 4, color: T.cream, fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>💾</button>
+                        <button
+                            onClick={() => {
+                                const ok = saveGame();
+                                showTransientMessage(ok ? 'Sauvegarde ecrite.' : 'Echec de sauvegarde.', ok);
+                            }}
+                            title="Sauvegarder"
+                            style={{ width: 36, height: 36, background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 4, color: T.cream, fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                            💾
+                        </button>
                         <button onClick={closePartyMember} style={{ width: 36, height: 36, background: 'none', border: 'none', color: T.goldDim, fontSize: 28, cursor: 'pointer', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
                     </div>
                 </div>

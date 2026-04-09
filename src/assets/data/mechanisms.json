@@ -1,0 +1,7035 @@
+{
+  "maps": [
+    {
+      "name": "Hall of Champions",
+      "index": 0,
+      "mechanisms": [
+        {
+          "x": 1,
+          "y": 3,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de possession (groupe détient objet)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 1,
+            "y": 3
+          },
+          "requires": "THE FIRESTAFF"
+        },
+        {
+          "x": 1,
+          "y": 3,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de possession (groupe détient objet)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 1,
+            "y": 2
+          },
+          "requires": "THE FIRESTAFF"
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de possession (groupe détient objet)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 1,
+            "y": 4
+          },
+          "requires": "THE FIRESTAFF"
+        },
+        {
+          "x": 3,
+          "y": 14,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Alcôve (dépôt/retrait objet)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null,
+          "storedObjectIcon": 4,
+          "storedObject": "TORCH"
+        },
+        {
+          "x": 6,
+          "y": 9,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 5,
+            "y": 9
+          }
+        },
+        {
+          "x": 9,
+          "y": 1,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 9,
+            "y": 1
+          }
+        },
+        {
+          "x": 9,
+          "y": 1,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 10,
+            "y": 1
+          }
+        },
+        {
+          "x": 10,
+          "y": 1,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Porte logique AND/OR",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 9,
+            "y": 0
+          }
+        },
+        {
+          "x": 10,
+          "y": 1,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Porte logique AND/OR",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 10,
+            "y": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "Level 1",
+      "index": 1,
+      "mechanisms": [
+        {
+          "x": 0,
+          "y": 3,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 1,
+            "y": 3
+          },
+          "requires": "GOLD KEY"
+        },
+        {
+          "x": 2,
+          "y": 12,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 3,
+            "y": 13
+          },
+          "requires": "IRON KEY"
+        },
+        {
+          "x": 2,
+          "y": 15,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 5,
+            "y": 15
+          }
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 4,
+            "y": 5
+          },
+          "requires": "TOPAZ KEY"
+        },
+        {
+          "x": 3,
+          "y": 15,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 5,
+            "y": 15
+          }
+        },
+        {
+          "x": 4,
+          "y": 10,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 4,
+          "y": 10,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 5,
+            "y": 9
+          }
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 6,
+            "y": 5
+          },
+          "requires": "GOLD KEY"
+        },
+        {
+          "x": 5,
+          "y": 12,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 6,
+            "y": 13
+          },
+          "requires": "SOLID KEY"
+        },
+        {
+          "x": 5,
+          "y": 29,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Alcôve (dépôt/retrait objet)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null,
+          "storedObjectIcon": 4,
+          "storedObject": "TORCH"
+        },
+        {
+          "x": 6,
+          "y": 4,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null
+        },
+        {
+          "x": 6,
+          "y": 8,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 6,
+          "y": 8,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 7,
+            "y": 8
+          }
+        },
+        {
+          "x": 10,
+          "y": 1,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 11,
+            "y": 0
+          },
+          "requires": "GOLD KEY"
+        },
+        {
+          "x": 12,
+          "y": 13,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 11,
+            "y": 12
+          },
+          "requires": "EMERALD KEY"
+        },
+        {
+          "x": 13,
+          "y": 19,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 13,
+          "y": 19,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 17,
+            "y": 20
+          }
+        },
+        {
+          "x": 14,
+          "y": 14,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 15
+          }
+        },
+        {
+          "x": 15,
+          "y": 0,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 18,
+            "y": 1
+          }
+        },
+        {
+          "x": 15,
+          "y": 1,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 18,
+            "y": 1
+          }
+        },
+        {
+          "x": 15,
+          "y": 2,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 18,
+            "y": 1
+          }
+        },
+        {
+          "x": 15,
+          "y": 8,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Alcôve (dépôt/retrait objet)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null,
+          "storedObjectIcon": 4,
+          "storedObject": "TORCH"
+        },
+        {
+          "x": 15,
+          "y": 13,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Alcôve (dépôt/retrait objet)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null,
+          "storedObjectIcon": 4,
+          "storedObject": "TORCH"
+        },
+        {
+          "x": 15,
+          "y": 28,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 15,
+          "y": 28,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 14,
+            "y": 29
+          }
+        },
+        {
+          "x": 15,
+          "y": 28,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 15,
+          "y": 28,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 16,
+            "y": 27
+          }
+        },
+        {
+          "x": 16,
+          "y": 0,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 19,
+            "y": 1
+          }
+        },
+        {
+          "x": 16,
+          "y": 1,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 18,
+            "y": 1
+          }
+        },
+        {
+          "x": 16,
+          "y": 2,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 19,
+            "y": 1
+          }
+        },
+        {
+          "x": 17,
+          "y": 0,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 19,
+            "y": 1
+          }
+        },
+        {
+          "x": 17,
+          "y": 1,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 19,
+            "y": 1
+          }
+        },
+        {
+          "x": 17,
+          "y": 2,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 19,
+            "y": 1
+          }
+        },
+        {
+          "x": 17,
+          "y": 20,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Porte logique AND/OR",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 18,
+            "y": 20
+          }
+        },
+        {
+          "x": 18,
+          "y": 25,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 17,
+            "y": 26
+          },
+          "requires": "COPPER COIN"
+        },
+        {
+          "x": 19,
+          "y": 17,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 18,
+            "y": 18
+          }
+        },
+        {
+          "x": 20,
+          "y": 18,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 20,
+          "y": 18,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 18,
+            "y": 18
+          }
+        },
+        {
+          "x": 21,
+          "y": 22,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 21
+          },
+          "requires": "GOLD KEY"
+        },
+        {
+          "x": 23,
+          "y": 5,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 4
+          },
+          "requires": "GOLD KEY"
+        },
+        {
+          "x": 23,
+          "y": 8,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 21,
+            "y": 8
+          }
+        },
+        {
+          "x": 23,
+          "y": 19,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 23,
+          "y": 19,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 17,
+            "y": 20
+          }
+        },
+        {
+          "x": 24,
+          "y": 11,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 25,
+            "y": 11
+          },
+          "requires": "KEY OF B"
+        },
+        {
+          "x": 25,
+          "y": 1,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 27,
+            "y": 0
+          }
+        },
+        {
+          "x": 25,
+          "y": 3,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 24,
+            "y": 5
+          }
+        },
+        {
+          "x": 27,
+          "y": 27,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 29,
+            "y": 27
+          }
+        },
+        {
+          "x": 28,
+          "y": 5,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 27,
+            "y": 4
+          },
+          "requires": "GOLD KEY"
+        },
+        {
+          "x": 30,
+          "y": 8,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 31,
+            "y": 8
+          },
+          "requires": "IRON KEY"
+        },
+        {
+          "x": 30,
+          "y": 26,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Alcôve (dépôt/retrait objet)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null,
+          "storedObjectIcon": 4,
+          "storedObject": "TORCH"
+        }
+      ]
+    },
+    {
+      "name": "Level 2",
+      "index": 2,
+      "mechanisms": [
+        {
+          "x": 0,
+          "y": 5,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null
+        },
+        {
+          "x": 0,
+          "y": 5,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 0,
+            "y": 9
+          }
+        },
+        {
+          "x": 0,
+          "y": 12,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 1,
+            "y": 13
+          },
+          "requires": "COPPER COIN"
+        },
+        {
+          "x": 1,
+          "y": 14,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 2,
+            "y": 15
+          }
+        },
+        {
+          "x": 1,
+          "y": 25,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 0,
+            "y": 26
+          }
+        },
+        {
+          "x": 1,
+          "y": 25,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 0,
+            "y": 26
+          }
+        },
+        {
+          "x": 3,
+          "y": 25,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 2,
+            "y": 26
+          }
+        },
+        {
+          "x": 3,
+          "y": 25,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 2,
+            "y": 26
+          }
+        },
+        {
+          "x": 4,
+          "y": 16,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 6,
+            "y": 16
+          }
+        },
+        {
+          "x": 4,
+          "y": 27,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Porte logique AND/OR",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 4,
+            "y": 28
+          }
+        },
+        {
+          "x": 4,
+          "y": 27,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Porte logique AND/OR",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 4,
+            "y": 27
+          }
+        },
+        {
+          "x": 5,
+          "y": 17,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 5,
+            "y": 18
+          }
+        },
+        {
+          "x": 5,
+          "y": 25,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 4,
+            "y": 26
+          }
+        },
+        {
+          "x": 5,
+          "y": 25,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 4,
+            "y": 26
+          }
+        },
+        {
+          "x": 6,
+          "y": 23,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet spécifique)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 7,
+            "y": 23
+          },
+          "requires": "MIRROR OF DAWN"
+        },
+        {
+          "x": 7,
+          "y": 19,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 6,
+            "y": 20
+          },
+          "requires": "SILVER COIN"
+        },
+        {
+          "x": 7,
+          "y": 25,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 6,
+            "y": 26
+          }
+        },
+        {
+          "x": 7,
+          "y": 25,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 6,
+            "y": 26
+          }
+        },
+        {
+          "x": 8,
+          "y": 14,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Serrure (objet consommé)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 10,
+            "y": 13
+          },
+          "requires": "GOLD COIN"
+        },
+        {
+          "x": 9,
+          "y": 25,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 8,
+            "y": 26
+          }
+        },
+        {
+          "x": 9,
+          "y": 25,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 8,
+            "y": 26
+          }
+        },
+        {
+          "x": 9,
+          "y": 29,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 9,
+          "y": 29,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 10,
+            "y": 29
+          }
+        },
+        {
+          "x": 10,
+          "y": 13,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Compte à rebours",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 9,
+            "y": 13
+          }
+        },
+        {
+          "x": 10,
+          "y": 28,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": true,
+          "target": {
+            "x": 4,
+            "y": 27
+          }
+        },
+        {
+          "x": 11,
+          "y": 25,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 10,
+            "y": 26
+          }
+        },
+        {
+          "x": 11,
+          "y": 25,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 10,
+            "y": 26
+          }
+        },
+        {
+          "x": 13,
+          "y": 25,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 12,
+            "y": 26
+          }
+        },
+        {
+          "x": 13,
+          "y": 25,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 12,
+            "y": 26
+          }
+        },
+        {
+          "x": 14,
+          "y": 1,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 14,
+          "y": 1,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 15,
+            "y": 3
+          }
+        },
+        {
+          "x": 14,
+          "y": 6,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 11,
+            "y": 7
+          }
+        },
+        {
+          "x": 15,
+          "y": 7,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 11,
+            "y": 7
+          }
+        },
+        {
+          "x": 15,
+          "y": 7,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 11,
+            "y": 7
+          }
+        },
+        {
+          "x": 17,
+          "y": 3,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 15,
+            "y": 3
+          }
+        },
+        {
+          "x": 17,
+          "y": 3,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 15,
+            "y": 3
+          }
+        },
+        {
+          "x": 17,
+          "y": 4,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 16,
+            "y": 5
+          }
+        },
+        {
+          "x": 17,
+          "y": 6,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 16,
+            "y": 4
+          }
+        },
+        {
+          "x": 17,
+          "y": 6,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 16,
+            "y": 4
+          }
+        },
+        {
+          "x": 20,
+          "y": 14,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 20,
+            "y": 13
+          }
+        },
+        {
+          "x": 20,
+          "y": 17,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 24,
+            "y": 28
+          }
+        },
+        {
+          "x": 21,
+          "y": 11,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null
+        },
+        {
+          "x": 21,
+          "y": 11,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 20,
+            "y": 14
+          }
+        },
+        {
+          "x": 21,
+          "y": 11,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 20,
+            "y": 14
+          }
+        },
+        {
+          "x": 21,
+          "y": 11,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 12
+          }
+        },
+        {
+          "x": 21,
+          "y": 15,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 14
+          },
+          "requires": "BLUE GEM"
+        },
+        {
+          "x": 21,
+          "y": 29,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 22,
+            "y": 30
+          },
+          "requires": "GOLD KEY"
+        },
+        {
+          "x": 23,
+          "y": 29,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 24,
+            "y": 30
+          },
+          "requires": "GOLD KEY"
+        },
+        {
+          "x": 25,
+          "y": 29,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 26,
+            "y": 30
+          },
+          "requires": "GOLD KEY"
+        },
+        {
+          "x": 26,
+          "y": 2,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 26,
+          "y": 2,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 27,
+            "y": 1
+          }
+        },
+        {
+          "x": 28,
+          "y": 25,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 27,
+            "y": 25
+          },
+          "requires": "GOLD KEY"
+        },
+        {
+          "x": 28,
+          "y": 26,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 29,
+            "y": 25
+          }
+        },
+        {
+          "x": 28,
+          "y": 29,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Alcôve (dépôt/retrait objet)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null,
+          "storedObjectIcon": 4,
+          "storedObject": "TORCH"
+        },
+        {
+          "x": 30,
+          "y": 26,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 31,
+            "y": 25
+          },
+          "requires": "GOLD KEY"
+        },
+        {
+          "x": 31,
+          "y": 29,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Alcôve (dépôt/retrait objet)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null,
+          "storedObjectIcon": 4,
+          "storedObject": "TORCH"
+        }
+      ]
+    },
+    {
+      "name": "Level 3",
+      "index": 3,
+      "mechanisms": [
+        {
+          "x": 0,
+          "y": 11,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 1,
+            "y": 13
+          }
+        },
+        {
+          "x": 2,
+          "y": 12,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 0,
+            "y": 17
+          }
+        },
+        {
+          "x": 2,
+          "y": 20,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 4,
+            "y": 15
+          }
+        },
+        {
+          "x": 2,
+          "y": 27,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 4,
+            "y": 23
+          }
+        },
+        {
+          "x": 4,
+          "y": 14,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 1,
+            "y": 13
+          }
+        },
+        {
+          "x": 6,
+          "y": 11,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Bouton (objet quelconque requis)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 5,
+            "y": 12
+          }
+        },
+        {
+          "x": 7,
+          "y": 5,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (créature)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 6,
+            "y": 5
+          }
+        },
+        {
+          "x": 7,
+          "y": 5,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (créature)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 6,
+            "y": 4
+          }
+        },
+        {
+          "x": 7,
+          "y": 5,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (créature)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 6,
+            "y": 7
+          }
+        },
+        {
+          "x": 7,
+          "y": 5,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (créature)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 6,
+            "y": 1
+          }
+        },
+        {
+          "x": 7,
+          "y": 5,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (créature)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 5,
+            "y": 1
+          }
+        },
+        {
+          "x": 7,
+          "y": 5,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (créature)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 3,
+            "y": 1
+          }
+        },
+        {
+          "x": 7,
+          "y": 5,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (créature)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 2,
+            "y": 1
+          }
+        },
+        {
+          "x": 7,
+          "y": 16,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 7,
+            "y": 23
+          }
+        },
+        {
+          "x": 7,
+          "y": 16,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 8,
+            "y": 14
+          }
+        },
+        {
+          "x": 10,
+          "y": 30,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Alcôve (dépôt/retrait objet)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null,
+          "storedObjectIcon": 184,
+          "storedObject": "GOLD KEY"
+        },
+        {
+          "x": 12,
+          "y": 5,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 15,
+            "y": 6
+          }
+        },
+        {
+          "x": 12,
+          "y": 11,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 10,
+            "y": 17
+          }
+        },
+        {
+          "x": 13,
+          "y": 29,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 13,
+          "y": 29,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 14,
+            "y": 30
+          }
+        },
+        {
+          "x": 17,
+          "y": 30,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 14,
+            "y": 30
+          }
+        },
+        {
+          "x": 17,
+          "y": 31,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 17,
+            "y": 30
+          }
+        },
+        {
+          "x": 17,
+          "y": 31,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 17,
+            "y": 30
+          }
+        },
+        {
+          "x": 20,
+          "y": 8,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 15,
+            "y": 6
+          }
+        },
+        {
+          "x": 24,
+          "y": 13,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 23,
+            "y": 15
+          },
+          "requires": "GOLD COIN"
+        },
+        {
+          "x": 27,
+          "y": 2,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 24,
+            "y": 5
+          }
+        },
+        {
+          "x": 28,
+          "y": 8,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Serrure (objet spécifique)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 15,
+            "y": 17
+          },
+          "requires": "GOLD KEY"
+        },
+        {
+          "x": 28,
+          "y": 8,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Serrure (objet spécifique)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 15,
+            "y": 18
+          },
+          "requires": "GOLD KEY"
+        },
+        {
+          "x": 28,
+          "y": 8,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 30,
+            "y": 7
+          },
+          "requires": "GOLD KEY"
+        }
+      ]
+    },
+    {
+      "name": "Level 4",
+      "index": 4,
+      "mechanisms": [
+        {
+          "x": 5,
+          "y": 9,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 0,
+            "y": 17
+          }
+        },
+        {
+          "x": 7,
+          "y": 6,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Bouton (objet quelconque requis)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 4,
+            "y": 9
+          }
+        },
+        {
+          "x": 8,
+          "y": 22,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 8,
+          "y": 22,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 8,
+            "y": 25
+          }
+        },
+        {
+          "x": 8,
+          "y": 27,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 8,
+            "y": 25
+          }
+        },
+        {
+          "x": 13,
+          "y": 5,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 14,
+            "y": 5
+          }
+        },
+        {
+          "x": 13,
+          "y": 8,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 9
+          }
+        },
+        {
+          "x": 13,
+          "y": 8,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 14,
+            "y": 8
+          }
+        },
+        {
+          "x": 13,
+          "y": 8,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 6
+          }
+        },
+        {
+          "x": 13,
+          "y": 9,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 7
+          }
+        },
+        {
+          "x": 13,
+          "y": 17,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Alcôve (dépôt/retrait objet)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null,
+          "storedObjectIcon": 4,
+          "storedObject": "TORCH"
+        },
+        {
+          "x": 13,
+          "y": 29,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null
+        },
+        {
+          "x": 13,
+          "y": 29,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 13,
+            "y": 28
+          }
+        },
+        {
+          "x": 14,
+          "y": 1,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 22,
+            "y": 11
+          }
+        },
+        {
+          "x": 14,
+          "y": 5,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 15,
+            "y": 5
+          }
+        },
+        {
+          "x": 14,
+          "y": 6,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 6
+          }
+        },
+        {
+          "x": 14,
+          "y": 6,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 14,
+            "y": 5
+          }
+        },
+        {
+          "x": 14,
+          "y": 7,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 7
+          }
+        },
+        {
+          "x": 14,
+          "y": 9,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 9
+          }
+        },
+        {
+          "x": 14,
+          "y": 9,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 14,
+            "y": 8
+          }
+        },
+        {
+          "x": 15,
+          "y": 5,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 5
+          }
+        },
+        {
+          "x": 15,
+          "y": 5,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 14,
+            "y": 5
+          }
+        },
+        {
+          "x": 15,
+          "y": 6,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 14,
+            "y": 6
+          }
+        },
+        {
+          "x": 15,
+          "y": 6,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 15,
+            "y": 5
+          }
+        },
+        {
+          "x": 15,
+          "y": 7,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 12,
+            "y": 5
+          }
+        },
+        {
+          "x": 15,
+          "y": 7,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 15,
+            "y": 8
+          }
+        },
+        {
+          "x": 15,
+          "y": 7,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 14,
+            "y": 7
+          }
+        },
+        {
+          "x": 15,
+          "y": 7,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 16,
+            "y": 7
+          }
+        },
+        {
+          "x": 15,
+          "y": 7,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 15,
+            "y": 6
+          }
+        },
+        {
+          "x": 15,
+          "y": 8,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 15,
+            "y": 9
+          }
+        },
+        {
+          "x": 15,
+          "y": 9,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 16,
+            "y": 9
+          }
+        },
+        {
+          "x": 15,
+          "y": 9,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 14,
+            "y": 9
+          }
+        },
+        {
+          "x": 15,
+          "y": 10,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 14,
+            "y": 9
+          }
+        },
+        {
+          "x": 15,
+          "y": 10,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 16,
+            "y": 9
+          }
+        },
+        {
+          "x": 15,
+          "y": 10,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 15,
+            "y": 8
+          }
+        },
+        {
+          "x": 15,
+          "y": 10,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 15,
+            "y": 9
+          }
+        },
+        {
+          "x": 15,
+          "y": 12,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 5
+          }
+        },
+        {
+          "x": 16,
+          "y": 5,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 17,
+            "y": 5
+          }
+        },
+        {
+          "x": 16,
+          "y": 6,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 15,
+            "y": 6
+          }
+        },
+        {
+          "x": 16,
+          "y": 6,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 16,
+            "y": 7
+          }
+        },
+        {
+          "x": 16,
+          "y": 6,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 17,
+            "y": 6
+          }
+        },
+        {
+          "x": 16,
+          "y": 8,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 16,
+            "y": 7
+          }
+        },
+        {
+          "x": 16,
+          "y": 8,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 17,
+            "y": 7
+          }
+        },
+        {
+          "x": 16,
+          "y": 8,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 16,
+            "y": 9
+          }
+        },
+        {
+          "x": 16,
+          "y": 9,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 17,
+            "y": 9
+          }
+        },
+        {
+          "x": 16,
+          "y": 9,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 16,
+            "y": 8
+          }
+        },
+        {
+          "x": 16,
+          "y": 9,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 15,
+            "y": 9
+          }
+        },
+        {
+          "x": 17,
+          "y": 5,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 15,
+            "y": 5
+          }
+        },
+        {
+          "x": 17,
+          "y": 6,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 17,
+            "y": 7
+          }
+        },
+        {
+          "x": 17,
+          "y": 7,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 17,
+            "y": 6
+          }
+        },
+        {
+          "x": 17,
+          "y": 7,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 17,
+            "y": 5
+          }
+        },
+        {
+          "x": 17,
+          "y": 8,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 17,
+            "y": 9
+          }
+        },
+        {
+          "x": 17,
+          "y": 8,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 17,
+            "y": 7
+          }
+        },
+        {
+          "x": 17,
+          "y": 9,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 16,
+            "y": 8
+          }
+        },
+        {
+          "x": 17,
+          "y": 9,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 17,
+            "y": 8
+          }
+        },
+        {
+          "x": 20,
+          "y": 20,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 24,
+            "y": 14
+          }
+        },
+        {
+          "x": 20,
+          "y": 26,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 21,
+            "y": 27
+          }
+        },
+        {
+          "x": 20,
+          "y": 26,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 25,
+            "y": 25
+          }
+        },
+        {
+          "x": 20,
+          "y": 27,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 25,
+            "y": 25
+          }
+        },
+        {
+          "x": 21,
+          "y": 29,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 21,
+            "y": 26
+          }
+        },
+        {
+          "x": 21,
+          "y": 29,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 23,
+            "y": 29
+          }
+        },
+        {
+          "x": 22,
+          "y": 6,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Alcôve (dépôt/retrait objet)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null,
+          "storedObjectIcon": 4,
+          "storedObject": "TORCH"
+        },
+        {
+          "x": 24,
+          "y": 29,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 21,
+            "y": 26
+          }
+        },
+        {
+          "x": 26,
+          "y": 25,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 25,
+            "y": 27
+          }
+        }
+      ]
+    },
+    {
+      "name": "Level 5",
+      "index": 5,
+      "mechanisms": [
+        {
+          "x": 2,
+          "y": 8,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 0,
+            "y": 19
+          }
+        },
+        {
+          "x": 2,
+          "y": 26,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Alcôve (dépôt/retrait objet)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null,
+          "storedObjectIcon": 4,
+          "storedObject": "TORCH"
+        },
+        {
+          "x": 3,
+          "y": 12,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Alcôve (dépôt/retrait objet)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null,
+          "storedObjectIcon": 4,
+          "storedObject": "TORCH"
+        },
+        {
+          "x": 4,
+          "y": 14,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 4,
+          "y": 14,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 5,
+            "y": 15
+          }
+        },
+        {
+          "x": 4,
+          "y": 15,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 5,
+            "y": 22
+          }
+        },
+        {
+          "x": 6,
+          "y": 4,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 8,
+            "y": 4
+          }
+        },
+        {
+          "x": 6,
+          "y": 15,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 5,
+            "y": 18
+          }
+        },
+        {
+          "x": 7,
+          "y": 11,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 7,
+            "y": 10
+          },
+          "requires": "IRON KEY"
+        },
+        {
+          "x": 7,
+          "y": 25,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (créature)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 8,
+            "y": 25
+          }
+        },
+        {
+          "x": 7,
+          "y": 27,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 11,
+            "y": 27
+          }
+        },
+        {
+          "x": 7,
+          "y": 27,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 10,
+            "y": 28
+          }
+        },
+        {
+          "x": 8,
+          "y": 15,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 8,
+          "y": 15,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 5,
+            "y": 15
+          }
+        },
+        {
+          "x": 8,
+          "y": 29,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 8,
+          "y": 29,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 8,
+            "y": 25
+          }
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Bouton (objet quelconque requis)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 23
+          }
+        },
+        {
+          "x": 9,
+          "y": 23,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Bouton (objet quelconque requis)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 23
+          }
+        },
+        {
+          "x": 9,
+          "y": 25,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (créature)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 8,
+            "y": 25
+          }
+        },
+        {
+          "x": 10,
+          "y": 2,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Alcôve (dépôt/retrait objet)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null,
+          "storedObjectIcon": 4,
+          "storedObject": "TORCH"
+        },
+        {
+          "x": 10,
+          "y": 10,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 10,
+            "y": 9
+          }
+        },
+        {
+          "x": 10,
+          "y": 15,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 10,
+          "y": 15,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 10,
+            "y": 17
+          }
+        },
+        {
+          "x": 11,
+          "y": 4,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null
+        },
+        {
+          "x": 11,
+          "y": 4,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 12,
+            "y": 3
+          }
+        },
+        {
+          "x": 11,
+          "y": 10,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 11,
+            "y": 10
+          }
+        },
+        {
+          "x": 11,
+          "y": 28,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 7,
+            "y": 28
+          }
+        },
+        {
+          "x": 12,
+          "y": 10,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 12,
+            "y": 10
+          }
+        },
+        {
+          "x": 12,
+          "y": 17,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Bouton (objet quelconque requis)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 23
+          }
+        },
+        {
+          "x": 12,
+          "y": 23,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Bouton (objet quelconque requis)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 23
+          }
+        },
+        {
+          "x": 12,
+          "y": 27,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 14,
+            "y": 27
+          }
+        },
+        {
+          "x": 12,
+          "y": 27,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 12,
+          "y": 28,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 12,
+          "y": 28,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 8,
+            "y": 25
+          }
+        },
+        {
+          "x": 13,
+          "y": 10,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 10
+          }
+        },
+        {
+          "x": 13,
+          "y": 19,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Porte logique AND/OR",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 13,
+          "y": 23,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Compte à rebours",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 19
+          }
+        },
+        {
+          "x": 13,
+          "y": 23,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Compte à rebours",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 20
+          }
+        },
+        {
+          "x": 14,
+          "y": 10,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 14,
+            "y": 10
+          }
+        },
+        {
+          "x": 14,
+          "y": 26,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 28
+          }
+        },
+        {
+          "x": 14,
+          "y": 28,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null
+        },
+        {
+          "x": 14,
+          "y": 28,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 15,
+            "y": 27
+          }
+        },
+        {
+          "x": 15,
+          "y": 10,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 15,
+            "y": 10
+          }
+        },
+        {
+          "x": 15,
+          "y": 26,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 28
+          }
+        },
+        {
+          "x": 15,
+          "y": 26,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 15,
+            "y": 27
+          }
+        },
+        {
+          "x": 15,
+          "y": 28,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 28
+          }
+        },
+        {
+          "x": 16,
+          "y": 10,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 16,
+            "y": 10
+          }
+        },
+        {
+          "x": 16,
+          "y": 14,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 16,
+            "y": 13
+          },
+          "requires": "IRON KEY"
+        },
+        {
+          "x": 17,
+          "y": 10,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 17,
+            "y": 10
+          }
+        },
+        {
+          "x": 17,
+          "y": 19,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 20,
+            "y": 16
+          },
+          "requires": "GOLD COIN"
+        },
+        {
+          "x": 17,
+          "y": 24,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 21,
+            "y": 24
+          }
+        },
+        {
+          "x": 18,
+          "y": 8,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 24,
+            "y": 8
+          }
+        },
+        {
+          "x": 18,
+          "y": 14,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 18,
+            "y": 13
+          },
+          "requires": "IRON KEY"
+        },
+        {
+          "x": 18,
+          "y": 20,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 21,
+            "y": 24
+          }
+        },
+        {
+          "x": 19,
+          "y": 5,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Porte logique AND/OR",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 21,
+            "y": 6
+          }
+        },
+        {
+          "x": 19,
+          "y": 5,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Porte logique AND/OR",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 21,
+            "y": 4
+          }
+        },
+        {
+          "x": 19,
+          "y": 5,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Porte logique AND/OR",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 19,
+            "y": 5
+          }
+        },
+        {
+          "x": 20,
+          "y": 9,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Serrure (objet spécifique)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 21,
+            "y": 4
+          },
+          "requires": "SOLID KEY"
+        },
+        {
+          "x": 20,
+          "y": 9,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Serrure (objet spécifique)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 21,
+            "y": 6
+          },
+          "requires": "SOLID KEY"
+        },
+        {
+          "x": 20,
+          "y": 9,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Serrure (objet spécifique)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 19,
+            "y": 5
+          },
+          "requires": "SOLID KEY"
+        },
+        {
+          "x": 20,
+          "y": 9,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 19,
+            "y": 8
+          },
+          "requires": "SOLID KEY"
+        },
+        {
+          "x": 20,
+          "y": 22,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 21,
+            "y": 24
+          }
+        },
+        {
+          "x": 20,
+          "y": 24,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 21,
+            "y": 24
+          }
+        },
+        {
+          "x": 21,
+          "y": 24,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Porte logique AND/OR",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 20,
+            "y": 21
+          }
+        },
+        {
+          "x": 22,
+          "y": 8,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": true,
+          "target": {
+            "x": 19,
+            "y": 5
+          }
+        },
+        {
+          "x": 22,
+          "y": 8,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": true,
+          "target": {
+            "x": 24,
+            "y": 8
+          }
+        },
+        {
+          "x": 22,
+          "y": 11,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 23,
+            "y": 12
+          },
+          "requires": "IRON KEY"
+        },
+        {
+          "x": 22,
+          "y": 22,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null
+        },
+        {
+          "x": 22,
+          "y": 22,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 23,
+            "y": 23
+          }
+        },
+        {
+          "x": 24,
+          "y": 11,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 24,
+            "y": 10
+          },
+          "requires": "IRON KEY"
+        },
+        {
+          "x": 24,
+          "y": 15,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 29,
+            "y": 17
+          }
+        },
+        {
+          "x": 24,
+          "y": 20,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (créature)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 23,
+            "y": 23
+          }
+        },
+        {
+          "x": 25,
+          "y": 3,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 25,
+            "y": 1
+          }
+        },
+        {
+          "x": 25,
+          "y": 14,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 25,
+            "y": 18
+          }
+        },
+        {
+          "x": 25,
+          "y": 27,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 0,
+            "y": 19
+          }
+        },
+        {
+          "x": 26,
+          "y": 11,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 26,
+            "y": 10
+          }
+        },
+        {
+          "x": 28,
+          "y": 15,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 29,
+            "y": 27
+          }
+        },
+        {
+          "x": 30,
+          "y": 27,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 29,
+            "y": 16
+          }
+        }
+      ]
+    },
+    {
+      "name": "Level 6",
+      "index": 6,
+      "mechanisms": [
+        {
+          "x": 1,
+          "y": 10,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 0,
+            "y": 2
+          }
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 4,
+            "y": 4
+          },
+          "requires": "RUBY KEY"
+        },
+        {
+          "x": 3,
+          "y": 7,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 2,
+            "y": 7
+          },
+          "requires": "RA KEY"
+        },
+        {
+          "x": 8,
+          "y": 4,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 7,
+            "y": 4
+          },
+          "requires": "TOURQUOISE KEY"
+        },
+        {
+          "x": 12,
+          "y": 4,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 11,
+            "y": 4
+          },
+          "requires": "TOURQUOISE KEY"
+        },
+        {
+          "x": 13,
+          "y": 16,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 13,
+            "y": 15
+          },
+          "requires": "MASTER KEY"
+        },
+        {
+          "x": 14,
+          "y": 16,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Bouton (objet quelconque requis)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 13,
+            "y": 15
+          }
+        },
+        {
+          "x": 14,
+          "y": 16,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Bouton (objet quelconque requis)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 15,
+            "y": 15
+          }
+        },
+        {
+          "x": 14,
+          "y": 16,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Bouton (objet quelconque requis)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 14,
+            "y": 17
+          }
+        },
+        {
+          "x": 14,
+          "y": 16,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Bouton (objet quelconque requis)",
+          "action": "Clear",
+          "onceOnly": true,
+          "target": {
+            "x": 16,
+            "y": 17
+          }
+        },
+        {
+          "x": 14,
+          "y": 16,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Bouton (objet quelconque requis)",
+          "action": "Clear",
+          "onceOnly": true,
+          "target": {
+            "x": 12,
+            "y": 17
+          }
+        },
+        {
+          "x": 15,
+          "y": 16,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 15,
+            "y": 15
+          },
+          "requires": "MASTER KEY"
+        },
+        {
+          "x": 16,
+          "y": 4,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 15,
+            "y": 4
+          },
+          "requires": "TOURQUOISE KEY"
+        },
+        {
+          "x": 19,
+          "y": 0,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 3,
+            "y": 1
+          }
+        },
+        {
+          "x": 20,
+          "y": 4,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 19,
+            "y": 4
+          },
+          "requires": "TOURQUOISE KEY"
+        },
+        {
+          "x": 25,
+          "y": 20,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null
+        },
+        {
+          "x": 27,
+          "y": 5,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 28,
+            "y": 5
+          }
+        },
+        {
+          "x": 27,
+          "y": 14,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 26,
+            "y": 14
+          },
+          "requires": "RA KEY"
+        },
+        {
+          "x": 27,
+          "y": 19,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 26,
+            "y": 19
+          },
+          "requires": "RA KEY"
+        },
+        {
+          "x": 27,
+          "y": 22,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 26,
+            "y": 22
+          },
+          "requires": "RA KEY"
+        }
+      ]
+    },
+    {
+      "name": "Level 7",
+      "index": 7,
+      "mechanisms": [
+        {
+          "x": 0,
+          "y": 4,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 1,
+            "y": 6
+          }
+        },
+        {
+          "x": 1,
+          "y": 11,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 2,
+            "y": 12
+          },
+          "requires": "SOLID KEY"
+        },
+        {
+          "x": 2,
+          "y": 10,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 2,
+            "y": 19
+          }
+        },
+        {
+          "x": 2,
+          "y": 26,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 2,
+            "y": 2
+          }
+        },
+        {
+          "x": 4,
+          "y": 30,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 5,
+            "y": 29
+          }
+        },
+        {
+          "x": 6,
+          "y": 21,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Serrure (objet spécifique)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 6,
+            "y": 20
+          },
+          "requires": "SKELETON KEY"
+        },
+        {
+          "x": 6,
+          "y": 21,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 10,
+            "y": 18
+          },
+          "requires": "SKELETON KEY"
+        },
+        {
+          "x": 8,
+          "y": 1,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 9,
+            "y": 1
+          }
+        },
+        {
+          "x": 9,
+          "y": 0,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 9,
+          "y": 0,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 9,
+            "y": 2
+          }
+        },
+        {
+          "x": 9,
+          "y": 22,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 9,
+          "y": 22,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 8,
+            "y": 21
+          }
+        },
+        {
+          "x": 10,
+          "y": 16,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 6,
+            "y": 15
+          }
+        },
+        {
+          "x": 10,
+          "y": 24,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 11,
+            "y": 24
+          }
+        },
+        {
+          "x": 12,
+          "y": 15,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 10,
+            "y": 15
+          }
+        },
+        {
+          "x": 13,
+          "y": 14,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 12
+          }
+        },
+        {
+          "x": 13,
+          "y": 20,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 15
+          }
+        },
+        {
+          "x": 14,
+          "y": 19,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 17,
+            "y": 8
+          }
+        },
+        {
+          "x": 14,
+          "y": 20,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 12,
+            "y": 6
+          }
+        },
+        {
+          "x": 14,
+          "y": 20,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 3,
+            "y": 9
+          }
+        },
+        {
+          "x": 14,
+          "y": 20,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 20
+          }
+        },
+        {
+          "x": 14,
+          "y": 21,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 15
+          }
+        },
+        {
+          "x": 14,
+          "y": 30,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 24,
+            "y": 20
+          }
+        },
+        {
+          "x": 15,
+          "y": 13,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 17,
+            "y": 8
+          }
+        },
+        {
+          "x": 15,
+          "y": 20,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 24,
+            "y": 20
+          }
+        },
+        {
+          "x": 16,
+          "y": 25,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 16,
+          "y": 25,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 15,
+            "y": 24
+          }
+        },
+        {
+          "x": 17,
+          "y": 15,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 17,
+            "y": 13
+          }
+        },
+        {
+          "x": 17,
+          "y": 23,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 18,
+            "y": 24
+          }
+        },
+        {
+          "x": 19,
+          "y": 17,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 21,
+            "y": 17
+          }
+        },
+        {
+          "x": 20,
+          "y": 17,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 24,
+            "y": 20
+          }
+        },
+        {
+          "x": 22,
+          "y": 27,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 23,
+            "y": 26
+          }
+        },
+        {
+          "x": 24,
+          "y": 30,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 5,
+            "y": 29
+          }
+        },
+        {
+          "x": 26,
+          "y": 7,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null
+        },
+        {
+          "x": 26,
+          "y": 7,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 29,
+            "y": 7
+          }
+        },
+        {
+          "x": 28,
+          "y": 18,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 28,
+          "y": 18,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 29,
+            "y": 19
+          }
+        }
+      ]
+    },
+    {
+      "name": "Level 8",
+      "index": 8,
+      "mechanisms": [
+        {
+          "x": 1,
+          "y": 15,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null
+        },
+        {
+          "x": 1,
+          "y": 15,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 1,
+            "y": 12
+          }
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 2,
+            "y": 1
+          }
+        },
+        {
+          "x": 8,
+          "y": 13,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 9,
+            "y": 27
+          }
+        },
+        {
+          "x": 9,
+          "y": 7,
+          "support": "Pit",
+          "face": "North",
+          "kind": "Dalle de pression (objet spécifique)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 9,
+            "y": 8
+          },
+          "requires": "GREEN GEM"
+        },
+        {
+          "x": 9,
+          "y": 11,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 28,
+            "y": 0
+          }
+        },
+        {
+          "x": 10,
+          "y": 8,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 10,
+          "y": 8,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 9,
+            "y": 8
+          }
+        },
+        {
+          "x": 10,
+          "y": 8,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 10,
+          "y": 8,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 9,
+            "y": 7
+          }
+        },
+        {
+          "x": 15,
+          "y": 25,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 15,
+            "y": 26
+          },
+          "requires": "SKELETON KEY"
+        },
+        {
+          "x": 18,
+          "y": 3,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 3
+          }
+        },
+        {
+          "x": 18,
+          "y": 4,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 4
+          }
+        },
+        {
+          "x": 19,
+          "y": 3,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 3
+          }
+        },
+        {
+          "x": 19,
+          "y": 4,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 4
+          }
+        },
+        {
+          "x": 20,
+          "y": 3,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 3
+          }
+        },
+        {
+          "x": 20,
+          "y": 4,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 4
+          }
+        },
+        {
+          "x": 23,
+          "y": 16,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Bouton (objet quelconque requis)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 22,
+            "y": 15
+          }
+        },
+        {
+          "x": 24,
+          "y": 26,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null
+        },
+        {
+          "x": 24,
+          "y": 26,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 20,
+            "y": 28
+          }
+        },
+        {
+          "x": 25,
+          "y": 14,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 23,
+            "y": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "Level 9",
+      "index": 9,
+      "mechanisms": [
+        {
+          "x": 1,
+          "y": 22,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 0,
+            "y": 22
+          }
+        },
+        {
+          "x": 1,
+          "y": 31,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 1,
+            "y": 24
+          }
+        },
+        {
+          "x": 1,
+          "y": 31,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 1,
+            "y": 29
+          }
+        },
+        {
+          "x": 2,
+          "y": 11,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 2,
+            "y": 10
+          },
+          "requires": "KEY OF B"
+        },
+        {
+          "x": 2,
+          "y": 13,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 2,
+            "y": 14
+          },
+          "requires": "KEY OF B"
+        },
+        {
+          "x": 6,
+          "y": 23,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 2,
+            "y": 31
+          }
+        },
+        {
+          "x": 6,
+          "y": 24,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 6,
+          "y": 24,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 3,
+            "y": 28
+          }
+        },
+        {
+          "x": 6,
+          "y": 24,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 1,
+            "y": 23
+          }
+        },
+        {
+          "x": 6,
+          "y": 24,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 5,
+            "y": 24
+          }
+        },
+        {
+          "x": 9,
+          "y": 29,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 16,
+            "y": 29
+          }
+        },
+        {
+          "x": 11,
+          "y": 26,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null
+        },
+        {
+          "x": 11,
+          "y": 26,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 12,
+            "y": 26
+          }
+        },
+        {
+          "x": 14,
+          "y": 5,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 27,
+            "y": 15
+          }
+        },
+        {
+          "x": 14,
+          "y": 12,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 5,
+            "y": 12
+          }
+        },
+        {
+          "x": 16,
+          "y": 4,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 14,
+            "y": 24
+          }
+        },
+        {
+          "x": 16,
+          "y": 4,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 16,
+            "y": 3
+          }
+        },
+        {
+          "x": 16,
+          "y": 17,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Alcôve (dépôt/retrait objet)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null,
+          "storedObjectIcon": 4,
+          "storedObject": "TORCH"
+        },
+        {
+          "x": 18,
+          "y": 10,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 18,
+            "y": 11
+          }
+        },
+        {
+          "x": 18,
+          "y": 14,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 18,
+            "y": 13
+          }
+        },
+        {
+          "x": 19,
+          "y": 11,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 20,
+            "y": 12
+          },
+          "requires": "KEY OF B"
+        },
+        {
+          "x": 19,
+          "y": 22,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 19,
+            "y": 23
+          },
+          "requires": "SKELETON KEY"
+        },
+        {
+          "x": 19,
+          "y": 25,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 23,
+            "y": 29
+          }
+        },
+        {
+          "x": 22,
+          "y": 6,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 26,
+            "y": 1
+          }
+        },
+        {
+          "x": 22,
+          "y": 6,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 23,
+            "y": 7
+          }
+        },
+        {
+          "x": 22,
+          "y": 14,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 14
+          }
+        },
+        {
+          "x": 22,
+          "y": 15,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 15
+          }
+        },
+        {
+          "x": 22,
+          "y": 16,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 16
+          }
+        },
+        {
+          "x": 22,
+          "y": 17,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 17
+          }
+        },
+        {
+          "x": 22,
+          "y": 18,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 18
+          }
+        },
+        {
+          "x": 23,
+          "y": 14,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 23,
+            "y": 14
+          }
+        },
+        {
+          "x": 23,
+          "y": 18,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 23,
+            "y": 18
+          }
+        },
+        {
+          "x": 24,
+          "y": 14,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 24,
+            "y": 14
+          }
+        },
+        {
+          "x": 24,
+          "y": 15,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 24,
+            "y": 15
+          }
+        },
+        {
+          "x": 24,
+          "y": 16,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 24,
+            "y": 16
+          }
+        },
+        {
+          "x": 24,
+          "y": 17,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 24,
+            "y": 17
+          }
+        },
+        {
+          "x": 24,
+          "y": 18,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 24,
+            "y": 18
+          }
+        },
+        {
+          "x": 24,
+          "y": 27,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 21,
+            "y": 7
+          }
+        },
+        {
+          "x": 24,
+          "y": 29,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 18,
+            "y": 26
+          }
+        }
+      ]
+    },
+    {
+      "name": "Level 10",
+      "index": 10,
+      "mechanisms": [
+        {
+          "x": 0,
+          "y": 0,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 0,
+          "y": 5,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet spécifique)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 3,
+            "y": 12
+          },
+          "requires": "SOLID KEY"
+        },
+        {
+          "x": 0,
+          "y": 5,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet spécifique)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 2,
+            "y": 11
+          },
+          "requires": "SOLID KEY"
+        },
+        {
+          "x": 0,
+          "y": 5,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet spécifique)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 1,
+            "y": 12
+          },
+          "requires": "SOLID KEY"
+        },
+        {
+          "x": 0,
+          "y": 5,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet spécifique)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 0,
+            "y": 11
+          },
+          "requires": "SOLID KEY"
+        },
+        {
+          "x": 0,
+          "y": 5,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 12,
+            "y": 6
+          },
+          "requires": "SOLID KEY"
+        },
+        {
+          "x": 0,
+          "y": 8,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 0,
+            "y": 8
+          }
+        },
+        {
+          "x": 0,
+          "y": 8,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 0,
+            "y": 8
+          }
+        },
+        {
+          "x": 0,
+          "y": 14,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Bouton (objet quelconque requis)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 2,
+            "y": 12
+          }
+        },
+        {
+          "x": 1,
+          "y": 6,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 17,
+            "y": 29
+          }
+        },
+        {
+          "x": 1,
+          "y": 28,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 1,
+            "y": 31
+          }
+        },
+        {
+          "x": 2,
+          "y": 12,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Porte logique AND/OR",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 8,
+            "y": 12
+          }
+        },
+        {
+          "x": 2,
+          "y": 12,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Porte logique AND/OR",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 7,
+            "y": 14
+          }
+        },
+        {
+          "x": 2,
+          "y": 12,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Porte logique AND/OR",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 7,
+            "y": 11
+          }
+        },
+        {
+          "x": 2,
+          "y": 12,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Porte logique AND/OR",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 6,
+            "y": 12
+          }
+        },
+        {
+          "x": 2,
+          "y": 12,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Porte logique AND/OR",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 6,
+            "y": 12
+          }
+        },
+        {
+          "x": 2,
+          "y": 12,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Porte logique AND/OR",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 8,
+            "y": 13
+          }
+        },
+        {
+          "x": 2,
+          "y": 12,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Porte logique AND/OR",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 5,
+            "y": 13
+          }
+        },
+        {
+          "x": 2,
+          "y": 12,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Porte logique AND/OR",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 6,
+            "y": 15
+          }
+        },
+        {
+          "x": 2,
+          "y": 12,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Porte logique AND/OR",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 7,
+            "y": 14
+          }
+        },
+        {
+          "x": 2,
+          "y": 12,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Porte logique AND/OR",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 5,
+            "y": 15
+          }
+        },
+        {
+          "x": 2,
+          "y": 12,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Porte logique AND/OR",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 4,
+            "y": 15
+          }
+        },
+        {
+          "x": 2,
+          "y": 12,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Porte logique AND/OR",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 3,
+            "y": 15
+          }
+        },
+        {
+          "x": 2,
+          "y": 12,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Porte logique AND/OR",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 2,
+            "y": 15
+          }
+        },
+        {
+          "x": 2,
+          "y": 12,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Porte logique AND/OR",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 1,
+            "y": 15
+          }
+        },
+        {
+          "x": 2,
+          "y": 14,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de possession (groupe détient objet)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 2,
+            "y": 12
+          },
+          "requires": "DIAMOND EDGE"
+        },
+        {
+          "x": 4,
+          "y": 14,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de possession (groupe détient objet)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 2,
+            "y": 12
+          },
+          "requires": "DIAMOND EDGE"
+        },
+        {
+          "x": 6,
+          "y": 14,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de possession (groupe détient objet)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 2,
+            "y": 12
+          },
+          "requires": "DIAMOND EDGE"
+        },
+        {
+          "x": 8,
+          "y": 9,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 8,
+            "y": 9
+          }
+        },
+        {
+          "x": 8,
+          "y": 9,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 8,
+            "y": 9
+          }
+        },
+        {
+          "x": 9,
+          "y": 1,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 9,
+            "y": 1
+          }
+        },
+        {
+          "x": 9,
+          "y": 1,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 9,
+            "y": 1
+          }
+        },
+        {
+          "x": 9,
+          "y": 5,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 10,
+            "y": 6
+          },
+          "requires": "IRON KEY"
+        },
+        {
+          "x": 9,
+          "y": 9,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (créature)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 5,
+            "y": 4
+          }
+        },
+        {
+          "x": 9,
+          "y": 15,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 3,
+            "y": 16
+          }
+        },
+        {
+          "x": 9,
+          "y": 25,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 3,
+            "y": 16
+          }
+        },
+        {
+          "x": 10,
+          "y": 23,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 6,
+            "y": 22
+          }
+        },
+        {
+          "x": 10,
+          "y": 25,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 11,
+            "y": 25
+          }
+        },
+        {
+          "x": 11,
+          "y": 23,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 12,
+            "y": 23
+          }
+        },
+        {
+          "x": 15,
+          "y": 25,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null
+        },
+        {
+          "x": 17,
+          "y": 11,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 16,
+            "y": 12
+          },
+          "requires": "CROSS KEY"
+        },
+        {
+          "x": 17,
+          "y": 20,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 17,
+            "y": 21
+          }
+        },
+        {
+          "x": 18,
+          "y": 13,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 19,
+            "y": 13
+          },
+          "requires": "CROSS KEY"
+        },
+        {
+          "x": 18,
+          "y": 20,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 29,
+            "y": 3
+          }
+        },
+        {
+          "x": 18,
+          "y": 20,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 25,
+            "y": 20
+          }
+        },
+        {
+          "x": 19,
+          "y": 14,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 6,
+            "y": 22
+          }
+        },
+        {
+          "x": 19,
+          "y": 24,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 19,
+            "y": 25
+          },
+          "requires": "SKELETON KEY"
+        },
+        {
+          "x": 20,
+          "y": 20,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 20,
+            "y": 20
+          }
+        },
+        {
+          "x": 20,
+          "y": 21,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 20,
+            "y": 21
+          }
+        },
+        {
+          "x": 20,
+          "y": 22,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 20,
+            "y": 22
+          }
+        },
+        {
+          "x": 20,
+          "y": 23,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 20,
+            "y": 22
+          }
+        },
+        {
+          "x": 20,
+          "y": 23,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 20
+          }
+        },
+        {
+          "x": 21,
+          "y": 11,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 22,
+            "y": 12
+          },
+          "requires": "CROSS KEY"
+        },
+        {
+          "x": 21,
+          "y": 20,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 21,
+            "y": 20
+          }
+        },
+        {
+          "x": 21,
+          "y": 24,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Bouton (objet quelconque requis)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 21,
+            "y": 23
+          }
+        },
+        {
+          "x": 22,
+          "y": 19,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Bouton (objet quelconque requis)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 22,
+            "y": 20
+          }
+        },
+        {
+          "x": 22,
+          "y": 21,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 21
+          }
+        },
+        {
+          "x": 22,
+          "y": 22,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 22
+          }
+        },
+        {
+          "x": 22,
+          "y": 23,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 23
+          }
+        },
+        {
+          "x": 23,
+          "y": 1,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 24,
+            "y": 3
+          }
+        },
+        {
+          "x": 23,
+          "y": 3,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 24,
+            "y": 4
+          }
+        },
+        {
+          "x": 23,
+          "y": 10,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 25,
+            "y": 20
+          }
+        },
+        {
+          "x": 23,
+          "y": 10,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 29,
+            "y": 3
+          }
+        },
+        {
+          "x": 25,
+          "y": 27,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null,
+          "requires": "COPPER COIN"
+        },
+        {
+          "x": 25,
+          "y": 28,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null,
+          "requires": "COPPER COIN"
+        },
+        {
+          "x": 26,
+          "y": 26,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null,
+          "requires": "COPPER COIN"
+        },
+        {
+          "x": 26,
+          "y": 29,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null,
+          "requires": "COPPER COIN"
+        },
+        {
+          "x": 27,
+          "y": 26,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null,
+          "requires": "COPPER COIN"
+        },
+        {
+          "x": 28,
+          "y": 27,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null,
+          "requires": "COPPER COIN"
+        },
+        {
+          "x": 28,
+          "y": 28,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null,
+          "requires": "COPPER COIN"
+        }
+      ]
+    },
+    {
+      "name": "Level 11",
+      "index": 11,
+      "mechanisms": [
+        {
+          "x": 3,
+          "y": 16,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null
+        },
+        {
+          "x": 3,
+          "y": 16,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 28,
+            "y": 3
+          }
+        },
+        {
+          "x": 3,
+          "y": 22,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 3,
+            "y": 21
+          },
+          "requires": "EMERALD KEY"
+        },
+        {
+          "x": 3,
+          "y": 26,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 1,
+            "y": 25
+          }
+        },
+        {
+          "x": 4,
+          "y": 28,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 4,
+          "y": 28,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 19,
+            "y": 22
+          }
+        },
+        {
+          "x": 5,
+          "y": 25,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 6,
+            "y": 25
+          },
+          "requires": "TOPAZ KEY"
+        },
+        {
+          "x": 8,
+          "y": 7,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 16,
+            "y": 1
+          }
+        },
+        {
+          "x": 9,
+          "y": 1,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 10,
+            "y": 2
+          }
+        },
+        {
+          "x": 10,
+          "y": 16,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 9,
+            "y": 17
+          },
+          "requires": "SKELETON KEY"
+        },
+        {
+          "x": 12,
+          "y": 25,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 10,
+            "y": 29
+          }
+        },
+        {
+          "x": 12,
+          "y": 25,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 10,
+            "y": 28
+          }
+        },
+        {
+          "x": 12,
+          "y": 25,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 10,
+            "y": 27
+          }
+        },
+        {
+          "x": 12,
+          "y": 25,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 10,
+            "y": 26
+          }
+        },
+        {
+          "x": 13,
+          "y": 12,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 16,
+            "y": 9
+          }
+        },
+        {
+          "x": 19,
+          "y": 9,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null
+        },
+        {
+          "x": 19,
+          "y": 9,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Clear",
+          "onceOnly": true,
+          "target": {
+            "x": 16,
+            "y": 9
+          }
+        },
+        {
+          "x": 19,
+          "y": 9,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 18,
+            "y": 10
+          }
+        },
+        {
+          "x": 19,
+          "y": 9,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Clear",
+          "onceOnly": true,
+          "target": {
+            "x": 19,
+            "y": 11
+          }
+        },
+        {
+          "x": 19,
+          "y": 11,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Porte logique AND/OR",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 15,
+            "y": 12
+          }
+        },
+        {
+          "x": 19,
+          "y": 11,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Porte logique AND/OR",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 16,
+            "y": 12
+          }
+        },
+        {
+          "x": 19,
+          "y": 11,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Porte logique AND/OR",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 16,
+            "y": 11
+          }
+        },
+        {
+          "x": 19,
+          "y": 11,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Porte logique AND/OR",
+          "action": "Hold",
+          "onceOnly": false,
+          "target": {
+            "x": 15,
+            "y": 11
+          }
+        },
+        {
+          "x": 19,
+          "y": 11,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Porte logique AND/OR",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 19,
+            "y": 11
+          }
+        },
+        {
+          "x": 19,
+          "y": 11,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Porte logique AND/OR",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 19,
+            "y": 11
+          }
+        },
+        {
+          "x": 19,
+          "y": 11,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Porte logique AND/OR",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 19,
+            "y": 11
+          }
+        },
+        {
+          "x": 19,
+          "y": 11,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Porte logique AND/OR",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 19,
+            "y": 11
+          }
+        },
+        {
+          "x": 21,
+          "y": 7,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 24,
+            "y": 9
+          }
+        },
+        {
+          "x": 22,
+          "y": 7,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 15,
+            "y": 6
+          }
+        },
+        {
+          "x": 23,
+          "y": 21,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 26,
+            "y": 22
+          }
+        },
+        {
+          "x": 24,
+          "y": 11,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 27,
+            "y": 11
+          }
+        },
+        {
+          "x": 24,
+          "y": 11,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 21,
+            "y": 11
+          }
+        },
+        {
+          "x": 24,
+          "y": 11,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 23,
+            "y": 11
+          }
+        },
+        {
+          "x": 24,
+          "y": 11,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 24,
+            "y": 12
+          }
+        },
+        {
+          "x": 24,
+          "y": 11,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 25,
+            "y": 11
+          }
+        },
+        {
+          "x": 26,
+          "y": 7,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (créature)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 27,
+            "y": 7
+          }
+        },
+        {
+          "x": 27,
+          "y": 7,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Compte à rebours",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 27,
+            "y": 6
+          }
+        }
+      ]
+    },
+    {
+      "name": "Level 12",
+      "index": 12,
+      "mechanisms": [
+        {
+          "x": 1,
+          "y": 8,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 1,
+            "y": 9
+          },
+          "requires": "SKELETON KEY"
+        },
+        {
+          "x": 3,
+          "y": 18,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 2,
+            "y": 18
+          }
+        },
+        {
+          "x": 5,
+          "y": 9,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Clear",
+          "onceOnly": true,
+          "target": {
+            "x": 3,
+            "y": 9
+          }
+        },
+        {
+          "x": 5,
+          "y": 9,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (tout)",
+          "action": "Clear",
+          "onceOnly": true,
+          "target": {
+            "x": 8,
+            "y": 8
+          }
+        },
+        {
+          "x": 7,
+          "y": 5,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 7,
+          "y": 5,
+          "support": "Wall",
+          "face": "North",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 6,
+            "y": 4
+          }
+        },
+        {
+          "x": 8,
+          "y": 1,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 7,
+            "y": 1
+          }
+        },
+        {
+          "x": 11,
+          "y": 11,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 12
+          }
+        },
+        {
+          "x": 11,
+          "y": 11,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 13,
+            "y": 10
+          }
+        },
+        {
+          "x": 11,
+          "y": 11,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 12,
+            "y": 12
+          }
+        },
+        {
+          "x": 11,
+          "y": 11,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 19,
+            "y": 4
+          }
+        },
+        {
+          "x": 11,
+          "y": 11,
+          "support": "Teleporter",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 14,
+            "y": 10
+          }
+        },
+        {
+          "x": 12,
+          "y": 11,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 14,
+            "y": 10
+          }
+        },
+        {
+          "x": 14,
+          "y": 3,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 14,
+            "y": 3
+          }
+        },
+        {
+          "x": 18,
+          "y": 13,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 20,
+            "y": 9
+          }
+        },
+        {
+          "x": 18,
+          "y": 13,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 19,
+            "y": 10
+          }
+        },
+        {
+          "x": 18,
+          "y": 13,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 18,
+            "y": 11
+          }
+        },
+        {
+          "x": 18,
+          "y": 16,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 18,
+            "y": 16
+          }
+        }
+      ]
+    },
+    {
+      "name": "Lord Chaos's Lair",
+      "index": 13,
+      "mechanisms": [
+        {
+          "x": 4,
+          "y": 9,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 2,
+            "y": 9
+          },
+          "requires": "WINGED KEY"
+        },
+        {
+          "x": 18,
+          "y": 5,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": null
+        },
+        {
+          "x": 18,
+          "y": 5,
+          "support": "Wall",
+          "face": "West",
+          "kind": "Levier / bouton mural",
+          "action": "Toggle",
+          "onceOnly": false,
+          "target": {
+            "x": 17,
+            "y": 6
+          }
+        },
+        {
+          "x": 21,
+          "y": 5,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (créature)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 5
+          }
+        },
+        {
+          "x": 22,
+          "y": 6,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 5
+          },
+          "requires": "GOLD COIN"
+        },
+        {
+          "x": 22,
+          "y": 6,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 5
+          },
+          "requires": "SILVER COIN"
+        },
+        {
+          "x": 22,
+          "y": 6,
+          "support": "Wall",
+          "face": "East",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 5
+          },
+          "requires": "COPPER COIN"
+        },
+        {
+          "x": 23,
+          "y": 8,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 24,
+            "y": 8
+          },
+          "requires": "SQUARE KEY"
+        },
+        {
+          "x": 24,
+          "y": 3,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Échangeur d'objet",
+          "action": "Set",
+          "onceOnly": true,
+          "target": null,
+          "storedObjectIcon": 27,
+          "storedObject": "THE FIRESTAFF"
+        },
+        {
+          "x": 24,
+          "y": 3,
+          "support": "Wall",
+          "face": "South",
+          "kind": "Serrure (objet consommé + suppression sensor)",
+          "action": "Set",
+          "onceOnly": false,
+          "target": null,
+          "requires": "ZOKATHRA SPELL"
+        },
+        {
+          "x": 24,
+          "y": 7,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de pression (groupe)",
+          "action": "Clear",
+          "onceOnly": false,
+          "target": {
+            "x": 22,
+            "y": 5
+          }
+        },
+        {
+          "x": 24,
+          "y": 7,
+          "support": "Floor",
+          "face": "North",
+          "kind": "Dalle de possession (groupe détient objet)",
+          "action": "Set",
+          "onceOnly": true,
+          "target": {
+            "x": 23,
+            "y": 1
+          },
+          "requires": "THE FIRESTAFF"
+        }
+      ]
+    }
+  ]
+}
