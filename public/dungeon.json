@@ -3,8 +3,16 @@
     "source": {
       "file": "EUDATA/DUNGEON.DAT",
       "format": "PC DOS little-endian",
-      "extractor": "assets/DMDisquette/parse_full.js"
+      "extractor": "assets/OriginalDataExtraction/parse_full.js"
     },
+    "compression": {
+      "compressed": false,
+      "compressedSize": 33357,
+      "uncompressedSize": 33357
+    },
+    "fileLength": 33357,
+    "hasChecksum": true,
+    "checksumWord": 10753,
     "dungeonId": 99,
     "numMaps": 14,
     "mapDataSize": 12283,
@@ -41411,7 +41419,7 @@
         "usedInDungeon": true,
         "next": null,
         "type": 45,
-        "name": "(W45)",
+        "name": "The Firestaff (Complete)",
         "broken": false,
         "charges": 0,
         "poisoned": false,
@@ -41516,7 +41524,7 @@
         "usedInDungeon": true,
         "next": null,
         "type": 1,
-        "name": "Storm Ring",
+        "name": "Stormring",
         "broken": false,
         "charges": 4,
         "poisoned": false,
@@ -42065,7 +42073,7 @@
           "index": 4
         },
         "type": 11,
-        "name": "Armor_11",
+        "name": "Silk Shirt",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -42134,7 +42142,7 @@
           "index": 4
         },
         "type": 29,
-        "name": "Armor_29",
+        "name": "Barbarian Hide",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -42283,7 +42291,7 @@
         "usedInDungeon": true,
         "next": null,
         "type": 12,
-        "name": "Armor_12",
+        "name": "Gunna",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -42325,7 +42333,7 @@
         "usedInDungeon": true,
         "next": null,
         "type": 11,
-        "name": "Armor_11",
+        "name": "Silk Shirt",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -42348,7 +42356,7 @@
           "index": 17
         },
         "type": 21,
-        "name": "Armor_21",
+        "name": "Ghi",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -42639,7 +42647,7 @@
           "index": 30
         },
         "type": 20,
-        "name": "Armor_20",
+        "name": "Tunic",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -42842,7 +42850,7 @@
           "index": 39
         },
         "type": 12,
-        "name": "Armor_12",
+        "name": "Gunna",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -42907,7 +42915,7 @@
           "index": 42
         },
         "type": 20,
-        "name": "Armor_20",
+        "name": "Tunic",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -43045,7 +43053,7 @@
           "index": 7
         },
         "type": 12,
-        "name": "Armor_12",
+        "name": "Gunna",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -43534,7 +43542,7 @@
           "index": 119
         },
         "type": 20,
-        "name": "Armor_20",
+        "name": "Tunic",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -44235,7 +44243,7 @@
         "usedInDungeon": true,
         "next": null,
         "type": 57,
-        "name": "Armor_57",
+        "name": "Halter",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -44254,7 +44262,7 @@
         "usedInDungeon": true,
         "next": null,
         "type": 57,
-        "name": "Armor_57",
+        "name": "Halter",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -46632,8 +46640,7 @@
         "type": 42,
         "name": "Magical Box (Blue)",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 19952,
           "words": [
@@ -46651,8 +46658,7 @@
         "type": 45,
         "name": "Rope",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 19956,
           "words": [
@@ -46674,8 +46680,7 @@
         "type": 39,
         "name": "Moonstone",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 19960,
           "words": [
@@ -46693,8 +46698,7 @@
         "type": 46,
         "name": "Rabbit's Foot",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 19964,
           "words": [
@@ -46716,8 +46720,7 @@
         "type": 31,
         "name": "Bread",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 19968,
           "words": [
@@ -46739,8 +46742,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 19972,
           "words": [
@@ -46758,8 +46760,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 19976,
           "words": [
@@ -46781,8 +46782,7 @@
         "type": 48,
         "name": "Choker",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 19980,
           "words": [
@@ -46798,10 +46798,9 @@
         "usedInDungeon": false,
         "next": null,
         "type": 49,
-        "name": "(Misc_49)",
+        "name": "Lock Picks",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 19984,
           "words": [
@@ -46819,8 +46818,7 @@
         "type": 25,
         "name": "Boulder",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 19988,
           "words": [
@@ -46838,8 +46836,7 @@
         "type": 6,
         "name": "Copper Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 19992,
           "words": [
@@ -46859,10 +46856,11 @@
           "index": 0
         },
         "type": 1,
-        "name": "Water",
+        "name": "Waterskin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 3,
+        "highBits": 3,
+        "waterskinState": "Full",
+        "waterskinStateIndex": 3,
         "raw": {
           "offset": 19996,
           "words": [
@@ -46884,8 +46882,7 @@
         "type": 17,
         "name": "Gold Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20000,
           "words": [
@@ -46907,8 +46904,7 @@
         "type": 17,
         "name": "Gold Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20004,
           "words": [
@@ -46930,8 +46926,7 @@
         "type": 17,
         "name": "Gold Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20008,
           "words": [
@@ -46949,8 +46944,7 @@
         "type": 19,
         "name": "Topaz Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20012,
           "words": [
@@ -46968,8 +46962,7 @@
         "type": 9,
         "name": "Iron Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20016,
           "words": [
@@ -46987,8 +46980,7 @@
         "type": 11,
         "name": "Solid Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20020,
           "words": [
@@ -47006,8 +46998,7 @@
         "type": 17,
         "name": "Gold Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20024,
           "words": [
@@ -47025,8 +47016,7 @@
         "type": 17,
         "name": "Gold Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20028,
           "words": [
@@ -47048,8 +47038,7 @@
         "type": 21,
         "name": "Emerald Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20032,
           "words": [
@@ -47067,8 +47056,7 @@
         "type": 9,
         "name": "Iron Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20036,
           "words": [
@@ -47086,8 +47074,7 @@
         "type": 10,
         "name": "Key Of B",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20040,
           "words": [
@@ -47109,8 +47096,7 @@
         "type": 17,
         "name": "Gold Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20044,
           "words": [
@@ -47128,8 +47114,7 @@
         "type": 8,
         "name": "Gold Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20048,
           "words": [
@@ -47151,8 +47136,7 @@
         "type": 8,
         "name": "Gold Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20052,
           "words": [
@@ -47170,8 +47154,7 @@
         "type": 7,
         "name": "Silver Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20056,
           "words": [
@@ -47189,8 +47172,7 @@
         "type": 17,
         "name": "Gold Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20060,
           "words": [
@@ -47208,8 +47190,7 @@
         "type": 17,
         "name": "Gold Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20064,
           "words": [
@@ -47227,8 +47208,7 @@
         "type": 17,
         "name": "Gold Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20068,
           "words": [
@@ -47250,8 +47230,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20072,
           "words": [
@@ -47273,8 +47252,9 @@
         "type": 1,
         "name": "Waterskin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
+        "waterskinState": "Empty",
+        "waterskinStateIndex": 0,
         "raw": {
           "offset": 20076,
           "words": [
@@ -47296,8 +47276,7 @@
         "type": 26,
         "name": "Blue Gem",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20080,
           "words": [
@@ -47315,8 +47294,7 @@
         "type": 17,
         "name": "Gold Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20084,
           "words": [
@@ -47334,8 +47312,8 @@
         "type": 0,
         "name": "Compass",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
+        "compassDirection": "North",
         "raw": {
           "offset": 20088,
           "words": [
@@ -47357,8 +47335,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20092,
           "words": [
@@ -47376,8 +47353,7 @@
         "type": 8,
         "name": "Gold Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20096,
           "words": [
@@ -47395,8 +47371,7 @@
         "type": 8,
         "name": "Gold Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20100,
           "words": [
@@ -47418,8 +47393,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20104,
           "words": [
@@ -47437,8 +47411,7 @@
         "type": 8,
         "name": "Gold Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20108,
           "words": [
@@ -47460,8 +47433,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20112,
           "words": [
@@ -47479,8 +47451,7 @@
         "type": 44,
         "name": "Mirror Of Dawn",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20116,
           "words": [
@@ -47500,10 +47471,11 @@
           "index": 135
         },
         "type": 1,
-        "name": "Water",
+        "name": "Waterskin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 3,
+        "highBits": 3,
+        "waterskinState": "Full",
+        "waterskinStateIndex": 3,
         "raw": {
           "offset": 20120,
           "words": [
@@ -47525,8 +47497,7 @@
         "type": 46,
         "name": "Rabbit's Foot",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20124,
           "words": [
@@ -47544,8 +47515,9 @@
         "type": 3,
         "name": "Illumulet",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
+        "wornStateBits": 0,
+        "worn": false,
         "raw": {
           "offset": 20128,
           "words": [
@@ -47563,8 +47535,7 @@
         "type": 8,
         "name": "Gold Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20132,
           "words": [
@@ -47586,8 +47557,7 @@
         "type": 9,
         "name": "Iron Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20136,
           "words": [
@@ -47605,8 +47575,7 @@
         "type": 9,
         "name": "Iron Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20140,
           "words": [
@@ -47628,8 +47597,7 @@
         "type": 26,
         "name": "Blue Gem",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20144,
           "words": [
@@ -47651,8 +47619,9 @@
         "type": 3,
         "name": "Illumulet",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
+        "wornStateBits": 0,
+        "worn": false,
         "raw": {
           "offset": 20148,
           "words": [
@@ -47670,8 +47639,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20152,
           "words": [
@@ -47693,8 +47661,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20156,
           "words": [
@@ -47716,8 +47683,7 @@
         "type": 31,
         "name": "Bread",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20160,
           "words": [
@@ -47735,8 +47701,7 @@
         "type": 31,
         "name": "Bread",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20164,
           "words": [
@@ -47754,8 +47719,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20168,
           "words": [
@@ -47773,8 +47737,7 @@
         "type": 31,
         "name": "Bread",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20172,
           "words": [
@@ -47792,8 +47755,7 @@
         "type": 8,
         "name": "Gold Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20176,
           "words": [
@@ -47811,8 +47773,7 @@
         "type": 8,
         "name": "Gold Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20180,
           "words": [
@@ -47834,8 +47795,7 @@
         "type": 17,
         "name": "Gold Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20184,
           "words": [
@@ -47853,8 +47813,7 @@
         "type": 38,
         "name": "Ekkhard Cross",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20188,
           "words": [
@@ -47872,8 +47831,7 @@
         "type": 37,
         "name": "Gem Of Ages",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20192,
           "words": [
@@ -47895,8 +47853,7 @@
         "type": 48,
         "name": "Choker",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20196,
           "words": [
@@ -47914,8 +47871,7 @@
         "type": 30,
         "name": "Corn",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20200,
           "words": [
@@ -47933,8 +47889,7 @@
         "type": 25,
         "name": "Boulder",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20204,
           "words": [
@@ -47952,8 +47907,7 @@
         "type": 37,
         "name": "Gem Of Ages",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20208,
           "words": [
@@ -47975,8 +47929,7 @@
         "type": 50,
         "name": "Magnifier",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20212,
           "words": [
@@ -47998,8 +47951,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20216,
           "words": [
@@ -48021,8 +47973,7 @@
         "type": 9,
         "name": "Iron Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20220,
           "words": [
@@ -48044,8 +47995,7 @@
         "type": 9,
         "name": "Iron Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20224,
           "words": [
@@ -48067,8 +48017,7 @@
         "type": 6,
         "name": "Copper Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20228,
           "words": [
@@ -48086,8 +48035,7 @@
         "type": 9,
         "name": "Iron Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20232,
           "words": [
@@ -48105,8 +48053,7 @@
         "type": 11,
         "name": "Solid Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20236,
           "words": [
@@ -48128,8 +48075,7 @@
         "type": 28,
         "name": "Green Gem",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20240,
           "words": [
@@ -48147,8 +48093,7 @@
         "type": 16,
         "name": "Skeleton Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20244,
           "words": [
@@ -48166,8 +48111,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20248,
           "words": [
@@ -48185,8 +48129,7 @@
         "type": 16,
         "name": "Skeleton Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20252,
           "words": [
@@ -48204,8 +48147,9 @@
         "type": 2,
         "name": "Jewel Symal",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
+        "wornStateBits": 0,
+        "worn": false,
         "raw": {
           "offset": 20256,
           "words": [
@@ -48223,8 +48167,7 @@
         "type": 11,
         "name": "Solid Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20260,
           "words": [
@@ -48242,8 +48185,7 @@
         "type": 46,
         "name": "Rabbit's Foot",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20264,
           "words": [
@@ -48261,8 +48203,7 @@
         "type": 47,
         "name": "Corbamite",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20268,
           "words": [
@@ -48280,8 +48221,7 @@
         "type": 23,
         "name": "Ra Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20272,
           "words": [
@@ -48299,8 +48239,7 @@
         "type": 10,
         "name": "Key Of B",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20276,
           "words": [
@@ -48322,8 +48261,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20280,
           "words": [
@@ -48341,8 +48279,7 @@
         "type": 10,
         "name": "Key Of B",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20284,
           "words": [
@@ -48360,8 +48297,7 @@
         "type": 17,
         "name": "Gold Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20288,
           "words": [
@@ -48383,8 +48319,7 @@
         "type": 7,
         "name": "Silver Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20292,
           "words": [
@@ -48402,8 +48337,7 @@
         "type": 25,
         "name": "Boulder",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20296,
           "words": [
@@ -48421,8 +48355,7 @@
         "type": 25,
         "name": "Boulder",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20300,
           "words": [
@@ -48440,8 +48373,7 @@
         "type": 4,
         "name": "Ashes",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20304,
           "words": [
@@ -48459,8 +48391,7 @@
         "type": 4,
         "name": "Ashes",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20308,
           "words": [
@@ -48478,8 +48409,7 @@
         "type": 4,
         "name": "Ashes",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20312,
           "words": [
@@ -48497,8 +48427,7 @@
         "type": 25,
         "name": "Boulder",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20316,
           "words": [
@@ -48516,8 +48445,7 @@
         "type": 25,
         "name": "Boulder",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20320,
           "words": [
@@ -48535,8 +48463,7 @@
         "type": 4,
         "name": "Ashes",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20324,
           "words": [
@@ -48558,8 +48485,7 @@
         "type": 12,
         "name": "Square Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20328,
           "words": [
@@ -48577,8 +48503,7 @@
         "type": 4,
         "name": "Ashes",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20332,
           "words": [
@@ -48596,8 +48521,7 @@
         "type": 4,
         "name": "Ashes",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20336,
           "words": [
@@ -48615,8 +48539,7 @@
         "type": 25,
         "name": "Boulder",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20340,
           "words": [
@@ -48638,8 +48561,7 @@
         "type": 6,
         "name": "Copper Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20344,
           "words": [
@@ -48661,8 +48583,7 @@
         "type": 6,
         "name": "Copper Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20348,
           "words": [
@@ -48684,8 +48605,7 @@
         "type": 6,
         "name": "Copper Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20352,
           "words": [
@@ -48703,8 +48623,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20356,
           "words": [
@@ -48726,8 +48645,7 @@
         "type": 26,
         "name": "Blue Gem",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20360,
           "words": [
@@ -48749,8 +48667,7 @@
         "type": 28,
         "name": "Green Gem",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20364,
           "words": [
@@ -48772,8 +48689,7 @@
         "type": 26,
         "name": "Blue Gem",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20368,
           "words": [
@@ -48795,8 +48711,7 @@
         "type": 26,
         "name": "Blue Gem",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20372,
           "words": [
@@ -48814,8 +48729,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20376,
           "words": [
@@ -48837,8 +48751,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20380,
           "words": [
@@ -48860,8 +48773,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20384,
           "words": [
@@ -48879,8 +48791,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20388,
           "words": [
@@ -48902,8 +48813,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20392,
           "words": [
@@ -48925,8 +48835,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20396,
           "words": [
@@ -48948,8 +48857,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20400,
           "words": [
@@ -48967,8 +48875,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20404,
           "words": [
@@ -48986,8 +48893,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20408,
           "words": [
@@ -49009,8 +48915,7 @@
         "type": 40,
         "name": "The Hellion",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20412,
           "words": [
@@ -49026,10 +48931,9 @@
         "usedInDungeon": false,
         "next": null,
         "type": 49,
-        "name": "(Misc_49)",
+        "name": "Lock Picks",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20416,
           "words": [
@@ -49051,8 +48955,7 @@
         "type": 47,
         "name": "Corbamite",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20420,
           "words": [
@@ -49074,8 +48977,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20424,
           "words": [
@@ -49097,8 +48999,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20428,
           "words": [
@@ -49116,8 +49017,7 @@
         "type": 27,
         "name": "Orange Gem",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20432,
           "words": [
@@ -49135,8 +49035,7 @@
         "type": 14,
         "name": "Cross Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20436,
           "words": [
@@ -49158,8 +49057,7 @@
         "type": 23,
         "name": "Ra Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20440,
           "words": [
@@ -49181,8 +49079,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20444,
           "words": [
@@ -49200,8 +49097,7 @@
         "type": 17,
         "name": "Gold Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20448,
           "words": [
@@ -49217,10 +49113,11 @@
         "usedInDungeon": true,
         "next": null,
         "type": 1,
-        "name": "Water",
+        "name": "Waterskin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 3,
+        "highBits": 3,
+        "waterskinState": "Full",
+        "waterskinStateIndex": 3,
         "raw": {
           "offset": 20452,
           "words": [
@@ -49242,8 +49139,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20456,
           "words": [
@@ -49261,8 +49157,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20460,
           "words": [
@@ -49280,8 +49175,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20464,
           "words": [
@@ -49299,8 +49193,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20468,
           "words": [
@@ -49318,8 +49211,7 @@
         "type": 7,
         "name": "Silver Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20472,
           "words": [
@@ -49337,8 +49229,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20476,
           "words": [
@@ -49356,8 +49247,7 @@
         "type": 18,
         "name": "Winged Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20480,
           "words": [
@@ -49375,8 +49265,7 @@
         "type": 8,
         "name": "Gold Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20484,
           "words": [
@@ -49394,8 +49283,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20488,
           "words": [
@@ -49413,8 +49301,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20492,
           "words": [
@@ -49432,8 +49319,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20496,
           "words": [
@@ -49451,8 +49337,7 @@
         "type": 6,
         "name": "Copper Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20500,
           "words": [
@@ -49470,8 +49355,7 @@
         "type": 30,
         "name": "Corn",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20504,
           "words": [
@@ -49489,8 +49373,7 @@
         "type": 30,
         "name": "Corn",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20508,
           "words": [
@@ -49512,8 +49395,7 @@
         "type": 30,
         "name": "Corn",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20512,
           "words": [
@@ -49535,8 +49417,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20516,
           "words": [
@@ -49554,8 +49435,7 @@
         "type": 25,
         "name": "Boulder",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20520,
           "words": [
@@ -49573,8 +49453,7 @@
         "type": 11,
         "name": "Solid Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20524,
           "words": [
@@ -49596,8 +49475,7 @@
         "type": 30,
         "name": "Corn",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20528,
           "words": [
@@ -49615,8 +49493,7 @@
         "type": 10,
         "name": "Key Of B",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20532,
           "words": [
@@ -49634,8 +49511,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20536,
           "words": [
@@ -49653,8 +49529,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20540,
           "words": [
@@ -49672,8 +49547,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20544,
           "words": [
@@ -49691,8 +49565,7 @@
         "type": 44,
         "name": "Mirror Of Dawn",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20548,
           "words": [
@@ -49710,8 +49583,7 @@
         "type": 31,
         "name": "Bread",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20552,
           "words": [
@@ -49733,8 +49605,7 @@
         "type": 19,
         "name": "Topaz Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20556,
           "words": [
@@ -49752,8 +49623,7 @@
         "type": 21,
         "name": "Emerald Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20560,
           "words": [
@@ -49775,8 +49645,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20564,
           "words": [
@@ -49794,8 +49663,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20568,
           "words": [
@@ -49817,8 +49685,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20572,
           "words": [
@@ -49840,8 +49707,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20576,
           "words": [
@@ -49859,8 +49725,7 @@
         "type": 30,
         "name": "Corn",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20580,
           "words": [
@@ -49878,8 +49743,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20584,
           "words": [
@@ -49897,8 +49761,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20588,
           "words": [
@@ -49916,8 +49779,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20592,
           "words": [
@@ -49939,8 +49801,7 @@
         "type": 30,
         "name": "Corn",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20596,
           "words": [
@@ -49958,8 +49819,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20600,
           "words": [
@@ -49977,8 +49837,7 @@
         "type": 39,
         "name": "Moonstone",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20604,
           "words": [
@@ -49996,8 +49855,7 @@
         "type": 41,
         "name": "Pendant Feral",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20608,
           "words": [
@@ -50015,8 +49873,7 @@
         "type": 16,
         "name": "Skeleton Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20612,
           "words": [
@@ -50034,8 +49891,7 @@
         "type": 16,
         "name": "Skeleton Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20616,
           "words": [
@@ -50053,8 +49909,7 @@
         "type": 22,
         "name": "Ruby Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20620,
           "words": [
@@ -50072,8 +49927,7 @@
         "type": 23,
         "name": "Ra Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20624,
           "words": [
@@ -50095,8 +49949,7 @@
         "type": 13,
         "name": "Tourquoise Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20628,
           "words": [
@@ -50114,8 +49967,7 @@
         "type": 4,
         "name": "Ashes",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20632,
           "words": [
@@ -50133,8 +49985,7 @@
         "type": 45,
         "name": "Rope",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20636,
           "words": [
@@ -50152,8 +50003,7 @@
         "type": 42,
         "name": "Magical Box (Blue)",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20640,
           "words": [
@@ -50171,8 +50021,7 @@
         "type": 43,
         "name": "Magical Box (Green)",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20644,
           "words": [
@@ -50190,8 +50039,7 @@
         "type": 42,
         "name": "Magical Box (Blue)",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20648,
           "words": [
@@ -50209,8 +50057,7 @@
         "type": 43,
         "name": "Magical Box (Green)",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20652,
           "words": [
@@ -50228,8 +50075,7 @@
         "type": 6,
         "name": "Copper Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20656,
           "words": [
@@ -50247,8 +50093,7 @@
         "type": 4,
         "name": "Ashes",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20660,
           "words": [
@@ -50270,8 +50115,7 @@
         "type": 42,
         "name": "Magical Box (Blue)",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20664,
           "words": [
@@ -50289,8 +50133,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20668,
           "words": [
@@ -50312,8 +50155,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20672,
           "words": [
@@ -50331,8 +50173,7 @@
         "type": 46,
         "name": "Rabbit's Foot",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20676,
           "words": [
@@ -50354,8 +50195,7 @@
         "type": 8,
         "name": "Gold Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20680,
           "words": [
@@ -50377,8 +50217,7 @@
         "type": 28,
         "name": "Green Gem",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20684,
           "words": [
@@ -50396,8 +50235,7 @@
         "type": 31,
         "name": "Bread",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20688,
           "words": [
@@ -50415,8 +50253,7 @@
         "type": 31,
         "name": "Bread",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20692,
           "words": [
@@ -50434,8 +50271,7 @@
         "type": 6,
         "name": "Copper Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20696,
           "words": [
@@ -50453,8 +50289,7 @@
         "type": 6,
         "name": "Copper Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20700,
           "words": [
@@ -50476,8 +50311,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20704,
           "words": [
@@ -50499,8 +50333,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20708,
           "words": [
@@ -50522,8 +50355,7 @@
         "type": 30,
         "name": "Corn",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20712,
           "words": [
@@ -50541,8 +50373,7 @@
         "type": 36,
         "name": "Dragon Steak",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20716,
           "words": [
@@ -50560,8 +50391,7 @@
         "type": 30,
         "name": "Corn",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20720,
           "words": [
@@ -50583,8 +50413,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20724,
           "words": [
@@ -50602,8 +50431,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20728,
           "words": [
@@ -50625,8 +50453,7 @@
         "type": 30,
         "name": "Corn",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20732,
           "words": [
@@ -50648,8 +50475,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20736,
           "words": [
@@ -50671,8 +50497,7 @@
         "type": 31,
         "name": "Bread",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20740,
           "words": [
@@ -50692,10 +50517,9 @@
           "index": 197
         },
         "type": 33,
-        "name": "(Misc_33)",
+        "name": "Screamer Slice",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20744,
           "words": [
@@ -50713,8 +50537,7 @@
         "type": 31,
         "name": "Bread",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20748,
           "words": [
@@ -50736,8 +50559,7 @@
         "type": 30,
         "name": "Corn",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20752,
           "words": [
@@ -50759,8 +50581,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20756,
           "words": [
@@ -50782,8 +50603,7 @@
         "type": 31,
         "name": "Bread",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20760,
           "words": [
@@ -50801,8 +50621,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20764,
           "words": [
@@ -50820,8 +50639,7 @@
         "type": 30,
         "name": "Corn",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20768,
           "words": [
@@ -50839,8 +50657,7 @@
         "type": 7,
         "name": "Silver Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20772,
           "words": [
@@ -50858,8 +50675,7 @@
         "type": 6,
         "name": "Copper Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20776,
           "words": [
@@ -50877,8 +50693,7 @@
         "type": 16,
         "name": "Skeleton Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20780,
           "words": [
@@ -50900,8 +50715,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20784,
           "words": [
@@ -50923,8 +50737,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20788,
           "words": [
@@ -50946,8 +50759,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20792,
           "words": [
@@ -50965,8 +50777,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20796,
           "words": [
@@ -50986,10 +50797,9 @@
           "index": 211
         },
         "type": 33,
-        "name": "(Misc_33)",
+        "name": "Screamer Slice",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20800,
           "words": [
@@ -51011,8 +50821,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20804,
           "words": [
@@ -51034,8 +50843,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20808,
           "words": [
@@ -51057,8 +50865,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20812,
           "words": [
@@ -51076,8 +50883,7 @@
         "type": 30,
         "name": "Corn",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20816,
           "words": [
@@ -51095,8 +50901,7 @@
         "type": 31,
         "name": "Bread",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20820,
           "words": [
@@ -51114,8 +50919,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20824,
           "words": [
@@ -51137,8 +50941,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20828,
           "words": [
@@ -51156,8 +50959,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20832,
           "words": [
@@ -51175,8 +50977,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20836,
           "words": [
@@ -51194,8 +50995,7 @@
         "type": 6,
         "name": "Copper Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20840,
           "words": [
@@ -51213,8 +51013,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20844,
           "words": [
@@ -51232,8 +51031,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20848,
           "words": [
@@ -51251,8 +51049,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20852,
           "words": [
@@ -51270,8 +51067,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20856,
           "words": [
@@ -51289,8 +51085,7 @@
         "type": 42,
         "name": "Magical Box (Blue)",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20860,
           "words": [
@@ -51312,8 +51107,7 @@
         "type": 6,
         "name": "Copper Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20864,
           "words": [
@@ -51335,8 +51129,7 @@
         "type": 6,
         "name": "Copper Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20868,
           "words": [
@@ -51358,8 +51151,7 @@
         "type": 6,
         "name": "Copper Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20872,
           "words": [
@@ -51381,8 +51173,7 @@
         "type": 7,
         "name": "Silver Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20876,
           "words": [
@@ -51400,8 +51191,7 @@
         "type": 6,
         "name": "Copper Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20880,
           "words": [
@@ -51419,8 +51209,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20884,
           "words": [
@@ -51438,8 +51227,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20888,
           "words": [
@@ -51457,8 +51245,7 @@
         "type": 42,
         "name": "Magical Box (Blue)",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20892,
           "words": [
@@ -51480,8 +51267,7 @@
         "type": 42,
         "name": "Magical Box (Blue)",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20896,
           "words": [
@@ -51503,8 +51289,7 @@
         "type": 31,
         "name": "Bread",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20900,
           "words": [
@@ -51526,8 +51311,7 @@
         "type": 31,
         "name": "Bread",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20904,
           "words": [
@@ -51549,8 +51333,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20908,
           "words": [
@@ -51572,8 +51355,7 @@
         "type": 30,
         "name": "Corn",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20912,
           "words": [
@@ -51595,8 +51377,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20916,
           "words": [
@@ -51614,8 +51395,7 @@
         "type": 30,
         "name": "Corn",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20920,
           "words": [
@@ -51633,8 +51413,7 @@
         "type": 42,
         "name": "Magical Box (Blue)",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20924,
           "words": [
@@ -51652,8 +51431,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20928,
           "words": [
@@ -51671,8 +51449,7 @@
         "type": 42,
         "name": "Magical Box (Blue)",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20932,
           "words": [
@@ -51694,8 +51471,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20936,
           "words": [
@@ -51713,8 +51489,7 @@
         "type": 43,
         "name": "Magical Box (Green)",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20940,
           "words": [
@@ -51732,8 +51507,7 @@
         "type": 31,
         "name": "Bread",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20944,
           "words": [
@@ -51751,8 +51525,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20948,
           "words": [
@@ -51774,8 +51547,7 @@
         "type": 30,
         "name": "Corn",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20952,
           "words": [
@@ -51793,8 +51565,7 @@
         "type": 43,
         "name": "Magical Box (Green)",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20956,
           "words": [
@@ -51816,8 +51587,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20960,
           "words": [
@@ -51835,8 +51605,7 @@
         "type": 29,
         "name": "Apple",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20964,
           "words": [
@@ -51854,8 +51623,7 @@
         "type": 23,
         "name": "Ra Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20968,
           "words": [
@@ -51873,8 +51641,7 @@
         "type": 14,
         "name": "Cross Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20972,
           "words": [
@@ -51892,8 +51659,7 @@
         "type": 31,
         "name": "Bread",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20976,
           "words": [
@@ -51915,8 +51681,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20980,
           "words": [
@@ -51938,8 +51703,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20984,
           "words": [
@@ -51961,8 +51725,7 @@
         "type": 31,
         "name": "Bread",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20988,
           "words": [
@@ -51984,8 +51747,7 @@
         "type": 32,
         "name": "Cheese",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20992,
           "words": [
@@ -52007,8 +51769,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 20996,
           "words": [
@@ -52030,8 +51791,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 21000,
           "words": [
@@ -52053,8 +51813,7 @@
         "type": 35,
         "name": "Drumstick",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 21004,
           "words": [
@@ -52072,8 +51831,7 @@
         "type": 43,
         "name": "Magical Box (Green)",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 21008,
           "words": [
@@ -52091,8 +51849,7 @@
         "type": 43,
         "name": "Magical Box (Green)",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 21012,
           "words": [
@@ -52110,8 +51867,7 @@
         "type": 6,
         "name": "Copper Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 21016,
           "words": [
@@ -52129,8 +51885,7 @@
         "type": 6,
         "name": "Copper Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 21020,
           "words": [
@@ -52148,8 +51903,7 @@
         "type": 6,
         "name": "Copper Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 21024,
           "words": [
@@ -52167,8 +51921,7 @@
         "type": 6,
         "name": "Copper Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 21028,
           "words": [
@@ -52186,8 +51939,7 @@
         "type": 6,
         "name": "Copper Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 21032,
           "words": [
@@ -52205,8 +51957,7 @@
         "type": 6,
         "name": "Copper Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 21036,
           "words": [
@@ -52224,8 +51975,7 @@
         "type": 43,
         "name": "Magical Box (Green)",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 21040,
           "words": [
@@ -52243,8 +51993,7 @@
         "type": 9,
         "name": "Iron Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 21044,
           "words": [
@@ -52262,8 +52011,7 @@
         "type": 50,
         "name": "Magnifier",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 21048,
           "words": [
@@ -52281,8 +52029,7 @@
         "type": 24,
         "name": "Master Key",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 21052,
           "words": [
@@ -52300,8 +52047,7 @@
         "type": 7,
         "name": "Silver Coin",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 21056,
           "words": [
@@ -52319,8 +52065,7 @@
         "type": 43,
         "name": "Magical Box (Green)",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 21060,
           "words": [
@@ -52342,8 +52087,7 @@
         "type": 43,
         "name": "Magical Box (Green)",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 21064,
           "words": [
@@ -52365,8 +52109,7 @@
         "type": 43,
         "name": "Magical Box (Green)",
         "important": true,
-        "cursed": false,
-        "chargeCount": 0,
+        "highBits": 0,
         "raw": {
           "offset": 21068,
           "words": [
@@ -52742,8 +52485,7 @@
               "type": 30,
               "name": "Corn",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20920,
                 "words": [
@@ -53476,8 +53218,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20536,
                 "words": [
@@ -53513,8 +53254,7 @@
               "type": 32,
               "name": "Cheese",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20948,
                 "words": [
@@ -53550,8 +53290,7 @@
               "type": 31,
               "name": "Bread",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20944,
                 "words": [
@@ -54188,8 +53927,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20544,
                 "words": [
@@ -54310,10 +54048,11 @@
               "index": 11,
               "tilePos": "North",
               "type": 1,
-              "name": "Water",
+              "name": "Waterskin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 3,
+              "highBits": 3,
+              "waterskinState": "Full",
+              "waterskinStateIndex": 3,
               "raw": {
                 "offset": 19996,
                 "words": [
@@ -54323,7 +54062,7 @@
                 "nextWord": 23552,
                 "attributesWord": 49281
               },
-              "displayName": "Water (Charges=3)",
+              "displayName": "Waterskin (Full)",
               "globalX": 4,
               "globalY": 15
             },
@@ -54349,7 +54088,7 @@
             }
           ],
           "itemDisplayNames": [
-            "Water (Charges=3)",
+            "Waterskin (Full)",
             "Scroll \"Invoke Ful for a magic torch\""
           ]
         },
@@ -54661,8 +54400,7 @@
               "type": 31,
               "name": "Bread",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20552,
                 "words": [
@@ -55617,7 +55355,7 @@
               "index": 3,
               "tilePos": "North",
               "type": 11,
-              "name": "Armor_11",
+              "name": "Silk Shirt",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -55630,7 +55368,7 @@
                 "nextWord": 6148,
                 "attributesWord": 139
               },
-              "displayName": "Armor_11",
+              "displayName": "Silk Shirt",
               "globalX": 7,
               "globalY": 14
             },
@@ -55731,7 +55469,7 @@
           ],
           "itemDisplayNames": [
             "Tunic",
-            "Armor_11",
+            "Silk Shirt",
             "Leather Jerkin",
             "Throwing Star (3)"
           ]
@@ -55856,7 +55594,7 @@
               "index": 6,
               "tilePos": "North",
               "type": 29,
-              "name": "Armor_29",
+              "name": "Barbarian Hide",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -55869,7 +55607,7 @@
                 "nextWord": 5124,
                 "attributesWord": 157
               },
-              "displayName": "Armor_29",
+              "displayName": "Barbarian Hide",
               "globalX": 7,
               "globalY": 17
             },
@@ -55926,7 +55664,7 @@
               "index": 106,
               "tilePos": "North",
               "type": 57,
-              "name": "Armor_57",
+              "name": "Halter",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -55939,16 +55677,16 @@
                 "nextWord": 65534,
                 "attributesWord": 185
               },
-              "displayName": "Armor_57",
+              "displayName": "Halter",
               "globalX": 7,
               "globalY": 17
             }
           ],
           "itemDisplayNames": [
             "Elven Doublet",
-            "Armor_29",
+            "Barbarian Hide",
             "Dagger (2)",
-            "Armor_57"
+            "Halter"
           ]
         },
         {
@@ -56169,8 +55907,7 @@
               "type": 42,
               "name": "Magical Box (Blue)",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 19952,
                 "words": [
@@ -56898,8 +56635,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20672,
                 "words": [
@@ -56940,7 +56676,7 @@
               "index": 15,
               "tilePos": "North",
               "type": 11,
-              "name": "Armor_11",
+              "name": "Silk Shirt",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -56953,7 +56689,7 @@
                 "nextWord": 65534,
                 "attributesWord": 139
               },
-              "displayName": "Armor_11",
+              "displayName": "Silk Shirt",
               "globalX": 9,
               "globalY": 10
             }
@@ -56961,7 +56697,7 @@
           "itemDisplayNames": [
             "Apple",
             "Elven Doublet",
-            "Armor_11"
+            "Silk Shirt"
           ]
         },
         {
@@ -57263,7 +56999,7 @@
               "index": 16,
               "tilePos": "South",
               "type": 21,
-              "name": "Armor_21",
+              "name": "Ghi",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -57276,7 +57012,7 @@
                 "nextWord": 38929,
                 "attributesWord": 149
               },
-              "displayName": "Armor_21",
+              "displayName": "Ghi",
               "globalX": 10,
               "globalY": 3
             },
@@ -57328,7 +57064,7 @@
             }
           ],
           "itemDisplayNames": [
-            "Armor_21",
+            "Ghi",
             "Ghi Trousers",
             "Samurai Sword"
           ]
@@ -57750,7 +57486,7 @@
               "index": 13,
               "tilePos": "West",
               "type": 12,
-              "name": "Armor_12",
+              "name": "Gunna",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -57763,7 +57499,7 @@
                 "nextWord": 65534,
                 "attributesWord": 140
               },
-              "displayName": "Armor_12",
+              "displayName": "Gunna",
               "globalX": 10,
               "globalY": 13
             }
@@ -57772,7 +57508,7 @@
             "Plate Mail",
             "Leather Jerkin",
             "Wand (Charges=15)",
-            "Armor_12"
+            "Gunna"
           ]
         },
         {
@@ -58430,7 +58166,7 @@
               "index": 29,
               "tilePos": "North",
               "type": 20,
-              "name": "Armor_20",
+              "name": "Tunic",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -58443,7 +58179,7 @@
                 "nextWord": 6174,
                 "attributesWord": 148
               },
-              "displayName": "Armor_20",
+              "displayName": "Tunic",
               "globalX": 11,
               "globalY": 16
             },
@@ -58494,7 +58230,7 @@
           ],
           "itemDisplayNames": [
             "Axe",
-            "Armor_20",
+            "Tunic",
             "Leather Pants",
             "Suede Boots"
           ]
@@ -59260,8 +58996,7 @@
               "type": 45,
               "name": "Rope",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 19956,
                 "words": [
@@ -59509,7 +59244,7 @@
               "index": 38,
               "tilePos": "South",
               "type": 12,
-              "name": "Armor_12",
+              "name": "Gunna",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -59522,7 +59257,7 @@
                 "nextWord": 38951,
                 "attributesWord": 140
               },
-              "displayName": "Armor_12",
+              "displayName": "Gunna",
               "globalX": 14,
               "globalY": 2
             },
@@ -59555,8 +59290,7 @@
               "type": 39,
               "name": "Moonstone",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 19960,
                 "words": [
@@ -59594,7 +59328,7 @@
             }
           ],
           "itemDisplayNames": [
-            "Armor_12",
+            "Gunna",
             "Tunic",
             "Moonstone",
             "Leather Jerkin"
@@ -59742,7 +59476,7 @@
               "index": 41,
               "tilePos": "North",
               "type": 20,
-              "name": "Armor_20",
+              "name": "Tunic",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -59755,7 +59489,7 @@
                 "nextWord": 6186,
                 "attributesWord": 148
               },
-              "displayName": "Armor_20",
+              "displayName": "Tunic",
               "globalX": 14,
               "globalY": 7
             },
@@ -59810,8 +59544,7 @@
               "type": 46,
               "name": "Rabbit's Foot",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 19964,
                 "words": [
@@ -59827,7 +59560,7 @@
             }
           ],
           "itemDisplayNames": [
-            "Armor_20",
+            "Tunic",
             "Leather Pants",
             "Leather Boots",
             "Rabbit's Foot"
@@ -60029,8 +59762,7 @@
               "type": 31,
               "name": "Bread",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 19968,
                 "words": [
@@ -60051,8 +59783,7 @@
               "type": 32,
               "name": "Cheese",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 19972,
                 "words": [
@@ -60095,8 +59826,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 19976,
                 "words": [
@@ -60422,7 +60152,7 @@
               "index": 47,
               "tilePos": "West",
               "type": 12,
-              "name": "Armor_12",
+              "name": "Gunna",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -60435,7 +60165,7 @@
                 "nextWord": 59399,
                 "attributesWord": 140
               },
-              "displayName": "Armor_12",
+              "displayName": "Gunna",
               "globalX": 15,
               "globalY": 12
             },
@@ -60446,8 +60176,7 @@
               "type": 48,
               "name": "Choker",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 19980,
                 "words": [
@@ -60512,7 +60241,7 @@
               "index": 105,
               "tilePos": "West",
               "type": 57,
-              "name": "Armor_57",
+              "name": "Halter",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -60525,17 +60254,17 @@
                 "nextWord": 65534,
                 "attributesWord": 185
               },
-              "displayName": "Armor_57",
+              "displayName": "Halter",
               "globalX": 15,
               "globalY": 12
             }
           ],
           "itemDisplayNames": [
-            "Armor_12",
+            "Gunna",
             "Choker",
             "Leather Jerkin",
             "Sword",
-            "Armor_57"
+            "Halter"
           ]
         },
         {
@@ -61570,7 +61299,7 @@
               "index": 70,
               "tilePos": "North",
               "type": 20,
-              "name": "Armor_20",
+              "name": "Tunic",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -61583,7 +61312,7 @@
                 "nextWord": 6263,
                 "attributesWord": 148
               },
-              "displayName": "Armor_20",
+              "displayName": "Tunic",
               "globalX": 17,
               "globalY": 10
             },
@@ -61634,7 +61363,7 @@
           ],
           "itemDisplayNames": [
             "Staff",
-            "Armor_20",
+            "Tunic",
             "Chain Mail Aketon",
             "Leather Jerkin"
           ]
@@ -61895,8 +61624,7 @@
               "type": 17,
               "name": "Gold Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20288,
                 "words": [
@@ -62536,8 +62264,7 @@
               "type": 19,
               "name": "Topaz Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20012,
                 "words": [
@@ -63459,8 +63186,7 @@
                   "type": 35,
                   "name": "Drumstick",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20916,
                     "words": [
@@ -63481,8 +63207,7 @@
                   "type": 30,
                   "name": "Corn",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20912,
                     "words": [
@@ -63503,8 +63228,7 @@
                   "type": 32,
                   "name": "Cheese",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20908,
                     "words": [
@@ -63525,8 +63249,7 @@
                   "type": 31,
                   "name": "Bread",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20904,
                     "words": [
@@ -63547,8 +63270,7 @@
                   "type": 31,
                   "name": "Bread",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20900,
                     "words": [
@@ -63569,8 +63291,7 @@
                   "type": 42,
                   "name": "Magical Box (Blue)",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20896,
                     "words": [
@@ -65698,8 +65419,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20784,
                 "words": [
@@ -65720,8 +65440,7 @@
               "type": 30,
               "name": "Corn",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20952,
                 "words": [
@@ -66581,8 +66300,7 @@
               "type": 17,
               "name": "Gold Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20008,
                 "words": [
@@ -67014,8 +66732,7 @@
               "type": 17,
               "name": "Gold Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20028,
                 "words": [
@@ -67115,8 +66832,7 @@
               "type": 21,
               "name": "Emerald Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20032,
                 "words": [
@@ -69684,8 +69400,7 @@
               "type": 17,
               "name": "Gold Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20024,
                 "words": [
@@ -69864,8 +69579,7 @@
               "type": 17,
               "name": "Gold Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20044,
                 "words": [
@@ -70224,10 +69938,11 @@
               "index": 125,
               "tilePos": "North",
               "type": 1,
-              "name": "Water",
+              "name": "Waterskin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 3,
+              "highBits": 3,
+              "waterskinState": "Full",
+              "waterskinStateIndex": 3,
               "raw": {
                 "offset": 20452,
                 "words": [
@@ -70237,13 +69952,13 @@
                 "nextWord": 65534,
                 "attributesWord": 49281
               },
-              "displayName": "Water (Charges=3)",
+              "displayName": "Waterskin (Full)",
               "globalX": 13,
               "globalY": 43
             }
           ],
           "itemDisplayNames": [
-            "Water (Charges=3)"
+            "Waterskin (Full)"
           ]
         },
         {
@@ -70395,8 +70110,7 @@
               "type": 11,
               "name": "Solid Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20020,
                 "words": [
@@ -70817,8 +70531,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20888,
                 "words": [
@@ -71234,8 +70947,7 @@
               "type": 9,
               "name": "Iron Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20016,
                 "words": [
@@ -71776,8 +71488,7 @@
               "type": 42,
               "name": "Magical Box (Blue)",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20892,
                 "words": [
@@ -72104,8 +71815,7 @@
               "type": 32,
               "name": "Cheese",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20380,
                 "words": [
@@ -72126,8 +71836,7 @@
               "type": 32,
               "name": "Cheese",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20384,
                 "words": [
@@ -72148,8 +71857,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20388,
                 "words": [
@@ -72802,8 +72510,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20376,
                 "words": [
@@ -74065,8 +73772,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20392,
                 "words": [
@@ -77189,8 +76895,7 @@
               "type": 25,
               "name": "Boulder",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 19988,
                 "words": [
@@ -79919,8 +79624,7 @@
               "type": 17,
               "name": "Gold Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20184,
                 "words": [
@@ -79941,8 +79645,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20248,
                 "words": [
@@ -80320,8 +80023,7 @@
               "type": 6,
               "name": "Copper Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 19992,
                 "words": [
@@ -80739,8 +80441,7 @@
               "type": 9,
               "name": "Iron Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20036,
                 "words": [
@@ -80872,8 +80573,7 @@
               "type": 10,
               "name": "Key Of B",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20040,
                 "words": [
@@ -81553,8 +81253,7 @@
               "type": 17,
               "name": "Gold Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20004,
                 "words": [
@@ -81750,8 +81449,7 @@
                   "type": 7,
                   "name": "Silver Coin",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20876,
                     "words": [
@@ -81772,8 +81470,7 @@
                   "type": 6,
                   "name": "Copper Coin",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20872,
                     "words": [
@@ -81794,8 +81491,7 @@
                   "type": 6,
                   "name": "Copper Coin",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20868,
                     "words": [
@@ -81816,8 +81512,7 @@
                   "type": 6,
                   "name": "Copper Coin",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20864,
                     "words": [
@@ -81838,8 +81533,7 @@
                   "type": 42,
                   "name": "Magical Box (Blue)",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20860,
                     "words": [
@@ -82175,8 +81869,7 @@
                   "type": 44,
                   "name": "Mirror Of Dawn",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20116,
                     "words": [
@@ -82398,8 +82091,7 @@
               "type": 32,
               "name": "Cheese",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20848,
                 "words": [
@@ -83846,8 +83538,7 @@
               "type": 32,
               "name": "Cheese",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20804,
                 "words": [
@@ -83868,8 +83559,7 @@
               "type": 32,
               "name": "Cheese",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20808,
                 "words": [
@@ -83890,8 +83580,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20812,
                 "words": [
@@ -83912,8 +83601,7 @@
               "type": 30,
               "name": "Corn",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20816,
                 "words": [
@@ -83963,8 +83651,7 @@
               "type": 17,
               "name": "Gold Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20060,
                 "words": [
@@ -84253,8 +83940,8 @@
               "type": 0,
               "name": "Compass",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
+              "compassDirection": "North",
               "raw": {
                 "offset": 20088,
                 "words": [
@@ -84634,8 +84321,7 @@
               "type": 7,
               "name": "Silver Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20056,
                 "words": [
@@ -84671,8 +84357,7 @@
               "type": 31,
               "name": "Bread",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20164,
                 "words": [
@@ -86507,8 +86192,7 @@
               "type": 32,
               "name": "Cheese",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20424,
                 "words": [
@@ -86780,8 +86464,7 @@
               "type": 17,
               "name": "Gold Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20000,
                 "words": [
@@ -86824,8 +86507,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20396,
                 "words": [
@@ -86846,8 +86528,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20400,
                 "words": [
@@ -87723,8 +87404,7 @@
               "type": 32,
               "name": "Cheese",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20072,
                 "words": [
@@ -87745,8 +87425,9 @@
               "type": 1,
               "name": "Waterskin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
+              "waterskinState": "Empty",
+              "waterskinStateIndex": 0,
               "raw": {
                 "offset": 20076,
                 "words": [
@@ -87756,7 +87437,7 @@
                 "nextWord": 5149,
                 "attributesWord": 129
               },
-              "displayName": "Waterskin",
+              "displayName": "Waterskin (Empty)",
               "globalX": 13,
               "globalY": 38
             },
@@ -87787,7 +87468,7 @@
           ],
           "itemDisplayNames": [
             "Cheese",
-            "Waterskin",
+            "Waterskin (Empty)",
             "Arrow"
           ]
         },
@@ -87988,8 +87669,7 @@
               "type": 31,
               "name": "Bread",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20172,
                 "words": [
@@ -90106,8 +89786,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20488,
                 "words": [
@@ -92293,8 +91972,7 @@
                   "type": 29,
                   "name": "Apple",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20792,
                     "words": [
@@ -92315,8 +91993,7 @@
                   "type": 32,
                   "name": "Cheese",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20788,
                     "words": [
@@ -92377,8 +92054,7 @@
                   "type": 8,
                   "name": "Gold Coin",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20052,
                     "words": [
@@ -92399,8 +92075,7 @@
                   "type": 8,
                   "name": "Gold Coin",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20048,
                     "words": [
@@ -93367,8 +93042,7 @@
               "type": 17,
               "name": "Gold Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20064,
                 "words": [
@@ -95982,8 +95656,7 @@
               "type": 17,
               "name": "Gold Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20068,
                 "words": [
@@ -96638,8 +96311,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20852,
                 "words": [
@@ -97088,8 +96760,7 @@
               "type": 46,
               "name": "Rabbit's Foot",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20676,
                 "words": [
@@ -97820,8 +97491,7 @@
               "type": 17,
               "name": "Gold Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20084,
                 "words": [
@@ -98121,8 +97791,7 @@
               "type": 26,
               "name": "Blue Gem",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20080,
                 "words": [
@@ -98143,8 +97812,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20824,
                 "words": [
@@ -98892,8 +98560,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20404,
                 "words": [
@@ -98982,8 +98649,7 @@
               "type": 32,
               "name": "Cheese",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20152,
                 "words": [
@@ -99091,8 +98757,7 @@
               "type": 31,
               "name": "Bread",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20820,
                 "words": [
@@ -99140,8 +98805,7 @@
               "type": 32,
               "name": "Cheese",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20168,
                 "words": [
@@ -99496,8 +99160,7 @@
               "type": 23,
               "name": "Ra Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20968,
                 "words": [
@@ -100664,8 +100327,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20828,
                 "words": [
@@ -100686,8 +100348,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20832,
                 "words": [
@@ -101383,8 +101044,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20092,
                 "words": [
@@ -101405,8 +101065,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20156,
                 "words": [
@@ -101427,8 +101086,7 @@
               "type": 31,
               "name": "Bread",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20160,
                 "words": [
@@ -101449,8 +101107,7 @@
               "type": 32,
               "name": "Cheese",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20836,
                 "words": [
@@ -102382,8 +102039,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20456,
                 "words": [
@@ -106142,8 +105798,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20112,
                 "words": [
@@ -108320,8 +107975,7 @@
               "type": 8,
               "name": "Gold Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20176,
                 "words": [
@@ -108729,8 +108383,7 @@
               "type": 17,
               "name": "Gold Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20448,
                 "words": [
@@ -109747,8 +109400,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20428,
                 "words": [
@@ -109769,8 +109421,7 @@
               "type": 42,
               "name": "Magical Box (Blue)",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20648,
                 "words": [
@@ -115749,10 +115400,11 @@
               "index": 42,
               "tilePos": "North",
               "type": 1,
-              "name": "Water",
+              "name": "Waterskin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 3,
+              "highBits": 3,
+              "waterskinState": "Full",
+              "waterskinStateIndex": 3,
               "raw": {
                 "offset": 20120,
                 "words": [
@@ -115762,7 +115414,7 @@
                 "nextWord": 43143,
                 "attributesWord": 49281
               },
-              "displayName": "Water (Charges=3)",
+              "displayName": "Waterskin (Full)",
               "globalX": 23,
               "globalY": 31
             },
@@ -115773,8 +115425,7 @@
               "type": 32,
               "name": "Cheese",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20492,
                 "words": [
@@ -115791,7 +115442,7 @@
           ],
           "itemDisplayNames": [
             "Axe",
-            "Water (Charges=3)",
+            "Waterskin (Full)",
             "Cheese"
           ]
         },
@@ -116692,8 +116343,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20844,
                 "words": [
@@ -121948,8 +121598,7 @@
               "type": 26,
               "name": "Blue Gem",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20144,
                 "words": [
@@ -122730,8 +122379,7 @@
               "type": 26,
               "name": "Blue Gem",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20372,
                 "words": [
@@ -123199,8 +122847,7 @@
               "type": 46,
               "name": "Rabbit's Foot",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20124,
                 "words": [
@@ -123221,8 +122868,7 @@
               "type": 8,
               "name": "Gold Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20132,
                 "words": [
@@ -124119,8 +123765,7 @@
                   "type": 42,
                   "name": "Magical Box (Blue)",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20664,
                     "words": [
@@ -124425,8 +124070,7 @@
               "type": 44,
               "name": "Mirror Of Dawn",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20548,
                 "words": [
@@ -126507,8 +126151,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20464,
                 "words": [
@@ -127394,8 +127037,7 @@
               "type": 38,
               "name": "Ekkhard Cross",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20188,
                 "words": [
@@ -127431,8 +127073,7 @@
               "type": 26,
               "name": "Blue Gem",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20368,
                 "words": [
@@ -130018,8 +129659,7 @@
               "type": 8,
               "name": "Gold Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20180,
                 "words": [
@@ -133530,8 +133170,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20460,
                 "words": [
@@ -134670,8 +134309,9 @@
               "type": 3,
               "name": "Illumulet",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
+              "wornStateBits": 0,
+              "worn": false,
               "raw": {
                 "offset": 20128,
                 "words": [
@@ -135583,8 +135223,7 @@
               "type": 37,
               "name": "Gem Of Ages",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20192,
                 "words": [
@@ -137422,8 +137061,7 @@
               "type": 48,
               "name": "Choker",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20196,
                 "words": [
@@ -137444,8 +137082,7 @@
               "type": 30,
               "name": "Corn",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20200,
                 "words": [
@@ -139073,8 +138710,7 @@
               "type": 42,
               "name": "Magical Box (Blue)",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20924,
                 "words": [
@@ -141917,8 +141553,7 @@
               "type": 43,
               "name": "Magical Box (Green)",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 21064,
                 "words": [
@@ -141939,8 +141574,7 @@
               "type": 43,
               "name": "Magical Box (Green)",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 21068,
                 "words": [
@@ -144569,8 +144203,7 @@
                   "type": 35,
                   "name": "Drumstick",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20540,
                     "words": [
@@ -145430,8 +145063,7 @@
               "type": 32,
               "name": "Cheese",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20936,
                 "words": [
@@ -146533,8 +146165,7 @@
               "type": 9,
               "name": "Iron Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 21044,
                 "words": [
@@ -147143,8 +146774,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20928,
                 "words": [
@@ -147688,8 +147318,7 @@
               "type": 9,
               "name": "Iron Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20224,
                 "words": [
@@ -149773,8 +149402,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20856,
                 "words": [
@@ -149898,8 +149526,7 @@
               "type": 30,
               "name": "Corn",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20528,
                 "words": [
@@ -151864,8 +151491,7 @@
               "type": 11,
               "name": "Solid Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20524,
                 "words": [
@@ -152929,8 +152555,7 @@
               "type": 9,
               "name": "Iron Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20140,
                 "words": [
@@ -153030,8 +152655,7 @@
               "type": 9,
               "name": "Iron Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20136,
                 "words": [
@@ -153824,8 +153448,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20216,
                 "words": [
@@ -154189,8 +153812,7 @@
               "type": 43,
               "name": "Magical Box (Green)",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 21060,
                 "words": [
@@ -154680,8 +154302,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20104,
                 "words": [
@@ -154702,8 +154323,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20408,
                 "words": [
@@ -157516,8 +157136,7 @@
               "type": 9,
               "name": "Iron Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20220,
                 "words": [
@@ -157818,8 +157437,7 @@
               "type": 42,
               "name": "Magical Box (Blue)",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20932,
                 "words": [
@@ -158535,8 +158153,7 @@
               "type": 18,
               "name": "Winged Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20480,
                 "words": [
@@ -160820,8 +160437,7 @@
               "type": 43,
               "name": "Magical Box (Green)",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20652,
                 "words": [
@@ -161286,8 +160902,7 @@
               "type": 50,
               "name": "Magnifier",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20212,
                 "words": [
@@ -161308,8 +160923,7 @@
               "type": 47,
               "name": "Corbamite",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20420,
                 "words": [
@@ -161330,8 +160944,7 @@
               "type": 27,
               "name": "Orange Gem",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20432,
                 "words": [
@@ -164345,8 +163958,7 @@
               "type": 43,
               "name": "Magical Box (Green)",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20644,
                 "words": [
@@ -165374,8 +164986,7 @@
               "type": 25,
               "name": "Boulder",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20340,
                 "words": [
@@ -168837,8 +168448,9 @@
               "type": 3,
               "name": "Illumulet",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
+              "wornStateBits": 0,
+              "worn": false,
               "raw": {
                 "offset": 20148,
                 "words": [
@@ -168859,8 +168471,7 @@
               "type": 37,
               "name": "Gem Of Ages",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20208,
                 "words": [
@@ -170671,8 +170282,7 @@
               "type": 43,
               "name": "Magical Box (Green)",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 21040,
                 "words": [
@@ -172414,8 +172024,7 @@
               "type": 13,
               "name": "Tourquoise Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20628,
                 "words": [
@@ -172436,8 +172045,7 @@
               "type": 4,
               "name": "Ashes",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20632,
                 "words": [
@@ -173752,8 +173360,7 @@
               "type": 23,
               "name": "Ra Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20440,
                 "words": [
@@ -174124,8 +173731,7 @@
               "type": 30,
               "name": "Corn",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20512,
                 "words": [
@@ -174146,8 +173752,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20516,
                 "words": [
@@ -175535,8 +175140,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20960,
                 "words": [
@@ -175557,8 +175161,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20964,
                 "words": [
@@ -176274,8 +175877,7 @@
               "type": 32,
               "name": "Cheese",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20496,
                 "words": [
@@ -176721,8 +176323,7 @@
                   "type": 16,
                   "name": "Skeleton Key",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20780,
                     "words": [
@@ -178654,8 +178255,7 @@
               "type": 46,
               "name": "Rabbit's Foot",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20264,
                 "words": [
@@ -181410,8 +181010,7 @@
               "type": 43,
               "name": "Magical Box (Green)",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20940,
                 "words": [
@@ -182016,8 +181615,9 @@
               "type": 2,
               "name": "Jewel Symal",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
+              "wornStateBits": 0,
+              "worn": false,
               "raw": {
                 "offset": 20256,
                 "words": [
@@ -184478,8 +184078,7 @@
               "type": 6,
               "name": "Copper Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20880,
                 "words": [
@@ -186223,8 +185822,7 @@
               "type": 11,
               "name": "Solid Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20260,
                 "words": [
@@ -192731,8 +192329,7 @@
               "type": 32,
               "name": "Cheese",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20704,
                 "words": [
@@ -192753,8 +192350,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20708,
                 "words": [
@@ -192775,8 +192371,7 @@
               "type": 30,
               "name": "Corn",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20712,
                 "words": [
@@ -192797,8 +192392,7 @@
               "type": 36,
               "name": "Dragon Steak",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20716,
                 "words": [
@@ -192909,8 +192503,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20444,
                 "words": [
@@ -192929,7 +192522,7 @@
               "index": 85,
               "tilePos": "East",
               "type": 1,
-              "name": "Storm Ring",
+              "name": "Stormring",
               "broken": false,
               "charges": 4,
               "poisoned": false,
@@ -192944,7 +192537,7 @@
                 "nextWord": 65534,
                 "attributesWord": 4225
               },
-              "displayName": "Storm Ring (Charges=4)",
+              "displayName": "Stormring (Charges=4)",
               "globalX": 13,
               "globalY": 16
             }
@@ -192952,7 +192545,7 @@
           "itemDisplayNames": [
             "Torch (Charges=15)",
             "Drumstick",
-            "Storm Ring (Charges=4)"
+            "Stormring (Charges=4)"
           ]
         },
         {
@@ -193894,8 +193487,7 @@
               "type": 47,
               "name": "Corbamite",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20268,
                 "words": [
@@ -198251,8 +197843,7 @@
               "type": 23,
               "name": "Ra Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20272,
                 "words": [
@@ -200564,8 +200155,7 @@
               "type": 45,
               "name": "Rope",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20636,
                 "words": [
@@ -202011,8 +201601,7 @@
               "type": 41,
               "name": "Pendant Feral",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20608,
                 "words": [
@@ -202579,8 +202168,7 @@
               "type": 42,
               "name": "Magical Box (Blue)",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20640,
                 "words": [
@@ -204825,8 +204413,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20356,
                 "words": [
@@ -206976,8 +206563,7 @@
                   "type": 28,
                   "name": "Green Gem",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20240,
                     "words": [
@@ -208646,8 +208232,7 @@
               "type": 31,
               "name": "Bread",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20760,
                 "words": [
@@ -208668,8 +208253,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20764,
                 "words": [
@@ -210696,8 +210280,7 @@
               "type": 10,
               "name": "Key Of B",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20276,
                 "words": [
@@ -212017,8 +211600,7 @@
               "type": 32,
               "name": "Cheese",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20756,
                 "words": [
@@ -212039,8 +211621,7 @@
               "type": 30,
               "name": "Corn",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20768,
                 "words": [
@@ -216110,8 +215691,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20280,
                 "words": [
@@ -216132,8 +215712,7 @@
               "type": 39,
               "name": "Moonstone",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20604,
                 "words": [
@@ -217259,8 +216838,7 @@
               "type": 30,
               "name": "Corn",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20508,
                 "words": [
@@ -218777,8 +218355,7 @@
               "type": 30,
               "name": "Corn",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20504,
                 "words": [
@@ -219148,8 +218725,7 @@
               "type": 50,
               "name": "Magnifier",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 21048,
                 "words": [
@@ -224093,8 +223669,7 @@
               "type": 32,
               "name": "Cheese",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20668,
                 "words": [
@@ -225451,8 +225026,7 @@
               "type": 31,
               "name": "Bread",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20688,
                 "words": [
@@ -225736,8 +225310,7 @@
               "type": 31,
               "name": "Bread",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20692,
                 "words": [
@@ -229481,8 +229054,7 @@
               "type": 6,
               "name": "Copper Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 21020,
                 "words": [
@@ -231515,8 +231087,7 @@
               "type": 9,
               "name": "Iron Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20232,
                 "words": [
@@ -232115,8 +231686,7 @@
               "type": 6,
               "name": "Copper Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 21028,
                 "words": [
@@ -232596,8 +232166,7 @@
               "type": 6,
               "name": "Copper Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 21016,
                 "words": [
@@ -235055,8 +234624,7 @@
                   "type": 11,
                   "name": "Solid Key",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20236,
                     "words": [
@@ -235265,8 +234833,7 @@
               "type": 6,
               "name": "Copper Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 21024,
                 "words": [
@@ -238925,8 +238492,7 @@
               "type": 32,
               "name": "Cheese",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20468,
                 "words": [
@@ -239462,8 +239028,7 @@
               "type": 14,
               "name": "Cross Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20436,
                 "words": [
@@ -241470,8 +241035,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20476,
                 "words": [
@@ -241670,8 +241234,7 @@
               "type": 22,
               "name": "Ruby Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20620,
                 "words": [
@@ -243236,8 +242799,7 @@
               "type": 16,
               "name": "Skeleton Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20616,
                 "words": [
@@ -244163,8 +243725,7 @@
               "type": 6,
               "name": "Copper Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 21036,
                 "words": [
@@ -244367,8 +243928,7 @@
               "type": 43,
               "name": "Magical Box (Green)",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 21012,
                 "words": [
@@ -244410,8 +243970,7 @@
               "type": 6,
               "name": "Copper Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20228,
                 "words": [
@@ -244432,8 +243991,7 @@
               "type": 6,
               "name": "Copper Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20840,
                 "words": [
@@ -245170,8 +244728,7 @@
               "type": 14,
               "name": "Cross Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20972,
                 "words": [
@@ -245212,8 +244769,7 @@
                   "type": 35,
                   "name": "Drumstick",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 21004,
                     "words": [
@@ -245234,8 +244790,7 @@
                   "type": 35,
                   "name": "Drumstick",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 21000,
                     "words": [
@@ -245256,8 +244811,7 @@
                   "type": 35,
                   "name": "Drumstick",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20996,
                     "words": [
@@ -245278,8 +244832,7 @@
                   "type": 32,
                   "name": "Cheese",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20992,
                     "words": [
@@ -245300,8 +244853,7 @@
                   "type": 31,
                   "name": "Bread",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20988,
                     "words": [
@@ -245322,8 +244874,7 @@
                   "type": 35,
                   "name": "Drumstick",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20984,
                     "words": [
@@ -245344,8 +244895,7 @@
                   "type": 32,
                   "name": "Cheese",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20980,
                     "words": [
@@ -245366,8 +244916,7 @@
                   "type": 31,
                   "name": "Bread",
                   "important": true,
-                  "cursed": false,
-                  "chargeCount": 0,
+                  "highBits": 0,
                   "raw": {
                     "offset": 20976,
                     "words": [
@@ -245409,8 +244958,7 @@
               "type": 43,
               "name": "Magical Box (Green)",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 21008,
                 "words": [
@@ -245550,8 +245098,7 @@
               "type": 6,
               "name": "Copper Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 21032,
                 "words": [
@@ -247521,8 +247068,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20588,
                 "words": [
@@ -247658,8 +247204,7 @@
               "type": 23,
               "name": "Ra Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20624,
                 "words": [
@@ -250402,8 +249947,7 @@
               "type": 30,
               "name": "Corn",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20752,
                 "words": [
@@ -250424,8 +249968,7 @@
               "type": 30,
               "name": "Corn",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20580,
                 "words": [
@@ -252992,8 +252535,7 @@
               "type": 24,
               "name": "Master Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 21052,
                 "words": [
@@ -255353,8 +254895,7 @@
               "type": 30,
               "name": "Corn",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20596,
                 "words": [
@@ -255375,8 +254916,7 @@
               "type": 31,
               "name": "Bread",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20748,
                 "words": [
@@ -256278,8 +255818,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20600,
                 "words": [
@@ -256997,8 +256536,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20564,
                 "words": [
@@ -257019,8 +256557,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20568,
                 "words": [
@@ -257130,8 +256667,7 @@
               "type": 19,
               "name": "Topaz Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20556,
                 "words": [
@@ -259125,8 +258661,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20584,
                 "words": [
@@ -262118,8 +261653,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20572,
                 "words": [
@@ -262532,8 +262066,7 @@
               "type": 16,
               "name": "Skeleton Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20244,
                 "words": [
@@ -262581,8 +262114,7 @@
               "type": 35,
               "name": "Drumstick",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20576,
                 "words": [
@@ -262627,8 +262159,7 @@
               "type": 29,
               "name": "Apple",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20592,
                 "words": [
@@ -270364,8 +269895,7 @@
               "type": 40,
               "name": "The Hellion",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20412,
                 "words": [
@@ -274030,8 +273560,7 @@
               "type": 6,
               "name": "Copper Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20500,
                 "words": [
@@ -274199,8 +273728,7 @@
               "type": 7,
               "name": "Silver Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20472,
                 "words": [
@@ -274272,8 +273800,7 @@
               "type": 7,
               "name": "Silver Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20772,
                 "words": [
@@ -274624,8 +274151,7 @@
               "type": 6,
               "name": "Copper Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20776,
                 "words": [
@@ -274701,8 +274227,7 @@
               "type": 25,
               "name": "Boulder",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20204,
                 "words": [
@@ -274750,8 +274275,7 @@
               "type": 6,
               "name": "Copper Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20696,
                 "words": [
@@ -274907,8 +274431,7 @@
               "type": 7,
               "name": "Silver Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20292,
                 "words": [
@@ -274929,8 +274452,7 @@
               "type": 25,
               "name": "Boulder",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20296,
                 "words": [
@@ -275115,8 +274637,7 @@
               "type": 4,
               "name": "Ashes",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20304,
                 "words": [
@@ -275304,8 +274825,7 @@
               "type": 25,
               "name": "Boulder",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20300,
                 "words": [
@@ -275365,8 +274885,7 @@
               "type": 6,
               "name": "Copper Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20700,
                 "words": [
@@ -275554,8 +275073,7 @@
               "type": 4,
               "name": "Ashes",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20308,
                 "words": [
@@ -275759,8 +275277,7 @@
               "type": 4,
               "name": "Ashes",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20660,
                 "words": [
@@ -276009,8 +275526,7 @@
               "type": 12,
               "name": "Square Key",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20328,
                 "words": [
@@ -276031,8 +275547,7 @@
               "type": 4,
               "name": "Ashes",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20312,
                 "words": [
@@ -276093,8 +275608,7 @@
               "type": 25,
               "name": "Boulder",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20316,
                 "words": [
@@ -276250,8 +275764,7 @@
               "type": 25,
               "name": "Boulder",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20320,
                 "words": [
@@ -276311,8 +275824,7 @@
               "type": 4,
               "name": "Ashes",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20324,
                 "words": [
@@ -276348,8 +275860,7 @@
               "type": 4,
               "name": "Ashes",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20336,
                 "words": [
@@ -276517,8 +276028,7 @@
               "type": 4,
               "name": "Ashes",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20332,
                 "words": [
@@ -277065,8 +276575,7 @@
               "type": 6,
               "name": "Copper Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20344,
                 "words": [
@@ -277087,8 +276596,7 @@
               "type": 6,
               "name": "Copper Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20348,
                 "words": [
@@ -277109,8 +276617,7 @@
               "type": 6,
               "name": "Copper Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20352,
                 "words": [
@@ -277131,8 +276638,7 @@
               "type": 8,
               "name": "Gold Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20680,
                 "words": [
@@ -277204,8 +276710,7 @@
               "type": 26,
               "name": "Blue Gem",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20360,
                 "words": [
@@ -277226,8 +276731,7 @@
               "type": 28,
               "name": "Green Gem",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20364,
                 "words": [
@@ -277248,8 +276752,7 @@
               "type": 28,
               "name": "Green Gem",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20684,
                 "words": [
@@ -277388,8 +276891,7 @@
               "type": 6,
               "name": "Copper Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 20656,
                 "words": [
@@ -277520,8 +277022,7 @@
               "type": 7,
               "name": "Silver Coin",
               "important": true,
-              "cursed": false,
-              "chargeCount": 0,
+              "highBits": 0,
               "raw": {
                 "offset": 21056,
                 "words": [
@@ -277842,7 +277343,7 @@
               "index": 80,
               "tilePos": "South",
               "type": 45,
-              "name": "(W45)",
+              "name": "The Firestaff (Complete)",
               "broken": false,
               "charges": 0,
               "poisoned": false,
@@ -277857,13 +277358,13 @@
                 "nextWord": 65534,
                 "attributesWord": 173
               },
-              "displayName": "(W45)",
+              "displayName": "The Firestaff (Complete)",
               "globalX": 49,
               "globalY": 35
             }
           ],
           "itemDisplayNames": [
-            "(W45)"
+            "The Firestaff (Complete)"
           ]
         },
         {

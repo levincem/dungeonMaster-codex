@@ -3,7 +3,7 @@
     "source": {
       "file": "EUDATA/DUNGEON.DAT",
       "format": "PC DOS little-endian",
-      "extractor": "assets/DMDisquette/parse_full.js"
+      "extractor": "assets/OriginalDataExtraction/parse_full.js"
     },
     "dungeonId": 99,
     "numMaps": 14,
@@ -41411,7 +41411,7 @@
         "usedInDungeon": true,
         "next": null,
         "type": 45,
-        "name": "(W45)",
+        "name": "The Firestaff (Complete)",
         "broken": false,
         "charges": 0,
         "poisoned": false,
@@ -41516,7 +41516,7 @@
         "usedInDungeon": true,
         "next": null,
         "type": 1,
-        "name": "Storm Ring",
+        "name": "Stormring",
         "broken": false,
         "charges": 4,
         "poisoned": false,
@@ -42065,7 +42065,7 @@
           "index": 4
         },
         "type": 11,
-        "name": "Armor_11",
+        "name": "Silk Shirt",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -42134,7 +42134,7 @@
           "index": 4
         },
         "type": 29,
-        "name": "Armor_29",
+        "name": "Barbarian Hide",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -42283,7 +42283,7 @@
         "usedInDungeon": true,
         "next": null,
         "type": 12,
-        "name": "Armor_12",
+        "name": "Gunna",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -42325,7 +42325,7 @@
         "usedInDungeon": true,
         "next": null,
         "type": 11,
-        "name": "Armor_11",
+        "name": "Silk Shirt",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -42348,7 +42348,7 @@
           "index": 17
         },
         "type": 21,
-        "name": "Armor_21",
+        "name": "Ghi",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -42639,7 +42639,7 @@
           "index": 30
         },
         "type": 20,
-        "name": "Armor_20",
+        "name": "Tunic",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -42842,7 +42842,7 @@
           "index": 39
         },
         "type": 12,
-        "name": "Armor_12",
+        "name": "Gunna",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -42907,7 +42907,7 @@
           "index": 42
         },
         "type": 20,
-        "name": "Armor_20",
+        "name": "Tunic",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -43045,7 +43045,7 @@
           "index": 7
         },
         "type": 12,
-        "name": "Armor_12",
+        "name": "Gunna",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -43534,7 +43534,7 @@
           "index": 119
         },
         "type": 20,
-        "name": "Armor_20",
+        "name": "Tunic",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -44235,7 +44235,7 @@
         "usedInDungeon": true,
         "next": null,
         "type": 57,
-        "name": "Armor_57",
+        "name": "Halter",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -44254,7 +44254,7 @@
         "usedInDungeon": true,
         "next": null,
         "type": 57,
-        "name": "Armor_57",
+        "name": "Halter",
         "broken": false,
         "cursed": false,
         "important": true,
@@ -46798,7 +46798,7 @@
         "usedInDungeon": false,
         "next": null,
         "type": 49,
-        "name": "(Misc_49)",
+        "name": "Lock Picks",
         "important": true,
         "cursed": false,
         "chargeCount": 0,
@@ -49026,7 +49026,7 @@
         "usedInDungeon": false,
         "next": null,
         "type": 49,
-        "name": "(Misc_49)",
+        "name": "Lock Picks",
         "important": true,
         "cursed": false,
         "chargeCount": 0,
@@ -50692,7 +50692,7 @@
           "index": 197
         },
         "type": 33,
-        "name": "(Misc_33)",
+        "name": "Screamer Slice",
         "important": true,
         "cursed": false,
         "chargeCount": 0,
@@ -50986,7 +50986,7 @@
           "index": 211
         },
         "type": 33,
-        "name": "(Misc_33)",
+        "name": "Screamer Slice",
         "important": true,
         "cursed": false,
         "chargeCount": 0,
@@ -55617,7 +55617,7 @@
               "index": 3,
               "tilePos": "North",
               "type": 11,
-              "name": "Armor_11",
+              "name": "Silk Shirt",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -55630,7 +55630,7 @@
                 "nextWord": 6148,
                 "attributesWord": 139
               },
-              "displayName": "Armor_11",
+              "displayName": "Silk Shirt",
               "globalX": 7,
               "globalY": 14
             },
@@ -55731,7 +55731,7 @@
           ],
           "itemDisplayNames": [
             "Tunic",
-            "Armor_11",
+            "Silk Shirt",
             "Leather Jerkin",
             "Throwing Star (3)"
           ]
@@ -55856,7 +55856,7 @@
               "index": 6,
               "tilePos": "North",
               "type": 29,
-              "name": "Armor_29",
+              "name": "Barbarian Hide",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -55869,7 +55869,7 @@
                 "nextWord": 5124,
                 "attributesWord": 157
               },
-              "displayName": "Armor_29",
+              "displayName": "Barbarian Hide",
               "globalX": 7,
               "globalY": 17
             },
@@ -55926,7 +55926,7 @@
               "index": 106,
               "tilePos": "North",
               "type": 57,
-              "name": "Armor_57",
+              "name": "Halter",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -55939,16 +55939,16 @@
                 "nextWord": 65534,
                 "attributesWord": 185
               },
-              "displayName": "Armor_57",
+              "displayName": "Halter",
               "globalX": 7,
               "globalY": 17
             }
           ],
           "itemDisplayNames": [
             "Elven Doublet",
-            "Armor_29",
+            "Barbarian Hide",
             "Dagger (2)",
-            "Armor_57"
+            "Halter"
           ]
         },
         {
@@ -56940,7 +56940,7 @@
               "index": 15,
               "tilePos": "North",
               "type": 11,
-              "name": "Armor_11",
+              "name": "Silk Shirt",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -56953,7 +56953,7 @@
                 "nextWord": 65534,
                 "attributesWord": 139
               },
-              "displayName": "Armor_11",
+              "displayName": "Silk Shirt",
               "globalX": 9,
               "globalY": 10
             }
@@ -56961,7 +56961,7 @@
           "itemDisplayNames": [
             "Apple",
             "Elven Doublet",
-            "Armor_11"
+            "Silk Shirt"
           ]
         },
         {
@@ -57263,7 +57263,7 @@
               "index": 16,
               "tilePos": "South",
               "type": 21,
-              "name": "Armor_21",
+              "name": "Ghi",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -57276,7 +57276,7 @@
                 "nextWord": 38929,
                 "attributesWord": 149
               },
-              "displayName": "Armor_21",
+              "displayName": "Ghi",
               "globalX": 10,
               "globalY": 3
             },
@@ -57328,7 +57328,7 @@
             }
           ],
           "itemDisplayNames": [
-            "Armor_21",
+            "Ghi",
             "Ghi Trousers",
             "Samurai Sword"
           ]
@@ -57750,7 +57750,7 @@
               "index": 13,
               "tilePos": "West",
               "type": 12,
-              "name": "Armor_12",
+              "name": "Gunna",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -57763,7 +57763,7 @@
                 "nextWord": 65534,
                 "attributesWord": 140
               },
-              "displayName": "Armor_12",
+              "displayName": "Gunna",
               "globalX": 10,
               "globalY": 13
             }
@@ -57772,7 +57772,7 @@
             "Plate Mail",
             "Leather Jerkin",
             "Wand (Charges=15)",
-            "Armor_12"
+            "Gunna"
           ]
         },
         {
@@ -58430,7 +58430,7 @@
               "index": 29,
               "tilePos": "North",
               "type": 20,
-              "name": "Armor_20",
+              "name": "Tunic",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -58443,7 +58443,7 @@
                 "nextWord": 6174,
                 "attributesWord": 148
               },
-              "displayName": "Armor_20",
+              "displayName": "Tunic",
               "globalX": 11,
               "globalY": 16
             },
@@ -58494,7 +58494,7 @@
           ],
           "itemDisplayNames": [
             "Axe",
-            "Armor_20",
+            "Tunic",
             "Leather Pants",
             "Suede Boots"
           ]
@@ -59509,7 +59509,7 @@
               "index": 38,
               "tilePos": "South",
               "type": 12,
-              "name": "Armor_12",
+              "name": "Gunna",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -59522,7 +59522,7 @@
                 "nextWord": 38951,
                 "attributesWord": 140
               },
-              "displayName": "Armor_12",
+              "displayName": "Gunna",
               "globalX": 14,
               "globalY": 2
             },
@@ -59594,7 +59594,7 @@
             }
           ],
           "itemDisplayNames": [
-            "Armor_12",
+            "Gunna",
             "Tunic",
             "Moonstone",
             "Leather Jerkin"
@@ -59742,7 +59742,7 @@
               "index": 41,
               "tilePos": "North",
               "type": 20,
-              "name": "Armor_20",
+              "name": "Tunic",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -59755,7 +59755,7 @@
                 "nextWord": 6186,
                 "attributesWord": 148
               },
-              "displayName": "Armor_20",
+              "displayName": "Tunic",
               "globalX": 14,
               "globalY": 7
             },
@@ -59827,7 +59827,7 @@
             }
           ],
           "itemDisplayNames": [
-            "Armor_20",
+            "Tunic",
             "Leather Pants",
             "Leather Boots",
             "Rabbit's Foot"
@@ -60422,7 +60422,7 @@
               "index": 47,
               "tilePos": "West",
               "type": 12,
-              "name": "Armor_12",
+              "name": "Gunna",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -60435,7 +60435,7 @@
                 "nextWord": 59399,
                 "attributesWord": 140
               },
-              "displayName": "Armor_12",
+              "displayName": "Gunna",
               "globalX": 15,
               "globalY": 12
             },
@@ -60512,7 +60512,7 @@
               "index": 105,
               "tilePos": "West",
               "type": 57,
-              "name": "Armor_57",
+              "name": "Halter",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -60525,17 +60525,17 @@
                 "nextWord": 65534,
                 "attributesWord": 185
               },
-              "displayName": "Armor_57",
+              "displayName": "Halter",
               "globalX": 15,
               "globalY": 12
             }
           ],
           "itemDisplayNames": [
-            "Armor_12",
+            "Gunna",
             "Choker",
             "Leather Jerkin",
             "Sword",
-            "Armor_57"
+            "Halter"
           ]
         },
         {
@@ -61570,7 +61570,7 @@
               "index": 70,
               "tilePos": "North",
               "type": 20,
-              "name": "Armor_20",
+              "name": "Tunic",
               "broken": false,
               "cursed": false,
               "important": true,
@@ -61583,7 +61583,7 @@
                 "nextWord": 6263,
                 "attributesWord": 148
               },
-              "displayName": "Armor_20",
+              "displayName": "Tunic",
               "globalX": 17,
               "globalY": 10
             },
@@ -61634,7 +61634,7 @@
           ],
           "itemDisplayNames": [
             "Staff",
-            "Armor_20",
+            "Tunic",
             "Chain Mail Aketon",
             "Leather Jerkin"
           ]
@@ -192929,7 +192929,7 @@
               "index": 85,
               "tilePos": "East",
               "type": 1,
-              "name": "Storm Ring",
+              "name": "Stormring",
               "broken": false,
               "charges": 4,
               "poisoned": false,
@@ -192944,7 +192944,7 @@
                 "nextWord": 65534,
                 "attributesWord": 4225
               },
-              "displayName": "Storm Ring (Charges=4)",
+              "displayName": "Stormring (Charges=4)",
               "globalX": 13,
               "globalY": 16
             }
@@ -192952,7 +192952,7 @@
           "itemDisplayNames": [
             "Torch (Charges=15)",
             "Drumstick",
-            "Storm Ring (Charges=4)"
+            "Stormring (Charges=4)"
           ]
         },
         {
@@ -277842,7 +277842,7 @@
               "index": 80,
               "tilePos": "South",
               "type": 45,
-              "name": "(W45)",
+              "name": "The Firestaff (Complete)",
               "broken": false,
               "charges": 0,
               "poisoned": false,
@@ -277857,13 +277857,13 @@
                 "nextWord": 65534,
                 "attributesWord": 173
               },
-              "displayName": "(W45)",
+              "displayName": "The Firestaff (Complete)",
               "globalX": 49,
               "globalY": 35
             }
           ],
           "itemDisplayNames": [
-            "(W45)"
+            "The Firestaff (Complete)"
           ]
         },
         {

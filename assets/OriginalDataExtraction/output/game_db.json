@@ -1,1141 +1,210 @@
 {
   "_meta": {
-    "source": "Derived gameplay/reference database used by the remake",
-    "note": "Not a byte-perfect export of GRAPHICS.DAT tables. Prefer dungeon.json/objectDatabase + map.original for original dungeon data."
+    "source": "Minimal extracted/reference database for audit and tooling",
+    "note": "Item gameplay/runtime definitions now live in src/data/*. Prefer dungeon.json/objectDatabase + originalAtari for source-truth data."
   },
-  "creatureTypes": {
-    "0": {
-      "name": "Giant Scorpion",
-      "baseHP": 150,
-      "armor": 55,
-      "hitProb": 55,
-      "atkSpd": 20,
-      "moveSpd": 8,
-      "exp": 20,
-      "poison": true,
-      "attackTypes": [
-        "Physical"
-      ],
-      "drops": []
-    },
-    "1": {
-      "name": "Swamp Slime",
-      "baseHP": 110,
-      "armor": 20,
-      "hitProb": 20,
-      "atkSpd": 32,
-      "moveSpd": 15,
-      "exp": 12,
-      "poison": true,
-      "attackTypes": [
-        "Physical"
-      ],
-      "drops": []
-    },
-    "2": {
-      "name": "Giggler",
-      "baseHP": 10,
-      "armor": 50,
-      "hitProb": 110,
-      "atkSpd": 5,
-      "moveSpd": 3,
-      "exp": 15,
-      "poison": false,
-      "attackTypes": [
-        "Physical",
-        "Steal"
-      ],
-      "drops": []
-    },
-    "3": {
-      "name": "Wizard Eye",
-      "baseHP": 40,
-      "armor": 30,
-      "hitProb": 80,
-      "atkSpd": 21,
-      "moveSpd": 10,
-      "exp": 20,
-      "poison": false,
-      "attackTypes": [
-        "Magic"
-      ],
-      "drops": []
-    },
-    "4": {
-      "name": "Pain Rat",
-      "baseHP": 101,
-      "armor": 45,
-      "hitProb": 65,
-      "atkSpd": 8,
-      "moveSpd": 9,
-      "exp": 10,
-      "poison": false,
-      "attackTypes": [
-        "Physical"
-      ],
-      "drops": []
-    },
-    "5": {
-      "name": "Ruster",
-      "baseHP": 60,
-      "armor": 100,
-      "hitProb": 30,
-      "atkSpd": 18,
-      "moveSpd": 20,
-      "exp": 15,
-      "poison": false,
-      "attackTypes": [
-        "Rust"
-      ],
-      "drops": []
-    },
-    "6": {
-      "name": "Screamer",
-      "baseHP": 165,
-      "armor": 5,
-      "hitProb": 5,
-      "atkSpd": 10,
-      "moveSpd": 120,
-      "exp": 5,
-      "poison": false,
-      "attackTypes": [
-        "Alert"
-      ],
-      "drops": []
-    },
-    "7": {
-      "name": "Rockpile",
-      "baseHP": 50,
-      "armor": 170,
-      "hitProb": 10,
-      "atkSpd": 15,
-      "moveSpd": 185,
-      "exp": 30,
-      "poison": true,
-      "attackTypes": [
-        "Physical"
-      ],
-      "drops": []
-    },
-    "8": {
-      "name": "Ghost",
-      "baseHP": 30,
-      "armor": 15,
-      "hitProb": 80,
-      "atkSpd": 16,
-      "moveSpd": 11,
-      "exp": 25,
-      "poison": false,
-      "attackTypes": [
-        "StaminaDrain"
-      ],
-      "drops": []
-    },
-    "9": {
-      "name": "Stone Golem",
-      "baseHP": 120,
-      "armor": 240,
-      "hitProb": 35,
-      "atkSpd": 14,
-      "moveSpd": 21,
-      "exp": 40,
-      "poison": false,
-      "attackTypes": [
-        "Physical"
-      ],
-      "drops": []
-    },
-    "10": {
-      "name": "Mummy",
-      "baseHP": 33,
-      "armor": 25,
-      "hitProb": 40,
-      "atkSpd": 12,
-      "moveSpd": 17,
-      "exp": 25,
-      "poison": false,
-      "attackTypes": [
-        "Physical",
-        "Immobilize"
-      ],
-      "drops": []
-    },
-    "11": {
-      "name": "Black Flame",
-      "baseHP": 80,
-      "armor": 45,
-      "hitProb": 60,
-      "atkSpd": 8,
-      "moveSpd": 255,
-      "exp": 30,
-      "poison": false,
-      "attackTypes": [
-        "Fire"
-      ],
-      "drops": []
-    },
-    "12": {
-      "name": "Skeleton",
-      "baseHP": 20,
-      "armor": 22,
-      "hitProb": 80,
-      "atkSpd": 7,
-      "moveSpd": 7,
-      "exp": 20,
-      "poison": false,
-      "attackTypes": [
-        "Physical"
-      ],
-      "drops": []
-    },
-    "13": {
-      "name": "Couatl",
-      "baseHP": 39,
-      "armor": 42,
-      "hitProb": 88,
-      "atkSpd": 10,
-      "moveSpd": 5,
-      "exp": 35,
-      "poison": true,
-      "attackTypes": [
-        "Physical",
-        "Poison"
-      ],
-      "drops": []
-    },
-    "14": {
-      "name": "Vexirk",
-      "baseHP": 44,
-      "armor": 47,
-      "hitProb": 90,
-      "atkSpd": 20,
-      "moveSpd": 10,
-      "exp": 40,
-      "poison": false,
-      "attackTypes": [
-        "Magic",
-        "Physical"
-      ],
-      "drops": []
-    },
-    "15": {
-      "name": "Magenta Worm",
-      "baseHP": 70,
-      "armor": 72,
-      "hitProb": 35,
-      "atkSpd": 19,
-      "moveSpd": 18,
-      "exp": 50,
-      "poison": true,
-      "attackTypes": [
-        "Physical",
-        "Poison"
-      ],
-      "drops": []
-    },
-    "16": {
-      "name": "Trolin",
-      "baseHP": 20,
-      "armor": 28,
-      "hitProb": 41,
-      "atkSpd": 8,
-      "moveSpd": 13,
-      "exp": 20,
-      "poison": false,
-      "attackTypes": [
-        "Physical"
-      ],
-      "drops": []
-    },
-    "17": {
-      "name": "Giant Wasp",
-      "baseHP": 8,
-      "armor": 180,
-      "hitProb": 150,
-      "atkSpd": 16,
-      "moveSpd": 1,
-      "exp": 20,
-      "poison": true,
-      "attackTypes": [
-        "Physical",
-        "Poison"
-      ],
-      "drops": []
-    },
-    "18": {
-      "name": "Animated Armour",
-      "baseHP": 60,
-      "armor": 140,
-      "hitProb": 70,
-      "atkSpd": 6,
-      "moveSpd": 14,
-      "exp": 45,
-      "poison": false,
-      "attackTypes": [
-        "Physical"
-      ],
-      "drops": [
-        "Falchion",
-        "TorsoPlateCursed"
-      ]
-    },
-    "19": {
-      "name": "Materializer",
-      "baseHP": 33,
-      "armor": 15,
-      "hitProb": 65,
-      "atkSpd": 18,
-      "moveSpd": 5,
-      "exp": 35,
-      "poison": false,
-      "attackTypes": [
-        "Physical",
-        "Teleport"
-      ],
-      "drops": []
-    },
-    "20": {
-      "name": "Water Elemental",
-      "baseHP": 144,
-      "armor": 75,
-      "hitProb": 50,
-      "atkSpd": 25,
-      "moveSpd": 25,
-      "exp": 40,
-      "poison": false,
-      "attackTypes": [
-        "Physical"
-      ],
-      "drops": []
-    },
-    "21": {
-      "name": "Oitu",
-      "baseHP": 77,
-      "armor": 33,
-      "hitProb": 60,
-      "atkSpd": 15,
-      "moveSpd": 7,
-      "exp": 50,
-      "poison": false,
-      "attackTypes": [
-        "Physical",
-        "Magic"
-      ],
-      "drops": []
-    },
-    "22": {
-      "name": "Demon",
-      "baseHP": 100,
-      "armor": 68,
-      "hitProb": 75,
-      "atkSpd": 14,
-      "moveSpd": 10,
-      "exp": 60,
-      "poison": false,
-      "attackTypes": [
-        "Physical",
-        "Fire"
-      ],
-      "drops": []
-    },
-    "23": {
-      "name": "Lord Chaos",
-      "baseHP": 180,
-      "armor": 255,
-      "hitProb": 130,
-      "atkSpd": 22,
-      "moveSpd": 12,
-      "exp": 500,
-      "poison": false,
-      "attackTypes": [
-        "Magic",
-        "Physical",
-        "Fire"
-      ],
-      "drops": []
-    },
-    "24": {
-      "name": "Red Dragon",
-      "baseHP": 255,
-      "armor": 110,
-      "hitProb": 70,
-      "atkSpd": 28,
-      "moveSpd": 13,
-      "exp": 200,
-      "poison": false,
-      "attackTypes": [
-        "Fire",
-        "Physical"
-      ],
-      "drops": []
-    },
-    "25": {
-      "name": "Lord Order",
-      "baseHP": 180,
-      "armor": 255,
-      "hitProb": 130,
-      "atkSpd": 22,
-      "moveSpd": 12,
-      "exp": 100,
-      "poison": false,
-      "attackTypes": [
-        "Physical",
-        "Magic"
-      ],
-      "drops": []
-    },
-    "26": {
-      "name": "Grey Lord",
-      "baseHP": 180,
-      "armor": 255,
-      "hitProb": 130,
-      "atkSpd": 22,
-      "moveSpd": 12,
-      "exp": 100,
-      "poison": false,
-      "attackTypes": [
-        "Physical",
-        "Magic"
-      ],
-      "drops": []
-    }
-  },
-  "weaponTypes": {
-    "0": {
-      "name": "Vorpal Blade",
-      "type": "Sword",
-      "damage": [
-        10,
-        25
-      ],
-      "weight": 3,
-      "atkSpd": 20,
-      "twoHanded": false
-    },
-    "2": {
-      "name": "Fury",
-      "type": "Sword",
-      "damage": [
-        20,
-        35
-      ],
-      "weight": 12,
-      "atkSpd": 22,
-      "twoHanded": false
-    },
-    "8": {
-      "name": "Arrow",
-      "type": "Ammo",
-      "damage": [
-        8,
-        15
-      ],
-      "weight": 0.2,
-      "atkSpd": 0,
-      "twoHanded": false
-    },
-    "9": {
-      "name": "Slayer",
-      "type": "Ammo",
-      "damage": [
-        20,
-        30
-      ],
-      "weight": 0.2,
-      "atkSpd": 0,
-      "twoHanded": false
-    },
-    "10": {
-      "name": "Rocket",
-      "type": "Ammo",
-      "damage": [
-        30,
-        45
-      ],
-      "weight": 2,
-      "atkSpd": 0,
-      "twoHanded": false
-    },
-    "16": {
-      "name": "Torch",
-      "type": "Torch",
-      "damage": [
-        4,
-        8
-      ],
-      "weight": 1.1,
-      "atkSpd": 20,
-      "twoHanded": false,
-      "luminous": true
-    },
-    "17": {
-      "name": "Gem of Ages",
-      "type": "Special",
-      "damage": [
-        0,
-        0
-      ],
-      "weight": 1,
-      "atkSpd": 0,
-      "twoHanded": false
-    },
-    "18": {
-      "name": "Etoile",
-      "type": "Special",
-      "damage": [
-        0,
-        0
-      ],
-      "weight": 2,
-      "atkSpd": 0,
-      "twoHanded": false
-    },
-    "19": {
-      "name": "Yew Staff",
-      "type": "Staff",
-      "damage": [
-        8,
-        18
-      ],
-      "weight": 3.5,
-      "atkSpd": 24,
-      "twoHanded": true
-    },
-    "20": {
-      "name": "Staff of Claws",
-      "type": "Staff",
-      "damage": [
-        20,
-        35
-      ],
-      "weight": 0.9,
-      "atkSpd": 24,
-      "twoHanded": true
-    },
-    "21": {
-      "name": "Staff",
-      "type": "Staff",
-      "damage": [
-        5,
-        12
-      ],
-      "weight": 2.6,
-      "atkSpd": 22,
-      "twoHanded": true
-    },
-    "22": {
-      "name": "Wand",
-      "type": "Wand",
-      "damage": [
-        5,
-        10
-      ],
-      "weight": 0.1,
-      "atkSpd": 18,
-      "twoHanded": false
-    },
-    "23": {
-      "name": "Teowand",
-      "type": "Wand",
-      "damage": [
-        10,
-        20
-      ],
-      "weight": 0.2,
-      "atkSpd": 18,
-      "twoHanded": false
-    },
-    "25": {
-      "name": "Axe of Strength",
-      "type": "Axe",
-      "damage": [
-        30,
-        45
-      ],
-      "weight": 15,
-      "atkSpd": 28,
-      "twoHanded": false
-    },
-    "26": {
-      "name": "Executioner",
-      "type": "Axe",
-      "damage": [
-        35,
-        55
-      ],
-      "weight": 6.5,
-      "atkSpd": 30,
-      "twoHanded": true
-    },
-    "27": {
-      "name": "Dagger of Fear",
-      "type": "Dagger",
-      "damage": [
-        15,
-        25
-      ],
-      "weight": 4,
-      "atkSpd": 14,
-      "twoHanded": false
-    },
-    "32": {
-      "name": "Dagger",
-      "type": "Dagger",
-      "damage": [
-        10,
-        18
-      ],
-      "weight": 0.5,
-      "atkSpd": 14,
-      "twoHanded": false
-    },
-    "33": {
-      "name": "Falchion",
-      "type": "Sword",
-      "damage": [
-        22,
-        34
-      ],
-      "weight": 3.3,
-      "atkSpd": 20,
-      "twoHanded": false
-    },
-    "34": {
-      "name": "Rapier",
-      "type": "Sword",
-      "damage": [
-        18,
-        28
-      ],
-      "weight": 2.6,
-      "atkSpd": 16,
-      "twoHanded": false
-    },
-    "35": {
-      "name": "Sabre",
-      "type": "Sword",
-      "damage": [
-        28,
-        42
-      ],
-      "weight": 11,
-      "atkSpd": 20,
-      "twoHanded": false
-    },
-    "36": {
-      "name": "Sword",
-      "type": "Sword",
-      "damage": [
-        24,
-        36
-      ],
-      "weight": 3.2,
-      "atkSpd": 22,
-      "twoHanded": false
-    },
-    "40": {
-      "name": "Bow",
-      "type": "Bow",
-      "damage": [
-        0,
-        0
-      ],
-      "weight": 1,
-      "atkSpd": 0,
-      "twoHanded": true,
-      "ranged": true
-    },
-    "41": {
-      "name": "Crossbow",
-      "type": "Bow",
-      "damage": [
-        0,
-        0
-      ],
-      "weight": 2.8,
-      "atkSpd": 0,
-      "twoHanded": true,
-      "ranged": true
-    },
-    "42": {
-      "name": "Long Bow",
-      "type": "Bow",
-      "damage": [
-        0,
-        0
-      ],
-      "weight": 9,
-      "atkSpd": 0,
-      "twoHanded": true,
-      "ranged": true
-    },
-    "48": {
-      "name": "Rock",
-      "type": "Thrown",
-      "damage": [
-        6,
-        12
-      ],
-      "weight": 1,
-      "atkSpd": 0,
-      "twoHanded": false,
-      "thrown": true
-    },
-    "49": {
-      "name": "Poison Dart",
-      "type": "Thrown",
-      "damage": [
-        4,
-        8
-      ],
-      "weight": 0.3,
-      "atkSpd": 0,
-      "twoHanded": false,
-      "thrown": true,
-      "poison": true
-    },
-    "50": {
-      "name": "Throwing Star",
-      "type": "Thrown",
-      "damage": [
-        10,
-        18
-      ],
-      "weight": 0.1,
-      "atkSpd": 0,
-      "twoHanded": false,
-      "thrown": true
-    },
-    "56": {
-      "name": "Sling",
-      "type": "Bow",
-      "damage": [
-        0,
-        0
-      ],
-      "weight": 1.9,
-      "atkSpd": 0,
-      "twoHanded": true,
-      "ranged": true
-    },
-    "63": {
-      "name": "Master Key",
-      "type": "Key",
-      "damage": [
-        0,
-        0
-      ],
-      "weight": 1,
-      "atkSpd": 0,
-      "twoHanded": false
-    }
-  },
-  "armorTypes": {
-    "0": {
-      "name": "Cape",
-      "slot": "torso",
-      "armor": 5,
-      "weight": 0.3
-    },
-    "1": {
-      "name": "Cloak of Night",
-      "slot": "torso",
-      "armor": 10,
-      "weight": 0.4
-    },
-    "2": {
-      "name": "Elven Doublet",
-      "slot": "torso",
-      "armor": 11,
-      "weight": 0.3
-    },
-    "3": {
-      "name": "Leather Jerkin",
-      "slot": "torso",
-      "armor": 17,
-      "weight": 0.6
-    },
-    "4": {
-      "name": "Suede Doublet",
-      "slot": "torso",
-      "armor": 12,
-      "weight": 6
-    },
-    "5": {
-      "name": "Robe of the Kite Lord",
-      "slot": "torso",
-      "armor": 25,
-      "weight": 8
-    },
-    "6": {
-      "name": "Robe",
-      "slot": "torso",
-      "armor": 5,
-      "weight": 0.4
-    },
-    "7": {
-      "name": "Barbarian Doublet",
-      "slot": "torso",
-      "armor": 16,
-      "weight": 8
-    },
-    "8": {
-      "name": "Gi",
-      "slot": "torso",
-      "armor": 8,
-      "weight": 0.5
-    },
-    "9": {
-      "name": "Plate Mail",
-      "slot": "torso",
-      "armor": 35,
-      "weight": 25
-    },
-    "10": {
-      "name": "Tunic",
-      "slot": "torso",
-      "armor": 9,
-      "weight": 0.5
-    },
-    "16": {
-      "name": "Leather Boots",
-      "slot": "feet",
-      "armor": 25,
-      "weight": 1.6
-    },
-    "17": {
-      "name": "Sandals",
-      "slot": "feet",
-      "armor": 5,
-      "weight": 0.6
-    },
-    "18": {
-      "name": "Hosen",
-      "slot": "feet",
-      "armor": 30,
-      "weight": 1.6
-    },
-    "19": {
-      "name": "Chain Mail Aketon",
-      "slot": "feet",
-      "armor": 20,
-      "weight": 15
-    },
-    "24": {
-      "name": "Leg Mail",
-      "slot": "legs",
-      "armor": 35,
-      "weight": 5.3
-    },
-    "25": {
-      "name": "Leather Pants",
-      "slot": "legs",
-      "armor": 20,
-      "weight": 0.8
-    },
-    "32": {
-      "name": "Helmet",
-      "slot": "head",
-      "armor": 17,
-      "weight": 1.4
-    },
-    "33": {
-      "name": "Armet",
-      "slot": "head",
-      "armor": 40,
-      "weight": 1.9
-    },
-    "34": {
-      "name": "Crown of Nerra",
-      "slot": "head",
-      "armor": 5,
-      "weight": 0.6
-    },
-    "35": {
-      "name": "Vilmain's Hat",
-      "slot": "head",
-      "armor": 5,
-      "weight": 3
-    },
-    "40": {
-      "name": "Neck Plate",
-      "slot": "neck",
-      "armor": 12,
-      "weight": 6
-    },
-    "41": {
-      "name": "Torso Plate",
-      "slot": "torso",
-      "armor": 65,
-      "weight": 12
-    },
-    "42": {
-      "name": "Leg Plate",
-      "slot": "legs",
-      "armor": 56,
-      "weight": 8
-    },
-    "43": {
-      "name": "Foot Plate",
-      "slot": "feet",
-      "armor": 37,
-      "weight": 2.8
-    },
-    "48": {
-      "name": "Gauntlets",
-      "slot": "hands",
-      "armor": 12,
-      "weight": 7
-    },
-    "49": {
-      "name": "Gloves",
-      "slot": "hands",
-      "armor": 6,
-      "weight": 3
-    },
-    "56": {
-      "name": "Belt",
-      "slot": "belt",
-      "armor": 0,
-      "weight": 2
-    }
-  },
-  "potionTypes": {
-    "0": {
-      "name": "Mon Potion",
-      "effect": "spellPower",
-      "level": 1
-    },
-    "1": {
-      "name": "Um Potion",
-      "effect": "spellPower",
-      "level": 2
-    },
-    "2": {
-      "name": "Dee Potion",
-      "effect": "spellPower",
-      "level": 3
-    },
-    "3": {
-      "name": "Zo Potion",
-      "effect": "spellPower",
-      "level": 4
-    },
-    "4": {
-      "name": "Ful Potion",
-      "effect": "spellPower",
-      "level": 5
-    },
-    "8": {
-      "name": "Health Potion",
-      "effect": "health",
-      "restore": 100
-    },
-    "9": {
-      "name": "Stamina Potion",
-      "effect": "stamina",
-      "restore": 100
-    },
-    "10": {
-      "name": "Mana Potion",
-      "effect": "mana",
-      "restore": 100
-    },
-    "11": {
-      "name": "Antidote",
-      "effect": "poison",
-      "restore": 0
-    },
-    "13": {
-      "name": "Strength Potion",
-      "effect": "strength",
-      "boost": 10,
-      "duration": 1000
-    },
-    "14": {
-      "name": "Dexterity Potion",
-      "effect": "dexterity",
-      "boost": 10,
-      "duration": 1000
-    },
-    "15": {
-      "name": "Wisdom Potion",
-      "effect": "wisdom",
-      "boost": 10,
-      "duration": 1000
-    },
-    "16": {
-      "name": "Vitality Potion",
-      "effect": "vitality",
-      "boost": 10,
-      "duration": 1000
-    },
-    "17": {
-      "name": "Anti-Magic Potion",
-      "effect": "antiMagic",
-      "boost": 20,
-      "duration": 1000
-    },
-    "18": {
-      "name": "Anti-Fire Potion",
-      "effect": "antiFire",
-      "boost": 20,
-      "duration": 1000
-    },
-    "24": {
-      "name": "Waterskin (water)",
-      "effect": "stamina",
-      "restore": 30
-    }
-  },
-  "miscTypes": {
-    "0": {
-      "name": "Compass",
-      "usable": true,
-      "description": "Shows current direction",
-      "weight": 0.1
-    },
-    "1": {
-      "name": "Waterskin",
-      "usable": true,
-      "description": "Restores stamina when filled",
-      "weight": 0.3
-    },
-    "2": {
-      "name": "Torch",
-      "usable": true,
-      "description": "Provides light when lit (weapon slot)",
-      "luminous": true,
-      "weight": 3
-    },
-    "3": {
-      "name": "Dragon Steak",
-      "usable": true,
-      "food": true,
-      "nutrition": 1400,
-      "weight": 0.6
-    },
-    "4": {
-      "name": "Drumstick",
-      "usable": true,
-      "food": true,
-      "nutrition": 990,
-      "weight": 1
-    },
-    "5": {
-      "name": "Corn",
-      "usable": true,
-      "food": true,
-      "nutrition": 600,
-      "weight": 0.4
-    },
-    "6": {
-      "name": "Bread",
-      "usable": true,
-      "food": true,
-      "nutrition": 650,
-      "weight": 0.3
-    },
-    "7": {
-      "name": "Worm Round",
-      "usable": true,
-      "food": true,
-      "nutrition": 350,
-      "weight": 1.1
-    },
-    "8": {
-      "name": "Apple",
-      "usable": true,
-      "food": true,
-      "nutrition": 500,
-      "weight": 0.4
-    },
-    "9": {
-      "name": "Cheese",
-      "usable": true,
-      "food": true,
-      "nutrition": 820,
-      "weight": 0.8
-    },
-    "16": {
-      "name": "Jewel Symal",
-      "usable": false,
-      "description": "Rune stone",
-      "weight": 0.2
-    },
-    "17": {
-      "name": "Illumulet",
-      "usable": false,
-      "description": "Amulet (equippable)",
-      "weight": 0.2
-    },
-    "24": {
-      "name": "Ashes",
-      "usable": false,
-      "description": "Remains of a champion",
-      "weight": 0.4
-    },
-    "25": {
-      "name": "Magical Box of the Champion of Aether",
-      "usable": false,
-      "description": "Quest item",
-      "weight": 2
-    },
-    "32": {
-      "name": "Rabbit's Foot",
-      "usable": false,
-      "description": "Luck item",
-      "weight": 0.1
-    },
-    "34": {
-      "name": "Screamer Slice",
-      "usable": true,
-      "food": true,
-      "nutrition": 550,
-      "weight": 0.5
-    },
-    "48": {
-      "name": "Iron Key",
-      "usable": true,
-      "key": true,
-      "weight": 0.2
-    },
-    "49": {
-      "name": "Key of B",
-      "usable": true,
-      "key": true,
-      "weight": 0.1
-    },
-    "50": {
-      "name": "Winged Key",
-      "usable": true,
-      "key": true,
-      "weight": 0.1
-    },
-    "51": {
-      "name": "Topaz Key",
-      "usable": true,
-      "key": true,
-      "weight": 0.1
-    },
-    "52": {
-      "name": "Cross of Neta",
-      "usable": true,
-      "key": true,
-      "weight": 1
-    },
-    "56": {
-      "name": "Chest of the North Wind",
-      "usable": false,
-      "description": "Quest item",
-      "weight": 5
-    },
-    "58": {
-      "name": "Shank",
-      "usable": true,
-      "food": true,
-      "nutrition": 990,
-      "weight": 0.4
+  "itemTypeNames": {
+    "weapons": {
+      "0": "Eye Of Time",
+      "1": "Stormring",
+      "2": "Torch",
+      "3": "Flamitt",
+      "4": "Staff Of Claws",
+      "5": "Bolt Blade",
+      "6": "Fury",
+      "7": "The Firestaff",
+      "8": "Dagger",
+      "9": "Falchion",
+      "10": "Sword",
+      "11": "Rapier",
+      "12": "Sabre",
+      "13": "Samurai Sword",
+      "14": "Delta",
+      "15": "Diamond Edge",
+      "16": "Vorpal Blade",
+      "17": "The Inquisitor",
+      "18": "Axe",
+      "19": "Hardcleave",
+      "20": "Mace",
+      "21": "Mace Of Order",
+      "22": "Morningstar",
+      "23": "Club",
+      "24": "Stone Club",
+      "25": "Bow",
+      "26": "Crossbow",
+      "27": "Arrow",
+      "28": "Slayer",
+      "29": "Sling",
+      "30": "Rock",
+      "31": "Poison Dart",
+      "32": "Throwing Star",
+      "33": "Stick",
+      "34": "Staff",
+      "35": "Wand",
+      "36": "Teowand",
+      "37": "Yew Staff",
+      "38": "Staff Of Manar",
+      "39": "Snake Staff",
+      "40": "The Conduit",
+      "41": "Dragon Spit",
+      "42": "Sceptre Of Lyf",
+      "43": "Horn Of Fear",
+      "44": "Speedbow",
+      "45": "The Firestaff (Complete)",
+      "46": "(W46)",
+      "47": "(W47)",
+      "48": "(W48)",
+      "49": "(W49)",
+      "50": "(W50)",
+      "51": "(W51)",
+      "52": "(W52)",
+      "53": "(W53)",
+      "54": "(W54)",
+      "55": "(W55)",
+      "56": "(W56)",
+      "57": "(W57)",
+      "58": "(W58)",
+      "59": "(W59)",
+      "60": "(W60)",
+      "61": "(W61)",
+      "62": "(W62)",
+      "63": "Master Key"
+    },
+    "armor": {
+      "0": "Cape",
+      "1": "Cloak of Night",
+      "2": "Elven Doublet",
+      "3": "Leather Jerkin",
+      "4": "Leather Boots",
+      "5": "Robe of the Kite Lord",
+      "6": "Robe",
+      "7": "Fine Robe (Body)",
+      "8": "Fine Robe (Legs)",
+      "9": "Plate Mail",
+      "10": "Tunic",
+      "11": "Silk Shirt",
+      "12": "Gunna",
+      "13": "Elven Doublet",
+      "14": "Elven Huke",
+      "15": "Elven Boots",
+      "16": "Leather Jerkin",
+      "17": "Leather Pants",
+      "18": "Suede Boots",
+      "19": "Chain Mail Aketon",
+      "20": "Tunic",
+      "21": "Ghi",
+      "22": "Ghi Trousers",
+      "23": "Calista",
+      "24": "Crown Of Nerra",
+      "25": "Bezerker Helm",
+      "26": "Helmet",
+      "27": "Basinet",
+      "28": "Buckler",
+      "29": "Barbarian Hide",
+      "30": "Wooden Shield",
+      "31": "Small Shield",
+      "32": "Mail Aketon",
+      "33": "Leg Mail",
+      "34": "Mithral Aketon",
+      "35": "Mithral Mail",
+      "36": "Casque'n Coif",
+      "37": "Hosen",
+      "38": "Armet",
+      "39": "Torso Plate",
+      "40": "Leg Plate",
+      "41": "Foot Plate",
+      "42": "Large Shield",
+      "43": "Helm Of Lyte",
+      "44": "Plate Of Lyte",
+      "45": "Poleyn Of Lyte",
+      "46": "Greave Of Lyte",
+      "47": "Shield Of Lyte",
+      "48": "Helm Of Darc",
+      "49": "Plate Of Darc",
+      "50": "Poleyn Of Darc",
+      "51": "Greave Of Darc",
+      "52": "Shield Of Darc",
+      "54": "Flamebain",
+      "56": "Boots Of Speed",
+      "57": "Halter"
+    },
+    "potions": {
+      "3": "Ven Potion",
+      "6": "Ros Potion",
+      "7": "Ku Potion",
+      "8": "Dane Potion",
+      "9": "Neta Potion",
+      "10": "Antivenin",
+      "11": "Mon Potion",
+      "12": "Ya Potion",
+      "13": "Ee Potion",
+      "14": "Vi Potion",
+      "15": "Water Flask",
+      "19": "Ful Bomb",
+      "20": "Empty Flask"
+    },
+    "containers": {
+      "0": "Chest",
+      "1": "Chest",
+      "4": "Skull",
+      "121": "Chest"
+    },
+    "misc": {
+      "0": "Compass",
+      "1": "Waterskin",
+      "2": "Jewel Symal",
+      "3": "Illumulet",
+      "4": "Ashes",
+      "5": "Bones",
+      "6": "Copper Coin",
+      "7": "Silver Coin",
+      "8": "Gold Coin",
+      "9": "Iron Key",
+      "10": "Key Of B",
+      "11": "Solid Key",
+      "12": "Square Key",
+      "13": "Tourquoise Key",
+      "14": "Cross Key",
+      "15": "Onyx Key",
+      "16": "Skeleton Key",
+      "17": "Gold Key",
+      "18": "Winged Key",
+      "19": "Topaz Key",
+      "20": "Sapphire Key",
+      "21": "Emerald Key",
+      "22": "Ruby Key",
+      "23": "Ra Key",
+      "24": "Master Key",
+      "25": "Boulder",
+      "26": "Blue Gem",
+      "27": "Orange Gem",
+      "28": "Green Gem",
+      "29": "Apple",
+      "30": "Corn",
+      "31": "Bread",
+      "32": "Cheese",
+      "33": "Screamer Slice",
+      "34": "Worm Round",
+      "35": "Drumstick",
+      "36": "Dragon Steak",
+      "37": "Gem Of Ages",
+      "38": "Ekkhard Cross",
+      "39": "Moonstone",
+      "40": "The Hellion",
+      "41": "Pendant Feral",
+      "42": "Magical Box (Blue)",
+      "43": "Magical Box (Green)",
+      "44": "Mirror Of Dawn",
+      "45": "Rope",
+      "46": "Rabbit's Foot",
+      "47": "Corbamite",
+      "48": "Choker",
+      "49": "Lock Picks",
+      "50": "Magnifier",
+      "51": "Zokathra",
+      "52": "Misc_52",
+      "53": "Misc_53",
+      "56": "Chest"
     }
   },
   "championPortraits": {

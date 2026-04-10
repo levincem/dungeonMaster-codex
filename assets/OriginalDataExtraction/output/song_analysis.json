@@ -1,0 +1,671 @@
+{
+  "_meta": {
+    "source": "extract_song.cjs",
+    "date": "2026-04-10",
+    "inputFile": "EUDATA/SONG.DAT",
+    "fileSize": 162482,
+    "description": "Analysis and extraction of DM1 PC DOS music data"
+  },
+  "format": {
+    "encoding": "Raw OPL2/AdLib IMF-compatible 4-byte events",
+    "clockRate": "UNKNOWN - 560 Hz assumed for tick counting only; actual FTL timer rate TBD (see notes)",
+    "bytesPerEvent": 4,
+    "eventFields": [
+      "register (u8)",
+      "value (u8)",
+      "delay (u16 LE, in 1/560s frames)"
+    ],
+    "songBoundary": "Each song starts with OPL2 waveform-select-enable: reg=0x01, val=0x80",
+    "imfType": "type-0 (no length prefix; data begins at byte 0 of each extracted file)"
+  },
+  "songCount": 8,
+  "songs": [
+    {
+      "index": 0,
+      "name": "Hall of Champions (short)",
+      "offset": "0x000000",
+      "offsetDec": 0,
+      "byteLength": 3608,
+      "imfFile": "songs/song_0.imf",
+      "eventDump": "songs/song_0_events.json",
+      "stats": {
+        "eventCount": 902,
+        "totalDelayTicks": 25442256,
+        "assumedClockHz": 560,
+        "durationSecondsAtAssumed560Hz": 45432.6,
+        "durationFormattedAtAssumed560Hz": "757:12",
+        "maxSingleDelay": 65535,
+        "keyOnEvents": 2,
+        "keyOffEvents": 7,
+        "activeChannels": [
+          6,
+          8
+        ],
+        "topRegisters": [
+          {
+            "reg": 17,
+            "name": "Reg_11",
+            "count": 52
+          },
+          {
+            "reg": 0,
+            "name": "Reg_00",
+            "count": 47
+          },
+          {
+            "reg": 1,
+            "name": "WaveformSelectEnable",
+            "count": 43
+          },
+          {
+            "reg": 16,
+            "name": "Reg_10",
+            "count": 41
+          },
+          {
+            "reg": 15,
+            "name": "Reg_0F",
+            "count": 40
+          },
+          {
+            "reg": 240,
+            "name": "Op16_Waveform",
+            "count": 40
+          },
+          {
+            "reg": 31,
+            "name": "Reg_1F",
+            "count": 36
+          },
+          {
+            "reg": 14,
+            "name": "Reg_0E",
+            "count": 30
+          },
+          {
+            "reg": 255,
+            "name": "Reg_FF",
+            "count": 29
+          },
+          {
+            "reg": 254,
+            "name": "Reg_FE",
+            "count": 26
+          }
+        ]
+      }
+    },
+    {
+      "index": 1,
+      "name": "Dungeon Theme A (long)",
+      "offset": "0x000e18",
+      "offsetDec": 3608,
+      "byteLength": 43568,
+      "imfFile": "songs/song_1.imf",
+      "eventDump": "songs/song_1_events.json",
+      "stats": {
+        "eventCount": 10892,
+        "totalDelayTicks": 349813367,
+        "assumedClockHz": 560,
+        "durationSecondsAtAssumed560Hz": 624666.7,
+        "durationFormattedAtAssumed560Hz": "10411:06",
+        "maxSingleDelay": 65535,
+        "keyOnEvents": 108,
+        "keyOffEvents": 103,
+        "activeChannels": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "topRegisters": [
+          {
+            "reg": 143,
+            "name": "Op15_SL_RR",
+            "count": 577
+          },
+          {
+            "reg": 128,
+            "name": "Op0_SL_RR",
+            "count": 540
+          },
+          {
+            "reg": 8,
+            "name": "CSM_NoteSel",
+            "count": 219
+          },
+          {
+            "reg": 248,
+            "name": "Reg_F8",
+            "count": 189
+          },
+          {
+            "reg": 9,
+            "name": "Reg_09",
+            "count": 113
+          },
+          {
+            "reg": 14,
+            "name": "Reg_0E",
+            "count": 113
+          },
+          {
+            "reg": 15,
+            "name": "Reg_0F",
+            "count": 112
+          },
+          {
+            "reg": 247,
+            "name": "Reg_F7",
+            "count": 112
+          },
+          {
+            "reg": 10,
+            "name": "Reg_0A",
+            "count": 107
+          },
+          {
+            "reg": 16,
+            "name": "Reg_10",
+            "count": 105
+          }
+        ]
+      }
+    },
+    {
+      "index": 2,
+      "name": "Dungeon Theme B",
+      "offset": "0x00b848",
+      "offsetDec": 47176,
+      "byteLength": 10900,
+      "imfFile": "songs/song_2.imf",
+      "eventDump": "songs/song_2_events.json",
+      "stats": {
+        "eventCount": 2725,
+        "totalDelayTicks": 89648407,
+        "assumedClockHz": 560,
+        "durationSecondsAtAssumed560Hz": 160086.4,
+        "durationFormattedAtAssumed560Hz": "2668:06",
+        "maxSingleDelay": 65535,
+        "keyOnEvents": 31,
+        "keyOffEvents": 40,
+        "activeChannels": [
+          0,
+          1,
+          2,
+          3,
+          6,
+          7,
+          8
+        ],
+        "topRegisters": [
+          {
+            "reg": 143,
+            "name": "Op15_SL_RR",
+            "count": 236
+          },
+          {
+            "reg": 128,
+            "name": "Op0_SL_RR",
+            "count": 217
+          },
+          {
+            "reg": 248,
+            "name": "Reg_F8",
+            "count": 81
+          },
+          {
+            "reg": 8,
+            "name": "CSM_NoteSel",
+            "count": 72
+          },
+          {
+            "reg": 136,
+            "name": "Op8_SL_RR",
+            "count": 46
+          },
+          {
+            "reg": 104,
+            "name": "Op8_AR_DR",
+            "count": 45
+          },
+          {
+            "reg": 129,
+            "name": "Op1_SL_RR",
+            "count": 45
+          },
+          {
+            "reg": 184,
+            "name": "Chan8_KeyOn_FreqHi",
+            "count": 45
+          },
+          {
+            "reg": 10,
+            "name": "Reg_0A",
+            "count": 43
+          },
+          {
+            "reg": 9,
+            "name": "Reg_09",
+            "count": 42
+          }
+        ]
+      }
+    },
+    {
+      "index": 3,
+      "name": "Dungeon Theme C (long)",
+      "offset": "0x00e2dc",
+      "offsetDec": 58076,
+      "byteLength": 46592,
+      "imfFile": "songs/song_3.imf",
+      "eventDump": "songs/song_3_events.json",
+      "stats": {
+        "eventCount": 11648,
+        "totalDelayTicks": 379487141,
+        "assumedClockHz": 560,
+        "durationSecondsAtAssumed560Hz": 677655.6,
+        "durationFormattedAtAssumed560Hz": "11294:15",
+        "maxSingleDelay": 65535,
+        "keyOnEvents": 110,
+        "keyOffEvents": 125,
+        "activeChannels": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "topRegisters": [
+          {
+            "reg": 128,
+            "name": "Op0_SL_RR",
+            "count": 857
+          },
+          {
+            "reg": 143,
+            "name": "Op15_SL_RR",
+            "count": 856
+          },
+          {
+            "reg": 8,
+            "name": "CSM_NoteSel",
+            "count": 284
+          },
+          {
+            "reg": 248,
+            "name": "Reg_F8",
+            "count": 272
+          },
+          {
+            "reg": 129,
+            "name": "Op1_SL_RR",
+            "count": 188
+          },
+          {
+            "reg": 9,
+            "name": "Reg_09",
+            "count": 178
+          },
+          {
+            "reg": 247,
+            "name": "Reg_F7",
+            "count": 165
+          },
+          {
+            "reg": 104,
+            "name": "Op8_AR_DR",
+            "count": 161
+          },
+          {
+            "reg": 152,
+            "name": "Reg_98",
+            "count": 161
+          },
+          {
+            "reg": 246,
+            "name": "Reg_F6",
+            "count": 161
+          }
+        ]
+      }
+    },
+    {
+      "index": 4,
+      "name": "Dungeon Theme D",
+      "offset": "0x0198dc",
+      "offsetDec": 104668,
+      "byteLength": 20676,
+      "imfFile": "songs/song_4.imf",
+      "eventDump": "songs/song_4_events.json",
+      "stats": {
+        "eventCount": 5169,
+        "totalDelayTicks": 171351991,
+        "assumedClockHz": 560,
+        "durationSecondsAtAssumed560Hz": 305985.7,
+        "durationFormattedAtAssumed560Hz": "5099:45",
+        "maxSingleDelay": 65535,
+        "keyOnEvents": 67,
+        "keyOffEvents": 52,
+        "activeChannels": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "topRegisters": [
+          {
+            "reg": 143,
+            "name": "Op15_SL_RR",
+            "count": 438
+          },
+          {
+            "reg": 128,
+            "name": "Op0_SL_RR",
+            "count": 367
+          },
+          {
+            "reg": 8,
+            "name": "CSM_NoteSel",
+            "count": 132
+          },
+          {
+            "reg": 248,
+            "name": "Reg_F8",
+            "count": 129
+          },
+          {
+            "reg": 129,
+            "name": "Op1_SL_RR",
+            "count": 97
+          },
+          {
+            "reg": 142,
+            "name": "Op14_SL_RR",
+            "count": 93
+          },
+          {
+            "reg": 88,
+            "name": "Reg_58",
+            "count": 80
+          },
+          {
+            "reg": 120,
+            "name": "Reg_78",
+            "count": 79
+          },
+          {
+            "reg": 247,
+            "name": "Reg_F7",
+            "count": 79
+          },
+          {
+            "reg": 152,
+            "name": "Reg_98",
+            "count": 76
+          }
+        ]
+      }
+    },
+    {
+      "index": 5,
+      "name": "Dungeon Theme E",
+      "offset": "0x01e9a0",
+      "offsetDec": 125344,
+      "byteLength": 19992,
+      "imfFile": "songs/song_5.imf",
+      "eventDump": "songs/song_5_events.json",
+      "stats": {
+        "eventCount": 4998,
+        "totalDelayTicks": 165616510,
+        "assumedClockHz": 560,
+        "durationSecondsAtAssumed560Hz": 295743.8,
+        "durationFormattedAtAssumed560Hz": "4929:03",
+        "maxSingleDelay": 65527,
+        "keyOnEvents": 61,
+        "keyOffEvents": 58,
+        "activeChannels": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "topRegisters": [
+          {
+            "reg": 143,
+            "name": "Op15_SL_RR",
+            "count": 396
+          },
+          {
+            "reg": 128,
+            "name": "Op0_SL_RR",
+            "count": 375
+          },
+          {
+            "reg": 8,
+            "name": "CSM_NoteSel",
+            "count": 153
+          },
+          {
+            "reg": 248,
+            "name": "Reg_F8",
+            "count": 136
+          },
+          {
+            "reg": 129,
+            "name": "Op1_SL_RR",
+            "count": 110
+          },
+          {
+            "reg": 142,
+            "name": "Op14_SL_RR",
+            "count": 84
+          },
+          {
+            "reg": 120,
+            "name": "Reg_78",
+            "count": 82
+          },
+          {
+            "reg": 104,
+            "name": "Op8_AR_DR",
+            "count": 75
+          },
+          {
+            "reg": 246,
+            "name": "Reg_F6",
+            "count": 74
+          },
+          {
+            "reg": 10,
+            "name": "Reg_0A",
+            "count": 73
+          }
+        ]
+      }
+    },
+    {
+      "index": 6,
+      "name": "Combat / Special",
+      "offset": "0x0237b8",
+      "offsetDec": 145336,
+      "byteLength": 8152,
+      "imfFile": "songs/song_6.imf",
+      "eventDump": "songs/song_6_events.json",
+      "stats": {
+        "eventCount": 2038,
+        "totalDelayTicks": 68270251,
+        "assumedClockHz": 560,
+        "durationSecondsAtAssumed560Hz": 121911.2,
+        "durationFormattedAtAssumed560Hz": "2031:51",
+        "maxSingleDelay": 65513,
+        "keyOnEvents": 26,
+        "keyOffEvents": 26,
+        "activeChannels": [
+          0,
+          3,
+          8
+        ],
+        "topRegisters": [
+          {
+            "reg": 128,
+            "name": "Op0_SL_RR",
+            "count": 158
+          },
+          {
+            "reg": 143,
+            "name": "Op15_SL_RR",
+            "count": 158
+          },
+          {
+            "reg": 8,
+            "name": "CSM_NoteSel",
+            "count": 60
+          },
+          {
+            "reg": 248,
+            "name": "Reg_F8",
+            "count": 51
+          },
+          {
+            "reg": 24,
+            "name": "Reg_18",
+            "count": 42
+          },
+          {
+            "reg": 142,
+            "name": "Op14_SL_RR",
+            "count": 40
+          },
+          {
+            "reg": 168,
+            "name": "Chan8_FreqLo",
+            "count": 39
+          },
+          {
+            "reg": 184,
+            "name": "Chan8_KeyOn_FreqHi",
+            "count": 39
+          },
+          {
+            "reg": 120,
+            "name": "Reg_78",
+            "count": 38
+          },
+          {
+            "reg": 129,
+            "name": "Op1_SL_RR",
+            "count": 37
+          }
+        ]
+      }
+    },
+    {
+      "index": 7,
+      "name": "Finale / Lord Chaos",
+      "offset": "0x025790",
+      "offsetDec": 153488,
+      "byteLength": 8992,
+      "imfFile": "songs/song_7.imf",
+      "eventDump": "songs/song_7_events.json",
+      "stats": {
+        "eventCount": 2248,
+        "totalDelayTicks": 72732318,
+        "assumedClockHz": 560,
+        "durationSecondsAtAssumed560Hz": 129879.1,
+        "durationFormattedAtAssumed560Hz": "2164:39",
+        "maxSingleDelay": 65531,
+        "keyOnEvents": 29,
+        "keyOffEvents": 22,
+        "activeChannels": [
+          0,
+          1,
+          2,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "topRegisters": [
+          {
+            "reg": 143,
+            "name": "Op15_SL_RR",
+            "count": 166
+          },
+          {
+            "reg": 128,
+            "name": "Op0_SL_RR",
+            "count": 145
+          },
+          {
+            "reg": 8,
+            "name": "CSM_NoteSel",
+            "count": 52
+          },
+          {
+            "reg": 248,
+            "name": "Reg_F8",
+            "count": 52
+          },
+          {
+            "reg": 129,
+            "name": "Op1_SL_RR",
+            "count": 50
+          },
+          {
+            "reg": 9,
+            "name": "Reg_09",
+            "count": 42
+          },
+          {
+            "reg": 142,
+            "name": "Op14_SL_RR",
+            "count": 39
+          },
+          {
+            "reg": 247,
+            "name": "Reg_F7",
+            "count": 34
+          },
+          {
+            "reg": 10,
+            "name": "Reg_0A",
+            "count": 32
+          },
+          {
+            "reg": 56,
+            "name": "Reg_38",
+            "count": 32
+          }
+        ]
+      }
+    }
+  ],
+  "playbackNotes": [
+    "Each song_N.imf file is a standalone IMF type-0 file, playable directly.",
+    "Tools: adplug (Linux/Mac), imf2wav (converts to WAV), DOSBox MPLAY utility.",
+    "Song names are inferred from duration and position — verify by triggering in-game.",
+    "Song 0 is very short (likely an intro stinger, not a full loop).",
+    "Songs 1 and 3 are the longest (~19 min total at 560 Hz) — main dungeon loops."
+  ]
+}

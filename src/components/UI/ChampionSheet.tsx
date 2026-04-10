@@ -22,7 +22,7 @@ import {
     getEquippableSlots,
     getTotalWeight,
     getChampionMaxLoad,
-    getEffectiveChampionStats,
+    getEffectiveChampionStatsWithBonuses,
     hasAnyChampionWound,
 } from '../../data/equipment';
 
@@ -42,6 +42,34 @@ const SKILL_LEVEL_NAMES: string[] = [
     'Wizard', 'Artist', 'Champion', 'Hero', 'Master',
     'HighMaster', 'LegendMaster', 'ArchMaster', 'GrandMaster', 'TimeStone',
 ];
+
+function getChampionPotionBonusesForSheet(
+    activePotionBoosts: Array<{
+        championId: number;
+        stat: 'strength' | 'dexterity' | 'wisdom' | 'vitality' | 'antiMagic' | 'antiFire';
+        amount: number;
+        expiresAt: number;
+    }>,
+    championId: number,
+) {
+    const now = Date.now();
+    return activePotionBoosts.reduce(
+        (sum, boost) => {
+            if (boost.championId !== championId || boost.expiresAt <= now) return sum;
+            return { ...sum, [boost.stat]: sum[boost.stat] + boost.amount };
+        },
+        {
+            mana: 0,
+            strength: 0,
+            dexterity: 0,
+            wisdom: 0,
+            vitality: 0,
+            antiMagic: 0,
+            antiFire: 0,
+            luck: 0,
+        },
+    );
+}
 
 function getSkillLevelName(xp: number): string {
     const lvl = xpToLevel(xp);
@@ -321,9 +349,11 @@ export const ChampionSheet: React.FC = () => {
     const equip      = championEquipment[champion.id]   ?? {};
     const vitals     = championVitals[champion.id];
     const xp         = championXP?.[champion.id];
-    const effectiveStats = getEffectiveChampionStats(champion, equip);
+    const activePotionBoosts = useStore((s) => s.activePotionBoosts);
+    const potionBonuses = getChampionPotionBonusesForSheet(activePotionBoosts, champion.id);
+    const effectiveStats = getEffectiveChampionStatsWithBonuses(champion, equip, potionBonuses);
     const weight     = getTotalWeight(equip, inv);
-    const maxWeight  = getChampionMaxLoad(champion, equip, vitals?.stamina, vitals?.wounds);
+    const maxWeight  = getChampionMaxLoad(champion, equip, vitals?.stamina, vitals?.wounds, potionBonuses);
     const overloaded = weight > maxWeight;
     const loadWarn   = !overloaded && (weight * 8) > (maxWeight * 5);
     const loadColor  = overloaded ? T.red : loadWarn ? T.yellow : T.cream;

@@ -1,4 +1,4 @@
-import { useMemo, useState, type CSSProperties } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { hasPersistedSave } from '../../engine/saveGame';
 
 interface Props {
@@ -9,16 +9,27 @@ interface Props {
 export const TitleScreen = ({ onEnter, onResume }: Props) => {
     const [hasSave] = useState(() => hasPersistedSave());
     const [opening, setOpening] = useState(false);
+    const [logoVisible, setLogoVisible] = useState(false);
+    const [showScene, setShowScene] = useState(false);
+
+    useEffect(() => {
+        const logoTimer = window.setTimeout(() => setLogoVisible(true), 120);
+        const sceneTimer = window.setTimeout(() => setShowScene(true), 2120);
+        return () => {
+            window.clearTimeout(logoTimer);
+            window.clearTimeout(sceneTimer);
+        };
+    }, []);
 
     const doorTransition = useMemo(
-        () => opening ? 'transform 0.72s ease, opacity 0.72s ease' : 'transform 0.42s ease, opacity 0.42s ease',
+        () => opening ? 'transform 0.95s ease-in-out, opacity 0.95s ease-in-out' : 'transform 0.46s ease, opacity 0.46s ease',
         [opening],
     );
 
     const handleEnter = () => {
         if (opening) return;
         setOpening(true);
-        window.setTimeout(() => onEnter(), 720);
+        window.setTimeout(() => onEnter(), 980);
     };
 
     const handleResume = () => {
@@ -46,139 +57,93 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
             position: 'fixed',
             inset: 0,
             overflow: 'hidden',
-            background:
-                'radial-gradient(circle at 50% 18%, rgba(184,132,44,0.24), transparent 28%), linear-gradient(180deg, #0d0b08 0%, #19140c 30%, #090807 100%)',
+            background: '#000',
         }}>
             <div style={{
                 position: 'absolute',
                 inset: 0,
-                backgroundImage: 'url(/textures/wall.png?v=2)',
-                backgroundSize: '256px 256px',
-                opacity: 0.11,
-                mixBlendMode: 'screen',
-            }} />
-
-            <div style={{
-                position: 'absolute',
-                inset: 0,
                 display: 'grid',
-                gridTemplateColumns: '1.2fr 0.85fr',
-                alignItems: 'center',
-                padding: '7vh 7vw',
-                gap: '4vw',
+                gridTemplateColumns: 'minmax(0, 79%) minmax(280px, 21%)',
+                alignItems: 'stretch',
+                padding: 0,
+                gap: 0,
+                opacity: showScene ? 1 : 0,
+                transform: showScene ? 'scale(1)' : 'scale(1.015)',
+                transition: 'opacity 0.7s ease, transform 0.7s ease',
+                pointerEvents: showScene ? 'auto' : 'none',
             }}>
                 <div style={{
                     position: 'relative',
-                    minHeight: '64vh',
+                    minHeight: '94vh',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    overflow: 'hidden',
+                    background: '#000',
                 }}>
                     <div style={{
-                        position: 'absolute',
-                        inset: '8% 0 0',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        pointerEvents: 'none',
-                    }}>
-                        <img
-                            src="/misc/Dm_logo.png"
-                            alt="Dungeon Master"
-                            draggable={false}
-                            style={{
-                                width: 'min(36vw, 520px)',
-                                objectFit: 'contain',
-                                filter: 'drop-shadow(0 12px 40px rgba(0,0,0,0.8))',
-                            }}
-                        />
-                    </div>
-
-                    <div style={{
                         position: 'relative',
-                        width: 'min(52vw, 760px)',
-                        aspectRatio: '1.26 / 1',
-                        marginTop: '16vh',
+                        width: '100%',
+                        height: '100%',
+                        minHeight: '100vh',
                     }}>
                         <div style={{
                             position: 'absolute',
                             inset: 0,
-                            borderRadius: 26,
-                            background:
-                                'linear-gradient(180deg, rgba(56,42,22,0.9) 0%, rgba(24,18,10,0.95) 100%)',
-                            boxShadow: '0 30px 70px rgba(0,0,0,0.45)',
+                            boxShadow: '0 34px 90px rgba(0,0,0,0.6)',
                             overflow: 'hidden',
+                            background: '#000',
                         }}>
                             <div style={{
                                 position: 'absolute',
-                                left: 0,
-                                top: 0,
-                                bottom: 0,
-                                width: '22%',
-                                backgroundImage: 'url(/textures/wall.png?v=2)',
-                                backgroundSize: '200px 200px',
-                                filter: 'brightness(0.64)',
+                                inset: 0,
+                                background: '#000',
                             }} />
-                            <div style={{
-                                position: 'absolute',
-                                right: 0,
-                                top: 0,
-                                bottom: 0,
-                                width: '22%',
-                                backgroundImage: 'url(/textures/wall.png?v=2)',
-                                backgroundSize: '200px 200px',
-                                filter: 'brightness(0.64)',
-                            }} />
-
-                            <div style={{
-                                position: 'absolute',
-                                left: '22%',
-                                right: '22%',
-                                top: '13%',
-                                bottom: '12%',
-                                borderRadius: 12,
-                                background:
-                                    'linear-gradient(180deg, rgba(12,10,7,0.96) 0%, rgba(30,20,8,0.98) 100%)',
-                                border: '2px solid rgba(126,92,40,0.85)',
-                                boxShadow: 'inset 0 0 0 1px rgba(224,176,84,0.1), inset 0 0 48px rgba(0,0,0,0.46)',
-                                overflow: 'hidden',
-                            }}>
-                                <div style={{
-                                    position: 'absolute',
-                                    left: 0,
-                                    top: 0,
-                                    bottom: 0,
-                                    width: '50%',
-                                    backgroundImage: 'url(/textures/door.png?v=2)',
-                                    backgroundSize: 'cover',
-                                    backgroundPosition: 'left center',
-                                    borderRight: '1px solid rgba(0,0,0,0.6)',
-                                    transform: opening ? 'translateX(-96%)' : 'translateX(0)',
-                                    opacity: opening ? 0.18 : 1,
-                                    transition: doorTransition,
-                                }} />
-                                <div style={{
-                                    position: 'absolute',
-                                    right: 0,
-                                    top: 0,
-                                    bottom: 0,
-                                    width: '50%',
-                                    backgroundImage: 'url(/textures/door.png?v=2)',
-                                    backgroundSize: 'cover',
-                                    backgroundPosition: 'right center',
-                                    borderLeft: '1px solid rgba(0,0,0,0.6)',
-                                    transform: opening ? 'translateX(96%)' : 'translateX(0)',
-                                    opacity: opening ? 0.18 : 1,
-                                    transition: doorTransition,
-                                }} />
-                                <div style={{
+                            <img
+                                src="/misc/porte_entree_gauche.png"
+                                alt=""
+                                draggable={false}
+                                style={{
                                     position: 'absolute',
                                     inset: 0,
-                                    background:
-                                        'radial-gradient(circle at 50% 48%, rgba(224,190,110,0.38), rgba(160,110,32,0.14) 34%, rgba(0,0,0,0.78) 78%)',
-                                    opacity: opening ? 1 : 0.26,
-                                    transition: 'opacity 0.72s ease',
-                                }} />
-                            </div>
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover',
+                                    transform: opening ? 'translateX(-46%)' : 'translateX(0)',
+                                    opacity: opening ? 0.92 : 1,
+                                    transition: doorTransition,
+                                    willChange: 'transform, opacity',
+                                }}
+                            />
+                            <img
+                                src="/misc/porte_entree_droite.png"
+                                alt=""
+                                draggable={false}
+                                style={{
+                                    position: 'absolute',
+                                    inset: 0,
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover',
+                                    transform: opening ? 'translateX(46%)' : 'translateX(0)',
+                                    opacity: opening ? 0.92 : 1,
+                                    transition: doorTransition,
+                                    willChange: 'transform, opacity',
+                                }}
+                            />
+                            <img
+                                src="/misc/cadre_entree.png"
+                                alt=""
+                                draggable={false}
+                                style={{
+                                    position: 'absolute',
+                                    inset: 0,
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover',
+                                    pointerEvents: 'none',
+                                }}
+                            />
                         </div>
                     </div>
                 </div>
@@ -186,10 +151,32 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
                 <div style={{
                     display: 'flex',
                     flexDirection: 'column',
-                    alignItems: 'flex-start',
-                    justifyContent: 'center',
+                    alignItems: 'stretch',
+                    justifyContent: 'stretch',
+                    padding: 0,
+                    backgroundImage:
+                        'linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0.3)), url(/textures/wall.png?v=2)',
+                    backgroundSize: 'cover, 256px 256px',
+                    backgroundPosition: 'center, center',
+                    boxShadow: 'inset 0 0 0 1px rgba(134, 102, 55, 0.22), inset 0 0 90px rgba(0,0,0,0.55)',
+                }} />
+            </div>
+
+            <div style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity: showScene ? 1 : 0,
+                pointerEvents: showScene ? 'auto' : 'none',
+                transition: 'opacity 0.45s ease',
+            }}>
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
                     gap: 18,
-                    paddingTop: '10vh',
                 }}>
                     <button
                         type="button"
@@ -242,20 +229,34 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
                             Resume
                         </span>
                     </button>
-
-                    <div style={{
-                        marginTop: 10,
-                        maxWidth: 340,
-                        color: 'rgba(214,190,138,0.66)',
-                        fontSize: 13,
-                        lineHeight: 1.5,
-                        letterSpacing: 0.4,
-                    }}>
-                        {hasSave
-                            ? 'Resume charge maintenant la derniere sauvegarde persistante.'
-                            : 'Resume s activera automatiquement des qu une sauvegarde existera.'}
-                    </div>
                 </div>
+            </div>
+
+            <div style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: showScene ? 'transparent' : '#000',
+                opacity: logoVisible ? 1 : 0,
+                pointerEvents: 'none',
+                transition: 'opacity 1.45s ease, background 0.8s ease',
+            }}>
+                <img
+                    src="/misc/Dm_logo.png"
+                    alt="Dungeon Master"
+                    draggable={false}
+                    style={{
+                        width: showScene ? 'min(34vw, 520px)' : 'min(46vw, 700px)',
+                        objectFit: 'contain',
+                        filter: 'drop-shadow(0 18px 48px rgba(0,0,0,0.85))',
+                        transform: logoVisible
+                            ? (showScene ? 'translate(5vw, -35vh) scale(0.74)' : 'translate(0, 0) scale(1)')
+                            : 'translateY(-18px) scale(0.985)',
+                        transition: 'width 0.8s ease, transform 1.65s ease',
+                    }}
+                />
             </div>
         </div>
     );

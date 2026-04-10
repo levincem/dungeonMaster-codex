@@ -64,7 +64,7 @@
                   },
                   {
                       "id":  8,
-                      "name":  "Gi",
+                      "name":  "Ghi",
                       "slot":  "torso",
                       "armor":  8,
                       "weight":  4
@@ -81,6 +81,20 @@
                       "name":  "Tunic",
                       "slot":  "torso",
                       "armor":  4,
+                      "weight":  3
+                  },
+                  {
+                      "id":  11,
+                      "name":  "Silk Shirt",
+                      "slot":  "torso",
+                      "armor":  3,
+                      "weight":  2
+                  },
+                  {
+                      "id":  12,
+                      "name":  "Gunna",
+                      "slot":  "torso",
+                      "armor":  6,
                       "weight":  3
                   },
                   {
@@ -112,6 +126,20 @@
                       "weight":  15
                   },
                   {
+                      "id":  20,
+                      "name":  "Tunic",
+                      "slot":  "torso",
+                      "armor":  4,
+                      "weight":  3
+                  },
+                  {
+                      "id":  21,
+                      "name":  "Ghi",
+                      "slot":  "torso",
+                      "armor":  8,
+                      "weight":  4
+                  },
+                  {
                       "id":  24,
                       "name":  "Leg Mail",
                       "slot":  "legs",
@@ -124,6 +152,13 @@
                       "slot":  "legs",
                       "armor":  8,
                       "weight":  5
+                  },
+                  {
+                      "id":  29,
+                      "name":  "Barbarian Hide",
+                      "slot":  "torso",
+                      "armor":  18,
+                      "weight":  8
                   },
                   {
                       "id":  32,
@@ -201,6 +236,13 @@
                       "slot":  "belt",
                       "armor":  0,
                       "weight":  2
+                  },
+                  {
+                      "id":  57,
+                      "name":  "Halter",
+                      "slot":  "torso",
+                      "armor":  2,
+                      "weight":  1
                   }
               ]
 }

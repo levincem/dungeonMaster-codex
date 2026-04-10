@@ -1,7 +1,6 @@
-// Item definition types — derived from Old_data/game_db.json
+// Item definition types derived from the extracted game data.
 
-// ─── Weapons ───────────────────────────────────────────────────────────────────
-
+// Weapons
 export type WeaponCategory =
     | 'Sword'
     | 'Axe'
@@ -19,7 +18,7 @@ export interface WeaponDef {
     id: number;
     name: string;
     type: WeaponCategory;
-    damage: [number, number];   // [min, max]
+    damage: [number, number];
     weight: number;
     atkSpd: number;
     twoHanded: boolean;
@@ -29,8 +28,7 @@ export interface WeaponDef {
     poison?: boolean;
 }
 
-// ─── Armor ─────────────────────────────────────────────────────────────────────
-
+// Armor
 export type ArmorSlot = 'head' | 'neck' | 'torso' | 'legs' | 'feet' | 'hands' | 'belt';
 
 export interface ArmorDef {
@@ -41,8 +39,7 @@ export interface ArmorDef {
     weight: number;
 }
 
-// ─── Potions ───────────────────────────────────────────────────────────────────
-
+// Potions
 export type PotionEffect =
     | 'spellPower'
     | 'health'
@@ -60,18 +57,18 @@ export interface PotionDef {
     id: number;
     name: string;
     effect: PotionEffect;
-    level?: number;     // for spellPower potions (1–5)
-    restore?: number;   // flat restore amount
-    boost?: number;     // temporary stat boost
-    duration?: number;  // boost duration in ticks
+    level?: number;
+    restore?: number;
+    boost?: number;
+    duration?: number;
 }
 
-// ─── Misc ──────────────────────────────────────────────────────────────────────
-
+// Misc
 export interface MiscDef {
     id: number;
     name: string;
     usable: boolean;
+    weight?: number;
     description?: string;
     luminous?: boolean;
     food?: boolean;
@@ -79,14 +76,12 @@ export interface MiscDef {
     key?: boolean;
 }
 
-// ─── Union ─────────────────────────────────────────────────────────────────────
-
+// Union
 export type AnyItemDef = WeaponDef | ArmorDef | PotionDef | MiscDef;
 
 export type ItemCategory = 'Weapon' | 'Armor' | 'Potion' | 'Misc' | 'Scroll' | 'Container';
 
-// ─── Equipment slots ───────────────────────────────────────────────────────────
-
+// Equipment slots
 export type EquipSlotKey =
     | 'head'
     | 'neck'

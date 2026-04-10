@@ -79,7 +79,6 @@ Point important:
 
 Effets deja reels et branches dans le runtime:
 
-- `heal`
 - `light`
 - `darkness`
 - `open`
@@ -93,9 +92,11 @@ Effets deja reels et branches dans le runtime:
 - `fire_shield`
 - `invisibility`
 - `see_through_walls` (`Oh Ew Ra`)
-- `reveal_hidden` (`Oh Gor Ros`)
 - `footprints`
 - `potion`
+- les recettes originales de potions d'attributs (`Ful Bro Ku`, `Oh Bro Ros`, `Ya Bro Dain`, `Ya Bro Neta`) sont maintenant branchees
+  - elles creent maintenant bien les potions `Strength`, `Dexterity`, `Wisdom` et `Vitality`
+  - leurs buffs temporaires utilisent la duree source-backed du catalogue runtime
 
 Nuances importantes:
 
@@ -105,8 +106,16 @@ Nuances importantes:
   - cas special source-backed : `Materializer / Zytaz` ne doivent etre endommages que pendant leur phase d'attaque
 - les visuels de sorts sont presents a un niveau fonctionnel
   - mais pas encore a un niveau de fidelite original complete
+- `src/data/spells.ts` reste un fichier legacy de reference et n'est pas utilise par le pipeline runtime
 
 Sorts / comportements encore manquants ou incomplets dans la base runtime actuelle:
+
+- `Oh Bro` et `Oh Bro Ra` ont ete retires
+  - dans Dungeon Master, le soin passe par des potions a creer puis boire
+- `Oh Gor Ros` a ete retire
+  - ce sort appartient a Chaos Strikes Back, pas a Dungeon Master
+- `Zo Ven` reste documente mais non implemente pour l'instant
+  - a reverifier avant branchement gameplay
 
 - `Dispell` ne doit pas etre traite comme un sort de runes standard
   - a ce stade il doit etre considere comme une action d'objet a charges
@@ -157,6 +166,7 @@ Autrement dit, la fin semble reposer sur un mecanisme mural special de transform
 - ces tags peuvent encore exister dans les donnees runtime / references creatures, mais ils ne correspondent pas aujourd'hui a une reproduction fidele de leurs effets originaux
 - les formules restent encore partiellement simplifiees
 - les sorts et plusieurs effets speciaux demandent encore un recollage plus fin
+- les potions d'attributs utilisent maintenant un buff temporaire runtime au lieu d'un faux bonus XP
 
 ### Assets et finition
 

@@ -99,7 +99,7 @@
                                },
                                {
                                    "id":  25,
-                                   "name":  "Magical Box of the Champion of Aether",
+                                   "name":  "Magical Box",
                                    "usable":  false,
                                    "description":  "Quest item",
                                    "weight":  2
@@ -141,14 +141,14 @@
                                },
                                {
                                    "id":  52,
-                                   "name":  "Cross of Neta",
+                                   "name":  "Cross Key",
                                    "usable":  true,
                                    "key":  true,
                                    "weight":  1
                                },
                                {
                                    "id":  56,
-                                   "name":  "Chest of the North Wind",
+                                   "name":  "Chest",
                                    "usable":  false,
                                    "description":  "Quest item",
                                    "weight":  5

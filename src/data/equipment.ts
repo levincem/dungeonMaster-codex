@@ -1,5 +1,5 @@
 import type { Champion } from './champions';
-import { ARMOR_TYPES, MISC_TYPES, WEAPON_TYPES } from './items';
+import { getArmorDef, getWeaponAllowedSlotsMask, MISC_TYPES, WEAPON_TYPES } from './items';
 import type { ChampionEquipment, FloorItem } from '../types/game';
 import type { ArmorSlot, EquipSlotKey } from '../types/items';
 
@@ -68,25 +68,105 @@ const ZERO_BONUSES: EquipmentStatBonuses = {
     luck: 0,
 };
 
+const STARTER_ARMOR_SLOT_BY_NAME: Record<string, EquipSlotKey> = {
+    'robe (body)': 'torso',
+    'robe (legs)': 'legs',
+    'fine robe (body)': 'torso',
+    'fine robe (legs)': 'legs',
+    kirtle: 'torso',
+    tabard: 'torso',
+    gunna: 'torso',
+    ghi: 'torso',
+    'barbarian hide': 'torso',
+    halter: 'torso',
+    tunic: 'torso',
+    'silk shirt': 'torso',
+    'leather jerkin': 'torso',
+    'elven doublet': 'torso',
+    'elven huke': 'torso',
+    'blue pants': 'legs',
+    'ghi trousers': 'legs',
+    'leather pants': 'legs',
+    hosen: 'legs',
+    sandals: 'feet',
+    'suede boots': 'feet',
+    'leather boots': 'feet',
+    'elven boots': 'feet',
+    'hide shield': 'hands',
+    buckler: 'hands',
+    'small shield': 'hands',
+    'wooden shield': 'hands',
+    'large shield': 'hands',
+    helmet: 'head',
+    basinet: 'head',
+    armet: 'head',
+    'bezerker helm': 'head',
+    'crown of nerra': 'head',
+    calista: 'head',
+};
+
+function mapExtractedWeaponSlots(typeId: number): EquipSlotKey[] {
+    const allowedMask = getWeaponAllowedSlotsMask(typeId);
+    if (allowedMask == null) return [];
+
+    const slots = new Set<EquipSlotKey>();
+    if (allowedMask & 64) {
+        slots.add('rightHand');
+        slots.add('leftHand');
+    }
+    if (allowedMask & 128) {
+        slots.add('quiver1');
+        slots.add('quiver2');
+        slots.add('quiver3');
+        slots.add('quiver4');
+    }
+    if ((allowedMask & 256) || (allowedMask & 1024)) {
+        slots.add('pocket1');
+        slots.add('pocket2');
+    }
+    return [...slots];
+}
+
 export function getItemWeight(item: FloorItem): number {
     if (item.category === 'Weapon') return WEAPON_TYPES[item.typeId]?.weight ?? 0;
-    if (item.category === 'Armor') return ARMOR_TYPES[item.typeId]?.weight ?? 0;
+    if (item.category === 'Armor') return getArmorDef(item.typeId, item.rawName)?.weight ?? 0;
+    if (item.category === 'Potion') return 0.3;
+    if (item.category === 'Scroll') return 0.1;
+    if (item.category === 'Container') return item.typeId === 4 ? 0 : 5.0;
+    if (item.category === 'Misc') return MISC_TYPES[item.typeId]?.weight ?? 0;
     return 0;
 }
 
 export function getEquippableSlots(item: FloorItem): EquipSlotKey[] {
     switch (item.category) {
         case 'Weapon': {
+            const extractedSlots = mapExtractedWeaponSlots(item.typeId);
+            if (extractedSlots.length > 0) return extractedSlots;
+
             const def = WEAPON_TYPES[item.typeId];
             if (def?.type === 'Ammo' || def?.thrown) return ['quiver1', 'quiver2', 'quiver3', 'quiver4'];
             return ['rightHand', 'leftHand'];
         }
         case 'Armor': {
-            const def = ARMOR_TYPES[item.typeId];
+            const def = getArmorDef(item.typeId, item.rawName);
+            const rawName = (item.rawName ?? '').toLowerCase();
+            const overriddenSlot = STARTER_ARMOR_SLOT_BY_NAME[rawName];
+            if (overriddenSlot) return [overriddenSlot];
             if (!def) return [];
             return [ARMOR_SLOT_TO_EQUIP_SLOT[def.slot]];
         }
-        case 'Misc':
+        case 'Misc': {
+            const def = MISC_TYPES[item.typeId];
+            const name = (def?.name ?? item.rawName ?? '').toLowerCase();
+            if (
+                /jewel symal|illumulet|moonstone|ekkhard cross|pendant feral|choker/.test(name)
+            ) {
+                return ['neck', 'pocket1', 'pocket2'];
+            }
+            if (/rabbit/.test(name)) return ['pocket1', 'pocket2'];
+            if (def?.key) return ['pocket1', 'pocket2', 'rightHand', 'leftHand'];
+            return ['pocket1', 'pocket2', 'rightHand', 'leftHand'];
+        }
         case 'Potion':
         case 'Scroll':
             return ['pocket1', 'pocket2', 'rightHand', 'leftHand'];
@@ -114,7 +194,7 @@ export function getEquipmentStatBonuses(equip: ChampionEquipment | undefined): E
         if (item.category === 'Misc') {
             const def = MISC_TYPES[item.typeId];
             const name = def?.name ?? item.rawName ?? '';
-            if (item.typeId === 16 || /Jewel Symal/i.test(name)) bonuses.antiMagic += 15;
+            if (item.typeId === 2 || /Jewel Symal/i.test(name)) bonuses.antiMagic += 15;
             if (item.typeId === 39 || /Moonstone/i.test(name)) bonuses.mana += 3;
             if (item.typeId === 46 || /Rabbit/i.test(name)) bonuses.luck += 10;
         }
@@ -139,6 +219,28 @@ export function getEffectiveChampionStats(champion: Champion, equip: ChampionEqu
     };
 }
 
+export function getEffectiveChampionStatsWithBonuses(
+    champion: Champion,
+    equip: ChampionEquipment | undefined,
+    extraBonuses: Partial<EquipmentStatBonuses> | undefined,
+): EffectiveChampionStats {
+    const effective = getEffectiveChampionStats(champion, equip);
+    if (!extraBonuses) return effective;
+    return {
+        ...effective,
+        mana: effective.mana + (extraBonuses.mana ?? 0),
+        strength: effective.strength + (extraBonuses.strength ?? 0),
+        dexterity: effective.dexterity + (extraBonuses.dexterity ?? 0),
+        wisdom: effective.wisdom + (extraBonuses.wisdom ?? 0),
+        vitality: effective.vitality + (extraBonuses.vitality ?? 0),
+        antiMagic: effective.antiMagic + (extraBonuses.antiMagic ?? 0),
+        antiFire: effective.antiFire + (extraBonuses.antiFire ?? 0),
+        luck: effective.luck + (extraBonuses.luck ?? 0),
+        health: effective.health,
+        stamina: effective.stamina,
+    };
+}
+
 export function hasAnyChampionWound(wounds: ChampionWounds | undefined): boolean {
     if (!wounds) return false;
     return Object.values(wounds).some(Boolean);
@@ -149,8 +251,9 @@ export function getChampionMaxLoad(
     equip: ChampionEquipment | undefined,
     currentStamina?: number,
     wounds?: ChampionWounds,
+    extraBonuses?: Partial<EquipmentStatBonuses>,
 ): number {
-    const effective = getEffectiveChampionStats(champion, equip);
+    const effective = getEffectiveChampionStatsWithBonuses(champion, equip, extraBonuses);
     let baseMaxLoadTenths = (8 * effective.strength) + 100;
     const stamina = currentStamina ?? champion.stamina;
     const maxStamina = champion.stamina;
@@ -164,7 +267,7 @@ export function getChampionMaxLoad(
     }
 
     const feet = equip?.feet;
-    if (feet?.category === 'Armor' && feet.typeId === 20) {
+    if (feet?.category === 'Armor' && feet.typeId === 15) {
         baseMaxLoadTenths += Math.floor(baseMaxLoadTenths / 16);
     }
 

@@ -87,7 +87,7 @@ export interface CreatureObject {
     tilePos: CardinalDir;
     globalX?: number;
     globalY?: number;
-    type: number;   // references creatureTypes in game_db.json
+    type: number;   // creature type id from extracted original data
     hp: number;
 }
 
@@ -231,7 +231,7 @@ export interface FloorItem {
     actionMaxCharges?: number;
     waterCharges?: number;
     waterMaxCharges?: number;
-    /** Set on bones items (Misc typeId 28) — links to the dead champion's id */
+    /** Set on bones items (Misc typeId 5) - links to the dead champion's id */
     championId?: number;
 }
 

@@ -545,7 +545,8 @@ export const HUD = () => {
 
     // Like flash but also plays footstep/cry sound for movement actions
     const move = useCallback((key: string, action: () => void) => {
-        if (useStore.getState().movementCooldown > 0) return;
+        const cooldown = useStore.getState().movementCooldown;
+        if (Number.isFinite(cooldown) && cooldown > 0) return;
         const posBefore = useStore.getState().position;
         action();
         const posAfter = useStore.getState().position;
@@ -605,7 +606,7 @@ export const HUD = () => {
     // Disable LANCER if no mana or insufficient mana for the matched spell
     const canCast = selectedRunes.length >= 2 && selectedChamp &&
         (spell ? (selectedVitals?.mana ?? 0) >= spell.manaCost : true);
-    const movementBlocked = movementCooldown > 0;
+    const movementBlocked = Number.isFinite(movementCooldown) && movementCooldown > 0;
 
     // ── Panel wrapper (subtle border/bg, no title) ──────────────────────────
     const panel: React.CSSProperties = {

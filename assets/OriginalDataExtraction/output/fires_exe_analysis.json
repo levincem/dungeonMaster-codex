@@ -1,0 +1,209 @@
+{
+  "_meta": {
+    "source": "analyze_fires_exe.cjs",
+    "date": "2026-04-10",
+    "inputFile": "generated/decompressed/FIRES_decompressed.bin",
+    "fileSize": 167584,
+    "description": "Analysis of the decompressed FIRES.EXE PC DOS executable for Dungeon Master"
+  },
+  "mzHeader": {
+    "valid": false,
+    "note": "No MZ signature — raw decompressed image or segment dump"
+  },
+  "stringScanSummary": {
+    "total": 201,
+    "byCategory": {
+      "credits": 2,
+      "items": 0,
+      "spells": 2,
+      "creatures": 0,
+      "levels": 1,
+      "errors": 1,
+      "other": 195
+    }
+  },
+  "stringsByCategory": {
+    "credits": [
+      {
+        "offset": "0x025404",
+        "text": "Turbo C++ - Copyright 1990 Borland Intl."
+      },
+      {
+        "offset": "0x027EA5",
+        "text": "*@%A:DUNGEON~.FTL"
+      }
+    ],
+    "items": [],
+    "spells": [
+      {
+        "offset": "0x02542D",
+        "text": "Divide error  Abnormal program termination  "
+      },
+      {
+        "offset": "0x026182",
+        "text": "\"xvoh"
+      }
+    ],
+    "creatures": [],
+    "levels": [
+      {
+        "offset": "0x027E90",
+        "text": "EUDATA\\DUNGEON~.DAT"
+      }
+    ],
+    "errors": [
+      {
+        "offset": "0x026BEA",
+        "text": " SYSTEM ERROR "
+      }
+    ],
+    "other": [
+      {
+        "offset": "0x0001F7",
+        "text": ";6L,u"
+      },
+      {
+        "offset": "0x00062C",
+        "text": "[[XP3"
+      },
+      {
+        "offset": "0x001B61",
+        "text": "5u&;>"
+      },
+      {
+        "offset": "0x001B67",
+        "text": "5u ;6"
+      },
+      {
+        "offset": "0x001BCF",
+        "text": "w)VW3"
+      },
+      {
+        "offset": "0x001DE6",
+        "text": "uWVW3"
+      },
+      {
+        "offset": "0x002622",
+        "text": ",;~ ~"
+      },
+      {
+        "offset": "0x002BAF",
+        "text": " YYZ;"
+      },
+      {
+        "offset": "0x005284",
+        "text": "/%YRP"
+      },
+      {
+        "offset": "0x006F37",
+        "text": " tXVW"
+      },
+      {
+        "offset": "0x00751C",
+        "text": ";V v>"
+      },
+      {
+        "offset": "0x0086EC",
+        "text": "#F ;F uH&"
+      },
+      {
+        "offset": "0x008764",
+        "text": "V &)W"
+      },
+      {
+        "offset": "0x008DF3",
+        "text": ";F sc"
+      },
+      {
+        "offset": "0x008DFA",
+        "text": "@;F s$"
+      },
+      {
+        "offset": "0x0095B8",
+        "text": "6$.R3"
+      },
+      {
+        "offset": "0x00961F",
+        "text": "l.PRS"
+      },
+      {
+        "offset": "0x00A1A7",
+        "text": "F;v |"
+      },
+      {
+        "offset": "0x00A2CA",
+        "text": "F;v }"
+      },
+      {
+        "offset": "0x00A37D",
+        "text": "F;v }"
+      }
+    ]
+  },
+  "creatureTableCandidates": [],
+  "knownTableSizeScan": [
+    {
+      "table": "MonsterDescriptor[27]",
+      "bestCandidateOffset": "0x028100",
+      "bestCandidateOffsetDec": 164096,
+      "variance": 0,
+      "note": "LOW variance - likely structured data"
+    },
+    {
+      "table": "WeaponDesc[46]",
+      "bestCandidateOffset": "0x028100",
+      "bestCandidateOffsetDec": 164096,
+      "variance": 0,
+      "note": "LOW variance - likely structured data"
+    },
+    {
+      "table": "ClothingDesc[58]",
+      "bestCandidateOffset": "0x028100",
+      "bestCandidateOffsetDec": 164096,
+      "variance": 0,
+      "note": "LOW variance - likely structured data"
+    },
+    {
+      "table": "ObjDesc[180]",
+      "bestCandidateOffset": "0x028100",
+      "bestCandidateOffsetDec": 164096,
+      "variance": 0,
+      "note": "LOW variance - likely structured data"
+    },
+    {
+      "table": "AttackDesc[44]",
+      "bestCandidateOffset": "0x028100",
+      "bestCandidateOffsetDec": 164096,
+      "variance": 0,
+      "note": "LOW variance - likely structured data"
+    },
+    {
+      "table": "SpellDesc[25]",
+      "bestCandidateOffset": "0x025D00",
+      "bestCandidateOffsetDec": 154880,
+      "variance": 0,
+      "note": "LOW variance - likely structured data"
+    },
+    {
+      "table": "FoodValue[8]",
+      "bestCandidateOffset": "0x025C00",
+      "bestCandidateOffsetDec": 154624,
+      "variance": 0,
+      "note": "LOW variance - likely structured data"
+    },
+    {
+      "table": "MiscWeights[54]",
+      "bestCandidateOffset": "0x025C00",
+      "bestCandidateOffsetDec": 154624,
+      "variance": 0,
+      "note": "LOW variance - likely structured data"
+    }
+  ],
+  "notes": [
+    "String categories are heuristic; overlap is possible.",
+    "Creature table scan uses Atari baseHP as anchor - PC DOS values may differ slightly.",
+    "Low-variance blocks may be structured data tables not covered by DUNGEON.DAT + GRAPHICS.DAT.",
+    "The MZ header code segment start indicates where runnable x86 code begins; data tables typically sit after.",
+    "Full string list is in fires_exe_strings.txt."
+  ]
+}

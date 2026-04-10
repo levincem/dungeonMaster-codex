@@ -1,0 +1,424 @@
+{
+  "_meta": {
+    "source": "resolve_armor_names.cjs",
+    "date": "2026-04-10",
+    "description": "Complete armor type ID to name mapping for DM1, with the 6 placeholder names resolved via champion cross-reference",
+    "method": "Armor items placed on Hall of Champions mirror tiles are champion starter equipment. Champion identity determines item name."
+  },
+  "resolvedPlaceholders": {
+    "11": "Silk Shirt",
+    "12": "Gunna",
+    "20": "Tunic",
+    "21": "Ghi",
+    "29": "Barbarian Hide",
+    "57": "Halter"
+  },
+  "completeArmorNames": {
+    "0": {
+      "typeId": 0,
+      "name": "Clothes",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "1": {
+      "typeId": 1,
+      "name": "Leather Pants",
+      "source": "parse_full.js ARMOR_NAMES",
+      "championsWithThisArmor": [
+        "Alex"
+      ]
+    },
+    "2": {
+      "typeId": 2,
+      "name": "Leather Jerkin",
+      "source": "parse_full.js ARMOR_NAMES",
+      "championsWithThisArmor": [
+        "Azizi",
+        "Leif"
+      ]
+    },
+    "3": {
+      "typeId": 3,
+      "name": "Leather Armor",
+      "source": "parse_full.js ARMOR_NAMES",
+      "championsWithThisArmor": [
+        "Chani",
+        "Gothmog",
+        "Leif",
+        "Linflas",
+        "Mophus",
+        "Sonja",
+        "WuTse",
+        "Zed"
+      ]
+    },
+    "4": {
+      "typeId": 4,
+      "name": "Mailakyn",
+      "source": "parse_full.js ARMOR_NAMES",
+      "championsWithThisArmor": [
+        "Boris",
+        "Hawk",
+        "Leyla",
+        "Tiggy"
+      ]
+    },
+    "5": {
+      "typeId": 5,
+      "name": "Chain Mail",
+      "source": "parse_full.js ARMOR_NAMES",
+      "championsWithThisArmor": [
+        "Gothmog",
+        "Mophus"
+      ]
+    },
+    "6": {
+      "typeId": 6,
+      "name": "Plate Mail",
+      "source": "parse_full.js ARMOR_NAMES",
+      "championsWithThisArmor": [
+        "Gothmog",
+        "Mophus"
+      ]
+    },
+    "7": {
+      "typeId": 7,
+      "name": "Hard Leather Armor",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "8": {
+      "typeId": 8,
+      "name": "Hosen",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "9": {
+      "typeId": 9,
+      "name": "Armet",
+      "source": "parse_full.js ARMOR_NAMES",
+      "championsWithThisArmor": [
+        "Sonja"
+      ]
+    },
+    "10": {
+      "typeId": 10,
+      "name": "Bezerker Helm",
+      "source": "parse_full.js ARMOR_NAMES",
+      "championsWithThisArmor": [
+        "Chani",
+        "Hawk",
+        "WuTse"
+      ]
+    },
+    "11": {
+      "typeId": 11,
+      "name": "Silk Shirt",
+      "source": "resolved via champion cross-reference",
+      "evidence": "WuTse (typeId 11 in starter), Syra (armored type 11 on mirror tile)",
+      "championsWithThisArmor": [
+        "Halk",
+        "WuTse"
+      ]
+    },
+    "12": {
+      "typeId": 12,
+      "name": "Gunna",
+      "source": "resolved via champion cross-reference",
+      "evidence": "Chani (typeId 12 in starter = Gunna), Tiggy, Sonja (same type)",
+      "championsWithThisArmor": [
+        "Chani",
+        "Linflas",
+        "Sonja"
+      ]
+    },
+    "13": {
+      "typeId": 13,
+      "name": "Tabard",
+      "source": "parse_full.js ARMOR_NAMES",
+      "championsWithThisArmor": [
+        "Halk",
+        "Nabi"
+      ]
+    },
+    "14": {
+      "typeId": 14,
+      "name": "Suede Boots",
+      "source": "parse_full.js ARMOR_NAMES",
+      "championsWithThisArmor": [
+        "Nabi"
+      ]
+    },
+    "15": {
+      "typeId": 15,
+      "name": "Duke's Garb",
+      "source": "parse_full.js ARMOR_NAMES",
+      "championsWithThisArmor": [
+        "Nabi"
+      ]
+    },
+    "16": {
+      "typeId": 16,
+      "name": "Boots Of Speed",
+      "source": "parse_full.js ARMOR_NAMES",
+      "championsWithThisArmor": [
+        "Boris",
+        "Elija",
+        "Syra",
+        "Tiggy",
+        "Wutse2"
+      ]
+    },
+    "17": {
+      "typeId": 17,
+      "name": "Sandals",
+      "source": "parse_full.js ARMOR_NAMES",
+      "championsWithThisArmor": [
+        "Boris",
+        "Elija",
+        "Hawk",
+        "Leyla",
+        "Stamm",
+        "Syra"
+      ]
+    },
+    "18": {
+      "typeId": 18,
+      "name": "Ninjaki",
+      "source": "parse_full.js ARMOR_NAMES",
+      "championsWithThisArmor": [
+        "Elija",
+        "Stamm",
+        "Syra"
+      ]
+    },
+    "19": {
+      "typeId": 19,
+      "name": "Velvet Glove",
+      "source": "parse_full.js ARMOR_NAMES",
+      "championsWithThisArmor": [
+        "Gando",
+        "Tiggy",
+        "Zed"
+      ]
+    },
+    "20": {
+      "typeId": 20,
+      "name": "Tunic",
+      "source": "resolved via champion cross-reference",
+      "evidence": "Boris/Stamm/Nabi (all listed as Tunic in starter items, share type 20)",
+      "championsWithThisArmor": [
+        "Leyla",
+        "Stamm",
+        "Zed"
+      ]
+    },
+    "21": {
+      "typeId": 21,
+      "name": "Ghi",
+      "source": "resolved via champion cross-reference",
+      "evidence": "Iaido exclusively (Japanese martial-arts gi; type 22 = Ghi Trousers confirms the pair)",
+      "championsWithThisArmor": [
+        "Iaido"
+      ]
+    },
+    "22": {
+      "typeId": 22,
+      "name": "Ghi Trousers",
+      "source": "parse_full.js ARMOR_NAMES",
+      "championsWithThisArmor": [
+        "Iaido"
+      ]
+    },
+    "23": {
+      "typeId": 23,
+      "name": "Silver Helmet",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "24": {
+      "typeId": 24,
+      "name": "Mithral Aketon",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "25": {
+      "typeId": 25,
+      "name": "Knight Bodyguard",
+      "source": "parse_full.js ARMOR_NAMES",
+      "championsWithThisArmor": [
+        "Leif"
+      ]
+    },
+    "26": {
+      "typeId": 26,
+      "name": "Elven Doublet",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "27": {
+      "typeId": 27,
+      "name": "Elven Huke",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "28": {
+      "typeId": 28,
+      "name": "Elven Boots",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "29": {
+      "typeId": 29,
+      "name": "Barbarian Hide",
+      "source": "resolved via champion cross-reference",
+      "evidence": "Azizi exclusively (typeId 29 = Barbarian Hide in starter)",
+      "championsWithThisArmor": [
+        "Azizi"
+      ]
+    },
+    "30": {
+      "typeId": 30,
+      "name": "Crown Of Nerra",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "31": {
+      "typeId": 31,
+      "name": "Dexhelm",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "32": {
+      "typeId": 32,
+      "name": "Flamebain",
+      "source": "parse_full.js ARMOR_NAMES",
+      "championsWithThisArmor": [
+        "Gando"
+      ]
+    },
+    "33": {
+      "typeId": 33,
+      "name": "Powertowers",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "34": {
+      "typeId": 34,
+      "name": "Helm Of Lyte",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "35": {
+      "typeId": 35,
+      "name": "Helm Of Parry",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "36": {
+      "typeId": 36,
+      "name": "Staff Of Claws",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "37": {
+      "typeId": 37,
+      "name": "Robe Of Night",
+      "source": "parse_full.js ARMOR_NAMES",
+      "championsWithThisArmor": [
+        "Gando"
+      ]
+    },
+    "38": {
+      "typeId": 38,
+      "name": "Cape Of Night",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "39": {
+      "typeId": 39,
+      "name": "Mithral Mail",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "40": {
+      "typeId": 40,
+      "name": "Council Garb",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "41": {
+      "typeId": 41,
+      "name": "Sar Cloth",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "42": {
+      "typeId": 42,
+      "name": "Dungeon Cloth",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "43": {
+      "typeId": 43,
+      "name": "Magic Box",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "44": {
+      "typeId": 44,
+      "name": "Jewels Of Pits",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "45": {
+      "typeId": 45,
+      "name": "Chameron",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "46": {
+      "typeId": 46,
+      "name": "Shield",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "47": {
+      "typeId": 47,
+      "name": "Buckler",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "48": {
+      "typeId": 48,
+      "name": "Wooden Shield",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "49": {
+      "typeId": 49,
+      "name": "Small Shield",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "50": {
+      "typeId": 50,
+      "name": "Mirror Shield",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "51": {
+      "typeId": 51,
+      "name": "Ranger Cloak",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "52": {
+      "typeId": 52,
+      "name": "Cloak Of Night",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "53": {
+      "typeId": 53,
+      "name": "Dragon Cloak",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "54": {
+      "typeId": 54,
+      "name": "Insl Vest",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "55": {
+      "typeId": 55,
+      "name": "Bolt Thrower",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "56": {
+      "typeId": 56,
+      "name": "Crossbow",
+      "source": "parse_full.js ARMOR_NAMES"
+    },
+    "57": {
+      "typeId": 57,
+      "name": "Halter",
+      "source": "resolved via champion cross-reference",
+      "evidence": "Azizi (typeId 57 in starter), Sonja (same type 57 on mirror tile)",
+      "championsWithThisArmor": [
+        "Azizi",
+        "Linflas"
+      ]
+    }
+  }
+}

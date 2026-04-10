@@ -277,9 +277,9 @@ const LightController: React.FC = () => {
 const PROJ_COLORS: Record<MagicProjectileEffect, string> = {
     fireball: '#ff6200',
     lightning: '#aaddff',
+    poison_cloud: '#7cff88',
     poison_bolt: '#44ff66',
     disrupt_nonmaterial: '#c8f6ff',
-    plasma: '#cc44ff',
 };
 
 const ProjectileRenderer: React.FC = () => {
@@ -300,9 +300,9 @@ const ProjectileRenderer: React.FC = () => {
         () => ({
             fireball: createPulseMaterial(PROJ_COLORS.fireball, 0.22),
             lightning: createPulseMaterial(PROJ_COLORS.lightning, 0.2),
+            poison_cloud: createPulseMaterial(PROJ_COLORS.poison_cloud, 0.2),
             poison_bolt: createPulseMaterial(PROJ_COLORS.poison_bolt, 0.18),
             disrupt_nonmaterial: createPulseMaterial(PROJ_COLORS.disrupt_nonmaterial, 0.18),
-            plasma: createPulseMaterial(PROJ_COLORS.plasma, 0.2),
         }),
         [],
     );

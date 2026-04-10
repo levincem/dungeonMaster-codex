@@ -10,20 +10,12 @@ import { clampFrameDeltaSeconds } from './engine/time';
 import './App.css';
 
 function GameRoot() {
-  const {
-    gamePhase,
-    activePartyMemberId,
-    enterDungeon,
-    loadGame,
-    closeMirror,
-    closePartyMember,
-    regenTick,
-    tickMovement,
-    tickCombat,
-    tickMonsters,
-    tickDoors,
-    tickSpells,
-  } = useStore();
+  const gamePhase = useStore((state) => state.gamePhase);
+  const activePartyMemberId = useStore((state) => state.activePartyMemberId);
+  const enterDungeon = useStore((state) => state.enterDungeon);
+  const loadGame = useStore((state) => state.loadGame);
+  const closeMirror = useStore((state) => state.closeMirror);
+  const closePartyMember = useStore((state) => state.closePartyMember);
 
   const lastTimeRef = useRef<number | null>(null);
 
@@ -31,15 +23,16 @@ function GameRoot() {
     let rafId: number;
 
     const tick = (now: number) => {
-      if (lastTimeRef.current !== null && gamePhase !== 'title') {
+      if (lastTimeRef.current !== null && useStore.getState().gamePhase !== 'title') {
         const delta = clampFrameDeltaSeconds((now - lastTimeRef.current) / 1000);
         const wallClockNow = Date.now();
-        regenTick(delta);
-        tickMovement(delta);
-        tickCombat(delta);
-        tickMonsters(delta);
-        tickDoors(delta);
-        tickSpells(wallClockNow);
+        const state = useStore.getState();
+        state.regenTick(delta);
+        state.tickMovement(delta);
+        state.tickCombat(delta);
+        state.tickMonsters(delta);
+        state.tickDoors(delta);
+        state.tickSpells(wallClockNow);
       }
 
       lastTimeRef.current = now;
@@ -48,7 +41,7 @@ function GameRoot() {
 
     rafId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafId);
-  }, [gamePhase, regenTick, tickMovement, tickCombat, tickMonsters, tickDoors, tickSpells]);
+  }, [gamePhase]);
 
   useEffect(() => { preloadAllSounds(); }, []);
 
