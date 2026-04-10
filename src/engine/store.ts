@@ -1102,36 +1102,6 @@ function notifyPlateActivated(level: number, x: number, y: number) {
     for (const fn of plateListeners) fn(level, x, y);
 }
 
-function isHallEntryPressurePlate(level: number, x: number, y: number): boolean {
-    return level === 0 && x === 6 && y === 9;
-}
-
-function queueTransientMessage(message: string, success = false, durationMs = TRANSIENT_MESSAGE_LIFETIME_MS) {
-    const ts = Date.now();
-    useStore.setState({ lastCastResult: { success, message, ts } });
-    if (castResultTimeout) clearTimeout(castResultTimeout);
-    castResultTimeout = setTimeout(() => {
-        const current = useStore.getState().lastCastResult;
-        if (current?.ts === ts) {
-            useStore.setState({ lastCastResult: null });
-        }
-    }, durationMs);
-}
-
-function getHallEntryPlateChanges(level: number, x: number, y: number, partySize: number): Partial<GameState> {
-    if (!isHallEntryPressurePlate(level, x, y)) return {};
-
-    playPlate();
-    notifyPlateActivated(level, x, y);
-
-    if (partySize >= MAX_PARTY) {
-        return { gateOpen: true };
-    }
-
-    queueTransientMessage("Selectionnez vos 4 aventuriers avant d'entrer dans le donjon");
-    return { gateOpen: false };
-}
-
 // ─── Creature action pub/sub (drives sprite frame changes) ───────────────────
 type CreatureActionListener = (id: string, action: 'move' | 'attack') => void;
 const creatureActionListeners = new Set<CreatureActionListener>();
@@ -1834,6 +1804,7 @@ interface GameState {
     selectChampion: (index: number) => void;
     reorderParty: (fromIndex: number, toIndex: number) => void;
     castSpell: (championId: number, runeIds: string[]) => void;
+    tickFrame: (delta: number, now: number) => void;
     regenTick: (delta: number) => void;
     gainXP: (championId: number, skill: CastSkill, amount: number) => void;
     attackFront: (championId: number, attackType?: number) => void;
@@ -1988,6 +1959,59 @@ function advanceSurvivalTimeApprox(
         championVitals,
         elapsedGameTimeTicks,
         advancedMs: stepCount * (ORIGINAL_TIMER_TICK_SECONDS * 1000),
+    };
+}
+
+function applyRegenTickApprox(state: GameState, delta: number): Partial<GameState> | null {
+    let regenTickRemainder = state.regenTickRemainder + delta;
+    const stepCount = Math.floor(regenTickRemainder / ORIGINAL_TIMER_TICK_SECONDS);
+    regenTickRemainder -= stepCount * ORIGINAL_TIMER_TICK_SECONDS;
+
+    if (stepCount <= 0) {
+        return regenTickRemainder !== state.regenTickRemainder ? { regenTickRemainder } : null;
+    }
+
+    const advanced = advanceSurvivalTimeApprox(state, stepCount);
+    return {
+        championVitals: advanced.championVitals,
+        elapsedGameTimeTicks: advanced.elapsedGameTimeTicks,
+        regenTickRemainder,
+    };
+}
+
+function applyMovementTickApprox(state: GameState, delta: number): Partial<GameState> | null {
+    if (!Number.isFinite(state.movementCooldown)) {
+        return { movementCooldown: 0 };
+    }
+    if (state.movementCooldown <= 0) return null;
+    return { movementCooldown: Math.max(0, state.movementCooldown - delta) };
+}
+
+function applyCombatTickApprox(state: GameState, delta: number, now: number): Partial<GameState> | null {
+    const updates: Record<number, ChampionCombat> = {};
+    let combatChanged = false;
+    for (const c of state.party) {
+        const cb = state.championCombat[c.id];
+        if (!cb) continue;
+        if (cb.cooldown > 0) {
+            const nextCooldown = Math.max(0, cb.cooldown - delta);
+            updates[c.id] = {
+                ...cb,
+                cooldown: nextCooldown,
+                defenseModifier: nextCooldown > 0 ? cb.defenseModifier : 0,
+            };
+            combatChanged = true;
+        } else if (cb.defenseModifier !== 0) {
+            updates[c.id] = { ...cb, defenseModifier: 0 };
+            combatChanged = true;
+        }
+    }
+    const newEvents = state.damageEvents.filter((e) => now - e.ts < DAMAGE_EVENT_LIFETIME_MS);
+    const eventsChanged = newEvents.length !== state.damageEvents.length;
+    if (!combatChanged && !eventsChanged) return null;
+    return {
+        ...(combatChanged ? { championCombat: { ...state.championCombat, ...updates } } : {}),
+        ...(eventsChanged ? { damageEvents: newEvents } : {}),
     };
 }
 
@@ -2386,9 +2410,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             }
         }
         const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, openWalls: state.openWalls, activeSensors: state.activeSensors, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
-        const suppressHallPlateSensors = isHallEntryPressurePlate(state.level, nx, ny) && state.party.length < MAX_PARTY;
-        const sensorChanges = suppressHallPlateSensors ? {} : triggerFloorSensors(state.level, nx, ny, ss);
-        const hallGateChanges = getHallEntryPlateChanges(state.level, nx, ny, state.party.length);
+        const sensorChanges = triggerFloorSensors(state.level, nx, ny, ss);
         const footprintChanges = Date.now() < state.footprintsUntil
             ? { footprintHistory: [...state.footprintHistory, { x: nx, y: ny, level: state.level, ts: Date.now() }] }
             : {};
@@ -2398,7 +2420,6 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             movementCooldown: computePartyMovementCooldownSecondsApprox(state),
             ...(movedVitals ? { championVitals: movedVitals } : {}),
             ...sensorChanges,
-            ...hallGateChanges,
             ...footprintChanges,
         };
     }),
@@ -2415,9 +2436,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         if (state.direction === 'WEST')  nx = x + 1;
         if (!isWalkable(state.level, ny, nx, state.openDoors, state.openWalls)) return movedVitals ? { championVitals: movedVitals } : state;
         const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, openWalls: state.openWalls, activeSensors: state.activeSensors, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
-        const suppressHallPlateSensors = isHallEntryPressurePlate(state.level, nx, ny) && state.party.length < MAX_PARTY;
-        const sensorChanges = suppressHallPlateSensors ? {} : triggerFloorSensors(state.level, nx, ny, ss);
-        const hallGateChanges = getHallEntryPlateChanges(state.level, nx, ny, state.party.length);
+        const sensorChanges = triggerFloorSensors(state.level, nx, ny, ss);
         const footprintChanges = Date.now() < state.footprintsUntil
             ? { footprintHistory: [...state.footprintHistory, { x: nx, y: ny, level: state.level, ts: Date.now() }] }
             : {};
@@ -2427,7 +2446,6 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             movementCooldown: computePartyMovementCooldownSecondsApprox(state),
             ...(movedVitals ? { championVitals: movedVitals } : {}),
             ...sensorChanges,
-            ...hallGateChanges,
             ...footprintChanges,
         };
     }),
@@ -2452,10 +2470,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             lastPartyMoveGameTick: state.elapsedGameTimeTicks,
             movementCooldown: computePartyMovementCooldownSecondsApprox(state),
             ...(movedVitals ? { championVitals: movedVitals } : {}),
-            ...(isHallEntryPressurePlate(state.level, nx, ny) && state.party.length < MAX_PARTY
-                ? {}
-                : triggerFloorSensors(state.level, nx, ny, ss)),
-            ...getHallEntryPlateChanges(state.level, nx, ny, state.party.length),
+            ...triggerFloorSensors(state.level, nx, ny, ss),
             ...fpL,
         };
     }),
@@ -2480,10 +2495,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             lastPartyMoveGameTick: state.elapsedGameTimeTicks,
             movementCooldown: computePartyMovementCooldownSecondsApprox(state),
             ...(movedVitals ? { championVitals: movedVitals } : {}),
-            ...(isHallEntryPressurePlate(state.level, nx, ny) && state.party.length < MAX_PARTY
-                ? {}
-                : triggerFloorSensors(state.level, nx, ny, ss)),
-            ...getHallEntryPlateChanges(state.level, nx, ny, state.party.length),
+            ...triggerFloorSensors(state.level, nx, ny, ss),
             ...fpR,
         };
     }),
@@ -2510,7 +2522,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         const starterLoadout = getChampionStarterLoadout(champion.id);
         return {
             party: newParty,
-            gateOpen: false,
+            gateOpen: newParty.length >= MAX_PARTY,
             championInventories: champion.id in state.championInventories
                 ? state.championInventories
                 : { ...state.championInventories, [champion.id]: starterLoadout.inventory },
@@ -3338,6 +3350,23 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             default:
                 return { ...base, championVitals: { ...state.championVitals, [championId]: newVitals } };
         }
+    }),
+
+    tickFrame: (delta, now) => set((state) => {
+        const regenPatch = applyRegenTickApprox(state, delta);
+        const afterRegen = regenPatch ? { ...state, ...regenPatch } : state;
+
+        const movementPatch = applyMovementTickApprox(afterRegen, delta);
+        const afterMovement = movementPatch ? { ...afterRegen, ...movementPatch } : afterRegen;
+
+        const combatPatch = applyCombatTickApprox(afterMovement, delta, now);
+        if (!regenPatch && !movementPatch && !combatPatch) return state;
+
+        return {
+            ...(regenPatch ?? {}),
+            ...(movementPatch ?? {}),
+            ...(combatPatch ?? {}),
+        };
     }),
 
     regenTick: (delta) => set((state) => {

@@ -18,30 +18,53 @@ function GameRoot() {
   const closePartyMember = useStore((state) => state.closePartyMember);
 
   const lastTimeRef = useRef<number | null>(null);
+  const tickInFlightRef = useRef(false);
 
   useEffect(() => {
     let rafId: number;
+    let cancelled = false;
 
     const tick = (now: number) => {
-      if (lastTimeRef.current !== null && useStore.getState().gamePhase !== 'title') {
-        const delta = clampFrameDeltaSeconds((now - lastTimeRef.current) / 1000);
-        const wallClockNow = Date.now();
-        const state = useStore.getState();
-        state.regenTick(delta);
-        state.tickMovement(delta);
-        state.tickCombat(delta);
-        state.tickMonsters(delta);
-        state.tickDoors(delta);
-        state.tickSpells(wallClockNow);
+      if (cancelled) {
+        return;
       }
 
-      lastTimeRef.current = now;
+      // In dev, React/Zustand can interleave updates aggressively. Keep the
+      // main loop strictly non-reentrant so one frame never recursively starts
+      // another update cascade.
+      if (tickInFlightRef.current) {
+        rafId = requestAnimationFrame(tick);
+        return;
+      }
+
+      tickInFlightRef.current = true;
+      try {
+        const state = useStore.getState();
+        if (lastTimeRef.current !== null && state.gamePhase !== 'title') {
+          const delta = clampFrameDeltaSeconds((now - lastTimeRef.current) / 1000);
+          const wallClockNow = Date.now();
+          state.tickFrame(delta, wallClockNow);
+          state.tickMonsters(delta);
+          state.tickDoors(delta);
+          state.tickSpells(wallClockNow);
+        }
+
+        lastTimeRef.current = now;
+      } finally {
+        tickInFlightRef.current = false;
+      }
+
       rafId = requestAnimationFrame(tick);
     };
 
     rafId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafId);
-  }, [gamePhase]);
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(rafId);
+      tickInFlightRef.current = false;
+      lastTimeRef.current = null;
+    };
+  }, []);
 
   useEffect(() => { preloadAllSounds(); }, []);
 

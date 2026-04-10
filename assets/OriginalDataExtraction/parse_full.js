@@ -115,6 +115,7 @@ function loadDungeonData(filePath) {
 
 const loadedDungeon = loadDungeonData(dungeonFilePath);
 const data = loadedDungeon.buffer;
+const rawFileName = path.basename(dungeonFilePath);
 
 function loadJsonIfExists(filePath) {
   try {
@@ -125,10 +126,22 @@ function loadJsonIfExists(filePath) {
 }
 
 const atariI559Stats = loadJsonIfExists(path.join(OUTPUT_DIR, 'atari_i559_stats.json'));
+const atariI559Decoded = loadJsonIfExists(path.join(OUTPUT_DIR, 'atari_i559_decoded.json'));
 const atariI560Stats = loadJsonIfExists(path.join(OUTPUT_DIR, 'atari_i560_stats.json'));
 const atariI561Stats = loadJsonIfExists(path.join(OUTPUT_DIR, 'atari_i561_stats.json'));
 const atariI562Stats = loadJsonIfExists(path.join(OUTPUT_DIR, 'atari_i562_stats.json'));
 const weaponAttackReference = loadJsonIfExists(path.join(OUTPUT_DIR, 'weapon_attack_reference.json'));
+
+function normalizeWeaponReferenceProvenance(value) {
+  switch (value) {
+    case 'missing_in_current_game_db':
+      return 'reference_extract_only';
+    case 'derived_game_db_matched_by_name':
+      return 'reference_extract_matched_by_name';
+    default:
+      return value ?? null;
+  }
+}
 
 function loadObjectTypeNames() {
   try {
@@ -228,7 +241,19 @@ const OFF_MISC       = 0x4DF0;
 const trailingBytesAfterMapData = data.length - UNCOMPRESSED_MAP_DATA_OFFSET - mapDataSize;
 const HAS_CHECKSUM = trailingBytesAfterMapData === 2;
 const CHECKSUM_WORD = HAS_CHECKSUM ? data.readUInt16LE(data.length - 2) : null;
+let COMPUTED_CHECKSUM = null;
+if (HAS_CHECKSUM) {
+  COMPUTED_CHECKSUM = 0;
+  for (let i = 0; i < data.length - 2; i++) {
+    COMPUTED_CHECKSUM = (COMPUTED_CHECKSUM + data[i]) & 0xFFFF;
+  }
+}
+const CHECKSUM_VALID = HAS_CHECKSUM ? COMPUTED_CHECKSUM === CHECKSUM_WORD : null;
 const OFF_MAP_DATA   = data.length - mapDataSize - (HAS_CHECKSUM ? 2 : 0);
+const OFF_PROJECTILES = OFF_MISC + NUM_MISC * 4;
+const OFF_CLOUDS = OFF_PROJECTILES;
+const PROJECTILE_SECTION_BYTES = Math.max(0, OFF_MAP_DATA - OFF_PROJECTILES);
+const CLOUD_SECTION_BYTES = 0;
 
 if (OFF_MAP_DATA !== UNCOMPRESSED_MAP_DATA_OFFSET) {
   throw new Error(
@@ -304,12 +329,6 @@ const SCROLL_INDEX_FIXUPS = {
   31: 'Only the touch of the proper spell will free the gem and only the Firestaff can possess it.',
   32: 'New lives for old bones',
   34: 'The keys to passage lie hidden deep.',
-};
-
-const CONTAINER_DISPLAY_FIXUPS = {
-  1: 'Chest [Apple, Cheese, Scroll "Ya will create a stamina potion", Scroll "Some doors can be opened with a Zo spell", Gold Coin (2)]',
-  2: 'Chest [Bro Potion, Magical Box (Blue), Ful Bomb]',
-  10: 'Chest [Scroll "Drink these to gain magical defense", Ya potion (2)]',
 };
 
 function normalizeDecodedScrollText(rawText) {
@@ -453,7 +472,22 @@ for (let i = 0; i < NUM_DOORS; i++) {
     openDirection:  (a & 0x020) ? 'Vertical' : 'Horizontal',
     ornate:         (a >> 1) & 0xF,
     doorType:       a & 0x01,   // 0=Grate, 1=Wood, etc. per map def
-    raw:            { offset: b, words: [hex(nextWord), hex(a)], nextWord, attributesWord: a },
+    raw:            {
+      offset: b,
+      bytes: Array.from(data.subarray(b, b + 4)),
+      words: [hex(nextWord), hex(a)],
+      nextWord,
+      attributesWord: a,
+      fields: {
+        destructChopBit: !!(a & 0x0100),
+        destructFireBit: !!(a & 0x0080),
+        hasButtonBit: !!(a & 0x0040),
+        openDirectionBit: !!(a & 0x0020),
+        ornateBits: (a >> 1) & 0x0F,
+        doorTypeBit: a & 0x0001,
+        unreferencedBits: (a >> 9) & 0x007F,
+      },
+    },
   });
 }
 
@@ -472,7 +506,24 @@ for (let i = 0; i < NUM_TELE; i++) {
     destX:        a & 0x1F,
     destY:        (a >> 5) & 0x1F,
     destMap:      (d >> 8) & 0xFF,
-    raw:          { offset: b, words: [hex(nextWord), hex(a), hex(d)], nextWord, aWord: a, bWord: d },
+    raw:          {
+      offset: b,
+      bytes: Array.from(data.subarray(b, b + 6)),
+      words: [hex(nextWord), hex(a), hex(d)],
+      nextWord,
+      aWord: a,
+      bWord: d,
+      fields: {
+        soundBit: !!(a & 0x8000),
+        scopeBits: (a >> 13) & 0x03,
+        rotationTypeBit: (a >> 12) & 0x01,
+        rotationBits: (a >> 10) & 0x03,
+        destYBits: (a >> 5) & 0x1F,
+        destXBits: a & 0x1F,
+        destMapByte: (d >> 8) & 0xFF,
+        unreferencedByte: d & 0xFF,
+      },
+    },
   });
 }
 
@@ -481,7 +532,6 @@ for (let i = 0; i < NUM_TEXTS; i++) {
   const b = OFF_TEXTS + i * 4;
   const nextWord = data.readUInt16LE(b);
   const a = data.readUInt16LE(b + 2);
-  const isChampion = !!(a & 0x04); // heuristic: champion texts have bit 2 set? Actually not documented
   const textOff = (a >> 3) & 0x1FFF;
   const visible = a & 0x01;
   wallTexts.push({
@@ -489,7 +539,18 @@ for (let i = 0; i < NUM_TEXTS; i++) {
     visible: !!visible,
     textOffset: textOff,
     text:    decodeText(textOff),
-    raw:     { offset: b, words: [hex(nextWord), hex(a)], nextWord, attributesWord: a },
+    raw:     {
+      offset: b,
+      bytes: Array.from(data.subarray(b, b + 4)),
+      words: [hex(nextWord), hex(a)],
+      nextWord,
+      attributesWord: a,
+      fields: {
+        visibleBit: !!(a & 0x0001),
+        unreferencedBits: (a >> 1) & 0x0003,
+        textDataWordOffset: (a >> 3) & 0x1FFF,
+      },
+    },
   });
 }
 
@@ -528,7 +589,31 @@ for (let i = 0; i < NUM_SENSORS; i++) {
     championGraphic: sType === 127 ? sData : undefined,
     requiredObjectType: SENSOR_TYPES_WITH_OBJECT_REQUIREMENT.has(sType) ? sData : undefined,
     requiredObjectName: SENSOR_TYPES_WITH_OBJECT_REQUIREMENT.has(sType) ? resolveObjectTypeName(sData) : undefined,
-    raw:        { offset: b, words: [hex(nextWord), hex(td), hex(a), hex(t)], nextWord, typeDataWord: td, attributesWord: a, targetWord: t },
+    raw:        {
+      offset: b,
+      bytes: Array.from(data.subarray(b, b + 8)),
+      words: [hex(nextWord), hex(td), hex(a), hex(t)],
+      nextWord,
+      typeDataWord: td,
+      attributesWord: a,
+      targetWord: t,
+      fields: {
+        typeBits: td & 0x7F,
+        dataBits: (td >> 7) & 0x1FF,
+        graphicBits: (a >> 12) & 0x0F,
+        aUnreferencedBits: a & 0x0003,
+        isLocalBit: !!(a & 0x0800),
+        delayBits: (a >> 7) & 0x0F,
+        soundBit: !!(a & 0x0040),
+        revertBit: !!(a & 0x0020),
+        actionBits: (a >> 3) & 0x03,
+        onceOnlyBit: !!(a & 0x0004),
+        targetYBits: (t >> 11) & 0x1F,
+        targetXBits: (t >> 6) & 0x1F,
+        targetDirBits: (t >> 4) & 0x03,
+        targetUnreferencedBits: t & 0x000F,
+      },
+    },
   });
 }
 
@@ -569,13 +654,24 @@ for (let i = 0; i < NUM_CREATURES; i++) {
     hp:         [0,1,2,3].slice(0, count).map(k => data.readUInt16LE(b + 6 + k*2)),
     count,
     direction:  DIRS[(flags >> 8) & 0x03],
-    important:  !!(flags & 0x400),
+    doNotDiscard:  !!(flags & 0x400),
     raw:        {
       offset: b,
+      bytes: Array.from(data.subarray(b, b + 16)),
       words: Array.from({ length: 8 }, (_, wi) => hex(data.readUInt16LE(b + wi * 2))),
       nextWord,
       possessionWord,
       flagsWord: flags,
+      fields: {
+        typeByte: data.readUInt8(b + 4),
+        cellsByte: data.readUInt8(b + 5),
+        directionBits: (flags >> 8) & 0x03,
+        doNotDiscardBit: !!(flags & 0x0400),
+        countBits: (flags >> 5) & 0x03,
+        aUnreferencedBit: !!(flags & 0x0010),
+        bUnreferencedBit: !!(flags & 0x0080),
+        cUnreferencedBits: (flags >> 11) & 0x001F,
+      },
     },
   });
 }
@@ -599,11 +695,7 @@ const WEAPON_NAMES = {
   32:'Throwing Star', 33:'Stick', 34:'Staff', 35:'Wand', 36:'Teowand',
   37:'Yew Staff', 38:'Staff Of Manar', 39:'Snake Staff',
   40:'The Conduit', 41:'Dragon Spit', 42:'Sceptre Of Lyf', 43:'Horn Of Fear', 44:'Speedbow',
-  45:'The Firestaff (Complete)', 46:'(W46)', 47:'(W47)',
-  48:'(W48)', 49:'(W49)', 50:'(W50)', 51:'(W51)', 52:'(W52)',
-  53:'(W53)', 54:'(W54)', 55:'(W55)',
-  56:'(W56)', 57:'(W57)', 58:'(W58)', 59:'(W59)', 60:'(W60)',
-  61:'(W61)', 62:'(W62)', 63:'Master Key',
+  45:'The Firestaff (Complete)',
 };
 
 const ARMOR_NAMES = {
@@ -661,8 +753,6 @@ const MISC_NAMES = {
   40:'The Hellion', 41:'Pendant Feral', 42:'Magical Box (Blue)', 43:'Magical Box (Green)',
   44:'Mirror Of Dawn', 45:'Rope', 46:"Rabbit's Foot", 47:'Corbamite',
   48:'Choker', 49:'Lock Picks', 50:'Magnifier', 51:'Zokathra',
-  52:'Misc_52', 53:'Misc_53',
-  56:'Chest',
 };
 
 const weapons = [];
@@ -679,8 +769,23 @@ for (let i = 0; i < NUM_WEAPONS; i++) {
     charges:   (a >> 10) & 0xF,
     poisoned:  !!(a & 0x200),
     cursed:    !!(a & 0x100),
-    important: !!(a & 0x080),
-    raw:       { offset: b, words: [hex(nextWord), hex(a)], nextWord, attributesWord: a },
+    doNotDiscard: !!(a & 0x080),
+    raw:       {
+      offset: b,
+      bytes: Array.from(data.subarray(b, b + 4)),
+      words: [hex(nextWord), hex(a)],
+      nextWord,
+      attributesWord: a,
+      fields: {
+        brokenBit: !!(a & 0x4000),
+        chargesBits: (a >> 10) & 0x0F,
+        poisonedBit: !!(a & 0x0200),
+        cursedBit: !!(a & 0x0100),
+        doNotDiscardBit: !!(a & 0x0080),
+        typeBits: a & 0x007F,
+        litBit: !!(a & 0x8000),
+      },
+    },
   });
 }
 
@@ -696,8 +801,22 @@ for (let i = 0; i < NUM_ARMOR; i++) {
     name:      ARMOR_NAMES[t] ?? `Armor_${t}`,
     broken:    !!(a & 0x2000),
     cursed:    !!(a & 0x100),
-    important: !!(a & 0x080),
-    raw:       { offset: b, words: [hex(nextWord), hex(a)], nextWord, attributesWord: a },
+    doNotDiscard: !!(a & 0x080),
+    raw:       {
+      offset: b,
+      bytes: Array.from(data.subarray(b, b + 4)),
+      words: [hex(nextWord), hex(a)],
+      nextWord,
+      attributesWord: a,
+      fields: {
+        brokenBit: !!(a & 0x2000),
+        cursedBit: !!(a & 0x0100),
+        doNotDiscardBit: !!(a & 0x0080),
+        typeBits: a & 0x007F,
+        chargeCountBits: (a >> 9) & 0x000F,
+        unreferencedBits: (a >> 14) & 0x0003,
+      },
+    },
   });
 }
 
@@ -713,7 +832,17 @@ for (let i = 0; i < NUM_SCROLLS; i++) {
     open:       !!(a & 0x01),
     textOffset: textOff,
     text:       normalizeDecodedScrollText(decodeText(textOff)),
-    raw:        { offset: b, words: [hex(nextWord), hex(a)], nextWord, attributesWord: a },
+    raw:        {
+      offset: b,
+      bytes: Array.from(data.subarray(b, b + 4)),
+      words: [hex(nextWord), hex(a)],
+      nextWord,
+      attributesWord: a,
+      fields: {
+        textOffsetBits: a >> 1,
+        openBit: !!(a & 0x0001),
+      },
+    },
   });
 }
 for (let i = 0; i < scrolls.length; i++) {
@@ -736,29 +865,51 @@ for (let i = 0; i < NUM_POTIONS; i++) {
     name:         POTION_NAMES[t] ?? `Potion_${t}`,
     power,
     doNotDiscard,
-    raw:          { offset: b, words: [hex(nextWord), hex(a)], nextWord, attributesWord: a },
+    raw:          {
+      offset: b,
+      bytes: Array.from(data.subarray(b, b + 4)),
+      words: [hex(nextWord), hex(a)],
+      nextWord,
+      attributesWord: a,
+      fields: {
+        powerByte: a & 0x00FF,
+        typeBits: (a >> 8) & 0x007F,
+        doNotDiscardBit: !!(a & 0x8000),
+      },
+    },
   });
 }
 
 const containers = [];
 const CONTAINER_NAMES = {
   0: 'Chest',
-  1: 'Chest',
-  4: 'Skull',
-  121: 'Chest',
 };
 for (let i = 0; i < NUM_CONTAINERS; i++) {
   const b = OFF_CONTAINERS + i * 8;
   const nextWord = data.readUInt16LE(b);
   const firstContentWord = data.readUInt16LE(b + 2);
   const a = data.readUInt16LE(b + 4);
-  const t = a & 0x7F;
+  const t = (a >> 1) & 0x03;
   containers.push({
     next:         decodeObjId(nextWord),
     firstContent: decodeObjId(firstContentWord),
     type:         t,
-    name:         CONTAINER_NAMES[t] ?? `Container_${t}`,
-    raw:          { offset: b, words: [hex(nextWord), hex(firstContentWord), hex(a), hex(data.readUInt16LE(b + 6))], nextWord, firstContentWord, attributesWord: a, extraWord: data.readUInt16LE(b + 6) },
+    name:         CONTAINER_NAMES[t] ?? null,
+    raw:          {
+      offset: b,
+      bytes: Array.from(data.subarray(b, b + 8)),
+      words: [hex(nextWord), hex(firstContentWord), hex(a), hex(data.readUInt16LE(b + 6))],
+      nextWord,
+      firstContentWord,
+      attributesWord: a,
+      cUnreferencedWord: data.readUInt16LE(b + 6),
+      fields: {
+        aUnreferencedBit: !!(a & 0x0001),
+        typeBits: (a >> 1) & 0x0003,
+        bUnreferencedBits: (a >> 3) & 0x1FFF,
+        cUnreferencedWord: data.readUInt16LE(b + 6),
+      },
+    },
   });
 }
 
@@ -770,7 +921,7 @@ for (let i = 0; i < NUM_MISC; i++) {
   const nextWord = data.readUInt16LE(b);
   const a = data.readUInt16LE(b + 2);
   const t = a & 0x7F;
-  const important = !!(a & 0x80);
+  const doNotDiscard = !!(a & 0x80);
   const highBits = (a >> 14) & 0x03;
   const baseName = MISC_NAMES[t] ?? `Misc_${t}`;
   const details = {};
@@ -793,10 +944,77 @@ for (let i = 0; i < NUM_MISC; i++) {
     next:      decodeObjId(nextWord),
     type:      t,
     name:      baseName,
-    important,
+    doNotDiscard,
     highBits,
     ...details,
-    raw:       { offset: b, words: [hex(nextWord), hex(a)], nextWord, attributesWord: a },
+    raw:       {
+      offset: b,
+      bytes: Array.from(data.subarray(b, b + 4)),
+      words: [hex(nextWord), hex(a)],
+      nextWord,
+      attributesWord: a,
+      fields: {
+        doNotDiscardBit: doNotDiscard,
+        typeBits: a & 0x007F,
+        highBits: (a >> 14) & 0x03,
+        cursedBit: !!(a & 0x0100),
+        unreferencedBits: (a >> 9) & 0x001F,
+      },
+    },
+  });
+}
+
+const projectiles = [];
+for (let i = 0; i + 8 <= PROJECTILE_SECTION_BYTES; i += 8) {
+  const b = OFF_PROJECTILES + i;
+  const nextWord = data.readUInt16LE(b);
+  const projectileObjectWord = data.readUInt16LE(b + 2);
+  const rangeEnergyRemaining = data.readUInt8(b + 4);
+  const damageEnergyRemaining = data.readUInt8(b + 5);
+  const eventIndex = data.readUInt16LE(b + 6);
+  projectiles.push({
+    next: decodeObjId(nextWord),
+    projectileObject: decodeObjId(projectileObjectWord),
+    rangeEnergyRemaining,
+    damageEnergyRemaining,
+    eventIndex,
+    raw: {
+      offset: b,
+      bytes: Array.from(data.subarray(b, b + 8)),
+      words: [hex(nextWord), hex(projectileObjectWord), hex(eventIndex)],
+      nextWord,
+      projectileObjectWord,
+      eventIndex,
+      fields: {
+        rangeEnergyRemaining,
+        damageEnergyRemaining,
+      },
+    },
+  });
+}
+
+const clouds = [];
+for (let i = 0; i + 4 <= CLOUD_SECTION_BYTES; i += 4) {
+  const b = OFF_CLOUDS + i;
+  const nextWord = data.readUInt16LE(b);
+  const valueAndType = data.readUInt16LE(b + 2);
+  clouds.push({
+    next: decodeObjId(nextWord),
+    value: (valueAndType >> 8) & 0xFF,
+    rawType: valueAndType & 0x7F,
+    unknownBit7: !!(valueAndType & 0x80),
+    raw: {
+      offset: b,
+      bytes: Array.from(data.subarray(b, b + 4)),
+      words: [hex(nextWord), hex(valueAndType)],
+      nextWord,
+      valueAndType,
+      fields: {
+        valueByte: (valueAndType >> 8) & 0xFF,
+        typeBits: valueAndType & 0x7F,
+        unknownBit7: !!(valueAndType & 0x80),
+      },
+    },
   });
 }
 
@@ -857,96 +1075,13 @@ function followList(firstObjId) {
     if (catName === 'Container' && firstContent) {
       entry.contents = followList(firstContent);
     }
-    entry.displayName = formatObjectDisplayName(entry);
-    if (catName === 'Container' && CONTAINER_DISPLAY_FIXUPS[id.index]) {
-      entry.displayName = CONTAINER_DISPLAY_FIXUPS[id.index];
-    }
     result.push(entry);
     id = obj.next;
   }
   return result;
 }
 
-function aggregateDisplayNames(names) {
-  const ordered = [];
-  const counts = new Map();
-  for (const name of names.filter(Boolean)) {
-    if (!counts.has(name)) ordered.push(name);
-    counts.set(name, (counts.get(name) ?? 0) + 1);
-  }
-  return ordered.map((name) => {
-    const count = counts.get(name) ?? 1;
-    return count > 1 ? `${name} (${count})` : name;
-  });
-}
-
-function normalizeAuditName(name) {
-  return String(name ?? '')
-    .trim()
-    .replace(/^Scroll "/i, 'Scroll ')
-    .replace(/^Chest \[/i, 'Chest [')
-    .replace(/"$/g, '')
-    .replace(/\s+\(charges=.*?\)/ig, '')
-    .replace(/\r/g, '')
-    .replace(/\s+/g, ' ')
-    .toLowerCase();
-}
-
-function parseAuditCount(name) {
-  const match = String(name ?? '').match(/^(.*)\s+\((\d+)\)$/);
-  if (!match) return { base: String(name ?? '').trim(), count: 1 };
-  return { base: match[1].trim(), count: Number(match[2]) || 1 };
-}
-
-function buildAuditCounts(names) {
-  const counts = new Map();
-  for (const raw of names ?? []) {
-    const normalized = normalizeAuditName(raw);
-    if (!normalized) continue;
-    const { base, count } = parseAuditCount(normalized);
-    counts.set(base, (counts.get(base) ?? 0) + count);
-  }
-  return counts;
-}
-
-function formatObjectDisplayName(obj) {
-  if (!obj) return '';
-  const chargedWeaponTypes = new Set([0, 1, 2, 3, 4, 5, 6, 16, 35, 36, 37, 38, 39, 40, 41, 42]);
-  if (obj.category === 'Scroll') {
-    return obj.text ? `Scroll "${obj.text.replace(/\n/g, ' ')}"` : obj.name;
-  }
-  if (obj.category === 'Container' && Array.isArray(obj.contents)) {
-    const inner = aggregateDisplayNames(obj.contents.map(formatObjectDisplayName)).join(', ');
-    return inner ? `${obj.name} [${inner}]` : obj.name;
-  }
-  if (obj.category === 'Potion' && obj.type === 10) {
-    return 'Bro Potion';
-  }
-  if (obj.category === 'Misc' && obj.type === 10) {
-    return 'Key of B';
-  }
-  if (obj.category === 'Weapon' && typeof obj.charges === 'number' && chargedWeaponTypes.has(obj.type)) {
-    return `${obj.name} (Charges=${obj.charges})`;
-  }
-  if (obj.category === 'Misc' && obj.type === 1 && typeof obj.waterskinState === 'string') {
-    return `${obj.name} (${obj.waterskinState})`;
-  }
-  return obj.name;
-}
-
-function refreshTileDisplayNames(tile) {
-  tile.itemDisplayNames = aggregateDisplayNames(
-    tile.objects
-      .filter((obj) => ['Weapon','Armor','Scroll','Potion','Container','Misc'].includes(obj.category))
-      .map((obj) => {
-        obj.displayName = formatObjectDisplayName(obj);
-        if (obj.category === 'Container' && CONTAINER_DISPLAY_FIXUPS[obj.index]) {
-          obj.displayName = CONTAINER_DISPLAY_FIXUPS[obj.index];
-        }
-        return obj.displayName;
-      })
-  );
-}
+// Removed legacy display-name audit helper; parser now exports raw object structure only.
 
 // ─── PARSE MAPS WITH FULL OBJECT RESOLUTION ───────────────────────────────────
 
@@ -960,8 +1095,14 @@ for (let i = 0; i <= 409; i++) {
   colIndex.push(data.readUInt16LE(OFF_COL_IDX + i * 2));
 }
 
+const objectListWordValues = [];
+for (let i = 0; i < objListWords; i++) {
+  objectListWordValues.push(data.readUInt16LE(OFF_OBJ_LIST + i * 2));
+}
+
 for (let mi = 0; mi < numMaps; mi++) {
   const defBase = OFF_MAP_DEFS + mi * 16;
+  const rawDefinitionBytes = Array.from(data.subarray(defBase, defBase + 16));
   const mapDataRelOff = data.readUInt16LE(defBase + 0x00);
   const defWord1 = data.readUInt16LE(defBase + 0x02);
   const defWord2 = data.readUInt16LE(defBase + 0x04);
@@ -979,7 +1120,7 @@ for (let mi = 0; mi < numMaps; mi++) {
   const randomWallOrnamentCount = (ornamentWord >> 4) & 0xF;
   const wallOrnamentCount = ornamentWord & 0xF;
   const difficulty = (countWord >> 12) & 0xF;
-  const unreferencedCountNibble = (countWord >> 8) & 0xF;
+  const unreferencedNibble = (countWord >> 8) & 0xF;
   const creatureTypeCount = (countWord >> 4) & 0xF;
   const doorOrnamentCount = countWord & 0xF;
   const floorSet = (setWord >> 12) & 0xF;
@@ -987,6 +1128,8 @@ for (let mi = 0; mi < numMaps; mi++) {
   const doorSet0 = (setWord >> 4) & 0xF;
   const doorSet1 = setWord & 0xF;
   const mapOffset = { x: mapOffX, y: mapOffY };
+  const columnIndexStart = globalColCounter;
+  const columnIndexValues = colIndex.slice(columnIndexStart, columnIndexStart + width);
   const localBounds = { minX: 0, minY: 0, maxX: width - 1, maxY: height - 1 };
   const globalBounds = {
     minX: mapOffset.x,
@@ -996,6 +1139,7 @@ for (let mi = 0; mi < numMaps; mi++) {
   };
 
   const tileBase = OFF_MAP_DATA + mapDataRelOff;
+  const rawTileBytes = Array.from(data.subarray(tileBase, tileBase + width * height));
   const mapMetaBase = tileBase + width * height;
   let metaCursor = mapMetaBase;
   const allowedCreatureTypes = Array.from(data.subarray(metaCursor, metaCursor + creatureTypeCount));
@@ -1016,27 +1160,83 @@ for (let mi = 0; mi < numMaps; mi++) {
       const hasObjects = !!(byte & 0x10);
       const attrs = byte & 0x0F;
 
-      // Decode tile attrs by type
-      let tileAttrs = {};
+      // Decode tile attrs by type, keeping the raw nibble visible.
+      let tileAttrs = {
+        rawTypeBits: (byte >> 5) & 0x07,
+        rawHasObjectsBit: !!(byte & 0x10),
+        rawAttributeBits: attrs,
+      };
       if (tileType === 'Pit') {
-        tileAttrs = { open: !!(attrs & 0x8), invisible: !!(attrs & 0x4), imaginary: !!(attrs & 0x1) };
+        tileAttrs = {
+          rawTypeBits: (byte >> 5) & 0x07,
+          rawHasObjectsBit: !!(byte & 0x10),
+          rawAttributeBits: attrs,
+          open: !!(attrs & 0x8),
+          invisible: !!(attrs & 0x4),
+          imaginary: !!(attrs & 0x1),
+        };
       } else if (tileType === 'Stairs') {
-        tileAttrs = { orientation: (attrs & 0x8) ? 'NorthSouth' : 'WestEast', up: !!(attrs & 0x4) };
+        tileAttrs = {
+          rawTypeBits: (byte >> 5) & 0x07,
+          rawHasObjectsBit: !!(byte & 0x10),
+          rawAttributeBits: attrs,
+          orientation: (attrs & 0x8) ? 'NorthSouth' : 'WestEast',
+          direction: (attrs & 0x4) ? 'Up' : 'Down',
+          up: !!(attrs & 0x4),
+        };
       } else if (tileType === 'Door') {
-        const stateNames = ['Open','25%closed','50%closed','75%closed','Closed','Bashed'];
-        tileAttrs = { orientation: (attrs & 0x8) ? 'NorthSouth' : 'WestEast', state: stateNames[attrs & 0x7] };
+        const stateNames = ['Open','25%closed','50%closed','75%closed','Closed','Bashed','Invalid6','Invalid7'];
+        tileAttrs = {
+          rawTypeBits: (byte >> 5) & 0x07,
+          rawHasObjectsBit: !!(byte & 0x10),
+          rawAttributeBits: attrs,
+          orientation: (attrs & 0x8) ? 'NorthSouth' : 'WestEast',
+          state: stateNames[attrs & 0x7],
+          stateIndex: attrs & 0x7,
+        };
       } else if (tileType === 'Teleporter') {
-        tileAttrs = { open: !!(attrs & 0x8), visible: !!(attrs & 0x4) };
+        tileAttrs = {
+          rawTypeBits: (byte >> 5) & 0x07,
+          rawHasObjectsBit: !!(byte & 0x10),
+          rawAttributeBits: attrs,
+          open: !!(attrs & 0x8),
+          visible: !!(attrs & 0x4),
+        };
       } else if (tileType === 'TrickWall') {
-        tileAttrs = {};
+        tileAttrs = {
+          rawTypeBits: (byte >> 5) & 0x07,
+          rawHasObjectsBit: !!(byte & 0x10),
+          rawAttributeBits: attrs,
+          allowRandomDecoration: !!(attrs & 0x8),
+          open: !!(attrs & 0x4),
+          imaginary: !!(attrs & 0x1),
+        };
       } else if (tileType === 'Wall') {
-        tileAttrs = { allowDecoN: !!(attrs & 0x8), allowDecoE: !!(attrs & 0x4),
-                      allowDecoS: !!(attrs & 0x2), allowDecoW: !!(attrs & 0x1) };
+        tileAttrs = {
+          rawTypeBits: (byte >> 5) & 0x07,
+          rawHasObjectsBit: !!(byte & 0x10),
+          rawAttributeBits: attrs,
+          allowDecoN: !!(attrs & 0x8),
+          allowDecoE: !!(attrs & 0x4),
+          allowDecoS: !!(attrs & 0x2),
+          allowDecoW: !!(attrs & 0x1),
+        };
+      } else if (tileType === 'Floor') {
+        tileAttrs = {
+          rawTypeBits: (byte >> 5) & 0x07,
+          rawHasObjectsBit: !!(byte & 0x10),
+          rawAttributeBits: attrs,
+          allowRandomDecoration: !!(attrs & 0x8),
+        };
       }
 
       let objects = [];
+      let objectListIndex = null;
+      let objectListWord = null;
       if (hasObjects) {
-        const listWord = data.readUInt16LE(OFF_OBJ_LIST + globalObjIdx * 2);
+        objectListIndex = globalObjIdx;
+        objectListWord = data.readUInt16LE(OFF_OBJ_LIST + globalObjIdx * 2);
+        const listWord = objectListWord;
         objects = followList(decodeObjId(listWord));
         globalObjIdx++;
       }
@@ -1050,12 +1250,16 @@ for (let mi = 0; mi < numMaps; mi++) {
         type: tileType,
         rawByte: byte,
         rawByteHex: hex(byte, 2),
+        rawTypeBits: (byte >> 5) & 0x07,
+        rawHasObjectsBit: !!(byte & 0x10),
         rawAttrs: attrs,
         ...tileAttrs,
+        objectListIndex,
+        objectListWord,
+        objectListWordHex: objectListWord === null ? null : hex(objectListWord),
         objects,
       };
       for (const obj of objects) enrichObjectWithGlobalCoords({ mapOffset }, tile, obj);
-      refreshTileDisplayNames(tile);
       tiles.push(tile);
     }
     globalColCounter++;
@@ -1072,8 +1276,12 @@ for (let mi = 0; mi < numMaps; mi++) {
     localBounds,
     globalBounds,
     original: {
+      rawDefinitionBytes,
       rawMapDataOffset: mapDataRelOff,
       rawMapDataAbsoluteOffset: tileBase,
+      rawTileBytes,
+      columnIndexStart,
+      columnIndexValues,
       headerWords: {
         rawMapDataOffsetWord: hex(mapDataRelOff),
         aUnreferencedWord: hex(defWord1),
@@ -1083,6 +1291,14 @@ for (let mi = 0; mi < numMaps; mi++) {
         countWord: hex(countWord),
         setWord: hex(setWord),
       },
+      headerBytes: {
+        aUnreferencedLowByte: defWord1 & 0xFF,
+        aUnreferencedHighByte: (defWord1 >> 8) & 0xFF,
+        bUnreferencedLowByte: defWord2 & 0xFF,
+        bUnreferencedHighByte: (defWord2 >> 8) & 0xFF,
+        mapOffsetX: mapOffX,
+        mapOffsetY: mapOffY,
+      },
       counts: {
         wallOrnamentCount,
         randomWallOrnamentCount,
@@ -1090,7 +1306,7 @@ for (let mi = 0; mi < numMaps; mi++) {
         randomFloorOrnamentCount,
         doorOrnamentCount,
         creatureTypeCount,
-        unreferencedCountNibble,
+        unreferencedNibble,
       },
       sets: {
         floorSet,
@@ -1102,92 +1318,38 @@ for (let mi = 0; mi < numMaps; mi++) {
         baseOffset: mapMetaBase,
         endOffsetExclusive: metaCursor,
       },
+      rawMetadataBytes: Array.from(data.subarray(mapMetaBase, metaCursor)),
+      metadataSections: {
+        allowedCreatureTypes: {
+          offset: mapMetaBase,
+          length: creatureTypeCount,
+          bytes: allowedCreatureTypes,
+        },
+        wallOrnamentIndices: {
+          offset: mapMetaBase + creatureTypeCount,
+          length: wallOrnamentCount,
+          bytes: wallOrnamentIndices,
+        },
+        floorOrnamentIndices: {
+          offset: mapMetaBase + creatureTypeCount + wallOrnamentCount,
+          length: floorOrnamentCount,
+          bytes: floorOrnamentIndices,
+        },
+        doorOrnamentIndices: {
+          offset: mapMetaBase + creatureTypeCount + wallOrnamentCount + floorOrnamentCount,
+          length: doorOrnamentCount,
+          bytes: doorOrnamentIndices,
+        },
+      },
       metadata: {
         allowedCreatureTypes,
         wallOrnamentIndices,
-        effectiveWallOrnamentIndices: [...wallOrnamentIndices, 0],
         floorOrnamentIndices,
         doorOrnamentIndices,
       },
     },
     tiles,  // flat array, index = x * height + y
   });
-}
-
-// Reconcile a final small set of one-tile placement offsets using the validated
-// canonical item reference. This only moves matching item objects from
-// non-canonical neighboring tiles into a canonical item tile that is missing
-// those exact entries.
-const canonicalContentPath = path.join(ROOT_DIR, 'public', 'original_level_content.json');
-if (fs.existsSync(canonicalContentPath)) {
-  const canonicalContent = JSON.parse(fs.readFileSync(canonicalContentPath, 'utf8'));
-  const canonicalItemKeys = new Set();
-
-  for (const level of canonicalContent.levels ?? []) {
-    for (const item of level.items ?? []) {
-      canonicalItemKeys.add(`${level.mapIndex}:${item.x}:${item.y}`);
-    }
-  }
-
-  for (const level of canonicalContent.levels ?? []) {
-    const map = maps[level.mapIndex];
-    if (!map) continue;
-
-    for (const item of level.items ?? []) {
-      const targetTile = map.tiles.find((tile) => tile.globalX === item.x && tile.globalY === item.y);
-      if (!targetTile) continue;
-
-      const expectedCounts = buildAuditCounts(item.entries);
-      const currentCounts = buildAuditCounts(targetTile.itemDisplayNames);
-      const missingCounts = new Map();
-      for (const [name, count] of expectedCounts.entries()) {
-        const missing = count - (currentCounts.get(name) ?? 0);
-        if (missing > 0) missingCounts.set(name, missing);
-      }
-      if (!missingCounts.size) continue;
-
-      for (let dy = -2; dy <= 2 && missingCounts.size; dy++) {
-        for (let dx = -2; dx <= 2 && missingCounts.size; dx++) {
-          if (dx === 0 && dy === 0) continue;
-          const sourceX = item.x + dx;
-          const sourceY = item.y + dy;
-          const sourceKey = `${level.mapIndex}:${sourceX}:${sourceY}`;
-          if (canonicalItemKeys.has(sourceKey)) continue;
-          const sourceTile = map.tiles.find((tile) => tile.globalX === sourceX && tile.globalY === sourceY);
-          if (!sourceTile?.objects?.length) continue;
-
-          const keep = [];
-          let movedAny = false;
-          for (const obj of sourceTile.objects) {
-            if (!['Weapon','Armor','Scroll','Potion','Container','Misc'].includes(obj.category)) {
-              keep.push(obj);
-              continue;
-            }
-            const displayName = obj.displayName || formatObjectDisplayName(obj);
-            const normalized = normalizeAuditName(displayName);
-            const { base } = parseAuditCount(normalized);
-            const missing = missingCounts.get(base) ?? 0;
-            if (missing > 0) {
-              obj.globalX = targetTile.globalX;
-              obj.globalY = targetTile.globalY;
-              targetTile.objects.push(obj);
-              if (missing === 1) missingCounts.delete(base);
-              else missingCounts.set(base, missing - 1);
-              movedAny = true;
-            } else {
-              keep.push(obj);
-            }
-          }
-
-          if (movedAny) {
-            sourceTile.objects = keep;
-            refreshTileDisplayNames(sourceTile);
-            refreshTileDisplayNames(targetTile);
-          }
-        }
-      }
-    }
-  }
 }
 
 // ─── RESOLVE STAIR DESTINATIONS ──────────────────────────────────────────────
@@ -1334,8 +1496,10 @@ const objectDatabase = Object.fromEntries(
 
 const GAME_DB = {
   _meta: {
-    source: 'Minimal extracted/reference database for audit and tooling',
-    note: 'Item gameplay/runtime definitions now live in src/data/*. Prefer dungeon.json/objectDatabase + originalAtari for source-truth data.',
+    sourceFile: rawFileName,
+    sourceFormat: loadedDungeon.format,
+    source: 'Minimal extracted/reference export for audit and tooling',
+    note: 'Item gameplay/runtime definitions now live in src/data/*. Prefer dungeon.json/objectDatabase + originalAtari for source-truth data. itemTypeNames now omit unproven placeholder entries instead of inventing names.',
   },
 
   itemTypeNames: {
@@ -1573,6 +1737,7 @@ if (atariI559Stats || atariI560Stats || atariI561Stats || atariI562Stats || weap
       weapons: atariI559Stats.weapons,
       cloths: atariI559Stats.cloths,
       objectInfo: atariI559Stats.objectInfo,
+      doorInfo: atariI559Decoded?.doorCharacteristics ?? null,
     } : null,
     i560: atariI560Stats ? {
       attacks: atariI560Stats.attacks,
@@ -1597,7 +1762,10 @@ if (atariI559Stats || atariI560Stats || atariI561Stats || atariI562Stats || weap
       paletteBrightness: atariI562Stats.paletteBrightness,
       identityColorMap: atariI562Stats.identityColorMap,
     } : null,
-    weaponAttackReference: weaponAttackReference?.weapons ?? null,
+    weaponAttackReference: weaponAttackReference?.weapons?.map((entry) => ({
+      ...entry,
+      provenance: normalizeWeaponReferenceProvenance(entry.provenance),
+    })) ?? null,
   };
 }
 
@@ -1612,6 +1780,8 @@ const dungeon = {
     fileLength: data.length,
     hasChecksum: HAS_CHECKSUM,
     checksumWord: CHECKSUM_WORD,
+    computedChecksum: COMPUTED_CHECKSUM,
+    checksumValid: CHECKSUM_VALID,
     dungeonId,
     numMaps,
     mapDataSize,
@@ -1633,25 +1803,61 @@ const dungeon = {
       potions: OFF_POTIONS,
       containers: OFF_CONTAINERS,
       misc: OFF_MISC,
+      projectiles: OFF_PROJECTILES,
+      clouds: OFF_CLOUDS,
       mapData: OFF_MAP_DATA,
+    },
+    sectionSizes: {
+      projectiles: PROJECTILE_SECTION_BYTES,
+      clouds: CLOUD_SECTION_BYTES,
+    },
+    objectPoolLayout: {
+      doors: { offset: OFF_DOORS, recordSize: 4, count: NUM_DOORS, byteLength: NUM_DOORS * 4 },
+      teleporters: { offset: OFF_TELE, recordSize: 6, count: NUM_TELE, byteLength: NUM_TELE * 6 },
+      wallTexts: { offset: OFF_TEXTS, recordSize: 4, count: NUM_TEXTS, byteLength: NUM_TEXTS * 4 },
+      sensors: { offset: OFF_SENSORS, recordSize: 8, count: NUM_SENSORS, byteLength: NUM_SENSORS * 8 },
+      creatures: { offset: OFF_CREATURES, recordSize: 16, count: NUM_CREATURES, byteLength: NUM_CREATURES * 16 },
+      weapons: { offset: OFF_WEAPONS, recordSize: 4, count: NUM_WEAPONS, byteLength: NUM_WEAPONS * 4 },
+      armor: { offset: OFF_ARMOR, recordSize: 4, count: NUM_ARMOR, byteLength: NUM_ARMOR * 4 },
+      scrolls: { offset: OFF_SCROLLS, recordSize: 4, count: NUM_SCROLLS, byteLength: NUM_SCROLLS * 4 },
+      potions: { offset: OFF_POTIONS, recordSize: 4, count: NUM_POTIONS, byteLength: NUM_POTIONS * 4 },
+      containers: { offset: OFF_CONTAINERS, recordSize: 8, count: NUM_CONTAINERS, byteLength: NUM_CONTAINERS * 8 },
+      misc: { offset: OFF_MISC, recordSize: 4, count: NUM_MISC, byteLength: NUM_MISC * 4 },
+      projectiles: { offset: OFF_PROJECTILES, recordSize: 8, count: projectiles.length, byteLength: PROJECTILE_SECTION_BYTES },
+      clouds: { offset: OFF_CLOUDS, recordSize: 4, count: clouds.length, byteLength: CLOUD_SECTION_BYTES },
+    },
+    sectionPresence: {
+      projectileSectionStored: PROJECTILE_SECTION_BYTES > 0,
+      cloudSectionStored: CLOUD_SECTION_BYTES > 0,
+      projectileRecordsParsed: projectiles.length,
+      cloudRecordsParsed: clouds.length,
+      note: (PROJECTILE_SECTION_BYTES === 0 && CLOUD_SECTION_BYTES === 0)
+        ? 'This PC DOS DUNGEON.DAT stores no persistent projectile/cloud records between misc data and raw map data.'
+        : 'Projectile/cloud bytes are present between misc data and raw map data.',
     },
     objectCounts: {
       doors: NUM_DOORS, teleporters: NUM_TELE, wallTexts: NUM_TEXTS,
       sensors: NUM_SENSORS, creatures: NUM_CREATURES, weapons: NUM_WEAPONS,
       armor: NUM_ARMOR, scrolls: NUM_SCROLLS, potions: NUM_POTIONS,
       containers: NUM_CONTAINERS, misc: NUM_MISC,
+      projectiles: projectiles.length,
+      clouds: clouds.length,
     },
     extractionCoverage: {
       coordinates: 'complete',
       mapDefinitions: 'complete from DUNGEON.DAT',
       tileGrid: 'complete from DUNGEON.DAT',
       objectPools: 'complete from DUNGEON.DAT',
-      objectInfoFromGraphicsDat: 'missing',
-      weaponInfoFromGraphicsDat: 'missing',
-      armourInfoFromGraphicsDat: 'missing',
-      doorInfoFromGraphicsDat: 'missing',
-      namesAndStatsInGameDb: 'partially derived/reference-based',
+      objectInfoFromGraphicsDat: atariI559Stats?.objectInfo ? 'available via GAME_DB.originalAtari.i559.objectInfo reference extract' : 'missing',
+      weaponInfoFromGraphicsDat: atariI559Stats?.weapons ? 'available via GAME_DB.originalAtari.i559.weapons reference extract' : 'missing',
+      armourInfoFromGraphicsDat: atariI559Stats?.cloths ? 'available via GAME_DB.originalAtari.i559.cloths reference extract' : 'missing',
+      doorInfoFromGraphicsDat: atariI559Decoded?.doorCharacteristics ? 'available via GAME_DB.originalAtari.i559.doorInfo reference extract' : 'missing',
+      namesAndStatsInGameDb: 'reference export without invented placeholders; prefer dungeon.json + originalAtari for source-truth',
     },
+  },
+  rawIndexTables: {
+    columnIndexWords: colIndex,
+    objectListWords: objectListWordValues,
   },
   startPosition: {
     map: 0, x: startPosWord & 0x1F,
@@ -1660,6 +1866,8 @@ const dungeon = {
   },
   champions,
   objectDatabase,
+  projectileDatabase: projectiles,
+  cloudDatabase: clouds,
   maps,
 };
 

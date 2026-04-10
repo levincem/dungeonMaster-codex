@@ -52,13 +52,35 @@ function createPulseMaterial(color: string, opacity: number) {
 
 // ─── Camera smooth follow ─────────────────────────────────────────────────────
 const CameraController = () => {
+    const level = useStore(s => s.level);
     const position  = useStore(s => s.position);
     const direction = useStore(s => s.direction);
     const cameraRef = useRef<THREE.PerspectiveCamera>(null);
-
-    const targetPos = new THREE.Vector3(position[1] * GRID_SIZE, 0, position[0] * GRID_SIZE);
+    const prevLevelRef = useRef(level);
+    const prevPositionRef = useRef<[number, number]>(position);
+    const targetPos = useMemo(
+        () => new THREE.Vector3(position[1] * GRID_SIZE, 0, position[0] * GRID_SIZE),
+        [position],
+    );
     const rotationMap = { NORTH: 0, EAST: -Math.PI / 2, SOUTH: Math.PI, WEST: Math.PI / 2 };
     const targetRot = rotationMap[direction as keyof typeof rotationMap];
+
+    useEffect(() => {
+        const camera = cameraRef.current;
+        if (!camera) return;
+
+        const [prevY, prevX] = prevPositionRef.current;
+        const jumpedDistance = Math.abs(prevX - position[1]) + Math.abs(prevY - position[0]);
+        const changedLevel = prevLevelRef.current !== level;
+
+        if (changedLevel || jumpedDistance > 1) {
+            camera.position.copy(targetPos);
+            camera.rotation.set(0, targetRot, 0);
+        }
+
+        prevLevelRef.current = level;
+        prevPositionRef.current = position;
+    }, [level, position, targetPos, targetRot]);
 
     useFrame(() => {
         if (!cameraRef.current) return;
@@ -820,7 +842,7 @@ export const DungeonScene = () => {
         const seen = new Set<string>();
         const plates: { tileX: number; tileY: number }[] = [];
         for (const mech of getMapMechanisms(level)) {
-            if (mech.support !== 'Floor' || !mech.kind.includes('Dalle')) continue;
+            if (mech.support !== 'Floor' || !mech.kind.startsWith('Dalle de pression')) continue;
             const tile = map.tiles[mech.y]?.[mech.x];
             if (!tile || tile.type === 'Wall' || tile.type === 'Door' || tile.type === 'Teleporter') continue;
             const key = `${mech.x},${mech.y}`;
