@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-04-07T17:34:31.409Z",
+  "generatedAt": "2026-04-11T15:51:53.462Z",
   "sources": {
-    "dungeon": "public/dungeon.json",
-    "canonical": "public/original_level_content.json",
-    "overlays": "public/original_wall_overlay_positions.json"
+    "dungeon": "src/assets/data/dungeon.json",
+    "canonical": "assets/OriginalDataExtraction/output/original_level_content.json",
+    "overlays": "src/assets/original_wall_overlay_positions.json"
   },
   "caveats": [
     "Inscriptions are audited against reconstructed fixed wall text placements, allowing a one-tile wall-facing offset.",

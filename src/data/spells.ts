@@ -69,13 +69,13 @@ export const SPELLS: Spell[] = [
     // Priest spells
     { name: 'Magic Footprints', runes: [6, 17, 20], runeStr: 'YA BRO ROS', effect: 'Creates glowing footprints to mark your path', skill: 'Priest', manaBase: 2, note: 'YA BRO ROS LEAVES A TRAIL OF MAGIC FOOTPRINTS' },
     { name: 'Open Door', runes: [12], runeStr: 'ZO', effect: 'Opens certain locked doors', skill: 'Priest', manaBase: 2, note: 'SOME DOORS CAN BE OPENED WITH A ZO SPELL' },
-    { name: 'Health Potion', runes: [7, 17, 22], runeStr: 'VI BRO RA', effect: 'Creates a health potion (cast into empty flask)', skill: 'Priest', manaBase: 4 },
-    { name: 'Antidote', runes: [7, 17], runeStr: 'VI BRO', effect: 'Creates an antidote/anti-poison potion (cast into empty flask)', skill: 'Priest', manaBase: 3 },
-    { name: 'Stamina Potion', runes: [6], runeStr: 'YA', effect: 'Creates a stamina potion (cast into empty flask)', skill: 'Fighter', manaBase: 2 },
-    { name: 'Strength Potion', runes: [10, 17, 15], runeStr: 'FUL BRO KU', effect: 'Creates a strength potion (cast into empty flask)', skill: 'Priest', manaBase: 4 },
-    { name: 'Dexterity Potion', runes: [8, 17, 20], runeStr: 'OH BRO ROS', effect: 'Creates a dexterity potion (cast into empty flask)', skill: 'Priest', manaBase: 4 },
-    { name: 'Wisdom Potion', runes: [6, 17, 23], runeStr: 'YA BRO DAIN', effect: 'Creates a wisdom potion (cast into empty flask)', skill: 'Priest', manaBase: 4 },
-    { name: 'Vitality Potion', runes: [6, 17, 13], runeStr: 'YA BRO NETA', effect: 'Creates a vitality potion (cast into empty flask)', skill: 'Priest', manaBase: 4 },
+    { name: 'Vi Potion', runes: [7, 17, 22], runeStr: 'VI BRO RA', effect: 'Creates a Vi potion (cast into empty flask)', skill: 'Priest', manaBase: 4 },
+    { name: 'Antivenin', runes: [7, 17], runeStr: 'VI BRO', effect: 'Creates an antivenin potion (cast into empty flask)', skill: 'Priest', manaBase: 3 },
+    { name: 'Ya Potion', runes: [6], runeStr: 'YA', effect: 'Creates a Ya potion (cast into empty flask)', skill: 'Fighter', manaBase: 2 },
+    { name: 'Ku Potion', runes: [10, 17, 15], runeStr: 'FUL BRO KU', effect: 'Creates a Ku potion (cast into empty flask)', skill: 'Priest', manaBase: 4 },
+    { name: 'Ros Potion', runes: [8, 17, 20], runeStr: 'OH BRO ROS', effect: 'Creates a Ros potion (cast into empty flask)', skill: 'Priest', manaBase: 4 },
+    { name: 'Dane Potion', runes: [6, 17, 23], runeStr: 'YA BRO DAIN', effect: 'Creates a Dane potion (cast into empty flask)', skill: 'Priest', manaBase: 4 },
+    { name: 'Neta Potion', runes: [6, 17, 13], runeStr: 'YA BRO NETA', effect: 'Creates a Neta potion (cast into empty flask)', skill: 'Priest', manaBase: 4 },
     // `ZO VEN` (Poison Potion) is documented in reference material, but is
     // intentionally left out here until its exact gameplay behavior is verified.
     // Fighter spells

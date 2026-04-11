@@ -1,10 +1,10 @@
 import { getEquippableSlots } from './equipment';
-import { ARMOR_TYPES, MISC_TYPES, POTION_TYPES, WEAPON_TYPES } from './items';
+import { getItemTypeIdByName } from './items';
 import type { ChampionEquipment, FloorItem } from '../types/game';
 
 type StarterItemSpec = {
     category: FloorItem['category'];
-    typeId: number;
+    typeId?: number;
     rawName: string;
     count?: number;
 };
@@ -14,29 +14,24 @@ export interface ChampionStarterLoadout {
     inventory?: StarterItemSpec[];
 }
 
-function normalizeName(value: string | undefined): string {
-    return (value ?? '').trim().toLowerCase();
+function starterItem(
+    category: FloorItem['category'],
+    rawName: string,
+    count?: number,
+): StarterItemSpec {
+    return { category, rawName, count };
+}
+
+function syntheticStarterArmor(typeId: number, rawName: string): StarterItemSpec {
+    return { category: 'Armor', typeId, rawName };
 }
 
 function findTypeIdByName(
     category: FloorItem['category'],
     rawName: string,
 ): number | undefined {
-    const target = normalizeName(rawName);
-    if (!target) return undefined;
-
-    switch (category) {
-        case 'Weapon':
-            return Object.values(WEAPON_TYPES).find((item) => normalizeName(item.name) === target)?.id;
-        case 'Armor':
-            return Object.values(ARMOR_TYPES).find((item) => normalizeName(item.name) === target)?.id;
-        case 'Potion':
-            return Object.values(POTION_TYPES).find((item) => normalizeName(item.name) === target)?.id;
-        case 'Misc':
-            return Object.values(MISC_TYPES).find((item) => normalizeName(item.name) === target)?.id;
-        default:
-            return undefined;
-    }
+    if (category === 'Scroll' || category === 'Container') return undefined;
+    return getItemTypeIdByName(category, rawName);
 }
 
 function repeatItems(items: StarterItemSpec[]): StarterItemSpec[] {
@@ -52,141 +47,141 @@ function repeatItems(items: StarterItemSpec[]): StarterItemSpec[] {
 
 export const CHAMPION_STARTER_LOADOUTS: Record<number, ChampionStarterLoadout> = {
     14: { equipped: repeatItems([
-        { category: 'Armor', typeId: 21, rawName: 'Ghi' },
-        { category: 'Armor', typeId: 22, rawName: 'Ghi Trousers' },
-        { category: 'Weapon', typeId: 13, rawName: 'Samurai Sword' },
+        starterItem('Armor', 'Ghi'),
+        starterItem('Armor', 'Ghi Trousers'),
+        starterItem('Weapon', 'Samurai Sword'),
     ]) },
     4: { equipped: repeatItems([
-        { category: 'Armor', typeId: 34, rawName: 'Mithral Aketon' },
-        { category: 'Armor', typeId: -5, rawName: 'Blue Pants' },
-        { category: 'Armor', typeId: 37, rawName: 'Hosen' },
-        { category: 'Weapon', typeId: 2, rawName: 'Torch' },
+        starterItem('Armor', 'Mithral Aketon'),
+        syntheticStarterArmor(-5, 'Blue Pants'),
+        starterItem('Armor', 'Hosen'),
+        starterItem('Weapon', 'Torch'),
     ]) },
     5: { equipped: repeatItems([
-        { category: 'Armor', typeId: 11, rawName: 'Silk Shirt' },
-        { category: 'Armor', typeId: 12, rawName: 'Gunna' },
-        { category: 'Armor', typeId: -6, rawName: 'Sandals' },
-        { category: 'Misc', typeId: 39, rawName: 'Moonstone' },
+        starterItem('Armor', 'Silk Shirt'),
+        starterItem('Armor', 'Gunna'),
+        syntheticStarterArmor(-6, 'Sandals'),
+        starterItem('Misc', 'Moonstone'),
     ]) },
     6: { equipped: repeatItems([
-        { category: 'Armor', typeId: 3, rawName: 'Leather Jerkin' },
-        { category: 'Armor', typeId: 17, rawName: 'Leather Pants' },
-        { category: 'Armor', typeId: 18, rawName: 'Suede Boots' },
-        { category: 'Weapon', typeId: 27, rawName: 'Arrow', count: 2 },
+        starterItem('Armor', 'Leather Jerkin'),
+        starterItem('Armor', 'Leather Pants'),
+        starterItem('Armor', 'Suede Boots'),
+        starterItem('Weapon', 'Arrow', 2),
     ]) },
     7: { equipped: repeatItems([
-        { category: 'Armor', typeId: 10, rawName: 'Tunic' },
-        { category: 'Armor', typeId: 17, rawName: 'Leather Pants' },
-        { category: 'Armor', typeId: 4, rawName: 'Leather Boots' },
-        { category: 'Misc', typeId: 46, rawName: "Rabbit's Foot" },
+        starterItem('Armor', 'Tunic'),
+        starterItem('Armor', 'Leather Pants'),
+        starterItem('Armor', 'Leather Boots'),
+        starterItem('Misc', "Rabbit's Foot"),
     ]) },
     11: { equipped: repeatItems([
-        { category: 'Armor', typeId: 3, rawName: 'Leather Jerkin' },
-        { category: 'Armor', typeId: 17, rawName: 'Leather Pants' },
-        { category: 'Armor', typeId: 18, rawName: 'Suede Boots' },
-        { category: 'Weapon', typeId: 29, rawName: 'Sling' },
+        starterItem('Armor', 'Leather Jerkin'),
+        starterItem('Armor', 'Leather Pants'),
+        starterItem('Armor', 'Suede Boots'),
+        starterItem('Weapon', 'Sling'),
     ]) },
     20: { equipped: repeatItems([
-        { category: 'Armor', typeId: 10, rawName: 'Tunic' },
-        { category: 'Armor', typeId: -5, rawName: 'Blue Pants' },
-        { category: 'Armor', typeId: -6, rawName: 'Sandals' },
-        { category: 'Weapon', typeId: 34, rawName: 'Staff' },
+        starterItem('Armor', 'Tunic'),
+        syntheticStarterArmor(-5, 'Blue Pants'),
+        syntheticStarterArmor(-6, 'Sandals'),
+        starterItem('Weapon', 'Staff'),
     ]) },
     3: { equipped: [] },
     21: { equipped: repeatItems([
-        { category: 'Armor', typeId: 1, rawName: 'Cloak Of Night' },
+        starterItem('Armor', 'Cloak Of Night'),
     ]) },
     19: { equipped: repeatItems([
-        { category: 'Armor', typeId: 57, rawName: 'Halter' },
-        { category: 'Armor', typeId: 12, rawName: 'Gunna' },
-        { category: 'Armor', typeId: -6, rawName: 'Sandals' },
-        { category: 'Misc', typeId: 48, rawName: 'Choker' },
-        { category: 'Weapon', typeId: 10, rawName: 'Sword' },
+        starterItem('Armor', 'Halter'),
+        starterItem('Armor', 'Gunna'),
+        syntheticStarterArmor(-6, 'Sandals'),
+        starterItem('Misc', 'Choker'),
+        starterItem('Weapon', 'Sword'),
     ]) },
     17: { equipped: repeatItems([
-        { category: 'Armor', typeId: 11, rawName: 'Silk Shirt' },
-        { category: 'Armor', typeId: 17, rawName: 'Leather Pants' },
-        { category: 'Armor', typeId: 4, rawName: 'Leather Boots' },
-        { category: 'Misc', typeId: 45, rawName: 'Rope' },
+        starterItem('Armor', 'Silk Shirt'),
+        starterItem('Armor', 'Leather Pants'),
+        starterItem('Armor', 'Leather Boots'),
+        starterItem('Misc', 'Rope'),
     ]) },
     8: {
         equipped: repeatItems([
-            { category: 'Armor', typeId: -1, rawName: 'Robe (Body)' },
-            { category: 'Armor', typeId: -2, rawName: 'Robe (Legs)' },
-            { category: 'Armor', typeId: -6, rawName: 'Sandals' },
+            syntheticStarterArmor(-1, 'Robe (Body)'),
+            syntheticStarterArmor(-2, 'Robe (Legs)'),
+            syntheticStarterArmor(-6, 'Sandals'),
         ]),
         inventory: repeatItems([
-            { category: 'Misc', typeId: 31, rawName: 'Bread' },
-            { category: 'Misc', typeId: 32, rawName: 'Cheese' },
-            { category: 'Misc', typeId: 29, rawName: 'Apple' },
+            starterItem('Misc', 'Bread'),
+            starterItem('Misc', 'Cheese'),
+            starterItem('Misc', 'Apple'),
         ]),
     },
     22: { equipped: repeatItems([
-        { category: 'Armor', typeId: 3, rawName: 'Leather Jerkin' },
+        starterItem('Armor', 'Leather Jerkin'),
         { category: 'Potion', typeId: 20, rawName: 'Empty Flask' },
     ]) },
     16: { equipped: repeatItems([
-        { category: 'Armor', typeId: 10, rawName: 'Tunic' },
-        { category: 'Armor', typeId: 17, rawName: 'Leather Pants' },
-        { category: 'Armor', typeId: 18, rawName: 'Suede Boots' },
-        { category: 'Weapon', typeId: 18, rawName: 'Axe' },
+        starterItem('Armor', 'Tunic'),
+        starterItem('Armor', 'Leather Pants'),
+        starterItem('Armor', 'Suede Boots'),
+        starterItem('Weapon', 'Axe'),
     ]) },
     13: { equipped: repeatItems([
-        { category: 'Armor', typeId: 57, rawName: 'Halter' },
-        { category: 'Armor', typeId: 29, rawName: 'Barbarian Hide' },
-        { category: 'Armor', typeId: -7, rawName: 'Hide Shield' },
-        { category: 'Weapon', typeId: 8, rawName: 'Dagger', count: 2 },
+        starterItem('Armor', 'Halter'),
+        starterItem('Armor', 'Barbarian Hide'),
+        syntheticStarterArmor(-7, 'Hide Shield'),
+        starterItem('Weapon', 'Dagger', 2),
     ]) },
     9: { equipped: repeatItems([
-        { category: 'Armor', typeId: 3, rawName: 'Leather Jerkin' },
-        { category: 'Armor', typeId: 17, rawName: 'Leather Pants' },
-        { category: 'Armor', typeId: 4, rawName: 'Leather Boots' },
+        starterItem('Armor', 'Leather Jerkin'),
+        starterItem('Armor', 'Leather Pants'),
+        starterItem('Armor', 'Leather Boots'),
     ]) },
     18: { equipped: repeatItems([
-        { category: 'Armor', typeId: -3, rawName: 'Kirtle' },
-        { category: 'Armor', typeId: 12, rawName: 'Gunna' },
-        { category: 'Armor', typeId: -6, rawName: 'Sandals' },
-        { category: 'Weapon', typeId: 35, rawName: 'Wand' },
+        syntheticStarterArmor(-3, 'Kirtle'),
+        starterItem('Armor', 'Gunna'),
+        syntheticStarterArmor(-6, 'Sandals'),
+        starterItem('Weapon', 'Wand'),
     ]) },
     10: { equipped: repeatItems([
-        { category: 'Armor', typeId: 11, rawName: 'Silk Shirt' },
-        { category: 'Armor', typeId: -4, rawName: 'Tabard' },
-        { category: 'Armor', typeId: -6, rawName: 'Sandals' },
-        { category: 'Weapon', typeId: 32, rawName: 'Throwing Star', count: 3 },
+        starterItem('Armor', 'Silk Shirt'),
+        syntheticStarterArmor(-4, 'Tabard'),
+        syntheticStarterArmor(-6, 'Sandals'),
+        starterItem('Weapon', 'Throwing Star', 3),
     ]) },
     23: { equipped: [] },
     1: { equipped: repeatItems([
-        { category: 'Armor', typeId: 25, rawName: 'Bezerker Helm' },
-        { category: 'Armor', typeId: 29, rawName: 'Barbarian Hide' },
-        { category: 'Armor', typeId: -6, rawName: 'Sandals' },
-        { category: 'Weapon', typeId: 23, rawName: 'Club' },
+        starterItem('Armor', 'Bezerker Helm'),
+        starterItem('Armor', 'Barbarian Hide'),
+        syntheticStarterArmor(-6, 'Sandals'),
+        starterItem('Weapon', 'Club'),
     ]) },
     2: {
         equipped: repeatItems([
-            { category: 'Armor', typeId: 2, rawName: 'Elven Doublet' },
-            { category: 'Armor', typeId: -4, rawName: 'Tabard' },
+            starterItem('Armor', 'Elven Doublet'),
+            syntheticStarterArmor(-4, 'Tabard'),
         ]),
         inventory: repeatItems([
-            { category: 'Misc', typeId: 29, rawName: 'Apple' },
+            starterItem('Misc', 'Apple'),
         ]),
     },
     15: { equipped: repeatItems([
-        { category: 'Armor', typeId: 3, rawName: 'Leather Jerkin' },
-        { category: 'Armor', typeId: -5, rawName: 'Blue Pants' },
-        { category: 'Armor', typeId: 4, rawName: 'Leather Boots' },
-        { category: 'Weapon', typeId: 31, rawName: 'Poison Dart', count: 2 },
+        starterItem('Armor', 'Leather Jerkin'),
+        syntheticStarterArmor(-5, 'Blue Pants'),
+        starterItem('Armor', 'Leather Boots'),
+        starterItem('Weapon', 'Poison Dart', 2),
     ]) },
     12: { equipped: repeatItems([
-        { category: 'Armor', typeId: 2, rawName: 'Elven Doublet' },
-        { category: 'Armor', typeId: 14, rawName: 'Elven Huke' },
-        { category: 'Armor', typeId: 15, rawName: 'Elven Boots' },
-        { category: 'Weapon', typeId: 25, rawName: 'Bow' },
+        starterItem('Armor', 'Elven Doublet'),
+        starterItem('Armor', 'Elven Huke'),
+        starterItem('Armor', 'Elven Boots'),
+        starterItem('Weapon', 'Bow'),
     ]) },
     0: { equipped: repeatItems([
-        { category: 'Armor', typeId: -1, rawName: 'Robe (Body)' },
-        { category: 'Armor', typeId: -2, rawName: 'Robe (Legs)' },
-        { category: 'Armor', typeId: -6, rawName: 'Sandals' },
-        { category: 'Misc', typeId: 42, rawName: 'Magical Box (Blue)' },
+        syntheticStarterArmor(-1, 'Robe (Body)'),
+        syntheticStarterArmor(-2, 'Robe (Legs)'),
+        syntheticStarterArmor(-6, 'Sandals'),
+        starterItem('Misc', 'Magical Box (Blue)'),
     ]) },
 };
 
@@ -199,8 +194,11 @@ function buildStarterItem(
     const typeId =
         findTypeIdByName(spec.category, spec.rawName)
         ?? spec.typeId;
+    if (typeId === undefined) {
+        throw new Error(`Unable to resolve starter item "${spec.rawName}" for champion ${championId}.`);
+    }
     return {
-        id: `starter_${championId}_${kind}_${index}_${spec.category}_${spec.typeId}`,
+        id: `starter_${championId}_${kind}_${index}_${spec.category}_${typeId}`,
         category: spec.category,
         typeId,
         rawName: spec.rawName,

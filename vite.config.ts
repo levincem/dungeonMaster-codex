@@ -20,8 +20,78 @@ export default defineConfig({
             return 'vendor'
           }
 
-          if (normalizedId.includes('/src/engine/store.ts')) {
+          if (
+            normalizedId.includes('/src/assets/data/dungeon.json')
+          ) {
+            return 'dungeon-blob'
+          }
+
+          if (
+            normalizedId.includes('/src/assets/data/game_db.json')
+          ) {
+            return 'game-db-blob'
+          }
+
+          if (
+            normalizedId.includes('/src/assets/data/') ||
+            normalizedId.includes('/src/data/dungeonData.ts') ||
+            normalizedId.includes('/src/data/gameDbData.ts') ||
+            normalizedId.includes('/src/data/mapLoader.ts')
+          ) {
+            return 'boot-data'
+          }
+
+          if (
+            normalizedId.includes('/src/data/items.ts') ||
+            normalizedId.includes('/src/data/itemImages.ts') ||
+            normalizedId.includes('/src/data/waterContainers.ts') ||
+            normalizedId.includes('/src/data/weaponAttacks.ts')
+          ) {
+            return 'item-data'
+          }
+
+          if (
+            normalizedId.includes('/src/data/runes.ts') ||
+            normalizedId.includes('/src/data/originalSpells.ts') ||
+            normalizedId.includes('/src/data/spells.ts') ||
+            normalizedId.includes('/src/data/spellRuntime.ts')
+          ) {
+            return 'magic-data'
+          }
+
+          if (normalizedId.includes('/src/data/assetPaths.ts')) {
+            return 'asset-runtime'
+          }
+
+          if (
+            normalizedId.includes('/src/assets/original_wall_overlay_positions.json') ||
+            normalizedId.includes('/src/data/originalWallOverlays.ts')
+          ) {
+            return 'overlay-data'
+          }
+
+          if (
+            normalizedId.includes('/src/data/champions.ts') ||
+            normalizedId.includes('/src/data/championsRuntime.ts') ||
+            normalizedId.includes('/src/data/championStarterItems.ts') ||
+            normalizedId.includes('/src/data/creatures.ts') ||
+            normalizedId.includes('/src/data/creaturesRuntime.ts') ||
+            normalizedId.includes('/src/data/mechanisms.ts') ||
+            normalizedId.includes('/src/data/equipment.ts') ||
+            normalizedId.includes('/src/data/doors.ts')
+          ) {
+            return 'world-data'
+          }
+
+          if (
+            normalizedId.includes('/src/engine/saveGame.ts') ||
+            normalizedId.includes('/src/engine/sounds.ts')
+          ) {
             return 'game-core'
+          }
+
+          if (normalizedId.includes('/src/components/Dungeon/')) {
+            return 'dungeon-render'
           }
         },
       },

@@ -69,6 +69,8 @@ export interface SensorObject {
     targetGlobalY?: number;
     targetGlobalX?: number;
     targetDir: CardinalDir;
+    requiredObjectType?: number;
+    requiredObjectName?: string;
 }
 
 export interface WallTextObject {

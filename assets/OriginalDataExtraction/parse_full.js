@@ -1,16 +1,87 @@
 /**
  * Dungeon Master (FTL 1987) – Full DUNGEON.DAT parser
- * Outputs dungeon.json + game_db.json for use in TypeScript/Three.js/Vite
+ * Outputs dungeon.json + game_db.json for extraction audits and runtime use
  */
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const { execFileSync } = require('child_process');
 
 const ROOT_DIR = path.resolve(__dirname, '..', '..');
 const OUTPUT_DIR = path.join(__dirname, 'output');
+const REFERENCE_EXPORTS_DIR = path.join(__dirname, 'reference_exports');
+const RUNTIME_DATA_DIR = path.join(ROOT_DIR, 'src', 'assets', 'data');
+const RUNTIME_ASSETS_DIR = path.join(ROOT_DIR, 'src', 'assets');
 const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
 const dungeonFilePath = path.join(__dirname, 'EUDATA', 'DUNGEON.DAT');
-const graphicsDbPath = path.join(PUBLIC_DIR, 'graphics_db.json');
+const graphicsDbPath = path.join(ROOT_DIR, 'public', 'graphics_db.json');
+
+const REQUIRED_RUNTIME_REFERENCE_FILES = [
+  'original_creatures_runtime.json',
+  'original_doors_runtime.json',
+];
+
+const EXTRACTION_REFERENCE_FILES = [
+  'original_level_content.json',
+];
+
+const SUPPORT_ASSET_FILES = [
+  'original_wall_overlay_positions.json',
+];
+
+function listRuntimeReferenceFiles() {
+  return REQUIRED_RUNTIME_REFERENCE_FILES.filter((fileName) =>
+    fs.existsSync(path.join(PUBLIC_DIR, fileName)),
+  );
+}
+
+function listExtractionReferenceFiles() {
+  return EXTRACTION_REFERENCE_FILES.filter((fileName) =>
+    fs.existsSync(path.join(REFERENCE_EXPORTS_DIR, fileName)) ||
+    fs.existsSync(path.join(PUBLIC_DIR, fileName)),
+  );
+}
+
+function cleanupRuntimeDataDir(runtimeReferenceFiles) {
+  if (!fs.existsSync(RUNTIME_DATA_DIR)) return;
+  const keep = new Set([
+    'dungeon.json',
+    'game_db.json',
+    'runtime_data_manifest.json',
+    ...runtimeReferenceFiles,
+  ]);
+  for (const fileName of fs.readdirSync(RUNTIME_DATA_DIR)) {
+    if (!/^(original_.*\.json|mechanisms\.json)$/i.test(fileName)) continue;
+    if (keep.has(fileName)) continue;
+    const targetPath = path.join(RUNTIME_DATA_DIR, fileName);
+    try {
+      fs.unlinkSync(targetPath);
+    } catch (error) {
+      console.warn(`! Could not remove stale runtime data file: ${targetPath}`);
+    }
+  }
+}
+
+function cleanupRuntimeAssetsDir(supportAssetFiles) {
+  if (!fs.existsSync(RUNTIME_ASSETS_DIR)) return;
+  const keep = new Set(supportAssetFiles);
+  for (const fileName of fs.readdirSync(RUNTIME_ASSETS_DIR)) {
+    if (!/^original_wall_.*\.json$/i.test(fileName)) continue;
+    if (keep.has(fileName)) continue;
+    const targetPath = path.join(RUNTIME_ASSETS_DIR, fileName);
+    try {
+      fs.unlinkSync(targetPath);
+    } catch (error) {
+      console.warn(`! Could not remove stale runtime support asset: ${targetPath}`);
+    }
+  }
+}
+
+function buildRuntimeWallOverlaySnapshot(fullOverlayData) {
+  return {
+    fixedFaces: Array.isArray(fullOverlayData?.fixedFaces) ? fullOverlayData.fixedFaces : [],
+  };
+}
 
 const COMPRESSED_DUNGEON_SIGNATURE = 0x8104;
 const UNCOMPRESSED_MAP_DATA_OFFSET = 0x5250;
@@ -1871,12 +1942,184 @@ const dungeon = {
   maps,
 };
 
+const MAP_RUNTIME_KEYS = new Set([
+  'index',
+  'name',
+  'level',
+  'width',
+  'height',
+  'difficulty',
+  'mapOffset',
+  'tiles',
+]);
+
+const TILE_RUNTIME_KEYS = new Set([
+  'x',
+  'y',
+  'type',
+  'orientation',
+  'open',
+  'visible',
+  'objects',
+]);
+
+const OBJECT_RUNTIME_KEYS = new Set([
+  'category',
+  'index',
+  'tilePos',
+  'type',
+  'name',
+  'text',
+  'visible',
+  'hp',
+  'sound',
+  'destX',
+  'destY',
+  'destMap',
+  'data',
+  'delay',
+  'revert',
+  'action',
+  'onceOnly',
+  'targetY',
+  'targetX',
+  'targetDir',
+  'requiredObjectName',
+  'destructChop',
+  'destructFire',
+  'hasButton',
+  'doorType',
+]);
+
+function pickKeys(source, allowedKeys) {
+  const result = {};
+  for (const key of allowedKeys) {
+    if (source[key] !== undefined) {
+      result[key] = source[key];
+    }
+  }
+  return result;
+}
+
+function compactRuntimeDungeon(fullDungeon) {
+  return {
+    startPosition: fullDungeon.startPosition,
+    champions: (fullDungeon.champions ?? []).map((champion) => ({
+      portraitId: champion.portraitId,
+      name: champion.name,
+      title: champion.title,
+      gender: champion.gender,
+      health: champion.health,
+      stamina: champion.stamina,
+      mana: champion.mana,
+      luck: champion.luck,
+      strength: champion.strength,
+      dexterity: champion.dexterity,
+      wisdom: champion.wisdom,
+      vitality: champion.vitality,
+      antiMagic: champion.antiMagic,
+      antiFire: champion.antiFire,
+      skills: champion.skills,
+      x: champion.x,
+      y: champion.y,
+      wallFace: champion.wallFace,
+      map: champion.map ?? champion.mapIndex ?? 0,
+    })),
+    maps: (fullDungeon.maps ?? []).map((map) => ({
+      ...pickKeys(map, MAP_RUNTIME_KEYS),
+      tiles: (map.tiles ?? []).map((tile) => ({
+        ...pickKeys(tile, TILE_RUNTIME_KEYS),
+        objects: (tile.objects ?? []).map((object) => pickKeys(object, OBJECT_RUNTIME_KEYS)),
+      })),
+    })),
+  };
+}
+
+const runtimeDungeon = compactRuntimeDungeon(dungeon);
+
 fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-fs.mkdirSync(PUBLIC_DIR, { recursive: true });
+fs.mkdirSync(RUNTIME_DATA_DIR, { recursive: true });
+fs.mkdirSync(RUNTIME_ASSETS_DIR, { recursive: true });
 fs.writeFileSync(path.join(OUTPUT_DIR, 'dungeon.json'), JSON.stringify(dungeon, null, 2));
+fs.writeFileSync(path.join(OUTPUT_DIR, 'runtime_dungeon.json'), JSON.stringify(runtimeDungeon, null, 2));
 fs.writeFileSync(path.join(OUTPUT_DIR, 'game_db.json'), JSON.stringify(GAME_DB, null, 2));
-fs.writeFileSync(path.join(PUBLIC_DIR, 'dungeon.json'), JSON.stringify(dungeon, null, 2));
-fs.writeFileSync(path.join(PUBLIC_DIR, 'game_db.json'), JSON.stringify(GAME_DB, null, 2));
+fs.writeFileSync(path.join(RUNTIME_DATA_DIR, 'dungeon.json'), JSON.stringify(runtimeDungeon, null, 2));
+fs.writeFileSync(path.join(RUNTIME_DATA_DIR, 'game_db.json'), JSON.stringify(GAME_DB, null, 2));
+
+execFileSync(process.execPath, ['export_mechanisms.cjs'], {
+  cwd: __dirname,
+  stdio: 'inherit',
+});
+const extractionReferenceFiles = listExtractionReferenceFiles();
+for (const fileName of extractionReferenceFiles) {
+  const referencePath = fs.existsSync(path.join(REFERENCE_EXPORTS_DIR, fileName))
+    ? path.join(REFERENCE_EXPORTS_DIR, fileName)
+    : path.join(PUBLIC_DIR, fileName);
+  const outputPath = path.join(OUTPUT_DIR, fileName);
+  if (fs.existsSync(referencePath)) {
+    fs.copyFileSync(referencePath, outputPath);
+  }
+}
+const runtimeReferenceFiles = listRuntimeReferenceFiles();
+cleanupRuntimeDataDir(runtimeReferenceFiles);
+for (const fileName of runtimeReferenceFiles) {
+  const publicPath = path.join(PUBLIC_DIR, fileName);
+  const runtimePath = path.join(RUNTIME_DATA_DIR, fileName);
+  if (fs.existsSync(publicPath)) {
+    fs.copyFileSync(publicPath, runtimePath);
+  }
+}
+
+const syncedSupportAssetFiles = [];
+cleanupRuntimeAssetsDir(SUPPORT_ASSET_FILES);
+for (const fileName of SUPPORT_ASSET_FILES) {
+  const publicPath = path.join(PUBLIC_DIR, fileName);
+  const runtimePath = path.join(RUNTIME_ASSETS_DIR, fileName);
+  if (fs.existsSync(publicPath)) {
+    if (fileName === 'original_wall_overlay_positions.json') {
+      const fullOverlayData = JSON.parse(fs.readFileSync(publicPath, 'utf8'));
+      const runtimeOverlayData = buildRuntimeWallOverlaySnapshot(fullOverlayData);
+      fs.writeFileSync(
+        path.join(OUTPUT_DIR, 'runtime_wall_overlay_positions.json'),
+        JSON.stringify(runtimeOverlayData, null, 2),
+      );
+      fs.writeFileSync(runtimePath, JSON.stringify(runtimeOverlayData, null, 2));
+    } else {
+      fs.copyFileSync(publicPath, runtimePath);
+    }
+    syncedSupportAssetFiles.push(fileName);
+  }
+}
+
+const runtimeManifest = {
+  generatedAt: new Date().toISOString(),
+  parser: 'parse_full',
+  canonicalRuntimeDataDir: 'src/assets/data',
+  canonicalRuntimeSupportDir: 'src/assets',
+  canonicalReferenceExportsDir: 'assets/OriginalDataExtraction/reference_exports',
+  files: {
+    generatedDirectly: [
+      'dungeon.json',
+      'runtime_dungeon.json',
+      'game_db.json',
+    ],
+    generatedReferenceOnly: [
+      'mechanisms.json',
+    ],
+    syncedExtractionReferences: extractionReferenceFiles,
+    syncedRuntimeReferences: runtimeReferenceFiles,
+    syncedSupportAssets: syncedSupportAssetFiles,
+  },
+};
+
+fs.writeFileSync(
+  path.join(OUTPUT_DIR, 'runtime_data_manifest.json'),
+  JSON.stringify(runtimeManifest, null, 2),
+);
+fs.writeFileSync(
+  path.join(RUNTIME_DATA_DIR, 'runtime_data_manifest.json'),
+  JSON.stringify(runtimeManifest, null, 2),
+);
 
 // ─── STATS ────────────────────────────────────────────────────────────────────
 let totalObjects = 0, totalCreatures = 0, totalItems = 0, totalTexts = 0;
@@ -1892,7 +2135,14 @@ for (const map of maps) {
 }
 
 console.log('✓ output/dungeon.json written');
+console.log('✓ output/runtime_dungeon.json written');
 console.log('✓ output/game_db.json written');
+console.log('✓ output/mechanisms.json written');
+console.log('✓ output/runtime_data_manifest.json written');
+console.log('✓ src/assets/data/dungeon.json written');
+console.log('✓ src/assets/data/game_db.json written');
+console.log(`✓ src/assets/data runtime reference files synced (${runtimeReferenceFiles.length})`);
+console.log(`✓ src/assets support files synced (${syncedSupportAssetFiles.length})`);
 console.log();
 console.log('  Maps:         ', numMaps);
 console.log('  Champions:    ', champions.length,

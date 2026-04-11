@@ -3,7 +3,7 @@
     "key": "Armor:13",
     "observed": [
       {
-        "value": "Armor_13",
+        "value": "Elven Doublet",
         "count": 1
       }
     ],
@@ -64,7 +64,7 @@
     "key": "Armor:16",
     "observed": [
       {
-        "value": "Leather Boots",
+        "value": "Leather Jerkin",
         "count": 3
       }
     ],
@@ -150,7 +150,7 @@
     "key": "Armor:18",
     "observed": [
       {
-        "value": "Hosen",
+        "value": "Suede Boots",
         "count": 1
       }
     ],
@@ -177,7 +177,7 @@
     "key": "Armor:22",
     "observed": [
       {
-        "value": "Armor_22",
+        "value": "Ghi Trousers",
         "count": 1
       }
     ],
@@ -196,7 +196,7 @@
     "key": "Armor:23",
     "observed": [
       {
-        "value": "Armor_23",
+        "value": "Calista",
         "count": 1
       }
     ],
@@ -219,7 +219,7 @@
     "key": "Armor:24",
     "observed": [
       {
-        "value": "Leg Mail",
+        "value": "Crown Of Nerra",
         "count": 1
       }
     ],
@@ -326,7 +326,7 @@
     "key": "Armor:30",
     "observed": [
       {
-        "value": "Armor_30",
+        "value": "Wooden Shield",
         "count": 1
       }
     ],
@@ -360,7 +360,7 @@
     "key": "Armor:32",
     "observed": [
       {
-        "value": "Helmet",
+        "value": "Mail Aketon",
         "count": 3
       }
     ],
@@ -422,7 +422,7 @@
     "key": "Armor:34",
     "observed": [
       {
-        "value": "Crown of Nerra",
+        "value": "Mithral Aketon",
         "count": 1
       }
     ],
@@ -471,7 +471,7 @@
     "key": "Armor:37",
     "observed": [
       {
-        "value": "Armor_37",
+        "value": "Hosen",
         "count": 2
       }
     ],
@@ -521,7 +521,7 @@
     "key": "Armor:39",
     "observed": [
       {
-        "value": "Armor_39",
+        "value": "Torso Plate",
         "count": 2
       }
     ],
@@ -544,7 +544,7 @@
     "key": "Armor:4",
     "observed": [
       {
-        "value": "Suede Doublet",
+        "value": "Leather Boots",
         "count": 2
       }
     ],
@@ -567,7 +567,7 @@
     "key": "Armor:40",
     "observed": [
       {
-        "value": "Neck Plate",
+        "value": "Leg Plate",
         "count": 1
       }
     ],
@@ -635,7 +635,7 @@
     "key": "Armor:44",
     "observed": [
       {
-        "value": "Armor_44",
+        "value": "Plate Of Lyte",
         "count": 1
       }
     ],
@@ -658,7 +658,7 @@
     "key": "Armor:45",
     "observed": [
       {
-        "value": "Armor_45",
+        "value": "Poleyn Of Lyte",
         "count": 1
       }
     ],
@@ -681,7 +681,7 @@
     "key": "Armor:46",
     "observed": [
       {
-        "value": "Armor_46",
+        "value": "Greave Of Lyte",
         "count": 1
       }
     ],
@@ -704,7 +704,7 @@
     "key": "Armor:47",
     "observed": [
       {
-        "value": "Armor_47",
+        "value": "Shield Of Lyte",
         "count": 1
       }
     ],
@@ -798,7 +798,7 @@
     "key": "Armor:54",
     "observed": [
       {
-        "value": "Armor_54",
+        "value": "Flamebain",
         "count": 1
       }
     ],
@@ -836,7 +836,7 @@
     "key": "Armor:7",
     "observed": [
       {
-        "value": "Barbarian Doublet",
+        "value": "Fine Robe (Body)",
         "count": 1
       }
     ],
@@ -863,7 +863,7 @@
     "key": "Armor:8",
     "observed": [
       {
-        "value": "Gi",
+        "value": "Fine Robe (Legs)",
         "count": 1
       }
     ],
@@ -891,12 +891,20 @@
     "observed": [
       {
         "value": "Chest",
-        "count": 6
+        "count": 10
       }
     ],
     "expectedCandidates": [
       {
         "value": "ChestScroll \"Drink these to gain magical defense\", Ya potion]",
+        "count": 1
+      },
+      {
+        "value": "ChestDrumstick, Corn, Cheese, Bread, Magical Box (Blue), Scroll \"Des Ven will conjure a poison spell\", Empty Flask]",
+        "count": 1
+      },
+      {
+        "value": "ChestApple, Cheese, Scroll \"Ya will create a stamina potion\", Scroll \"Some doors can be opened with a Zo spell\", Gold Coin]",
         "count": 1
       },
       {
@@ -916,49 +924,15 @@
         "count": 1
       },
       {
+        "value": "ChestYa Potion, Scroll \"The spell Ya Bro Ros leaves a trail of magic footprints.\"]",
+        "count": 1
+      },
+      {
         "value": "Vi Potion",
         "count": 1
       },
       {
         "value": "ChestGreen Gem, Scroll \"Put the gem back...\"]",
-        "count": 1
-      }
-    ]
-  },
-  {
-    "key": "Container:1",
-    "observed": [
-      {
-        "value": "Chest",
-        "count": 1
-      }
-    ],
-    "expectedCandidates": [
-      {
-        "value": "ChestSolid Key]",
-        "count": 1
-      }
-    ]
-  },
-  {
-    "key": "Container:121",
-    "observed": [
-      {
-        "value": "Chest",
-        "count": 3
-      }
-    ],
-    "expectedCandidates": [
-      {
-        "value": "ChestDrumstick, Corn, Cheese, Bread, Magical Box (Blue), Scroll \"Des Ven will conjure a poison spell\", Empty Flask]",
-        "count": 1
-      },
-      {
-        "value": "ChestApple, Cheese, Scroll \"Ya will create a stamina potion\", Scroll \"Some doors can be opened with a Zo spell\", Gold Coin]",
-        "count": 1
-      },
-      {
-        "value": "ChestYa Potion, Scroll \"The spell Ya Bro Ros leaves a trail of magic footprints.\"]",
         "count": 1
       }
     ]
@@ -1017,7 +991,7 @@
     "key": "Misc:10",
     "observed": [
       {
-        "value": "Key of B",
+        "value": "Key Of B",
         "count": 2
       }
     ],
@@ -1192,7 +1166,7 @@
     "key": "Misc:21",
     "observed": [
       {
-        "value": "(Misc_21)",
+        "value": "Emerald Key",
         "count": 1
       }
     ],
@@ -1782,7 +1756,7 @@
     "key": "Misc:48",
     "observed": [
       {
-        "value": "(Misc_48)",
+        "value": "Choker",
         "count": 1
       }
     ],
@@ -1909,18 +1883,193 @@
     ]
   },
   {
-    "key": "Potion:0",
+    "key": "Potion:10",
     "observed": [
       {
-        "value": "Mon Potion",
-        "count": 17
+        "value": "Antivenin",
+        "count": 1
       }
     ],
     "expectedCandidates": [
       {
-        "value": "Drumstick",
-        "count": 6
+        "value": "Cheese",
+        "count": 1
       },
+      {
+        "value": "Bro Potion",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Potion:12",
+    "observed": [
+      {
+        "value": "Ya Potion",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Ya Potion",
+        "count": 1
+      },
+      {
+        "value": "Vi Potion",
+        "count": 1
+      },
+      {
+        "value": "Water Flask",
+        "count": 1
+      },
+      {
+        "value": "Apple",
+        "count": 1
+      },
+      {
+        "value": "Scroll Invisibility Oh Ew Sar",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Potion:14",
+    "observed": [
+      {
+        "value": "Vi Potion",
+        "count": 5
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Vi Potion",
+        "count": 5
+      },
+      {
+        "value": "Ros Potion",
+        "count": 1
+      },
+      {
+        "value": "Drumstick",
+        "count": 1
+      },
+      {
+        "value": "Torch",
+        "count": 1
+      },
+      {
+        "value": "ChestGreen Gem, Scroll \"Put the gem back...\"]",
+        "count": 1
+      },
+      {
+        "value": "Ya Potion",
+        "count": 1
+      },
+      {
+        "value": "Water Flask",
+        "count": 1
+      },
+      {
+        "value": "Apple",
+        "count": 1
+      },
+      {
+        "value": "Scroll Invisibility Oh Ew Sar",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Potion:15",
+    "observed": [
+      {
+        "value": "Water Flask",
+        "count": 2
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Water Flask",
+        "count": 2
+      },
+      {
+        "value": "Cheese",
+        "count": 1
+      },
+      {
+        "value": "Ful Bomb",
+        "count": 1
+      },
+      {
+        "value": "Ya Potion",
+        "count": 1
+      },
+      {
+        "value": "Vi Potion",
+        "count": 1
+      },
+      {
+        "value": "Apple",
+        "count": 1
+      },
+      {
+        "value": "Scroll Invisibility Oh Ew Sar",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Potion:19",
+    "observed": [
+      {
+        "value": "Ful Bomb",
+        "count": 9
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Ful Bomb",
+        "count": 9
+      },
+      {
+        "value": "Ven Potion",
+        "count": 1
+      },
+      {
+        "value": "The Inquisitor",
+        "count": 1
+      },
+      {
+        "value": "Magical Box (Green)",
+        "count": 1
+      },
+      {
+        "value": "Rabbit's Foot",
+        "count": 1
+      },
+      {
+        "value": "Cheese",
+        "count": 1
+      },
+      {
+        "value": "Water Flask",
+        "count": 1
+      },
+      {
+        "value": "Torso Plate",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Potion:20",
+    "observed": [
+      {
+        "value": "Empty Flask",
+        "count": 8
+      }
+    ],
+    "expectedCandidates": [
       {
         "value": "Empty flask",
         "count": 4
@@ -1942,141 +2091,84 @@
         "count": 3
       },
       {
-        "value": "Vi Potion",
+        "value": "Drumstick",
         "count": 3
       },
       {
-        "value": "Ful Bomb",
-        "count": 3
-      },
-      {
-        "value": "Ros Potion",
-        "count": 2
-      },
-      {
-        "value": "Torch",
-        "count": 2
-      }
-    ]
-  },
-  {
-    "key": "Potion:16",
-    "observed": [
-      {
-        "value": "Vitality Potion",
+        "value": "Mail Aketon",
         "count": 1
-      }
-    ],
-    "expectedCandidates": [
+      },
       {
-        "value": "Ven Potion",
+        "value": "Horn Of Fear",
+        "count": 1
+      },
+      {
+        "value": "Scroll The spell Oh Ew Ra bestows magic vision.",
         "count": 1
       }
     ]
   },
   {
-    "key": "Potion:18",
-    "observed": [
-      {
-        "value": "Anti-Fire Potion",
-        "count": 1
-      }
-    ],
-    "expectedCandidates": [
-      {
-        "value": "Vi Potion",
-        "count": 1
-      },
-      {
-        "value": "ChestGreen Gem, Scroll \"Put the gem back...\"]",
-        "count": 1
-      }
-    ]
-  },
-  {
-    "key": "Potion:24",
-    "observed": [
-      {
-        "value": "Waterskin (water)",
-        "count": 4
-      }
-    ],
-    "expectedCandidates": [
-      {
-        "value": "Ful Bomb",
-        "count": 2
-      },
-      {
-        "value": "Ven Potion",
-        "count": 1
-      },
-      {
-        "value": "Vi Potion",
-        "count": 1
-      }
-    ]
-  },
-  {
-    "key": "Potion:28",
+    "key": "Potion:3",
     "observed": [
       {
         "value": "Ven Potion",
-        "count": 2
+        "count": 6
       }
     ],
     "expectedCandidates": [
       {
         "value": "Ven Potion",
-        "count": 1
+        "count": 6
       },
       {
         "value": "Ful Bomb",
         "count": 1
-      },
-      {
-        "value": "Magical Box (Green)",
-        "count": 1
-      }
-    ]
-  },
-  {
-    "key": "Potion:31",
-    "observed": [
-      {
-        "value": "Ven Potion",
-        "count": 3
-      }
-    ],
-    "expectedCandidates": [
-      {
-        "value": "Ven Potion",
-        "count": 3
-      },
-      {
-        "value": "Ful Bomb",
-        "count": 2
       },
       {
         "value": "The Inquisitor",
-        "count": 2
+        "count": 1
       }
     ]
   },
   {
-    "key": "Potion:4",
+    "key": "Potion:6",
     "observed": [
       {
-        "value": "Ful Potion",
+        "value": "Ros Potion",
         "count": 1
       }
     ],
     "expectedCandidates": [
       {
-        "value": "Cheese",
+        "value": "Ros Potion",
         "count": 1
       },
       {
-        "value": "Bro Potion",
+        "value": "Vi Potion",
+        "count": 1
+      },
+      {
+        "value": "Drumstick",
+        "count": 1
+      },
+      {
+        "value": "Torch",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Potion:7",
+    "observed": [
+      {
+        "value": "Ku Potion",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Ku Potion",
         "count": 1
       }
     ]
@@ -2085,41 +2177,36 @@
     "key": "Potion:8",
     "observed": [
       {
-        "value": "Health Potion",
-        "count": 7
+        "value": "Dane Potion",
+        "count": 1
       }
     ],
     "expectedCandidates": [
       {
-        "value": "Vi Potion",
-        "count": 3
-      },
-      {
-        "value": "Water Flask",
-        "count": 3
-      },
-      {
-        "value": "Ful Bomb",
-        "count": 3
-      },
-      {
-        "value": "Ya Potion",
-        "count": 2
-      },
-      {
-        "value": "Apple",
-        "count": 2
-      },
-      {
-        "value": "Scroll Invisibility Oh Ew Sar",
-        "count": 2
-      },
-      {
-        "value": "Ven Potion",
+        "value": "Blue Gem",
         "count": 1
       },
       {
-        "value": "Cheese",
+        "value": "Dane Potion",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "key": "Potion:9",
+    "observed": [
+      {
+        "value": "Neta Potion",
+        "count": 1
+      }
+    ],
+    "expectedCandidates": [
+      {
+        "value": "Neta Potion",
+        "count": 1
+      },
+      {
+        "value": "Drumstick",
         "count": 1
       }
     ]
@@ -2179,7 +2266,7 @@
     "key": "Weapon:0",
     "observed": [
       {
-        "value": "(W0)",
+        "value": "Eye Of Time",
         "count": 1
       }
     ],
@@ -2202,7 +2289,7 @@
     "key": "Weapon:1",
     "observed": [
       {
-        "value": "(W1)",
+        "value": "Stormring",
         "count": 1
       }
     ],
@@ -2780,7 +2867,7 @@
     "key": "Weapon:43",
     "observed": [
       {
-        "value": "(W43)",
+        "value": "Horn Of Fear",
         "count": 1
       }
     ],

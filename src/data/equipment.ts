@@ -1,5 +1,5 @@
 import type { Champion } from './champions';
-import { getArmorDef, getWeaponAllowedSlotsMask, MISC_TYPES, WEAPON_TYPES } from './items';
+import { getArmorDef, getWeaponAllowedSlotsMask, MISC_TYPES, STARTER_ARMOR_SLOT_BY_NAME, normalizeLookupName, WEAPON_TYPES } from './items';
 import type { ChampionEquipment, FloorItem } from '../types/game';
 import type { ArmorSlot, EquipSlotKey } from '../types/items';
 
@@ -68,43 +68,6 @@ const ZERO_BONUSES: EquipmentStatBonuses = {
     luck: 0,
 };
 
-const STARTER_ARMOR_SLOT_BY_NAME: Record<string, EquipSlotKey> = {
-    'robe (body)': 'torso',
-    'robe (legs)': 'legs',
-    'fine robe (body)': 'torso',
-    'fine robe (legs)': 'legs',
-    kirtle: 'torso',
-    tabard: 'torso',
-    gunna: 'torso',
-    ghi: 'torso',
-    'barbarian hide': 'torso',
-    halter: 'torso',
-    tunic: 'torso',
-    'silk shirt': 'torso',
-    'leather jerkin': 'torso',
-    'elven doublet': 'torso',
-    'elven huke': 'torso',
-    'blue pants': 'legs',
-    'ghi trousers': 'legs',
-    'leather pants': 'legs',
-    hosen: 'legs',
-    sandals: 'feet',
-    'suede boots': 'feet',
-    'leather boots': 'feet',
-    'elven boots': 'feet',
-    'hide shield': 'hands',
-    buckler: 'hands',
-    'small shield': 'hands',
-    'wooden shield': 'hands',
-    'large shield': 'hands',
-    helmet: 'head',
-    basinet: 'head',
-    armet: 'head',
-    'bezerker helm': 'head',
-    'crown of nerra': 'head',
-    calista: 'head',
-};
-
 function mapExtractedWeaponSlots(typeId: number): EquipSlotKey[] {
     const allowedMask = getWeaponAllowedSlotsMask(typeId);
     if (allowedMask == null) return [];
@@ -149,7 +112,7 @@ export function getEquippableSlots(item: FloorItem): EquipSlotKey[] {
         }
         case 'Armor': {
             const def = getArmorDef(item.typeId, item.rawName);
-            const rawName = (item.rawName ?? '').toLowerCase();
+            const rawName = normalizeLookupName(item.rawName) ?? '';
             const overriddenSlot = STARTER_ARMOR_SLOT_BY_NAME[rawName];
             if (overriddenSlot) return [overriddenSlot];
             if (!def) return [];

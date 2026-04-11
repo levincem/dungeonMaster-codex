@@ -1,7 +1,8 @@
 // ─── Sound engine ─────────────────────────────────────────────────────────────
 // Pool-based audio: 2 instances per sound to allow fast overlapping triggers.
 
-const BASE = '/sounds/';
+import { soundsPath } from '../data/assetPaths';
+import { getGameDbRawSync } from '../data/gameDbData';
 
 // ─── Sound registry ───────────────────────────────────────────────────────────
 const FILES: Record<string, string> = {
@@ -33,6 +34,47 @@ const FILES: Record<string, string> = {
     move_slime_water:       'move_slime_water.mp3',
 };
 
+type RawI559Creature = {
+    index: number;
+    attackSoundOrdinal?: number;
+};
+
+type RawGameDb = {
+    originalAtari?: {
+        i559?: {
+            creatures?: RawI559Creature[];
+        };
+    };
+};
+
+const gameDb = JSON.parse(getGameDbRawSync()) as RawGameDb;
+const ORIGINAL_CREATURE_ATTACK_ORDINALS = new Map<number, number>(
+    (gameDb.originalAtari?.i559?.creatures ?? []).map((creature) => [
+        creature.index,
+        creature.attackSoundOrdinal ?? 0,
+    ]),
+);
+
+// Derived from the extracted Atari sound table:
+// - 1 => Attack (Pain Rat - Red Dragon)
+// - 2 => Attack (Mummy - Ghost)
+// - 3 => Attack (Screamer - Oitu)
+// - 4 => Attack (Giant Scorpion)
+// - 5 => Attack (Magenta Worm)
+// - 6 => Attack (Giggler)
+// - 7 => Attack (Trolin - Stone Golem)
+// - 8 => Attack (Skeleton / Animated Armour)
+const ATTACK_SOUND_BY_ORDINAL: Record<number, string> = {
+    1: 'attack_pain_rat_dragon',
+    2: 'attack_mummy_ghost',
+    3: 'attack_screamer_oitu',
+    4: 'attack_giant_scorpion',
+    5: 'attack_magenta_worm',
+    6: 'attack_giggler',
+    7: 'attack_trolin_golem',
+    8: 'attack_slash',
+};
+
 // ─── Pool ─────────────────────────────────────────────────────────────────────
 const pool: Record<string, HTMLAudioElement[]> = {};
 
@@ -42,8 +84,8 @@ function getOrCreate(name: string): HTMLAudioElement[] {
         if (!file) return [];
         // 2 instances per sound — enough for fast retriggers
         pool[name] = [
-            Object.assign(new Audio(BASE + file), { preload: 'auto' }),
-            Object.assign(new Audio(BASE + file), { preload: 'auto' }),
+            Object.assign(new Audio(soundsPath(file)), { preload: 'auto' }),
+            Object.assign(new Audio(soundsPath(file)), { preload: 'auto' }),
         ];
     }
     return pool[name];
@@ -93,34 +135,50 @@ export function playPartyAttack(): void { play('attack_slash', 0.70); }
 // { move?: soundName, attack?: soundName }
 // null move  = immaterial (silent movement)
 // null attack = no specific sound (uses whoosh)
-const CREATURE_SOUNDS: Record<number, { move: string | null; attack: string }> = {
-     0: { move: 'move_screamer_group',    attack: 'attack_giant_scorpion'  }, // Giant Scorpion
-     1: { move: 'move_slime_water',       attack: 'attack_whoosh'          }, // Swamp Slime
-     2: { move: 'move_mummy_group',       attack: 'attack_giggler'         }, // Giggler
-     3: { move: null,                     attack: 'attack_mummy_ghost'     }, // Wizard Eye (immaterial)
-     4: { move: 'move_screamer_group',    attack: 'attack_pain_rat_dragon' }, // Pain Rat
-     5: { move: 'move_screamer_group',    attack: 'attack_whoosh'          }, // Ruster
-     6: { move: 'move_screamer_group',    attack: 'attack_screamer_oitu'   }, // Screamer
-     7: { move: 'move_screamer_group',    attack: 'attack_rockpile'        }, // Rockpile
-     8: { move: null,                     attack: 'attack_mummy_ghost'     }, // Ghost (silent move)
-     9: { move: 'move_mummy_group',       attack: 'attack_trolin_golem'    }, // Stone Golem
-    10: { move: 'move_mummy_group',       attack: 'attack_mummy_ghost'     }, // Mummy
-    11: { move: null,                     attack: 'attack_mummy_ghost'     }, // Black Flame (immaterial)
-    12: { move: 'move_skeleton',          attack: 'attack_slash'           }, // Skeleton
-    13: { move: 'move_giant_wasp_couatl', attack: 'attack_couatl'          }, // Couatl
-    14: { move: 'move_mummy_group',       attack: 'attack_whoosh'          }, // Vexirk
-    15: { move: 'move_screamer_group',    attack: 'attack_magenta_worm'    }, // Magenta Worm
-    16: { move: 'move_mummy_group',       attack: 'attack_trolin_golem'    }, // Trolin
-    17: { move: 'move_giant_wasp_couatl', attack: 'attack_whoosh'          }, // Giant Wasp
-    18: { move: 'move_animated_armour',   attack: 'attack_slash'           }, // Animated Armour
-    19: { move: null,                     attack: 'attack_mummy_ghost'     }, // Materializer (immaterial)
-    20: { move: 'move_slime_water',       attack: 'attack_water_elemental' }, // Water Elemental
-    21: { move: 'move_screamer_group',    attack: 'attack_screamer_oitu'   }, // Oitu
-    22: { move: 'move_mummy_group',       attack: 'attack_whoosh'          }, // Demon
-    23: { move: null,                     attack: 'attack_mummy_ghost'     }, // Lord Chaos (exception)
-    24: { move: 'move_red_dragon',        attack: 'attack_pain_rat_dragon' }, // Red Dragon
-    25: { move: null,                     attack: 'attack_mummy_ghost'     }, // Lord Order (exception)
-    26: { move: null,                     attack: 'attack_mummy_ghost'     }, // Grey Lord (exception)
+const CREATURE_MOVE_SOUNDS: Record<number, string | null> = {
+     0: 'move_screamer_group',    // Giant Scorpion
+     1: 'move_slime_water',       // Swamp Slime
+     2: 'move_mummy_group',       // Giggler
+     3: null,                     // Wizard Eye
+     4: 'move_screamer_group',    // Pain Rat
+     5: 'move_screamer_group',    // Ruster
+     6: 'move_screamer_group',    // Screamer
+     7: 'move_screamer_group',    // Rockpile
+     8: null,                     // Ghost
+     9: 'move_mummy_group',       // Stone Golem
+    10: 'move_mummy_group',       // Mummy
+    11: null,                     // Black Flame
+    12: 'move_skeleton',          // Skeleton
+    13: 'move_giant_wasp_couatl', // Couatl
+    14: 'move_mummy_group',       // Vexirk
+    15: 'move_screamer_group',    // Magenta Worm
+    16: 'move_mummy_group',       // Trolin
+    17: 'move_giant_wasp_couatl', // Giant Wasp
+    18: 'move_animated_armour',   // Animated Armour
+    19: null,                     // Materializer
+    20: 'move_slime_water',       // Water Elemental
+    21: 'move_screamer_group',    // Oitu
+    22: 'move_mummy_group',       // Demon
+    23: null,                     // Lord Chaos
+    24: 'move_red_dragon',        // Red Dragon
+    25: null,                     // Lord Order
+    26: null,                     // Grey Lord
+};
+
+const CREATURE_SOUNDS: Record<number, { move: string | null; attack: string }> = Object.fromEntries(
+    Object.entries(CREATURE_MOVE_SOUNDS).map(([id, move]) => {
+        const typeId = Number(id);
+        const attackOrdinal = ORIGINAL_CREATURE_ATTACK_ORDINALS.get(typeId) ?? 0;
+        return [typeId, {
+            move,
+            attack: ATTACK_SOUND_BY_ORDINAL[attackOrdinal] ?? 'attack_whoosh',
+        }];
+    }),
+);
+
+const ATTACK_SOUND_OVERRIDES: Partial<Record<number, string>> = {
+    7: 'attack_rockpile', // Local asset is closer to the original rockpile impact.
+    20: 'attack_water_elemental', // Preserve the dedicated local clip while keeping ordinal-derived fallback logic.
 };
 
 export function playCreatureMove(typeId: number): void {
@@ -130,5 +188,6 @@ export function playCreatureMove(typeId: number): void {
 
 export function playCreatureAttack(typeId: number): void {
     const s = CREATURE_SOUNDS[typeId];
-    if (s) play(s.attack, 0.70);
+    if (!s) return;
+    play(ATTACK_SOUND_OVERRIDES[typeId] ?? s.attack, 0.70);
 }

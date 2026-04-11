@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import { MIRROR_WALL_MAP, useStore } from '../../engine/store';
 import type { GameMap } from '../../types/game';
+import { texturesPath } from '../../data/assetPaths';
 
 const HALF = GRID_SIZE / 2;
 
@@ -16,9 +17,9 @@ interface Props {
 export const InstancedTiles = ({ map, openWalls }: Props) => {
     const seeThroughWallsUntil = useStore(s => s.seeThroughWallsUntil);
     const { floor, ceiling, wall } = useTexture({
-        floor:   '/textures/floor.png?v=2',
-        ceiling: '/textures/ceiling.png?v=2',
-        wall:    '/textures/wall.png?v=2',
+        floor: `${texturesPath('floor.png')}?v=2`,
+        ceiling: `${texturesPath('ceiling.png')}?v=2`,
+        wall: `${texturesPath('wall.png')}?v=2`,
     });
     const wallMaterialRef = useRef<THREE.MeshBasicMaterial>(null);
     [floor, ceiling, wall].forEach(t => {

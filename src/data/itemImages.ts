@@ -5,10 +5,11 @@
  */
 
 import type { FloorItem } from '../types/game';
-import { resolveItemName } from './items';
+import { normalizeLookupName, resolveItemName } from './items';
 import { getWaterContainerState } from './waterContainers';
+import { itemsPath } from './assetPaths';
 
-const BASE = '/items/';
+const ITEM_BASE = itemsPath('');
 
 function normaliseItemName(name?: string): string | null {
     if (!name) return null;
@@ -18,173 +19,73 @@ function normaliseItemName(name?: string): string | null {
         .replace(/[’']/g, "'")
         .replace(/\s+/g, ' ');
 }
+void normaliseItemName;
 
 export function isTorchItem(item: FloorItem | undefined): boolean {
     if (!item) return false;
-    const normalizedName = normaliseItemName(item.rawName);
+    const normalizedName = normalizeLookupName(item.rawName);
     return normalizedName === 'torch' || (item.category === 'Weapon' && item.typeId === 2);
 }
 
-const NAME_IMG_OVERRIDES: Record<string, string> = {
+const AVAILABLE_ITEM_IMAGES = new Set<string>([
+    'anti_fire_potion.png', 'apple.png', 'armet.png', 'arrow.png', 'ashes.png', 'axe.png',
+    'barbarian_doublet.png', 'barbarian_hide.png', 'basinet.png', 'belt.png', 'bezerker_helm.png',
+    'blue_gem.png', 'blue_pants.png', 'bolt_blade_empty.png', 'bolt_blade_full.png', 'bones.png',
+    'boots_of_speed.png', 'boulder.png', 'bow.png', 'bread.png', 'bro_potion_antivenin.png',
+    'buckler.png', 'calista.png', 'cape.png', 'casque_n_coif.png', 'chain_mail_aketon.png',
+    'champion_bones.png', 'cheese.png', 'chest_closed.png', 'chest_opened.png', 'choker.png',
+    'cloak_of_night.png', 'club.png', 'compass.png', 'copper_coin.png', 'corbamite.png', 'corn.png',
+    'crossbow.png', 'cross_key.png', 'crown_of_nerra.png', 'dagger.png', 'dagger_of_fear.png',
+    'dane_potion.png', 'dee_potion.png', 'delta.png', 'dexhelm.png', 'diamond_edge.png',
+    'dragon_spit.png', 'dragon_steak.png', 'drumstick.png', 'ee_potion_mana.png', 'ekkhard_cross.png',
+    'elven_boots.png', 'elven_doublet.png', 'elven_huke.png', 'emerald_key.png', 'empty_flask.png',
+    'etoile.png', 'eye_of_time_empty.png', 'eye_of_time_full.png', 'falchion.png', 'fine_robe_body.png',
+    'fine_robe_legs.png', 'flamebain.png', 'flamitt_empty.png', 'flamitt_full.png', 'foot_plate.png',
+    'ful_bomb.png', 'ful_potion.png', 'fury_empty.png', 'fury_full.png', 'gauntlets.png',
+    'gem_of_ages.png', 'ghi.png', 'ghi_trousers.png', 'gloves.png', 'gold_coin.png',
+    'greave_of_darc.png', 'greave_of_lyte.png', 'green_gem.png', 'gunna.png', 'halter.png',
+    'hardcleave.png', 'helmet.png', 'helm_of_darc.png', 'helm_of_lyte.png', 'hide_shield.png',
+    'horn_of_fear.png', 'hosen.png', 'illumulet_lit.png', 'illumulet_unlit.png', 'iron_key.png',
+    'jewel_symal_equipped.png', 'jewel_symal_unequipped.png', 'key_of_b.png', 'kirtle.png',
+    'ku_potion.png', 'large_shield.png', 'leather_boots.png', 'leather_jerkin.png', 'leather_pants.png',
+    'leg_mail.png', 'leg_plate.png', 'lock_picks.png', 'long_bow.png', 'mace.png', 'mace_of_order.png',
+    'magical_box_blue.png', 'magical_box_green.png', 'magnifier.png', 'mail_aketon.png', 'master_key.png',
+    'ma_potion_stamina.png', 'mirror_of_dawn.png', 'mithral_aketon.png', 'mithral_mail.png',
+    'mon_potion.png', 'moonstone.png', 'morningstar.png', 'neck_plate.png', 'neta_potion.png',
+    'onyx_key.png', 'orange_gem.png', 'pendant_feral.png', 'plate_mail.png', 'plate_of_darc.png',
+    'plate_of_lyte.png', 'poison_dart.png', 'poleyn_of_darc.png', 'poleyn_of_lyte.png', 'powertowers.png',
+    'rabbits_foot.png', 'rapier.png', 'ra_key.png', 'robe_body.png', 'robe_legs.png',
+    'robe_of_the_kite_lord.png', 'rock.png', 'rocket.png', 'rope.png', 'ros_potion.png', 'ruby_key.png',
+    'sabre.png', 'samurai_sword.png', 'sandals.png', 'sapphire_key.png', 'sceptre_of_lyf.png',
+    'screamer_slice.png', 'scroll.png', 'shield_of_darc.png', 'shield_of_lyte.png', 'silk_shirt.png',
+    'silver_coin.png', 'skeleton_key.png', 'slayer.png', 'sling.png', 'small_shield.png', 'snake_staff.png',
+    'solid_key.png', 'speedbow.png', 'square_key.png', 'staff.png', 'staff_of_claws_empty.png',
+    'staff_of_claws_full.png', 'staff_of_manar.png', 'stick.png', 'stone_club.png', 'stormring_empty.png',
+    'stormring_full.png', 'suede_boots.png', 'suede_doublet.png', 'sword.png', 'tabard.png',
+    'teowand.png', 'the_conduit.png', 'the_firestaff.png', 'the_firestaff_complete.png', 'the_hellion.png',
+    'the_inquisitor.png', 'throwing_star.png', 'topaz_key.png', 'torch_lit.png', 'torch_unlit.png',
+    'torch_used_1.png', 'torch_used_2.png', 'torso_plate.png', 'tourquoise_key.png', 'tunic.png',
+    'um_potion.png', 'ven_potion.png', 'vilmains_hat.png', 'vi_potion.png', 'vorpal_blade.png',
+    'wand.png', 'water.png', 'waterskin_empty.png', 'water_flask.png', 'water_waterskin_full.png',
+    'winged_key.png', 'wooden_shield.png', 'worm_round.png', 'ya_potion.png', 'yew_staff.png',
+    'zokathra_spell.png', 'zo_potion.png',
+]);
+
+const NAME_IMG_ALIASES: Record<string, string> = {
     'torch': 'torch_unlit.png',
-    'the firestaff': 'the_firestaff.png',
     'the firestaff (complete)': 'the_firestaff_complete.png',
     'the firestaff complete': 'the_firestaff_complete.png',
-    'master key': 'master_key.png',
     'staff of claws': 'staff_of_claws_full.png',
-    'fury': 'fury_full.png',
-    'rapier': 'rapier.png',
-    'sabre': 'sabre.png',
-    'samurai sword': 'samurai_sword.png',
-    'delta': 'delta.png',
-    'diamond edge': 'diamond_edge.png',
-    'the inquisitor': 'the_inquisitor.png',
-    'hardcleave': 'hardcleave.png',
-    'mace of order': 'mace_of_order.png',
-    'morningstar': 'morningstar.png',
-    'club': 'club.png',
-    'staff of manar': 'staff_of_manar.png',
-    'staff': 'staff.png',
-    'snake staff': 'snake_staff.png',
-    'dragon spit': 'dragon_spit.png',
-    'sceptre of lyf': 'sceptre_of_lyf.png',
-    'horn of fear': 'horn_of_fear.png',
-    'speedbow': 'speedbow.png',
-    'dagger': 'dagger.png',
-    'falchion': 'falchion.png',
-    'sword': 'sword.png',
-    'axe': 'axe.png',
-    'bow': 'bow.png',
-    'crossbow': 'crossbow.png',
-    'arrow': 'arrow.png',
-    'throwing star': 'throwing_star.png',
-    'stick': 'stick.png',
-    'wand': 'wand.png',
-    'teowand': 'teowand.png',
-    'mace': 'mace.png',
-    'stone club': 'stone_club.png',
-    'slayer': 'slayer.png',
-    'sling': 'sling.png',
-    'rock': 'rock.png',
-    'poison dart': 'poison_dart.png',
-    'yew staff': 'yew_staff.png',
     'bolt blade': 'bolt_blade_full.png',
-    'flamitt': 'flamitt_full.png',
+    'fury': 'fury_full.png',
     'storm ring': 'stormring_full.png',
     'stormring': 'stormring_full.png',
-    'the hellion': 'the_hellion.png',
-    'calista': 'calista.png',
-    'cape': 'cape.png',
-    'cloak of night': 'cloak_of_night.png',
-    'elven doublet': 'elven_doublet.png',
-    'leather jerkin': 'leather_jerkin.png',
-    'robe': 'robe_body.png',
-    'robe of the kite lord': 'robe_of_the_kite_lord.png',
-    'robe (body)': 'robe_body.png',
-    'robe (legs)': 'robe_legs.png',
-    'fine robe (body)': 'fine_robe_body.png',
-    'fine robe (legs)': 'fine_robe_legs.png',
-    'kirtle': 'kirtle.png',
-    'tabard': 'tabard.png',
-    'gunna': 'gunna.png',
-    'ghi': 'ghi.png',
-    'ghi trousers': 'ghi_trousers.png',
-    'blue pants': 'blue_pants.png',
-    'sandals': 'sandals.png',
-    'hide shield': 'hide_shield.png',
-    'halter': 'halter.png',
-    'barbarian hide': 'barbarian_hide.png',
-    'leather boots': 'leather_boots.png',
-    'leather pants': 'leather_pants.png',
-    'suede boots': 'suede_boots.png',
-    'large shield': 'large_shield.png',
-    'hosen': 'hosen.png',
-    'helmet': 'helmet.png',
-    'basinet': 'basinet.png',
-    "casque'n coif": 'casque_n_coif.png',
-    'armet': 'armet.png',
-    'crown of nerra': 'crown_of_nerra.png',
-    'buckler': 'buckler.png',
-    'mail aketon': 'mail_aketon.png',
-    'leg mail': 'leg_mail.png',
-    'torso plate': 'torso_plate.png',
-    'leg plate': 'leg_plate.png',
-    'foot plate': 'foot_plate.png',
-    'plate of lyte': 'plate_of_lyte.png',
-    'plate of darc': 'plate_of_darc.png',
-    'poleyn of lyte': 'poleyn_of_lyte.png',
-    'poleyn of darc': 'poleyn_of_darc.png',
-    'greave of lyte': 'greave_of_lyte.png',
-    'greave of darc': 'greave_of_darc.png',
-    'helm of lyte': 'helm_of_lyte.png',
-    'helm of darc': 'helm_of_darc.png',
-    'shield of lyte': 'shield_of_lyte.png',
-    'shield of darc': 'shield_of_darc.png',
-    'elven boots': 'elven_boots.png',
-    'plate mail': 'plate_mail.png',
-    'chain mail aketon': 'chain_mail_aketon.png',
-    'tunic': 'tunic.png',
-    'silk shirt': 'silk_shirt.png',
-    'elven huke': 'elven_huke.png',
-    'mithral aketon': 'mithral_aketon.png',
-    'mithral mail': 'mithral_mail.png',
-    'bezerker helm': 'bezerker_helm.png',
-    'wooden shield': 'wooden_shield.png',
-    'small shield': 'small_shield.png',
-    'boots of speed': 'boots_of_speed.png',
-    'flamebain': 'flamebain.png',
-    'blue gem': 'blue_gem.png',
-    'orange gem': 'orange_gem.png',
-    'green gem': 'green_gem.png',
-    'ra key': 'ra_key.png',
-    'ruby key': 'ruby_key.png',
-    'emerald key': 'emerald_key.png',
-    'tourquoise key': 'tourquoise_key.png',
-    'solid key': 'solid_key.png',
-    'skeleton key': 'skeleton_key.png',
-    'square key': 'square_key.png',
-    'water': 'water.png',
-    'power towers': 'powertowers.png',
     'eye of time': 'eye_of_time_full.png',
-    'magical box (blue)': 'magical_box_blue.png',
-    'magical box (green)': 'magical_box_green.png',
-    'compass': 'compass.png',
-    'waterskin': 'waterskin_empty.png',
-    'water flask': 'water_flask.png',
     'jewel symal': 'jewel_symal_unequipped.png',
     'illumulet': 'illumulet_unlit.png',
-    'ashes': 'ashes.png',
-    'bones': 'bones.png',
-    'copper coin': 'copper_coin.png',
-    'silver coin': 'silver_coin.png',
-    'gold coin': 'gold_coin.png',
-    'iron key': 'iron_key.png',
-    'key of b': 'key_of_b.png',
-    'winged key': 'winged_key.png',
-    'topaz key': 'topaz_key.png',
-    'cross key': 'cross_key.png',
+    'waterskin': 'waterskin_empty.png',
+    'waterskin (water)': 'water_waterskin_full.png',
     'gold key': 'solid_key.png',
-    'sapphire key': 'sapphire_key.png',
-    'onyx key': 'onyx_key.png',
-    'boulder': 'boulder.png',
-    'bread': 'bread.png',
-    'cheese': 'cheese.png',
-    'corn': 'corn.png',
-    'apple': 'apple.png',
-    'screamer slice': 'screamer_slice.png',
-    'worm round': 'worm_round.png',
-    'drumstick': 'drumstick.png',
-    'dragon steak': 'dragon_steak.png',
-    'gem of ages': 'gem_of_ages.png',
-    'ekkhard cross': 'ekkhard_cross.png',
-    'moonstone': 'moonstone.png',
-    'pendant feral': 'pendant_feral.png',
-    "rabbit's foot": 'rabbits_foot.png',
-    'corbamite': 'corbamite.png',
-    'choker': 'choker.png',
-    'magnifier': 'magnifier.png',
-    'chest': 'chest_closed.png',
-    'empty flask': 'empty_flask.png',
     'health potion': 'vi_potion.png',
     'stamina potion': 'ma_potion_stamina.png',
     'mana potion': 'ee_potion_mana.png',
@@ -194,28 +95,37 @@ const NAME_IMG_OVERRIDES: Record<string, string> = {
     'wisdom potion': 'dane_potion.png',
     'vitality potion': 'neta_potion.png',
     'anti-magic potion': 'mon_potion.png',
+    'anti fire potion': 'anti_fire_potion.png',
     'anti-fire potion': 'anti_fire_potion.png',
-    'waterskin (water)': 'water_waterskin_full.png',
-    'ven potion': 'ven_potion.png',
-    'ros potion': 'ros_potion.png',
-    'ku potion': 'ku_potion.png',
-    'dane potion': 'dane_potion.png',
-    'neta potion': 'neta_potion.png',
     'bro potion': 'bro_potion_antivenin.png',
     'ma potion': 'ma_potion_stamina.png',
-    'ya potion': 'ya_potion.png',
-    'ee potion': 'ee_potion_mana.png',
-    'vi potion': 'vi_potion.png',
-    'ful bomb': 'ful_bomb.png',
-    'zokathra': 'zokathra_spell.png',
     'cross of neta': 'cross_key.png',
 };
 
+function slugifyItemName(name: string): string {
+    return name
+        .replace(/[()]/g, ' ')
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .replace(/_+/g, '_');
+}
+
+function getDerivedFilename(rawName?: string): string | undefined {
+    const normalizedName = normalizeLookupName(rawName);
+    if (!normalizedName) return undefined;
+
+    const aliasFilename = NAME_IMG_ALIASES[normalizedName];
+    if (aliasFilename) return aliasFilename;
+
+    const directFilename = `${slugifyItemName(normalizedName)}.png`;
+    if (AVAILABLE_ITEM_IMAGES.has(directFilename)) return directFilename;
+
+    return undefined;
+}
+
 function getNameOverrideImage(rawName?: string): string | undefined {
-    const key = normaliseItemName(rawName);
-    if (!key) return undefined;
-    const filename = NAME_IMG_OVERRIDES[key];
-    return filename ? BASE + filename : undefined;
+    const filename = getDerivedFilename(rawName);
+    return filename ? ITEM_BASE + filename : undefined;
 }
 
 // ─── Weapon images ────────────────────────────────────────────────────────────
@@ -275,7 +185,7 @@ export const TORCH_STATE_IMAGES = [
  */
 export function getTorchImage(itemId: string, torchBurnStart: Record<string, number>): string {
     const litAt = torchBurnStart[itemId];
-    if (litAt === undefined) return BASE + 'torch_lit.png'; // unlit floor torch
+    if (litAt === undefined) return ITEM_BASE + 'torch_lit.png'; // unlit floor torch
     const elapsed = Date.now() - litAt;
     const TORCH_LIFETIME_MS = 15 * 60 * 1000;
     const TORCH_STATE_MS    =  5 * 60 * 1000;
@@ -284,11 +194,11 @@ export function getTorchImage(itemId: string, torchBurnStart: Record<string, num
     else if (elapsed >= TORCH_STATE_MS * 2) idx = 1;
     else if (elapsed >= TORCH_STATE_MS)     idx = 2;
     else                                     idx = 3;
-    return BASE + TORCH_STATE_IMAGES[idx];
+    return ITEM_BASE + TORCH_STATE_IMAGES[idx];
 }
 
 export function getInventoryItemImage(item: FloorItem): string {
-    if (isTorchItem(item)) return BASE + 'torch_unlit.png';
+    if (isTorchItem(item)) return ITEM_BASE + 'torch_unlit.png';
     return getFloorItemImage(item);
 }
 
@@ -376,17 +286,17 @@ const POTION_IMG: Record<number, string> = {
       2: 'dee_potion.png',
       3: 'zo_potion.png',
       4: 'ful_potion.png',
-      8: 'ya_potion.png',
-      9: 'ma_potion_stamina.png',
+      8: 'vi_potion.png',
+      9: 'ya_potion.png',
      10: 'ee_potion_mana.png',
-     11: 'neta_potion.png',
-     13: 'mon_potion.png',
-     14: 'um_potion.png',
-     15: 'ku_potion.png',
-     16: 'vi_potion.png',
+     11: 'bro_potion_antivenin.png',
+     13: 'ku_potion.png',
+     14: 'ros_potion.png',
+     15: 'dane_potion.png',
+     16: 'neta_potion.png',
      17: 'mon_potion.png',
      18: 'anti_fire_potion.png',
-     24: 'water_waterskin_full.png',
+     24: 'water_flask.png',
 };
 
 // ─── Misc images ──────────────────────────────────────────────────────────────
@@ -484,16 +394,16 @@ export function getItemImage(category: string, typeId: number, rawName?: string)
             case 'Misc':      filename = MISC_IMG[typeId]; break;
         }
     }
-    return BASE + (filename ?? CATEGORY_FALLBACK[category] ?? 'compass.png');
+    return ITEM_BASE + (filename ?? CATEGORY_FALLBACK[category] ?? 'compass.png');
 }
 
 export function getFloorItemImage(item: FloorItem): string {
     const waterState = getWaterContainerState(item);
     if (waterState) {
         if (waterState.kind === 'waterskin') {
-            return BASE + (waterState.charges > 0 ? 'water_waterskin_full.png' : 'waterskin_empty.png');
+            return ITEM_BASE + (waterState.charges > 0 ? 'water_waterskin_full.png' : 'waterskin_empty.png');
         }
-        return BASE + (waterState.charges > 0 ? 'water_flask.png' : 'empty_flask.png');
+        return ITEM_BASE + (waterState.charges > 0 ? 'water_flask.png' : 'empty_flask.png');
     }
     return getItemImage(item.category, item.typeId, item.rawName);
 }

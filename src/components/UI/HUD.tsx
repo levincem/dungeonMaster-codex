@@ -10,7 +10,7 @@ import {
     xpToLevel,
 } from '../../engine/store';
 import { playStep, playCry, onSoundPlayed } from '../../engine/sounds';
-import type { ChampionCombat, ChampionXP } from '../../engine/store';
+import type { ChampionCombat, ChampionXP } from '../../engine/runtimeTypes';
 import { WEAPON_TYPES } from '../../data/items';
 import { getGameMap } from '../../data/mapLoader';
 import type { Champion } from '../../data/champions';

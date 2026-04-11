@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { hasPersistedSave } from '../../engine/saveGame';
+import { miscPath, texturesPath } from '../../data/assetPaths';
 
 interface Props {
     onEnter: () => void;
@@ -100,7 +101,7 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
                                 background: '#000',
                             }} />
                             <img
-                                src="/misc/porte_entree_gauche.png"
+                                src={miscPath('porte_entree_gauche.png')}
                                 alt=""
                                 draggable={false}
                                 style={{
@@ -116,7 +117,7 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
                                 }}
                             />
                             <img
-                                src="/misc/porte_entree_droite.png"
+                                src={miscPath('porte_entree_droite.png')}
                                 alt=""
                                 draggable={false}
                                 style={{
@@ -132,7 +133,7 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
                                 }}
                             />
                             <img
-                                src="/misc/cadre_entree.png"
+                                src={miscPath('cadre_entree.png')}
                                 alt=""
                                 draggable={false}
                                 style={{
@@ -155,7 +156,7 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
                     justifyContent: 'stretch',
                     padding: 0,
                     backgroundImage:
-                        'linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0.3)), url(/textures/wall.png?v=2)',
+                        `linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0.3)), url(${texturesPath('wall.png')}?v=2)`,
                     backgroundSize: 'cover, 256px 256px',
                     backgroundPosition: 'center, center',
                     boxShadow: 'inset 0 0 0 1px rgba(134, 102, 55, 0.22), inset 0 0 90px rgba(0,0,0,0.55)',
@@ -184,7 +185,7 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
                         style={buttonBase}
                     >
                         <img
-                            src="/misc/wall_switch_green_out.png"
+                            src={miscPath('wall_switch_green_out.png')}
                             alt=""
                             draggable={false}
                             style={{ width: 56, height: 56, objectFit: 'contain', imageRendering: 'crisp-edges' }}
@@ -213,7 +214,7 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
                         title={hasSave ? 'Reprendre la sauvegarde' : 'Aucune sauvegarde disponible'}
                     >
                         <img
-                            src="/misc/wall_switch_red_out.png"
+                            src={miscPath('wall_switch_red_out.png')}
                             alt=""
                             draggable={false}
                             style={{ width: 56, height: 56, objectFit: 'contain', imageRendering: 'crisp-edges' }}
@@ -244,7 +245,7 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
                 transition: 'opacity 1.45s ease, background 0.8s ease',
             }}>
                 <img
-                    src="/misc/Dm_logo.png"
+                    src={miscPath('Dm_logo.png')}
                     alt="Dungeon Master"
                     draggable={false}
                     style={{

@@ -1,13 +1,29 @@
-import { useEffect, useRef } from 'react';
-import { DungeonScene } from './components/Dungeon/DungeonScene';
-import { HUD } from './components/UI/HUD';
-import { MirrorPopup } from './components/UI/MirrorPopup';
-import { ChampionSheet } from './components/UI/ChampionSheet';
+import { Suspense, lazy, useEffect, useRef } from 'react';
 import { TitleScreen } from './components/UI/TitleScreen';
 import { useStore } from './engine/store';
 import { preloadAllSounds } from './engine/sounds';
 import { clampFrameDeltaSeconds } from './engine/time';
 import './App.css';
+
+const DungeonScene = lazy(() =>
+  import('./components/Dungeon/DungeonScene').then((module) => ({ default: module.DungeonScene })),
+);
+
+const HUD = lazy(() =>
+  import('./components/UI/HUD').then((module) => ({ default: module.HUD })),
+);
+
+const MirrorPopup = lazy(() =>
+  import('./components/UI/MirrorPopup').then((module) => ({ default: module.MirrorPopup })),
+);
+
+const ChampionSheet = lazy(() =>
+  import('./components/UI/ChampionSheet').then((module) => ({ default: module.ChampionSheet })),
+);
+
+const VictoryScreen = lazy(() =>
+  import('./components/UI/VictoryScreen').then((module) => ({ default: module.VictoryScreen })),
+);
 
 function GameRoot() {
   const gamePhase = useStore((state) => state.gamePhase);
@@ -40,7 +56,7 @@ function GameRoot() {
       tickInFlightRef.current = true;
       try {
         const state = useStore.getState();
-        if (lastTimeRef.current !== null && state.gamePhase !== 'title') {
+        if (lastTimeRef.current !== null && state.gamePhase !== 'title' && state.gamePhase !== 'victory') {
           const delta = clampFrameDeltaSeconds((now - lastTimeRef.current) / 1000);
           const wallClockNow = Date.now();
           state.tickFrame(delta, wallClockNow);
@@ -85,13 +101,23 @@ function GameRoot() {
     <div className="app">
       {gamePhase === 'title' ? (
         <TitleScreen onEnter={enterDungeon} onResume={loadGame} />
+      ) : gamePhase === 'victory' ? (
+        <Suspense fallback={null}>
+          <VictoryScreen />
+        </Suspense>
       ) : (
-        <>
-          <DungeonScene />
-          <HUD />
-          {gamePhase === 'mirror_open' && <MirrorPopup />}
-          {activePartyMemberId !== null && <ChampionSheet />}
-        </>
+        <Suspense fallback={null}>
+          <>
+            <DungeonScene />
+            <HUD />
+            {gamePhase === 'mirror_open' && <MirrorPopup />}
+            {activePartyMemberId !== null && (
+              <Suspense fallback={null}>
+                <ChampionSheet />
+              </Suspense>
+            )}
+          </>
+        </Suspense>
       )}
     </div>
   );

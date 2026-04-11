@@ -8,6 +8,7 @@ import type { ThreeEvent } from '@react-three/fiber';
 import type { Champion } from '../../data/champions';
 import type { CardinalDir } from '../../types/game';
 import { getDoorTexturePath } from '../../data/doors';
+import { texturesPath } from '../../data/assetPaths';
 
 // ─── Tile render type ─────────────────────────────────────────────────────────
 
@@ -257,7 +258,7 @@ const DoorMeshInner: React.FC<{
     onButtonClick?: (e: ThreeEvent<MouseEvent>) => void;
 }> = ({ open, hasButton, doorType, onButtonClick }) => {
     const baseDoorTex = useTexture(getDoorTexturePath(doorType));
-    const baseWallTex = useTexture('/textures/wall.png?v=2');
+    const baseWallTex = useTexture(`${texturesPath('wall.png')}?v=2`);
     const tex = useMemo(
         () => cloneTexture(baseDoorTex, next => { next.colorSpace = THREE.SRGBColorSpace; }),
         [baseDoorTex],
@@ -456,7 +457,7 @@ interface CellProps {
 }
 
 export const Cell: React.FC<CellProps> = ({ type, position, wallFace, champion, frameChampion, doorOpen, doorOrientation, doorHasButton, doorType, onClick }) => {
-    const baseWallTex = useTexture('/textures/wall.png?v=2');
+    const baseWallTex = useTexture(`${texturesPath('wall.png')}?v=2`);
     const wallTex = useMemo(
         () => cloneTexture(baseWallTex, next => {
             next.wrapS = THREE.RepeatWrapping;

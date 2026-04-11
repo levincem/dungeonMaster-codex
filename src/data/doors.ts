@@ -1,4 +1,5 @@
 import rawDoorsText from '../assets/data/original_doors_runtime.json?raw';
+import { miscPath, texturesPath } from './assetPaths';
 
 export interface OriginalDoorDefinition {
     id: number;
@@ -36,8 +37,8 @@ export function doorBlocksThrownItems(doorType: number | undefined): boolean {
 export function getDoorTexturePath(doorType: number | undefined): string {
     switch (doorType) {
         case 0:
-            return '/misc/grille_metal.png';
+            return miscPath('grille_metal.png');
         default:
-            return '/textures/door.png';
+            return texturesPath('door.png');
     }
 }

@@ -1,266 +1,253 @@
-# Dungeon Master Remake - Etat du projet
+﻿# Dungeon Master Remake - Etat du projet
 
-Version remise a jour a partir du code observe le 2026-04-09.
+Version remise a jour a partir du code observe le 2026-04-11.
 
 ## Resume rapide
 
-Le projet est deja une base jouable et serieuse, avec un vrai runtime de dungeon, une UI exploitable et un chargement de donnees originales consolidees.
+Le projet est maintenant une base jouable et serieuse, avec une vraie boucle d'exploration, un runtime nourri par les donnees extraites du jeu original, et une grosse partie des systemes majeurs deja recales.
 
-Ce n'est pas encore un remake complet, mais ce n'est plus un simple prototype.
+Le point important a ce stade:
 
-Point important :
+- l'extraction des donnees originales essentielles est consideree comme fiable
+- la dette principale n'est plus "trouver les donnees", mais "finir les derniers recollages de fidelite et optimiser"
 
-- l'extraction des donnees originales essentielles est maintenant consideree comme fiable
-- le travail restant concerne surtout l'integration fidele de ces donnees dans le runtime
+## Tour des systemes du jeu
 
-## Ce qui est effectivement en place
+### Flow global et progression
 
-### Base runtime
+Etat actuel:
 
-- rendu 3D du donjon avec React Three Fiber
-- maps runtime chargees depuis `src/assets/data/dungeon.json`
-- loop de jeu centralisee dans `GameRoot` + `store`
-- HUD d'exploration jouable
-- recrutement via miroirs
-- fiche champion complete avec drag and drop
-- creatures visibles avec deplacement et attaques
-- degats flottants, projectiles et lumiere dynamique
-- inventaire, equipement, transfert et ramassage d'objets
-- portes, trick walls, teleporteurs et une partie des senseurs
-- starters des champions injectes depuis une source canonique dediee
-- menu d'attaque sur le HUD quand plusieurs actions sont disponibles
-- faim / soif, contenants d'eau et fontaines jouables
+- ecran titre jouable avec `Enter The Dungeon` et `Resume`
+- recrutement via miroirs fonctionnel
+- sauvegarde / reprise persistentes via `localStorage`
+- l'etat mutable du donjon, du groupe et des effets runtime est bien restaure
 
-### Donnees et catalogues
+Reste a faire:
 
-- catalogues runtime embarques sous `src/assets/data/original_*`
-- parse des mechanisms depuis `src/assets/data/mechanisms.json`
-- definitions de portes originales branchees
-- noms d'objets consolides via `resolveItemName(...)`
-- regles d'equipement centralisees dans `src/data/equipment.ts`
-- contenu spatial du donjon reconcilie :
+- vrai game over
+- ecran de victoire / fin
+- verification finale du flow de fin autour du `Firestaff` complet
+
+### Maps, geometrie et contenu spatial
+
+Etat actuel:
+
+- source de verite runtime: `src/assets/data/dungeon.json`
+- parsing central via `src/data/dungeonData.ts` et `src/data/mapLoader.ts`
+- contenu spatial reconcilie:
   - items `300 / 300`
   - inscriptions `61 / 61`
   - locks `65 / 65`
   - creatures `225 / 225`
   - generators `50 / 50`
-- tables Atari `0559`, `0560`, `0561`, `0562` extraites et documentees
+- portes, teleporteurs, trick walls, pits et eau sont presents dans les maps runtime
+- overlays muraux originaux sont positions depuis les donnees extraites
 
-### UI et presentation
+Reste a faire:
 
-- HUD principal avec portraits en ligne, mains visibles et formation 2x2
-- ChampionSheet riche
-- MirrorPopup branche
-- LoadingScreen branche
-- textes muraux graves en 3D
-- overlays muraux et decals bien mieux cales sur l'original
-- objets speciaux mieux relies a leurs vrais sprites
+- verifier finement quelques interactions specifiques de pits, eau et cartes rares
+- continuer a tester les cas de teleports et transitions de niveau les plus atypiques
 
-## Ce qui est encore partiel ou incomplet
+### Champions, UI et inventaire
 
-### Flow global
+Etat actuel:
 
-- ecran titre jouable avec entree dans le donjon
-- pas de game over complet
-- pas d'ecran de victoire / fin
-- sauvegarde / chargement persistents via `localStorage`
-- la sauvegarde joueur est actuellement exposee par le bouton de la fiche champion, pas par un bouton permanent dans le HUD
-- build de production valide a la date de cette mise a jour
+- HUD principal jouable
+- ChampionSheet complete avec drag and drop
+- inventaire, equipement, transfert, ramassage et depot fonctionnent
+- starters des champions recales sur la source canonique actuelle
+- portraits, paths d'assets et resolution d'images ont ete securises
+- save button disponible depuis la fiche champion
 
-### Magie
+Reste a faire:
 
-Le systeme de runes et de sorts existe deja cote runtime, mais il n'est pas encore completement unifie.
+- unifier encore la glue autour des items de depart synthetiques
+- eventuellement exposer la sauvegarde ailleurs qu'en fiche si on veut un flow plus proche d'un jeu fini
 
-Point important:
+### Objets, equipement et statuts
 
-- la source de verite runtime actuelle est `src/data/runes.ts`
-- `src/data/spells.ts` existe encore, mais ne pilote pas le lancement reel des sorts
-- il faut donc juger l'etat actuel de la magie a partir de `runes.ts` + `store.ts`
+Etat actuel:
 
-Effets deja reels et branches dans le runtime:
+- objets, noms et grande partie des catalogues viennent maintenant des donnees extraites
+- potions runtime recalees sur les noms originaux
+- images d'objets beaucoup moins hardcodees, avec resolution plus systematique et quelques alias speciaux restants
+- poids, equipement, eau, faim, soif, sommeil, fatigue et regeneration sont jouables
 
-- `light`
-- `darkness`
-- `open`
-- `fireball`
-- `lightning`
-- `poison_bolt`
-- `poison_cloud`
-- `disrupt_nonmaterial` (`Des Ew`)
-- `plasma`
-- `shield`
-- `fire_shield`
-- `invisibility`
-- `see_through_walls` (`Oh Ew Ra`)
-- `footprints`
-- `potion`
-- les recettes originales de potions d'attributs (`Ful Bro Ku`, `Oh Bro Ros`, `Ya Bro Dain`, `Ya Bro Neta`) sont maintenant branchees
-  - elles creent maintenant bien les potions `Strength`, `Dexterity`, `Wisdom` et `Vitality`
-  - leurs buffs temporaires utilisent la duree source-backed du catalogue runtime
+Reste a faire:
 
-Nuances importantes:
+- garder un oeil sur quelques alias d'images et objets speciaux
+- il reste une couche de compatibilite dans `items.ts` pour faire le pont entre data source, objets synthetiques et runtime
 
-- les projectiles magiques existent, mais leurs comportements sont encore simplifies
-  - pas encore de logique fine par type de missile comme dans le runtime FTL
-- `Des Ew` est maintenant traite comme projectile anti non-materiel
-  - cas special source-backed : `Materializer / Zytaz` ne doivent etre endommages que pendant leur phase d'attaque
-- les visuels de sorts sont presents a un niveau fonctionnel
-  - mais pas encore a un niveau de fidelite original complete
-- `src/data/spells.ts` reste un fichier legacy de reference et n'est pas utilise par le pipeline runtime
+### Magie, runes et projectiles
 
-Sorts / comportements encore manquants ou incomplets dans la base runtime actuelle:
+Etat actuel:
 
-- `Oh Bro` et `Oh Bro Ra` ont ete retires
-  - dans Dungeon Master, le soin passe par des potions a creer puis boire
-- `Oh Gor Ros` a ete retire
-  - ce sort appartient a Chaos Strikes Back, pas a Dungeon Master
-- `Zo Ven` reste documente mais non implemente pour l'instant
-  - a reverifier avant branchement gameplay
+- le pipeline runtime reel passe par `src/data/runes.ts` et `src/engine/store.ts`
+- sorts jouables branches:
+  - `light`
+  - `darkness`
+  - `open`
+  - `fireball`
+  - `lightning`
+  - `poison_bolt`
+  - `poison_cloud`
+  - `disrupt_nonmaterial`
+  - `plasma`
+  - `shield`
+  - `fire_shield`
+  - `invisibility`
+  - `see_through_walls`
+  - `footprints`
+  - `potion`
+- actions magiques d'objets a charges recablees:
+  - `Dispell`
+  - `Confuse`
+  - `Fluxcage`
+  - `Invoke`
+  - `Fuse`
+- `Poison Bolt` et `Poison Cloud` sont bien separes
+- `Des Ew` est traite comme projectile anti non-materiel avec cas special `Materializer / Zytaz`
+- grosse passe recente sur les VFX:
+  - `Fireball` plus lisible comme vraie boule de feu
+  - `Lightning`, `Poison` et `Disrupt` mieux differencies
+  - impacts sur mur et creature
+  - flashes locaux
+  - `Shield`, `Fire Shield` et `Fluxcage` visibles
 
-- `Dispell` ne doit pas etre traite comme un sort de runes standard
-  - a ce stade il doit etre considere comme une action d'objet a charges
-- les actions d'objet a charges `Dispell`, `Confuse`, `Fluxcage`, `Invoke` et `Fuse` sont maintenant recablees cote runtime
-- `Confuse` et `Fluxcage` sont maintenant relies a l'IA monstre, pas seulement a une action visuelle
-- `Fuse` reste encore a reverifier en fin de jeu quand le wiring definitif du `Firestaff complet` sera totalement fige
-- la distinction visuelle et mecanique fine entre certains missiles speciaux reste encore a faire
-- `Oh Gor Ros` utilise pour l'instant une logique de revelation locale lisible
-  - il faudra encore affiner exactement quels elements caches doivent luire et a quelle portee
-- `Oh Ew Ra` permet maintenant de voir a travers les murs avec un rendu translucide
-  - l'effet reste encore a affiner visuellement pour mieux evoquer une vision spectrale de l'original
+Reste a faire:
 
-Le cas de fin de jeu est maintenant mieux cerne cote data :
+- `src/data/spells.ts` reste encore un fichier legacy de reference
+- quelques nuances fines de missiles / effets restent a verifier
+- `Zo Ven` reste documente mais non implemente
 
-- `Zo Kath Ra` intervient bien dans la salle finale
-- l'interaction utile est sur le mur nord du niveau 13, autour de `global (49,35)` / `(49,36)`
-- l'Amalgam recoit d'abord le plasma de `Zo Kath Ra`, puis `The Firestaff`
-- le resultat attendu est `The Firestaff (Complete)`
+### Mecanismes
 
-Autrement dit, la fin semble reposer sur un mecanisme mural special de transformation, pas sur un simple item de sol standard.
+Etat actuel:
 
-### Objets et statuts
+- `src/data/mechanisms.ts` reconstruit maintenant une vue structuree depuis les sensors extraits du vrai donjon
+- switches muraux et dalles pilotent correctement leur etat runtime
+- les verrouillages muraux ne s'ouvrent plus automatiquement si la cle est simplement possedee
+- usage explicite d'objet sur mecanisme mural via drag and drop
+- alcoves et receptacles muraux fonctionnels
+- objets montes sur mur visibles en scene
+- capteurs `Hold`, possession et objets specifiques de sol recales
+- file d'evenements differee pour les mecanismes avec `delay`
+- clic sonore partage pour switchs / dalles quand pertinent
 
-- equipement, poids et quelques bonus passifs sont en place
-- poison persistant, faim, soif, contenants d'eau et fontaines sont jouables
-- faim / soif / regeneration / fatigue suivent maintenant une boucle de survie beaucoup plus proche du code original
-  - cap `2048`, reserves initiales `1500 + random(256)`, reserves negatives jusqu'a `-1024`
-  - mana / stamina / health utilisent des paliers de regen source-backed au lieu d'un simple flux par seconde
-  - les deplacements du groupe consomment maintenant de la stamina selon la charge, au lieu d'etre gratuits
-  - les deplacements du groupe appliquent maintenant un cooldown derive des `movement ticks` de l'original, au lieu d'etre spammables sans rythme
-  - `sleep()` n'est plus un remplissage instantane : il avance le temps, use les torches et laisse faim/soif continuer
-- plusieurs objets speciaux ont maintenant leur vrai visuel via override par nom canonique
-- il reste encore des comportements speciaux et des etats fins a finaliser
+Reste a faire:
 
-### Carte et interactions
+- playtests cibles sur les cas rares et les grosses sequences combinatoires
+- verification fine de quelques countdowns / cas de fin de jeu
+- possiblement du polish visuel supplementaire sur certains overlays `in/out`
 
-- `Pit`, `Water`, `Teleporter`, `Door`, `TrickWall` existent dans les types et les maps runtime
-- toutes les interactions attendues de ces tiles ne sont pas encore finalisees
-- il reste du travail sur pits, corde, eau, verrouillages et cas speciaux de maps
+Verdict:
+
+- les mecanismes sont maintenant globalement fonctionnels
+- le risque restant est surtout de la fidelite fine, plus un pan entier manquant
+
+### Creatures et IA
+
+Etat actuel:
+
+- les definitions runtime viennent beaucoup plus proprement des donnees extraites
+- flags et ranges utiles maintenant importes et utilises:
+  - `attackFromAllSides`
+  - `attackRange`
+  - `sightRange`
+  - `preferBackRow`
+  - `levitates`
+  - `absorbMissiles`
+  - `seeInvisible`
+- les creatures peuvent franchir une porte ou grille ouverte
+- memoire courte de poursuite
+- portee de vue originale utilisee au lieu d'un rayon fixe
+- gestion de l'invisibilite cote detection
+- absorption de missiles pour les familles qui l'ont
+- usage des teleporteurs par les monstres
+- meilleur espacement des attaquants a distance et profils magiques / flottants / non materiels
+
+Reste a faire:
+
+- plusieurs comportements tres fins restent encore interpretes plutot que reproduits instruction par instruction
+- quelques familles speciales et cas de fin de jeu meritent encore des tests cibles
+
+Verdict:
+
+- les donnees creatures sont bien mieux recalees
+- l'IA a fortement progresse
+- ce n'est pas encore une reproduction parfaite du runtime FTL
 
 ### Combat
 
-- le combat est jouable
-- les attaques multiples par arme sont maintenant mieux gerees dans le HUD
-- projectiles physiques et munitions ont beaucoup progresse
+Etat actuel:
+
+- combat jouable
+- attaques multiples par arme mieux gerees dans le HUD
+- projectiles physiques et munitions ont progresse
 - poison et steal sont branches cote monstres
-- `Rust`, `Teleport` et `Immobilize` ne doivent pas etre consideres comme implementes en gameplay reel
-- ces tags peuvent encore exister dans les donnees runtime / references creatures, mais ils ne correspondent pas aujourd'hui a une reproduction fidele de leurs effets originaux
-- les formules restent encore partiellement simplifiees
-- les sorts et plusieurs effets speciaux demandent encore un recollage plus fin
-- les potions d'attributs utilisent maintenant un buff temporaire runtime au lieu d'un faux bonus XP
+- plusieurs timings gameplay importants ont ete recales sur une base plus proche de l'original
 
-### Assets et finition
+Reste a faire:
 
-- les overlays muraux gameplay sont maintenant presque completement couverts
-- il reste surtout du polish, quelques images specifiques et un meilleur rangement futur des assets
-- le preload d'images est volontairement permissif
-- quelques soucis d'encodage restent visibles dans certains fichiers historiques
-- point recent important: `npm run dev` et `npm run preview` sont plus fiables depuis que les JSON critiques sont embarques cote `src/assets/data`
-  - contrepartie provisoire: le bundle runtime est plus gros, surtout `game-core`
+- certaines formules restent encore simplifiees
+- `Rust`, `Teleport` et `Immobilize` ne doivent toujours pas etre vendus comme pleinement reproduits
 
-## Point important sur les maps
+### Assets, presentation et finition
 
-La source de verite actuelle n'a jamais ete les anciens scaffolds `src/data/level0.ts` et `src/data/level1.ts`.
+Etat actuel:
 
-Le runtime utilise:
+- overlays muraux gameplay largement couverts
+- chargement des paths d'assets securise pour les deploys non-racine
+- rendu des projectiles et protections nettement meilleur
+- preload plus fiable depuis l'embarquement des JSON critiques dans `src/assets/data`
 
-- `src/assets/data/dungeon.json`
-- `src/data/dungeonData.ts`
-- `src/data/mapLoader.ts`
+Reste a faire:
 
-Constat:
+- polish visuel
+- quelques images ou variantes specifiques
+- quelques soucis d'encodage historiques
 
-- les anciens fichiers `level0.ts` / `level1.ts` ont ete supprimes
-- la vraie map 0 runtime est `18x19`
-- la vraie map 1 runtime est `32x32`
+## Ce qu'on n'a pas oublie
 
-Conclusion:
+Point de controle avant optimisation:
 
-- le runtime de map doit etre juge a partir de `src/assets/data/dungeon.json` et `mapLoader.ts`
-- `public/dungeon.json` reste une copie statique utile, mais n'est plus le point de chargement critique au boot
+- flow d'entree: oui
+- maps et contenu spatial: oui
+- champions / mirrors / recrutement: oui
+- inventaire / equipement / drag and drop: oui
+- objets / potions / images: oui
+- sorts / projectiles / VFX: oui
+- mecanismes: oui, grosse passe recente
+- creatures / IA: oui, grosse passe recente
+- sauvegarde / reprise: oui
+- sequence de fin / game over / victoire: non, encore incomplet
+- optimisation: pas commencee comme chantier principal, c'est bien la prochaine etape
 
 ## Priorites recommandees
 
-### Flow d'entree / menu
+### 1. Fermer les derniers trous de fidelite
 
-- le flow vise est maintenant clarifie :
-  - logo `Dungeon Master`
-  - scene d'entree devant la grande porte
-  - bouton vert `Enter The Dungeon`
-  - bouton rouge `Resume`
-- `Resume` charge maintenant la derniere sauvegarde persistente, pas juste un etat RAM
-- le runtime demarre maintenant sur un ecran titre dedie au lieu d'entrer directement en exploration
-- la sauvegarde doit se brancher sur ce point d'entree plutot que d'ajouter un flux parallele
-- boucle actuellement en place :
-  - bouton de sauvegarde dans `ChampionSheet`
-  - bouton `Resume` qui recharge la derniere sauvegarde persistante
-- la sauvegarde stocke l'etat mutable du donjon, du groupe et des effets temporels, pas l'etat d'UI transitoire
+- verifier les derniers cas rares de mecanismes et de fin de jeu
+- tester quelques familles de creatures encore sensibles
+- continuer a reduire la glue runtime restante la ou elle ne sert plus
 
-### 1. Continuer l'integration fidele
+### 2. Attaquer l'optimisation
 
-- recoller les sorts et les durees a la base originale
-- reduire les couches runtime encore interpretatives
-- consolider les derniers details de fidelite gameplay
-- terminer le recollage fin des blessures localisees et des effets magiques speciaux
-  - l'essentiel de l'horloge gameplay est maintenant recale
-  - les blessures localisees existent maintenant cote runtime
-  - les jambes blesses reduisent la charge max, et les pieds blesses ralentissent davantage les deplacements
-  - la fiche champion colore maintenant la charge en jaune au-dessus de 5/8 et en rouge en surcharge, comme dans l'original
-  - il reste surtout des cas speciaux et du polissage sur la magie
-  - point deja corrige : `Oh Ew Ra` a maintenant son propre effet `see through walls`, distinct de `Oh Gor Ros`
-  - point deja corrige : `Des Ew` est traite comme projectile anti non-materiel, avec cas special `Materializer / Zytaz`
-  - point deja corrige : `Poison Bolt` et `Poison Cloud` sont maintenant separes cote gameplay
-  - point deja corrige : les principales actions magiques d'objet a charges (`Dispell`, `Confuse`, `Fluxcage`, `Invoke`, `Fuse`) sont maintenant integrees au runtime
-  - point deja corrige : les expirations de sorts / projectiles utilisent maintenant la meme horloge murale que le reste du runtime, il n'y a plus de melange `requestAnimationFrame(now)` / `Date.now()` sur ce chemin critique
-  - point deja corrige : plusieurs durees gameplay sont maintenant quantifiees sur une grille temporelle originale (VBL / timer ticks) au lieu de ms libres
-  - point deja corrige : les lumieres, portes ecrasantes et plusieurs buffs / projectiles ont maintenant des constantes temporelles partagees au lieu de nombres disperses
-  - point deja corrige : le cycle `food / water / stamina / mana / health` s'appuie maintenant sur une boucle de game time discrète et sur les paliers principaux de `CHAMPION.C`
-  - point deja corrige : le sommeil se comporte maintenant comme une avance rapide de temps au lieu d'une restauration instantanee
-  - point deja corrige : le rythme de deplacement du groupe suit maintenant un cooldown derive de `F310_AA08_CHAMPION_GetMovementTicks(...)`
+- reduire le poids du chunk `game-core`
+- reevaluer ce qui doit rester embarque dans `src/assets/data`
+- decouper plus proprement certaines couches runtime / UI / VFX
 
-### 2. Stabiliser le flow de jeu
+### 3. Finir le flow de jeu complet
 
-- definir le vrai debut de partie
-- ajouter game over et fin minimale
-
-### 3. Finaliser les systemes gameplay
-
-- magie
-- objets / statuts
-- serrures / cles / alcoves
-- pits / eau / interactions de niveau
-- sequence de fin `Amalgam / Zo Kath Ra / The Firestaff (Complete)`
-
-### 4. Finir le contenu visible
-
-- images manquantes
-- polish UI/UX
-- texte et encodage
+- game over
+- fin / victoire
+- dernier polish UX
 
 ## Notes de confiance
 
 - La structure generale et la base technique sont bonnes.
-- Les donnees extraites doivent maintenant etre traitees comme la base fiable.
-- Le projet a maintenant plus besoin d'integration fidele, d'alignement et de finition que d'une reecriture complete.
+- Les donnees extraites doivent etre traitees comme la base fiable.
+- Le projet a maintenant plus besoin d'integration fidele, de verification ciblee et d'optimisation que d'une reecriture complete.
 
 ## Discipline de maintenance
 

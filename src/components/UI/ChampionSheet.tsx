@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CHAMPIONS } from '../../data/champions';
 import type { Champion } from '../../data/champions';
 import { getGameMap } from '../../data/mapLoader';
+import { getMechanismsAt } from '../../data/mechanisms';
 import { hasOriginalWallOverlayAt } from '../../data/originalWallOverlays';
 import {
     CRITICAL_FOOD_THRESHOLD,
@@ -18,6 +19,8 @@ import type { EquipSlotKey } from '../../types/items';
 import type { FloorItem, ChampionEquipment } from '../../types/game';
 import { getEquippedItemImage, getInventoryItemImage } from '../../data/itemImages';
 import { canDrinkFromContainer, canFillWaterContainer, isWaterContainer } from '../../data/waterContainers';
+import { miscPath } from '../../data/assetPaths';
+import { getDragPayload, setDragPayload, type DragPayload } from './dragPayload';
 import {
     getEquippableSlots,
     getTotalWeight,
@@ -116,10 +119,6 @@ function isConsumable(item: FloorItem): boolean {
 }
 
 // ─── Drag/drop ────────────────────────────────────────────────────────────────
-interface DragPayload { itemId: string; fromChampionId: number; fromSlot: EquipSlotKey | 'inventory'; }
-function setDrag(e: React.DragEvent, p: DragPayload) { e.dataTransfer.setData('application/json', JSON.stringify(p)); e.dataTransfer.effectAllowed = 'move'; }
-function getDrag(e: React.DragEvent): DragPayload | null { try { return JSON.parse(e.dataTransfer.getData('application/json')); } catch { return null; } }
-
 // ─── Item thumbnail ───────────────────────────────────────────────────────────
 const ItemThumb: React.FC<{ item: FloorItem; size?: number; equipped?: boolean }> = ({ item, size = 32, equipped = false }) => {
     const torchBurnStart = useStore(s => s.torchBurnStart);
@@ -189,13 +188,13 @@ const EquipSlot: React.FC<{
             style={{ width: size, height: size, border: `1px solid ${borderColor}`, borderRadius: 3, background: over ? 'rgba(30,18,0,0.9)' : T.slotBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, cursor: item ? 'grab' : 'default', position: 'relative', transition: over ? undefined : 'border-color 0.1s', padding: 2, boxSizing: 'border-box', boxShadow: wounded ? `0 0 10px ${T.red}55` : undefined }}
             onDragOver={e => { e.preventDefault(); setOver(true); }}
             onDragLeave={() => setOver(false)}
-            onDrop={e => { e.preventDefault(); setOver(false); const p = getDrag(e); if (p) onDrop(p, slotKey); }}
+            onDrop={e => { e.preventDefault(); setOver(false); const p = getDragPayload(e); if (p) onDrop(p, slotKey); }}
         >
             <div style={{ fontSize: 6, color: T.goldDim, letterSpacing: 0.5, lineHeight: 1 }}>{SLOT_LABELS[slotKey]}</div>
             {item ? (
                 <>
                     <span draggable
-                        onDragStart={e => { setDrag(e, { itemId: item.id, fromChampionId: championId, fromSlot: slotKey }); onDragBegin?.({ itemId: item.id, fromChampionId: championId, fromSlot: slotKey }); }}
+                        onDragStart={e => { setDragPayload(e, { itemId: item.id, fromChampionId: championId, fromSlot: slotKey }); onDragBegin?.({ itemId: item.id, fromChampionId: championId, fromSlot: slotKey }); }}
                         onDragEnd={onDragEnd}
                     >
                         <ItemThumb item={item} size={size - 16} equipped />
@@ -232,7 +231,7 @@ const DropZone: React.FC<{ icon: string; label: string; title: string; borderCol
             style={{ width: 48, height: 48, border: `1px solid ${over ? borderColor : T.slotBorder}`, borderRadius: 3, background: over ? 'rgba(30,15,0,0.9)' : T.slotBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, cursor: 'default', transition: over ? undefined : 'border-color 0.1s' }}
             onDragOver={e => { e.preventDefault(); setOver(true); }}
             onDragLeave={() => setOver(false)}
-            onDrop={e => { e.preventDefault(); setOver(false); const p = getDrag(e); if (p) onDrop(p); }}
+            onDrop={e => { e.preventDefault(); setOver(false); const p = getDragPayload(e); if (p) onDrop(p); }}
         >
             <span style={{ fontSize: 20, lineHeight: 1 }}>{icon}</span>
             <span style={{ fontSize: 7, color: T.goldDim, letterSpacing: 1 }}>{label}</span>
@@ -256,7 +255,7 @@ const PartyMemberDropTarget: React.FC<{
             onDrop={e => {
                 e.preventDefault();
                 setOver(false);
-                const p = getDrag(e);
+                const p = getDragPayload(e);
                 if (!p || p.fromChampionId !== championId) return;
                 if (p.fromSlot === 'inventory') onGiveInventory(other.id, p.itemId);
                 else onGiveEquipped(other.id, p.fromSlot as EquipSlotKey);
@@ -293,7 +292,7 @@ const BackpackGrid: React.FC<{
                         onMouseDown={() => {
                             onItemDragStart({ itemId: item.id, fromChampionId: champion.id, fromSlot: 'inventory' });
                         }}
-                        onDragStart={e => { const p: DragPayload = { itemId: item.id, fromChampionId: champion.id, fromSlot: 'inventory' }; setDrag(e, p); onItemDragStart(p); }}
+                        onDragStart={e => { const p: DragPayload = { itemId: item.id, fromChampionId: champion.id, fromSlot: 'inventory' }; setDragPayload(e, p); onItemDragStart(p); }}
                         onDragEnd={onItemDragEnd}
                         title={getItemName(item)}
                         style={{ aspectRatio: '1', border: `1px solid ${T.slotBorder}`, borderRadius: 3, background: T.slotBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, cursor: 'grab', padding: 3, position: 'relative', overflow: 'hidden' }}>
@@ -321,7 +320,7 @@ export const ChampionSheet: React.FC = () => {
         closePartyMember, removeFromParty,
         championInventories, championEquipment, championVitals, championXP,
         equipItem, unequipItem, dropItem, giveItem, giveEquippedItem,
-        useItem: consumeItem, fillWaterContainer, sleep, saveGame, showTransientMessage,
+        useItem: consumeItem, fillWaterContainer, sleep, saveGame, showTransientMessage, useItemOnFrontWall,
     } = useStore();
 
     const [scrollItem, setScrollItem] = useState<FloorItem | null>(null);
@@ -378,6 +377,12 @@ export const ChampionSheet: React.FC = () => {
     const facingFountain = !!frontTile &&
         (frontTile.type === 'Wall' || frontTile.type === 'TrickWall') &&
         hasOriginalWallOverlayAt(level, frontTileX, frontTileY, frontWallFace, 'Fountain');
+    const frontWallItemMechanism = !!frontTile &&
+        (frontTile.type === 'Wall' || frontTile.type === 'TrickWall')
+        ? getMechanismsAt(level, frontTileX, frontTileY, frontWallFace).find((mechanism) =>
+            mechanism.trigger === 'wall-lock' || mechanism.trigger === 'alcove' || mechanism.trigger === 'object-exchanger',
+        ) ?? null
+        : null;
 
     const handleDropOnSlot = (payload: DragPayload, targetSlot: EquipSlotKey) => {
         if (payload.fromChampionId !== champion.id) {
@@ -403,7 +408,7 @@ export const ChampionSheet: React.FC = () => {
 
     const handleUnequipToInventory = (e: React.DragEvent) => {
         e.preventDefault();
-        const p = getDrag(e);
+        const p = getDragPayload(e);
         if (!p || p.fromChampionId !== champion.id || p.fromSlot === 'inventory') return;
         unequipItem(champion.id, p.fromSlot as EquipSlotKey);
         clearDragState();
@@ -436,6 +441,11 @@ export const ChampionSheet: React.FC = () => {
         clearDragState();
     };
 
+    const handleUseOnWallMechanism = (payload: DragPayload) => {
+        const used = useItemOnFrontWall(payload.fromChampionId, payload.itemId, payload.fromSlot);
+        if (used) clearDragState();
+    };
+
     const skills = [
         { key: 'fighter', label: 'GUERRIER' },
         { key: 'ninja',   label: 'NINJA'    },
@@ -465,7 +475,7 @@ export const ChampionSheet: React.FC = () => {
                 width: 'min(1100px, 98vw)',
                 maxHeight: '96vh',
                 overflowY: 'auto',
-                backgroundImage: 'url(/misc/parchemin.png)',
+                backgroundImage: `url(${miscPath('parchemin.png')})`,
                 backgroundRepeat: 'repeat',
                 backgroundSize: 'auto',
                 border: `3px solid ${T.goldDim}`,
@@ -571,6 +581,19 @@ export const ChampionSheet: React.FC = () => {
                                     borderColor="#3aa0d8"
                                     highlight={highlightFountain}
                                     onDrop={handleFillAtFountain}
+                                />
+                            )}
+                            {frontWallItemMechanism && (
+                                <DropZone
+                                    icon={frontWallItemMechanism.trigger === 'alcove' ? '🕳' : frontWallItemMechanism.trigger === 'object-exchanger' ? '🔥' : '🗝'}
+                                    label={frontWallItemMechanism.trigger === 'alcove' ? 'ALCOVE' : frontWallItemMechanism.trigger === 'object-exchanger' ? 'RÉCEPTACLE' : 'SERRURE'}
+                                    title={frontWallItemMechanism.trigger === 'alcove'
+                                        ? 'Déposer l objet requis dans l alcôve murale'
+                                        : frontWallItemMechanism.trigger === 'object-exchanger'
+                                            ? 'Déposer l objet requis dans le réceptacle mural'
+                                            : 'Déposer une clé ou l objet requis sur la serrure murale'}
+                                    borderColor="#d4a840"
+                                    onDrop={handleUseOnWallMechanism}
                                 />
                             )}
                             <DropZone icon="👄" label="MANGER" title="Déposer nourriture/potion pour consommer" borderColor="#d04040" highlight={highlightMouth} onDrop={handleConsume} />

@@ -2,29 +2,28 @@
 
 Remake / reinterpretation of *Dungeon Master* built with React, TypeScript, Vite, and React Three Fiber.
 
-The project aims to rebuild the original game's exploration, champions, spells, items, creatures, mechanisms, and data fidelity in a modern web codebase that stays inspectable and maintainable.
+The goal is to rebuild the original game's exploration, champions, creatures, objects, spells, mechanisms, and dungeon data as faithfully as possible inside a modern and maintainable web codebase.
 
-This is a non-commercial amateur project. The visuals are a mix of hand-made work, extracted references, and AI-assisted asset production. A significant part of the code and reverse-engineering workflow has been developed with LLM assistance, then checked and refined inside the repository.
+This is a non-commercial amateur project. The visuals are a mix of hand-made work, extracted references, and AI-assisted asset production. A significant part of the reverse-engineering and implementation workflow has been developed with LLM assistance, then checked and refined inside the repository.
 
 ## Current State
 
-The project is already playable and includes a substantial part of the core runtime:
+The project is now well beyond prototype stage and already playable end to end through a substantial part of the original loop:
 
-- 3D dungeon exploration with grid-based movement
-- title screen flow with dungeon entrance, `Enter The Dungeon`, and `Resume`
+- 3D dungeon exploration with grid movement and original map data
+- title screen with `Enter The Dungeon` and persisted `Resume`
 - champion recruitment through mirrors
-- HUD and detailed champion sheets
-- inventory, equipment, drag and drop, pickup and drop
-- creatures, projectiles, combat, and dungeon lighting
-- spells and a growing set of original mechanisms
-- hunger and thirst with water containers and fountains
-- original wall overlays positioned from extracted data
-- maps and runtime content loaded from reconstructed original data
-- canonical starter equipment for champions
-- multi-attack HUD flow for weapons with more than one action
-- persistent save / resume of the mutable game state
+- HUD, detailed champion sheets, drag and drop inventory and equipment
+- creatures, projectiles, combat, lighting, hunger, thirst, sleep, water containers, fountains
+- original wall overlays positioned from extracted dungeon data
+- runtime data for champions, creatures, items, doors, spells, projectiles and maps sourced primarily from extracted original data
+- wall mechanisms substantially reworked: switches, pressure plates, locks, alcoves, receptacles, delayed sensors and wall item usage
+- creature AI substantially revised: open-door traversal, pursuit memory, ranged spacing, teleporter usage, invisibility handling, missile absorption, sight-range driven detection
+- upgraded spell visuals: better projectile identities, impacts, local flashes, shields and `Fluxcage`
+- minimal endgame flow: Amalgam / complete Firestaff / Lord Chaos victory screen path is now wired
+- persistent save / resume of the mutable runtime state
 
-It is not a finished remake yet. Some special-case mechanics, final balancing, broader game-flow polish, and part of the remaining artwork still need work.
+It is not a finished remake yet. The largest remaining work is no longer data extraction, but the last fidelity gaps, architectural cleanup, and optimization.
 
 Current save/load behavior:
 
@@ -32,7 +31,15 @@ Current save/load behavior:
 - `Resume` reloads the latest persisted save
 - time does not continue to elapse while the game is closed; a loaded save resumes from the exact saved state
 
-The important shift is that the project is no longer mainly blocked by missing original data. Most of the core original data we needed is now extracted and documented; the main work left is integrating it faithfully into the runtime.
+## What Still Needs Work
+
+Main remaining gaps before calling the runtime "fully aligned":
+
+- final path still needs a targeted full playtest from `Zokathra` through Lord Chaos fusion
+- some rare late-game or edge-case mechanism interactions still need targeted play verification
+- creature AI still has fine-grained fidelity gaps for special families and end-game cases
+- some item-image aliases and other compatibility glue remain manual by design
+- optimization is now the next major phase, especially around the heavy `game-core` chunk
 
 ## Tech Stack
 
@@ -64,39 +71,61 @@ npm run dev
 npm run build
 ```
 
-Le build de production passe a nouveau a la date de cette mise a jour (`2026-04-09`).
+The production build passes as of this update (`2026-04-11`).
 
 ## Project Structure
 
 ```text
 src/
   components/   Dungeon rendering and UI
-  data/         Runtime data loaders and definitions
-  engine/       Store, rules, combat, interactions, sounds
+  data/         Runtime data loaders, definitions and compatibility layers
+  engine/       Store, rules, combat, interactions, persistence, sounds
   types/        Shared types
 
 public/
-  dungeon.json                  Static/browser-served reference copy
-  game_db.json                  Static/browser-served reference copy
-  original_*.json               Static/browser-served reference copies
+  items/                        Browser-served item icons
+  misc/                         Browser-served UI and world support art
+  sounds/                       Browser-served audio assets
+  textures/                     Browser-served dungeon textures
+  graphics_*.json               Extraction/pipeline reference inputs
+  original_*_runtime.json       Small active runtime/pipeline reference subset
+  vite.svg                      Browser favicon
 
 src/assets/data/
-  dungeon.json                  Embedded runtime dungeon data used at boot
-  game_db.json                  Embedded reference data used by runtime modules
-  original_*.json               Embedded catalogs/runtime tables used by the game
+  dungeon.json                  Canonical compact runtime dungeon snapshot used at boot
+  game_db.json                  Canonical runtime reference data used by modules
+  original_creatures_runtime.json
+  original_doors_runtime.json
+  runtime_data_manifest.json    Runtime package manifest emitted by parse_full
 
 assets/
   OriginalDataExtraction/       Reverse-engineering base, scripts, source references, audits
+    reference_exports/          Archived/reference JSON exports no longer kept in public/
 
 docs/
-  REMAKE_STATUS.md              Internal running status / alignment notes
+  REMAKE_STATUS.md              Global project status and system-by-system audit
+  RUNTIME_ALIGNMENT_AUDIT.md    Source-data vs runtime integration notes
   CODEBASE_REFERENCE.md         Codebase map
   *_EXTRACTION.md               Original-data extraction notes
 ```
 
 ## Data Sources
 
-The runtime now relies primarily on reconstructed data mirrored into `src/assets/data/` for critical boot-time modules, with `public/` kept as the browser-served/static copy.
+The runtime now relies primarily on reconstructed data mirrored into `src/assets/data/` for critical boot-time modules.
+
+For the main extracted runtime datasets, `src/assets/data/` is now the canonical runtime location, while `assets/OriginalDataExtraction/output/` remains the extraction/audit output area.
+
+For `dungeon.json` specifically:
+
+- `assets/OriginalDataExtraction/output/dungeon.json` is the full extraction/audit dump
+- `assets/OriginalDataExtraction/output/runtime_dungeon.json` is the compact runtime snapshot generated from it
+- `src/assets/data/dungeon.json` is the canonical runtime copy actually consumed by the app
+
+For wall overlays:
+
+- `public/original_wall_overlay_positions.json` remains the full extracted/reference export
+- `assets/OriginalDataExtraction/output/runtime_wall_overlay_positions.json` is the compact runtime snapshot used for the app
+- `src/assets/original_wall_overlay_positions.json` is the canonical runtime copy actually consumed by the app
 
 The reverse-engineering and provenance work lives under:
 
@@ -113,6 +142,9 @@ The most useful detailed internal summaries are:
 
 - [docs/REMAKE_STATUS.md](/D:/DungeonMaster-codex/docs/REMAKE_STATUS.md)
 - [docs/RUNTIME_ALIGNMENT_AUDIT.md](/D:/DungeonMaster-codex/docs/RUNTIME_ALIGNMENT_AUDIT.md)
+- [docs/CODEBASE_REFERENCE.md](/D:/DungeonMaster-codex/docs/CODEBASE_REFERENCE.md)
+- [docs/DATA_PIPELINE.md](/D:/DungeonMaster-codex/docs/DATA_PIPELINE.md)
+- [docs/PUBLIC_DIRECTORY_AUDIT.md](/D:/DungeonMaster-codex/docs/PUBLIC_DIRECTORY_AUDIT.md)
 - [docs/STATS_PROVENANCE.md](/D:/DungeonMaster-codex/docs/STATS_PROVENANCE.md)
 - [docs/ATARI_STATS_RECONCILIATION.md](/D:/DungeonMaster-codex/docs/ATARI_STATS_RECONCILIATION.md)
 - [docs/WORLD_CONTENT_AUDIT.md](/D:/DungeonMaster-codex/docs/WORLD_CONTENT_AUDIT.md)
@@ -120,12 +152,13 @@ The most useful detailed internal summaries are:
 ## Notes
 
 - The production build currently passes.
-- `npm run preview` now boots correctly with the dungeon data embedded in `src/assets/data/dungeon.json`.
-- The bundle is still fairly heavy because of the 3D stack and game assets.
-- The bundle is currently extra heavy because several critical JSON datasets are embedded in the JS runtime to keep dev / preview startup reliable.
+- `npm run preview` boots correctly with the dungeon data embedded in `src/assets/data/dungeon.json`.
+- The bundle is still heavy because of the 3D stack, assets, and embedded critical JSON datasets.
+- The main remaining heavy runtime payloads are now the compact dungeon snapshot and the 3D vendor stack.
+- The next major phase is optimization, now focused more on data loading strategy than on the old `game-core`.
 - The world-content extraction is now treated as reliable.
-- Some gameplay layers are already reconciled with original Atari data, while part of the runtime still remains an interpretation layer that is being reduced over time.
-- `docs/` is mainly used as detailed project memory and implementation notes; the README should stay as the concise project-facing overview.
+- Several gameplay layers are now source-backed, but a thinner runtime interpretation layer still exists in a few systems.
+- `docs/` is used as project memory and audit notes; the README stays intentionally concise.
 
 ## Credits
 

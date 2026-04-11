@@ -1,9 +1,9 @@
-import gameDbRaw from '../assets/data/game_db.json?raw';
 import { WEAPON_TYPES } from './items';
 import type { FloorItem } from '../types/game';
 import type { CastSkill } from './runes';
+import { getGameDbRawSync } from './gameDbData';
 
-const gameDb = JSON.parse(gameDbRaw) as unknown;
+const gameDb = JSON.parse(getGameDbRawSync()) as unknown;
 
 type RawAttack = {
     index: number;

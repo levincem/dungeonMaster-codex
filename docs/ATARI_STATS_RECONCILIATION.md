@@ -11,7 +11,7 @@ Relevant files:
 - [assets/OriginalDataExtraction/output/weapon_attack_reference.json](D:\DungeonMaster-codex\assets\OriginalDataExtraction\output\weapon_attack_reference.json)
 - [assets/OriginalDataExtraction/compare_atari_stats_to_game_db.cjs](D:\DungeonMaster-codex\assets\OriginalDataExtraction\compare_atari_stats_to_game_db.cjs)
 - [assets/OriginalDataExtraction/parse_full.js](D:\DungeonMaster-codex\assets\OriginalDataExtraction\parse_full.js)
-- [public/game_db.json](D:\DungeonMaster-codex\public\game_db.json)
+- [src/assets/data/game_db.json](D:\DungeonMaster-codex\src\assets\data\game_db.json)
 - [docs/I560_ATTACKS_EXTRACTION.md](D:\DungeonMaster-codex\docs\I560_ATTACKS_EXTRACTION.md)
 - [docs/I561_UI_TABLES_EXTRACTION.md](D:\DungeonMaster-codex\docs\I561_UI_TABLES_EXTRACTION.md)
 - [docs/I562_RUNTIME_TABLES_EXTRACTION.md](D:\DungeonMaster-codex\docs\I562_RUNTIME_TABLES_EXTRACTION.md)
@@ -24,7 +24,7 @@ That gives us a much stronger baseline than the previously derived `game_db.json
 
 ## What Has Already Been Reconciled
 
-Food values are now aligned with the original Atari payload in [public/game_db.json](D:\DungeonMaster-codex\public\game_db.json):
+Food values are now aligned with the original Atari payload in [src/assets/data/game_db.json](D:\DungeonMaster-codex\src\assets\data\game_db.json):
 
 - `Apple` = `500`
 - `Corn` = `600`
@@ -41,7 +41,7 @@ This also means the remake now contains the missing food entries:
 - `Screamer Slice`
 - `Shank`
 
-Monster core stats are now aligned too for the entries currently modeled in [public/game_db.json](D:\DungeonMaster-codex\public\game_db.json):
+Monster core stats are now aligned too for the entries currently modeled in [src/assets/data/game_db.json](D:\DungeonMaster-codex\src\assets\data\game_db.json):
 
 - `baseHP`
 - `armor`
@@ -94,7 +94,7 @@ We also now have `0562` decoded cleanly enough to expose proven runtime tables s
 - sound table entries
 - default graphic list indirection
 
-Those are now available in [public/game_db.json](D:\DungeonMaster-codex\public\game_db.json) under `originalAtari.i562`, with any unresolved residue kept as raw bytes instead of guessed.
+Those are now available in [src/assets/data/game_db.json](D:\DungeonMaster-codex\src\assets\data\game_db.json) under `originalAtari.i562`, with any unresolved residue kept as raw bytes instead of guessed.
 
 Examples:
 

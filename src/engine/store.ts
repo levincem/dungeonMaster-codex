@@ -1,7 +1,19 @@
 import { create } from 'zustand';
 import type { StateCreator } from 'zustand';
 import { getGameMap, getGameMaps, getChampionStartPositions } from '../data/mapLoader';
-import { itemToLockData } from '../data/mechanisms';
+import {
+    getRequiredSensorItemName,
+    isWallAlcoveSensor,
+    isWallObjectExchangerSensor,
+    isConsumableLockSensor,
+    isCreatureOnlyFloorSensor,
+    isGeneratorSensor,
+    isPartyPossessionSensor,
+    isSpecificObjectFloorSensor,
+    isWallLockSensor,
+    itemMatchesMechanismRequirement,
+    itemToLockData,
+} from '../data/mechanisms';
 import type {
     GameMap, GameTile, TeleporterObject,
     CreatureInstance, CreatureObject, FloorItem,
@@ -24,7 +36,7 @@ import {
     getSpellLightContribution,
     getSpellShieldProfile,
 } from '../data/spellRuntime';
-import { getArmorDef, WEAPON_TYPES, POTION_TYPES, MISC_TYPES, normalizeScrollText, resolveItemName } from '../data/items';
+import { getArmorDef, WEAPON_TYPES, MISC_TYPES, getPotionDef, normalizeScrollText, resolveItemName } from '../data/items';
 import {
     canEquipItemInSlot,
     EMPTY_CHAMPION_WOUNDS,
@@ -60,6 +72,11 @@ import { doorBlocksThrownItems, doorBlocksVision } from '../data/doors';
 import { playPartyAttack, playCreatureMove, playCreatureAttack, playPlate } from './sounds';
 import { readPersistedSave, writePersistedSave } from './saveGame';
 import {
+    buildPersistedSaveData as buildPersistedSaveDataSystem,
+    restoreExternalCreatureRuntimeFromSave as restoreExternalCreatureRuntimeFromSaveSystem,
+    tryParsePersistedSaveData as tryParsePersistedSaveDataSystem,
+} from './systems/persistence';
+import {
     ORIGINAL_TIMER_TICK_MS,
     ORIGINAL_TIMER_TICK_SECONDS,
     originalTimerTicksToSeconds,
@@ -77,7 +94,7 @@ import {
 } from './time';
 
 export type Direction = 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
-export type GamePhase = 'title' | 'exploration' | 'mirror_open';
+export type GamePhase = 'title' | 'exploration' | 'mirror_open' | 'victory';
 
 // ─── Champion vitals (live HP / Stamina / Mana) ───────────────────────────────
 export interface ChampionVitals {
@@ -105,6 +122,16 @@ export interface DamageEvent {
     y: number;     // creature tile y
     amount: number;
     ts: number;    // Date.now() — auto-cleared after ~600 ms
+}
+
+export interface SpellVisualEvent {
+    id: string;
+    level: number;
+    x: number;
+    y: number;
+    effect: Exclude<ProjectileEffect, 'physical'>;
+    ts: number;
+    kind: 'wall' | 'creature';
 }
 
 // ─── Torch burn lifecycle ──────────────────────────────────────────────────────
@@ -476,6 +503,70 @@ function getFrontPosition(position: [number, number], direction: Direction): { x
     if (direction === 'SOUTH') return { x, y: y + 1 };
     if (direction === 'EAST') return { x: x + 1, y };
     return { x: x - 1, y };
+}
+
+function findFirstDoorAlongDirection(
+    level: number,
+    position: [number, number],
+    direction: Direction,
+    openDoors: Set<string>,
+): { x: number; y: number; key: string } | null {
+    const map = getMap(level);
+    let { x, y } = getFrontPosition(position, direction);
+
+    while (y >= 0 && y < map.height && x >= 0 && x < map.width) {
+        const tile = map.tiles[y]?.[x];
+        if (!tile) return null;
+        if (tile.type === 'Wall' || tile.type === 'TrickWall') return null;
+        if (tile.type === 'Door') {
+            const key = `${level},${y},${x}`;
+            if (!openDoors.has(key)) return { x, y, key };
+        }
+        if (direction === 'NORTH') y -= 1;
+        else if (direction === 'SOUTH') y += 1;
+        else if (direction === 'EAST') x += 1;
+        else x -= 1;
+    }
+
+    return null;
+}
+
+function tryBreakFrontDoor(
+    state: Pick<GameState, 'level' | 'position' | 'direction' | 'openDoors'>,
+    champion: Champion,
+    equip: ChampionEquipment | undefined,
+    activePotionBoosts: ActivePotionBoost[],
+    selectedAttack: WeaponAttackOption | null,
+): { openDoors: Set<string>; message: CastResult } | null {
+    const { x, y } = getFrontPosition(state.position, state.direction);
+    const tile = getMap(state.level).tiles[y]?.[x];
+    if (!tile || tile.type !== 'Door') return null;
+
+    const key = `${state.level},${y},${x}`;
+    if (state.openDoors.has(key)) return null;
+
+    const door = tile.objects.find((obj): obj is import('../types/game').DoorObject => obj.category === 'Door');
+    if (!door?.destructChop) return null;
+
+    const effective = getEffectiveChampionStatsRuntime(champion, equip, activePotionBoosts);
+    const weaponMax = equip?.rightHand?.category === 'Weapon'
+        ? (WEAPON_TYPES[equip.rightHand.typeId]?.damage[1] ?? 0)
+        : 0;
+    const attackBonus = selectedAttack ? Math.max(0, selectedAttack.attack.strengthRequired) : 0;
+    const breakPower = effective.strength + weaponMax + attackBonus + randomInt(16);
+    if (breakPower < 34) {
+        return {
+            openDoors: state.openDoors,
+            message: buildAttackResultMessage('La porte resiste.'),
+        };
+    }
+
+    const newOpenDoors = new Set(state.openDoors);
+    newOpenDoors.add(key);
+    return {
+        openDoors: newOpenDoors,
+        message: buildAttackResultMessage('La porte cede.', true),
+    };
 }
 
 function applyChampionAttackVitals(
@@ -1102,6 +1193,12 @@ function notifyPlateActivated(level: number, x: number, y: number) {
     for (const fn of plateListeners) fn(level, x, y);
 }
 
+interface PendingSensorEvent {
+    level: number;
+    sensorIndex: number;
+    remaining: number;
+}
+
 // ─── Creature action pub/sub (drives sprite frame changes) ───────────────────
 type CreatureActionListener = (id: string, action: 'move' | 'attack') => void;
 const creatureActionListeners = new Set<CreatureActionListener>();
@@ -1118,6 +1215,11 @@ const creatureTimers = new Map<string, { mt: number; at: number }>();
 const creatureAttackWindows = new Map<string, number>();
 const creatureConfusedUntil = new Map<string, number>();
 const creatureFluxcageUntil = new Map<string, number>();
+const creatureLastSeenPartyPos = new Map<string, { x: number; y: number; expiresAt: number }>();
+
+export function getCreatureFluxcageExpiry(id: string): number {
+    return creatureFluxcageUntil.get(id) ?? 0;
+}
 
 // ─── Creature initialisation ──────────────────────────────────────────────────
 
@@ -1252,30 +1354,6 @@ function buildOpenTeleporters(): Set<string> {
             for (const tile of row) {
                 if (tile.type === 'Teleporter' && tile.open) {
                     open.add(`${map.index},${tile.y},${tile.x}`);
-                }
-            }
-        }
-    }
-    const fired = new Set<string>();
-    for (const map of getGameMaps()) {
-        for (const row of map.tiles) {
-            for (const tile of row) {
-                for (const obj of tile.objects) {
-                    if (obj.category !== 'Sensor') continue;
-                    const s = obj as SensorObject;
-                    if (s.type !== 8) continue;
-                    const sKey = `${map.index}_${s.index}`;
-                    if (s.onceOnly && fired.has(sKey)) continue;
-                    if (s.onceOnly) fired.add(sKey);
-                    const targetTile = map.tiles[s.targetY]?.[s.targetX];
-                    if (!targetTile || targetTile.type !== 'Teleporter') continue;
-                    const tKey = `${map.index},${s.targetY},${s.targetX}`;
-                    if (s.action === 'Set') open.add(tKey);
-                    else if (s.action === 'Clear') open.delete(tKey);
-                    else if (s.action === 'Toggle') {
-                        if (open.has(tKey)) open.delete(tKey);
-                        else open.add(tKey);
-                    }
                 }
             }
         }
@@ -1544,94 +1622,483 @@ function computeSensorEffect(sensor: SensorObject, level: number, ss: SensorStat
     return { firedSensors: newFired };
 }
 
+function findSensorByIndex(level: number, sensorIndex: number): SensorObject | null {
+    const map = getMap(level);
+    for (const row of map.tiles) {
+        for (const tile of row) {
+            for (const obj of tile.objects) {
+                if (obj.category === 'Sensor' && (obj as SensorObject).index === sensorIndex) {
+                    return obj as SensorObject;
+                }
+            }
+        }
+    }
+    return null;
+}
+
+function queueOrComputeSensorEffect(
+    sensor: SensorObject,
+    level: number,
+    ss: SensorState,
+    pendingSensorEvents: PendingSensorEvent[],
+): {
+    sensorChanges: Partial<SensorState>;
+    pendingSensorEvents: PendingSensorEvent[];
+} {
+    if (sensor.delay > 1) {
+        const sKey = `${level}_${sensor.index}`;
+        const nextFired = sensor.onceOnly && !ss.firedSensors.has(sKey)
+            ? new Set([...ss.firedSensors, sKey])
+            : ss.firedSensors;
+        const alreadyQueued = pendingSensorEvents.some((event) => event.level === level && event.sensorIndex === sensor.index);
+        return {
+            sensorChanges: nextFired !== ss.firedSensors ? { firedSensors: nextFired } : {},
+            pendingSensorEvents: alreadyQueued
+                ? pendingSensorEvents
+                : [...pendingSensorEvents, { level, sensorIndex: sensor.index, remaining: originalTimerTicksToSeconds(sensor.delay) }],
+        };
+    }
+
+    return {
+        sensorChanges: computeSensorEffect(sensor, level, ss),
+        pendingSensorEvents,
+    };
+}
+
+function processPendingSensorEvents(
+    delta: number,
+    pendingSensorEvents: PendingSensorEvent[],
+    ss: SensorState,
+): {
+    sensorChanges: Partial<SensorState>;
+    pendingSensorEvents: PendingSensorEvent[];
+} {
+    let cur = ss;
+    const remainingEvents: PendingSensorEvent[] = [];
+    let changed = false;
+
+    for (const event of pendingSensorEvents) {
+        const remaining = event.remaining - delta;
+        if (remaining > 0) {
+            remainingEvents.push({ ...event, remaining });
+            continue;
+        }
+
+        const sensor = findSensorByIndex(event.level, event.sensorIndex);
+        if (!sensor) continue;
+        const effect = computeSensorEffect(sensor, event.level, cur);
+        if (Object.keys(effect).length > 0) {
+            cur = { ...cur, ...effect } as SensorState;
+            changed = true;
+            if (sensor.sound || sensor.type === 6) {
+                playPlate();
+            }
+        }
+    }
+
+    return {
+        sensorChanges: changed ? diffSensorState(ss, cur) : {},
+        pendingSensorEvents: remainingEvents,
+    };
+}
+
+function diffSensorState(before: SensorState, after: SensorState): Partial<SensorState> {
+    const patch: Partial<SensorState> = {};
+    if (after.openDoors !== before.openDoors) patch.openDoors = after.openDoors;
+    if (after.openTeleporters !== before.openTeleporters) patch.openTeleporters = after.openTeleporters;
+    if (after.openWalls !== before.openWalls) patch.openWalls = after.openWalls;
+    if (after.activeSensors !== before.activeSensors) patch.activeSensors = after.activeSensors;
+    if (after.firedSensors !== before.firedSensors) patch.firedSensors = after.firedSensors;
+    if (after.visibleTexts !== before.visibleTexts) patch.visibleTexts = after.visibleTexts;
+    return patch;
+}
+
+function partyHasRequiredItem(
+    requiredName: string | undefined,
+    inventories: Record<number, FloorItem[]>,
+    equipment: Record<number, ChampionEquipment>,
+): boolean {
+    if (!requiredName) return false;
+    for (const inventory of Object.values(inventories)) {
+        if (inventory.some((item) => itemMatchesMechanismRequirement(item, requiredName))) return true;
+    }
+    for (const equip of Object.values(equipment)) {
+        if (Object.values(equip ?? {}).some((item) => item && itemMatchesMechanismRequirement(item, requiredName))) return true;
+    }
+    return false;
+}
+
+function tileHasRequiredFloorItem(
+    level: number,
+    x: number,
+    y: number,
+    requiredName: string | undefined,
+    floorItems: FloorItem[],
+): boolean {
+    if (!requiredName) return false;
+    return floorItems.some((item) =>
+        item.mapIndex === level && item.x === x && item.y === y && itemMatchesMechanismRequirement(item, requiredName),
+    );
+}
+
 /** Map movement direction → wall face toward the player (for wall-push sensors). */
 const PUSH_FACE: Record<string, string> = {
     NORTH: 'South', SOUTH: 'North', EAST: 'West', WEST: 'East',
 };
 
 /** Trigger sensors on a wall tile when the player pushes against it. */
-function triggerWallPushSensors(level: number, wx: number, wy: number, dir: string, ss: SensorState): Partial<SensorState> {
+function triggerWallPushSensors(
+    level: number,
+    wx: number,
+    wy: number,
+    dir: string,
+    ss: SensorState,
+    pendingSensorEvents: PendingSensorEvent[],
+): {
+    sensorChanges: Partial<SensorState>;
+    pendingSensorEvents: PendingSensorEvent[];
+} {
     const tile = getMap(level).tiles[wy]?.[wx];
-    if (!tile || (tile.type !== 'Wall' && tile.type !== 'TrickWall')) return {};
+    if (!tile || (tile.type !== 'Wall' && tile.type !== 'TrickWall')) return { sensorChanges: {}, pendingSensorEvents };
     const face = PUSH_FACE[dir];
     let cur: SensorState = ss;
     let changed = false;
+    let nextPending = pendingSensorEvents;
     for (const obj of tile.objects) {
         if (obj.category !== 'Sensor') continue;
         const sensor = obj as SensorObject;
         if (sensor.tilePos !== face) continue;
         // Skip: lever (1), wall-button (2), lock (4 — needs item), special (127)
-        if (sensor.type === 1 || sensor.type === 2 || sensor.type === 4 || sensor.type === 127) continue;
-        const effect = computeSensorEffect(sensor, level, cur);
-        if (Object.keys(effect).length > 0) {
-            cur = { ...cur, ...effect } as SensorState;
+        if (sensor.type === 1 || sensor.type === 2 || sensor.type === 5 || sensor.type === 127 || isWallLockSensor(sensor)) continue;
+        const queued = queueOrComputeSensorEffect(sensor, level, cur, nextPending);
+        nextPending = queued.pendingSensorEvents;
+        if (Object.keys(queued.sensorChanges).length > 0) {
+            cur = { ...cur, ...queued.sensorChanges } as SensorState;
             changed = true;
         }
     }
-    return changed ? cur : {};
+    return {
+        sensorChanges: changed ? diffSensorState(ss, cur) : {},
+        pendingSensorEvents: nextPending,
+    };
 }
 
 /** Try to use an item from party inventory on a type-4 lock sensor.
  *  Returns updated sensor state + consumed inventory if a matching key was found. */
 function triggerLockSensors(
-    level: number, wx: number, wy: number, face: string, ss: SensorState,
+    level: number,
+    wx: number,
+    wy: number,
+    face: string,
+    ss: SensorState,
     inventories: Record<number, FloorItem[]>,
-): { sensorChanges: Partial<SensorState>; newInventories: Record<number, FloorItem[]> | null } {
+    equipment: Record<number, ChampionEquipment>,
+    selectedItem?: { championId: number; itemId: string; fromSlot: EquipSlotKey | 'inventory' },
+): {
+    sensorChanges: Partial<SensorState>;
+    newInventories: Record<number, FloorItem[]> | null;
+    newEquipment: Record<number, ChampionEquipment> | null;
+    matched: boolean;
+} {
     const tile = getMap(level).tiles[wy]?.[wx];
-    if (!tile || (tile.type !== 'Wall' && tile.type !== 'TrickWall')) return { sensorChanges: {}, newInventories: null };
+    if (!tile || (tile.type !== 'Wall' && tile.type !== 'TrickWall')) {
+        return { sensorChanges: {}, newInventories: null, newEquipment: null, matched: false };
+    }
     let cur: SensorState = ss;
     let sensorChanged = false;
+    let matched = false;
     let newInventories: Record<number, FloorItem[]> | null = null;
+    let newEquipment: Record<number, ChampionEquipment> | null = null;
 
     for (const obj of tile.objects) {
         if (obj.category !== 'Sensor') continue;
         const sensor = obj as SensorObject;
-        if (sensor.type !== 4 || sensor.tilePos !== face) continue;
+        if (!isWallLockSensor(sensor) || sensor.tilePos !== face) continue;
 
-        const required = sensor.data;
-        // Find first champion that has the matching item
+        const requiredName = getRequiredSensorItemName(sensor);
+        const requiredData = sensor.data;
         let matchChampId: number | null = null;
         let matchItemId: string | null = null;
-        for (const [cidStr, inv] of Object.entries(inventories)) {
-            for (const item of inv) {
-                if (itemToLockData(item.category, item.typeId) === required) {
-                    matchChampId = parseInt(cidStr);
-                    matchItemId = item.id;
-                    break;
+        let matchSlot: EquipSlotKey | null = null;
+
+        if (selectedItem) {
+            const fromEquip = selectedItem.fromSlot !== 'inventory';
+            const candidate = fromEquip
+                ? equipment[selectedItem.championId]?.[selectedItem.fromSlot as EquipSlotKey]
+                : inventories[selectedItem.championId]?.find((item) => item.id === selectedItem.itemId);
+            if (!candidate) continue;
+
+            const matchesByName = itemMatchesMechanismRequirement(candidate, requiredName);
+            const matchesByData = requiredName === undefined && itemToLockData(candidate.category, candidate.typeId) === requiredData;
+            if (!matchesByName && !matchesByData) continue;
+
+            matchChampId = selectedItem.championId;
+            matchItemId = candidate.id;
+            matchSlot = fromEquip ? selectedItem.fromSlot as EquipSlotKey : null;
+        } else {
+            for (const [cidStr, inv] of Object.entries(inventories)) {
+                for (const item of inv) {
+                    const matchesByName = itemMatchesMechanismRequirement(item, requiredName);
+                    const matchesByData = requiredName === undefined && itemToLockData(item.category, item.typeId) === requiredData;
+                    if (matchesByName || matchesByData) {
+                        matchChampId = parseInt(cidStr);
+                        matchItemId = item.id;
+                        break;
+                    }
+                }
+                if (matchChampId !== null) break;
+            }
+            if (matchChampId === null) {
+                for (const [cidStr, equip] of Object.entries(equipment)) {
+                    for (const [slotKey, item] of Object.entries(equip ?? {}) as Array<[EquipSlotKey, FloorItem | undefined]>) {
+                        if (!item) continue;
+                        const matchesByName = itemMatchesMechanismRequirement(item, requiredName);
+                        const matchesByData = requiredName === undefined && itemToLockData(item.category, item.typeId) === requiredData;
+                        if (matchesByName || matchesByData) {
+                            matchChampId = parseInt(cidStr);
+                            matchItemId = item.id;
+                            matchSlot = slotKey;
+                            break;
+                        }
+                    }
+                    if (matchChampId !== null) break;
                 }
             }
-            if (matchChampId !== null) break;
+            if (matchChampId === null) continue;
         }
-        if (matchChampId === null) continue;
 
-        // Consume the item
-        if (newInventories === null) newInventories = { ...inventories };
-        const inv = newInventories[matchChampId] ?? [];
-        newInventories[matchChampId] = inv.filter(i => i.id !== matchItemId);
+        if (isConsumableLockSensor(sensor)) {
+            if (matchSlot) {
+                if (newEquipment === null) newEquipment = { ...equipment };
+                const equip = { ...(newEquipment[matchChampId] ?? equipment[matchChampId] ?? {}) };
+                delete equip[matchSlot];
+                newEquipment[matchChampId] = equip;
+            } else {
+                if (newInventories === null) newInventories = { ...inventories };
+                const inv = newInventories[matchChampId] ?? inventories[matchChampId] ?? [];
+                newInventories[matchChampId] = inv.filter((item) => item.id !== matchItemId);
+            }
+        }
 
-        // Fire the sensor
-        const effect = computeSensorEffect(sensor, level, cur);
+        const effectiveSensor = sensor.type === 17 && !sensor.onceOnly
+            ? { ...sensor, onceOnly: true }
+            : sensor;
+        const effect = computeSensorEffect(effectiveSensor, level, cur);
         if (Object.keys(effect).length > 0) {
             cur = { ...cur, ...effect } as SensorState;
             sensorChanged = true;
         }
+        matched = true;
+        break;
     }
-    return { sensorChanges: sensorChanged ? cur : {}, newInventories };
+    return {
+        sensorChanges: sensorChanged ? diffSensorState(ss, cur) : {},
+        newInventories,
+        newEquipment,
+        matched,
+    };
 }
 
-function triggerFloorSensors(level: number, x: number, y: number, ss: SensorState): Partial<SensorState> {
-    const tile = getMap(level).tiles[y]?.[x];
-    if (!tile) return {};
-    let cur: SensorState = ss;
-    let changed = false;
-    let playedSound = false;
+function triggerAlcoveDepositSensor(
+    level: number,
+    wx: number,
+    wy: number,
+    face: string,
+    ss: SensorState,
+    inventories: Record<number, FloorItem[]>,
+    equipment: Record<number, ChampionEquipment>,
+    selectedItem: { championId: number; itemId: string; fromSlot: EquipSlotKey | 'inventory' },
+): {
+    sensorChanges: Partial<SensorState>;
+    newInventories: Record<number, FloorItem[]> | null;
+    newEquipment: Record<number, ChampionEquipment> | null;
+    depositedItem: FloorItem | null;
+    matched: boolean;
+} {
+    const tile = getMap(level).tiles[wy]?.[wx];
+    if (!tile || (tile.type !== 'Wall' && tile.type !== 'TrickWall')) {
+        return { sensorChanges: {}, newInventories: null, newEquipment: null, depositedItem: null, matched: false };
+    }
+
+    const fromEquip = selectedItem.fromSlot !== 'inventory';
+    const candidate = fromEquip
+        ? equipment[selectedItem.championId]?.[selectedItem.fromSlot as EquipSlotKey]
+        : inventories[selectedItem.championId]?.find((item) => item.id === selectedItem.itemId);
+    if (!candidate) {
+        return { sensorChanges: {}, newInventories: null, newEquipment: null, depositedItem: null, matched: false };
+    }
+
     for (const obj of tile.objects) {
         if (obj.category !== 'Sensor') continue;
         const sensor = obj as SensorObject;
-        if (sensor.type === 2 || sensor.type === 127) continue;
-        const effect = computeSensorEffect(sensor, level, cur);
-        if (Object.keys(effect).length > 0) {
-            cur = { ...cur, ...effect } as SensorState;
+        if (!isWallAlcoveSensor(sensor) || sensor.tilePos !== face) continue;
+
+        const requiredName = getRequiredSensorItemName(sensor);
+        if (requiredName && !itemMatchesMechanismRequirement(candidate, requiredName)) continue;
+
+        let newInventories: Record<number, FloorItem[]> | null = null;
+        let newEquipment: Record<number, ChampionEquipment> | null = null;
+        if (fromEquip) {
+            newEquipment = { ...equipment };
+            const equip = { ...(newEquipment[selectedItem.championId] ?? equipment[selectedItem.championId] ?? {}) };
+            delete equip[selectedItem.fromSlot as EquipSlotKey];
+            newEquipment[selectedItem.championId] = equip;
+        } else {
+            newInventories = { ...inventories };
+            const inv = newInventories[selectedItem.championId] ?? inventories[selectedItem.championId] ?? [];
+            newInventories[selectedItem.championId] = inv.filter((item) => item.id !== selectedItem.itemId);
+        }
+
+        const sensorKey = `${level}_${sensor.index}`;
+        const activeSensors = applyToSet(ss.activeSensors, sensorKey, 'Set');
+        return {
+            sensorChanges: diffSensorState(ss, { ...ss, activeSensors }),
+            newInventories,
+            newEquipment,
+            depositedItem: { ...candidate, mapIndex: level, x: wx, y: wy, tilePos: sensor.tilePos },
+            matched: true,
+        };
+    }
+
+    return { sensorChanges: {}, newInventories: null, newEquipment: null, depositedItem: null, matched: false };
+}
+
+function triggerObjectExchangerSensor(
+    level: number,
+    wx: number,
+    wy: number,
+    face: string,
+    ss: SensorState,
+    inventories: Record<number, FloorItem[]>,
+    equipment: Record<number, ChampionEquipment>,
+    selectedItem: { championId: number; itemId: string; fromSlot: EquipSlotKey | 'inventory' },
+): {
+    sensorChanges: Partial<SensorState>;
+    newInventories: Record<number, FloorItem[]> | null;
+    newEquipment: Record<number, ChampionEquipment> | null;
+    matched: boolean;
+} {
+    const tile = getMap(level).tiles[wy]?.[wx];
+    if (!tile || (tile.type !== 'Wall' && tile.type !== 'TrickWall')) {
+        return { sensorChanges: {}, newInventories: null, newEquipment: null, matched: false };
+    }
+
+    const fromEquip = selectedItem.fromSlot !== 'inventory';
+    const candidate = fromEquip
+        ? equipment[selectedItem.championId]?.[selectedItem.fromSlot as EquipSlotKey]
+        : inventories[selectedItem.championId]?.find((item) => item.id === selectedItem.itemId);
+    if (!candidate) {
+        return { sensorChanges: {}, newInventories: null, newEquipment: null, matched: false };
+    }
+
+    for (const obj of tile.objects) {
+        if (obj.category !== 'Sensor') continue;
+        const sensor = obj as SensorObject;
+        if (!isWallObjectExchangerSensor(sensor) || sensor.tilePos !== face) continue;
+
+        const requiredName = getRequiredSensorItemName(sensor);
+        if (requiredName && !itemMatchesMechanismRequirement(candidate, requiredName)) continue;
+
+        let newInventories: Record<number, FloorItem[]> | null = null;
+        let newEquipment: Record<number, ChampionEquipment> | null = null;
+        if (fromEquip) {
+            newEquipment = { ...equipment };
+            const equip = { ...(newEquipment[selectedItem.championId] ?? equipment[selectedItem.championId] ?? {}) };
+            delete equip[selectedItem.fromSlot as EquipSlotKey];
+            newEquipment[selectedItem.championId] = equip;
+        } else {
+            newInventories = { ...inventories };
+            const inv = newInventories[selectedItem.championId] ?? inventories[selectedItem.championId] ?? [];
+            newInventories[selectedItem.championId] = inv.filter((item) => item.id !== selectedItem.itemId);
+        }
+
+        const sensorKey = `${level}_${sensor.index}`;
+        const activeSensors = applyToSet(ss.activeSensors, sensorKey, 'Set');
+        const baseState = { ...ss, activeSensors } as SensorState;
+        const effect = computeSensorEffect(sensor, level, baseState);
+        return {
+            sensorChanges: diffSensorState(ss, { ...baseState, ...effect } as SensorState),
+            newInventories,
+            newEquipment,
+            matched: true,
+        };
+    }
+
+    return { sensorChanges: {}, newInventories: null, newEquipment: null, matched: false };
+}
+
+function clearAlcoveStateOnPickup(item: FloorItem, state: Pick<GameState, 'openDoors' | 'openTeleporters' | 'openWalls' | 'activeSensors' | 'firedSensors' | 'visibleTexts'>): Partial<SensorState> {
+    const tile = getMap(item.mapIndex).tiles[item.y]?.[item.x];
+    if (!tile || (tile.type !== 'Wall' && tile.type !== 'TrickWall')) return {};
+    for (const obj of tile.objects) {
+        if (obj.category !== 'Sensor') continue;
+        const sensor = obj as SensorObject;
+        if (!isWallAlcoveSensor(sensor) || sensor.tilePos !== item.tilePos) continue;
+        const requiredName = getRequiredSensorItemName(sensor);
+        if (requiredName && !itemMatchesMechanismRequirement(item, requiredName)) continue;
+        const ss: SensorState = {
+            openDoors: state.openDoors,
+            openTeleporters: state.openTeleporters,
+            openWalls: state.openWalls,
+            activeSensors: state.activeSensors,
+            firedSensors: state.firedSensors,
+            visibleTexts: state.visibleTexts,
+        };
+        const sensorKey = `${item.mapIndex}_${sensor.index}`;
+        return diffSensorState(ss, { ...ss, activeSensors: applyToSet(ss.activeSensors, sensorKey, 'Clear') });
+    }
+    return {};
+}
+
+function triggerFloorSensors(
+    level: number,
+    x: number,
+    y: number,
+    ss: SensorState,
+    inventories: Record<number, FloorItem[]>,
+    equipment: Record<number, ChampionEquipment>,
+    floorItems: FloorItem[],
+    pendingSensorEvents: PendingSensorEvent[],
+    mode: 'enter' | 'leave' = 'enter',
+) : {
+    sensorChanges: Partial<SensorState>;
+    pendingSensorEvents: PendingSensorEvent[];
+} {
+    const tile = getMap(level).tiles[y]?.[x];
+    if (!tile) return { sensorChanges: {}, pendingSensorEvents };
+    let cur: SensorState = ss;
+    let changed = false;
+    let playedSound = false;
+    let nextPending = pendingSensorEvents;
+    for (const obj of tile.objects) {
+        if (obj.category !== 'Sensor') continue;
+        const sensor = obj as SensorObject;
+        if (sensor.type === 127) continue;
+
+        if (mode === 'leave') {
+            if (sensor.action !== 'Hold') continue;
+            if (isCreatureOnlyFloorSensor(sensor) || isGeneratorSensor(sensor) || isSpecificObjectFloorSensor(sensor)) continue;
+            const effect = computeSensorEffect({ ...sensor, action: 'Clear' }, level, cur);
+            if (Object.keys(effect).length > 0) {
+                cur = { ...cur, ...effect } as SensorState;
+                changed = true;
+            }
+            continue;
+        }
+
+        if (isCreatureOnlyFloorSensor(sensor) || isGeneratorSensor(sensor)) continue;
+        if (isPartyPossessionSensor(sensor) && !partyHasRequiredItem(getRequiredSensorItemName(sensor), inventories, equipment)) continue;
+        if (isSpecificObjectFloorSensor(sensor) && !tileHasRequiredFloorItem(level, x, y, getRequiredSensorItemName(sensor), floorItems)) continue;
+
+        const queued = queueOrComputeSensorEffect(
+            sensor.action === 'Hold' ? { ...sensor, action: 'Set' } : sensor,
+            level,
+            cur,
+            nextPending,
+        );
+        nextPending = queued.pendingSensorEvents;
+        if (Object.keys(queued.sensorChanges).length > 0) {
+            cur = { ...cur, ...queued.sensorChanges } as SensorState;
             changed = true;
             if (sensor.sound && !playedSound) {
                 playPlate();
@@ -1641,7 +2108,49 @@ function triggerFloorSensors(level: number, x: number, y: number, ss: SensorStat
     }
     // Notify pressure-plate animation subscribers
     if (changed) notifyPlateActivated(level, x, y);
-    return changed ? cur : {};
+    return {
+        sensorChanges: changed ? diffSensorState(ss, cur) : {},
+        pendingSensorEvents: nextPending,
+    };
+}
+
+function transitionFloorSensors(
+    level: number,
+    fromX: number,
+    fromY: number,
+    toX: number,
+    toY: number,
+    ss: SensorState,
+    inventories: Record<number, FloorItem[]>,
+    equipment: Record<number, ChampionEquipment>,
+    floorItems: FloorItem[],
+    pendingSensorEvents: PendingSensorEvent[],
+): {
+    sensorChanges: Partial<SensorState>;
+    pendingSensorEvents: PendingSensorEvent[];
+} {
+    let cur = ss;
+    let changed = false;
+    let nextPending = pendingSensorEvents;
+
+    const leave = triggerFloorSensors(level, fromX, fromY, cur, inventories, equipment, floorItems, nextPending, 'leave');
+    nextPending = leave.pendingSensorEvents;
+    if (Object.keys(leave.sensorChanges).length > 0) {
+        cur = { ...cur, ...leave.sensorChanges } as SensorState;
+        changed = true;
+    }
+
+    const enter = triggerFloorSensors(level, toX, toY, cur, inventories, equipment, floorItems, nextPending, 'enter');
+    nextPending = enter.pendingSensorEvents;
+    if (Object.keys(enter.sensorChanges).length > 0) {
+        cur = { ...cur, ...enter.sensorChanges } as SensorState;
+        changed = true;
+    }
+
+    return {
+        sensorChanges: changed ? diffSensorState(ss, cur) : {},
+        pendingSensorEvents: nextPending,
+    };
 }
 
 // ─── Staircase connections (auto-generated from dungeon.json destMap/destX/destY) ─
@@ -1736,6 +2245,7 @@ interface GameState {
     activeSensors: Set<string>;
     firedSensors: Set<string>;
     visibleTexts: Set<string>;
+    pendingSensorEvents: PendingSensorEvent[];
     creatures: CreatureInstance[];
     floorItems: FloorItem[];
     /** Per-champion inventories, keyed by champion.id */
@@ -1756,6 +2266,8 @@ interface GameState {
     championCombat: Record<number, ChampionCombat>;
     /** Floating damage numbers, cleared after ~600 ms */
     damageEvents: DamageEvent[];
+    /** Transient spell visuals for impacts and flashes */
+    spellVisualEvents: SpellVisualEvent[];
     /** Doors currently crushing a creature: key → { phase, timer } */
     crushingDoors: Record<string, { phase: 'closing' | 'bouncing'; timer: number }>;
     /** Timestamp (ms) when each torch item (Weapon typeId 16) was first equipped */
@@ -1828,6 +2340,7 @@ interface GameState {
     saveGame: () => boolean;
     loadGame: () => boolean;
     returnToTitle: () => void;
+    useItemOnFrontWall: (championId: number, itemId: string, fromSlot: EquipSlotKey | 'inventory') => boolean;
 }
 
 const DIRECTIONS: Direction[] = ['NORTH', 'EAST', 'SOUTH', 'WEST'];
@@ -2127,167 +2640,7 @@ function ageTimedEffectsByMs(state: GameState, advanceMs: number): Partial<GameS
     };
 }
 
-interface PersistedCreatureTimers {
-    moveRemaining: number;
-    attackRemaining: number;
-    attackWindowRemainingMs: number;
-    confusedRemainingMs: number;
-    fluxcageRemainingMs: number;
-}
 
-interface PersistedSaveData {
-    version: 1;
-    savedAt: number;
-    level: number;
-    position: [number, number];
-    direction: Direction;
-    party: Champion[];
-    gateOpen: boolean;
-    openDoors: string[];
-    openTeleporters: string[];
-    openWalls: string[];
-    activeSensors: string[];
-    firedSensors: string[];
-    visibleTexts: string[];
-    creatures: CreatureInstance[];
-    floorItems: FloorItem[];
-    championInventories: Record<number, FloorItem[]>;
-    championEquipment: Record<number, ChampionEquipment>;
-    championVitals: Record<number, ChampionVitals>;
-    elapsedGameTimeTicks: number;
-    regenTickRemainder: number;
-    lastPartyMoveGameTick: number;
-    movementCooldown: number;
-    championXP: Record<number, ChampionXP>;
-    championCombat: Record<number, ChampionCombat>;
-    crushingDoors: Record<string, { phase: 'closing' | 'bouncing'; timer: number }>;
-    torchBurnElapsed: Record<string, number>;
-    spellLights: Array<Omit<SpellLight, 'expiresAt'> & { remainingMs: number }>;
-    projectiles: Array<Omit<Projectile, 'nextMoveAt'> & { nextMoveInMs: number }>;
-    activeShields: Array<Omit<PartyShield, 'expiresAt'> & { remainingMs: number }>;
-    activePotionBoosts: Array<Omit<ActivePotionBoost, 'expiresAt'> & { remainingMs: number }>;
-    invisibleRemainingMs: number;
-    magicVisionRemainingMs: number;
-    seeThroughWallsRemainingMs: number;
-    footprintsRemainingMs: number;
-    footprintHistory: FootprintEntry[];
-    deadChampions: Record<number, Champion>;
-    creatureTimers: Record<string, PersistedCreatureTimers>;
-}
-
-function buildPersistedSaveData(state: GameState): PersistedSaveData {
-    const now = Date.now();
-    const timerIds = new Set<string>([
-        ...state.creatures.map((creature) => creature.id),
-        ...creatureTimers.keys(),
-        ...creatureAttackWindows.keys(),
-        ...creatureConfusedUntil.keys(),
-        ...creatureFluxcageUntil.keys(),
-    ]);
-    const serializedCreatureTimers: Record<string, PersistedCreatureTimers> = {};
-    for (const id of timerIds) {
-        const timers = creatureTimers.get(id);
-        serializedCreatureTimers[id] = {
-            moveRemaining: Math.max(0, timers?.mt ?? 0),
-            attackRemaining: Math.max(0, timers?.at ?? 0),
-            attackWindowRemainingMs: Math.max(0, (creatureAttackWindows.get(id) ?? 0) - now),
-            confusedRemainingMs: Math.max(0, (creatureConfusedUntil.get(id) ?? 0) - now),
-            fluxcageRemainingMs: Math.max(0, (creatureFluxcageUntil.get(id) ?? 0) - now),
-        };
-    }
-
-    return {
-        version: 1,
-        savedAt: now,
-        level: state.level,
-        position: state.position,
-        direction: state.direction,
-        party: state.party,
-        gateOpen: state.gateOpen,
-        openDoors: [...state.openDoors],
-        openTeleporters: [...state.openTeleporters],
-        openWalls: [...state.openWalls],
-        activeSensors: [...state.activeSensors],
-        firedSensors: [...state.firedSensors],
-        visibleTexts: [...state.visibleTexts],
-        creatures: state.creatures,
-        floorItems: state.floorItems,
-        championInventories: state.championInventories,
-        championEquipment: state.championEquipment,
-        championVitals: state.championVitals,
-        elapsedGameTimeTicks: state.elapsedGameTimeTicks,
-        regenTickRemainder: state.regenTickRemainder,
-        lastPartyMoveGameTick: state.lastPartyMoveGameTick,
-        movementCooldown: state.movementCooldown,
-        championXP: state.championXP,
-        championCombat: state.championCombat,
-        crushingDoors: state.crushingDoors,
-        torchBurnElapsed: Object.fromEntries(
-            Object.entries(state.torchBurnStart).map(([itemId, litAt]) => [itemId, Math.max(0, now - litAt)]),
-        ),
-        spellLights: state.spellLights.map((light) => ({
-            id: light.id,
-            lightContrib: light.lightContrib,
-            remainingMs: Math.max(0, light.expiresAt - now),
-        })),
-        projectiles: state.projectiles.map((projectile) => ({
-            ...projectile,
-            nextMoveInMs: Math.max(0, projectile.nextMoveAt - now),
-        })),
-        activeShields: state.activeShields.map((shield) => ({
-            ...shield,
-            remainingMs: Math.max(0, shield.expiresAt - now),
-        })),
-        activePotionBoosts: state.activePotionBoosts.map((boost) => ({
-            ...boost,
-            remainingMs: Math.max(0, boost.expiresAt - now),
-        })),
-        invisibleRemainingMs: Math.max(0, state.invisibleUntil - now),
-        magicVisionRemainingMs: Math.max(0, state.magicVisionUntil - now),
-        seeThroughWallsRemainingMs: Math.max(0, state.seeThroughWallsUntil - now),
-        footprintsRemainingMs: Math.max(0, state.footprintsUntil - now),
-        footprintHistory: state.footprintHistory,
-        deadChampions: state.deadChampions,
-        creatureTimers: serializedCreatureTimers,
-    };
-}
-
-function tryParsePersistedSaveData(raw: string | null): PersistedSaveData | null {
-    if (!raw) return null;
-    try {
-        const parsed = JSON.parse(raw) as PersistedSaveData;
-        if (parsed?.version !== 1) return null;
-        if (!Array.isArray(parsed.position) || parsed.position.length !== 2) return null;
-        if (!Array.isArray(parsed.party) || !Array.isArray(parsed.creatures) || !Array.isArray(parsed.floorItems)) return null;
-        return parsed;
-    } catch {
-        return null;
-    }
-}
-
-function restoreExternalCreatureRuntimeFromSave(data: PersistedSaveData): void {
-    const now = Date.now();
-    creatureTimers.clear();
-    creatureAttackWindows.clear();
-    creatureConfusedUntil.clear();
-    creatureFluxcageUntil.clear();
-
-    for (const [id, timers] of Object.entries(data.creatureTimers)) {
-        creatureTimers.set(id, {
-            mt: Math.max(0, timers.moveRemaining),
-            at: Math.max(0, timers.attackRemaining),
-        });
-        if (timers.attackWindowRemainingMs > 0) {
-            creatureAttackWindows.set(id, now + timers.attackWindowRemainingMs);
-        }
-        if (timers.confusedRemainingMs > 0) {
-            creatureConfusedUntil.set(id, now + timers.confusedRemainingMs);
-        }
-        if (timers.fluxcageRemainingMs > 0) {
-            creatureFluxcageUntil.set(id, now + timers.fluxcageRemainingMs);
-        }
-    }
-}
 
 // ─── Store ────────────────────────────────────────────────────────────────────
 
@@ -2307,6 +2660,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
     activeSensors: new Set<string>(),
     firedSensors: new Set<string>(),
     visibleTexts: buildVisibleTexts(),
+    pendingSensorEvents: [],
     creatures: buildCreatureInstances(),
     floorItems: buildFloorItems(),
     championInventories: {},
@@ -2320,6 +2674,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
     championXP: {},
     championCombat: {},
     damageEvents: [],
+    spellVisualEvents: [],
     crushingDoors: {},
     torchBurnStart: {},
     spellLights: [],
@@ -2345,16 +2700,12 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         if (state.direction === 'WEST')  nx = x - 1;
         if (!isWalkable(state.level, ny, nx, state.openDoors, state.openWalls)) {
             const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, openWalls: state.openWalls, activeSensors: state.activeSensors, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
-            const face = { NORTH: 'South', SOUTH: 'North', EAST: 'West', WEST: 'East' }[state.direction]!;
-            const pushChanges = triggerWallPushSensors(state.level, nx, ny, state.direction, ss);
-            const pushState = Object.keys(pushChanges).length > 0 ? { ...ss, ...pushChanges } as SensorState : ss;
-            const { sensorChanges, newInventories } = triggerLockSensors(state.level, nx, ny, face, pushState, state.championInventories);
-            const anyChange = Object.keys(pushChanges).length > 0 || Object.keys(sensorChanges).length > 0;
-            if (!anyChange) return movedVitals ? { championVitals: movedVitals } : state;
+            const pushChanges = triggerWallPushSensors(state.level, nx, ny, state.direction, ss, state.pendingSensorEvents);
+            if (Object.keys(pushChanges.sensorChanges).length === 0 && pushChanges.pendingSensorEvents === state.pendingSensorEvents) return movedVitals ? { championVitals: movedVitals } : state;
             return {
                 ...(movedVitals ? { championVitals: movedVitals } : {}),
-                ...sensorChanges,
-                ...(newInventories ? { championInventories: newInventories } : {}),
+                ...pushChanges.sensorChanges,
+                pendingSensorEvents: pushChanges.pendingSensorEvents,
             };
         }
         const map = getMap(state.level);
@@ -2398,19 +2749,42 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 const tpKey = `${state.level},${ny},${nx}`;
                 if (state.openTeleporters.has(tpKey)) {
                     const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, openWalls: state.openWalls, activeSensors: state.activeSensors, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
-                    const sensorChanges = triggerFloorSensors(state.level, tp.destX, tp.destY, ss);
+                    const sensorChanges = transitionFloorSensors(
+                        state.level,
+                        nx,
+                        ny,
+                        tp.destX,
+                        tp.destY,
+                        ss,
+                        state.championInventories,
+                        state.championEquipment,
+                        state.floorItems,
+                        state.pendingSensorEvents,
+                    );
                     return {
                         position: [tp.destY, tp.destX] as [number, number],
                         lastPartyMoveGameTick: state.elapsedGameTimeTicks,
                         movementCooldown: computePartyMovementCooldownSecondsApprox(state),
                         ...(movedVitals ? { championVitals: movedVitals } : {}),
-                        ...sensorChanges,
+                        ...sensorChanges.sensorChanges,
+                        pendingSensorEvents: sensorChanges.pendingSensorEvents,
                     };
                 }
             }
         }
         const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, openWalls: state.openWalls, activeSensors: state.activeSensors, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
-        const sensorChanges = triggerFloorSensors(state.level, nx, ny, ss);
+        const sensorChanges = transitionFloorSensors(
+            state.level,
+            x,
+            y,
+            nx,
+            ny,
+            ss,
+            state.championInventories,
+            state.championEquipment,
+            state.floorItems,
+            state.pendingSensorEvents,
+        );
         const footprintChanges = Date.now() < state.footprintsUntil
             ? { footprintHistory: [...state.footprintHistory, { x: nx, y: ny, level: state.level, ts: Date.now() }] }
             : {};
@@ -2419,7 +2793,8 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             lastPartyMoveGameTick: state.elapsedGameTimeTicks,
             movementCooldown: computePartyMovementCooldownSecondsApprox(state),
             ...(movedVitals ? { championVitals: movedVitals } : {}),
-            ...sensorChanges,
+            ...sensorChanges.sensorChanges,
+            pendingSensorEvents: sensorChanges.pendingSensorEvents,
             ...footprintChanges,
         };
     }),
@@ -2436,7 +2811,18 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         if (state.direction === 'WEST')  nx = x + 1;
         if (!isWalkable(state.level, ny, nx, state.openDoors, state.openWalls)) return movedVitals ? { championVitals: movedVitals } : state;
         const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, openWalls: state.openWalls, activeSensors: state.activeSensors, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
-        const sensorChanges = triggerFloorSensors(state.level, nx, ny, ss);
+        const sensorChanges = transitionFloorSensors(
+            state.level,
+            x,
+            y,
+            nx,
+            ny,
+            ss,
+            state.championInventories,
+            state.championEquipment,
+            state.floorItems,
+            state.pendingSensorEvents,
+        );
         const footprintChanges = Date.now() < state.footprintsUntil
             ? { footprintHistory: [...state.footprintHistory, { x: nx, y: ny, level: state.level, ts: Date.now() }] }
             : {};
@@ -2445,7 +2831,8 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             lastPartyMoveGameTick: state.elapsedGameTimeTicks,
             movementCooldown: computePartyMovementCooldownSecondsApprox(state),
             ...(movedVitals ? { championVitals: movedVitals } : {}),
-            ...sensorChanges,
+            ...sensorChanges.sensorChanges,
+            pendingSensorEvents: sensorChanges.pendingSensorEvents,
             ...footprintChanges,
         };
     }),
@@ -2465,12 +2852,25 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         const fpL = Date.now() < state.footprintsUntil
             ? { footprintHistory: [...state.footprintHistory, { x: nx, y: ny, level: state.level, ts: Date.now() }] }
             : {};
+        const sensorChanges = transitionFloorSensors(
+            state.level,
+            x,
+            y,
+            nx,
+            ny,
+            ss,
+            state.championInventories,
+            state.championEquipment,
+            state.floorItems,
+            state.pendingSensorEvents,
+        );
         return {
             position: [ny, nx] as [number, number],
             lastPartyMoveGameTick: state.elapsedGameTimeTicks,
             movementCooldown: computePartyMovementCooldownSecondsApprox(state),
             ...(movedVitals ? { championVitals: movedVitals } : {}),
-            ...triggerFloorSensors(state.level, nx, ny, ss),
+            ...sensorChanges.sensorChanges,
+            pendingSensorEvents: sensorChanges.pendingSensorEvents,
             ...fpL,
         };
     }),
@@ -2490,12 +2890,25 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         const fpR = Date.now() < state.footprintsUntil
             ? { footprintHistory: [...state.footprintHistory, { x: nx, y: ny, level: state.level, ts: Date.now() }] }
             : {};
+        const sensorChanges = transitionFloorSensors(
+            state.level,
+            x,
+            y,
+            nx,
+            ny,
+            ss,
+            state.championInventories,
+            state.championEquipment,
+            state.floorItems,
+            state.pendingSensorEvents,
+        );
         return {
             position: [ny, nx] as [number, number],
             lastPartyMoveGameTick: state.elapsedGameTimeTicks,
             movementCooldown: computePartyMovementCooldownSecondsApprox(state),
             ...(movedVitals ? { championVitals: movedVitals } : {}),
-            ...triggerFloorSensors(state.level, nx, ny, ss),
+            ...sensorChanges.sensorChanges,
+            pendingSensorEvents: sensorChanges.pendingSensorEvents,
             ...fpR,
         };
     }),
@@ -2629,8 +3042,148 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         ) as SensorObject | undefined;
         if (!sensor) return state;
         const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, openWalls: state.openWalls, activeSensors: state.activeSensors, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
-        return computeSensorEffect(sensor, mapIndex, ss);
+        const sensorKey = `${mapIndex}_${sensor.index}`;
+        const withVisualState = (sensor.type === 1 || sensor.type === 2)
+            ? { ...ss, activeSensors: applyToSet(ss.activeSensors, sensorKey, sensor.action === 'Hold' ? 'Set' : sensor.action) } as SensorState
+            : ss;
+        const queued = queueOrComputeSensorEffect(sensor, mapIndex, withVisualState, state.pendingSensorEvents);
+        const nextState = { ...withVisualState, ...queued.sensorChanges } as SensorState;
+        const patch = diffSensorState(ss, nextState);
+        const pendingChanged = queued.pendingSensorEvents !== state.pendingSensorEvents;
+        if ((sensor.sound || sensor.type === 1 || sensor.type === 2) && Object.keys(patch).length > 0) {
+            playPlate();
+        }
+        return pendingChanged ? { ...patch, pendingSensorEvents: queued.pendingSensorEvents } : patch;
     }),
+
+    useItemOnFrontWall: (championId, itemId, fromSlot) => {
+        const state = get();
+        const [y, x] = state.position;
+        const wallY = state.direction === 'NORTH' ? y - 1 : state.direction === 'SOUTH' ? y + 1 : y;
+        const wallX = state.direction === 'EAST' ? x + 1 : state.direction === 'WEST' ? x - 1 : x;
+        const face = { NORTH: 'South', SOUTH: 'North', EAST: 'West', WEST: 'East' }[state.direction]!;
+        const ss: SensorState = {
+            openDoors: state.openDoors,
+            openTeleporters: state.openTeleporters,
+            openWalls: state.openWalls,
+            activeSensors: state.activeSensors,
+            firedSensors: state.firedSensors,
+            visibleTexts: state.visibleTexts,
+        };
+        const { sensorChanges, newInventories, newEquipment, matched } = triggerLockSensors(
+            state.level,
+            wallX,
+            wallY,
+            face,
+            ss,
+            state.championInventories,
+            state.championEquipment,
+            { championId, itemId, fromSlot },
+        );
+        if (matched) {
+            set({
+                ...sensorChanges,
+                ...(newInventories ? { championInventories: newInventories } : {}),
+                ...(newEquipment ? { championEquipment: newEquipment } : {}),
+            });
+            if (Object.keys(sensorChanges).length > 0) {
+                playPlate();
+            }
+            return true;
+        }
+
+        const alcoveResult = triggerAlcoveDepositSensor(
+            state.level,
+            wallX,
+            wallY,
+            face,
+            ss,
+            state.championInventories,
+            state.championEquipment,
+            { championId, itemId, fromSlot },
+        );
+        if (!alcoveResult.matched || !alcoveResult.depositedItem) return false;
+        if (alcoveResult.matched && alcoveResult.depositedItem) {
+            set({
+                ...alcoveResult.sensorChanges,
+                ...(alcoveResult.newInventories ? { championInventories: alcoveResult.newInventories } : {}),
+                ...(alcoveResult.newEquipment ? { championEquipment: alcoveResult.newEquipment } : {}),
+                floorItems: [...state.floorItems, alcoveResult.depositedItem],
+            });
+            if (Object.keys(alcoveResult.sensorChanges).length > 0) {
+                playPlate();
+            }
+            return true;
+        }
+
+        const exchangerResult = triggerObjectExchangerSensor(
+            state.level,
+            wallX,
+            wallY,
+            face,
+            ss,
+            state.championInventories,
+            state.championEquipment,
+            { championId, itemId, fromSlot },
+        );
+        if (!exchangerResult.matched) return false;
+        const completeFirestaffReward = state.floorItems.find((item) =>
+            item.mapIndex === state.level &&
+            item.x === wallX &&
+            item.y === wallY &&
+            item.tilePos === face &&
+            item.category === 'Weapon' &&
+            item.typeId === 45,
+        );
+        const replacementCandidate = fromSlot !== 'inventory'
+            ? state.championEquipment[championId]?.[fromSlot as EquipSlotKey]
+            : state.championInventories[championId]?.find((item) => item.id === itemId);
+        const transformsToCompleteFirestaff =
+            completeFirestaffReward &&
+            replacementCandidate?.category === 'Weapon' &&
+            replacementCandidate.typeId === 7;
+
+        let nextInventories = exchangerResult.newInventories;
+        let nextEquipment = exchangerResult.newEquipment;
+        let nextFloorItems = state.floorItems;
+
+        if (transformsToCompleteFirestaff && completeFirestaffReward) {
+            nextFloorItems = state.floorItems.filter((item) => item.id !== completeFirestaffReward.id);
+            const upgradedFirestaff: FloorItem = {
+                ...completeFirestaffReward,
+                mapIndex: state.level,
+                x: state.position[1],
+                y: state.position[0],
+                tilePos: 'North',
+            };
+            if (fromSlot !== 'inventory') {
+                nextEquipment = { ...(nextEquipment ?? state.championEquipment) };
+                nextEquipment[championId] = {
+                    ...(nextEquipment[championId] ?? state.championEquipment[championId] ?? {}),
+                    [fromSlot as EquipSlotKey]: upgradedFirestaff,
+                };
+            } else {
+                nextInventories = { ...(nextInventories ?? state.championInventories) };
+                nextInventories[championId] = [
+                    ...(nextInventories[championId] ?? state.championInventories[championId] ?? []),
+                    upgradedFirestaff,
+                ];
+            }
+        }
+        set({
+            ...exchangerResult.sensorChanges,
+            ...(nextInventories ? { championInventories: nextInventories } : {}),
+            ...(nextEquipment ? { championEquipment: nextEquipment } : {}),
+            ...(nextFloorItems !== state.floorItems ? { floorItems: nextFloorItems } : {}),
+            ...(transformsToCompleteFirestaff ? {
+                lastCastResult: buildAttackResultMessage('Le Firestaff absorbe l energie de l Amalgam.'),
+            } : {}),
+        });
+        if (Object.keys(exchangerResult.sensorChanges).length > 0) {
+            playPlate();
+        }
+        return true;
+    },
 
     killCreature: (id) => set((state) => {
         const creatures = state.creatures.map(c => c.id === id ? { ...c, alive: false } : c);
@@ -2674,12 +3227,32 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
     pickupItem: (id) => set((state) => {
         const item = state.floorItems.find(i => i.id === id);
         if (!item) return state;
+        if (item.category === 'Weapon' && item.typeId === 45) {
+            const tile = getMap(item.mapIndex).tiles[item.y]?.[item.x];
+            const hiddenAmalgamReward =
+                (tile?.type === 'Wall' || tile?.type === 'TrickWall') &&
+                tile.objects.some((object) =>
+                    object.category === 'Sensor' &&
+                    (
+                        (object as SensorObject).requiredObjectName === 'THE FIRESTAFF' ||
+                        (object as SensorObject).requiredObjectName === 'ZOKATHRA SPELL'
+                    ),
+                );
+            if (hiddenAmalgamReward) {
+                return {
+                    ...state,
+                    lastCastResult: buildAttackResultMessage('Le Firestaff complet ne peut etre obtenu qu via l Amalgam.'),
+                };
+            }
+        }
         const activeChampion = state.party[state.selectedChampionIndex];
         if (!activeChampion) return state;
         const champInv = state.championInventories[activeChampion.id] ?? [];
+        const alcoveState = clearAlcoveStateOnPickup(item, state);
         return {
             floorItems: state.floorItems.filter(i => i.id !== id),
             championInventories: { ...state.championInventories, [activeChampion.id]: [...champInv, item] },
+            ...alcoveState,
         };
     }),
 
@@ -2711,9 +3284,31 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         }
 
         const dropped: FloorItem = { ...item, mapIndex: state.level, x, y, tilePos: 'North' };
+        const nextFloorItems = [...state.floorItems, dropped];
+        const ss: SensorState = {
+            openDoors: state.openDoors,
+            openTeleporters: state.openTeleporters,
+            openWalls: state.openWalls,
+            activeSensors: state.activeSensors,
+            firedSensors: state.firedSensors,
+            visibleTexts: state.visibleTexts,
+        };
+        const sensorChanges = triggerFloorSensors(
+            state.level,
+            x,
+            y,
+            ss,
+            state.championInventories,
+            state.championEquipment,
+            nextFloorItems,
+            state.pendingSensorEvents,
+            'enter',
+        );
         return {
             championInventories: { ...state.championInventories, [championId]: inv.filter(i => i.id !== itemId) },
-            floorItems: [...state.floorItems, dropped],
+            floorItems: nextFloorItems,
+            ...sensorChanges.sensorChanges,
+            pendingSensorEvents: sensorChanges.pendingSensorEvents,
         };
     }),
 
@@ -2844,7 +3439,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             replacementItem = waterUse.nextItem;
             shouldConsumeOriginal = false;
         } else if (item.category === 'Potion') {
-            const def = POTION_TYPES[item.typeId];
+            const def = getPotionDef(item.typeId, item.rawName);
             if (def?.restore !== undefined) {
                 if (def.effect === 'health') {
                     newVitals.hp = Math.min(effective.health, vitals.hp + def.restore);
@@ -2980,15 +3575,27 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
 
     saveGame: (): boolean => {
         const state: GameState = get();
-        const payload = JSON.stringify(buildPersistedSaveData(state));
+        const payload = JSON.stringify(buildPersistedSaveDataSystem(state, {
+            creatureTimers,
+            creatureAttackWindows,
+            creatureConfusedUntil,
+            creatureFluxcageUntil,
+            creatureLastSeenPartyPos,
+        }));
         return writePersistedSave(payload);
     },
 
     loadGame: (): boolean => {
-        const data = tryParsePersistedSaveData(readPersistedSave());
+        const data = tryParsePersistedSaveDataSystem(readPersistedSave());
         if (!data) return false;
         const now = Date.now();
-        restoreExternalCreatureRuntimeFromSave(data);
+        restoreExternalCreatureRuntimeFromSaveSystem(data, {
+            creatureTimers,
+            creatureAttackWindows,
+            creatureConfusedUntil,
+            creatureFluxcageUntil,
+            creatureLastSeenPartyPos,
+        });
         set({
             level: data.level,
             position: data.position,
@@ -3005,6 +3612,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             activeSensors: new Set<string>(data.activeSensors),
             firedSensors: new Set<string>(data.firedSensors),
             visibleTexts: new Set<string>(data.visibleTexts),
+            pendingSensorEvents: (data.pendingSensorEvents ?? []) as PendingSensorEvent[],
             creatures: data.creatures,
             floorItems: data.floorItems,
             championInventories: data.championInventories,
@@ -3018,6 +3626,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             championXP: data.championXP,
             championCombat: data.championCombat,
             damageEvents: [],
+            spellVisualEvents: [],
             crushingDoors: data.crushingDoors,
             torchBurnStart: Object.fromEntries(
                 Object.entries(data.torchBurnElapsed).map(([itemId, elapsed]) => [itemId, now - elapsed]),
@@ -3057,6 +3666,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         activePartyMemberId: null,
         lastCastResult: null,
         damageEvents: [],
+        spellVisualEvents: [],
     }),
 
     castSpell: (championId, runeIds) => set((state) => {
@@ -3138,17 +3748,15 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             }
 
             case 'open': {
-                const [py, px] = state.position;
-                let fy = py, fx = px;
-                if (state.direction === 'NORTH') fy--;
-                else if (state.direction === 'SOUTH') fy++;
-                else if (state.direction === 'EAST') fx++;
-                else fx--; // WEST
-                const doorKey = `${state.level},${fy},${fx}`;
-                const frontTile = getMap(state.level).tiles[fy]?.[fx];
-                if (frontTile?.type === 'Door' && !state.openDoors.has(doorKey)) {
+                const targetDoor = findFirstDoorAlongDirection(
+                    state.level,
+                    state.position,
+                    state.direction,
+                    state.openDoors,
+                );
+                if (targetDoor) {
                     const newOpenDoors = new Set(state.openDoors);
-                    newOpenDoors.add(doorKey);
+                    newOpenDoors.add(targetDoor.key);
                     return {
                         ...base,
                         championVitals: { ...state.championVitals, [championId]: newVitals },
@@ -3224,8 +3832,8 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                     y: state.position[0],
                     tilePos: 'North',
                     category: 'Misc',
-                    typeId: 11,
-                    rawName: resolveItemName('Misc', 11),
+                    typeId: 51,
+                    rawName: resolveItemName('Misc', 51),
                 };
                 if (freeSlot) {
                     return {
@@ -3360,12 +3968,28 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         const afterMovement = movementPatch ? { ...afterRegen, ...movementPatch } : afterRegen;
 
         const combatPatch = applyCombatTickApprox(afterMovement, delta, now);
-        if (!regenPatch && !movementPatch && !combatPatch) return state;
+        const afterCombat = combatPatch ? { ...afterMovement, ...combatPatch } : afterMovement;
+
+        const pendingPatch = processPendingSensorEvents(delta, afterCombat.pendingSensorEvents, {
+            openDoors: afterCombat.openDoors,
+            openTeleporters: afterCombat.openTeleporters,
+            openWalls: afterCombat.openWalls,
+            activeSensors: afterCombat.activeSensors,
+            firedSensors: afterCombat.firedSensors,
+            visibleTexts: afterCombat.visibleTexts,
+        });
+
+        const hasPendingPatch =
+            Object.keys(pendingPatch.sensorChanges).length > 0 ||
+            pendingPatch.pendingSensorEvents !== afterCombat.pendingSensorEvents;
+
+        if (!regenPatch && !movementPatch && !combatPatch && !hasPendingPatch) return state;
 
         return {
             ...(regenPatch ?? {}),
             ...(movementPatch ?? {}),
             ...(combatPatch ?? {}),
+            ...(hasPendingPatch ? { ...pendingPatch.sensorChanges, pendingSensorEvents: pendingPatch.pendingSensorEvents } : {}),
         };
     }),
 
@@ -3775,6 +4399,11 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                         creatures: newCreatures,
                         ...(newFloorItems !== state.floorItems ? { floorItems: newFloorItems } : {}),
                         damageEvents: [...state.damageEvents, dmgEvt],
+                        ...(target.typeId === 23 && killed ? {
+                            gamePhase: 'victory' as const,
+                            activeMirrorChampionId: null,
+                            activePartyMemberId: null,
+                        } : {}),
                     };
                 }
                 case 'Invoke': {
@@ -3834,9 +4463,17 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         playPartyAttack();
 
         if (!target) {
+            const brokenDoor = tryBreakFrontDoor(
+                state,
+                champion,
+                equip,
+                state.activePotionBoosts,
+                selectedAttack,
+            );
             return {
                 championCombat: { ...state.championCombat, [championId]: newCombat },
                 championVitals,
+                ...(brokenDoor ? { openDoors: brokenDoor.openDoors, lastCastResult: brokenDoor.message } : {}),
             };
         }
 
@@ -4002,11 +4639,13 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         const [py, px] = state.position;
         const map = getMap(state.level);
 
-        // Walkability for monsters: no Wall, no Door (monsters can't open doors)
-        const monsterWalkable = (y: number, x: number): boolean => {
-            if (y < 0 || y >= map.height || x < 0 || x >= map.width) return false;
-            const t = map.tiles[y]?.[x];
-            return !!t && t.type !== 'Wall' && t.type !== 'TrickWall' && t.type !== 'Door';
+        const monsterWalkable = (level: number, y: number, x: number): boolean => {
+            const levelMap = getMap(level);
+            if (y < 0 || y >= levelMap.height || x < 0 || x >= levelMap.width) return false;
+            const t = levelMap.tiles[y]?.[x];
+            if (!t || t.type === 'Wall' || t.type === 'TrickWall') return false;
+            if (t.type === 'Door') return state.openDoors.has(`${level},${y},${x}`);
+            return true;
         };
 
         let creatures  = state.creatures as CreatureInstance[];
@@ -4021,8 +4660,8 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         //   left creature → prefers left column (party[0,2]), falls back to right (party[1,3])
         //   right creature → prefers right column (party[1,3]), falls back to left (party[0,2])
         // Uses `vitals` (not state.championVitals) so kills earlier this tick are respected.
-        const getTarget = (side: CreatureSide, attackAnyChampion = false) => {
-            if (attackAnyChampion) {
+        const getTarget = (side: CreatureSide, attackAnyChampion = false, attackFromAllSides = false) => {
+            if (attackAnyChampion || attackFromAllSides) {
                 const alive = state.party.filter((c) => (vitals[c.id]?.hp ?? 0) > 0);
                 return alive.length > 0 ? alive[Math.floor(Math.random() * alive.length)] : null;
             }
@@ -4064,10 +4703,41 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             const dy   = py - c.y;
             const dist = Math.abs(dx) + Math.abs(dy);
             const adjacent = dist === 1;
-            const canSee   = dist <= 8 && hasLineOfSight(map, state.level, state.openDoors, c.x, c.y, px, py);
             const nowMs = Date.now();
+            const partyInvisible = nowMs < state.invisibleUntil;
+            const hasVisualLineOfSight =
+                dist <= Math.max(1, def.sightRange ?? 8) &&
+                hasLineOfSight(map, state.level, state.openDoors, c.x, c.y, px, py);
+            const canDetectParty = hasVisualLineOfSight && (!partyInvisible || def.seeInvisible);
             const confused = (creatureConfusedUntil.get(c.id) ?? 0) > nowMs;
             const fluxcaged = (creatureFluxcageUntil.get(c.id) ?? 0) > nowMs;
+            const attackReach = Math.max(1, def.attackRange ?? 1);
+            const prefersRangedSpacing =
+                def.preferBackRow ||
+                (attackReach > 1 && (def.nonMaterial || def.attackTypes.includes('Magic') || def.levitates));
+            const canUseRangedAttack =
+                attackReach > 1 &&
+                dist > 1 &&
+                dist <= attackReach &&
+                canDetectParty &&
+                (
+                    def.attackTypes.includes('Magic') ||
+                    def.attackTypes.includes('StaminaDrain') ||
+                    def.attackTypes.includes('Fire') ||
+                    def.nonMaterial
+                );
+            const lastSeen = creatureLastSeenPartyPos.get(c.id);
+            const rememberedTarget = lastSeen && lastSeen.expiresAt > nowMs ? lastSeen : null;
+
+            if (canDetectParty) {
+                creatureLastSeenPartyPos.set(c.id, {
+                    x: px,
+                    y: py,
+                    expiresAt: nowMs + 6000,
+                });
+            } else if (lastSeen && lastSeen.expiresAt <= nowMs) {
+                creatureLastSeenPartyPos.delete(c.id);
+            }
 
             let nx = c.x, ny = c.y;
 
@@ -4093,17 +4763,25 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 const tileAvailable = (tx: number, ty: number) =>
                     (tileCounts[`${tx},${ty}`] ?? 0) < 2;
 
-                if (canSee) {
+                if (canDetectParty || rememberedTarget) {
+                    const targetX = canDetectParty ? px : rememberedTarget!.x;
+                    const targetY = canDetectParty ? py : rememberedTarget!.y;
+                    const targetDx = targetX - c.x;
+                    const targetDy = targetY - c.y;
+                    if (prefersRangedSpacing && canDetectParty && dist <= attackReach && dist > 1) {
+                        creatureTimers.set(c.id, { mt: moveTimer, at: atkTimer });
+                        continue;
+                    }
                     const candidates: [number, number][] = [];
-                    if (dx !== 0) candidates.push([c.x + Math.sign(dx), c.y]);
-                    if (dy !== 0) candidates.push([c.x, c.y + Math.sign(dy)]);
+                    if (targetDx !== 0) candidates.push([c.x + Math.sign(targetDx), c.y]);
+                    if (targetDy !== 0) candidates.push([c.x, c.y + Math.sign(targetDy)]);
                     const valid = candidates.filter(
-                        ([cx, cy]) => monsterWalkable(cy, cx) && tileAvailable(cx, cy)
+                        ([cx, cy]) => monsterWalkable(state.level, cy, cx) && tileAvailable(cx, cy)
                     );
                     if (valid.length > 0) {
                         [nx, ny] = valid[Math.floor(Math.random() * valid.length)];
                         if (nx !== c.x || ny !== c.y) {
-                            if (canSee) playCreatureMove(c.typeId);
+                            if (canDetectParty) playCreatureMove(c.typeId);
                             notifyCreatureAction(c.id, 'move');
                         }
                     }
@@ -4111,11 +4789,11 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                     const dirs: [number, number][] = [[1,0],[-1,0],[0,1],[0,-1]];
                     const valid = dirs
                         .map(([ddx, ddy]) => [c.x + ddx, c.y + ddy] as [number, number])
-                        .filter(([cx, cy]) => monsterWalkable(cy, cx) && tileAvailable(cx, cy));
+                        .filter(([cx, cy]) => monsterWalkable(state.level, cy, cx) && tileAvailable(cx, cy));
                     if (valid.length > 0) {
                         [nx, ny] = valid[Math.floor(Math.random() * valid.length)];
                         if (nx !== c.x || ny !== c.y) {
-                            if (canSee) playCreatureMove(c.typeId);
+                            if (canDetectParty) playCreatureMove(c.typeId);
                             notifyCreatureAction(c.id, 'move');
                         }
                     } else {
@@ -4125,8 +4803,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             }
 
             // ── Attack ────────────────────────────────────────────────────────
-            const partyInvisible = nowMs < state.invisibleUntil;
-            if (atkTimer === 0 && adjacent && !partyInvisible) {
+            if (atkTimer === 0 && (adjacent || canUseRangedAttack) && canDetectParty) {
                 atkTimer = nextMonsterAttackDelaySecondsApprox(def.atkSpd);
                 if (confused && randomInt(2) === 0) {
                     creatureTimers.set(c.id, { mt: moveTimer, at: atkTimer });
@@ -4136,7 +4813,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 notifyCreatureAction(c.id, 'attack');
                 creatureAttackWindows.set(c.id, nowMs + CREATURE_ATTACK_WINDOW_MS);
 
-                const target = getTarget(c.side, def.attackAnyChampion);
+                const target = getTarget(c.side, def.attackAnyChampion, def.attackFromAllSides);
                 if (target) {
                     const tv = vitals[target.id];
                     if (tv && tv.hp > 0) {
@@ -4218,10 +4895,35 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             }
 
             // Assign side at destination: pick available side
+            let destinationMapIndex = c.mapIndex;
+            const destinationTile = getMap(destinationMapIndex).tiles[ny]?.[nx];
+            if (destinationTile?.type === 'Teleporter') {
+                const tpKey = `${destinationMapIndex},${ny},${nx}`;
+                const tp = getTeleporter(destinationTile);
+                if (tp && state.openTeleporters.has(tpKey)) {
+                    const teleportedLevel = tp.destMap;
+                    const teleportedX = tp.destX;
+                    const teleportedY = tp.destY;
+                    const destinationOccupied = creatures.some((other) =>
+                        other.alive &&
+                        other.id !== c.id &&
+                        other.mapIndex === teleportedLevel &&
+                        other.x === teleportedX &&
+                        other.y === teleportedY,
+                    );
+                    if (!destinationOccupied && monsterWalkable(teleportedLevel, teleportedY, teleportedX)) {
+                        destinationMapIndex = teleportedLevel;
+                        nx = teleportedX;
+                        ny = teleportedY;
+                    }
+                }
+            }
+
+            // Assign side at destination: pick available side
             let newSide = c.side;
-            if (nx !== c.x || ny !== c.y) {
+            if (nx !== c.x || ny !== c.y || destinationMapIndex !== c.mapIndex) {
                 const destOther = creatures.find(
-                    o => o.alive && o.id !== c.id && o.mapIndex === state.level && o.x === nx && o.y === ny
+                    o => o.alive && o.id !== c.id && o.mapIndex === destinationMapIndex && o.x === nx && o.y === ny
                 );
                 newSide = destOther ? (destOther.side === 'left' ? 'right' : 'left') : 'left';
             }
@@ -4230,9 +4932,9 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             creatureTimers.set(c.id, { mt: moveTimer, at: atkTimer });
 
             // Only update Zustand state when something visible changes (position / side / alive)
-            if (nx !== c.x || ny !== c.y || newSide !== c.side) {
+            if (nx !== c.x || ny !== c.y || newSide !== c.side || destinationMapIndex !== c.mapIndex) {
                 if (creatures === state.creatures) creatures = [...creatures];
-                creatures[i] = { ...c, x: nx, y: ny, side: newSide };
+                creatures[i] = { ...c, mapIndex: destinationMapIndex, x: nx, y: ny, side: newSide };
                 anyChange = true;
             }
         }
@@ -4287,6 +4989,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         const keepProjectiles: Projectile[] = [];
         let creatures = state.creatures as CreatureInstance[];
         let dmgEvts = state.damageEvents;
+        let spellVisualEvents = state.spellVisualEvents;
         let floorItems = state.floorItems;
 
         for (const proj of state.projectiles) {
@@ -4314,6 +5017,20 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 return doorBlocksThrownItems(door?.doorType);
             })();
             if (!tile || tile.type === 'Wall' || (tile.type === 'TrickWall' && !state.openWalls.has(wallKey)) || closedDoorBlocksProjectile) {
+                if (proj.effect !== 'physical') {
+                    spellVisualEvents = [
+                        ...spellVisualEvents,
+                        {
+                            id: `spellimpact_wall_${now}_${Math.random().toString(36).slice(2)}`,
+                            level: proj.level,
+                            x: nx,
+                            y: ny,
+                            effect: proj.effect,
+                            ts: now,
+                            kind: 'wall',
+                        },
+                    ];
+                }
                 if (proj.effect === 'physical' && proj.physicalItem) {
                     if (floorItems === state.floorItems) floorItems = [...floorItems];
                     floorItems.push(buildDroppedItem(proj.physicalItem, proj.level, proj.x, proj.y));
@@ -4324,6 +5041,10 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             // Creature hit → deal damage and despawn
             const hit = creatures.find(c => c.alive && c.mapIndex === proj.level && c.x === nx && c.y === ny);
             if (hit) {
+                const hitDef = CREATURE_TYPES[hit.typeId];
+                if (proj.effect === 'physical' && hitDef?.absorbMissiles) {
+                    continue;
+                }
                 const disruptCanDamage = canDisruptNonMaterialTarget(now, hit);
                 const rolledDamage = proj.effect === 'physical'
                     ? Math.max(1, Math.round(proj.remainingAttack ?? proj.damage[1]))
@@ -4346,6 +5067,20 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                         id: `pdmg_${now}_${Math.random().toString(36).slice(2)}`,
                         x: nx, y: ny, amount: dmg, ts: now,
                     }];
+                }
+                if (proj.effect !== 'physical') {
+                    spellVisualEvents = [
+                        ...spellVisualEvents,
+                        {
+                            id: `spellimpact_creature_${now}_${Math.random().toString(36).slice(2)}`,
+                            level: proj.level,
+                            x: nx,
+                            y: ny,
+                            effect: proj.effect,
+                            ts: now,
+                            kind: 'creature',
+                        },
+                    ];
                 }
                 if (proj.effect === 'physical' && proj.physicalItem) {
                     if (floorItems === state.floorItems) floorItems = [...floorItems];
@@ -4400,25 +5135,28 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         const activePotionBoosts = state.activePotionBoosts.filter(boost => boost.expiresAt > now);
         // 4. Clean footprints older than 60 s
         const footprintHistory = state.footprintHistory.filter(e => now - e.ts < FOOTPRINT_LIFETIME_MS);
+        const nextSpellVisualEvents = spellVisualEvents.filter((event) => now - event.ts < DAMAGE_EVENT_LIFETIME_MS);
 
         const lightsChanged       = spellLights.length !== state.spellLights.length;
         const projectilesChanged  = keepProjectiles.length !== state.projectiles.length ||
             keepProjectiles.some((p, i) => p !== state.projectiles[i]);
         const creaturesChanged    = creatures !== state.creatures;
         const dmgChanged          = dmgEvts !== state.damageEvents;
+        const spellVisualsChanged = nextSpellVisualEvents !== state.spellVisualEvents;
         const floorItemsChanged   = floorItems !== state.floorItems;
         const shieldsChanged      = activeShields.length !== state.activeShields.length;
         const potionBoostsChanged = activePotionBoosts.length !== state.activePotionBoosts.length;
         const footprintsChanged   = footprintHistory.length !== state.footprintHistory.length;
 
         if (!lightsChanged && !projectilesChanged && !creaturesChanged &&
-            !dmgChanged && !floorItemsChanged && !shieldsChanged && !potionBoostsChanged && !footprintsChanged) return state;
+            !dmgChanged && !spellVisualsChanged && !floorItemsChanged && !shieldsChanged && !potionBoostsChanged && !footprintsChanged) return state;
 
         return {
             ...(lightsChanged      ? { spellLights }                   : {}),
             ...(projectilesChanged ? { projectiles: keepProjectiles }   : {}),
             ...(creaturesChanged   ? { creatures }                      : {}),
             ...(dmgChanged         ? { damageEvents: dmgEvts }          : {}),
+            ...(spellVisualsChanged ? { spellVisualEvents: nextSpellVisualEvents } : {}),
             ...(floorItemsChanged  ? { floorItems }                     : {}),
             ...(shieldsChanged     ? { activeShields }                  : {}),
             ...(potionBoostsChanged ? { activePotionBoosts }            : {}),

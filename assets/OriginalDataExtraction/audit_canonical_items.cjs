@@ -2,8 +2,8 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.join(__dirname, '..', '..');
-const current = JSON.parse(fs.readFileSync(path.join(root, 'public', 'dungeon.json'), 'utf8'));
-const canonical = JSON.parse(fs.readFileSync(path.join(root, 'public', 'original_level_content.json'), 'utf8'));
+const current = JSON.parse(fs.readFileSync(path.join(root, 'src', 'assets', 'data', 'dungeon.json'), 'utf8'));
+const canonical = JSON.parse(fs.readFileSync(path.join(root, 'src', 'assets', 'data', 'original_level_content.json'), 'utf8'));
 
 function getTile(mapIndex, x, y) {
   return current.maps[mapIndex].tiles.find((tile) => tile.globalX === x && tile.globalY === y) ?? null;

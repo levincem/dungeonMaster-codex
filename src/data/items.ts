@@ -1,8 +1,8 @@
 // Runtime-facing item definitions built from extracted original data,
 // plus the minimal local metadata still needed by the remake.
 
-import gameDbRaw from '../assets/data/game_db.json?raw';
 import type { WeaponDef, ArmorDef, PotionDef, MiscDef } from '../types/items';
+import { getGameDbRawSync } from './gameDbData';
 
 const PLACEHOLDER_NAME_RE = /^([A-Za-z]+_\d+|\(W\d+\))$/;
 
@@ -44,6 +44,13 @@ type RawWeaponAttackReference = {
 };
 
 type RawGameDb = {
+    itemTypeNames?: {
+        weapons?: Record<string, string>;
+        armor?: Record<string, string>;
+        potions?: Record<string, string>;
+        misc?: Record<string, string>;
+        containers?: Record<string, string>;
+    };
     weaponAttackReference?: RawWeaponAttackReference[];
     originalAtari?: {
         i559?: {
@@ -55,7 +62,7 @@ type RawGameDb = {
     };
 };
 
-const gameDb = JSON.parse(gameDbRaw) as RawGameDb;
+const gameDb = JSON.parse(getGameDbRawSync()) as RawGameDb;
 const originalI559 = gameDb.originalAtari?.i559;
 
 const I559_WEAPONS_BY_INDEX = new Map<number, RawI559Weapon>(
@@ -69,9 +76,17 @@ const I559_CLOTHS_BY_INDEX = new Map<number, RawI559Cloth>(
 const I559_MISC_WEIGHTS = originalI559?.miscWeightsKg ?? [];
 const I559_FOOD_VALUES = originalI559?.foodValues ?? [];
 const WEAPON_ATTACK_REFERENCE = gameDb.weaponAttackReference ?? [];
+const ITEM_TYPE_NAMES = gameDb.itemTypeNames ?? {};
 const WEAPON_ALLOWED_SLOT_MASK_BY_INDEX = new Map<number, number>(
     WEAPON_ATTACK_REFERENCE.map((entry) => [entry.weaponIndex, entry.allowedSlotsMask]),
 );
+
+function getExtractedItemName(
+    collection: Record<string, string> | undefined,
+    typeId: number,
+): string | undefined {
+    return collection?.[String(typeId)];
+}
 
 
 const CANONICAL_WEAPON_NAMES: Record<number, string> = {
@@ -243,17 +258,17 @@ const CANONICAL_POTION_NAMES: Record<number, string> = {
      2: 'Dee Potion',
      3: 'Zo Potion',
      4: 'Ful Potion',
-     8: 'Health Potion',
-     9: 'Stamina Potion',
-    10: 'Mana Potion',
-    11: 'Antidote',
-    13: 'Strength Potion',
-    14: 'Dexterity Potion',
-    15: 'Wisdom Potion',
-    16: 'Vitality Potion',
-    17: 'Anti-Magic Potion',
+     8: 'Vi Potion',
+     9: 'Ya Potion',
+    10: 'Ee Potion',
+    11: 'Antivenin',
+    13: 'Ku Potion',
+    14: 'Ros Potion',
+    15: 'Dane Potion',
+    16: 'Neta Potion',
+    17: 'Mon Potion',
     18: 'Anti-Fire Potion',
-    24: 'Waterskin (water)',
+    24: 'Water Flask',
 };
 
 // ─── Weapons ──────────────────────────────────────────────────────────────────
@@ -379,6 +394,10 @@ const STARTER_ARMOR_NAME_OVERRIDES: Record<string, ArmorDef> = {
     'hide shield':      { id: -7, name: 'Hide Shield',      slot: 'hands', armor: 16, weight: 1.0 },
 };
 
+export const STARTER_ARMOR_SLOT_BY_NAME: Record<string, ArmorDef['slot']> = Object.fromEntries(
+    Object.entries(STARTER_ARMOR_NAME_OVERRIDES).map(([name, def]) => [name, def.slot]),
+);
+
 // ─── Potions ──────────────────────────────────────────────────────────────────
 
 const OFFICIAL_POTION_TYPES: Record<number, PotionDef> = {
@@ -387,17 +406,17 @@ const OFFICIAL_POTION_TYPES: Record<number, PotionDef> = {
      2: { id:  2, name: 'Dee Potion',          effect: 'spellPower', level: 3 },
      3: { id:  3, name: 'Zo Potion',           effect: 'spellPower', level: 4 },
      4: { id:  4, name: 'Ful Potion',          effect: 'spellPower', level: 5 },
-     8: { id:  8, name: 'Health Potion',       effect: 'health',     restore: 100 },
-     9: { id:  9, name: 'Stamina Potion',      effect: 'stamina',    restore: 100 },
-    10: { id: 10, name: 'Mana Potion',         effect: 'mana',       restore: 100 },
-    11: { id: 11, name: 'Antidote',            effect: 'poison',     restore: 0 },
-    13: { id: 13, name: 'Strength Potion',     effect: 'strength',   boost: 10, duration: 1000 },
-    14: { id: 14, name: 'Dexterity Potion',    effect: 'dexterity',  boost: 10, duration: 1000 },
-    15: { id: 15, name: 'Wisdom Potion',       effect: 'wisdom',     boost: 10, duration: 1000 },
-    16: { id: 16, name: 'Vitality Potion',     effect: 'vitality',   boost: 10, duration: 1000 },
-    17: { id: 17, name: 'Anti-Magic Potion',   effect: 'antiMagic',  boost: 20, duration: 1000 },
+     8: { id:  8, name: 'Vi Potion',           effect: 'health',     restore: 100 },
+     9: { id:  9, name: 'Ya Potion',           effect: 'stamina',    restore: 100 },
+    10: { id: 10, name: 'Ee Potion',           effect: 'mana',       restore: 100 },
+    11: { id: 11, name: 'Antivenin',           effect: 'poison',     restore: 0 },
+    13: { id: 13, name: 'Ku Potion',           effect: 'strength',   boost: 10, duration: 1000 },
+    14: { id: 14, name: 'Ros Potion',          effect: 'dexterity',  boost: 10, duration: 1000 },
+    15: { id: 15, name: 'Dane Potion',         effect: 'wisdom',     boost: 10, duration: 1000 },
+    16: { id: 16, name: 'Neta Potion',         effect: 'vitality',   boost: 10, duration: 1000 },
+    17: { id: 17, name: 'Mon Potion',          effect: 'antiMagic',  boost: 20, duration: 1000 },
     18: { id: 18, name: 'Anti-Fire Potion',    effect: 'antiFire',   boost: 20, duration: 1000 },
-    24: { id: 24, name: 'Waterskin (water)',   effect: 'stamina',    restore: 30 },
+    24: { id: 24, name: 'Water Flask',         effect: 'stamina',    restore: 30 },
 };
 
 // ─── Misc ─────────────────────────────────────────────────────────────────────
@@ -464,10 +483,14 @@ function byId<T extends { id: number }>(entries: T[]): Record<number, T> {
 
 function getCanonicalName(category: 'Weapon' | 'Armor' | 'Potion' | 'Misc', typeId: number): string | undefined {
     switch (category) {
-        case 'Weapon': return CANONICAL_WEAPON_NAMES[typeId];
-        case 'Armor': return CANONICAL_ARMOR_NAMES[typeId];
-        case 'Potion': return CANONICAL_POTION_NAMES[typeId];
-        case 'Misc': return CANONICAL_MISC_NAMES[typeId];
+        case 'Weapon':
+            return getExtractedItemName(ITEM_TYPE_NAMES.weapons, typeId) ?? CANONICAL_WEAPON_NAMES[typeId];
+        case 'Armor':
+            return getExtractedItemName(ITEM_TYPE_NAMES.armor, typeId) ?? CANONICAL_ARMOR_NAMES[typeId];
+        case 'Potion':
+            return CANONICAL_POTION_NAMES[typeId] ?? getExtractedItemName(ITEM_TYPE_NAMES.potions, typeId);
+        case 'Misc':
+            return getExtractedItemName(ITEM_TYPE_NAMES.misc, typeId) ?? CANONICAL_MISC_NAMES[typeId];
         default: return undefined;
     }
 }
@@ -478,7 +501,15 @@ export function resolveItemName(
     rawName?: string,
 ): string {
     if (category === 'Scroll') return rawName && !PLACEHOLDER_NAME_RE.test(rawName) ? rawName : 'Scroll';
-    if (category === 'Container') return rawName && !PLACEHOLDER_NAME_RE.test(rawName) ? rawName : 'Chest';
+    if (category === 'Container') {
+        return (
+            getExtractedItemName(ITEM_TYPE_NAMES.containers, typeId)
+            ?? (rawName && !PLACEHOLDER_NAME_RE.test(rawName) ? rawName : 'Chest')
+        );
+    }
+    if (category === 'Potion' && rawName && !PLACEHOLDER_NAME_RE.test(rawName)) {
+        return rawName;
+    }
 
     const canonical = getCanonicalName(category, typeId);
     if (canonical) return canonical;
@@ -577,6 +608,71 @@ export const ARMOR_TYPES: Record<number, ArmorDef> = byId(armorEntries);
 export const POTION_TYPES: Record<number, PotionDef> = byId(potionEntries);
 export const MISC_TYPES: Record<number, MiscDef> = byId(miscEntries);
 
+const POTION_NAME_TO_RUNTIME_TYPE_ID: Record<string, number> = {
+    'vi potion': 8,
+    'health potion': 8,
+    'ya potion': 9,
+    'stamina potion': 9,
+    'ee potion': 10,
+    'mana potion': 10,
+    antivenin: 11,
+    antidote: 11,
+    'bro potion': 11,
+    'ku potion': 13,
+    'strength potion': 13,
+    'ros potion': 14,
+    'dexterity potion': 14,
+    'dane potion': 15,
+    'wisdom potion': 15,
+    'ninja boost potion': 15,
+    'neta potion': 16,
+    'vitality potion': 16,
+    'wizard boost potion': 16,
+    'mon potion': 17,
+    'shield potion': 17,
+    'anti-magic potion': 17,
+    'anti fire potion': 18,
+    'anti-fire potion': 18,
+    'water flask': 24,
+    'waterskin (water)': 24,
+};
+
+export function normalizeLookupName(value: string | undefined): string | null {
+    if (!value) return null;
+    return value.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+export function getItemTypeIdByName(
+    category: 'Weapon' | 'Armor' | 'Potion' | 'Misc',
+    rawName: string | undefined,
+): number | undefined {
+    const normalizedName = normalizeLookupName(rawName);
+    if (!normalizedName) return undefined;
+
+    switch (category) {
+        case 'Weapon':
+            return weaponEntries.find((entry) => normalizeLookupName(entry.name) === normalizedName)?.id;
+        case 'Armor':
+            return armorEntries.find((entry) => normalizeLookupName(entry.name) === normalizedName)?.id
+                ?? STARTER_ARMOR_NAME_OVERRIDES[normalizedName]?.id;
+        case 'Potion': {
+            const runtimeTypeId = POTION_NAME_TO_RUNTIME_TYPE_ID[normalizedName];
+            if (runtimeTypeId !== undefined) return runtimeTypeId;
+            return potionEntries.find((entry) => normalizeLookupName(entry.name) === normalizedName)?.id;
+        }
+        case 'Misc':
+            return miscEntries.find((entry) => normalizeLookupName(entry.name) === normalizedName)?.id;
+        default:
+            return undefined;
+    }
+}
+
+export function getPotionDef(typeId: number, rawName?: string): PotionDef | undefined {
+    const runtimeTypeId = getItemTypeIdByName('Potion', rawName);
+    if (runtimeTypeId !== undefined) return POTION_TYPES[runtimeTypeId];
+    return POTION_TYPES[typeId];
+}
+
 export function getWeaponAllowedSlotsMask(typeId: number): number | undefined {
     return WEAPON_ALLOWED_SLOT_MASK_BY_INDEX.get(typeId);
 }
@@ -586,7 +682,7 @@ const ARMOR_NAME_LOOKUP: Record<string, ArmorDef> = Object.fromEntries(
 );
 
 export function getArmorDef(typeId: number, rawName?: string): ArmorDef | undefined {
-    const normalizedName = rawName?.trim().toLowerCase();
+    const normalizedName = normalizeLookupName(rawName);
     if (normalizedName) {
         const exact = ARMOR_NAME_LOOKUP[normalizedName];
         if (exact) return exact;

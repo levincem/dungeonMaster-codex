@@ -4,7 +4,7 @@ const path = require("path");
 const ROOT = __dirname;
 const ATARI_STATS = path.join(ROOT, "output", "atari_i559_stats.json");
 const STATS_REF = path.join(ROOT, "output", "stats_reference.json");
-const GAME_DB = path.join(ROOT, "..", "..", "public", "game_db.json");
+const GAME_DB = path.join(ROOT, "..", "..", "src", "assets", "data", "game_db.json");
 const OUT_JSON = path.join(ROOT, "output", "atari_game_db_comparison.json");
 
 const FOOD_NAMES = [

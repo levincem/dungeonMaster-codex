@@ -2,9 +2,9 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.join(__dirname, '..', '..');
-const dungeon = JSON.parse(fs.readFileSync(path.join(root, 'public', 'dungeon.json'), 'utf8'));
-const canonical = JSON.parse(fs.readFileSync(path.join(root, 'public', 'original_level_content.json'), 'utf8'));
-const overlays = JSON.parse(fs.readFileSync(path.join(root, 'public', 'original_wall_overlay_positions.json'), 'utf8'));
+const dungeon = JSON.parse(fs.readFileSync(path.join(root, 'src', 'assets', 'data', 'dungeon.json'), 'utf8'));
+const canonical = JSON.parse(fs.readFileSync(path.join(root, 'assets', 'OriginalDataExtraction', 'output', 'original_level_content.json'), 'utf8'));
+const overlays = JSON.parse(fs.readFileSync(path.join(root, 'src', 'assets', 'original_wall_overlay_positions.json'), 'utf8'));
 
 function normalizeText(value) {
   return String(value ?? '')
@@ -279,9 +279,9 @@ function auditCreatures() {
 const report = {
   generatedAt: new Date().toISOString(),
   sources: {
-    dungeon: 'public/dungeon.json',
-    canonical: 'public/original_level_content.json',
-    overlays: 'public/original_wall_overlay_positions.json',
+  dungeon: 'src/assets/data/dungeon.json',
+  canonical: 'assets/OriginalDataExtraction/output/original_level_content.json',
+  overlays: 'src/assets/original_wall_overlay_positions.json',
   },
   caveats: [
     'Inscriptions are audited against reconstructed fixed wall text placements, allowing a one-tile wall-facing offset.',

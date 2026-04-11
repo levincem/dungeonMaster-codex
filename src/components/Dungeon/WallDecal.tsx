@@ -3,6 +3,7 @@ import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import type { CardinalDir } from '../../types/game';
+import { itemsPath, miscPath } from '../../data/assetPaths';
 
 // ─── Face positioning (same convention as WallSensor / Cell FACE_CONFIGS) ─────
 
@@ -44,8 +45,15 @@ const DEFAULT_PRESET: DecalPreset = {
     plateColor: '#3a2b1d',
 };
 
+const LOCK_IMAGE = miscPath('serrure.png');
+const LEVER_UP_IMAGE = miscPath('levier_haut.png');
+const LEVER_DOWN_IMAGE = miscPath('levier_bas.png');
+const ALTAR_IMAGE = miscPath('autel.png');
+const TORCH_IMAGE = itemsPath('torch_unlit.png');
+const FOUNTAIN_IMAGE = miscPath('wall_foutain_overlay.png');
+
 const DECAL_PRESETS: Record<string, DecalPreset> = {
-    '/misc/serrure.png': {
+    [LOCK_IMAGE]: {
         width: GRID_SIZE * 0.38,
         height: WALL_HEIGHT * 0.38,
         y: -WALL_HEIGHT * 0.02,
@@ -53,7 +61,7 @@ const DECAL_PRESETS: Record<string, DecalPreset> = {
         hasGlow: true,
         plateColor: '#3a2b1d',
     },
-    '/misc/levier_haut.png': {
+    [LEVER_UP_IMAGE]: {
         width: GRID_SIZE * 0.28,
         height: WALL_HEIGHT * 0.46,
         y: 0,
@@ -61,7 +69,7 @@ const DECAL_PRESETS: Record<string, DecalPreset> = {
         hasGlow: true,
         plateColor: '#3a2b1d',
     },
-    '/misc/levier_bas.png': {
+    [LEVER_DOWN_IMAGE]: {
         width: GRID_SIZE * 0.28,
         height: WALL_HEIGHT * 0.46,
         y: 0,
@@ -69,7 +77,7 @@ const DECAL_PRESETS: Record<string, DecalPreset> = {
         hasGlow: true,
         plateColor: '#3a2b1d',
     },
-    '/misc/autel.png': {
+    [ALTAR_IMAGE]: {
         width: GRID_SIZE * 0.56,
         height: WALL_HEIGHT * 0.42,
         y: -WALL_HEIGHT * 0.03,
@@ -77,7 +85,7 @@ const DECAL_PRESETS: Record<string, DecalPreset> = {
         hasGlow: false,
         plateColor: '#3a2b1d',
     },
-    '/items/torch_unlit.png': {
+    [TORCH_IMAGE]: {
         width: GRID_SIZE * 0.18,
         height: WALL_HEIGHT * 0.5,
         y: 0,
@@ -85,7 +93,7 @@ const DECAL_PRESETS: Record<string, DecalPreset> = {
         hasGlow: true,
         plateColor: '#3a2b1d',
     },
-    '/misc/wall_foutain_overlay.png': {
+    [FOUNTAIN_IMAGE]: {
         width: GRID_SIZE * 0.72,
         height: WALL_HEIGHT * 0.92,
         y: -WALL_HEIGHT * 0.02,

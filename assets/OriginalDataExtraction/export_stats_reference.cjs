@@ -11,7 +11,7 @@ const OBJECTS_H = path.join(
   "src",
   "Objects.h"
 );
-const GAME_DB = path.join(ROOT, "..", "..", "public", "game_db.json");
+const GAME_DB = path.join(ROOT, "..", "..", "src", "assets", "data", "game_db.json");
 const OUTPUT = path.join(ROOT, "output", "stats_reference.json");
 
 const ENUM_RANGES = {
