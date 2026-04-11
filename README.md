@@ -136,7 +136,7 @@ For wall overlays:
 
 The reverse-engineering and provenance work lives under:
 
-- [assets/OriginalDataExtraction](/D:/DungeonMaster-codex/assets/OriginalDataExtraction)
+- [assets/OriginalDataExtraction](assets/OriginalDataExtraction)
 
 That directory contains:
 
@@ -147,14 +147,14 @@ That directory contains:
 
 The most useful detailed internal summaries are:
 
-- [docs/REMAKE_STATUS.md](/D:/DungeonMaster-codex/docs/REMAKE_STATUS.md)
-- [docs/RUNTIME_ALIGNMENT_AUDIT.md](/D:/DungeonMaster-codex/docs/RUNTIME_ALIGNMENT_AUDIT.md)
-- [docs/CODEBASE_REFERENCE.md](/D:/DungeonMaster-codex/docs/CODEBASE_REFERENCE.md)
-- [docs/DATA_PIPELINE.md](/D:/DungeonMaster-codex/docs/DATA_PIPELINE.md)
-- [docs/PUBLIC_DIRECTORY_AUDIT.md](/D:/DungeonMaster-codex/docs/PUBLIC_DIRECTORY_AUDIT.md)
-- [docs/STATS_PROVENANCE.md](/D:/DungeonMaster-codex/docs/STATS_PROVENANCE.md)
-- [docs/ATARI_STATS_RECONCILIATION.md](/D:/DungeonMaster-codex/docs/ATARI_STATS_RECONCILIATION.md)
-- [docs/WORLD_CONTENT_AUDIT.md](/D:/DungeonMaster-codex/docs/WORLD_CONTENT_AUDIT.md)
+- [docs/REMAKE_STATUS.md](docs/REMAKE_STATUS.md)
+- [docs/RUNTIME_ALIGNMENT_AUDIT.md](docs/RUNTIME_ALIGNMENT_AUDIT.md)
+- [docs/CODEBASE_REFERENCE.md](docs/CODEBASE_REFERENCE.md)
+- [docs/DATA_PIPELINE.md](docs/DATA_PIPELINE.md)
+- [docs/PUBLIC_DIRECTORY_AUDIT.md](docs/PUBLIC_DIRECTORY_AUDIT.md)
+- [docs/STATS_PROVENANCE.md](docs/STATS_PROVENANCE.md)
+- [docs/ATARI_STATS_RECONCILIATION.md](docs/ATARI_STATS_RECONCILIATION.md)
+- [docs/WORLD_CONTENT_AUDIT.md](docs/WORLD_CONTENT_AUDIT.md)
 
 ## Notes
 
