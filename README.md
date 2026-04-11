@@ -22,6 +22,7 @@ The project is now well beyond prototype stage and already playable end to end t
 - upgraded spell visuals: better projectile identities, impacts, local flashes, shields and `Fluxcage`
 - minimal endgame flow: Amalgam / complete Firestaff / Lord Chaos victory screen path is now wired
 - persistent save / resume of the mutable runtime state
+- beta-stage HUD / champion-sheet polish and usability passes are actively ongoing
 
 It is not a finished remake yet. The largest remaining work is no longer data extraction, but the last fidelity gaps, architectural cleanup, and optimization.
 
@@ -39,7 +40,13 @@ Main remaining gaps before calling the runtime "fully aligned":
 - some rare late-game or edge-case mechanism interactions still need targeted play verification
 - creature AI still has fine-grained fidelity gaps for special families and end-game cases
 - some item-image aliases and other compatibility glue remain manual by design
-- optimization is now the next major phase, especially around the heavy `game-core` chunk
+- optimization is now the next major phase, especially around the remaining large runtime/data chunks
+- a real options menu and key-rebinding flow still need to be exposed in the UI
+- save import/export is still a future convenience feature; saves currently live in browser `localStorage`
+- localization is not implemented yet:
+  - the current build mixes original English game text with French UI/runtime strings
+  - a proper English-first cleanup pass is planned
+  - a real `EN` / `FR` localized version is still to do
 
 ## Tech Stack
 
@@ -156,6 +163,7 @@ The most useful detailed internal summaries are:
 - The bundle is still heavy because of the 3D stack, assets, and embedded critical JSON datasets.
 - The main remaining heavy runtime payloads are now the compact dungeon snapshot and the 3D vendor stack.
 - The next major phase is optimization, now focused more on data loading strategy than on the old `game-core`.
+- The project should currently be treated as a playable beta rather than a finished remake.
 - The world-content extraction is now treated as reliable.
 - Several gameplay layers are now source-backed, but a thinner runtime interpretation layer still exists in a few systems.
 - `docs/` is used as project memory and audit notes; the README stays intentionally concise.

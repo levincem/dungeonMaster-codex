@@ -8,8 +8,10 @@ import type {
     TileType,
     TileObject,
     CardinalDir,
+    WallTextObject,
 } from '../types/game';
 import { getDungeonDataSync } from './dungeonData';
+import { normalizeScrollText } from './textNormalization';
 
 interface RawObject {
     category: string;
@@ -73,6 +75,25 @@ function normaliseTileType(raw: string): TileType {
 }
 
 function buildTile(raw: RawTile): GameTile {
+    const objects = ((raw.objects ?? []) as unknown as TileObject[]).map((object) => {
+        if (object.category !== 'Text') return object;
+        return {
+            ...object,
+            text: normalizeScrollText((object as TileObject & { text?: string }).text),
+        };
+    });
+
+    // Small runtime-only helper text in the Hall of Champions.
+    if (raw.x === 9 && raw.y === 3 && raw.type === 'Wall') {
+        objects.push({
+            category: 'Text',
+            index: 1000003,
+            tilePos: 'West' as CardinalDir,
+            visible: true,
+            text: 'CHOOSE YOUR\nFOUR CHAMPIONS',
+        } satisfies WallTextObject);
+    }
+
     return {
         x: raw.x,
         y: raw.y,
@@ -87,7 +108,7 @@ function buildTile(raw: RawTile): GameTile {
         state: raw.state as GameTile['state'],
         open: raw.open,
         visible: raw.visible,
-        objects: (raw.objects ?? []) as unknown as TileObject[],
+        objects,
     };
 }
 

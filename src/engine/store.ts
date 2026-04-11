@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+﻿import { create } from 'zustand';
 import type { StateCreator } from 'zustand';
 import { getGameMap, getGameMaps, getChampionStartPositions } from '../data/mapLoader';
 import {
@@ -36,7 +36,8 @@ import {
     getSpellLightContribution,
     getSpellShieldProfile,
 } from '../data/spellRuntime';
-import { getArmorDef, WEAPON_TYPES, MISC_TYPES, getPotionDef, normalizeScrollText, resolveItemName } from '../data/items';
+import { getArmorDef, WEAPON_TYPES, MISC_TYPES, getPotionDef, resolveItemName } from '../data/items';
+import { normalizeScrollText } from '../data/textNormalization';
 import {
     canEquipItemInSlot,
     EMPTY_CHAMPION_WOUNDS,
@@ -71,11 +72,13 @@ import {
 import { doorBlocksThrownItems, doorBlocksVision } from '../data/doors';
 import { playPartyAttack, playCreatureMove, playCreatureAttack, playPlate } from './sounds';
 import { readPersistedSave, writePersistedSave } from './saveGame';
+import type { GameOptions } from './runtimeTypes';
 import {
     buildPersistedSaveData as buildPersistedSaveDataSystem,
     restoreExternalCreatureRuntimeFromSave as restoreExternalCreatureRuntimeFromSaveSystem,
     tryParsePersistedSaveData as tryParsePersistedSaveDataSystem,
 } from './systems/persistence';
+import { DEFAULT_GAME_OPTIONS } from './options';
 import {
     ORIGINAL_TIMER_TICK_MS,
     ORIGINAL_TIMER_TICK_SECONDS,
@@ -167,7 +170,7 @@ export function computeLightLevel(
         if (!equip) continue;
         for (const slot of ['rightHand', 'leftHand'] as const) {
             const item = equip[slot];
-            if (!item || item.category !== 'Weapon' || item.typeId !== 16) continue;
+            if (!item || item.category !== 'Weapon' || item.typeId !== 2) continue;
             const litAt = torchBurnStart[item.id];
             if (litAt !== undefined && now - litAt < TORCH_LIFETIME_MS) {
                 torchContrib = 1.0;
@@ -259,6 +262,8 @@ export const LOW_WATER_THRESHOLD = 1024;
 export const CRITICAL_WATER_THRESHOLD = 512;
 const MIN_FOOD_WATER = -1024;
 const POISON_TICK_INTERVAL_SEC = originalTimerTicksToSeconds(36);
+const FOOD_DRAIN_SCALE = 0.125;
+const WATER_DRAIN_SCALE = 0.125;
 
 function clampVital(value: number, max: number): number {
     return Math.max(0, Math.min(max, value));
@@ -495,6 +500,34 @@ function getRightHandStats(equip: import('../types/game').ChampionEquipment | un
 
 function buildAttackResultMessage(message: string, success = false): CastResult {
     return { success, message, ts: Date.now() };
+}
+
+function getSpellPowerLevelApprox(runeIds: readonly string[]): number {
+    const powerRunes = ['lo', 'um', 'on', 'ee', 'pal', 'mon'];
+    const index = powerRunes.indexOf(runeIds[0] ?? '');
+    return index >= 0 ? index + 1 : 1;
+}
+
+function getSpellSuccessChanceApprox(
+    champion: Champion,
+    equip: ChampionEquipment | undefined,
+    activePotionBoosts: ActivePotionBoost[],
+    spell: ReturnType<typeof findSpell>,
+): number {
+    if (!spell) return 0;
+    const effective = getEffectiveChampionStatsRuntime(champion, equip, activePotionBoosts);
+    const skillLevel = getSkillLevel(champion.skills, spell.castSkill);
+    const powerLevel = getSpellPowerLevelApprox(spell.runes);
+    const baseDifficulty = spell.sourceBaseDifficulty ?? spell.manaBase;
+
+    const chance =
+        0.42 +
+        (skillLevel * 0.075) +
+        (effective.wisdom * 0.0035) -
+        (baseDifficulty * 0.05) -
+        ((powerLevel - 1) * 0.045);
+
+    return Math.max(0.08, Math.min(0.97, chance));
 }
 
 function getFrontPosition(position: [number, number], direction: Direction): { x: number; y: number } {
@@ -2233,6 +2266,7 @@ interface GameState {
     position: [number, number];
     direction: Direction;
     party: Champion[];
+    gameOptions: GameOptions;
     /** Index (0-3) of the currently selected party slot — picks up items. */
     selectedChampionIndex: number;
     gamePhase: GamePhase;
@@ -2314,6 +2348,7 @@ interface GameState {
     killCreature: (id: string) => void;
 
     selectChampion: (index: number) => void;
+    setGameOptions: (updater: Partial<GameOptions>) => void;
     reorderParty: (fromIndex: number, toIndex: number) => void;
     castSpell: (championId: number, runeIds: string[]) => void;
     tickFrame: (delta: number, now: number) => void;
@@ -2345,6 +2380,23 @@ interface GameState {
 
 const DIRECTIONS: Direction[] = ['NORTH', 'EAST', 'SOUTH', 'WEST'];
 
+function seedTorchBurnStartFromEquipment(
+    equipment: ChampionEquipment | undefined,
+    currentTorchBurnStart: Record<string, number>,
+): Record<string, number> {
+    if (!equipment) return currentTorchBurnStart;
+
+    let next = currentTorchBurnStart;
+    for (const slot of ['rightHand', 'leftHand'] as const) {
+        const item = equipment[slot];
+        if (!item || item.category !== 'Weapon' || item.typeId !== 2) continue;
+        if (next[item.id] !== undefined) continue;
+        if (next === currentTorchBurnStart) next = { ...currentTorchBurnStart };
+        next[item.id] = Date.now();
+    }
+    return next;
+}
+
 function advanceSurvivalTimeApprox(
     state: Pick<GameState, 'party' | 'championVitals' | 'championEquipment' | 'championXP' | 'elapsedGameTimeTicks' | 'lastPartyMoveGameTick' | 'activePotionBoosts'>,
     stepCount: number,
@@ -2365,12 +2417,15 @@ function advanceSurvivalTimeApprox(
             const maxHP = effective.health;
             const maxStamina = effective.stamina;
             const maxMana = effective.mana;
-            const wizardSkill = xpToLevel(state.championXP[champ.id]?.wizard ?? 0) + xpToLevel(state.championXP[champ.id]?.priest ?? 0);
+            const wizardSkill = Math.max(
+                xpToLevel(state.championXP[champ.id]?.wizard ?? 0),
+                xpToLevel(state.championXP[champ.id]?.priest ?? 0),
+            );
 
             let next = current;
 
-            if (maxMana > 0 && next.mana < maxMana && timeCriteria < (effective.wisdom + wizardSkill)) {
-                const manaGain = Math.floor(maxMana / 40) + 1;
+            if (maxMana > 0 && next.mana < maxMana && timeCriteria < Math.floor((effective.wisdom + wizardSkill) / 2)) {
+                const manaGain = 1;
                 const staminaCost = manaGain * Math.max(7, 16 - wizardSkill);
                 next = applyChampionStaminaDeltaOriginal(next, maxStamina, -staminaCost);
                 next = {
@@ -2403,25 +2458,25 @@ function advanceSurvivalTimeApprox(
                 if (food < -512) {
                     if (staminaAboveHalf) {
                         staminaDelta -= staminaAmount;
-                        food -= 2;
+                        food -= 2 * FOOD_DRAIN_SCALE;
                     }
                 } else {
                     if (food >= 0) {
                         staminaDelta += staminaAmount;
                     }
-                    food -= staminaAboveHalf ? 2 : staminaGainCycleCount >> 1;
+                    food -= (staminaAboveHalf ? 2 : staminaGainCycleCount >> 1) * FOOD_DRAIN_SCALE;
                 }
 
                 if (water < -512) {
                     if (staminaAboveHalf) {
                         staminaDelta -= staminaAmount;
-                        water -= 1;
+                        water -= 1 * WATER_DRAIN_SCALE;
                     }
                 } else {
                     if (water >= 0) {
                         staminaDelta += staminaAmount;
                     }
-                    water -= staminaAboveHalf ? 1 : staminaGainCycleCount >> 2;
+                    water -= (staminaAboveHalf ? 1 : staminaGainCycleCount >> 2) * WATER_DRAIN_SCALE;
                 }
                 staminaGainCycleCount -= 1;
             } while (staminaGainCycleCount > 0 && ((next.stamina + staminaDelta) < maxStamina));
@@ -2649,6 +2704,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
     position: HALL_START,
     direction: HALL_START_DIR,
     party: [],
+    gameOptions: DEFAULT_GAME_OPTIONS,
     selectedChampionIndex: 0,
     gamePhase: 'title',
     activeMirrorChampionId: null,
@@ -2933,6 +2989,9 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             : champion;
         const newParty = [...state.party, recruitedChampion];
         const starterLoadout = getChampionStarterLoadout(champion.id);
+        const nextTorchBurnStart = champion.id in state.championEquipment
+            ? state.torchBurnStart
+            : seedTorchBurnStartFromEquipment(starterLoadout.equipment, state.torchBurnStart);
         return {
             party: newParty,
             gateOpen: newParty.length >= MAX_PARTY,
@@ -2965,6 +3024,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             championCombat: champion.id in state.championCombat
                 ? state.championCombat
                 : { ...state.championCombat, [champion.id]: createChampionCombatState(0) },
+            torchBurnStart: nextTorchBurnStart,
         };
     }),
 
@@ -3210,6 +3270,19 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
     }),
 
     selectChampion: (index) => set({ selectedChampionIndex: index }),
+
+    setGameOptions: (updater) => set((state) => ({
+        gameOptions: {
+            ...state.gameOptions,
+            ...updater,
+            keybindings: updater.keybindings
+                ? {
+                    ...state.gameOptions.keybindings,
+                    ...updater.keybindings,
+                }
+                : state.gameOptions.keybindings,
+        },
+    })),
 
     reorderParty: (fromIndex, toIndex) => set((state) => {
         if (fromIndex === toIndex) return state;
@@ -3597,6 +3670,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             creatureLastSeenPartyPos,
         });
         set({
+            gameOptions: data.gameOptions ?? DEFAULT_GAME_OPTIONS,
             level: data.level,
             position: data.position,
             direction: data.direction,
@@ -3697,6 +3771,9 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         // lower skill still casts but costs full mana — DM1 behaviour)
         const skillLevel = getSkillLevel(champion.skills, spell.castSkill);
         const lowSkill   = skillLevel < spell.manaBase;
+        const castEquip = state.championEquipment[championId] ?? {};
+        const successChance = getSpellSuccessChanceApprox(champion, castEquip, state.activePotionBoosts, spell);
+        const castSucceeded = Math.random() < successChance;
 
         const newMana = vitals.mana - spell.manaCost;
 
@@ -3708,17 +3785,26 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         const curXP = state.championXP[championId] ?? { fighter: 0, ninja: 0, priest: 0, wizard: 0 };
         const newXP = { ...curXP, [spell.castSkill]: curXP[spell.castSkill] + spellXPGain };
 
-        const message = lowSkill
-            ? `${spell.name} lancé avec difficulté. (${spell.castSkill} niv. ${skillLevel})`
-            : `${spell.name} — ${spell.description}`;
+        const message = !castSucceeded
+            ? `${spell.name} échoue.`
+            : lowSkill
+                ? `${spell.name} lancé avec difficulté. (${spell.castSkill} niv. ${skillLevel})`
+                : `${spell.name} — ${spell.description}`;
 
         const now = Date.now();
         let newVitals = { ...vitals, mana: Math.max(0, newMana) };
 
         const base = {
             championXP: { ...state.championXP, [championId]: newXP },
-            lastCastResult: { success: true, message, ts: now } as CastResult,
+            lastCastResult: { success: castSucceeded, message: `${message} (${Math.round(successChance * 100)}%)`, ts: now } as CastResult,
         };
+
+        if (!castSucceeded) {
+            return {
+                ...base,
+                championVitals: { ...state.championVitals, [championId]: newVitals },
+            };
+        }
 
         // ── Apply spell effect ────────────────────────────────────────────────
         switch (spell.effect) {

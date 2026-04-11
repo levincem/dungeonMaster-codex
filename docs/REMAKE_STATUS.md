@@ -10,6 +10,7 @@ Le point important a ce stade:
 
 - l'extraction des donnees originales essentielles est consideree comme fiable
 - la dette principale n'est plus "trouver les donnees", mais "finir les derniers recollages de fidelite et optimiser"
+- le projet doit maintenant etre considere comme une beta jouable et serieuse
 
 ## Tour des systemes du jeu
 
@@ -242,6 +243,26 @@ Point de controle avant optimisation:
 - game over
 - fin / victoire
 - dernier polish UX
+
+### 4. Ameliorations beta / confort
+
+- ajouter un vrai menu d'options dans l'UI
+- permettre la reassignment des touches depuis ce menu
+- conserver ces options dans la sauvegarde
+- prevoir un export / import de sauvegarde en fichier texte, en plus du `localStorage`
+- envisager une mini-map optionnelle, clairement presentee comme aide moderne et non comme element du jeu d'origine
+
+### 5. Localisation et coherence des textes
+
+- ajouter une vraie version anglaise et une vraie version francaise
+- poser un systeme de localisation unique au lieu du melange actuel
+- a court terme, corriger l'etat courant pour revenir a de l'anglais partout, de facon coherente avec le jeu original
+- a moyen terme, exposer un choix `EN / FR` dans les options
+
+Constat actuel:
+
+- le projet melange encore textes originaux anglais et textes UI/runtime francais
+- ce n'est pas encore gere comme une vraie fonctionnalite de localisation
 
 ## Notes de confiance
 

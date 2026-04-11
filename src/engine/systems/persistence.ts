@@ -15,6 +15,7 @@ import type {
 } from '../runtimeTypes';
 
 export interface PersistableGameState {
+    gameOptions: import('../runtimeTypes').GameOptions;
     level: number;
     position: [number, number];
     direction: Direction;
@@ -90,6 +91,7 @@ export function buildPersistedSaveData(
     return {
         version: 1,
         savedAt: now,
+        gameOptions: state.gameOptions,
         level: state.level,
         position: state.position,
         direction: state.direction,

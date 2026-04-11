@@ -282,6 +282,7 @@ const WallTextPlanes: React.FC<{ map: GameMap }> = memo(({ map }) => {
 });
 
 const LightController: React.FC = () => {
+    const levelIndex = useStore(s => s.level);
     const spellLights      = useStore(s => s.spellLights);
     const torchBurnStart   = useStore(s => s.torchBurnStart);
     const championEquipment = useStore(s => s.championEquipment);
@@ -289,15 +290,56 @@ const LightController: React.FC = () => {
 
     useFrame(() => {
         if (!lightRef.current) return;
+        if (levelIndex === 0) {
+            lightRef.current.intensity += (1.15 - lightRef.current.intensity) * 0.04;
+            lightRef.current.color.lerp(DUNGEON_AMBIENT_COLOR, 0.04);
+            return;
+        }
+
         const level  = computeLightLevel(spellLights, torchBurnStart, championEquipment);
-        const target = Math.max(0, level) * 2.0;
+        const target = 0.07 + Math.max(0, level) * 1.05;
         lightRef.current.intensity += (target - lightRef.current.intensity) * 0.04;
 
-        const colorTarget = level > 0.45 ? DUNGEON_AMBIENT_COLOR : DUNGEON_DARK_AMBIENT_COLOR;
+        const colorTarget = level > 0.35 ? DUNGEON_AMBIENT_COLOR : DUNGEON_DARK_AMBIENT_COLOR;
         lightRef.current.color.lerp(colorTarget, 0.025);
     });
 
-    return <ambientLight ref={lightRef} intensity={2.0} color="#e8dbbd" />;
+    return <ambientLight ref={lightRef} intensity={0.1} color="#9aa6bd" />;
+};
+
+const DarknessOverlay: React.FC = () => {
+    const levelIndex = useStore(s => s.level);
+    const spellLights = useStore(s => s.spellLights);
+    const torchBurnStart = useStore(s => s.torchBurnStart);
+    const championEquipment = useStore(s => s.championEquipment);
+    const [opacity, setOpacity] = useState(0);
+
+    useEffect(() => {
+        const update = () => {
+            if (levelIndex === 0) {
+                setOpacity(0);
+                return;
+            }
+            const level = computeLightLevel(spellLights, torchBurnStart, championEquipment);
+            setOpacity(Math.max(0, 0.84 - level * 0.84));
+        };
+
+        update();
+        const intervalId = window.setInterval(update, 250);
+        return () => window.clearInterval(intervalId);
+    }, [levelIndex, spellLights, torchBurnStart, championEquipment]);
+
+    return (
+        <div
+            style={{
+                position: 'absolute',
+                inset: 0,
+                background: `rgba(0, 0, 0, ${opacity})`,
+                pointerEvents: 'none',
+                zIndex: 2,
+            }}
+        />
+    );
 };
 
 // ─── Projectile renderer ──────────────────────────────────────────────────────
@@ -1109,6 +1151,7 @@ const FloorItemsLayer: React.FC = () => {
     const level      = useStore(s => s.level);
     const pickupItem = useStore(s => s.pickupItem);
     const map = getGameMap(level);
+    const isMirrorTile = (item: FloorItem) => MIRROR_WALL_MAP.has(`${level},${item.x},${item.y}`);
     const isWallMounted = (item: FloorItem) => {
         const tile = map.tiles[item.y]?.[item.x];
         return tile && (tile.type === 'Wall' || tile.type === 'TrickWall');
@@ -1117,6 +1160,7 @@ const FloorItemsLayer: React.FC = () => {
         <>
             {floorItems
                 .filter(i => i.mapIndex === level)
+                .filter(i => !isMirrorTile(i))
                 .map(i => (
                     isWallMounted(i)
                         ? <WallMountedItemMesh key={i.id} item={i} onPickup={() => pickupItem(i.id)} />
@@ -1368,11 +1412,36 @@ export const DungeonScene = () => {
         };
     }, [direction, level, map, position]);
 
+    const handleCanvasCreated = useCallback(({ gl }: { gl: THREE.WebGLRenderer }) => {
+        const canvas = gl.domElement;
+
+        const onContextLost = (event: Event) => {
+            event.preventDefault();
+            console.warn('WebGL context lost.');
+        };
+
+        const onContextRestored = () => {
+            console.warn('WebGL context restored.');
+        };
+
+        canvas.addEventListener('webglcontextlost', onContextLost, false);
+        canvas.addEventListener('webglcontextrestored', onContextRestored, false);
+    }, []);
+
     return (
         <div style={{ width: '100vw', height: '100vh', background: '#000', position: 'relative' }}>
             <LevelName key={level} level={level} />
+            <DarknessOverlay />
 
-            <Canvas gl={{ localClippingEnabled: true }}>
+            <Canvas
+                dpr={[1, 1.25]}
+                gl={{
+                    localClippingEnabled: true,
+                    antialias: false,
+                    powerPreference: 'high-performance',
+                }}
+                onCreated={handleCanvasCreated}
+            >
                 <fog attach="fog" args={['#030405', BASE_FOG_NEAR, BASE_FOG_FAR]} />
                 <LightController />
                 <CameraController />

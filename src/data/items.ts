@@ -361,7 +361,7 @@ const OFFICIAL_ARMOR_TYPES: Record<number, ArmorDef> = {
     34: { id: 34, name: 'Mithral Aketon',     slot: 'torso', armor:  70, weight: 5.2 },
     35: { id: 35, name: 'Mithral Mail',       slot: 'torso', armor:  55, weight: 4.1 },
     36: { id: 36, name: "Casque'n Coif",      slot: 'head',  armor:  25, weight: 1.6 },
-    37: { id: 37, name: 'Hosen',              slot: 'legs',  armor:  30, weight: 1.6 },
+    37: { id: 37, name: 'Hosen',              slot: 'feet',  armor:  30, weight: 1.6 },
     38: { id: 38, name: 'Armet',              slot: 'head',  armor:  40, weight: 1.9 },
     39: { id: 39, name: 'Torso Plate',        slot: 'torso', armor:  65, weight: 12.0 },
     40: { id: 40, name: 'Leg Plate',          slot: 'legs',  armor:  56, weight: 8.0 },
@@ -536,9 +536,11 @@ const SCROLL_TEXT_FIXUPS: Record<string, string> = {
     'ORCH': 'INVOKE FUL\nFOR A MAGIC\nTORCH',
     RTCUT: 'SHORTCUT',
     ACK: 'TURN BACK',
-    'BRAVE\nADVENTURERS.': 'COME BACK\nBRAVE\nADVENTURERS.',
-    'AVE\nADVENTURERS.': 'COME BACK\nBRAVE\nADVENTURERS.',
-    'ADVENTURERS.': 'COME BACK\nBRAVE\nADVENTURERS.',
+    'WELCOME BACK\nBRAVE\nADVENTURERS.': 'WELCOME\nBRAVE\nADVENTURERS.',
+    'COME BACK\nBRAVE\nADVENTURERS.': 'WELCOME\nBRAVE\nADVENTURERS.',
+    'BRAVE\nADVENTURERS.': 'WELCOME\nBRAVE\nADVENTURERS.',
+    'AVE\nADVENTURERS.': 'WELCOME\nBRAVE\nADVENTURERS.',
+    'ADVENTURERS.': 'WELCOME\nBRAVE\nADVENTURERS.',
 };
 
 export function normalizeScrollText(rawText?: string): string | undefined {

@@ -92,6 +92,20 @@ export interface ChampionCombat {
     defenseModifier: number;
 }
 
+export type GameAction =
+    | 'moveForward'
+    | 'moveBackward'
+    | 'turnLeft'
+    | 'turnRight'
+    | 'strafeLeft'
+    | 'strafeRight';
+
+export type KeyBindings = Record<GameAction, string[]>;
+
+export interface GameOptions {
+    keybindings: KeyBindings;
+}
+
 export interface PersistedCreatureTimers {
     moveRemaining: number;
     attackRemaining: number;
@@ -106,6 +120,7 @@ export interface PersistedCreatureTimers {
 export interface PersistedSaveData {
     version: 1;
     savedAt: number;
+    gameOptions?: GameOptions;
     level: number;
     position: [number, number];
     direction: Direction;
