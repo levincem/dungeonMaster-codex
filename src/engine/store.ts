@@ -70,7 +70,18 @@ import {
     normaliseWaterContainer,
 } from '../data/waterContainers';
 import { doorBlocksThrownItems, doorBlocksVision } from '../data/doors';
-import { playPartyAttack, playCreatureMove, playCreatureAttack, playPlate } from './sounds';
+import {
+    playPartyAttack,
+    playCreatureMove,
+    playCreatureAttack,
+    playPlate,
+    playDoor,
+    playTeleport,
+    playWallBump,
+    playChampionWounded,
+    playHornOfFear,
+    playWarCry,
+} from './sounds';
 import { readPersistedSave, writePersistedSave } from './saveGame';
 import type { GameOptions } from './runtimeTypes';
 import {
@@ -2997,6 +3008,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             const wallBumpChanges = targetTile && (targetTile.type === 'Wall' || targetTile.type === 'TrickWall')
                 ? applyFrontRowWallBumpDamage(state, postFatigueVitals)
                 : null;
+            if (wallBumpChanges) playWallBump();
             if (
                 Object.keys(pushChanges.sensorChanges).length === 0
                 && pushChanges.pendingSensorEvents === state.pendingSensorEvents
@@ -3039,6 +3051,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             const tp = getTeleporter(tile);
             if (tp && tp.destMap !== state.level) {
                 if (!state.gateOpen) return state;
+                playTeleport();
                 return {
                     level: tp.destMap,
                     position: [tp.destY, tp.destX] as [number, number],
@@ -3051,6 +3064,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             if (tp && tp.destMap === state.level) {
                 const tpKey = `${state.level},${ny},${nx}`;
                 if (state.openTeleporters.has(tpKey)) {
+                    playTeleport();
                     const ss: SensorState = { openDoors: state.openDoors, openTeleporters: state.openTeleporters, openWalls: state.openWalls, activeSensors: state.activeSensors, firedSensors: state.firedSensors, visibleTexts: state.visibleTexts };
                     const sensorChanges = transitionFloorSensors(
                         state.level,
@@ -3349,6 +3363,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             next.add(key);
             const remaining = { ...state.crushingDoors };
             delete remaining[key];
+            playDoor();
             return { openDoors: next, crushingDoors: remaining };
         }
 
@@ -3357,6 +3372,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         const blocker = state.creatures.find(
             c => c.alive && c.mapIndex === state.level && c.x === x && c.y === y
         );
+        playDoor();
         if (blocker) {
             // Start crush cycle
             return {
@@ -4843,6 +4859,11 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                     }
                     return base;
                 }
+                case 'War Cry': {
+                    if (rightHand?.typeId === 43) playHornOfFear();
+                    else playWarCry();
+                    return base;
+                }
                 case 'Fuse': {
                     if (!target) {
                         return {
@@ -4960,6 +4981,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 state.activePotionBoosts,
                 selectedAttack,
             );
+            if (brokenDoor && brokenDoor.openDoors !== state.openDoors) playDoor();
             return {
                 championCombat: { ...state.championCombat, [championId]: newCombat },
                 championVitals,
@@ -5379,6 +5401,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                         vitals = { ...vitals, [target.id]: nextTargetVitals };
                         if (newHP === 0 && !newlyDead.includes(target.id))
                             newlyDead.push(target.id);
+                        playChampionWounded();
                         dmgEvts = [...dmgEvts, buildChampionDamageEvent(state.level, target.id, dmg)];
                         anyChange = true;
                     }

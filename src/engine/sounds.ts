@@ -10,6 +10,15 @@ const FILES: Record<string, string> = {
     footstep:               'footstep.mp3',
     cry:                    'cry.mp3',
     plate:                  'clic.wav',
+    door:                   'door.wav',
+    teleport:               'teleport.wav',
+    wall_bump:              'wall_bump.wav',
+    champion_wounded_1:     'champion_wounded_1.wav',
+    champion_wounded_2:     'champion_wounded_2.wav',
+    champion_wounded_3:     'champion_wounded_3.wav',
+    champion_wounded_4:     'champion_wounded_4.wav',
+    horn_of_fear:           'horn_of_fear.wav',
+    war_cry:                'war_cry.wav',
     // Party attack
     attack_slash:           'attack_slash.mp3',
     // Creature attacks
@@ -127,6 +136,15 @@ function play(name: string, volume = 0.65): void {
 export function playStep():  void { play('footstep', 0.60); }
 export function playCry():   void { play('cry',       0.55); }
 export function playPlate(): void { play('plate',     0.80); }
+export function playDoor(): void { play('door', 0.65); }
+export function playTeleport(): void { play('teleport', 0.70); }
+export function playWallBump(): void { play('wall_bump', 0.70); }
+export function playChampionWounded(): void {
+    const sound = CHAMPION_WOUNDED_SOUNDS[Math.floor(Math.random() * CHAMPION_WOUNDED_SOUNDS.length)];
+    play(sound, 0.68);
+}
+export function playHornOfFear(): void { play('horn_of_fear', 0.72); }
+export function playWarCry(): void { play('war_cry', 0.72); }
 
 // ─── Party attack ─────────────────────────────────────────────────────────────
 export function playPartyAttack(): void { play('attack_slash', 0.70); }
@@ -180,6 +198,13 @@ const ATTACK_SOUND_OVERRIDES: Partial<Record<number, string>> = {
     7: 'attack_rockpile', // Local asset is closer to the original rockpile impact.
     20: 'attack_water_elemental', // Preserve the dedicated local clip while keeping ordinal-derived fallback logic.
 };
+
+const CHAMPION_WOUNDED_SOUNDS = [
+    'champion_wounded_1',
+    'champion_wounded_2',
+    'champion_wounded_3',
+    'champion_wounded_4',
+] as const;
 
 export function playCreatureMove(typeId: number): void {
     const s = CREATURE_SOUNDS[typeId];

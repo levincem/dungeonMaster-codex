@@ -1528,6 +1528,7 @@ const TileGrid: React.FC<{
 // ─── Scene ────────────────────────────────────────────────────────────────────
 export const DungeonScene = () => {
     const dungeonText = useI18n().dungeonScene;
+    const canvasHostRef = useRef<HTMLDivElement>(null);
     const [isItemDragActive, setIsItemDragActive] = useState(false);
     // Only subscribe to stable/slow-changing state here
     const level          = useStore(s => s.level);
@@ -1730,6 +1731,16 @@ export const DungeonScene = () => {
 
     const handleCanvasCreated = useCallback(({ gl }: { gl: THREE.WebGLRenderer }) => {
         const canvas = gl.domElement;
+        const host = canvasHostRef.current;
+
+        const syncCanvasSize = () => {
+            if (!host) return;
+
+            const width = Math.max(1, Math.floor(host.clientWidth));
+            const height = Math.max(1, Math.floor(host.clientHeight));
+            gl.setPixelRatio(1);
+            gl.setSize(width, height, false);
+        };
 
         const onContextLost = (event: Event) => {
             event.preventDefault();
@@ -1738,14 +1749,27 @@ export const DungeonScene = () => {
 
         const onContextRestored = () => {
             console.warn('WebGL context restored.');
+            syncCanvasSize();
         };
 
+        syncCanvasSize();
         canvas.addEventListener('webglcontextlost', onContextLost, false);
         canvas.addEventListener('webglcontextrestored', onContextRestored, false);
+
+        const resizeObserver = host
+            ? new ResizeObserver(() => {
+                syncCanvasSize();
+            })
+            : null;
+
+        if (host) {
+            resizeObserver?.observe(host);
+        }
     }, []);
 
     return (
         <div
+            ref={canvasHostRef}
             onDragOver={(event) => {
                 if (!isItemDragActive) return;
                 event.preventDefault();
@@ -1759,7 +1783,7 @@ export const DungeonScene = () => {
                 setIsItemDragActive(false);
                 dropCarriedItem(payload.fromChampionId, payload.itemId, payload.fromSlot);
             }}
-            style={{ width: '100vw', height: '100vh', background: '#000', position: 'relative' }}
+            style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', background: '#000', overflow: 'hidden' }}
         >
             <LevelName key={level} level={level} />
             <DarknessOverlay />
@@ -1790,7 +1814,8 @@ export const DungeonScene = () => {
             )}
 
             <Canvas
-                dpr={[1, 1.25]}
+                dpr={1}
+                style={{ display: 'block', width: '100%', height: '100%' }}
                 gl={{
                     localClippingEnabled: true,
                     antialias: false,
