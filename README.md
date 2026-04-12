@@ -4,7 +4,15 @@ Remake / reinterpretation of *Dungeon Master* built with React, TypeScript, Vite
 
 The goal is to rebuild the original game's exploration, champions, creatures, objects, spells, mechanisms, and dungeon data as faithfully as possible inside a modern and maintainable web codebase.
 
-This is a non-commercial amateur project. The visuals are a mix of hand-made work, extracted references, and AI-assisted asset production. A significant part of the reverse-engineering and implementation workflow has been developed with LLM assistance, then checked and refined inside the repository.
+This is a non-commercial amateur project. The visuals are a mix of extracted references and AI-assisted asset production. A significant part of the reverse-engineering and implementation workflow has been developed with LLM assistance, then checked and refined inside the repository. 
+
+Improving graphics—including images of items on the ground and in the inventory, as well as monster sprites with more frames—is a potential area for development.
+
+## Live Version
+
+The current public build is available at [dungeon-master.fr](https://dungeon-master.fr/).
+
+This is currently a desktop-first beta. Smartphone play is not supported yet.
 
 ## Current State
 
@@ -172,8 +180,15 @@ The most useful detailed internal summaries are:
 
 Thanks to:
 
-- Doug Bell, Mike Newton, Dennis Walker, Andy Jaros, Wayne Holder, Nancy Holder, Tsukasa Tawada
-- FTL Games
+The original team : 
+- Publishers : FTL Games
+- Director : Doug Bell
+- Producer : Wayne Holder
+- Designer : Doug Bell
+- Programmers : Doug Bell, Dennis Walker, Mike Newton
+- Artist : Andrew Jaros
+- Composer : Wayne Holder
+
 - the [Dungeon Master community](https://www.dungeon-master.com/forum/)
 - the [Dungeon Master Encyclopaedia](http://dmweb.free.fr/)
 - the [ReDMCSB](https://github.com/gondur/ReDMCSB_Release2) project by Christophe Fontanel
