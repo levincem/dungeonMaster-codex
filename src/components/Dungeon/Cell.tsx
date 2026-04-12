@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useEffect, Suspense } from 'react';
+import React, { useMemo, useRef, useEffect, Suspense, useState } from 'react';
 import { Box, Plane, useTexture } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -139,6 +139,53 @@ function makeWhiteTransparentTexture(texture: THREE.Texture): THREE.Texture {
     return next;
 }
 
+function useSafeTexture(url: string, fallbackUrl: string): THREE.Texture | null {
+    const [texture, setTexture] = useState<THREE.Texture | null>(null);
+
+    useEffect(() => {
+        let disposed = false;
+        let activeTexture: THREE.Texture | null = null;
+        const loader = new THREE.TextureLoader();
+
+        const finalizeTexture = (next: THREE.Texture) => {
+            if (disposed) {
+                next.dispose();
+                return;
+            }
+
+            activeTexture?.dispose();
+            activeTexture = next;
+            setTexture(next);
+        };
+
+        const loadWithFallback = (source: string, fallback?: string) => {
+            loader.load(
+                source,
+                loaded => finalizeTexture(loaded),
+                undefined,
+                () => {
+                    if (fallback) {
+                        loadWithFallback(fallback);
+                        return;
+                    }
+
+                    setTexture(null);
+                },
+            );
+        };
+
+        setTexture(null);
+        loadWithFallback(url, fallbackUrl);
+
+        return () => {
+            disposed = true;
+            activeTexture?.dispose();
+        };
+    }, [fallbackUrl, url]);
+
+    return texture;
+}
+
 /** Decorative frame always visible on mirror wall, regardless of champion state. */
 const PortraitFrame: React.FC<{ wallFace: CardinalDir }> = ({ wallFace }) => {
     const { pos, rot } = FACE_CONFIGS[wallFace];
@@ -242,7 +289,7 @@ const DoorMeshInner: React.FC<{
     const buttonTexturePath = open
         ? miscPath('wall_switch_small_in.png')
         : miscPath('wall_switch_small_out.png');
-    const baseButtonTex = useTexture(buttonTexturePath);
+    const baseButtonTex = useSafeTexture(buttonTexturePath, miscPath('wall_switch_small.png'));
     const groupRef = useRef<THREE.Group>(null);
     const matRef1  = useRef<THREE.MeshBasicMaterial>(null);
     const progress = useRef(open ? 1 : 0);
@@ -284,13 +331,18 @@ const DoorMeshInner: React.FC<{
         }),
         [baseWallTex, hasButton],
     );
-    const buttonTex = useMemo(
-        () => makeWhiteTransparentTexture(cloneTexture(baseButtonTex, next => { next.colorSpace = THREE.SRGBColorSpace; })),
-        [baseButtonTex],
-    );
+    const buttonTex = useMemo(() => {
+        if (!baseButtonTex) return null;
+
+        return makeWhiteTransparentTexture(
+            cloneTexture(baseButtonTex, next => {
+                next.colorSpace = THREE.SRGBColorSpace;
+            }),
+        );
+    }, [baseButtonTex]);
     useEffect(() => () => tex.dispose(), [tex]);
     useEffect(() => () => wallTex.dispose(), [wallTex]);
-    useEffect(() => () => buttonTex.dispose(), [buttonTex]);
+    useEffect(() => () => buttonTex?.dispose(), [buttonTex]);
 
     const handleBtnClick = (e: ThreeEvent<MouseEvent>) => {
         e.stopPropagation();
@@ -313,24 +365,26 @@ const DoorMeshInner: React.FC<{
                         <meshBasicMaterial map={wallTex} side={THREE.DoubleSide} />
                     </Plane>
                     {/* Clickable button boss */}
-                    <group position={[buttonCenterX, 0, 0.012]}>
-                        <Plane
-                            args={[buttonSize, buttonSize]}
-                            onClick={handleBtnClick}
-                        >
-                            <meshBasicMaterial
-                                map={buttonTex}
-                                side={THREE.DoubleSide}
-                                transparent
-                                alphaTest={0.05}
-                                depthTest={false}
-                                depthWrite={false}
-                                polygonOffset
-                                polygonOffsetFactor={-4}
-                                polygonOffsetUnits={-4}
-                            />
-                        </Plane>
-                    </group>
+                    {buttonTex && (
+                        <group position={[buttonCenterX, 0, 0.012]}>
+                            <Plane
+                                args={[buttonSize, buttonSize]}
+                                onClick={handleBtnClick}
+                            >
+                                <meshBasicMaterial
+                                    map={buttonTex}
+                                    side={THREE.DoubleSide}
+                                    transparent
+                                    alphaTest={0.05}
+                                    depthTest={false}
+                                    depthWrite={false}
+                                    polygonOffset
+                                    polygonOffsetFactor={-4}
+                                    polygonOffsetUnits={-4}
+                                />
+                            </Plane>
+                        </group>
+                    )}
                 </>
             )}
         </>
