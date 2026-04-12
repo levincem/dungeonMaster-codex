@@ -5,6 +5,8 @@ import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import type { CardinalDir } from '../../types/game';
 import { itemsPath, miscPath } from '../../data/assetPaths';
 
+const NO_RAYCAST: THREE.Mesh['raycast'] = () => {};
+
 // ─── Face positioning (same convention as WallSensor / Cell FACE_CONFIGS) ─────
 
 const HALF = GRID_SIZE / 2;
@@ -115,7 +117,7 @@ const DecalSprite = ({ image, width, height }: { image: string; width: number; h
     }, [baseTex]);
     useEffect(() => () => tex.dispose(), [tex]);
     return (
-        <mesh frustumCulled={false} renderOrder={10}>
+        <mesh frustumCulled={false} renderOrder={10} raycast={NO_RAYCAST}>
             <planeGeometry args={[width, height]} />
             <meshBasicMaterial
                 map={tex}
@@ -199,7 +201,7 @@ const LabelSprite = ({
     useEffect(() => () => texture.dispose(), [texture]);
 
     return (
-        <mesh frustumCulled={false} renderOrder={10}>
+        <mesh frustumCulled={false} renderOrder={10} raycast={NO_RAYCAST}>
             <planeGeometry args={[width, height]} />
             <meshBasicMaterial
                 map={texture}
@@ -258,6 +260,7 @@ export const WallDecal = ({
     const decalHeight = height ?? preset.height;
     const plateWidth = Math.max(decalWidth - PLATE_INSET_X, decalWidth * 0.86);
     const plateHeight = Math.max(decalHeight - PLATE_INSET_Y, decalHeight * 0.84);
+    const contentDepth = image === miscPath('wall_torch_holder_empty.png') ? PLATE_DEPTH * 0.02 : PLATE_DEPTH * 0.16;
 
     return (
         <group
@@ -267,14 +270,14 @@ export const WallDecal = ({
         >
             {preset.hasBacking && (
                 <>
-                    <mesh position={[0, 0, -PLATE_DEPTH * 0.55]} frustumCulled={false} renderOrder={1}>
+                    <mesh position={[0, 0, -PLATE_DEPTH * 0.55]} frustumCulled={false} renderOrder={1} raycast={NO_RAYCAST}>
                         <boxGeometry args={[plateWidth, plateHeight, PLATE_DEPTH]} />
                         <meshBasicMaterial color={preset.plateColor} />
                     </mesh>
                 </>
             )}
             {preset.hasGlow && (
-                <mesh position={[0, 0, -PLATE_DEPTH * 0.04]} frustumCulled={false} renderOrder={2}>
+                <mesh position={[0, 0, -PLATE_DEPTH * 0.04]} frustumCulled={false} renderOrder={2} raycast={NO_RAYCAST}>
                     <planeGeometry args={[decalWidth * 1.1, decalHeight * 1.1]} />
                     <meshBasicMaterial
                         color={accent}
@@ -290,7 +293,7 @@ export const WallDecal = ({
                     />
                 </mesh>
             )}
-            <group position={[0, 0, PLATE_DEPTH * 0.16]}>
+            <group position={[0, 0, contentDepth]}>
                 {image ? (
                     <Suspense fallback={null}>
                         <DecalSprite image={image} width={decalWidth} height={decalHeight} />

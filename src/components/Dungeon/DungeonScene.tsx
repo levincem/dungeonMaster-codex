@@ -3,7 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import type { ThreeEvent } from '@react-three/fiber';
 import { PerspectiveCamera, Plane, Html, useTexture, Billboard } from '@react-three/drei';
 import * as THREE from 'three';
-import { useStore, MIRROR_WALL_MAP, MIRROR_FACE_MAP, STAIR_CONNECTIONS, getCreatureFluxcageExpiry } from '../../engine/store';
+import { useStore, MIRROR_WALL_MAP, MIRROR_FACE_MAP, STAIR_CONNECTIONS, getCreatureFluxcageExpiry, isSelfRevealingWallTile } from '../../engine/store';
 import { DAMAGE_EVENT_LIFETIME_MS, FOOTPRINT_LIFETIME_MS } from '../../engine/time';
 import { getMapMechanisms, getMechanismsAt } from '../../data/mechanisms';
 import { getOriginalWallOverlaysForMap, type OriginalWallOverlayRender } from '../../data/originalWallOverlays';
@@ -27,6 +27,7 @@ import type { FloorItem } from '../../types/game';
 import type { CreatureInstance } from '../../types/game';
 import { miscPath, texturesPath } from '../../data/assetPaths';
 import { getDragPayload } from '../UI/dragPayload';
+import { useI18n } from '../../i18n';
 
 const HALF = GRID_SIZE / 2;
 const BASE_FOG_NEAR = GRID_SIZE * 2;
@@ -61,6 +62,7 @@ const CameraController = () => {
     const position  = useStore(s => s.position);
     const direction = useStore(s => s.direction);
     const cameraRef = useRef<THREE.PerspectiveCamera>(null);
+    const initializedRef = useRef(false);
     const prevLevelRef = useRef(level);
     const prevPositionRef = useRef<[number, number]>(position);
     const targetPos = useMemo(
@@ -69,10 +71,21 @@ const CameraController = () => {
     );
     const rotationMap = { NORTH: 0, EAST: -Math.PI / 2, SOUTH: Math.PI, WEST: Math.PI / 2 };
     const targetRot = rotationMap[direction as keyof typeof rotationMap];
+    const initialCameraPosition = useRef<[number, number, number]>([position[1] * GRID_SIZE, 0, position[0] * GRID_SIZE]);
+    const initialCameraRotation = useRef<[number, number, number]>([0, targetRot, 0]);
 
     useEffect(() => {
         const camera = cameraRef.current;
         if (!camera) return;
+
+        if (!initializedRef.current) {
+            camera.position.copy(targetPos);
+            camera.rotation.set(0, targetRot, 0);
+            initializedRef.current = true;
+            prevLevelRef.current = level;
+            prevPositionRef.current = position;
+            return;
+        }
 
         const [prevY, prevX] = prevPositionRef.current;
         const jumpedDistance = Math.abs(prevX - position[1]) + Math.abs(prevY - position[0]);
@@ -96,7 +109,15 @@ const CameraController = () => {
         cameraRef.current.rotation.y += diff * 0.1;
     });
 
-    return <PerspectiveCamera ref={cameraRef} makeDefault position={[1, 0, 1]} fov={75} />;
+    return (
+        <PerspectiveCamera
+            ref={cameraRef}
+            makeDefault
+            position={initialCameraPosition.current}
+            rotation={initialCameraRotation.current}
+            fov={75}
+        />
+    );
 };
 
 // ─── Boundary wall planes ─────────────────────────────────────────────────────
@@ -256,7 +277,66 @@ const WallTextEntry: React.FC<{ tileX: number; tileY: number; face: CardinalDir;
     );
 };
 
+const WALL_TEXT_FACE_VECTORS: Record<CardinalDir, { dx: number; dy: number }> = {
+    North: { dx: 0, dy: -1 },
+    South: { dx: 0, dy: 1 },
+    East: { dx: 1, dy: 0 },
+    West: { dx: -1, dy: 0 },
+};
+
+const LEFT_FACE_BY_FACE: Record<CardinalDir, CardinalDir> = {
+    North: 'West',
+    South: 'East',
+    East: 'North',
+    West: 'South',
+};
+
+const RIGHT_FACE_BY_FACE: Record<CardinalDir, CardinalDir> = {
+    North: 'East',
+    South: 'West',
+    East: 'South',
+    West: 'North',
+};
+
+function isWallTextAnchorTile(tile: GameTile | undefined): boolean {
+    return tile?.type === 'Wall' || tile?.type === 'TrickWall' || tile?.type === 'Door';
+}
+
+function resolveWallTextFace(map: GameMap, tile: GameTile, face: CardinalDir, text: string): CardinalDir {
+    if (text === 'WELCOME\nBRAVE\nADVENTURERS.') {
+        return 'West';
+    }
+
+    if (isWallTextAnchorTile(tile)) {
+        return face;
+    }
+
+    const forward = WALL_TEXT_FACE_VECTORS[face];
+    const forwardTile = map.tiles[tile.y + forward.dy]?.[tile.x + forward.dx];
+    if (isWallTextAnchorTile(forwardTile)) {
+        return face;
+    }
+
+    const leftFace = LEFT_FACE_BY_FACE[face];
+    const leftStep = WALL_TEXT_FACE_VECTORS[leftFace];
+    const leftTile = map.tiles[tile.y + leftStep.dy]?.[tile.x + leftStep.dx];
+    if (isWallTextAnchorTile(leftTile)) {
+        return leftFace;
+    }
+
+    const rightFace = RIGHT_FACE_BY_FACE[face];
+    const rightStep = WALL_TEXT_FACE_VECTORS[rightFace];
+    const rightTile = map.tiles[tile.y + rightStep.dy]?.[tile.x + rightStep.dx];
+    if (isWallTextAnchorTile(rightTile)) {
+        return rightFace;
+    }
+
+    return face;
+}
+
 const WallTextPlanes: React.FC<{ map: GameMap }> = memo(({ map }) => {
+    const level = useStore(s => s.level);
+    const visibleTexts = useStore(s => s.visibleTexts);
     const entries = useMemo(() => {
         const result: { tileX: number; tileY: number; face: CardinalDir; text: string }[] = [];
         for (const row of map.tiles) {
@@ -265,12 +345,19 @@ const WallTextPlanes: React.FC<{ map: GameMap }> = memo(({ map }) => {
                     if (obj.category !== 'Text') continue;
                     const t = obj as WallTextObject;
                     if (!t.text || CHAMPION_DATA_RE.test(t.text)) continue;
-                    result.push({ tileX: tile.x, tileY: tile.y, face: t.tilePos as CardinalDir, text: t.text });
+                    const visibilityKey = `${level}_${tile.x}_${tile.y}_${t.index}`;
+                    if (!visibleTexts.has(visibilityKey)) continue;
+                    result.push({
+                        tileX: tile.x,
+                        tileY: tile.y,
+                        face: resolveWallTextFace(map, tile, t.tilePos as CardinalDir, t.text),
+                        text: t.text,
+                    });
                 }
             }
         }
         return result;
-    }, [map]);
+    }, [level, map, visibleTexts]);
 
     return (
         <>
@@ -365,7 +452,7 @@ const WALL_DROP_POS: Record<CardinalDir, [number, number, number]> = {
     West: [-WALL_DROP_OFFSET, -WALL_HEIGHT * 0.04, 0],
 };
 
-const FrontWallLockDropTarget = ({
+export const FrontWallLockDropTarget = ({
     tileX,
     tileY,
     face,
@@ -380,6 +467,7 @@ const FrontWallLockDropTarget = ({
     requirement?: string;
     onUseItem: (championId: number, itemId: string, fromSlot: EquipSlotKey | 'inventory') => boolean;
 }) => {
+    const text = useI18n().dungeonScene;
     const [over, setOver] = useState(false);
     const [ox, oy, oz] = WALL_DROP_POS[face];
 
@@ -392,7 +480,7 @@ const FrontWallLockDropTarget = ({
             style={{ pointerEvents: 'auto' }}
         >
             <div
-                title={requirement ? `Deposer ${requirement} sur ${label.toLowerCase()}` : `Deposer l objet requis sur ${label.toLowerCase()}`}
+                title={requirement ? text.dropSpecificItemOn(requirement, label) : text.dropRequiredItemOn(label)}
                 onDragOver={(event) => {
                     event.preventDefault();
                     setOver(true);
@@ -425,6 +513,117 @@ const FrontWallLockDropTarget = ({
                 {requirement && <div style={{ marginTop: 4, color: '#d8bf84', fontSize: 10 }}>{requirement}</div>}
             </div>
         </Html>
+    );
+};
+
+const FrontWallMechanismDropTarget = ({ kind, onUseItem, activeFloorDragItemId, selectedChampionId, onUseFloorItem }: {
+    kind: 'wall-lock' | 'alcove' | 'object-exchanger';
+    onUseItem: (championId: number, itemId: string, fromSlot: EquipSlotKey | 'inventory') => boolean;
+    activeFloorDragItemId?: string | null;
+    selectedChampionId?: number | null;
+    onUseFloorItem?: (itemId: string, championId: number) => boolean;
+}) => {
+    const text = useI18n().dungeonScene;
+    const [over, setOver] = useState(false);
+    const isLock = kind === 'wall-lock';
+    const isAlcove = kind === 'alcove';
+    const apertureStyle: React.CSSProperties = isLock
+        ? {
+            width: 28,
+            height: 42,
+            borderRadius: '50% 50% 44% 44% / 42% 42% 58% 58%',
+            border: `2px solid ${over ? '#f2d27f' : '#b28a38'}`,
+            background: 'radial-gradient(circle at 50% 28%, rgba(255,226,157,0.18), rgba(0,0,0,0.92) 56%)',
+            boxShadow: over ? '0 0 14px rgba(242, 210, 127, 0.34)' : 'inset 0 0 12px rgba(0,0,0,0.75)',
+        }
+        : isAlcove
+            ? {
+                width: 76,
+                height: 42,
+                borderRadius: 6,
+                border: `2px solid ${over ? '#f2d27f' : '#9f7730'}`,
+                background: 'linear-gradient(180deg, rgba(18,18,18,0.38), rgba(0,0,0,0.94))',
+                boxShadow: over ? '0 0 16px rgba(242, 210, 127, 0.32)' : 'inset 0 0 14px rgba(0,0,0,0.82)',
+            }
+            : {
+                width: 68,
+                height: 16,
+                borderRadius: 999,
+                border: `2px solid ${over ? '#f2d27f' : '#9f7730'}`,
+                background: 'linear-gradient(180deg, rgba(0,0,0,0.92), rgba(18,18,18,0.55))',
+                boxShadow: over ? '0 0 14px rgba(242, 210, 127, 0.3)' : 'inset 0 0 12px rgba(0,0,0,0.72)',
+            };
+
+    return (
+        <div
+            data-dm-front-wall-drop="true"
+            onDragEnter={(event) => {
+                event.preventDefault();
+                setOver(true);
+            }}
+            onDragOver={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                event.dataTransfer.dropEffect = 'move';
+                setOver(true);
+            }}
+            onDragLeave={() => setOver(false)}
+            onDrop={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                setOver(false);
+                const payload = getDragPayload(event);
+                if (!payload) return;
+                onUseItem(payload.fromChampionId, payload.itemId, payload.fromSlot);
+            }}
+            onMouseEnter={() => {
+                if (activeFloorDragItemId) setOver(true);
+            }}
+            onMouseLeave={() => setOver(false)}
+            onMouseUp={(event) => {
+                if (!activeFloorDragItemId || selectedChampionId == null || !onUseFloorItem) return;
+                event.preventDefault();
+                event.stopPropagation();
+                setOver(false);
+                onUseFloorItem(activeFloorDragItemId, selectedChampionId);
+            }}
+            style={{
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: isLock ? 96 : isAlcove ? 132 : 124,
+                minHeight: 78,
+                padding: '8px 10px',
+                borderRadius: 12,
+                border: `2px solid ${over ? 'rgba(240,207,122,0.88)' : 'rgba(138,106,42,0.28)'}`,
+                background: over ? 'rgba(28,20,8,0.18)' : 'rgba(0,0,0,0.01)',
+                userSelect: 'none',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
+                pointerEvents: 'auto',
+                boxShadow: over ? '0 0 18px rgba(240, 207, 122, 0.22)' : 'none',
+                zIndex: 130,
+            }}
+        >
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '100%',
+                    minHeight: 42,
+                }}
+            >
+                <div style={apertureStyle} />
+            </div>
+            <div style={{ color: over ? '#f4dda1' : '#b8995d', fontSize: 10, fontFamily: '"Courier New", monospace', textAlign: 'center' }}>
+                {isLock ? text.dropKeyHere : isAlcove ? text.placeItemHere : text.offerItemHere}
+            </div>
+        </div>
     );
 };
 
@@ -833,6 +1032,7 @@ const SpellImpactLayer: React.FC = () => {
     const lightningMaterial = useMemo(() => createPulseMaterial('#d7f7ff', 0.34), []);
     const poisonMaterial = useMemo(() => createPulseMaterial('#8cff8b', 0.32), []);
     const disruptMaterial = useMemo(() => createPulseMaterial('#aeefff', 0.3), []);
+    const dustMaterial = useMemo(() => createPulseMaterial('#c9a56c', 0.38), []);
 
     useEffect(() => () => {
         ringGeometry.dispose();
@@ -840,7 +1040,8 @@ const SpellImpactLayer: React.FC = () => {
         lightningMaterial.dispose();
         poisonMaterial.dispose();
         disruptMaterial.dispose();
-    }, [ringGeometry, fireMaterial, lightningMaterial, poisonMaterial, disruptMaterial]);
+        dustMaterial.dispose();
+    }, [ringGeometry, fireMaterial, lightningMaterial, poisonMaterial, disruptMaterial, dustMaterial]);
 
     const materialByEffect: Record<SpellVisualEvent['effect'], THREE.MeshBasicMaterial> = {
         fireball: fireMaterial,
@@ -857,7 +1058,7 @@ const SpellImpactLayer: React.FC = () => {
                     key={`impact_${event.id}`}
                     event={event}
                     geometry={ringGeometry}
-                    material={materialByEffect[event.effect]}
+                    material={event.kind === 'death' ? dustMaterial : materialByEffect[event.effect]}
                 />
             ))}
         </>
@@ -875,15 +1076,20 @@ const SpellImpactPulse: React.FC<{
         if (!meshRef.current) return;
         const age = Date.now() - event.ts;
         const t = Math.max(0, Math.min(1, age / DAMAGE_EVENT_LIFETIME_MS));
-        const scale = event.kind === 'wall' ? 0.58 + t * 1.55 : 0.72 + t * 1.3;
+        const scale = event.kind === 'death'
+            ? 0.85 + t * 1.85
+            : event.kind === 'wall'
+                ? 0.58 + t * 1.55
+                : 0.72 + t * 1.3;
         meshRef.current.scale.setScalar(scale);
         (meshRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.45;
         meshRef.current.visible = t < 1;
         if (lightRef.current) {
             const baseIntensity =
-                event.effect === 'fireball' ? 1.8 :
-                    event.effect === 'lightning' ? 1.55 :
-                        event.effect === 'poison_cloud' || event.effect === 'poison_bolt' ? 0.8 : 1.0;
+                event.kind === 'death' ? 0.65 :
+                    event.effect === 'fireball' ? 1.8 :
+                        event.effect === 'lightning' ? 1.55 :
+                            event.effect === 'poison_cloud' || event.effect === 'poison_bolt' ? 0.8 : 1.0;
             lightRef.current.intensity = Math.max(0, (1 - t) * baseIntensity);
             lightRef.current.distance =
                 event.effect === 'fireball' ? GRID_SIZE * 1.7 :
@@ -892,13 +1098,14 @@ const SpellImpactPulse: React.FC<{
     });
 
     const lightColor =
-        event.effect === 'fireball' ? '#ff8a3d'
-            : event.effect === 'lightning' ? '#b7e8ff'
-                : event.effect === 'poison_cloud' || event.effect === 'poison_bolt' ? '#8cff8b'
-                    : '#aeefff';
+        event.kind === 'death' ? '#c9a56c'
+            : event.effect === 'fireball' ? '#ff8a3d'
+                : event.effect === 'lightning' ? '#b7e8ff'
+                    : event.effect === 'poison_cloud' || event.effect === 'poison_bolt' ? '#8cff8b'
+                        : '#aeefff';
 
     return (
-        <group position={[event.x * GRID_SIZE, GRID_SIZE * 0.06, event.y * GRID_SIZE]}>
+        <group position={[event.x * GRID_SIZE, event.kind === 'death' ? GRID_SIZE * 0.14 : GRID_SIZE * 0.06, event.y * GRID_SIZE]}>
             <mesh
                 ref={meshRef}
                 rotation={[-Math.PI / 2, 0, 0]}
@@ -1121,26 +1328,57 @@ const CreaturesLayer: React.FC = () => {
 // ─── Damage events layer ──────────────────────────────────────────────────────
 const DamageLayer: React.FC = () => {
     const damageEvents = useStore(s => s.damageEvents);
+    const level = useStore(s => s.level);
+    const [now, setNow] = useState(() => Date.now());
+
+    useEffect(() => {
+        const timer = window.setInterval(() => setNow(Date.now()), 33);
+        return () => window.clearInterval(timer);
+    }, []);
+
     return (
         <>
-            {damageEvents.map(evt => (
-                <Html
-                    key={evt.id}
-                    position={[evt.x * GRID_SIZE, WALL_HEIGHT * 0.7, evt.y * GRID_SIZE]}
-                    center occlude={false} zIndexRange={[200, 300]}
-                    style={{ pointerEvents: 'none' }}
-                >
-                    <div className="dmg-bubble" style={{
-                        background: 'rgba(200,30,10,0.90)', color: '#fff',
-                        padding: '4px 11px', borderRadius: 16, fontFamily: 'monospace',
-                        fontWeight: 'bold', fontSize: 22, textShadow: '0 1px 8px #000',
-                        border: '1px solid rgba(255,100,60,0.8)', boxShadow: '0 2px 14px rgba(0,0,0,0.8)',
-                        whiteSpace: 'nowrap',
-                    }}>
-                        -{evt.amount}
-                    </div>
-                </Html>
-            ))}
+            {damageEvents
+                .filter((evt) => evt.target === 'creature' && evt.level === level && evt.x !== undefined && evt.y !== undefined)
+                .map(evt => {
+                const age = Math.max(0, now - evt.ts);
+                const progress = Math.min(1, age / DAMAGE_EVENT_LIFETIME_MS);
+                const impactScale = Math.min(2.15, 0.95 + (evt.amount / 26));
+                const fontSize = Math.round(18 + Math.min(26, evt.amount * 0.45));
+                const paddingY = 4 + Math.min(8, evt.amount * 0.08);
+                const paddingX = 11 + Math.min(10, evt.amount * 0.14);
+                return (
+                    <Html
+                        key={evt.id}
+                        position={[evt.x! * GRID_SIZE, WALL_HEIGHT * (0.9 + progress * 0.28), evt.y! * GRID_SIZE]}
+                        center
+                        transform
+                        sprite
+                        distanceFactor={8}
+                        occlude={false}
+                        zIndexRange={[200, 300]}
+                        style={{ pointerEvents: 'none' }}
+                    >
+                        <div className="dmg-bubble" style={{
+                            background: 'rgba(155, 16, 8, 0.92)',
+                            color: '#fff6dc',
+                            padding: `${paddingY}px ${paddingX}px`,
+                            borderRadius: 999,
+                            fontFamily: 'monospace',
+                            fontWeight: 'bold',
+                            fontSize,
+                            textShadow: '0 1px 8px #000',
+                            border: '1px solid rgba(255,140,92,0.9)',
+                            boxShadow: '0 8px 18px rgba(0,0,0,0.55)',
+                            whiteSpace: 'nowrap',
+                            transform: `translateY(${-progress * 22}px) scale(${impactScale - progress * 0.18})`,
+                            opacity: 1 - progress * 0.55,
+                        }}>
+                            -{evt.amount}
+                        </div>
+                    </Html>
+                );
+            })}
         </>
     );
 };
@@ -1149,7 +1387,15 @@ const DamageLayer: React.FC = () => {
 const FloorItemsLayer: React.FC = () => {
     const floorItems = useStore(s => s.floorItems);
     const level      = useStore(s => s.level);
+    const openWalls  = useStore(s => s.openWalls);
     const pickupItem = useStore(s => s.pickupItem);
+    const beginFloorDrag = useStore(s => s.beginFloorDrag);
+    const updateFloorDrag = useStore(s => s.updateFloorDrag);
+    const endFloorDrag = useStore(s => s.endFloorDrag);
+    const useFloorItemOnFrontWall = useStore(s => s.useFloorItemOnFrontWall);
+    const selectedChampionIndex = useStore(s => s.selectedChampionIndex);
+    const party = useStore(s => s.party);
+    const selectedChampionId = party[selectedChampionIndex]?.id ?? party[0]?.id ?? null;
     const map = getGameMap(level);
     const isMirrorTile = (item: FloorItem) => MIRROR_WALL_MAP.has(`${level},${item.x},${item.y}`);
     const isWallMounted = (item: FloorItem) => {
@@ -1161,10 +1407,31 @@ const FloorItemsLayer: React.FC = () => {
             {floorItems
                 .filter(i => i.mapIndex === level)
                 .filter(i => !isMirrorTile(i))
+                .filter((item) => {
+                    if (!isWallMounted(item)) return true;
+                    if (!isSelfRevealingWallTile(level, item.x, item.y)) return true;
+                    return openWalls.has(`${level},${item.y},${item.x}`);
+                })
                 .map(i => (
                     isWallMounted(i)
                         ? <WallMountedItemMesh key={i.id} item={i} onPickup={() => pickupItem(i.id)} />
-                        : <FloorItemMesh key={i.id} item={i} onPickup={() => pickupItem(i.id)} />
+                        : (
+                            <FloorItemMesh
+                                key={i.id}
+                                item={i}
+                                onPickup={() => pickupItem(i.id)}
+                                onStartDrag={(item, _imagePath, pointerX, pointerY) => beginFloorDrag(item.id, pointerX, pointerY)}
+                                onUpdateDrag={updateFloorDrag}
+                                onEndDrag={(pointerX, pointerY) => {
+                                    const hovered = document.elementFromPoint(pointerX, pointerY) as HTMLElement | null;
+                                    const wallDrop = hovered?.closest('[data-dm-front-wall-drop="true"]');
+                                    if (wallDrop && selectedChampionId != null) {
+                                        useFloorItemOnFrontWall(i.id, selectedChampionId);
+                                    }
+                                    endFloorDrag();
+                                }}
+                            />
+                        )
                 ))
             }
         </>
@@ -1260,36 +1527,70 @@ const TileGrid: React.FC<{
 
 // ─── Scene ────────────────────────────────────────────────────────────────────
 export const DungeonScene = () => {
+    const dungeonText = useI18n().dungeonScene;
+    const [isItemDragActive, setIsItemDragActive] = useState(false);
     // Only subscribe to stable/slow-changing state here
     const level          = useStore(s => s.level);
     const position       = useStore(s => s.position);
     const direction      = useStore(s => s.direction);
+    const selectedChampionIndex = useStore(s => s.selectedChampionIndex);
     const openDoors      = useStore(s => s.openDoors);
     const openWalls      = useStore(s => s.openWalls);
     const openMirror     = useStore(s => s.openMirror);
     const toggleDoor     = useStore(s => s.toggleDoor);
     const activateWallSensor = useStore(s => s.activateWallSensor);
     const useItemOnFrontWall = useStore(s => s.useItemOnFrontWall);
+    const useFloorItemOnFrontWall = useStore(s => s.useFloorItemOnFrontWall);
+    const dropCarriedItem = useStore(s => s.dropCarriedItem);
     const activeSensors  = useStore(s => s.activeSensors);
+    const activeFloorDrag = useStore(s => s.activeFloorDrag);
+    const floorItems      = useStore(s => s.floorItems);
     const party          = useStore(s => s.party);
 
     const map = getGameMap(level);
     const recruitedIds = useMemo(() => new Set(party.map(c => c.id)), [party]);
+    const selectedChampionId = party[selectedChampionIndex]?.id ?? party[0]?.id ?? null;
+    const draggedFloorItem = useMemo(
+        () => activeFloorDrag ? floorItems.find((item) => item.id === activeFloorDrag.itemId) ?? null : null,
+        [activeFloorDrag, floorItems],
+    );
+
+    useEffect(() => {
+        const handleDragStart = () => setIsItemDragActive(true);
+        const handleDragEnd = () => setIsItemDragActive(false);
+
+        window.addEventListener('dragstart', handleDragStart);
+        window.addEventListener('dragend', handleDragEnd);
+        window.addEventListener('drop', handleDragEnd);
+
+        return () => {
+            window.removeEventListener('dragstart', handleDragStart);
+            window.removeEventListener('dragend', handleDragEnd);
+            window.removeEventListener('drop', handleDragEnd);
+        };
+    }, []);
 
     const wallButtons = useMemo(() => {
         const buttons: { tileX: number; tileY: number; face: CardinalDir; sensorIndex: number }[] = [];
+        const overlayKeys = new Set(
+            getOriginalWallOverlaysForMap(map, activeSensors).map((overlay) => `${overlay.tileX}:${overlay.tileY}:${overlay.face}`),
+        );
         for (const row of map.tiles) {
             for (const tile of row) {
+                const hiddenWallOpen = tile.type === 'Wall' && isSelfRevealingWallTile(level, tile.x, tile.y) && openWalls.has(`${level},${tile.y},${tile.x}`);
                 for (const obj of tile.objects) {
                     if (obj.category !== 'Sensor') continue;
                     const s = obj as SensorObject;
-                    if (s.type !== 2) continue;
+                    if (s.type !== 1 && s.type !== 2) continue;
+                    if (hiddenWallOpen) continue;
+                    const hasExplicitOverlay = overlayKeys.has(`${tile.x}:${tile.y}:${s.tilePos}`);
+                    if (hasExplicitOverlay) continue;
                     buttons.push({ tileX: tile.x, tileY: tile.y, face: s.tilePos, sensorIndex: s.index });
                 }
             }
         }
         return buttons;
-    }, [map]);
+    }, [level, map, openWalls]);
 
     const wallDecals = useMemo(() => {
         const stairsEntryFace = (x: number, y: number): CardinalDir => {
@@ -1334,11 +1635,17 @@ export const DungeonScene = () => {
         }
 
         for (const overlay of getOriginalWallOverlaysForMap(map, activeSensors)) {
+            if (
+                isSelfRevealingWallTile(level, overlay.tileX, overlay.tileY) &&
+                openWalls.has(`${level},${overlay.tileY},${overlay.tileX}`)
+            ) {
+                continue;
+            }
             add(overlay);
         }
 
         return decals;
-    }, [map, level, activeSensors]);
+    }, [map, level, activeSensors, openWalls]);
 
     const pressurePlates = useMemo(() => {
         const seen = new Set<string>();
@@ -1399,18 +1706,27 @@ export const DungeonScene = () => {
                         : 'East';
         const tile = map.tiles[frontTileY]?.[frontTileX];
         if (!tile || (tile.type !== 'Wall' && tile.type !== 'TrickWall')) return null;
+        if (isSelfRevealingWallTile(level, frontTileX, frontTileY) && openWalls.has(`${level},${frontTileY},${frontTileX}`)) {
+            return null;
+        }
         const mechanism = getMechanismsAt(level, frontTileX, frontTileY, frontFace).find((entry) =>
             entry.trigger === 'wall-lock' || entry.trigger === 'alcove' || entry.trigger === 'object-exchanger',
         );
         if (!mechanism) return null;
+        const kind: 'wall-lock' | 'alcove' | 'object-exchanger' = mechanism.trigger === 'alcove'
+            ? 'alcove'
+            : mechanism.trigger === 'object-exchanger'
+                ? 'object-exchanger'
+                : 'wall-lock';
         return {
             tileX: frontTileX,
             tileY: frontTileY,
             face: frontFace,
+            kind,
             requirement: mechanism.requires,
-            label: mechanism.trigger === 'alcove' ? 'ALCOVE' : mechanism.trigger === 'object-exchanger' ? 'RECEPTACLE' : 'SERRURE',
+            label: mechanism.trigger === 'alcove' ? dungeonText.alcove : mechanism.trigger === 'object-exchanger' ? dungeonText.receptacle : dungeonText.lock,
         };
-    }, [direction, level, map, position]);
+    }, [direction, dungeonText.alcove, dungeonText.lock, dungeonText.receptacle, level, map, openWalls, position]);
 
     const handleCanvasCreated = useCallback(({ gl }: { gl: THREE.WebGLRenderer }) => {
         const canvas = gl.domElement;
@@ -1429,9 +1745,49 @@ export const DungeonScene = () => {
     }, []);
 
     return (
-        <div style={{ width: '100vw', height: '100vh', background: '#000', position: 'relative' }}>
+        <div
+            onDragOver={(event) => {
+                if (!isItemDragActive) return;
+                event.preventDefault();
+                event.dataTransfer.dropEffect = 'move';
+            }}
+            onDrop={(event) => {
+                const payload = getDragPayload(event);
+                if (!payload) return;
+                event.preventDefault();
+                event.stopPropagation();
+                setIsItemDragActive(false);
+                dropCarriedItem(payload.fromChampionId, payload.itemId, payload.fromSlot);
+            }}
+            style={{ width: '100vw', height: '100vh', background: '#000', position: 'relative' }}
+        >
             <LevelName key={level} level={level} />
             <DarknessOverlay />
+            {activeFloorDrag && draggedFloorItem && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        left: activeFloorDrag.pointerX,
+                        top: activeFloorDrag.pointerY,
+                        transform: 'translate(-50%, -50%)',
+                        pointerEvents: 'none',
+                        zIndex: 180,
+                        filter: 'drop-shadow(0 8px 14px rgba(0,0,0,0.48))',
+                    }}
+                >
+                    <img
+                        src={getFloorItemImage(draggedFloorItem)}
+                        alt=""
+                        style={{
+                            width: 54,
+                            height: 54,
+                            objectFit: 'contain',
+                            imageRendering: 'crisp-edges',
+                            opacity: 0.94,
+                        }}
+                    />
+                </div>
+            )}
 
             <Canvas
                 dpr={[1, 1.25]}
@@ -1448,17 +1804,6 @@ export const DungeonScene = () => {
                 <ShieldAuraLayer />
                 <BoundaryWalls map={map} />
                 <WallTextPlanes map={map} />
-                {frontWallItemMechanism && (
-                    <FrontWallLockDropTarget
-                        tileX={frontWallItemMechanism.tileX}
-                        tileY={frontWallItemMechanism.tileY}
-                        face={frontWallItemMechanism.face}
-                        label={frontWallItemMechanism.label}
-                        requirement={frontWallItemMechanism.requirement}
-                        onUseItem={useItemOnFrontWall}
-                    />
-                )}
-
                 <TileGrid
                     map={map}
                     level={level}
@@ -1486,6 +1831,15 @@ export const DungeonScene = () => {
                 <FloorItemsLayer />
                 <ProjectileRenderer />
             </Canvas>
+            {frontWallItemMechanism && (isItemDragActive || activeFloorDrag) && (
+                <FrontWallMechanismDropTarget
+                    kind={frontWallItemMechanism.kind}
+                    onUseItem={useItemOnFrontWall}
+                    activeFloorDragItemId={activeFloorDrag?.itemId ?? null}
+                    selectedChampionId={selectedChampionId}
+                    onUseFloorItem={useFloorItemOnFrontWall}
+                />
+            )}
         </div>
     );
 };

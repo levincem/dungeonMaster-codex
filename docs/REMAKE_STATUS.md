@@ -12,6 +12,28 @@ Le point important a ce stade:
 - la dette principale n'est plus "trouver les donnees", mais "finir les derniers recollages de fidelite et optimiser"
 - le projet doit maintenant etre considere comme une beta jouable et serieuse
 
+## Passe recente frontend et prod
+
+Les travaux les plus recents se sont concentres sur la stabilite de la build web et sur une grosse passe de polish desktop-first.
+
+Points recales:
+
+- securisation de la build prod:
+  - chargement paresseux des overlays muraux originaux pour eviter les acces avant preload
+  - favicon, metas SEO, `og:*`, `twitter:*`, JSON-LD et `.htaccess` de cache / fallback SPA
+- reorganisation des assets runtime sous `public/game/images` et `public/game/sounds`
+- ajout d'une couche `i18n` simple avec anglais par defaut et migration des ecrans UI les plus visibles
+- nouveau panneau d'options avec pause du temps et remapping des touches de deplacement
+- message de blocage explicite sur smartphone tant qu'un vrai support mobile n'existe pas
+- nombreuses corrections de rendu et d'interaction:
+  - camera d'entree et transitions de niveau
+  - drag and drop objets / mains / overlays muraux
+  - objets fixes au mur, alcoves, autel de Vi et murs secrets autocibles
+  - degats visibles sur monstres et champions, avec effet de mort plus lisible
+  - rendu des portes metalliques a bouton et uniformisation des overlays de switch
+
+Ces changements renforcent surtout la version desktop actuelle. Le chantier mobile et le mini tutorial restent dans le backlog.
+
 ## Tour des systemes du jeu
 
 ### Flow global et progression

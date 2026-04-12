@@ -1,23 +1,24 @@
 const BASE_URL = import.meta.env.BASE_URL;
+const GAME_ASSETS_ROOT = `${BASE_URL}game`;
 
 function joinAssetPath(folder: string, file: string): string {
-    return `${BASE_URL}${folder}/${file}`;
+    return `${GAME_ASSETS_ROOT}/${folder}/${file}`;
 }
 
 export function miscPath(file: string): string {
-    return joinAssetPath('misc', file);
+    return joinAssetPath('images/misc', file);
 }
 
 export function itemsPath(file: string): string {
-    return joinAssetPath('items', file);
+    return joinAssetPath('images/items', file);
 }
 
 export function portraitsPath(file: string): string {
-    return joinAssetPath('portraits', file);
+    return joinAssetPath('images/portraits', file);
 }
 
 export function texturesPath(file: string): string {
-    return joinAssetPath('textures', file);
+    return joinAssetPath('images/textures', file);
 }
 
 export function soundsPath(file: string): string {
@@ -25,9 +26,9 @@ export function soundsPath(file: string): string {
 }
 
 export function runesPath(file: string): string {
-    return joinAssetPath('runes', file);
+    return joinAssetPath('images/runes', file);
 }
 
 export function spritesPath(file: string): string {
-    return joinAssetPath('sprites', file);
+    return joinAssetPath('images/sprites', file);
 }

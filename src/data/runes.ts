@@ -362,8 +362,12 @@ export const SPELLS: SpellDef[] = RAW_SPELLS.map((spell) => {
     const source = getOriginalSpellDescriptorForRunes(spell.runes);
     const sourceCastSkill = getOriginalCastSkillForRunes(spell.runes);
     if (!source || !sourceCastSkill) return spell;
+    const powerFactor = RUNES_BY_ID[spell.runes[0]]?.manaFactor ?? 8;
+    const manaBase = source.baseDifficulty;
     return {
         ...spell,
+        manaBase,
+        manaCost: Math.round(manaBase * powerFactor / 8),
         castSkill: sourceCastSkill,
         sourceSkillIndex: source.skillIndex,
         sourceBaseDifficulty: source.baseDifficulty,

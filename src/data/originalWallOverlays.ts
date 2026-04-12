@@ -1,5 +1,5 @@
 import type { CardinalDir, GameMap } from '../types/game';
-import { itemsPath, miscPath } from './assetPaths';
+import { miscPath } from './assetPaths';
 import { getOriginalWallOverlayDataSync } from './originalWallOverlayData';
 
 type OverlayClassification = 'interactive' | 'stateful' | 'hazard' | 'decorative' | 'unclear';
@@ -52,17 +52,34 @@ export type OriginalWallOverlayRender = {
     height?: number;
 };
 
-const data = getOriginalWallOverlayDataSync<OverlayPositionsData>();
+let fixedFacesByMap: Map<number, FixedFace[]> | null = null;
+let fixedFaceNameKeys: Set<string> | null = null;
 
-const FIXED_FACES_BY_MAP = new Map<number, FixedFace[]>();
-const FIXED_FACE_NAME_KEYS = new Set<string>();
-for (const face of data.fixedFaces) {
-    const list = FIXED_FACES_BY_MAP.get(face.mapIndex) ?? [];
-    list.push(face);
-    FIXED_FACES_BY_MAP.set(face.mapIndex, list);
-    for (const variant of face.variants) {
-        FIXED_FACE_NAME_KEYS.add(`${face.mapIndex}:${face.x}:${face.y}:${face.face}:${variant.overlayName}`);
+function ensureOverlayIndexes(): {
+    fixedFacesByMap: Map<number, FixedFace[]>;
+    fixedFaceNameKeys: Set<string>;
+} {
+    if (fixedFacesByMap && fixedFaceNameKeys) {
+        return { fixedFacesByMap, fixedFaceNameKeys };
     }
+
+    const data = getOriginalWallOverlayDataSync<OverlayPositionsData>();
+    const nextFixedFacesByMap = new Map<number, FixedFace[]>();
+    const nextFixedFaceNameKeys = new Set<string>();
+
+    for (const face of data.fixedFaces) {
+        const list = nextFixedFacesByMap.get(face.mapIndex) ?? [];
+        list.push(face);
+        nextFixedFacesByMap.set(face.mapIndex, list);
+        for (const variant of face.variants) {
+            nextFixedFaceNameKeys.add(`${face.mapIndex}:${face.x}:${face.y}:${face.face}:${variant.overlayName}`);
+        }
+    }
+
+    fixedFacesByMap = nextFixedFacesByMap;
+    fixedFaceNameKeys = nextFixedFaceNameKeys;
+
+    return { fixedFacesByMap, fixedFaceNameKeys };
 }
 
 const OMITTED_OVERLAYS = new Set([
@@ -72,7 +89,7 @@ const OMITTED_OVERLAYS = new Set([
 
 const VISUALS_BY_NAME: Record<string, OverlayVisual> = {
     'Fountain': { image: miscPath('wall_foutain_overlay.png'), accent: '#78a8d8', width: 0.8, height: 1.06 },
-    'Vi Altar': { image: miscPath('autel.png'), accent: '#d5b175', width: 0.74, height: 0.74 },
+    'Vi Altar': { image: miscPath('autel.png'), accent: '#d5b175', width: 1.0, height: 0.94 },
     'Lever Up': { image: miscPath('levier_haut.png'), accent: '#cda467', width: 0.32, height: 0.84 },
     'Lever Down': { image: miscPath('levier_bas.png'), accent: '#cda467', width: 0.32, height: 0.84 },
     'Iron Lock': { image: miscPath('serrure.png'), accent: '#b0a38b', width: 0.42, height: 0.42 },
@@ -92,7 +109,7 @@ const VISUALS_BY_NAME: Record<string, OverlayVisual> = {
     'Master Lock': { image: miscPath('serrure.png'), accent: '#f1d18a', width: 0.42, height: 0.42 },
     'Coin Slot': { image: miscPath('serrure.png'), accent: '#ccb173', width: 0.34, height: 0.34 },
     'Gem Hole': { image: miscPath('serrure.png'), accent: '#5bbad6', width: 0.34, height: 0.34 },
-    'Full Torch Holder': { image: itemsPath('torch_unlit.png'), accent: '#d59a54', width: 0.24, height: 0.92 },
+    'Full Torch Holder': { image: miscPath('wall_torch_holder_empty.png'), accent: '#d59a54', width: 0.24, height: 0.92 },
     'Empty Torch Holder': { image: miscPath('wall_torch_holder_empty.png'), accent: '#7e6c5c', width: 0.42, height: 0.48 },
     'Square Alcove': { image: miscPath('wall_alcove_square.png'), accent: '#8c7a66', width: 0.72, height: 0.74 },
     'Arched Alcove': { image: miscPath('wall_alcove_arched.png'), accent: '#92785f', width: 0.74, height: 0.86 },
@@ -188,7 +205,8 @@ export function getOriginalWallOverlaysForMap(
     map: GameMap,
     activeSensors: Set<string>,
 ): OriginalWallOverlayRender[] {
-    const faces = FIXED_FACES_BY_MAP.get(map.index) ?? [];
+    const { fixedFacesByMap } = ensureOverlayIndexes();
+    const faces = fixedFacesByMap.get(map.index) ?? [];
     const renders: OriginalWallOverlayRender[] = [];
 
     for (const face of faces) {
@@ -221,5 +239,6 @@ export function hasOriginalWallOverlayAt(
     face: CardinalDir,
     overlayName: string,
 ): boolean {
-    return FIXED_FACE_NAME_KEYS.has(`${mapIndex}:${x}:${y}:${face}:${overlayName}`);
+    const { fixedFaceNameKeys } = ensureOverlayIndexes();
+    return fixedFaceNameKeys.has(`${mapIndex}:${x}:${y}:${face}:${overlayName}`);
 }

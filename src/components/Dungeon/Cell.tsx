@@ -8,7 +8,7 @@ import type { ThreeEvent } from '@react-three/fiber';
 import type { Champion } from '../../data/champions';
 import type { CardinalDir } from '../../types/game';
 import { getDoorTexturePath } from '../../data/doors';
-import { texturesPath } from '../../data/assetPaths';
+import { miscPath, texturesPath } from '../../data/assetPaths';
 
 // ─── Tile render type ─────────────────────────────────────────────────────────
 
@@ -106,6 +106,39 @@ function cloneTexture<T extends THREE.Texture>(
     return next;
 }
 
+function makeWhiteTransparentTexture(texture: THREE.Texture): THREE.Texture {
+    const image = texture.image as CanvasImageSource | undefined;
+    if (!image) return texture;
+
+    const canvas = document.createElement('canvas');
+    const width = (image as { width?: number }).width ?? 0;
+    const height = (image as { height?: number }).height ?? 0;
+    if (!width || !height) return texture;
+
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return texture;
+    ctx.drawImage(image, 0, 0, width, height);
+
+    const img = ctx.getImageData(0, 0, width, height);
+    const data = img.data;
+    for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        if (r > 242 && g > 242 && b > 242) {
+            data[i + 3] = 0;
+        }
+    }
+    ctx.putImageData(img, 0, 0);
+
+    const next = new THREE.CanvasTexture(canvas);
+    next.colorSpace = THREE.SRGBColorSpace;
+    next.needsUpdate = true;
+    return next;
+}
+
 /** Decorative frame always visible on mirror wall, regardless of champion state. */
 const PortraitFrame: React.FC<{ wallFace: CardinalDir }> = ({ wallFace }) => {
     const { pos, rot } = FACE_CONFIGS[wallFace];
@@ -192,64 +225,11 @@ const DOOR_PEEK = 0.22;
 const DOOR_LIFT = HALF + WALL_HEIGHT / 2 - DOOR_PEEK; // ≈ 2.03
 
 // Door-panel proportion when a wall-button is present
-const BTN_RATIO  = 0.22;                     // fraction of GRID_SIZE reserved for button strip
-const DOOR_W_BTN = GRID_SIZE * (1 - BTN_RATIO); // 1.56 — narrower door
-const BTN_W      = GRID_SIZE * BTN_RATIO;        // 0.44 — button strip
-// x-offset of door panel centre (shifted left to leave room for button on the right)
-const DOOR_OFF_X = -(BTN_W / 2);            // -0.22
-// x-centre of the button strip
-const BTN_CX     = GRID_SIZE / 2 - BTN_W / 2;   //  0.78
-
-/** Procedural button-boss texture (64×64). */
-function makeButtonTex(open: boolean): THREE.Texture {
-    const S = 64;
-    const canvas = document.createElement('canvas');
-    canvas.width = canvas.height = S;
-    const ctx = canvas.getContext('2d')!;
-
-    // Stone background
-    ctx.fillStyle = '#6a5f58';
-    ctx.fillRect(0, 0, S, S);
-
-    // Subtle grain
-    for (let i = 0; i < 120; i++) {
-        const x = Math.random() * S, y = Math.random() * S;
-        const v = Math.floor(Math.random() * 22 - 11);
-        ctx.fillStyle = `rgba(${100+v},${95+v},${88+v},0.28)`;
-        ctx.fillRect(x, y, 1 + Math.random() * 2, 1 + Math.random() * 2);
-    }
-
-    // Boss square (centred)
-    const m = 10, bx = m, by = m, bw = S - 2*m, bh = S - 2*m;
-
-    if (open) {
-        // Recessed + green glow
-        ctx.fillStyle = '#28221e';
-        ctx.fillRect(bx, by, bw, bh);
-        ctx.fillStyle = '#1e4210';
-        ctx.fillRect(bx+2, by+2, bw-4, bh-4);
-        ctx.fillStyle = '#44cc22';
-        ctx.fillRect(bx+7, by+7, bw-14, bh-14);
-        ctx.fillStyle = '#88ff66';
-        ctx.fillRect(bx+14, by+14, bw-28, bh-28);
-    } else {
-        // Raised — bright edges top/left, dark edges bottom/right
-        ctx.fillStyle = '#8a7e76';
-        ctx.fillRect(bx, by, bw, bh);
-        ctx.fillStyle = '#b4a89e'; // highlight top
-        ctx.fillRect(bx, by, bw, 3);
-        ctx.fillRect(bx, by, 3, bh); // highlight left
-        ctx.fillStyle = '#34302c'; // shadow bottom
-        ctx.fillRect(bx, by+bh-3, bw, 3);
-        ctx.fillRect(bx+bw-3, by, 3, bh); // shadow right
-        ctx.fillStyle = '#7a6e66'; // inner face
-        ctx.fillRect(bx+4, by+4, bw-7, bh-7);
-    }
-
-    const tex = new THREE.CanvasTexture(canvas);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    return tex;
-}
+const BTN_RATIO  = 0.22;                     // generic side strip width
+const DOOR_W_BTN = GRID_SIZE * (1 - BTN_RATIO);
+const BTN_W      = GRID_SIZE * BTN_RATIO;
+const DOOR_OFF_X = -(BTN_W / 2);
+const BTN_CX     = GRID_SIZE / 2 - BTN_W / 2;
 
 const DoorMeshInner: React.FC<{
     open: boolean;
@@ -259,17 +239,10 @@ const DoorMeshInner: React.FC<{
 }> = ({ open, hasButton, doorType, onButtonClick }) => {
     const baseDoorTex = useTexture(getDoorTexturePath(doorType));
     const baseWallTex = useTexture(`${texturesPath('wall.png')}?v=2`);
-    const tex = useMemo(
-        () => cloneTexture(baseDoorTex, next => { next.colorSpace = THREE.SRGBColorSpace; }),
-        [baseDoorTex],
-    );
-    const wallTex = useMemo(
-        () => cloneTexture(baseWallTex, next => { next.colorSpace = THREE.SRGBColorSpace; }),
-        [baseWallTex],
-    );
-    useEffect(() => () => tex.dispose(), [tex]);
-    useEffect(() => () => wallTex.dispose(), [wallTex]);
-
+    const buttonTexturePath = open
+        ? miscPath('wall_switch_small_in.png')
+        : miscPath('wall_switch_small_out.png');
+    const baseButtonTex = useTexture(buttonTexturePath);
     const groupRef = useRef<THREE.Group>(null);
     const matRef1  = useRef<THREE.MeshBasicMaterial>(null);
     const progress = useRef(open ? 1 : 0);
@@ -289,12 +262,35 @@ const DoorMeshInner: React.FC<{
         groupRef.current.position.y = DOOR_LIFT * progress.current;
     });
 
-    // Button texture — recreated when door state changes
-    const btnTex = useMemo(() => makeButtonTex(open), [open]);
-    useEffect(() => () => btnTex.dispose(), [btnTex]);
-
     const doorW   = hasButton ? DOOR_W_BTN : GRID_SIZE;
     const doorOff = hasButton ? DOOR_OFF_X : 0;
+    const buttonStripWidth = BTN_W;
+    const buttonCenterX = BTN_CX;
+    const buttonSize = BTN_W * 0.72;
+    const tex = useMemo(
+        () => cloneTexture(baseDoorTex, next => { next.colorSpace = THREE.SRGBColorSpace; }),
+        [baseDoorTex],
+    );
+    const wallTex = useMemo(
+        () => cloneTexture(baseWallTex, next => {
+            next.colorSpace = THREE.SRGBColorSpace;
+            if (hasButton) {
+                const visibleRatio = BTN_W / GRID_SIZE;
+                next.wrapS = THREE.ClampToEdgeWrapping;
+                next.wrapT = THREE.ClampToEdgeWrapping;
+                next.repeat.set(visibleRatio, 1);
+                next.offset.set((1 - visibleRatio) / 2, 0);
+            }
+        }),
+        [baseWallTex, hasButton],
+    );
+    const buttonTex = useMemo(
+        () => makeWhiteTransparentTexture(cloneTexture(baseButtonTex, next => { next.colorSpace = THREE.SRGBColorSpace; })),
+        [baseButtonTex],
+    );
+    useEffect(() => () => tex.dispose(), [tex]);
+    useEffect(() => () => wallTex.dispose(), [wallTex]);
+    useEffect(() => () => buttonTex.dispose(), [buttonTex]);
 
     const handleBtnClick = (e: ThreeEvent<MouseEvent>) => {
         e.stopPropagation();
@@ -313,18 +309,28 @@ const DoorMeshInner: React.FC<{
             {/* ── Static button strip (only when hasButton) ── */}
             {hasButton && (
                 <>
-                    {/* Wall background of the strip */}
-                    <Plane args={[BTN_W, WALL_HEIGHT]} position={[BTN_CX, 0, 0]}>
+                    <Plane args={[buttonStripWidth, WALL_HEIGHT]} position={[buttonCenterX, 0, 0]}>
                         <meshBasicMaterial map={wallTex} side={THREE.DoubleSide} />
                     </Plane>
                     {/* Clickable button boss */}
-                    <Plane
-                        args={[BTN_W * 0.72, BTN_W * 0.72]}
-                        position={[BTN_CX, 0, 0.006]}
-                        onClick={handleBtnClick}
-                    >
-                        <meshBasicMaterial map={btnTex} side={THREE.DoubleSide} transparent={false} />
-                    </Plane>
+                    <group position={[buttonCenterX, 0, 0.012]}>
+                        <Plane
+                            args={[buttonSize, buttonSize]}
+                            onClick={handleBtnClick}
+                        >
+                            <meshBasicMaterial
+                                map={buttonTex}
+                                side={THREE.DoubleSide}
+                                transparent
+                                alphaTest={0.05}
+                                depthTest={false}
+                                depthWrite={false}
+                                polygonOffset
+                                polygonOffsetFactor={-4}
+                                polygonOffsetUnits={-4}
+                            />
+                        </Plane>
+                    </group>
                 </>
             )}
         </>
@@ -357,33 +363,53 @@ function makePlateTex(): THREE.CanvasTexture {
     canvas.width = canvas.height = S;
     const ctx = canvas.getContext('2d')!;
 
-    // Base stone — slightly lighter than wall
-    ctx.fillStyle = '#4a4236';
+    // Base stone — cool grey slab with subtle variation
+    const baseGrad = ctx.createLinearGradient(0, 0, S, S);
+    baseGrad.addColorStop(0, '#7f827d');
+    baseGrad.addColorStop(0.45, '#666962');
+    baseGrad.addColorStop(1, '#4f534d');
+    ctx.fillStyle = baseGrad;
     ctx.fillRect(0, 0, S, S);
 
-    // Subtle stone grain
-    for (let i = 0; i < 18; i++) {
-        ctx.fillStyle = `rgba(${60 + Math.random()*20|0},${50+Math.random()*15|0},${40+Math.random()*10|0},0.5)`;
-        const rx = Math.random()*S, ry = Math.random()*S, rw = 6+Math.random()*20, rh = 2+Math.random()*6;
+    // Fine stone grain
+    for (let i = 0; i < 48; i++) {
+        const tone = 92 + (Math.random() * 42 | 0);
+        ctx.fillStyle = `rgba(${tone},${tone + 4},${tone - 2},0.18)`;
+        const rx = Math.random() * S;
+        const ry = Math.random() * S;
+        const rw = 4 + Math.random() * 18;
+        const rh = 2 + Math.random() * 7;
         ctx.fillRect(rx, ry, rw, rh);
     }
 
-    // Top-face bevel: light top-left, dark bottom-right
+    // Hairline cracks and seams to sell a carved stone tile
+    ctx.strokeStyle = 'rgba(36, 40, 38, 0.38)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(S * 0.18, S * 0.28);
+    ctx.lineTo(S * 0.36, S * 0.34);
+    ctx.lineTo(S * 0.52, S * 0.3);
+    ctx.lineTo(S * 0.7, S * 0.4);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(S * 0.28, S * 0.7);
+    ctx.lineTo(S * 0.44, S * 0.58);
+    ctx.lineTo(S * 0.66, S * 0.64);
+    ctx.stroke();
+
+    // Recessed inner border instead of a symbol
+    ctx.strokeStyle = 'rgba(34, 38, 36, 0.5)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(16, 16, S - 32, S - 32);
+
+    // Top-face bevel: pale top-left, darker bottom-right
     const bw = 7;
-    ctx.fillStyle = 'rgba(200,170,110,0.28)';
+    ctx.fillStyle = 'rgba(218, 224, 212, 0.24)';
     ctx.fillRect(0, 0, S, bw);       // top
     ctx.fillRect(0, 0, bw, S);       // left
-    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    ctx.fillStyle = 'rgba(0,0,0,0.42)';
     ctx.fillRect(0, S-bw, S, bw);    // bottom
     ctx.fillRect(S-bw, 0, bw, S);    // right
-
-    // Carved symbol — simple cross
-    ctx.strokeStyle = 'rgba(0,0,0,0.35)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(S/2, S*0.28); ctx.lineTo(S/2, S*0.72);
-    ctx.moveTo(S*0.28, S/2); ctx.lineTo(S*0.72, S/2);
-    ctx.stroke();
 
     const tex = new THREE.CanvasTexture(canvas);
     tex.needsUpdate = true;
@@ -416,7 +442,7 @@ export const PressurePlate: React.FC<{ tileX: number; tileY: number; level: numb
     });
 
     // Side faces to give volume (4 thin boxes around the plate edges)
-    const sideColor = '#2e2820';
+    const sideColor = '#3f433d';
 
     return (
         <group ref={groupRef} position={[0, FLOOR_Y + PLATE_H, 0]}>

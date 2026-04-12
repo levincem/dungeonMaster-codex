@@ -1,5 +1,6 @@
-import { Suspense, useEffect, useMemo } from 'react';
+import { Suspense, useEffect, useMemo, useRef } from 'react';
 import { Billboard, Plane } from '@react-three/drei';
+import type { ThreeEvent } from '@react-three/fiber';
 import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { GRID_SIZE } from '../../engine/constants';
@@ -22,8 +23,22 @@ const TILEPOS_OFFSET: Record<string, [number, number]> = {
 
 // ─── Inner sprite (uses texture) ──────────────────────────────────────────────
 
-const ItemSprite = ({ imagePath, onClick }: { imagePath: string; onClick: () => void }) => {
+const ItemSprite = ({
+    imagePath,
+    onClick,
+    onStartDrag,
+    onUpdateDrag,
+    onEndDrag,
+}: {
+    imagePath: string;
+    onClick: () => void;
+    onStartDrag: (pointerX: number, pointerY: number) => void;
+    onUpdateDrag: (pointerX: number, pointerY: number) => void;
+    onEndDrag: (pointerX: number, pointerY: number) => void;
+}) => {
     const baseTex = useTexture(imagePath);
+    const timerRef = useRef<number | null>(null);
+    const draggingRef = useRef(false);
     const tex = useMemo(() => {
         const next = baseTex.clone();
         next.colorSpace = THREE.SRGBColorSpace;
@@ -37,10 +52,52 @@ const ItemSprite = ({ imagePath, onClick }: { imagePath: string; onClick: () => 
     const w = ITEM_SIZE;
     const h = ITEM_SIZE / aspect;
 
+    useEffect(() => () => {
+        if (timerRef.current !== null) window.clearTimeout(timerRef.current);
+    }, []);
+
+    const handlePointerDown = (event: ThreeEvent<PointerEvent>) => {
+        event.stopPropagation();
+        const startX = event.nativeEvent.clientX;
+        const startY = event.nativeEvent.clientY;
+        let currentX = startX;
+        let currentY = startY;
+        draggingRef.current = false;
+        timerRef.current = window.setTimeout(() => {
+            draggingRef.current = true;
+            onStartDrag(startX, startY);
+        }, 170);
+
+        const handleMove = (moveEvent: PointerEvent) => {
+            currentX = moveEvent.clientX;
+            currentY = moveEvent.clientY;
+            if (!draggingRef.current) return;
+            onUpdateDrag(moveEvent.clientX, moveEvent.clientY);
+        };
+
+        const handleUp = () => {
+            if (timerRef.current !== null) {
+                window.clearTimeout(timerRef.current);
+                timerRef.current = null;
+            }
+            window.removeEventListener('pointermove', handleMove);
+            window.removeEventListener('pointerup', handleUp);
+            if (draggingRef.current) {
+                draggingRef.current = false;
+                window.requestAnimationFrame(() => onEndDrag(currentX, currentY));
+            } else {
+                onClick();
+            }
+        };
+
+        window.addEventListener('pointermove', handleMove);
+        window.addEventListener('pointerup', handleUp);
+    };
+
     return (
         <Plane
             args={[w, h]}
-            onClick={(e) => { e.stopPropagation(); onClick(); }}
+            onPointerDown={handlePointerDown}
         >
             <meshBasicMaterial
                 map={tex}
@@ -72,9 +129,12 @@ const ItemFallback = ({ category }: { category: string }) => {
 interface Props {
     item: FloorItem;
     onPickup: () => void;
+    onStartDrag: (item: FloorItem, imagePath: string, pointerX: number, pointerY: number) => void;
+    onUpdateDrag: (pointerX: number, pointerY: number) => void;
+    onEndDrag: (pointerX: number, pointerY: number) => void;
 }
 
-export const FloorItemMesh = ({ item, onPickup }: Props) => {
+export const FloorItemMesh = ({ item, onPickup, onStartDrag, onUpdateDrag, onEndDrag }: Props) => {
     const offset = TILEPOS_OFFSET[item.tilePos] ?? [0, 0];
     const worldPos: [number, number, number] = [
         item.x * GRID_SIZE + offset[0],
@@ -93,7 +153,13 @@ export const FloorItemMesh = ({ item, onPickup }: Props) => {
             lockZ={true}
         >
             <Suspense fallback={<ItemFallback category={item.category} />}>
-                <ItemSprite imagePath={imagePath} onClick={onPickup} />
+                <ItemSprite
+                    imagePath={imagePath}
+                    onClick={onPickup}
+                    onStartDrag={(pointerX, pointerY) => onStartDrag(item, imagePath, pointerX, pointerY)}
+                    onUpdateDrag={onUpdateDrag}
+                    onEndDrag={onEndDrag}
+                />
             </Suspense>
         </Billboard>
     );

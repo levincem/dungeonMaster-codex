@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { hasPersistedSave } from '../../engine/saveGame';
 import { miscPath, texturesPath } from '../../data/assetPaths';
+import { useI18n } from '../../i18n';
 
 interface Props {
     onEnter: () => void;
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export const TitleScreen = ({ onEnter, onResume }: Props) => {
+    const text = useI18n().titleScreen;
     const [hasSave] = useState(() => hasPersistedSave());
     const [opening, setOpening] = useState(false);
     const [logoVisible, setLogoVisible] = useState(false);
@@ -198,7 +200,7 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
                             fontFamily: '"Times New Roman", serif',
                             textAlign: 'left',
                         }}>
-                            Enter The Dungeon
+                            {text.enter}
                         </span>
                     </button>
 
@@ -211,7 +213,7 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
                             opacity: hasSave ? 1 : 0.46,
                             cursor: hasSave ? 'pointer' : 'not-allowed',
                         }}
-                        title={hasSave ? 'Reprendre la sauvegarde' : 'Aucune sauvegarde disponible'}
+                        title={hasSave ? text.resumeTitle : text.noSaveTitle}
                     >
                         <img
                             src={miscPath('wall_switch_red_out.png')}
@@ -227,7 +229,7 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
                             fontFamily: '"Times New Roman", serif',
                             textAlign: 'left',
                         }}>
-                            Resume
+                            {text.resume}
                         </span>
                     </button>
                 </div>

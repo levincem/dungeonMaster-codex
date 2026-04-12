@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import { useStore, onCreatureAction } from '../../engine/store';
 import type { CreatureInstance } from '../../types/game';
+import { spritesPath } from '../../data/assetPaths';
 
 // Default sprite size
 const DEFAULT_W = GRID_SIZE   * 0.65;
@@ -33,7 +34,7 @@ interface SpriteInnerProps {
 }
 
 const SpriteInner = ({ typeId, frameRef, frameTimerRef }: SpriteInnerProps) => {
-    const baseTex = useTexture(`/sprites/creatures/creature_${typeId}.png`);
+    const baseTex = useTexture(spritesPath(`creatures/creature_${typeId}.png`));
 
     const single = SINGLE_FRAME_IDS.has(typeId);
     const nFrames = single ? 1 : 3;
@@ -111,7 +112,7 @@ export const CreatureSprite = ({ creature }: { creature: CreatureInstance }) => 
         return () => { unsub(); };
     }, [id]);
 
-    const billboardY = -GRID_SIZE / 2 + DEFAULT_H / 2 - 0.12;
+    const billboardY = -GRID_SIZE / 2 + DEFAULT_H / 2 - 0.08;
     const [offX, offZ] = sideOffsetXZ(direction, side);
 
     return (

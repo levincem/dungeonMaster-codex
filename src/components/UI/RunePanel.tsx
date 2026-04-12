@@ -2,16 +2,10 @@ import React, { useState } from 'react';
 import { useStore } from '../../engine/store';
 import { RUNES_BY_FAMILY, RUNES_BY_ID, findSpell } from '../../data/runes';
 import type { RuneFamily } from '../../data/runes';
+import { useI18n } from '../../i18n';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const MAX_RUNES = 4;
-
-const FAMILY_LABELS: Record<RuneFamily, string> = {
-    power:     'PUISSANCE',
-    element:   'ÉLÉMENT',
-    form:      'FORME',
-    alignment: 'ALIGNEMENT',
-};
 
 const FAMILY_COLORS: Record<RuneFamily, string> = {
     power:     '#e0a020',  // gold
@@ -92,13 +86,14 @@ const RuneButton: React.FC<{
 const RuneSlot: React.FC<{ runeId?: string; index: number; onRemove: () => void }> = ({
     runeId, index, onRemove,
 }) => {
+    const text = useI18n().runePanel;
     const rune = runeId ? RUNES_BY_ID[runeId] : undefined;
     const color = rune ? FAMILY_COLORS[rune.family] : '#333';
 
     return (
         <div
             onClick={runeId ? onRemove : undefined}
-            title={runeId ? `Retirer ${rune?.name}` : `Slot ${index + 1}`}
+            title={runeId ? text.removeRune(rune?.name ?? runeId) : text.slot(index + 1)}
             style={{
                 width: 48,
                 height: 52,
@@ -134,6 +129,7 @@ const RuneSlot: React.FC<{ runeId?: string; index: number; onRemove: () => void 
 
 // ─── Main RunePanel ───────────────────────────────────────────────────────────
 export const RunePanel: React.FC = () => {
+    const text = useI18n().runePanel;
     const { party, selectedChampionIndex } = useStore();
     const [selectedRunes, setSelectedRunes] = useState<string[]>([]);
     const [lastResult, setLastResult] = useState<string | null>(null);
@@ -153,9 +149,9 @@ export const RunePanel: React.FC = () => {
     const castSpell = () => {
         const spell = findSpell(selectedRunes);
         if (spell) {
-            setLastResult(`✦ ${spell.name} — ${spell.description}`);
+            setLastResult(text.castResult(spell.name, spell.description));
         } else {
-            setLastResult('Combinaison de runes inconnue…');
+            setLastResult(text.unknownRuneCombinationResult);
         }
         // TODO: deduct mana, apply effect
     };
@@ -185,7 +181,7 @@ export const RunePanel: React.FC = () => {
         }}>
             {/* Header */}
             <div style={{ fontSize: 9, letterSpacing: 4, color: '#4a2a8a', textAlign: 'center', marginBottom: 10 }}>
-                ✦ MAGIE ✦
+                ✦ {text.magic} ✦
             </div>
 
             {/* Champion info */}
@@ -194,7 +190,7 @@ export const RunePanel: React.FC = () => {
                     fontSize: 10, color: '#6a5ab0', textAlign: 'center',
                     marginBottom: 8, letterSpacing: 1,
                 }}>
-                    {champion.name.toUpperCase()} &nbsp;·&nbsp; MANA: {champion.mana}
+                    {champion.name.toUpperCase()} &nbsp;·&nbsp; {text.mana}: {champion.mana}
                 </div>
             )}
 
@@ -225,7 +221,7 @@ export const RunePanel: React.FC = () => {
                     </div>
                 ) : selectedRunes.length > 0 ? (
                     <div style={{ fontSize: 9, color: '#443344', fontStyle: 'italic' }}>
-                        combinaison inconnue
+                        {text.unknownCombination}
                     </div>
                 ) : null}
             </div>
@@ -242,7 +238,7 @@ export const RunePanel: React.FC = () => {
                         color: FAMILY_COLORS[family] + '88',
                         marginBottom: 4,
                     }}>
-                        {FAMILY_LABELS[family]}
+                        {text.familyLabels[family]}
                     </div>
                     <div style={{ display: 'flex', gap: 4 }}>
                         {RUNES_BY_FAMILY[family].map(rune => (
@@ -286,7 +282,7 @@ export const RunePanel: React.FC = () => {
                         transition: 'all 0.2s',
                     }}
                 >
-                    ✦ LANCER
+                    ✦ {text.cast}
                 </button>
                 <button
                     onClick={clearRunes}

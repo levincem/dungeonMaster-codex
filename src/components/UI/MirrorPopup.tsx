@@ -2,43 +2,49 @@ import React from 'react';
 import { CHAMPIONS } from '../../data/champions';
 import type { Champion, ChampionClass } from '../../data/champions';
 import { useStore } from '../../engine/store';
+import { useI18n } from '../../i18n';
 
 const CLASS_COLORS: Record<ChampionClass, string> = {
-    Fighter: '#c0392b',
-    Ninja:   '#27ae60',
-    Wizard:  '#8e44ad',
-    Priest:  '#2980b9',
+    Fighter: '#d05a45',
+    Ninja: '#4fae6c',
+    Wizard: '#9d79d0',
+    Priest: '#5f8fcb',
 };
-const CLASS_EMOJI: Record<ChampionClass, string> = {
+
+const CLASS_MARKERS: Record<ChampionClass, string> = {
     Fighter: 'F',
-    Ninja:   'N',
-    Wizard:  'W',
-    Priest:  'P',
+    Ninja: 'N',
+    Wizard: 'W',
+    Priest: 'P',
 };
 
 const MAX_PARTY = 4;
+const GOLD = '#d7b36a';
+const GOLD_DIM = '#8f6b32';
+const PANEL_BORDER = 'rgba(215, 179, 106, 0.42)';
+const PANEL_BG = 'linear-gradient(180deg, rgba(10,10,10,0.98), rgba(18,16,12,0.96))';
 
 const StatBar: React.FC<{ label: string; value: number; max?: number; color: string }> = ({
     label, value, max = 100, color,
 }) => (
-    <div style={{ marginBottom: 6 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#aaa', marginBottom: 2 }}>
+    <div style={{ marginBottom: 10 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#b99b64', marginBottom: 4, letterSpacing: 1.2 }}>
             <span>{label}</span>
-            <span style={{ color }}>{value}</span>
+            <span style={{ color: '#f0dfb0', fontWeight: 700 }}>{value}</span>
         </div>
-        <div style={{ height: 5, background: '#1a1a1a', borderRadius: 3, overflow: 'hidden' }}>
+        <div style={{ height: 7, background: '#171410', borderRadius: 999, overflow: 'hidden', border: '1px solid rgba(215, 179, 106, 0.12)' }}>
             <div style={{
                 height: '100%',
                 width: `${(value / max) * 100}%`,
-                background: `linear-gradient(90deg, ${color}88, ${color})`,
-                borderRadius: 3,
+                background: `linear-gradient(90deg, ${color}aa, ${color})`,
+                borderRadius: 999,
                 transition: 'width 0.4s ease',
             }} />
         </div>
     </div>
 );
 
-const Portrait: React.FC<{ champion: Champion; size?: number }> = ({ champion, size = 96 }) => (
+const Portrait: React.FC<{ champion: Champion; size?: number }> = ({ champion, size = 120 }) => (
     <img
         src={champion.portrait}
         alt={champion.name}
@@ -48,59 +54,23 @@ const Portrait: React.FC<{ champion: Champion; size?: number }> = ({ champion, s
             objectFit: 'cover',
             objectPosition: 'top center',
             flexShrink: 0,
-            borderRadius: 6,
-            border: `2px solid ${CLASS_COLORS[champion.class]}`,
-            boxShadow: `0 0 16px ${CLASS_COLORS[champion.class]}55`,
+            borderRadius: 8,
+            border: `2px solid ${GOLD}`,
+            boxShadow: '0 0 0 1px rgba(255, 231, 173, 0.12), 0 18px 36px rgba(0,0,0,0.5)',
+            background: '#090909',
         }}
     />
 );
 
-const PartySlotMini: React.FC<{
-    champion?: Champion;
-    onRemove: () => void;
-}> = ({ champion, onRemove }) => {
-    const color = champion ? CLASS_COLORS[champion.class] : '#333';
-    if (champion) {
-        return (
-            <div
-                onClick={onRemove}
-                title={`Retirer ${champion.name}`}
-                style={{
-                    width: 52,
-                    height: 64,
-                    borderRadius: 4,
-                    border: `2px solid ${color}`,
-                    overflow: 'hidden',
-                    cursor: 'pointer',
-                    position: 'relative',
-                    flexShrink: 0,
-                }}
-            >
-                <img src={champion.portrait} alt={champion.name} style={{ width: 52, height: 64, objectFit: 'cover', objectPosition: 'top center', borderRadius: 0 }} />
-            </div>
-        );
-    }
-    return (
-        <div
-            style={{
-                width: 52,
-                height: 64,
-                borderRadius: 4,
-                border: '2px dashed #333',
-                background: '#0d0d12',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#2a2a2a',
-                fontSize: 18,
-            }}
-        >
-            +
-        </div>
-    );
-};
+function getPartyRequirementText(currentPartySize: number, text: ReturnType<typeof useI18n>['mirrorPopup']): string {
+    const remaining = Math.max(0, MAX_PARTY - currentPartySize);
+    if (remaining === 0) return text.partyFull;
+    if (remaining === 1) return text.chooseOneMoreChampion;
+    return text.chooseMoreChampions(remaining);
+}
 
 export const MirrorPopup: React.FC = () => {
+    const text = useI18n().mirrorPopup;
     const {
         activeMirrorChampionId,
         party,
@@ -114,7 +84,7 @@ export const MirrorPopup: React.FC = () => {
     const champion = CHAMPIONS[activeMirrorChampionId];
     if (!champion) return null;
 
-    const color = CLASS_COLORS[champion.class];
+    const classColor = CLASS_COLORS[champion.class];
     const isInParty = !!party.find(c => c.id === champion.id);
     const partyFull = party.length >= MAX_PARTY;
 
@@ -124,96 +94,107 @@ export const MirrorPopup: React.FC = () => {
             style={{
                 position: 'fixed',
                 inset: 0,
-                background: 'rgba(0,0,0,0.75)',
+                background: 'rgba(0,0,0,0.84)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 zIndex: 100,
                 fontFamily: '"Courier New", Courier, monospace',
+                padding: 16,
             }}
         >
             <div
                 onClick={e => e.stopPropagation()}
                 style={{
-                    width: 420,
-                    background: 'linear-gradient(160deg, #0d0d18 0%, #1a1020 100%)',
-                    border: `2px solid ${color}`,
-                    borderRadius: 10,
-                    boxShadow: `0 0 40px ${color}55, 0 20px 60px rgba(0,0,0,0.8)`,
-                    padding: 24,
-                    color: '#e0d5ba',
+                    width: 'min(520px, 96vw)',
+                    background: PANEL_BG,
+                    border: `2px solid ${GOLD_DIM}`,
+                    borderRadius: 12,
+                    boxShadow: '0 30px 80px rgba(0,0,0,0.72), 0 0 0 1px rgba(255,225,150,0.06) inset',
+                    padding: 28,
+                    color: '#e8d8b3',
                     position: 'relative',
                 }}
             >
                 <button
                     onClick={closeMirror}
+                    aria-label={text.closeChampionSelection}
                     style={{
                         position: 'absolute',
-                        top: 10,
-                        right: 12,
+                        top: 12,
+                        right: 14,
                         background: 'none',
                         border: 'none',
-                        color: '#666',
-                        fontSize: 20,
+                        color: '#8f7a52',
+                        fontSize: 24,
                         cursor: 'pointer',
                         lineHeight: 1,
                     }}
                 >
-                    X
+                    ×
                 </button>
 
-                <div style={{ fontSize: 10, letterSpacing: 4, color: '#6a5430', marginBottom: 14, textAlign: 'center' }}>
-                    HALL OF CHAMPIONS
+                <div style={{ fontSize: 11, letterSpacing: 4, color: GOLD_DIM, marginBottom: 16, textAlign: 'center' }}>
+                    {text.hallOfChampions.toUpperCase()}
                 </div>
 
-                <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', marginBottom: 18 }}>
-                    <Portrait champion={champion} size={90} />
+                <div style={{
+                    display: 'flex',
+                    gap: 18,
+                    alignItems: 'flex-start',
+                    marginBottom: 22,
+                    padding: 18,
+                    border: `1px solid ${PANEL_BORDER}`,
+                    borderRadius: 10,
+                    background: 'rgba(0,0,0,0.34)',
+                }}>
+                    <Portrait champion={champion} />
                     <div style={{ flex: 1 }}>
                         <div style={{
-                            fontSize: 22,
+                            fontSize: 28,
                             fontWeight: 'bold',
                             letterSpacing: 2,
-                            color: '#e0d5ba',
-                            textShadow: `0 0 12px ${color}88`,
+                            color: '#f0dfb0',
+                            marginBottom: 4,
                         }}>
-                            {champion.name}
+                            {champion.name.toUpperCase()}
                         </div>
-                        <div style={{ fontSize: 13, color: '#888', fontStyle: 'italic', marginBottom: 8 }}>
+                        <div style={{ fontSize: 15, color: '#ab9a79', fontStyle: 'italic', marginBottom: 10, lineHeight: 1.35 }}>
                             {champion.title}
                         </div>
                         <div style={{
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: 6,
-                            background: `${color}22`,
-                            border: `1px solid ${color}66`,
-                            borderRadius: 4,
-                            padding: '3px 10px',
-                            fontSize: 11,
-                            color,
+                            gap: 8,
+                            background: `${classColor}18`,
+                            border: `1px solid ${classColor}66`,
+                            borderRadius: 999,
+                            padding: '5px 12px',
+                            fontSize: 12,
+                            color: classColor,
                             fontWeight: 'bold',
-                            letterSpacing: 1,
+                            letterSpacing: 1.5,
                         }}>
-                            {CLASS_EMOJI[champion.class]} {champion.class.toUpperCase()}
+                            {CLASS_MARKERS[champion.class]} {champion.class.toUpperCase()}
                         </div>
                     </div>
                 </div>
 
                 <div style={{
-                    background: '#0a0a12',
-                    border: '1px solid #2a2a3a',
-                    borderRadius: 6,
-                    padding: '12px 14px',
-                    marginBottom: 16,
+                    background: 'rgba(0,0,0,0.38)',
+                    border: `1px solid ${PANEL_BORDER}`,
+                    borderRadius: 10,
+                    padding: '16px 18px',
+                    marginBottom: 18,
                 }}>
-                    <div style={{ fontSize: 10, letterSpacing: 3, color: '#555', marginBottom: 8 }}>STATISTICS</div>
-                    <StatBar label="STRENGTH" value={champion.strength} color="#e74c3c" />
-                    <StatBar label="DEXTERITY" value={champion.dexterity} color="#2ecc71" />
-                    <StatBar label="WISDOM" value={champion.wisdom} color="#9b59b6" />
-                    <StatBar label="VITALITY" value={champion.vitality} color="#3498db" />
-                    <StatBar label="HEALTH" value={champion.health} max={500} color="#e67e22" />
+                    <div style={{ fontSize: 11, letterSpacing: 3, color: GOLD_DIM, marginBottom: 12 }}>{text.attributes.toUpperCase()}</div>
+                    <StatBar label={text.strength.toUpperCase()} value={champion.strength} color="#d05a45" />
+                    <StatBar label={text.dexterity.toUpperCase()} value={champion.dexterity} color="#4fae6c" />
+                    <StatBar label={text.wisdom.toUpperCase()} value={champion.wisdom} color="#9d79d0" />
+                    <StatBar label={text.vitality.toUpperCase()} value={champion.vitality} color="#5f8fcb" />
+                    <StatBar label={text.health.toUpperCase()} value={champion.health} max={500} color="#cb8c42" />
                     {champion.mana > 0 && (
-                        <StatBar label="MANA" value={champion.mana} max={500} color="#8e44ad" />
+                        <StatBar label={text.mana.toUpperCase()} value={champion.mana} max={500} color="#6c82de" />
                     )}
                 </div>
 
@@ -222,94 +203,85 @@ export const MirrorPopup: React.FC = () => {
                         onClick={() => removeFromParty(champion.id)}
                         style={{
                             width: '100%',
-                            padding: '11px 0',
-                            background: 'linear-gradient(135deg, #6a1010, #8b0000)',
-                            border: '1px solid #c0392b',
-                            borderRadius: 6,
-                            color: '#fff',
-                            fontSize: 13,
+                            padding: '14px 0',
+                            background: 'linear-gradient(180deg, #3a1414, #230909)',
+                            border: '1px solid #7f3636',
+                            borderRadius: 8,
+                            color: '#f0d7d7',
+                            fontSize: 14,
                             fontWeight: 'bold',
                             letterSpacing: 2,
                             cursor: 'pointer',
-                            transition: 'all 0.2s',
                             fontFamily: '"Courier New", monospace',
-                            marginBottom: 14,
-                            boxShadow: '0 0 12px #c0392b44',
+                            boxShadow: '0 0 18px rgba(127, 54, 54, 0.18)',
                         }}
                     >
-                        RETIRER DE L'EQUIPE
+                        {text.removeFromParty.toUpperCase()}
                     </button>
                 ) : (
                     <>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
                             <button
                                 onClick={() => addToParty(champion, 'resurrect')}
                                 disabled={partyFull}
                                 style={{
-                                    padding: '11px 0',
-                                    background: partyFull ? '#1a1a1a' : `linear-gradient(135deg, ${color}bb, ${color}66)`,
-                                    border: `1px solid ${partyFull ? '#333' : color}`,
-                                    borderRadius: 6,
-                                    color: partyFull ? '#444' : '#fff',
-                                    fontSize: 12,
+                                    padding: '14px 0',
+                                    background: partyFull ? '#171717' : 'linear-gradient(180deg, #231d12, #120f09)',
+                                    border: `1px solid ${partyFull ? '#343434' : GOLD}`,
+                                    borderRadius: 8,
+                                    color: partyFull ? '#575757' : '#f2deb2',
+                                    fontSize: 13,
                                     fontWeight: 'bold',
-                                    letterSpacing: 1.5,
+                                    letterSpacing: 1.8,
                                     cursor: partyFull ? 'not-allowed' : 'pointer',
                                     fontFamily: '"Courier New", monospace',
-                                    boxShadow: partyFull ? 'none' : `0 0 12px ${color}33`,
+                                    boxShadow: partyFull ? 'none' : '0 0 18px rgba(215, 179, 106, 0.14)',
                                 }}
                             >
-                                RESSUSCITER
+                                {text.resurrect.toUpperCase()}
                             </button>
                             <button
                                 onClick={() => addToParty(champion, 'reincarnate')}
                                 disabled={partyFull}
                                 style={{
-                                    padding: '11px 0',
-                                    background: partyFull ? '#1a1a1a' : 'linear-gradient(135deg, #7b5b24, #4a3410)',
-                                    border: `1px solid ${partyFull ? '#333' : '#9a7b3f'}`,
-                                    borderRadius: 6,
-                                    color: partyFull ? '#444' : '#fff4d0',
-                                    fontSize: 12,
+                                    padding: '14px 0',
+                                    background: partyFull ? '#171717' : 'linear-gradient(180deg, #17110a, #0d0a06)',
+                                    border: `1px solid ${partyFull ? '#343434' : GOLD}`,
+                                    borderRadius: 8,
+                                    color: partyFull ? '#575757' : '#f2deb2',
+                                    fontSize: 13,
                                     fontWeight: 'bold',
-                                    letterSpacing: 1.5,
+                                    letterSpacing: 1.8,
                                     cursor: partyFull ? 'not-allowed' : 'pointer',
                                     fontFamily: '"Courier New", monospace',
-                                    boxShadow: partyFull ? 'none' : '0 0 12px rgba(154,123,63,0.3)',
+                                    boxShadow: partyFull ? 'none' : '0 0 18px rgba(215, 179, 106, 0.14)',
                                 }}
                             >
-                                REINCARNER
+                                {text.reincarnate.toUpperCase()}
                             </button>
                         </div>
-                        <div style={{ fontSize: 10, color: '#80725b', marginBottom: 14, lineHeight: 1.5 }}>
-                            Ressusciter conserve les competences du champion. Reincarner remet ses
-                            competences a zero mais augmente ses attributs de base.
+                        <div style={{
+                            padding: '14px 16px',
+                            border: `1px solid ${PANEL_BORDER}`,
+                            borderRadius: 10,
+                            background: 'rgba(0,0,0,0.24)',
+                            color: '#bca47b',
+                            fontSize: 12,
+                            lineHeight: 1.6,
+                        }}>
+                            {text.resurrectDescription} {text.reincarnateDescription}
+                        </div>
+                        <div style={{
+                            marginTop: 12,
+                            fontSize: 11,
+                            color: partyFull ? '#a16b6b' : '#8f7a52',
+                            textAlign: 'center',
+                            letterSpacing: 1.2,
+                        }}>
+                            {partyFull ? text.partyFull : getPartyRequirementText(party.length, text)}
                         </div>
                     </>
                 )}
-
-                <div style={{ borderTop: '1px solid #2a2a3a', paddingTop: 12 }}>
-                    <div style={{ fontSize: 10, letterSpacing: 3, color: '#555', marginBottom: 8 }}>
-                        EQUIPE - {party.length}/{MAX_PARTY}
-                        {party.length === MAX_PARTY && (
-                            <span style={{ color: '#c8973a', marginLeft: 8 }}>COMPLETE</span>
-                        )}
-                    </div>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                        {Array.from({ length: MAX_PARTY }).map((_, i) => (
-                            <PartySlotMini
-                                key={i}
-                                champion={party[i]}
-                                onRemove={() => party[i] && removeFromParty(party[i].id)}
-                            />
-                        ))}
-                    </div>
-                    {party.length < MAX_PARTY && (
-                        <div style={{ fontSize: 10, color: '#555', marginTop: 6, fontStyle: 'italic' }}>
-                            Selectionnez {MAX_PARTY - party.length} champion(s) supplementaire(s) pour deverrouiller la porte
-                        </div>
-                    )}
-                </div>
             </div>
         </div>
     );

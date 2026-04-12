@@ -8,13 +8,17 @@ export interface DragPayload {
 }
 
 export function setDragPayload(event: React.DragEvent, payload: DragPayload): void {
-    event.dataTransfer.setData('application/json', JSON.stringify(payload));
+    const encoded = JSON.stringify(payload);
+    event.dataTransfer.setData('application/json', encoded);
+    event.dataTransfer.setData('text/plain', encoded);
     event.dataTransfer.effectAllowed = 'move';
 }
 
 export function getDragPayload(event: React.DragEvent): DragPayload | null {
     try {
-        return JSON.parse(event.dataTransfer.getData('application/json')) as DragPayload;
+        const raw = event.dataTransfer.getData('application/json') || event.dataTransfer.getData('text/plain');
+        if (!raw) return null;
+        return JSON.parse(raw) as DragPayload;
     } catch {
         return null;
     }

@@ -17,8 +17,11 @@ export interface ChampionVitals {
 
 export interface DamageEvent {
     id: string;
-    x: number;
-    y: number;
+    level: number;
+    target: 'creature' | 'champion';
+    championId?: number;
+    x?: number;
+    y?: number;
     amount: number;
     ts: number;
 }
@@ -38,7 +41,7 @@ export interface SpellVisualEvent {
     y: number;
     effect: Exclude<ProjectileEffect, 'physical'>;
     ts: number;
-    kind: 'wall' | 'creature';
+    kind: 'wall' | 'creature' | 'death';
 }
 
 export interface SpellLight {

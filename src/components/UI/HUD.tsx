@@ -10,16 +10,20 @@ import {
     xpToLevel,
 } from '../../engine/store';
 import { playStep, playCry, onSoundPlayed } from '../../engine/sounds';
-import type { ChampionCombat, ChampionXP } from '../../engine/runtimeTypes';
+import type { ChampionCombat, ChampionXP, GameAction } from '../../engine/runtimeTypes';
 import { WEAPON_TYPES } from '../../data/items';
 import { getGameMap } from '../../data/mapLoader';
 import type { Champion } from '../../data/champions';
 import type { ChampionEquipment } from '../../types/game';
+import type { EquipSlotKey } from '../../types/items';
 import { getEquippedItemImage } from '../../data/itemImages';
-import { formatKeybinding, matchesKeybinding } from '../../engine/options';
+import { formatKeybinding, matchesKeybinding, normalizeBindingKey } from '../../engine/options';
 import { RUNES_BY_FAMILY, RUNES_BY_ID, findSpell } from '../../data/runes';
 import type { RuneFamily } from '../../data/runes';
 import { itemsPath, runesPath } from '../../data/assetPaths';
+import { useI18n } from '../../i18n';
+import { getDragPayload, setDragPayload } from './dragPayload';
+import { canEquipItemInSlot } from '../../data/equipment';
 import {
     getAttackOptionUnusableReason,
     getWeaponAttackOptions,
@@ -40,6 +44,7 @@ const CombatGrid: React.FC<{
     championXP: Record<number, ChampionXP>;
     attackFront: (id: number, attackType?: number) => void;
 }> = ({ party, championCombat, championEquipment, championXP, attackFront }) => {
+    const text = useI18n().hud;
     const [flash, setFlash] = useState([false, false, false, false]);
     const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null);
     const torchBurnStart = useStore((s) => s.torchBurnStart);
@@ -91,7 +96,7 @@ const CombatGrid: React.FC<{
                 );
                 const weaponName = weapon?.category === 'Weapon'
                     ? (WEAPON_TYPES[weapon.typeId]?.name ?? weapon.rawName ?? '?')
-                    : 'Poing';
+                    : text.fist;
                 const isFlash = flash[i];
                 const menuOpen = openMenuIndex === i && ready && !!champ && allAttacks.length > 1;
 
@@ -195,8 +200,8 @@ const CombatGrid: React.FC<{
                                                         textAlign: 'center',
                                                     }}
                                                     title={usable
-                                                        ? `${attack.displayName} · fatigue ${attack.attack.staminaCost} · tempo ${attack.attack.disableTime}/6s`
-                                                        : `${attack.displayName} · ${unusableReason ?? 'attaque indisponible'}`}
+                                                        ? `${attack.displayName} · ${text.fatigue} ${attack.attack.staminaCost} · ${text.speed} ${attack.attack.disableTime}/6s`
+                                                        : `${attack.displayName} · ${unusableReason ?? text.attackUnavailable}`}
                                                 >
                                                     {attack.displayName}
                                                     {!usable && attack.masteryThreshold > 0 ? ` [${attack.masteryThreshold}]` : ''}
@@ -278,10 +283,6 @@ const FormationSilhouette: React.FC<{
 const CLASS_COLORS: Record<string, string> = {
     Fighter: '#e05040', Ninja: '#40cc70', Wizard: '#a060e0', Priest: '#4090e0',
 };
-const FAMILY_LABELS: Record<RuneFamily, string> = {
-    power: 'PUISSANCE', element: 'ÉLÉMENT', form: 'FORME', alignment: 'ALIGNEMENT',
-};
-
 function getAlertFrameColor(value: number, lowThreshold: number, criticalThreshold: number): string | undefined {
     if (value <= criticalThreshold) return '#b83a30';
     if (value <= lowThreshold) return 'rgba(212, 168, 32, 0.7)';
@@ -289,27 +290,66 @@ function getAlertFrameColor(value: number, lowThreshold: number, criticalThresho
 }
 
 const HandSlot: React.FC<{
+    championId: number;
     slotKey: 'leftHand' | 'rightHand';
     item?: ChampionEquipment['leftHand'];
-}> = ({ slotKey, item }) => {
+    isDragOver?: boolean;
+    floorDragActive?: boolean;
+    onNativeItemDragOver?: (event: React.DragEvent<HTMLDivElement>) => void;
+    onNativeItemDrop?: (event: React.DragEvent<HTMLDivElement>) => void;
+    onNativeItemDragLeave?: () => void;
+    onFloorDrop?: () => void;
+}> = ({
+    championId,
+    slotKey,
+    item,
+    isDragOver = false,
+    floorDragActive = false,
+    onNativeItemDragOver,
+    onNativeItemDrop,
+    onNativeItemDragLeave,
+    onFloorDrop,
+}) => {
     const torchBurnStart = useStore(s => s.torchBurnStart);
     const imageSrc = item
         ? getEquippedItemImage(item, torchBurnStart)
         : null;
 
     return (
-        <div style={{
+        <div
+        onDragOver={onNativeItemDragOver}
+        onDrop={onNativeItemDrop}
+        onDragLeave={onNativeItemDragLeave}
+        onMouseUp={onFloorDrop}
+        style={{
             flex: 1,
             height: 36,
-            border: '1px solid rgba(120,96,54,0.75)',
+            border: `1px solid ${
+                isDragOver
+                    ? 'rgba(240,208,96,0.95)'
+                    : floorDragActive
+                        ? 'rgba(212,184,112,0.78)'
+                        : 'rgba(120,96,54,0.75)'
+            }`,
             borderRadius: 4,
-                background: 'rgba(0,0,0,0.92)',
+            background: isDragOver
+                ? 'rgba(52,40,14,0.94)'
+                : floorDragActive
+                    ? 'rgba(32,24,10,0.94)'
+                    : 'rgba(0,0,0,0.92)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             position: 'relative',
             overflow: 'hidden',
-        }}>
+            transition: 'border-color 0.12s, background 0.12s',
+        }}
+        draggable={!!item}
+        onDragStart={(event) => {
+            if (!item) return;
+            setDragPayload(event, { itemId: item.id, fromChampionId: championId, fromSlot: slotKey });
+        }}
+        >
             <span style={{
                 position: 'absolute',
                 top: 2,
@@ -389,12 +429,45 @@ const ChampionCard: React.FC<{
     champion: Champion | undefined;
     vitals: { hp: number; stamina: number; mana: number; food: number; water: number } | undefined;
     equip: ChampionEquipment;
+    recentDamage: number[];
     slotIndex: number;
     selected: boolean;
     isDragOver: boolean;
+    floorDragActive: boolean;
+    leftHandDragOver: boolean;
+    rightHandDragOver: boolean;
     onSelect: () => void;
     onOpenSheet: () => void;
-}> = ({ champion, vitals, equip, slotIndex, selected, isDragOver, onSelect, onOpenSheet }) => {
+    onNativeItemDragOver: (event: React.DragEvent<HTMLDivElement>) => void;
+    onNativeItemDrop: (event: React.DragEvent<HTMLDivElement>) => void;
+    onNativeItemDragLeave: () => void;
+    onFloorDrop: () => void;
+    onHandNativeItemDragOver: (slotKey: 'leftHand' | 'rightHand', event: React.DragEvent<HTMLDivElement>) => void;
+    onHandNativeItemDrop: (slotKey: 'leftHand' | 'rightHand', event: React.DragEvent<HTMLDivElement>) => void;
+    onHandNativeItemDragLeave: (slotKey: 'leftHand' | 'rightHand') => void;
+    onHandFloorDrop: (slotKey: 'leftHand' | 'rightHand') => void;
+}> = ({
+    champion,
+    vitals,
+    equip,
+    recentDamage,
+    slotIndex,
+    selected,
+    isDragOver,
+    floorDragActive,
+    leftHandDragOver,
+    rightHandDragOver,
+    onSelect,
+    onOpenSheet,
+    onNativeItemDragOver,
+    onNativeItemDrop,
+    onNativeItemDragLeave,
+    onFloorDrop,
+    onHandNativeItemDragOver,
+    onHandNativeItemDrop,
+    onHandNativeItemDragLeave,
+    onHandFloorDrop,
+}) => {
     const W = 92;
     const PORTRAIT_H = 55; // clip height — shows upper portion (face), no deformation
     const color = champion ? CLASS_COLORS[champion.class] : '#d4b870';
@@ -402,16 +475,36 @@ const ChampionCard: React.FC<{
     return (
         <div
             onClick={() => champion && (selected ? onOpenSheet() : onSelect())}
+            onDragOver={champion ? onNativeItemDragOver : undefined}
+            onDrop={champion ? onNativeItemDrop : undefined}
+            onDragLeave={champion ? onNativeItemDragLeave : undefined}
+            onMouseUp={champion ? onFloorDrop : undefined}
             title={champion
                 ? (selected ? `Fiche de ${champion.name}` : `Sélectionner ${champion.name}`)
                 : `Slot ${slotIndex + 1}`}
             style={{
                 width: W,
-                border: `2px solid ${isDragOver ? '#f0d060' : selected ? color : champion ? color + '77' : 'rgba(212,184,112,0.24)'}`,
+                border: `2px solid ${
+                    isDragOver
+                        ? '#f0d060'
+                        : floorDragActive && champion
+                            ? '#dcb35d'
+                            : selected
+                                ? color
+                                : champion
+                                    ? color + '77'
+                                    : 'rgba(212,184,112,0.24)'
+                }`,
                 borderRadius: 5,
                 overflow: 'hidden',
                 cursor: champion ? 'pointer' : 'default',
-                background: isDragOver ? 'rgba(240,208,80,0.15)' : selected ? `${color}22` : '#050505',
+                background: isDragOver
+                    ? 'rgba(240,208,80,0.15)'
+                    : floorDragActive && champion
+                        ? 'rgba(212,184,112,0.1)'
+                        : selected
+                            ? `${color}22`
+                            : '#050505',
                 outline: selected ? `3px solid ${color}55` : 'none',
                 outlineOffset: 2,
                 transition: 'border-color 0.15s',
@@ -421,8 +514,32 @@ const ChampionCard: React.FC<{
             {champion ? (
                 <>
                     {/* Portrait — clipped to PORTRAIT_H, image centered horizontally */}
-                    <div style={{ height: PORTRAIT_H, overflow: 'hidden', display: 'flex', justifyContent: 'center' }}>
+                    <div style={{ height: PORTRAIT_H, overflow: 'hidden', display: 'flex', justifyContent: 'center', position: 'relative' }}>
                         <img src={champion.portrait} alt={champion.name} style={getPortraitStyle(W)} />
+                        {recentDamage.map((amount, index) => (
+                            <div
+                                key={`${champion.id}_hurt_${index}_${amount}`}
+                                style={{
+                                    position: 'absolute',
+                                    right: 4,
+                                    top: 4 + (index * 16),
+                                    minWidth: 26,
+                                    padding: '2px 7px',
+                                    borderRadius: 999,
+                                    background: 'rgba(120,16,12,0.94)',
+                                    border: '1px solid rgba(255,166,118,0.88)',
+                                    color: '#fff4dd',
+                                    fontSize: 11 + Math.min(5, amount * 0.15),
+                                    fontWeight: 'bold',
+                                    lineHeight: 1.1,
+                                    textAlign: 'center',
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.45)',
+                                    pointerEvents: 'none',
+                                }}
+                            >
+                                -{amount}
+                            </div>
+                        ))}
                     </div>
                     {/* HP / Stamina / Mana bars */}
                     {vitals ? (
@@ -446,8 +563,28 @@ const ChampionCard: React.FC<{
                         {champion.name.toUpperCase()}
                     </div>
                     <div style={{ display: 'flex', gap: 4, padding: 4, background: '#050505' }}>
-                        <HandSlot slotKey="leftHand" item={equip.leftHand} />
-                        <HandSlot slotKey="rightHand" item={equip.rightHand} />
+                        <HandSlot
+                            championId={champion.id}
+                            slotKey="leftHand"
+                            item={equip.leftHand}
+                            isDragOver={leftHandDragOver}
+                            floorDragActive={floorDragActive}
+                            onNativeItemDragOver={(event) => onHandNativeItemDragOver('leftHand', event)}
+                            onNativeItemDrop={(event) => onHandNativeItemDrop('leftHand', event)}
+                            onNativeItemDragLeave={() => onHandNativeItemDragLeave('leftHand')}
+                            onFloorDrop={() => onHandFloorDrop('leftHand')}
+                        />
+                        <HandSlot
+                            championId={champion.id}
+                            slotKey="rightHand"
+                            item={equip.rightHand}
+                            isDragOver={rightHandDragOver}
+                            floorDragActive={floorDragActive}
+                            onNativeItemDragOver={(event) => onHandNativeItemDragOver('rightHand', event)}
+                            onNativeItemDrop={(event) => onHandNativeItemDrop('rightHand', event)}
+                            onNativeItemDragLeave={() => onHandNativeItemDragLeave('rightHand')}
+                            onFloorDrop={() => onHandFloorDrop('rightHand')}
+                        />
                     </div>
                 </>
             ) : (
@@ -513,23 +650,18 @@ const MoveBtn: React.FC<{
 }> = ({ label, flash, onClick, title, disabled = false }) => (
     <button
         onClick={onClick}
-        disabled={disabled}
         title={title}
         style={{
             width: '100%', aspectRatio: '1',
-            background: disabled
-                ? 'rgba(0,0,0,0.72)'
-                : flash ? 'rgba(220,195,110,0.46)' : 'rgba(18,14,8,0.9)',
-            border: `1px solid ${disabled
-                ? 'rgba(126,108,70,0.48)'
-                : flash ? 'rgba(240,210,100,0.92)' : 'rgba(212,184,112,0.82)'}`,
+            background: flash ? 'rgba(220,195,110,0.46)' : 'rgba(18,14,8,0.9)',
+            border: `1px solid ${flash ? 'rgba(240,210,100,0.92)' : 'rgba(212,184,112,0.82)'}`,
             borderRadius: 6,
-            color: disabled ? '#8b7d5f' : flash ? '#fff0b8' : '#e4c684',
+            color: flash ? '#fff0b8' : '#e4c684',
             fontSize: 30, cursor: disabled ? 'default' : 'pointer', fontFamily: 'monospace',
             fontWeight: 'bold',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             transition: 'background 0.05s, border-color 0.05s, color 0.05s',
-            opacity: disabled ? 0.7 : 1,
+            opacity: 1,
         }}
     >
         {label}
@@ -537,16 +669,27 @@ const MoveBtn: React.FC<{
 );
 
 const RUNE_FAMILIES: RuneFamily[] = ['power', 'element', 'form', 'alignment'];
+const MOVEMENT_ACTIONS: Array<{ action: GameAction; icon: string }> = [
+    { action: 'moveForward', icon: '↑' },
+    { action: 'moveBackward', icon: '↓' },
+    { action: 'turnLeft', icon: '↺' },
+    { action: 'turnRight', icon: '↻' },
+    { action: 'strafeLeft', icon: '←' },
+    { action: 'strafeRight', icon: '→' },
+];
+type RebindingTarget = { action: GameAction; slot: 0 | 1 };
 
 // ─── HUD ──────────────────────────────────────────────────────────────────────
 export const HUD = () => {
+    const text = useI18n().hud;
     const {
         party, level, position, direction,
         selectedChampionIndex, selectChampion, openPartyMember, reorderParty,
         moveForward, moveBackward, strafeLeft, strafeRight, turnLeft, turnRight,
-        movementCooldown,
         championVitals, castSpell: storeCastSpell, lastCastResult,
         championXP, championCombat, attackFront, championEquipment, gameOptions,
+        damageEvents, optionsModalOpen, openOptionsModal, closeOptionsModal, setGameOptions,
+        activeFloorDrag, pickupItemToChampion, endFloorDrag, giveItem, giveEquippedItem, equipItem,
     } = useStore();
     const currentMap = getGameMap(level);
     const globalX = (currentMap.mapOffset?.x ?? 0) + position[1];
@@ -561,6 +704,7 @@ export const HUD = () => {
     // ── Flash ───────────────────────────────────────────────────────────────
     const [flashKey, setFlashKey] = useState<string | null>(null);
     const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const [rebindingTarget, setRebindingTarget] = useState<RebindingTarget | null>(null);
     const flash = useCallback((key: string, action: () => void) => {
         action();
         if (flashTimer.current) clearTimeout(flashTimer.current);
@@ -584,6 +728,7 @@ export const HUD = () => {
 
     useEffect(() => {
         const handleKey = (e: KeyboardEvent) => {
+            if (optionsModalOpen) return;
             if (['INPUT', 'TEXTAREA', 'BUTTON'].includes((e.target as HTMLElement)?.tagName)) return;
             const { keybindings } = gameOptions;
             if (matchesKeybinding(keybindings.moveForward, e.key)) { e.preventDefault(); move('fwd', moveForward); return; }
@@ -595,17 +740,74 @@ export const HUD = () => {
         };
         window.addEventListener('keydown', handleKey);
         return () => window.removeEventListener('keydown', handleKey);
-    }, [flash, gameOptions, move, moveForward, moveBackward, turnLeft, turnRight, strafeLeft, strafeRight]);
+    }, [flash, gameOptions, move, moveForward, moveBackward, optionsModalOpen, turnLeft, turnRight, strafeLeft, strafeRight]);
+
+    useEffect(() => {
+        if (!optionsModalOpen) {
+            if (rebindingTarget !== null) setRebindingTarget(null);
+            return;
+        }
+
+        const handleRebind = (e: KeyboardEvent) => {
+            if (rebindingTarget === null) {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    closeOptionsModal();
+                }
+                return;
+            }
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (e.key === 'Escape') {
+                setRebindingTarget(null);
+                return;
+            }
+
+            const ignoredKeys = new Set(['Shift', 'Control', 'Alt', 'Meta']);
+            if (ignoredKeys.has(e.key)) return;
+
+            setGameOptions({
+                keybindings: {
+                    [rebindingTarget.action]: (() => {
+                        const current = [...(gameOptions.keybindings[rebindingTarget.action] ?? [])];
+                        while (current.length < 2) current.push('');
+                        current[rebindingTarget.slot] = normalizeBindingKey(e.key);
+                        return current.filter((value, index, arr) => value && arr.indexOf(value) === index);
+                    })(),
+                } as typeof gameOptions.keybindings,
+            });
+            setRebindingTarget(null);
+        };
+
+        window.addEventListener('keydown', handleRebind, true);
+        return () => window.removeEventListener('keydown', handleRebind, true);
+    }, [closeOptionsModal, gameOptions.keybindings, optionsModalOpen, rebindingTarget, setGameOptions]);
 
     // ── Drag-and-drop (champion reorder) ────────────────────────────────────
     const [dragFrom, setDragFrom] = useState<number | null>(null);
     const [dragOver, setDragOver] = useState<number | null>(null);
+    const [itemDropOver, setItemDropOver] = useState<number | null>(null);
+    const [handDropOver, setHandDropOver] = useState<string | null>(null);
+
+    useEffect(() => {
+        const clearItemDropState = () => {
+            setItemDropOver(null);
+            setHandDropOver(null);
+        };
+        window.addEventListener('dragend', clearItemDropState);
+        window.addEventListener('drop', clearItemDropState);
+        return () => {
+            window.removeEventListener('dragend', clearItemDropState);
+            window.removeEventListener('drop', clearItemDropState);
+        };
+    }, []);
 
 
 
     // ── Rune state ──────────────────────────────────────────────────────────
     const [selectedRunes, setSelectedRunes] = useState<string[]>([]);
-    const [showOptionsPanel, setShowOptionsPanel] = useState(false);
     const currentFamilyIdx = Math.min(selectedRunes.length, RUNE_FAMILIES.length - 1);
     const currentFamily = RUNE_FAMILIES[currentFamilyIdx];
 
@@ -645,8 +847,6 @@ export const HUD = () => {
     // Disable LANCER if no mana or insufficient mana for the matched spell
     const canCast = selectedRunes.length >= 2 && selectedChamp &&
         (spell ? (selectedVitals?.mana ?? 0) >= spell.manaCost : true);
-    const movementBlocked = Number.isFinite(movementCooldown) && movementCooldown > 0;
-
     // ── Panel wrapper (subtle border/bg, no title) ──────────────────────────
     const panel: React.CSSProperties = {
         background: 'rgba(0,0,0,0.84)',
@@ -667,19 +867,19 @@ export const HUD = () => {
             overflow: 'hidden',
         }}>
             <button
-                onClick={() => setShowOptionsPanel((open) => !open)}
-                title="Options"
+                onClick={openOptionsModal}
+                title={text.options}
                 style={{
                     position: 'absolute',
                     top: 8,
                     right: 10,
-                    width: 24,
-                    height: 24,
+                    width: 30,
+                    height: 30,
                     borderRadius: 999,
-                    border: '1px solid rgba(200,170,110,0.28)',
+                    border: '1px solid rgba(200,170,110,0.38)',
                     background: 'rgba(0,0,0,0.9)',
                     color: '#f0d060',
-                    fontSize: 13,
+                    fontSize: 17,
                     lineHeight: 1,
                     display: 'flex',
                     alignItems: 'center',
@@ -691,28 +891,6 @@ export const HUD = () => {
                 ⚙
             </button>
 
-            {showOptionsPanel && (
-                <div style={{
-                    position: 'absolute',
-                    top: 36,
-                    right: 10,
-                    width: 220,
-                    padding: '9px 10px',
-                    borderRadius: 6,
-                    border: '1px solid rgba(200,170,110,0.24)',
-                    background: 'rgba(0,0,0,0.96)',
-                    boxShadow: '0 8px 28px rgba(0,0,0,0.35)',
-                    zIndex: 2,
-                }}>
-                    <div style={{ fontSize: 10, letterSpacing: 1.4, color: '#d4b870', marginBottom: 6 }}>
-                        OPTIONS
-                    </div>
-                    <div style={{ fontSize: 10, lineHeight: 1.5, color: 'rgba(212,184,112,0.72)' }}>
-                        Le menu complet arrive ensuite. Les raccourcis seront conserves dans la sauvegarde, et la sauvegarde reste pour l instant stockee dans le navigateur.
-                    </div>
-                </div>
-            )}
-
             {/* Top area: four portraits in one row, formation on the right */}
             <div style={panel}>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'stretch' }}>
@@ -723,11 +901,109 @@ export const HUD = () => {
                                     champion={party[i]}
                                     vitals={party[i] ? championVitals[party[i].id] : undefined}
                                     equip={party[i] ? (championEquipment[party[i].id] ?? {}) : {}}
+                                    recentDamage={party[i]
+                                        ? damageEvents
+                                            .filter((event) => event.target === 'champion' && event.championId === party[i]!.id)
+                                            .slice(-2)
+                                            .map((event) => event.amount)
+                                        : []}
                                     slotIndex={i}
                                     selected={selectedChampionIndex === i && !!party[i]}
-                                    isDragOver={false}
+                                    isDragOver={itemDropOver === i}
+                                    floorDragActive={activeFloorDrag !== null}
+                                    leftHandDragOver={handDropOver === `${party[i]?.id}_leftHand`}
+                                    rightHandDragOver={handDropOver === `${party[i]?.id}_rightHand`}
                                     onSelect={() => selectChampion(i)}
                                     onOpenSheet={() => party[i] && openPartyMember(party[i].id)}
+                                    onNativeItemDragOver={(event) => {
+                                        if (!party[i]) return;
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                        event.dataTransfer.dropEffect = 'move';
+                                        setItemDropOver(i);
+                                    }}
+                                    onNativeItemDragLeave={() => {
+                                        setItemDropOver((current) => (current === i ? null : current));
+                                    }}
+                                    onNativeItemDrop={(event) => {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                        setItemDropOver(null);
+                                        const targetChampion = party[i];
+                                        if (!targetChampion) return;
+                                        const payload = getDragPayload(event);
+                                        if (!payload) return;
+                                        if (payload.fromChampionId === targetChampion.id && payload.fromSlot !== 'inventory') return;
+                                        if (payload.fromSlot === 'inventory') {
+                                            giveItem(payload.fromChampionId, targetChampion.id, payload.itemId);
+                                            return;
+                                        }
+                                        giveEquippedItem(payload.fromChampionId, payload.fromSlot as EquipSlotKey, targetChampion.id);
+                                    }}
+                                    onFloorDrop={() => {
+                                        const targetChampion = party[i];
+                                        if (!activeFloorDrag || !targetChampion) return;
+                                        pickupItemToChampion(activeFloorDrag.itemId, targetChampion.id);
+                                        endFloorDrag();
+                                    }}
+                                    onHandNativeItemDragOver={(slotKey, event) => {
+                                        const targetChampion = party[i];
+                                        if (!targetChampion) return;
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                        event.dataTransfer.dropEffect = 'move';
+                                        setItemDropOver(null);
+                                        setHandDropOver(`${targetChampion.id}_${slotKey}`);
+                                    }}
+                                    onHandNativeItemDragLeave={(slotKey) => {
+                                        const targetChampion = party[i];
+                                        if (!targetChampion) return;
+                                        const key = `${targetChampion.id}_${slotKey}`;
+                                        setHandDropOver((current) => (current === key ? null : current));
+                                    }}
+                                    onHandNativeItemDrop={(slotKey, event) => {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                        setItemDropOver(null);
+                                        setHandDropOver(null);
+                                        const targetChampion = party[i];
+                                        if (!targetChampion) return;
+                                        const payload = getDragPayload(event);
+                                        if (!payload) return;
+                                        const state = useStore.getState();
+                                        const sourceItem = payload.fromSlot === 'inventory'
+                                            ? (state.championInventories[payload.fromChampionId] ?? []).find((item) => item.id === payload.itemId)
+                                            : state.championEquipment[payload.fromChampionId]?.[payload.fromSlot as EquipSlotKey];
+                                        if (!sourceItem || !canEquipItemInSlot(sourceItem, slotKey)) return;
+                                        if (payload.fromChampionId !== targetChampion.id) {
+                                            if (payload.fromSlot === 'inventory') {
+                                                giveItem(payload.fromChampionId, targetChampion.id, payload.itemId);
+                                            } else {
+                                                giveEquippedItem(payload.fromChampionId, payload.fromSlot as EquipSlotKey, targetChampion.id);
+                                            }
+                                            equipItem(targetChampion.id, slotKey, payload.itemId);
+                                            return;
+                                        }
+                                        if (payload.fromSlot === 'inventory') {
+                                            equipItem(targetChampion.id, slotKey, payload.itemId);
+                                            return;
+                                        }
+                                        const sourceSlot = payload.fromSlot as EquipSlotKey;
+                                        if (sourceSlot === slotKey) return;
+                                        giveEquippedItem(targetChampion.id, sourceSlot, targetChampion.id);
+                                        equipItem(targetChampion.id, slotKey, payload.itemId);
+                                    }}
+                                    onHandFloorDrop={(slotKey) => {
+                                        const targetChampion = party[i];
+                                        if (!activeFloorDrag || !targetChampion) return;
+                                        const state = useStore.getState();
+                                        const floorItem = state.floorItems.find((item) => item.id === activeFloorDrag.itemId);
+                                        if (!floorItem || !canEquipItemInSlot(floorItem, slotKey)) return;
+                                        pickupItemToChampion(activeFloorDrag.itemId, targetChampion.id);
+                                        equipItem(targetChampion.id, slotKey, activeFloorDrag.itemId);
+                                        endFloorDrag();
+                                        setHandDropOver(null);
+                                    }}
                                 />
                             </div>
                         ))}
@@ -833,9 +1109,9 @@ export const HUD = () => {
                                 </span>
                             </div>
                         ) : selectedRunes.length > 0 ? (
-                            <div style={{ fontSize: 10, color: '#8a7650', fontStyle: 'italic' }}>combinaison inconnue</div>
+                            <div style={{ fontSize: 10, color: '#8a7650', fontStyle: 'italic' }}>{text.unknownCombination}</div>
                         ) : (
-                            <div style={{ fontSize: 10, color: '#8a7650', fontStyle: 'italic' }}>sélectionner des runes…</div>
+                            <div style={{ fontSize: 10, color: '#8a7650', fontStyle: 'italic' }}>{text.selectRunes}</div>
                         )}
                     </div>
                     <button onClick={handleCast} disabled={!canCast} style={{
@@ -847,21 +1123,22 @@ export const HUD = () => {
                         fontSize: 11, letterSpacing: 1,
                         cursor: canCast ? 'pointer' : 'default',
                         fontFamily: '"Courier New", monospace', whiteSpace: 'nowrap',
-                    }}>✦ LANCER</button>
+                    }}>✦ {text.cast}</button>
                     <button onClick={clearRunes} disabled={selectedRunes.length === 0} style={{
                         padding: '4px 7px',
-                        background: 'rgba(12,8,24,0.85)',
-                        border: '1px solid #252535', borderRadius: 4,
-                        color: selectedRunes.length > 0 ? '#776677' : '#252535',
+                        background: selectedRunes.length > 0 ? 'rgba(0,0,0,0.95)' : 'rgba(0,0,0,0.82)',
+                        border: `1px solid ${selectedRunes.length > 0 ? 'rgba(212,184,112,0.72)' : 'rgba(212,184,112,0.22)'}`, borderRadius: 4,
+                        color: selectedRunes.length > 0 ? '#d8ba76' : 'rgba(212,184,112,0.34)',
                         fontSize: 11,
                         cursor: selectedRunes.length > 0 ? 'pointer' : 'default',
                         fontFamily: '"Courier New", monospace',
+                        boxShadow: selectedRunes.length > 0 ? 'inset 0 0 10px rgba(212,184,112,0.08)' : 'none',
                     }}>✕</button>
                 </div>
 
                 {/* Family label */}
                 <div style={{ fontSize: 9, letterSpacing: 2, marginBottom: 3, fontWeight: 'bold', color: '#e0b850' }}>
-                    {FAMILY_LABELS[currentFamily]}
+                    {text.runeFamilyLabels[currentFamily]}
                 </div>
 
                 {/* Rune row */}
@@ -910,12 +1187,12 @@ export const HUD = () => {
                         gap: 10,
                         alignContent: 'center',
                     }}>
-                        <MoveBtn label="↺" flash={flashKey === 'tl'}  title={`Tourner gauche (${formatKeybinding(gameOptions.keybindings.turnLeft)})`} onClick={() => flash('tl',  turnLeft)} />
-                        <MoveBtn label="↑" flash={flashKey === 'fwd'} title={`Avancer (${formatKeybinding(gameOptions.keybindings.moveForward)})`} onClick={() => move('fwd', moveForward)} disabled={movementBlocked} />
-                        <MoveBtn label="↻" flash={flashKey === 'tr'}  title={`Tourner droite (${formatKeybinding(gameOptions.keybindings.turnRight)})`} onClick={() => flash('tr',  turnRight)} />
-                        <MoveBtn label="←" flash={flashKey === 'sl'}  title={`Pas gauche (${formatKeybinding(gameOptions.keybindings.strafeLeft)})`} onClick={() => move('sl',  strafeLeft)} disabled={movementBlocked} />
-                        <MoveBtn label="↓" flash={flashKey === 'bck'} title={`Reculer (${formatKeybinding(gameOptions.keybindings.moveBackward)})`} onClick={() => move('bck', moveBackward)} disabled={movementBlocked} />
-                        <MoveBtn label="→" flash={flashKey === 'sr'}  title={`Pas droite (${formatKeybinding(gameOptions.keybindings.strafeRight)})`} onClick={() => move('sr',  strafeRight)} disabled={movementBlocked} />
+                        <MoveBtn label="↺" flash={flashKey === 'tl'}  title={`${text.actionLabels.turnLeft} (${formatKeybinding(gameOptions.keybindings.turnLeft)})`} onClick={() => flash('tl',  turnLeft)} />
+                        <MoveBtn label="↑" flash={flashKey === 'fwd'} title={`${text.actionLabels.moveForward} (${formatKeybinding(gameOptions.keybindings.moveForward)})`} onClick={() => move('fwd', moveForward)} />
+                        <MoveBtn label="↻" flash={flashKey === 'tr'}  title={`${text.actionLabels.turnRight} (${formatKeybinding(gameOptions.keybindings.turnRight)})`} onClick={() => flash('tr',  turnRight)} />
+                        <MoveBtn label="←" flash={flashKey === 'sl'}  title={`${text.actionLabels.strafeLeft} (${formatKeybinding(gameOptions.keybindings.strafeLeft)})`} onClick={() => move('sl',  strafeLeft)} />
+                        <MoveBtn label="↓" flash={flashKey === 'bck'} title={`${text.actionLabels.moveBackward} (${formatKeybinding(gameOptions.keybindings.moveBackward)})`} onClick={() => move('bck', moveBackward)} />
+                        <MoveBtn label="→" flash={flashKey === 'sr'}  title={`${text.actionLabels.strafeRight} (${formatKeybinding(gameOptions.keybindings.strafeRight)})`} onClick={() => move('sr',  strafeRight)} />
                     </div>
                 </div>
             </div>
@@ -932,6 +1209,133 @@ export const HUD = () => {
             {lastSound && (
                 <div style={{ fontSize: 9, color: '#cc8833', fontFamily: 'monospace', textAlign: 'center', opacity: 0.7, marginTop: 2 }}>
                     ♪ {lastSound}
+                </div>
+            )}
+
+            {optionsModalOpen && (
+                <div
+                    onClick={() => {
+                        setRebindingTarget(null);
+                        closeOptionsModal();
+                    }}
+                    style={{
+                        position: 'fixed',
+                        inset: 0,
+                        background: 'rgba(0,0,0,0.72)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 220,
+                        padding: 24,
+                    }}
+                >
+                    <div
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            width: 'min(560px, 92vw)',
+                            background: 'linear-gradient(180deg, rgba(7,7,7,0.98), rgba(18,15,10,0.98))',
+                            border: '1px solid rgba(212,184,112,0.46)',
+                            borderRadius: 12,
+                            boxShadow: '0 24px 80px rgba(0,0,0,0.62)',
+                            padding: 22,
+                            color: '#ead6a0',
+                        }}
+                    >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                            <div>
+                                <div style={{ fontSize: 13, letterSpacing: 3, color: '#c9a85e', marginBottom: 6 }}>{text.options.toUpperCase()}</div>
+                                <div style={{ fontSize: 21, fontWeight: 'bold', color: '#f2dfad' }}>{text.keybindings}</div>
+                            </div>
+                            <button
+                                onClick={() => {
+                                    setRebindingTarget(null);
+                                    closeOptionsModal();
+                                }}
+                                style={{
+                                    background: 'none',
+                                    border: '1px solid rgba(212,184,112,0.26)',
+                                    color: '#bfa06a',
+                                    borderRadius: 999,
+                                    width: 32,
+                                    height: 32,
+                                    fontSize: 20,
+                                    cursor: 'pointer',
+                                }}
+                                title={text.close}
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <div style={{ fontSize: 13, lineHeight: 1.7, color: 'rgba(232,214,160,0.72)', marginBottom: 20 }}>
+                            {rebindingTarget === null ? text.clickToReassign : `${text.pressNewKey} ${text.pressEscToCancel}`}
+                        </div>
+
+                        <div style={{ display: 'grid', gap: 10 }}>
+                            {MOVEMENT_ACTIONS.map(({ action, icon }) => {
+                                const bindings = gameOptions.keybindings[action] ?? [];
+                                return (
+                                    <div
+                                        key={action}
+                                        style={{
+                                            display: 'grid',
+                                            gridTemplateColumns: '48px 1fr 140px 140px',
+                                            gap: 12,
+                                            alignItems: 'center',
+                                            padding: '10px 12px',
+                                            borderRadius: 8,
+                                            border: '1px solid rgba(212,184,112,0.18)',
+                                            background: 'rgba(0,0,0,0.28)',
+                                        }}
+                                    >
+                                        <div style={{
+                                            width: 38,
+                                            height: 38,
+                                            borderRadius: 999,
+                                            border: '1px solid rgba(212,184,112,0.28)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            color: '#f0d060',
+                                            fontSize: 22,
+                                        }}>
+                                            {icon}
+                                        </div>
+                                        <div style={{ fontSize: 15, color: '#ecd9a8' }}>
+                                            {text.actionLabels[action]}
+                                        </div>
+                                        {[0, 1].map((slotIndex) => {
+                                            const waiting = rebindingTarget?.action === action && rebindingTarget.slot === slotIndex;
+                                            const binding = bindings[slotIndex] ? formatKeybinding([bindings[slotIndex]]) : '—';
+                                            return (
+                                                <button
+                                                    key={`${action}-${slotIndex}`}
+                                                    onClick={() => setRebindingTarget((current) =>
+                                                        current?.action === action && current.slot === slotIndex
+                                                            ? null
+                                                            : { action, slot: slotIndex as 0 | 1 },
+                                                    )}
+                                                    style={{
+                                                        padding: '9px 12px',
+                                                        borderRadius: 6,
+                                                        border: `1px solid ${waiting ? 'rgba(240,208,96,0.78)' : 'rgba(212,184,112,0.3)'}`,
+                                                        background: waiting ? 'rgba(18,12,0,0.96)' : 'rgba(0,0,0,0.62)',
+                                                        color: waiting ? '#ffe9aa' : '#d8c08b',
+                                                        fontSize: 15,
+                                                        cursor: 'pointer',
+                                                        fontFamily: '"Courier New", monospace',
+                                                        letterSpacing: 1,
+                                                    }}
+                                                >
+                                                    {waiting ? text.pressNewKey : binding}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

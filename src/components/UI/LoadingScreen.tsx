@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { preloadDungeonData } from '../../data/dungeonData';
 import { preloadGameDbData } from '../../data/gameDbData';
 import { preloadOriginalWallOverlayData } from '../../data/originalWallOverlayData';
-import { miscPath, portraitsPath, runesPath, spritesPath, texturesPath } from '../../data/assetPaths';
+import { miscPath, runesPath, spritesPath, texturesPath } from '../../data/assetPaths';
 
 const RUNE_IDS = [
     'bro', 'dain', 'des', 'ee', 'ew', 'ful', 'gor',
@@ -15,8 +15,6 @@ const CREATURE_IDS = Array.from({ length: 27 }, (_, i) => i);
 const IMAGE_ASSETS: string[] = [
     ...RUNE_IDS.map(id => runesPath(`${id}.png`)),
     ...CREATURE_IDS.map(id => spritesPath(`creatures/creature_${id}.png`)),
-    portraitsPath('screen1.png'),
-    portraitsPath('screen2.png'),
     miscPath('Dm_logo.png'),
     miscPath('cadre_entree.png'),
     miscPath('porte_entree_droite.png'),

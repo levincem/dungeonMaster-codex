@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { CHAMPIONS } from '../../data/champions';
 import type { Champion } from '../../data/champions';
 import { getGameMap } from '../../data/mapLoader';
@@ -20,7 +20,9 @@ import type { FloorItem, ChampionEquipment } from '../../types/game';
 import { getEquippedItemImage, getInventoryItemImage } from '../../data/itemImages';
 import { canDrinkFromContainer, canFillWaterContainer, isWaterContainer } from '../../data/waterContainers';
 import { miscPath } from '../../data/assetPaths';
+import { playPlate } from '../../engine/sounds';
 import { getDragPayload, setDragPayload, type DragPayload } from './dragPayload';
+import { useI18n } from '../../i18n';
 import {
     getEquippableSlots,
     getTotalWeight,
@@ -77,6 +79,10 @@ function getChampionPotionBonusesForSheet(
 function getSkillLevelName(xp: number): string {
     const lvl = xpToLevel(xp);
     return SKILL_LEVEL_NAMES[Math.min(lvl, SKILL_LEVEL_NAMES.length - 1)] ?? 'GrandMaster';
+}
+
+function formatWeight(value: number): string {
+    return (Math.round(value * 10) / 10).toFixed(1);
 }
 
 // ─── Theme ────────────────────────────────────────────────────────────────────
@@ -150,10 +156,10 @@ const ItemThumb: React.FC<{ item: FloorItem; size?: number; equipped?: boolean }
 const VitalBar: React.FC<{ icon: string; label: string; value: number; max: number; color: string; frameColor?: string }> = ({ icon, label, value, max, color, frameColor }) => (
     <div style={{ marginBottom: 7 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3 }}>
-            <span style={{ fontSize: 14, lineHeight: 1, width: 18, textAlign: 'center' }}>{icon}</span>
-            <span style={{ fontSize: 13, color: T.creamDim, letterSpacing: 1, flex: 1 }}>{label}</span>
-            <span style={{ fontSize: 14, fontWeight: 'bold', color: '#ffffff', fontVariantNumeric: 'tabular-nums' }}>
-                {Math.ceil(value)}<span style={{ fontSize: 11, color: T.creamDim, fontWeight: 'normal' }}>/{max}</span>
+            <span style={{ fontSize: 15, lineHeight: 1, width: 18, textAlign: 'center' }}>{icon}</span>
+            <span style={{ fontSize: 14, color: T.creamDim, letterSpacing: 1, flex: 1 }}>{label}</span>
+            <span style={{ fontSize: 15, fontWeight: 'bold', color: '#ffffff', fontVariantNumeric: 'tabular-nums' }}>
+                {Math.ceil(value)}<span style={{ fontSize: 12, color: T.creamDim, fontWeight: 'normal' }}>/{max}</span>
             </span>
         </div>
         <div style={{
@@ -170,19 +176,14 @@ const VitalBar: React.FC<{ icon: string; label: string; value: number; max: numb
 );
 
 // ─── Equipment slot ───────────────────────────────────────────────────────────
-const SLOT_LABELS: Record<EquipSlotKey, string> = {
-    head:'TÊTE', neck:'COU', torso:'TORSE', rightHand:'DR.', leftHand:'GA.',
-    hands:'MAINS', belt:'CEINTURE', legs:'JAMBES', feet:'PIEDS',
-    quiver1:'CARR.1', quiver2:'CARR.2', quiver3:'CARR.3', quiver4:'CARR.4',
-    pocket1:'POCHE1', pocket2:'POCHE2',
-};
-
 const EquipSlot: React.FC<{
     slotKey: EquipSlotKey; item?: FloorItem; championId: number;
     size?: number; highlight?: boolean; wounded?: boolean;
     onDrop: (p: DragPayload, slot: EquipSlotKey) => void; onUnequip: () => void;
     onDragBegin?: (p: DragPayload) => void; onDragEnd?: () => void;
-}> = ({ slotKey, item, championId, size = 48, highlight = false, wounded = false, onDrop, onUnequip, onDragBegin, onDragEnd }) => {
+    labels: Record<EquipSlotKey, string>;
+    unequipTitle: string;
+}> = ({ slotKey, item, championId, size = 48, highlight = false, wounded = false, onDrop, onUnequip, onDragBegin, onDragEnd, labels, unequipTitle }) => {
     const [over, setOver] = useState(false);
     const borderColor = over ? T.gold : wounded ? T.red : item ? T.panelBorder : T.slotBorder;
     const payload: DragPayload | null = item
@@ -203,11 +204,11 @@ const EquipSlot: React.FC<{
             onDragLeave={() => setOver(false)}
             onDrop={e => { e.preventDefault(); setOver(false); const p = getDragPayload(e); if (p) onDrop(p, slotKey); }}
         >
-            <div style={{ fontSize: 6, color: T.goldDim, letterSpacing: 0.5, lineHeight: 1 }}>{SLOT_LABELS[slotKey]}</div>
+            <div style={{ fontSize: 7, color: T.goldDim, letterSpacing: 0.5, lineHeight: 1 }}>{labels[slotKey]}</div>
             {item ? (
                 <>
                     <ItemThumb item={item} size={size - 16} equipped />
-                    <button onClick={onUnequip} title="D?s?quiper" draggable={false} style={{ position: 'absolute', top: 1, right: 2, background: 'none', border: 'none', color: T.goldDim, fontSize: 8, cursor: 'pointer', padding: 0, lineHeight: 1, zIndex: 2 }}>x</button>
+                    <button onClick={onUnequip} title={unequipTitle} draggable={false} style={{ position: 'absolute', top: 1, right: 2, background: 'none', border: 'none', color: T.goldDim, fontSize: 8, cursor: 'pointer', padding: 0, lineHeight: 1, zIndex: 2 }}>x</button>
                 </>
             ) : (
                 <div style={{ width: size - 18, height: size - 18, border: `1px dashed ${wounded ? T.red : T.slotBorder}`, borderRadius: 2, opacity: wounded ? 0.65 : 0.35, background: 'rgba(255,255,255,0.65)' }} />
@@ -217,15 +218,19 @@ const EquipSlot: React.FC<{
 };
 
 // ─── Scroll reader ─────────────────────────────────────────────────────────────
-const ScrollPopup: React.FC<{ item: FloorItem; onClose: () => void }> = ({ item, onClose }) => (
+const ScrollPopup: React.FC<{
+    item: FloorItem;
+    onClose: () => void;
+    text: ReturnType<typeof useI18n>['championSheet'];
+}> = ({ item, onClose, text }) => (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 400 }}>
         <div onClick={e => e.stopPropagation()} style={{ width: 340, background: 'linear-gradient(160deg, #1a1408, #241c08)', border: `1px solid ${T.gold}`, borderRadius: 8, padding: 28, fontFamily: '"Courier New", monospace', color: T.cream }}>
-            <div style={{ fontSize: 10, letterSpacing: 4, color: T.goldDim, textAlign: 'center', marginBottom: 14 }}>✦ PARCHEMIN ✦</div>
+            <div style={{ fontSize: 10, letterSpacing: 4, color: T.goldDim, textAlign: 'center', marginBottom: 14 }}>{text.scroll.toUpperCase()}</div>
             <div style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center', marginBottom: 18, color: T.gold }}>{getItemName(item)}</div>
             <div style={{ fontSize: 12, lineHeight: 1.8, color: T.creamDim, textAlign: 'center', fontStyle: 'italic', whiteSpace: 'pre-line' }}>
-                {item.rawName && !/^[A-Za-z]+_\d+$/.test(item.rawName) ? item.rawName : 'Le parchemin est couvert\nde runes illisibles.'}
+                {item.rawName && !/^[A-Za-z]+_\d+$/.test(item.rawName) ? item.rawName : text.unreadableRunes}
             </div>
-            <button onClick={onClose} style={{ display: 'block', margin: '20px auto 0', background: 'none', border: `1px solid ${T.goldDim}`, borderRadius: 4, color: T.goldDim, fontSize: 11, letterSpacing: 2, cursor: 'pointer', padding: '6px 20px', fontFamily: '"Courier New", monospace' }}>FERMER</button>
+            <button onClick={onClose} style={{ display: 'block', margin: '20px auto 0', background: 'none', border: `1px solid ${T.goldDim}`, borderRadius: 4, color: T.goldDim, fontSize: 11, letterSpacing: 2, cursor: 'pointer', padding: '6px 20px', fontFamily: '"Courier New", monospace' }}>{text.close.toUpperCase()}</button>
         </div>
     </div>
 );
@@ -253,11 +258,12 @@ const PartyMemberDropTarget: React.FC<{
     onGiveInventory: (targetId: number, itemId: string) => void;
     onGiveEquipped: (targetId: number, slot: EquipSlotKey) => void;
     onOpen: (targetId: number) => void;
-}> = ({ championId, other, onGiveInventory, onGiveEquipped, onOpen }) => {
+    title: string;
+}> = ({ championId, other, onGiveInventory, onGiveEquipped, onOpen, title }) => {
     const [over, setOver] = useState(false);
 
     return (
-        <div title={`Donner à ${other.name}`}
+        <div title={title}
             style={{ width: 84, border: `2px solid ${over ? T.gold : T.slotBorder}`, borderRadius: 4, background: over ? 'rgba(255,248,230,0.98)' : T.slotBg, cursor: over ? 'copy' : 'pointer', transition: 'border-color 0.12s', overflow: 'hidden' }}
             onClick={() => onOpen(other.id)}
             onDragOver={e => { e.preventDefault(); setOver(true); }}
@@ -285,12 +291,13 @@ const BackpackGrid: React.FC<{
     onReadScroll: (item: FloorItem) => void; onUseItem: (id: string) => void;
     onUnequipToInventory: (e: React.DragEvent) => void;
     onItemDragStart: (p: DragPayload) => void; onItemDragEnd: () => void;
-}> = ({ inv, champion, onEquip, onDropToFloor, onReadScroll, onUseItem, onUnequipToInventory, onItemDragStart, onItemDragEnd }) => (
+    text: ReturnType<typeof useI18n>['championSheet'];
+}> = ({ inv, champion, onEquip, onDropToFloor, onReadScroll, onUseItem, onUnequipToInventory, onItemDragStart, onItemDragEnd, text }) => (
     <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 6, padding: 10, display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}
         onDragOver={e => e.preventDefault()} onDrop={onUnequipToInventory}
     >
         <div style={{ fontSize: 10, letterSpacing: 3, color: T.gold, marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>
-            <span>SAC À DOS</span>
+            <span>{text.backpack.toUpperCase()}</span>
             <span style={{ color: inv.length >= BACKPACK_SLOTS ? T.red : T.creamDim, fontSize: 10 }}>{inv.length}/{BACKPACK_SLOTS}</span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4 }}>
@@ -299,9 +306,6 @@ const BackpackGrid: React.FC<{
                 if (!item) return <div key={i} style={{ aspectRatio: '1', border: `1px dashed ${T.slotBorder}`, borderRadius: 3, background: T.slotBg, opacity: 0.72 }} />;
                 return (
                     <div key={item.id} draggable
-                        onMouseDown={() => {
-                            onItemDragStart({ itemId: item.id, fromChampionId: champion.id, fromSlot: 'inventory' });
-                        }}
                         onDragStart={e => { const p: DragPayload = { itemId: item.id, fromChampionId: champion.id, fromSlot: 'inventory' }; setDragPayload(e, p); onItemDragStart(p); }}
                         onDragEnd={onItemDragEnd}
                         title={getItemName(item)}
@@ -318,14 +322,14 @@ const BackpackGrid: React.FC<{
                             flexDirection: 'column',
                             gap: 2,
                         }}>
-                            <div style={{ fontSize: 7, color: T.cream, textAlign: 'center', lineHeight: 1.1, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%', textShadow: '0 1px 2px rgba(0,0,0,0.85)' }}>
+                            <div style={{ fontSize: 8, color: T.cream, textAlign: 'center', lineHeight: 1.1, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%', textShadow: '0 1px 2px rgba(0,0,0,0.85)' }}>
                                 {getItemName(item).substring(0, 12)}
                             </div>
                             <div style={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-                                {getEquippableSlots(item).length > 0 && <button onClick={() => onEquip(item)} title="Équiper" style={{ background: T.goldDim, border: 'none', borderRadius: 2, color: '#000', fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>↑</button>}
-                                {item.category === 'Scroll' && <button onClick={() => onReadScroll(item)} title="Lire" style={{ background: '#4a3010', border: 'none', borderRadius: 2, color: T.cream, fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>📜</button>}
-                                {isConsumable(item) && <button onClick={() => onUseItem(item.id)} title="Utiliser" style={{ background: '#103010', border: 'none', borderRadius: 2, color: '#60d060', fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>✓</button>}
-                                <button onClick={() => onDropToFloor(item.id)} title="Poser" style={{ background: '#180808', border: 'none', borderRadius: 2, color: T.red, fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>↓</button>
+                                {getEquippableSlots(item).length > 0 && <button onClick={() => onEquip(item)} title={text.equip} style={{ background: T.goldDim, border: 'none', borderRadius: 2, color: '#000', fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>↑</button>}
+                                {item.category === 'Scroll' && <button onClick={() => onReadScroll(item)} title={text.read} style={{ background: '#4a3010', border: 'none', borderRadius: 2, color: T.cream, fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>📜</button>}
+                                {isConsumable(item) && <button onClick={() => onUseItem(item.id)} title={text.use} style={{ background: '#103010', border: 'none', borderRadius: 2, color: '#60d060', fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>✓</button>}
+                                <button onClick={() => onDropToFloor(item.id)} title={text.drop} style={{ background: '#180808', border: 'none', borderRadius: 2, color: T.red, fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>↓</button>
                             </div>
                         </div>
                     </div>
@@ -337,6 +341,7 @@ const BackpackGrid: React.FC<{
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export const ChampionSheet: React.FC = () => {
+    const text = useI18n().championSheet;
     const {
         activePartyMemberId, party, level, position, direction,
         closePartyMember, openPartyMember, removeFromParty,
@@ -347,6 +352,8 @@ export const ChampionSheet: React.FC = () => {
 
     const [scrollItem, setScrollItem] = useState<FloorItem | null>(null);
     const [draggingItem, setDraggingItem] = useState<FloorItem | null>(null);
+    const [saveFlash, setSaveFlash] = useState(false);
+    const saveFlashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const validSlots = new Set<EquipSlotKey>(draggingItem ? getEquippableSlots(draggingItem) : []);
     const highlightEye   = draggingItem?.category === 'Scroll';
@@ -361,6 +368,15 @@ export const ChampionSheet: React.FC = () => {
     };
     const clearDragState = () => setDraggingItem(null);
     const handleDragEnd = () => clearDragState();
+    const triggerSaveFeedback = () => {
+        playPlate();
+        if (saveFlashTimerRef.current) clearTimeout(saveFlashTimerRef.current);
+        setSaveFlash(true);
+        saveFlashTimerRef.current = setTimeout(() => {
+            setSaveFlash(false);
+            saveFlashTimerRef.current = null;
+        }, 180);
+    };
 
     if (activePartyMemberId === null) return null;
     const champion = CHAMPIONS.find(c => c.id === activePartyMemberId);
@@ -380,8 +396,8 @@ export const ChampionSheet: React.FC = () => {
     const loadColor  = overloaded ? T.red : loadWarn ? T.yellow : T.cream;
     const woundText  = hasAnyChampionWound(vitals?.wounds)
         ? [
-            vitals?.wounds.legs ? 'jambes blessees' : null,
-            vitals?.wounds.feet ? 'pieds blesses' : null,
+            vitals?.wounds.legs ? text.injuredLegs : null,
+            vitals?.wounds.feet ? text.injuredFeet : null,
         ].filter(Boolean).join(' · ')
         : '';
 
@@ -470,11 +486,12 @@ export const ChampionSheet: React.FC = () => {
     };
 
     const skills = [
-        { key: 'fighter', label: 'GUERRIER' },
-        { key: 'ninja',   label: 'NINJA'    },
-        { key: 'priest',  label: 'PRÊTRE'   },
-        { key: 'wizard',  label: 'MAGE'     },
+        { key: 'fighter', label: text.skillLabels.fighter },
+        { key: 'ninja',   label: text.skillLabels.ninja },
+        { key: 'priest',  label: text.skillLabels.priest },
+        { key: 'wizard',  label: text.skillLabels.wizard },
     ] as const;
+    const slotLabels = text.slotLabels;
 
     // Equipment layout — 7 body slots only (no 'hands', no 'belt')
     const BODY_SLOTS: EquipSlotKey[] = ['head','neck','torso','rightHand','leftHand','legs','feet'];
@@ -515,14 +532,30 @@ export const ChampionSheet: React.FC = () => {
                         {champion.title && <span style={{ fontSize: 12, fontWeight: 'normal', color: T.goldDim, marginLeft: 12 }}>{champion.title}</span>}
                     </div>
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                        <button onClick={() => sleep()} title="Dormir (temps accelere, faim/soif/torches continuent)" style={{ width: 36, height: 36, background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 4, color: T.cream, fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🛏</button>
+                        <button onClick={() => sleep()} title={text.sleepTitle} style={{ width: 36, height: 36, background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 4, color: T.cream, fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🛏</button>
                         <button
                             onClick={() => {
+                                triggerSaveFeedback();
                                 const ok = saveGame();
-                                showTransientMessage(ok ? 'Sauvegarde ecrite.' : 'Echec de sauvegarde.', ok);
+                                showTransientMessage(ok ? text.saveSuccess : text.saveFailed, ok);
                             }}
-                            title="Sauvegarder"
-                            style={{ width: 36, height: 36, background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 4, color: T.cream, fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            title={text.saveGame}
+                            style={{
+                                width: 36,
+                                height: 36,
+                                background: saveFlash ? 'rgba(255,245,210,0.96)' : T.panelBg,
+                                border: `1px solid ${saveFlash ? T.gold : T.panelBorder}`,
+                                borderRadius: 4,
+                                color: saveFlash ? '#1a1204' : T.cream,
+                                fontSize: 18,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                boxShadow: saveFlash ? '0 0 12px rgba(208,168,80,0.55)' : 'none',
+                                transform: saveFlash ? 'scale(0.96)' : 'scale(1)',
+                                transition: 'background 0.08s, border-color 0.08s, color 0.08s, box-shadow 0.08s, transform 0.08s',
+                            }}
                         >
                             💾
                         </button>
@@ -543,32 +576,32 @@ export const ChampionSheet: React.FC = () => {
 
                         {/* Vitals */}
                         <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 5, padding: '10px 12px' }}>
-                            <VitalBar icon="❤" label="SANTÉ"     value={hp}      max={champion.health}  color={T.red}    />
-                            <VitalBar icon="⚡" label="ENDURANCE" value={stamina} max={champion.stamina} color={T.yellow} />
-                            <VitalBar icon="🍗" label="FAIM"      value={food}    max={MAX_FOOD}         color="#d88b2d" frameColor={foodFrame} />
-                            <VitalBar icon="💧" label="SOIF"      value={water}   max={MAX_WATER}        color="#3aa0d8" frameColor={waterFrame} />
+                            <VitalBar icon="❤" label={text.health} value={hp} max={champion.health} color={T.red} />
+                            <VitalBar icon="⚡" label={text.stamina} value={stamina} max={champion.stamina} color={T.yellow} />
+                            <VitalBar icon="🍗" label={text.hunger} value={food} max={MAX_FOOD} color="#d88b2d" frameColor={foodFrame} />
+                            <VitalBar icon="💧" label={text.thirst} value={water} max={MAX_WATER} color="#3aa0d8" frameColor={waterFrame} />
                             {effectiveStats.mana > 0 && <VitalBar icon="🔮" label="MANA" value={mana} max={effectiveStats.mana} color={T.blue} />}
                         </div>
 
                         {/* Base stats */}
                         <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 5, padding: '10px 12px' }}>
-                            <div style={{ fontSize: 9, letterSpacing: 3, color: T.gold, marginBottom: 8 }}>CARACTÉRISTIQUES</div>
+                            <div style={{ fontSize: 10, letterSpacing: 3, color: T.gold, marginBottom: 8 }}>{text.attributes}</div>
                             {[
-                                { label: 'FORCE',       val: effectiveStats.strength,  color: T.red    },
-                                { label: 'DEXTÉRITÉ',   val: effectiveStats.dexterity, color: T.green  },
-                                { label: 'SAGESSE',     val: effectiveStats.wisdom,    color: T.blue   },
-                                { label: 'VITALITÉ',    val: effectiveStats.vitality,  color: T.yellow },
-                                { label: 'CHANCE',      val: effectiveStats.luck,      color: T.gold   },
-                                { label: 'ANTI-MAGIE',  val: effectiveStats.antiMagic, color: '#60c0a0'},
-                                { label: 'ANTI-FEU',    val: effectiveStats.antiFire,  color: '#d08030'},
+                                { label: text.statLabels.strength, val: effectiveStats.strength,  color: T.red    },
+                                { label: text.statLabels.dexterity, val: effectiveStats.dexterity, color: T.green  },
+                                { label: text.statLabels.wisdom, val: effectiveStats.wisdom, color: T.blue   },
+                                { label: text.statLabels.vitality, val: effectiveStats.vitality, color: T.yellow },
+                                { label: text.statLabels.luck, val: effectiveStats.luck, color: T.gold   },
+                                { label: text.statLabels.antiMagic, val: effectiveStats.antiMagic, color: '#60c0a0'},
+                                { label: text.statLabels.antiFire, val: effectiveStats.antiFire, color: '#d08030'},
                             ].map(s => (
                                 <div key={s.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                                    <span style={{ fontSize: 11, color: T.creamDim }}>{s.label}</span>
+                                    <span style={{ fontSize: 12, color: T.creamDim }}>{s.label}</span>
                                     <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
                                         <div style={{ width: 50, height: 3, background: 'rgba(0,0,0,0.4)', borderRadius: 2, overflow: 'hidden' }}>
                                             <div style={{ height: '100%', width: `${s.val}%`, background: s.color, borderRadius: 2 }} />
                                         </div>
-                                        <span style={{ fontSize: 12, fontWeight: 'bold', color: s.color, minWidth: 24, textAlign: 'right' }}>{s.val}</span>
+                                        <span style={{ fontSize: 13, fontWeight: 'bold', color: s.color, minWidth: 24, textAlign: 'right' }}>{s.val}</span>
                                     </div>
                                 </div>
                             ))}
@@ -581,9 +614,9 @@ export const ChampionSheet: React.FC = () => {
 
                         {/* Header: title + weight on same line */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
-                            <span style={{ fontSize: 9, letterSpacing: 3, color: T.gold }}>ÉQUIPEMENT</span>
+                            <span style={{ fontSize: 10, letterSpacing: 3, color: T.gold }}>{text.equipment}</span>
                             <span style={{ fontSize: 11, fontWeight: 'bold', color: loadColor }}>
-                                ⚖ {weight}<span style={{ fontSize: 10, color: T.creamDim, fontWeight: 'normal' }}>/{maxWeight} kg</span>{overloaded && <span style={{ color: T.red }}> ⚠</span>}
+                                ⚖ {formatWeight(weight)}<span style={{ fontSize: 10, color: T.creamDim, fontWeight: 'normal' }}>/{formatWeight(maxWeight)} kg</span>{overloaded && <span style={{ color: T.red }}> ⚠</span>}
                             </span>
                         </div>
 
@@ -595,14 +628,14 @@ export const ChampionSheet: React.FC = () => {
                         {/* Eye + Context + Mouth */}
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', gap: 12, marginBottom: 0 }}>
                             <div style={{ display: 'flex', justifyContent: 'flex-start', paddingLeft: 18 }}>
-                                <DropZone icon="??" label="LIRE" title="D?poser un parchemin pour le lire" borderColor="#d4a840" highlight={highlightEye} onDrop={handleReadScroll} />
+                                <DropZone icon="??" label={text.readDropZone} title={text.readDropZoneTitle} borderColor="#d4a840" highlight={highlightEye} onDrop={handleReadScroll} />
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'center', minHeight: 48 }}>
                                 {facingFountain ? (
                                     <DropZone
                                         icon="??"
-                                        label="FONTAINE"
-                                        title="D?poser une flasque ou une outre pour la remplir"
+                                        label={text.fountain}
+                                        title={text.fountainTitle}
                                         borderColor="#3aa0d8"
                                         highlight={highlightFountain}
                                         onDrop={handleFillAtFountain}
@@ -610,19 +643,19 @@ export const ChampionSheet: React.FC = () => {
                                 ) : frontWallItemMechanism ? (
                                     <DropZone
                                         icon={frontWallItemMechanism.trigger === 'alcove' ? '??' : frontWallItemMechanism.trigger === 'object-exchanger' ? '??' : '??'}
-                                        label={frontWallItemMechanism.trigger === 'alcove' ? 'ALCOVE' : frontWallItemMechanism.trigger === 'object-exchanger' ? 'R?CEPTACLE' : 'SERRURE'}
+                                        label={frontWallItemMechanism.trigger === 'alcove' ? text.alcove : frontWallItemMechanism.trigger === 'object-exchanger' ? text.receptacle : text.lock}
                                         title={frontWallItemMechanism.trigger === 'alcove'
-                                            ? 'D?poser l objet requis dans l alc?ve murale'
+                                            ? text.alcoveTitle
                                             : frontWallItemMechanism.trigger === 'object-exchanger'
-                                                ? 'D?poser l objet requis dans le r?ceptacle mural'
-                                                : 'D?poser une cl? ou l objet requis sur la serrure murale'}
+                                                ? text.receptacleTitle
+                                                : text.lockTitle}
                                         borderColor="#d4a840"
                                         onDrop={handleUseOnWallMechanism}
                                     />
                                 ) : null}
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'flex-end', paddingRight: 18 }}>
-                                <DropZone icon="??" label="MANGER" title="D?poser nourriture/potion pour consommer" borderColor="#d04040" highlight={highlightMouth} onDrop={handleConsume} />
+                                <DropZone icon="??" label={text.eat} title={text.eatTitle} borderColor="#d04040" highlight={highlightMouth} onDrop={handleConsume} />
                             </div>
                         </div>
 
@@ -643,7 +676,7 @@ export const ChampionSheet: React.FC = () => {
                                 {/* Body slots */}
                                 {BODY_SLOTS.map(s => (
                                     <div key={s} style={{ gridArea: s === 'rightHand' ? 'rhand' : s === 'leftHand' ? 'lhand' : s, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                        <EquipSlot slotKey={s} item={equip[s]} championId={champion.id} size={112} highlight={validSlots.has(s)} wounded={!!slotWounds[s]}
+                                        <EquipSlot slotKey={s} item={equip[s]} championId={champion.id} size={112} highlight={validSlots.has(s)} wounded={!!slotWounds[s]} labels={slotLabels} unequipTitle={text.unequip}
                                             onDrop={handleDropOnSlot} onUnequip={() => unequipItem(champion.id, s)}
                                             onDragBegin={p => handleDragBegin(p, equip, inv)} onDragEnd={handleDragEnd} />
                                     </div>
@@ -651,9 +684,9 @@ export const ChampionSheet: React.FC = () => {
 
                                 {/* Quivers: 2×2 under right hand */}
                                 <div style={{ gridArea: 'quivers', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                                    <div style={{ fontSize: 7, color: T.goldDim, letterSpacing: 2 }}>CARQUOIS</div>
+                                    <div style={{ fontSize: 8, color: T.goldDim, letterSpacing: 2 }}>{text.quivers}</div>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
-                                        {QUIVER_SLOTS.map(s => <EquipSlot key={s} slotKey={s} item={equip[s]} championId={champion.id} size={54} highlight={validSlots.has(s)}
+                                        {QUIVER_SLOTS.map(s => <EquipSlot key={s} slotKey={s} item={equip[s]} championId={champion.id} size={54} highlight={validSlots.has(s)} labels={slotLabels} unequipTitle={text.unequip}
                                             onDrop={handleDropOnSlot} onUnequip={() => unequipItem(champion.id, s)}
                                             onDragBegin={p => handleDragBegin(p, equip, inv)} onDragEnd={handleDragEnd} />)}
                                     </div>
@@ -661,9 +694,9 @@ export const ChampionSheet: React.FC = () => {
 
                                 {/* Pockets: 1×2 under left hand */}
                                 <div style={{ gridArea: 'pockets', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                                    <div style={{ fontSize: 7, color: T.goldDim, letterSpacing: 2 }}>POCHES</div>
+                                    <div style={{ fontSize: 8, color: T.goldDim, letterSpacing: 2 }}>{text.pouches}</div>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
-                                        {POCKET_SLOTS.map(s => <EquipSlot key={s} slotKey={s} item={equip[s]} championId={champion.id} size={54} highlight={validSlots.has(s)}
+                                        {POCKET_SLOTS.map(s => <EquipSlot key={s} slotKey={s} item={equip[s]} championId={champion.id} size={54} highlight={validSlots.has(s)} labels={slotLabels} unequipTitle={text.unequip}
                                             onDrop={handleDropOnSlot} onUnequip={() => unequipItem(champion.id, s)}
                                             onDragBegin={p => handleDragBegin(p, equip, inv)} onDragEnd={handleDragEnd} />)}
                                     </div>
@@ -686,10 +719,11 @@ export const ChampionSheet: React.FC = () => {
                             onUnequipToInventory={handleUnequipToInventory}
                             onItemDragStart={p => handleDragBegin(p, equip, inv)}
                             onItemDragEnd={handleDragEnd}
+                            text={text}
                         />
 
                         <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 6, padding: '12px 14px' }}>
-                            <div style={{ fontSize: 12, letterSpacing: 3, color: T.gold, marginBottom: 10 }}>CLASSES</div>
+                            <div style={{ fontSize: 13, letterSpacing: 3, color: T.gold, marginBottom: 10 }}>{text.classes}</div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 18px' }}>
                                 {skills.map(({ key, label }) => {
                                     const skillXP = xp?.[key] ?? 0;
@@ -698,14 +732,14 @@ export const ChampionSheet: React.FC = () => {
                                     if (name === 'None') return null;
                                     return (
                                         <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 2 }}>
-                                            <span style={{ fontSize: 13, color: T.creamDim }}>{label}</span>
-                                            <span style={{ fontSize: 13, fontWeight: 'bold', color }}>{name}</span>
+                                            <span style={{ fontSize: 14, color: T.creamDim }}>{label}</span>
+                                            <span style={{ fontSize: 14, fontWeight: 'bold', color }}>{name}</span>
                                         </div>
                                     );
                                 })}
                             </div>
                             {skills.every(({ key }) => (xp?.[key] ?? 0) === 0) && (
-                                <div style={{ fontSize: 13, color: T.goldDim, fontStyle: 'italic' }}>D?butant</div>
+                                <div style={{ fontSize: 14, color: T.goldDim, fontStyle: 'italic' }}>{text.beginner}</div>
                             )}
                         </div>
                         {otherMembers.length > 0 && (
@@ -719,6 +753,7 @@ export const ChampionSheet: React.FC = () => {
                                             onGiveInventory={(targetId, itemId) => giveItem(champion.id, targetId, itemId)}
                                             onGiveEquipped={(targetId, slot) => giveEquippedItem(champion.id, slot, targetId)}
                                             onOpen={openPartyMember}
+                                            title={text.giveTo(other.name)}
                                         />
                                     ))}
                                 </div>
@@ -731,13 +766,13 @@ export const ChampionSheet: React.FC = () => {
                     <div style={{ marginTop: 10, paddingTop: 8, borderTop: `1px solid ${T.goldDim}`, display: 'flex', justifyContent: 'flex-end' }}>
                         <button onClick={() => { removeFromParty(champion.id); closePartyMember(); }}
                             style={{ padding: '6px 14px', background: 'rgba(80,10,10,0.8)', border: `1px solid ${T.red}`, borderRadius: 4, color: '#ffaaaa', fontSize: 11, letterSpacing: 2, cursor: 'pointer', fontFamily: '"Courier New", monospace' }}>
-                            RENVOYER
+                            {text.dismiss}
                         </button>
                     </div>
                 )}
             </div>
 
-            {scrollItem && <ScrollPopup item={scrollItem} onClose={() => setScrollItem(null)} />}
+            {scrollItem && <ScrollPopup item={scrollItem} onClose={() => setScrollItem(null)} text={text} />}
         </div>
     );
 };
