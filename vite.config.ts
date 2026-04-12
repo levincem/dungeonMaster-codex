@@ -3,6 +3,14 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: [
+      {
+        find: /^three$/,
+        replacement: '/src/vendor/three-compat.ts',
+      },
+    ],
+  },
   build: {
     rollupOptions: {
       output: {
