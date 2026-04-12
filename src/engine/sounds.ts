@@ -133,7 +133,7 @@ function play(name: string, volume = 0.65): void {
 }
 
 // ─── Player ───────────────────────────────────────────────────────────────────
-export function playStep():  void { play('footstep', 0.60); }
+export function playStep():  void { play('footstep', 0.45); }
 export function playCry():   void { play('cry',       0.55); }
 export function playPlate(): void { play('plate',     0.80); }
 export function playDoor(): void { play('door', 0.65); }
