@@ -184,6 +184,7 @@ The most useful detailed internal summaries are:
 Thanks to:
 
 The original team : 
+
 - Publishers : FTL Games
 - Director : Doug Bell
 - Producer : Wayne Holder
@@ -191,6 +192,9 @@ The original team :
 - Programmers : Doug Bell, Dennis Walker, Mike Newton
 - Artist : Andrew Jaros
 - Composer : Wayne Holder
+
+
+The Fans : 
 
 - the [Dungeon Master community](https://www.dungeon-master.com/forum/)
 - the [Dungeon Master Encyclopaedia](http://dmweb.free.fr/)
