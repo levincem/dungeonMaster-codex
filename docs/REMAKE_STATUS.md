@@ -1,6 +1,6 @@
 ﻿# Dungeon Master Remake - Etat du projet
 
-Version remise a jour a partir du code observe le 2026-04-11.
+Version remise a jour a partir du code observe le `2026-04-13`.
 
 ## Resume rapide
 
@@ -9,30 +9,23 @@ Le projet est maintenant une base jouable et serieuse, avec une vraie boucle d'e
 Le point important a ce stade:
 
 - l'extraction des donnees originales essentielles est consideree comme fiable
-- la dette principale n'est plus "trouver les donnees", mais "finir les derniers recollages de fidelite et optimiser"
-- le projet doit maintenant etre considere comme une beta jouable et serieuse
+- la dette principale n'est plus "trouver les donnees", mais "fermer les derniers ecarts de fidelite, nettoyer l'UX et optimiser"
+- le projet doit maintenant etre traite comme une beta desktop-first jouable, pas comme un prototype
 
 ## Passe recente frontend et prod
 
-Les travaux les plus recents se sont concentres sur la stabilite de la build web et sur une grosse passe de polish desktop-first.
+Les evolutions recentes visibles dans le code portent surtout sur la stabilite de la build web, le packaging runtime et le polish desktop-first.
 
 Points recales:
 
-- securisation de la build prod:
-  - chargement paresseux des overlays muraux originaux pour eviter les acces avant preload
-  - favicon, metas SEO, `og:*`, `twitter:*`, JSON-LD et `.htaccess` de cache / fallback SPA
+- build production validee
 - reorganisation des assets runtime sous `public/game/images` et `public/game/sounds`
-- ajout d'une couche `i18n` simple avec anglais par defaut et migration des ecrans UI les plus visibles
-- nouveau panneau d'options avec pause du temps et remapping des touches de deplacement
-- message de blocage explicite sur smartphone tant qu'un vrai support mobile n'existe pas
-- nombreuses corrections de rendu et d'interaction:
-  - camera d'entree et transitions de niveau
-  - drag and drop objets / mains / overlays muraux
-  - objets fixes au mur, alcoves, autel de Vi et murs secrets autocibles
-  - degats visibles sur monstres et champions, avec effet de mort plus lisible
-  - rendu des portes metalliques a bouton et uniformisation des overlays de switch
-
-Ces changements renforcent surtout la version desktop actuelle. Le chantier mobile et le mini tutorial restent dans le backlog.
+- embarquement des JSON critiques sous `src/assets/data` pour fiabiliser le boot
+- ecran titre avec `Enter The Dungeon` et `Resume`
+- couche `i18n` simple avec anglais par defaut
+- panneau d'options en jeu avec remapping des touches de deplacement
+- blocage explicite sur smartphone tant qu'un vrai support mobile n'existe pas
+- ecran de victoire branche
 
 ## Tour des systemes du jeu
 
@@ -43,13 +36,13 @@ Etat actuel:
 - ecran titre jouable avec `Enter The Dungeon` et `Resume`
 - recrutement via miroirs fonctionnel
 - sauvegarde / reprise persistentes via `localStorage`
-- l'etat mutable du donjon, du groupe et des effets runtime est bien restaure
+- l'etat mutable du donjon, du groupe, des projectiles, effets et options est restaure
+- ecran de victoire branche
 
 Reste a faire:
 
 - vrai game over
-- ecran de victoire / fin
-- verification finale du flow de fin autour du `Firestaff` complet
+- playtest complet et cible du flow de fin autour du `Firestaff` complet et de Lord Chaos
 
 ### Maps, geometrie et contenu spatial
 
@@ -57,12 +50,6 @@ Etat actuel:
 
 - source de verite runtime: `src/assets/data/dungeon.json`
 - parsing central via `src/data/dungeonData.ts` et `src/data/mapLoader.ts`
-- contenu spatial reconcilie:
-  - items `300 / 300`
-  - inscriptions `61 / 61`
-  - locks `65 / 65`
-  - creatures `225 / 225`
-  - generators `50 / 50`
 - portes, teleporteurs, trick walls, pits et eau sont presents dans les maps runtime
 - overlays muraux originaux sont positions depuis les donnees extraites
 
@@ -81,18 +68,18 @@ Etat actuel:
 - starters des champions recales sur la source canonique actuelle
 - portraits, paths d'assets et resolution d'images ont ete securises
 - save button disponible depuis la fiche champion
+- panneau d'options disponible dans le HUD pour les touches de deplacement
 
 Reste a faire:
 
-- unifier encore la glue autour des items de depart synthetiques
-- eventuellement exposer la sauvegarde ailleurs qu'en fiche si on veut un flow plus proche d'un jeu fini
+- elargir les options exposees au joueur
+- continuer le polish desktop de certaines vues UI
 
 ### Objets, equipement et statuts
 
 Etat actuel:
 
 - objets, noms et grande partie des catalogues viennent maintenant des donnees extraites
-- potions runtime recalees sur les noms originaux
 - images d'objets beaucoup moins hardcodees, avec resolution plus systematique et quelques alias speciaux restants
 - poids, equipement, eau, faim, soif, sommeil, fatigue et regeneration sont jouables
 
@@ -105,37 +92,10 @@ Reste a faire:
 
 Etat actuel:
 
-- le pipeline runtime reel passe par `src/data/runes.ts` et `src/engine/store.ts`
-- sorts jouables branches:
-  - `light`
-  - `darkness`
-  - `open`
-  - `fireball`
-  - `lightning`
-  - `poison_bolt`
-  - `poison_cloud`
-  - `disrupt_nonmaterial`
-  - `plasma`
-  - `shield`
-  - `fire_shield`
-  - `invisibility`
-  - `see_through_walls`
-  - `footprints`
-  - `potion`
-- actions magiques d'objets a charges recablees:
-  - `Dispell`
-  - `Confuse`
-  - `Fluxcage`
-  - `Invoke`
-  - `Fuse`
-- `Poison Bolt` et `Poison Cloud` sont bien separes
-- `Des Ew` est traite comme projectile anti non-materiel avec cas special `Materializer / Zytaz`
-- grosse passe recente sur les VFX:
-  - `Fireball` plus lisible comme vraie boule de feu
-  - `Lightning`, `Poison` et `Disrupt` mieux differencies
-  - impacts sur mur et creature
-  - flashes locaux
-  - `Shield`, `Fire Shield` et `Fluxcage` visibles
+- pipeline runtime reel branche autour de `src/data/runes.ts` et `src/engine/store.ts`
+- large set de sorts jouables et de projectiles differencies
+- VFX de sorts et protections sensiblement ameliores
+- `Fluxcage` visible et branche dans le runtime
 
 Reste a faire:
 
@@ -244,7 +204,7 @@ Point de controle avant optimisation:
 - creatures / IA: oui, grosse passe recente
 - sauvegarde / reprise: oui
 - sequence de fin / game over / victoire: non, encore incomplet
-- optimisation: pas commencee comme chantier principal, c'est bien la prochaine etape
+- optimisation: les builds passent, mais plusieurs chunks restent encore lourds
 
 ## Priorites recommandees
 
@@ -256,7 +216,7 @@ Point de controle avant optimisation:
 
 ### 2. Attaquer l'optimisation
 
-- reduire le poids du chunk `game-core`
+- continuer a reduire les plus gros chunks de data et de rendu
 - reevaluer ce qui doit rester embarque dans `src/assets/data`
 - decouper plus proprement certaines couches runtime / UI / VFX
 
@@ -268,23 +228,15 @@ Point de controle avant optimisation:
 
 ### 4. Ameliorations beta / confort
 
-- ajouter un vrai menu d'options dans l'UI
-- permettre la reassignment des touches depuis ce menu
-- conserver ces options dans la sauvegarde
+- etendre le menu d'options
 - prevoir un export / import de sauvegarde en fichier texte, en plus du `localStorage`
 - envisager une mini-map optionnelle, clairement presentee comme aide moderne et non comme element du jeu d'origine
 
 ### 5. Localisation et coherence des textes
 
-- ajouter une vraie version anglaise et une vraie version francaise
-- poser un systeme de localisation unique au lieu du melange actuel
-- a court terme, corriger l'etat courant pour revenir a de l'anglais partout, de facon coherente avec le jeu original
-- a moyen terme, exposer un choix `EN / FR` dans les options
-
-Constat actuel:
-
-- le projet melange encore textes originaux anglais et textes UI/runtime francais
-- ce n'est pas encore gere comme une vraie fonctionnalite de localisation
+- exposer un vrai choix `EN / FR`
+- poser un systeme de localisation unique plutot qu'un melange progressif
+- a court terme, finir de nettoyer les chaines encore en francais cote UI/runtime si l'objectif reste l'anglais par defaut
 
 ## Notes de confiance
 

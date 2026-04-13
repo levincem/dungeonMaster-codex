@@ -12,7 +12,7 @@ Improving graphics—including images of items on the ground and in the inventor
 
 The current public build is available at [dungeon-master.fr](https://dungeon-master.fr/).
 
-This is currently a desktop-first beta. Smartphone play is not supported yet.
+This is currently a desktop-first beta. Smartphone play is explicitly blocked in the app.
 
 ## Current State
 
@@ -28,9 +28,10 @@ The project is now well beyond prototype stage and already playable end to end t
 - wall mechanisms substantially reworked: switches, pressure plates, locks, alcoves, receptacles, delayed sensors and wall item usage
 - creature AI substantially revised: open-door traversal, pursuit memory, ranged spacing, teleporter usage, invisibility handling, missile absorption, sight-range driven detection
 - upgraded spell visuals: better projectile identities, impacts, local flashes, shields and `Fluxcage`
-- minimal endgame flow: Amalgam / complete Firestaff / Lord Chaos victory screen path is now wired
+- endgame path wired through Firestaff completion, Grey Lord transition, and victory screen
 - persistent save / resume of the mutable runtime state
-- beta-stage HUD / champion-sheet polish and usability passes are actively ongoing
+- in-game options modal with movement key rebinding
+- simple `i18n` layer present with English as the default locale
 
 It is not a finished remake yet. The largest remaining work is no longer data extraction, but the last fidelity gaps, architectural cleanup, and optimization.
 
@@ -49,12 +50,11 @@ Main remaining gaps before calling the runtime "fully aligned":
 - creature AI still has fine-grained fidelity gaps for special families and end-game cases
 - some item-image aliases and other compatibility glue remain manual by design
 - optimization is now the next major phase, especially around the remaining large runtime/data chunks
-- a real options menu and key-rebinding flow still need to be exposed in the UI
+- broader options coverage beyond movement rebinding is still future work
 - save import/export is still a future convenience feature; saves currently live in browser `localStorage`
-- localization is not implemented yet:
-  - the current build mixes original English game text with French UI/runtime strings
-  - a proper English-first cleanup pass is planned
-  - a real `EN` / `FR` localized version is still to do
+- localization is only partially implemented:
+  - translation dictionaries exist, but locale switching is not exposed yet
+  - the current build still mixes original English game text with some French UI/runtime strings
 
 ## Tech Stack
 
@@ -86,7 +86,7 @@ npm run dev
 npm run build
 ```
 
-The production build passes as of this update (`2026-04-11`).
+The production build passes as of this update (`2026-04-13`).
 
 ## Project Structure
 
@@ -94,17 +94,18 @@ The production build passes as of this update (`2026-04-11`).
 src/
   components/   Dungeon rendering and UI
   data/         Runtime data loaders, definitions and compatibility layers
-  engine/       Store, rules, combat, interactions, persistence, sounds
+  engine/       Store, rules, combat, interactions, persistence, options, sounds
+  i18n/         Translation dictionaries and lightweight locale access
   types/        Shared types
 
 public/
-  items/                        Browser-served item icons
-  misc/                         Browser-served UI and world support art
-  sounds/                       Browser-served audio assets
-  textures/                     Browser-served dungeon textures
+  game/images/                  Browser-served item, UI, portrait, sprite, and texture assets
+  game/sounds/                  Browser-served audio assets
   graphics_*.json               Extraction/pipeline reference inputs
   original_*_runtime.json       Small active runtime/pipeline reference subset
-  vite.svg                      Browser favicon
+  original_wall_overlay_positions.json
+  favicon.png
+  vite.svg
 
 src/assets/data/
   dungeon.json                  Canonical compact runtime dungeon snapshot used at boot
@@ -115,13 +116,14 @@ src/assets/data/
 
 assets/
   OriginalDataExtraction/       Reverse-engineering base, scripts, source references, audits
+    output/                     Generated extraction and audit outputs
     reference_exports/          Archived/reference JSON exports no longer kept in public/
 
 docs/
   REMAKE_STATUS.md              Global project status and system-by-system audit
   RUNTIME_ALIGNMENT_AUDIT.md    Source-data vs runtime integration notes
   CODEBASE_REFERENCE.md         Codebase map
-  *_EXTRACTION.md               Original-data extraction notes
+  DATA_PIPELINE.md              Extraction vs runtime packaging flow
 ```
 
 ## Data Sources
@@ -168,6 +170,7 @@ The most useful detailed internal summaries are:
 
 - The production build currently passes.
 - `npm run preview` boots correctly with the dungeon data embedded in `src/assets/data/dungeon.json`.
+- The app blocks smartphone play and remains desktop-first.
 - The bundle is still heavy because of the 3D stack, assets, and embedded critical JSON datasets.
 - The main remaining heavy runtime payloads are now the compact dungeon snapshot and the 3D vendor stack.
 - The next major phase is optimization, now focused more on data loading strategy than on the old `game-core`.

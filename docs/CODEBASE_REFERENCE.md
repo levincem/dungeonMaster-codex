@@ -1,6 +1,6 @@
 ﻿# DungeonMaster Codex - Reference codebase
 
-Document vivant. Cette version de reference decrit l'etat observe dans le code au 2026-04-11.
+Document vivant. Cette version de reference decrit l'etat observe dans le code au `2026-04-13`.
 
 ## Stack
 
@@ -15,9 +15,9 @@ Document vivant. Cette version de reference decrit l'etat observe dans le code a
 ## Flux d'entree
 
 1. `src/main.tsx` monte l'application React et charge `src/index.css`.
-2. `src/App.tsx` affiche `LoadingScreen` puis lazy-load `GameRoot`.
+2. `src/App.tsx` affiche `LoadingScreen`, detecte les smartphones, puis lazy-load `GameRoot`.
 3. `src/components/UI/LoadingScreen.tsx` precharge une selection d'images et appelle `preloadDungeonData()`.
-4. `src/GameRoot.tsx` lance la boucle `requestAnimationFrame`, monte `TitleScreen` tant que `gamePhase === 'title'`, puis `DungeonScene`, `HUD`, `MirrorPopup` et `ChampionSheet` en exploration.
+4. `src/GameRoot.tsx` lance la boucle `requestAnimationFrame`, monte `TitleScreen` tant que `gamePhase === 'title'`, `VictoryScreen` pour `gamePhase === 'victory'`, puis `DungeonScene`, `HUD`, `MirrorPopup` et `ChampionSheet` en exploration.
 
 ## Source de verite des maps
 
@@ -29,13 +29,7 @@ Points importants:
 - Les tiles sont remappees en grille 2D `tiles[y][x]`.
 - `getChampionStartPositions()` vient aussi du JSON runtime embarque.
 - Les anciens snapshots `src/data/level0.ts` et `src/data/level1.ts` ont ete supprimes.
-- Le runtime ne depend plus que des maps parsees depuis le JSON complet.
-- La copie `public/dungeon.json` reste utile comme reference d'extraction/historique, mais n'est plus la source de boot critique.
-
-Constat rapide sur les vraies maps chargees aujourd'hui:
-
-- Map 0 "Hall of Champions" : `18x19`, 342 tiles, 24 champions, 3 portes, 2 teleporteurs, 1 escalier.
-- Map 1 "Level 1" : `32x32`, 1024 tiles, 25 portes, 2 escaliers, 7 teleporteurs, 3 pits, 1 trick wall.
+- Le runtime ne depend plus que des maps parsees depuis le JSON compact embarque.
 
 ## Arborescence utile
 
@@ -64,6 +58,7 @@ src/
 |       |-- ChampionSheet.tsx
 |       |-- MirrorPopup.tsx
 |       |-- RunePanel.tsx
+|       |-- VictoryScreen.tsx
 |       `-- dragPayload.ts
 |-- data/
 |   |-- assetPaths.ts
@@ -83,10 +78,15 @@ src/
 |   |-- store.ts
 |   |-- runtimeTypes.ts
 |   |-- saveGame.ts
+|   |-- options.ts
 |   |-- sounds.ts
 |   |-- systems/
 |   |   `-- persistence.ts
 |   `-- constants.ts
+|-- i18n/
+|   |-- en.ts
+|   |-- fr.ts
+|   `-- index.ts
 |-- assets/
 |   |-- data/
 |   |   |-- dungeon.json
@@ -116,6 +116,7 @@ Responsabilites principales:
 - portes, teleporteurs, trick walls, senseurs actifs et mecanismes differes
 - cast de sorts, shields, `Fluxcage`, evenements visuels et effets temporels
 - boucle de regen, combat, monstres, portes et sorts
+- options de jeu runtime et etat du panneau d'options
 
 Champs structurants de `GameState`:
 
@@ -128,6 +129,7 @@ Champs structurants de `GameState`:
 - `openDoors`, `openWalls`, `openTeleporters`
 - `activeSensors`, `firedSensors`, `visibleTexts`, `pendingSensorEvents`
 - `spellLights`, `projectiles`, `activeShields`, `footprintHistory`, `damageEvents`, `spellVisualEvents`
+- `gameOptions`, `optionsModalOpen`
 
 Actions visibles dans le runtime:
 
@@ -136,7 +138,8 @@ Actions visibles dans le runtime:
 - objets : `pickupItem`, `dropItem`, `equipItem`, `unequipItem`, `giveItem`, `giveEquippedItem`, `useItem`, `useItemOnFrontWall`
 - combat et magie : `attackFront`, `castSpell`, `sleep`
 - progression : `goToLevel`, `toggleDoor`, `activateWallSensor`, `tryOpenGate`
-- etats critiques : `killChampion`, `resurrectChampion`
+- options : `setGameOptions`, `openOptionsModal`, `closeOptionsModal`
+- etats critiques : `killChampion`, `resurrectChampion`, `loadGame`
 
 Helpers exposes hors store:
 
@@ -176,7 +179,8 @@ Contient:
 - runes disponibles et journal court de cast
 - infos de position / niveau
 - ouverture de la fiche champion
-- pas de boutons `SAVE` / `MENU` persistants en bas du HUD actuellement
+- bouton d'ouverture du panneau d'options
+- remapping des touches de deplacement
 
 ### `src/components/UI/TitleScreen.tsx`
 
@@ -188,6 +192,16 @@ Contient:
 - bouton `Enter The Dungeon` qui bascule en exploration
 - bouton `Resume` active seulement si une sauvegarde persistente existe
 - animation d'ouverture des portes avant l'entree
+
+### `src/components/UI/VictoryScreen.tsx`
+
+Ecran de victoire branche sur `gamePhase === 'victory'`.
+
+Contient:
+
+- premiere carte `Congratulations!`
+- apparition du `Grey Lord`
+- seconde carte `The End`
 
 ### `src/engine/saveGame.ts`
 
@@ -202,6 +216,17 @@ Expose:
 - `clearPersistedSave()`
 
 La persistance passe actuellement par `window.localStorage`.
+
+### `src/engine/options.ts`
+
+Couche utilitaire pour les raccourcis.
+
+Expose:
+
+- les keybindings par defaut
+- la normalisation des touches
+- le matching de keybinding
+- le formatage des touches pour l'UI
 
 ### `src/components/UI/ChampionSheet.tsx`
 
@@ -290,9 +315,10 @@ Inclut notamment:
 - `Enter The Dungeon` fait passer `gamePhase` de `title` a `exploration`.
 - `Resume` recharge la derniere sauvegarde persistente si elle existe.
 - le bouton de sauvegarde de `ChampionSheet` ecrit l'etat mutable courant.
-- il n'y a pas de bouton `MENU` expose au joueur dans le HUD pour le moment.
+- le HUD permet d'ouvrir un panneau d'options et de reassigner les touches de deplacement.
 - Le recrutement passe par les miroirs.
 - Le gate d'entree depend de `gateOpen` et donc de la taille du groupe.
+- La victoire bascule vers `VictoryScreen`.
 
 ## Regles de maintenance
 
@@ -301,16 +327,6 @@ Inclut notamment:
 
 ## Notes recentes
 
-- Les JSON critiques de runtime ont ete copies sous `src/assets/data/` pour fiabiliser `npm run dev` et `npm run preview`.
-- `parse_full.cjs` est maintenant l'orchestrateur de packaging runtime et `src/assets/data/runtime_data_manifest.json` decrit le sous-ensemble canonique a conserver.
-- Contrepartie actuelle: le chunk `game-core` est nettement plus lourd tant que ces donnees restent embarquees dans le bundle JS.
-- `vite.config.ts` contient deja un decoupage manuel avec un chunk `game-core`, qui sera un point central du futur chantier d'optimisation.
-
-## Nettoyage recemment acte
-
-- Suppression de `src/components/UI/HeroSelectionScreen.tsx`
-- Suppression de `src/data/level0.ts`
-- Suppression de `src/data/level1.ts`
-- Normalisation des points d'entree `champions.ts` et `creatures.ts` autour des implementations runtime actuelles
-
-Le depot est maintenant plus proche de son runtime reel et contient moins de faux points d'entree documentaires.
+- Les JSON critiques de runtime ont ete copies sous `src/assets/data/` pour fiabiliser `npm run dev` et `npm run build`.
+- Le codebase est decoupe en chunks plus fins qu'avant, mais plusieurs gros bundles restent encore a optimiser.
+- La couche `i18n` existe, mais la selection de langue n'est pas encore exposee.
