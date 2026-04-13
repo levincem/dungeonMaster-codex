@@ -1,4 +1,4 @@
-// Rune and spell types — derived from Old_data/game_db.json
+// Rune and spell types — derived from the canonical extracted game DB
 
 export type RuneRow = 'power' | 'element1' | 'form' | 'alignment';
 

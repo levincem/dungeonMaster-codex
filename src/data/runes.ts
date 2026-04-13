@@ -1,6 +1,6 @@
 // --- DM1 Rune system ----------------------------------------------------------
 // 4 families x 6 runes = 24 runes total.
-// Source of truth: Old_data/game_db.json (runeSymbols + spells)
+// Source of truth: canonical runtime data derived from `src/assets/data/game_db.json`
 //
 // Casting rule: power rune FIRST, then 1-3 additional runes.
 // mana cost = round(manaBase x manaFactor / 8)

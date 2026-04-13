@@ -81,7 +81,7 @@ Ces tables proviennent du GRAPHICS.DAT Atari ST v1.1 via le fichier `.map` de `s
 - 22 entrées sons
 - Tables de palettes, luminosité, affichage des icônes, couleurs d'identité
 
-### Mécanismes — `export_mechanisms.js` → `Old_data/mechanisms.json`
+### Mécanismes — `export_mechanisms.js` → `assets/OriginalDataExtraction/output/mechanisms.json`
 
 541 mécanismes répartis sur 14 niveaux :
 

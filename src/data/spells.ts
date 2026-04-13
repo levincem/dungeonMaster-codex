@@ -1,4 +1,4 @@
-﻿// Legacy spell reference table sourced from Old_data/game_db.json.
+// Legacy spell reference table sourced from the canonical extracted game DB.
 //
 // Important:
 // - the current runtime spell-casting pipeline uses `src/data/runes.ts`

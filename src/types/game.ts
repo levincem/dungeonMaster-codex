@@ -1,4 +1,4 @@
-// Rich tile and map types — derived from Old_data/dungeon.json structure
+// Rich tile and map types — derived from the canonical extracted dungeon data structure
 
 import type { EquipSlotKey } from './items';
 
