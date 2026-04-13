@@ -127,9 +127,7 @@ function makeWhiteTransparentTexture(texture: THREE.Texture): THREE.Texture {
         const r = data[i];
         const g = data[i + 1];
         const b = data[i + 2];
-        if (r > 242 && g > 242 && b > 242) {
-            data[i + 3] = 0;
-        }
+        if (r > 242 && g > 242 && b > 242) data[i + 3] = 0;
     }
     ctx.putImageData(img, 0, 0);
 
@@ -152,7 +150,6 @@ function useSafeTexture(url: string, fallbackUrl: string): THREE.Texture | null 
                 next.dispose();
                 return;
             }
-
             activeTexture?.dispose();
             activeTexture = next;
             setTexture(next);
@@ -168,7 +165,6 @@ function useSafeTexture(url: string, fallbackUrl: string): THREE.Texture | null 
                         loadWithFallback(fallback);
                         return;
                     }
-
                     setTexture(null);
                 },
             );
@@ -277,13 +273,17 @@ const DOOR_W_BTN = GRID_SIZE * (1 - BTN_RATIO);
 const BTN_W      = GRID_SIZE * BTN_RATIO;
 const DOOR_OFF_X = -(BTN_W / 2);
 const BTN_CX     = GRID_SIZE / 2 - BTN_W / 2;
+const BTN_OVERLAY_Z = 0.003;
 
 const DoorMeshInner: React.FC<{
     open: boolean;
     hasButton: boolean;
+    showButton: boolean;
+    buttonSideSign?: 1 | -1;
+    buttonFaceSign?: 1 | -1;
     doorType?: number;
     onButtonClick?: (e: ThreeEvent<MouseEvent>) => void;
-}> = ({ open, hasButton, doorType, onButtonClick }) => {
+}> = ({ open, hasButton, showButton, buttonSideSign = 1, buttonFaceSign = 1, doorType, onButtonClick }) => {
     const baseDoorTex = useTexture(getDoorTexturePath(doorType));
     const baseWallTex = useTexture(`${texturesPath('wall.png')}?v=2`);
     const buttonTexturePath = open
@@ -309,11 +309,12 @@ const DoorMeshInner: React.FC<{
         groupRef.current.position.y = DOOR_LIFT * progress.current;
     });
 
-    const doorW   = hasButton ? DOOR_W_BTN : GRID_SIZE;
-    const doorOff = hasButton ? DOOR_OFF_X : 0;
+    const renderButtonStrip = hasButton;
+    const renderButtons = hasButton && showButton;
+    const doorW   = renderButtonStrip ? DOOR_W_BTN : GRID_SIZE;
+    const doorOff = renderButtonStrip ? DOOR_OFF_X * buttonSideSign : 0;
     const buttonStripWidth = BTN_W;
-    const buttonCenterX = BTN_CX;
-    const buttonSize = BTN_W * 0.72;
+    const buttonSize = BTN_W * 0.39;
     const tex = useMemo(
         () => cloneTexture(baseDoorTex, next => { next.colorSpace = THREE.SRGBColorSpace; }),
         [baseDoorTex],
@@ -321,7 +322,7 @@ const DoorMeshInner: React.FC<{
     const wallTex = useMemo(
         () => cloneTexture(baseWallTex, next => {
             next.colorSpace = THREE.SRGBColorSpace;
-            if (hasButton) {
+            if (renderButtonStrip) {
                 const visibleRatio = BTN_W / GRID_SIZE;
                 next.wrapS = THREE.ClampToEdgeWrapping;
                 next.wrapT = THREE.ClampToEdgeWrapping;
@@ -329,11 +330,10 @@ const DoorMeshInner: React.FC<{
                 next.offset.set((1 - visibleRatio) / 2, 0);
             }
         }),
-        [baseWallTex, hasButton],
+        [baseWallTex, renderButtonStrip],
     );
     const buttonTex = useMemo(() => {
         if (!baseButtonTex) return null;
-
         return makeWhiteTransparentTexture(
             cloneTexture(baseButtonTex, next => {
                 next.colorSpace = THREE.SRGBColorSpace;
@@ -358,32 +358,33 @@ const DoorMeshInner: React.FC<{
                 </Plane>
             </group>
 
-            {/* ── Static button strip (only when hasButton) ── */}
-            {hasButton && (
+            {/* ── Static button strip on the door jamb ── */}
+            {renderButtonStrip && (
                 <>
-                    <Plane args={[buttonStripWidth, WALL_HEIGHT]} position={[buttonCenterX, 0, 0]}>
+                    <Plane args={[buttonStripWidth, WALL_HEIGHT]} position={[BTN_CX * buttonSideSign, 0, 0]}>
                         <meshBasicMaterial map={wallTex} side={THREE.DoubleSide} />
                     </Plane>
-                    {/* Clickable button boss */}
-                    {buttonTex && (
-                        <group position={[buttonCenterX, 0, 0.012]}>
-                            <Plane
-                                args={[buttonSize, buttonSize]}
-                                onClick={handleBtnClick}
-                            >
-                                <meshBasicMaterial
-                                    map={buttonTex}
-                                    side={THREE.DoubleSide}
-                                    transparent
-                                    alphaTest={0.05}
-                                    depthTest={false}
-                                    depthWrite={false}
-                                    polygonOffset
-                                    polygonOffsetFactor={-4}
-                                    polygonOffsetUnits={-4}
-                                />
-                            </Plane>
-                        </group>
+                    {renderButtons && (
+                        buttonTex && (
+                            <group position={[BTN_CX * buttonSideSign, -WALL_HEIGHT * 0.05, BTN_OVERLAY_Z * buttonFaceSign]}>
+                                <Plane
+                                    args={[buttonSize, buttonSize]}
+                                    onClick={handleBtnClick}
+                                >
+                                    <meshBasicMaterial
+                                        map={buttonTex}
+                                        side={THREE.DoubleSide}
+                                        transparent
+                                        alphaTest={0.05}
+                                        depthTest={true}
+                                        depthWrite={false}
+                                        polygonOffset
+                                        polygonOffsetFactor={-4}
+                                        polygonOffsetUnits={-4}
+                                    />
+                                </Plane>
+                            </group>
+                        )
                     )}
                 </>
             )}
@@ -394,11 +395,14 @@ const DoorMeshInner: React.FC<{
 const DoorMesh: React.FC<{
     open: boolean;
     hasButton: boolean;
+    showButton: boolean;
+    buttonSideSign?: 1 | -1;
+    buttonFaceSign?: 1 | -1;
     doorType?: number;
     onButtonClick?: (e: ThreeEvent<MouseEvent>) => void;
-}> = ({ open, hasButton, doorType, onButtonClick }) => (
+}> = ({ open, hasButton, showButton, buttonSideSign, buttonFaceSign, doorType, onButtonClick }) => (
     <Suspense fallback={null}>
-        <DoorMeshInner open={open} hasButton={hasButton} doorType={doorType} onButtonClick={onButtonClick} />
+        <DoorMeshInner open={open} hasButton={hasButton} showButton={showButton} buttonSideSign={buttonSideSign} buttonFaceSign={buttonFaceSign} doorType={doorType} onButtonClick={onButtonClick} />
     </Suspense>
 );
 
@@ -532,11 +536,14 @@ interface CellProps {
     doorOpen?: boolean;
     doorOrientation?: string;
     doorHasButton?: boolean;
+    doorButtonVisible?: boolean;
+    doorButtonSideSign?: 1 | -1;
+    doorButtonFaceSign?: 1 | -1;
     doorType?: number;
     onClick?: (e: ThreeEvent<MouseEvent>) => void;
 }
 
-export const Cell: React.FC<CellProps> = ({ type, position, wallFace, champion, frameChampion, doorOpen, doorOrientation, doorHasButton, doorType, onClick }) => {
+export const Cell: React.FC<CellProps> = ({ type, position, wallFace, champion, frameChampion, doorOpen, doorOrientation, doorHasButton, doorButtonVisible, doorButtonSideSign, doorButtonFaceSign, doorType, onClick }) => {
     const baseWallTex = useTexture(`${texturesPath('wall.png')}?v=2`);
     const wallTex = useMemo(
         () => cloneTexture(baseWallTex, next => {
@@ -577,8 +584,11 @@ export const Cell: React.FC<CellProps> = ({ type, position, wallFace, champion, 
                     <DoorMesh
                         open={doorOpen ?? false}
                         hasButton={hasBtn}
+                        showButton={doorButtonVisible ?? hasBtn}
+                        buttonSideSign={doorButtonSideSign}
+                        buttonFaceSign={doorButtonFaceSign}
                         doorType={doorType}
-                        onButtonClick={hasBtn ? onClick : undefined}
+                        onButtonClick={hasBtn && (doorButtonVisible ?? hasBtn) ? onClick : undefined}
                     />
                 </group>
             </group>

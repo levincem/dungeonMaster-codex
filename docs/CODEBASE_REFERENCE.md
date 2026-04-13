@@ -164,8 +164,21 @@ Contient notamment:
 - objets montes sur mur via `WallMountedItemMesh`
 - detection de clic sur miroirs et interactions de decor
 - cible de drop contextuelle sur le mur en face pour les mecanismes a objet
+- calcul de visibilite pour overlays muraux, boutons de portes et autres interactions frontales
 - couches VFX pour projectiles, shields, `Fluxcage`, impacts et flashes de sorts
 - affichage du nom du niveau a partir de `getGameMap(level).name`
+
+### `src/components/Dungeon/Cell.tsx`
+
+Rendu local des cellules non instanciees, notamment miroirs et portes.
+
+Points importants:
+
+- les portes a bouton utilisent un seul modele commun a tout le jeu
+- le materiau de porte reste variable via `doorType`
+- le jambage du bouton reste fixe dans l'espace local de la porte
+- le `wall_switch_small_in/out` est pose directement sur la face visible du jambage, cote joueur
+- cette structure evite les anciens cas de bouton flottant dans l'ouverture ou cache derriere le mur
 
 ### `src/components/UI/HUD.tsx`
 
@@ -178,8 +191,10 @@ Contient:
 - affichage des mains et objets equipes
 - runes disponibles et journal court de cast
 - infos de position / niveau
+- ligne de debug avec coords globales et locales, y compris la case frontale (`front [g:x,y / l:x,y]`)
 - ouverture de la fiche champion
 - bouton d'ouverture du panneau d'options
+- bouton d'aide `?`
 - remapping des touches de deplacement
 
 ### `src/components/UI/TitleScreen.tsx`

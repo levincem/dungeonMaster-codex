@@ -15,6 +15,7 @@ type FixedVariant = {
     overlayIndex: number | null;
     overlayClassification: OverlayClassification;
     sensorType?: number;
+    isLocal?: boolean;
 };
 
 type FixedFace = {
@@ -50,6 +51,7 @@ export type OriginalWallOverlayRender = {
     accent?: string;
     width?: number;
     height?: number;
+    interactiveSensorIndices?: number[];
 };
 
 let fixedFacesByMap: Map<number, FixedFace[]> | null = null;
@@ -139,12 +141,28 @@ const VISUALS_BY_NAME: Record<string, OverlayVisual> = {
     'Lord Order (Outside)': { image: miscPath('wall_lord_order_outside.png'), accent: '#bf8b54', width: 0.78, height: 1.0 },
 };
 
+function getPreferredStateVariants(face: FixedFace): FixedVariant[] {
+    const sensorVariants = face.variants.filter(
+        (variant) => variant.source === 'fixed-sensor' && variant.sensorType !== undefined,
+    );
+    const nonLocalVariants = sensorVariants.filter((variant) => variant.isLocal === false);
+    return nonLocalVariants.length > 0 ? nonLocalVariants : sensorVariants;
+}
+
 function isFaceActive(level: number, face: FixedFace, activeSensors: Set<string>): boolean {
-    return face.variants.some(variant =>
-        variant.source === 'fixed-sensor' &&
-        variant.sensorType !== undefined &&
+    return getPreferredStateVariants(face).some((variant) =>
         activeSensors.has(`${level}_${variant.objectIndex}`),
     );
+}
+
+function getInteractiveSensorIndices(face: FixedFace): number[] {
+    const interactiveVariants = face.variants.filter((variant) =>
+        variant.source === 'fixed-sensor' &&
+        variant.overlayClassification === 'interactive' &&
+        (variant.sensorType === 1 || variant.sensorType === 2),
+    );
+    const preferred = interactiveVariants.filter((variant) => variant.isLocal === false);
+    return (preferred.length > 0 ? preferred : interactiveVariants).map((variant) => variant.objectIndex);
 }
 
 function chooseOverlayName(level: number, face: FixedFace, activeSensors: Set<string>): string {
@@ -226,6 +244,7 @@ export function getOriginalWallOverlaysForMap(
             accent: visual.accent,
             width: visual.width,
             height: visual.height,
+            interactiveSensorIndices: getInteractiveSensorIndices(face),
         });
     }
 

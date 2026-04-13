@@ -33,8 +33,14 @@ const CAVITY_BACK_SCALE: Record<CavityFace, [number, number, number]> = {
     West: [CAVITY_BACK_DEPTH / GRID_SIZE, 1, 1],
 };
 
+const PIT_INNER_SIZE = GRID_SIZE * 0.82;
+const PIT_WALL_THICKNESS = GRID_SIZE * 0.08;
+const PIT_SHAFT_DEPTH = 1.6;
+const PIT_WALL_Y = -HALF - (PIT_SHAFT_DEPTH / 2) - 0.12;
+
 export const InstancedTiles = ({ map, openWalls }: Props) => {
     const seeThroughWallsUntil = useStore(s => s.seeThroughWallsUntil);
+    const openPits = useStore(s => s.openPits);
     const { floor, ceiling, wall } = useTexture({
         floor: `${texturesPath('floor.png')}?v=2`,
         ceiling: `${texturesPath('ceiling.png')}?v=2`,
@@ -47,12 +53,14 @@ export const InstancedTiles = ({ map, openWalls }: Props) => {
     });
 
     // Classify tiles once per map — wallEntries includes TrickWalls (closed by default)
-    const { floorPositions, ceilPositions, wallEntries, cavityEntries } = useMemo(() => {
+    const { floorPositions, ceilPositions, wallEntries, cavityEntries, pitPositions, pitWallEntries } = useMemo(() => {
         const floorPositions: [number, number][] = [];
         const ceilPositions:  [number, number][] = [];
         // [wx, wz, tileKey] — tileKey is "level,y,x" for TrickWall, "" for regular Wall
         const wallEntries: [number, number, string][] = [];
         const cavityEntries: [number, number, string, CavityFace][] = [];
+        const pitPositions: [number, number][] = [];
+        const pitWallEntries: [number, number, number, number][] = [];
 
         for (const row of map.tiles) {
             for (const tile of row) {
@@ -74,18 +82,28 @@ export const InstancedTiles = ({ map, openWalls }: Props) => {
                     }
                 } else if (tile.type === 'TrickWall') {
                     wallEntries.push([wx, wz, `${map.index},${tile.y},${tile.x}`]);
+                } else if (tile.type === 'Pit' && openPits.has(`${map.index},${tile.y},${tile.x}`)) {
+                    pitPositions.push([wx, wz]);
+                    pitWallEntries.push(
+                        [wx, wz - (PIT_INNER_SIZE / 2), GRID_SIZE * 0.78, PIT_WALL_THICKNESS],
+                        [wx, wz + (PIT_INNER_SIZE / 2), GRID_SIZE * 0.78, PIT_WALL_THICKNESS],
+                        [wx - (PIT_INNER_SIZE / 2), wz, PIT_WALL_THICKNESS, GRID_SIZE * 0.78],
+                        [wx + (PIT_INNER_SIZE / 2), wz, PIT_WALL_THICKNESS, GRID_SIZE * 0.78],
+                    );
                 } else {
                     floorPositions.push([wx, wz]);
                 }
             }
         }
-        return { floorPositions, ceilPositions, wallEntries, cavityEntries };
-    }, [map]);
+        return { floorPositions, ceilPositions, wallEntries, cavityEntries, pitPositions, pitWallEntries };
+    }, [map, openPits]);
 
     const floorRef = useRef<THREE.InstancedMesh>(null);
     const ceilRef  = useRef<THREE.InstancedMesh>(null);
     const wallRef  = useRef<THREE.InstancedMesh>(null);
     const cavityBackRef = useRef<THREE.InstancedMesh>(null);
+    const pitRef = useRef<THREE.InstancedMesh>(null);
+    const pitWallRef = useRef<THREE.InstancedMesh>(null);
 
     useEffect(() => {
         const dummy = new THREE.Object3D();
@@ -137,7 +155,29 @@ export const InstancedTiles = ({ map, openWalls }: Props) => {
             });
             cavityBackRef.current.instanceMatrix.needsUpdate = true;
         }
-    }, [floorPositions, ceilPositions, wallEntries, cavityEntries, openWalls]);
+
+        if (pitRef.current) {
+            dummy.rotation.set(-Math.PI / 2, 0, 0);
+            pitPositions.forEach(([wx, wz], i) => {
+                dummy.position.set(wx, -HALF - 1.02, wz);
+                dummy.scale.set(0.88, 0.88, 1);
+                dummy.updateMatrix();
+                pitRef.current!.setMatrixAt(i, dummy.matrix);
+            });
+            pitRef.current.instanceMatrix.needsUpdate = true;
+        }
+
+        if (pitWallRef.current) {
+            dummy.rotation.set(0, 0, 0);
+            pitWallEntries.forEach(([wx, wz, sx, sz], i) => {
+                dummy.position.set(wx, PIT_WALL_Y, wz);
+                dummy.scale.set(sx / GRID_SIZE, PIT_SHAFT_DEPTH / WALL_HEIGHT, sz / GRID_SIZE);
+                dummy.updateMatrix();
+                pitWallRef.current!.setMatrixAt(i, dummy.matrix);
+            });
+            pitWallRef.current.instanceMatrix.needsUpdate = true;
+        }
+    }, [floorPositions, ceilPositions, wallEntries, cavityEntries, pitPositions, pitWallEntries, openWalls]);
 
     useFrame(() => {
         if (!wallMaterialRef.current) return;
@@ -183,6 +223,24 @@ export const InstancedTiles = ({ map, openWalls }: Props) => {
             >
                 <boxGeometry args={[GRID_SIZE, WALL_HEIGHT, GRID_SIZE]} />
                 <meshBasicMaterial map={wall} />
+            </instancedMesh>
+
+            <instancedMesh
+                ref={pitRef}
+                args={[undefined, undefined, pitPositions.length]}
+                frustumCulled={false}
+            >
+                <planeGeometry args={[GRID_SIZE * 0.92, GRID_SIZE * 0.92]} />
+                <meshBasicMaterial map={floor} color="#0d1318" />
+            </instancedMesh>
+
+            <instancedMesh
+                ref={pitWallRef}
+                args={[undefined, undefined, pitWallEntries.length]}
+                frustumCulled={false}
+            >
+                <boxGeometry args={[GRID_SIZE, WALL_HEIGHT, GRID_SIZE]} />
+                <meshBasicMaterial map={wall} color="#1b2026" />
             </instancedMesh>
         </>
     );

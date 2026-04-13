@@ -690,10 +690,28 @@ export const HUD = () => {
         championXP, championCombat, attackFront, championEquipment, gameOptions,
         damageEvents, optionsModalOpen, openOptionsModal, closeOptionsModal, setGameOptions,
         activeFloorDrag, pickupItemToChampion, endFloorDrag, giveItem, giveEquippedItem, equipItem,
+        openDoors, openWalls, openPits,
     } = useStore();
     const currentMap = getGameMap(level);
     const globalX = (currentMap.mapOffset?.x ?? 0) + position[1];
     const globalY = (currentMap.mapOffset?.y ?? 0) + position[0];
+    const frontLocalX = direction === 'EAST' ? position[1] + 1 : direction === 'WEST' ? position[1] - 1 : position[1];
+    const frontLocalY = direction === 'NORTH' ? position[0] - 1 : direction === 'SOUTH' ? position[0] + 1 : position[0];
+    const frontGlobalX = (currentMap.mapOffset?.x ?? 0) + frontLocalX;
+    const frontGlobalY = (currentMap.mapOffset?.y ?? 0) + frontLocalY;
+    const frontTile = currentMap.tiles[frontLocalY]?.[frontLocalX];
+    const frontState =
+        !frontTile
+            ? 'void blocked'
+            : frontTile.type === 'Wall'
+                ? 'Wall blocked'
+                : frontTile.type === 'TrickWall'
+                    ? `TrickWall ${openWalls.has(`${level},${frontLocalY},${frontLocalX}`) ? 'open walk' : 'closed blocked'}`
+                    : frontTile.type === 'Door'
+                        ? `Door ${openDoors.has(`${level},${frontLocalY},${frontLocalX}`) ? 'open walk' : 'closed blocked'}`
+                        : frontTile.type === 'Pit'
+                            ? `Pit ${openPits.has(`${level},${frontLocalY},${frontLocalX}`) ? 'open blocked' : 'closed walk'}`
+                            : `${frontTile.type} walk`;
 
     // ── Sound debug ─────────────────────────────────────────────────────────
     const [lastSound, setLastSound] = useState<string>('');
@@ -705,6 +723,8 @@ export const HUD = () => {
     const [flashKey, setFlashKey] = useState<string | null>(null);
     const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [rebindingTarget, setRebindingTarget] = useState<RebindingTarget | null>(null);
+    const [tutorialModalOpen, setTutorialModalOpen] = useState(false);
+    const [tutorialPressedButton, setTutorialPressedButton] = useState<'close' | 'continue' | null>(null);
     const flash = useCallback((key: string, action: () => void) => {
         action();
         if (flashTimer.current) clearTimeout(flashTimer.current);
@@ -728,7 +748,7 @@ export const HUD = () => {
 
     useEffect(() => {
         const handleKey = (e: KeyboardEvent) => {
-            if (optionsModalOpen) return;
+            if (optionsModalOpen || tutorialModalOpen) return;
             if (['INPUT', 'TEXTAREA', 'BUTTON'].includes((e.target as HTMLElement)?.tagName)) return;
             const { keybindings } = gameOptions;
             if (matchesKeybinding(keybindings.moveForward, e.key)) { e.preventDefault(); move('fwd', moveForward); return; }
@@ -740,7 +760,7 @@ export const HUD = () => {
         };
         window.addEventListener('keydown', handleKey);
         return () => window.removeEventListener('keydown', handleKey);
-    }, [flash, gameOptions, move, moveForward, moveBackward, optionsModalOpen, turnLeft, turnRight, strafeLeft, strafeRight]);
+    }, [flash, gameOptions, move, moveForward, moveBackward, optionsModalOpen, tutorialModalOpen, turnLeft, turnRight, strafeLeft, strafeRight]);
 
     useEffect(() => {
         if (!optionsModalOpen) {
@@ -866,6 +886,31 @@ export const HUD = () => {
             color: '#d8d0b8', zIndex: 100,
             overflow: 'hidden',
         }}>
+            <button
+                onClick={() => setTutorialModalOpen(true)}
+                title="Quick guide"
+                style={{
+                    position: 'absolute',
+                    top: 8,
+                    right: 46,
+                    width: 30,
+                    height: 30,
+                    borderRadius: 999,
+                    border: '1px solid rgba(200,170,110,0.38)',
+                    background: 'rgba(0,0,0,0.9)',
+                    color: '#f0d060',
+                    fontSize: 18,
+                    fontWeight: 'bold',
+                    lineHeight: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    zIndex: 2,
+                }}
+            >
+                ?
+            </button>
             <button
                 onClick={openOptionsModal}
                 title={text.options}
@@ -1048,7 +1093,7 @@ export const HUD = () => {
                         </span>
                         <span style={{ fontSize: 10, color: '#887878', letterSpacing: 1 }}>
                             {selectedChamp.class.toUpperCase()}
-                            {selectedChamp.mana > 0 && selectedVitals && (
+                            {selectedVitals && (
                                 <span style={{ color: '#5080c0', marginLeft: 7 }}>
                                     {Math.floor(selectedVitals.mana)}/{selectedChamp.mana} MP
                                 </span>
@@ -1201,10 +1246,10 @@ export const HUD = () => {
 
             {/* Debug */}
             <div style={{ fontSize: 10, color: '#993322', fontFamily: 'monospace', textAlign: 'center', opacity: 0.6 }}>
-                [{globalX},{globalY}] {direction} · LVL {level}
+                [g:{globalX},{globalY}] {direction} · LVL {level} · front [g:{frontGlobalX},{frontGlobalY} / l:{frontLocalX},{frontLocalY}] · {frontState}
             </div>
             <div style={{ fontSize: 9, color: '#7a4a24', fontFamily: 'monospace', textAlign: 'center', opacity: 0.5, marginTop: 2 }}>
-                local [{position[1]},{position[0]}] · offset [{currentMap.mapOffset?.x ?? 0},{currentMap.mapOffset?.y ?? 0}]
+                local [l:{position[1]},{position[0]}] · offset [{currentMap.mapOffset?.x ?? 0},{currentMap.mapOffset?.y ?? 0}]
             </div>
             {lastSound && (
                 <div style={{ fontSize: 9, color: '#cc8833', fontFamily: 'monospace', textAlign: 'center', opacity: 0.7, marginTop: 2 }}>
@@ -1334,6 +1379,99 @@ export const HUD = () => {
                                     </div>
                                 );
                             })}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {tutorialModalOpen && (
+                <div
+                    onClick={() => setTutorialModalOpen(false)}
+                    style={{
+                        position: 'fixed',
+                        inset: 0,
+                        background: 'rgba(0,0,0,0.72)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 221,
+                        padding: 24,
+                    }}
+                >
+                    <div
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            width: 'min(560px, 92vw)',
+                            background: 'linear-gradient(180deg, rgba(7,7,7,0.98), rgba(18,15,10,0.98))',
+                            border: '1px solid rgba(212,184,112,0.46)',
+                            borderRadius: 12,
+                            boxShadow: '0 24px 80px rgba(0,0,0,0.62)',
+                            padding: 22,
+                            color: '#ead6a0',
+                        }}
+                    >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                            <div>
+                                <div style={{ fontSize: 13, letterSpacing: 3, color: '#c9a85e', marginBottom: 6 }}>HELP</div>
+                                <div style={{ fontSize: 21, fontWeight: 'bold', color: '#f2dfad' }}>Quick Guide</div>
+                            </div>
+                            <button
+                                onClick={() => setTutorialModalOpen(false)}
+                                onMouseDown={() => setTutorialPressedButton('close')}
+                                onMouseUp={() => setTutorialPressedButton(null)}
+                                onMouseLeave={() => setTutorialPressedButton(null)}
+                                style={{
+                                    background: tutorialPressedButton === 'close' ? 'rgba(70,54,26,0.28)' : 'none',
+                                    border: '1px solid rgba(212,184,112,0.26)',
+                                    color: '#bfa06a',
+                                    borderRadius: 999,
+                                    width: 32,
+                                    height: 32,
+                                    fontSize: 20,
+                                    cursor: 'pointer',
+                                    transform: tutorialPressedButton === 'close' ? 'translateY(1px) scale(0.97)' : 'translateY(0) scale(1)',
+                                    boxShadow: tutorialPressedButton === 'close' ? 'inset 0 2px 6px rgba(0,0,0,0.35)' : '0 4px 10px rgba(0,0,0,0.14)',
+                                    transition: 'transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease',
+                                }}
+                                title={text.close}
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <div style={{ fontSize: 14, lineHeight: 1.8, color: 'rgba(232,214,160,0.8)' }}>
+                            <p style={{ margin: '0 0 10px' }}>Choose four champions by clicking their portraits in the Hall of Champions.</p>
+                            <p style={{ margin: '0 0 10px' }}>Enter the dungeon and keep your party alive by managing equipment, food, water, health, and magic.</p>
+                            <p style={{ margin: '0 0 10px' }}>Watch the walls, floors, doors, pits, and alcoves carefully: many mechanisms, traps, and secrets are hidden in plain sight.</p>
+                            <p style={{ margin: '0 0 10px' }}>Save often. Some encounters and puzzles can punish careless exploration.</p>
+                            <p style={{ margin: 0 }}>Your ultimate goal is to descend to the bottom of the dungeon, defeat Lord Chaos, and survive the journey.</p>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
+                            <button
+                                onClick={() => setTutorialModalOpen(false)}
+                                onMouseDown={() => setTutorialPressedButton('continue')}
+                                onMouseUp={() => setTutorialPressedButton(null)}
+                                onMouseLeave={() => setTutorialPressedButton(null)}
+                                style={{
+                                    padding: '8px 16px',
+                                    borderRadius: 8,
+                                    border: '1px solid rgba(212,184,112,0.4)',
+                                    background: tutorialPressedButton === 'continue'
+                                        ? 'linear-gradient(180deg, rgba(76,56,24,0.78), rgba(44,31,12,0.82))'
+                                        : 'linear-gradient(180deg, rgba(108,78,32,0.62), rgba(58,40,16,0.72))',
+                                    color: '#f2dfad',
+                                    fontSize: 14,
+                                    cursor: 'pointer',
+                                    boxShadow: tutorialPressedButton === 'continue'
+                                        ? '0 4px 10px rgba(0,0,0,0.22), inset 0 2px 6px rgba(0,0,0,0.22)'
+                                        : '0 10px 20px rgba(0,0,0,0.2)',
+                                    transform: tutorialPressedButton === 'continue' ? 'translateY(1px) scale(0.99)' : 'translateY(0) scale(1)',
+                                    transition: 'transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease',
+                                }}
+                            >
+                                Continue
+                            </button>
                         </div>
                     </div>
                 </div>

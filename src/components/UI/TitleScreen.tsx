@@ -248,7 +248,7 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
             }}>
                 <img
                     src={miscPath('Dm_logo.png')}
-                    alt="Dungeon Master"
+                    alt="Dungeon Master Remastered"
                     draggable={false}
                     style={{
                         width: showScene ? 'min(34vw, 520px)' : 'min(46vw, 700px)',

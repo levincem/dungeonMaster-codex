@@ -103,6 +103,8 @@ export const fr = {
         unreadableRunes: 'Le parchemin est couvert\nde runes illisibles.',
         close: 'Fermer',
         giveTo: (name: string) => `Donner à ${name}`,
+        dungeon: 'DONJON',
+        dungeonDropTitle: 'Faites glisser ici pour fermer la fiche et poursuivre le dépôt de l’objet dans la vue du donjon',
         backpack: 'Sac à dos',
         equip: 'Équiper',
         read: 'Lire',

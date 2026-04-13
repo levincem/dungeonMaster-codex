@@ -22,6 +22,7 @@ Points recales:
 - reorganisation des assets runtime sous `public/game/images` et `public/game/sounds`
 - embarquement des JSON critiques sous `src/assets/data` pour fiabiliser le boot
 - ecran titre avec `Enter The Dungeon` et `Resume`
+- modale de bienvenue beta bloquante au demarrage, plus aide rapide accessible depuis le HUD
 - couche `i18n` simple avec anglais par defaut
 - panneau d'options en jeu avec remapping des touches de deplacement
 - blocage explicite sur smartphone tant qu'un vrai support mobile n'existe pas
@@ -52,10 +53,11 @@ Etat actuel:
 - parsing central via `src/data/dungeonData.ts` et `src/data/mapLoader.ts`
 - portes, teleporteurs, trick walls, pits et eau sont presents dans les maps runtime
 - overlays muraux originaux sont positions depuis les donnees extraites
+- les pits ouverts sont rendus comme de vrais trous et peuvent provoquer une chute vers la case correspondante du niveau inferieur
 
 Reste a faire:
 
-- verifier finement quelques interactions specifiques de pits, eau et cartes rares
+- verifier finement les derniers cas specifiques de pits, eau et cartes rares
 - continuer a tester les cas de teleports et transitions de niveau les plus atypiques
 
 ### Champions, UI et inventaire
@@ -69,6 +71,7 @@ Etat actuel:
 - portraits, paths d'assets et resolution d'images ont ete securises
 - save button disponible depuis la fiche champion
 - panneau d'options disponible dans le HUD pour les touches de deplacement
+- HUD de debug plus explicite avec coords globales et locales (`g:` / `l:`) pour eviter les confusions entre lecture de map et position en jeu
 
 Reste a faire:
 
@@ -109,6 +112,7 @@ Etat actuel:
 
 - `src/data/mechanisms.ts` reconstruit maintenant une vue structuree depuis les sensors extraits du vrai donjon
 - switches muraux et dalles pilotent correctement leur etat runtime
+- leviers muraux relies a leurs sensors extraits et utilisables directement en scene
 - les verrouillages muraux ne s'ouvrent plus automatiquement si la cle est simplement possedee
 - usage explicite d'objet sur mecanisme mural via drag and drop
 - alcoves et receptacles muraux fonctionnels
@@ -116,6 +120,7 @@ Etat actuel:
 - capteurs `Hold`, possession et objets specifiques de sol recales
 - file d'evenements differee pour les mecanismes avec `delay`
 - clic sonore partage pour switchs / dalles quand pertinent
+- portes a bouton recalees sur un modele unique: un seul jambage et un `wall switch` fixe sur la face du jambage cote joueur, quel que soit le materiau de porte
 
 Reste a faire:
 
@@ -169,11 +174,14 @@ Etat actuel:
 - projectiles physiques et munitions ont progresse
 - poison et steal sont branches cote monstres
 - plusieurs timings gameplay importants ont ete recales sur une base plus proche de l'original
+- degats flottants monstres visibles en scene et petit nuage de poussiere a la mort
+- chute dans les pits: impact sonore et degats sur les champions vivants, mais valeurs encore a confirmer
 
 Reste a faire:
 
 - certaines formules restent encore simplifiees
 - `Rust`, `Teleport` et `Immobilize` ne doivent toujours pas etre vendus comme pleinement reproduits
+- confirmer si les valeurs de degats de chute peuvent etre derivees proprement des references originales
 
 ### Assets, presentation et finition
 
@@ -248,3 +256,4 @@ Point de controle avant optimisation:
 
 - On ne quitte pas une session avec un build casse sans le signaler clairement.
 - Apres chaque gros changement, il faut mettre a jour `README.md` et les notes pertinentes sous `docs/`.
+- Quand un bug touche les maps ou mecanismes, il faut toujours distinguer coordonnees globales et locales avant de conclure sur la donnee extraite.

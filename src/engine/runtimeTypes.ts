@@ -130,6 +130,7 @@ export interface PersistedSaveData {
     party: Champion[];
     gateOpen: boolean;
     openDoors: string[];
+    openPits: string[];
     openTeleporters: string[];
     openWalls: string[];
     activeSensors: string[];
@@ -141,6 +142,7 @@ export interface PersistedSaveData {
     championInventories: Record<number, FloorItem[]>;
     championEquipment: Record<number, ChampionEquipment>;
     championVitals: Record<number, ChampionVitals>;
+    championManaRegenBlockedUntilTick?: Record<number, number>;
     elapsedGameTimeTicks: number;
     regenTickRemainder: number;
     lastPartyMoveGameTick: number;

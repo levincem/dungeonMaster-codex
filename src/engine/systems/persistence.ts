@@ -22,6 +22,7 @@ export interface PersistableGameState {
     party: Champion[];
     gateOpen: boolean;
     openDoors: Set<string>;
+    openPits: Set<string>;
     openTeleporters: Set<string>;
     openWalls: Set<string>;
     activeSensors: Set<string>;
@@ -33,6 +34,7 @@ export interface PersistableGameState {
     championInventories: Record<number, FloorItem[]>;
     championEquipment: Record<number, ChampionEquipment>;
     championVitals: Record<number, ChampionVitals>;
+    championManaRegenBlockedUntilTick: Record<number, number>;
     elapsedGameTimeTicks: number;
     regenTickRemainder: number;
     lastPartyMoveGameTick: number;
@@ -98,6 +100,7 @@ export function buildPersistedSaveData(
         party: state.party,
         gateOpen: state.gateOpen,
         openDoors: [...state.openDoors],
+        openPits: [...state.openPits],
         openTeleporters: [...state.openTeleporters],
         openWalls: [...state.openWalls],
         activeSensors: [...state.activeSensors],
@@ -109,6 +112,7 @@ export function buildPersistedSaveData(
         championInventories: state.championInventories,
         championEquipment: state.championEquipment,
         championVitals: state.championVitals,
+        championManaRegenBlockedUntilTick: state.championManaRegenBlockedUntilTick,
         elapsedGameTimeTicks: state.elapsedGameTimeTicks,
         regenTickRemainder: state.regenTickRemainder,
         lastPartyMoveGameTick: state.lastPartyMoveGameTick,

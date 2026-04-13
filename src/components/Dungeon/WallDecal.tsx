@@ -1,5 +1,4 @@
-import { Suspense, useEffect, useMemo } from 'react';
-import { useTexture } from '@react-three/drei';
+import { useEffect, useMemo, useState } from 'react';
 import * as THREE from 'three';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import type { CardinalDir } from '../../types/game';
@@ -67,16 +66,16 @@ const DECAL_PRESETS: Record<string, DecalPreset> = {
         width: GRID_SIZE * 0.28,
         height: WALL_HEIGHT * 0.46,
         y: 0,
-        hasBacking: true,
-        hasGlow: true,
+        hasBacking: false,
+        hasGlow: false,
         plateColor: '#3a2b1d',
     },
     [LEVER_DOWN_IMAGE]: {
         width: GRID_SIZE * 0.28,
         height: WALL_HEIGHT * 0.46,
         y: 0,
-        hasBacking: true,
-        hasGlow: true,
+        hasBacking: false,
+        hasGlow: false,
         plateColor: '#3a2b1d',
     },
     [ALTAR_IMAGE]: {
@@ -107,15 +106,67 @@ const DECAL_PRESETS: Record<string, DecalPreset> = {
 
 // ─── Inner sprite (loads texture) ─────────────────────────────────────────────
 
-const DecalSprite = ({ image, width, height }: { image: string; width: number; height: number }) => {
-    const baseTex = useTexture(image);
-    const tex = useMemo(() => {
-        const next = baseTex.clone();
-        next.colorSpace = THREE.SRGBColorSpace;
-        next.needsUpdate = true;
-        return next;
-    }, [baseTex]);
-    useEffect(() => () => tex.dispose(), [tex]);
+function useSafeTexture(url: string, fallbackUrl?: string): THREE.Texture | null {
+    const [texture, setTexture] = useState<THREE.Texture | null>(null);
+
+    useEffect(() => {
+        let disposed = false;
+        let activeTexture: THREE.Texture | null = null;
+        const loader = new THREE.TextureLoader();
+
+        const finalizeTexture = (next: THREE.Texture) => {
+            next.colorSpace = THREE.SRGBColorSpace;
+            next.needsUpdate = true;
+            if (disposed) {
+                next.dispose();
+                return;
+            }
+            activeTexture?.dispose();
+            activeTexture = next;
+            setTexture(next);
+        };
+
+        const load = (source: string, fallback?: string) => {
+            loader.load(
+                source,
+                (loaded) => finalizeTexture(loaded),
+                undefined,
+                () => {
+                    if (fallback && fallback !== source) {
+                        load(fallback);
+                    } else if (!disposed) {
+                        setTexture(null);
+                    }
+                },
+            );
+        };
+
+        setTexture(null);
+        load(url, fallbackUrl);
+
+        return () => {
+            disposed = true;
+            activeTexture?.dispose();
+        };
+    }, [url, fallbackUrl]);
+
+    return texture;
+}
+
+const DecalSprite = ({
+    image,
+    fallbackImage,
+    width,
+    height,
+}: {
+    image: string;
+    fallbackImage?: string;
+    width: number;
+    height: number;
+}) => {
+    const tex = useSafeTexture(image, fallbackImage);
+    if (!tex) return null;
+
     return (
         <mesh frustumCulled={false} renderOrder={10} raycast={NO_RAYCAST}>
             <planeGeometry args={[width, height]} />
@@ -232,6 +283,7 @@ interface Props {
     width?: number;
     /** Height of the decal plane — defaults to full WALL_HEIGHT */
     height?: number;
+    onClick?: () => void;
 }
 
 export const WallDecal = ({
@@ -240,6 +292,7 @@ export const WallDecal = ({
     accent = '#c5a46a',
     width,
     height,
+    onClick,
 }: Props) => {
     if (!image && !label) return null;
 
@@ -260,14 +313,35 @@ export const WallDecal = ({
     const decalHeight = height ?? preset.height;
     const plateWidth = Math.max(decalWidth - PLATE_INSET_X, decalWidth * 0.86);
     const plateHeight = Math.max(decalHeight - PLATE_INSET_Y, decalHeight * 0.84);
-    const contentDepth = image === miscPath('wall_torch_holder_empty.png') ? PLATE_DEPTH * 0.02 : PLATE_DEPTH * 0.16;
+    const contentDepth =
+        image === LEVER_UP_IMAGE || image === LEVER_DOWN_IMAGE
+            ? PLATE_DEPTH * 0.34
+            : image === miscPath('wall_torch_holder_empty.png')
+                ? PLATE_DEPTH * 0.02
+                : PLATE_DEPTH * 0.16;
+    const fallbackImage =
+        image === LEVER_UP_IMAGE
+            ? LEVER_DOWN_IMAGE
+            : image === LEVER_DOWN_IMAGE
+                ? LEVER_UP_IMAGE
+                : undefined;
 
     return (
         <group
             position={[tileX * GRID_SIZE + ox, preset.y, tileY * GRID_SIZE + oz]}
             rotation={[rx, ry, rz]}
             frustumCulled={false}
+            onClick={onClick ? (e) => {
+                e.stopPropagation();
+                onClick();
+            } : undefined}
         >
+            {onClick && (
+                <mesh position={[0, 0, contentDepth + 0.002]} frustumCulled={false}>
+                    <planeGeometry args={[Math.max(decalWidth, GRID_SIZE * 0.42), Math.max(decalHeight, WALL_HEIGHT * 0.32)]} />
+                    <meshBasicMaterial transparent opacity={0} side={THREE.DoubleSide} depthWrite={false} />
+                </mesh>
+            )}
             {preset.hasBacking && (
                 <>
                     <mesh position={[0, 0, -PLATE_DEPTH * 0.55]} frustumCulled={false} renderOrder={1} raycast={NO_RAYCAST}>
@@ -295,9 +369,7 @@ export const WallDecal = ({
             )}
             <group position={[0, 0, contentDepth]}>
                 {image ? (
-                    <Suspense fallback={null}>
-                        <DecalSprite image={image} width={decalWidth} height={decalHeight} />
-                    </Suspense>
+                    <DecalSprite image={image} fallbackImage={fallbackImage} width={decalWidth} height={decalHeight} />
                 ) : label ? (
                     <LabelSprite label={label} accent={accent} width={decalWidth} height={decalHeight} />
                 ) : null}

@@ -26,16 +26,17 @@ import { getFloorItemImage } from '../../data/itemImages';
 import type { FloorItem } from '../../types/game';
 import type { CreatureInstance } from '../../types/game';
 import { miscPath, texturesPath } from '../../data/assetPaths';
+import { doorBlocksVision } from '../../data/doors';
 import { getDragPayload } from '../UI/dragPayload';
 import { useI18n } from '../../i18n';
 
 const HALF = GRID_SIZE / 2;
 const BASE_FOG_NEAR = GRID_SIZE * 2;
 const BASE_FOG_FAR = GRID_SIZE * 7;
+const FLOOR_DROP_SCREEN_RATIO = 0.7;
 const DUNGEON_AMBIENT_COLOR = new THREE.Color('#f4e2ba');
 const DUNGEON_DARK_AMBIENT_COLOR = new THREE.Color('#8ea0c0');
 type MagicProjectileEffect = Exclude<ProjectileEffect, 'physical'>;
-
 function cloneTexture<T extends THREE.Texture>(
     texture: T,
     configure?: (next: T) => void,
@@ -250,6 +251,60 @@ function makeEngravedTexture(text: string): THREE.CanvasTexture {
     return tex;
 }
 
+function makeDamageBubbleTexture(amount: number): { texture: THREE.CanvasTexture; aspect: number } {
+    const text = `-${amount}`;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        const fallback = new THREE.CanvasTexture(canvas);
+        return { texture: fallback, aspect: 1.6 };
+    }
+
+    ctx.font = 'bold 72px "Courier New", monospace';
+    const metrics = ctx.measureText(text);
+    const width = Math.max(220, Math.ceil(metrics.width + 64));
+    const height = 132;
+    canvas.width = width;
+    canvas.height = height;
+
+    const draw = canvas.getContext('2d');
+    if (!draw) {
+        const fallback = new THREE.CanvasTexture(canvas);
+        return { texture: fallback, aspect: width / height };
+    }
+
+    draw.clearRect(0, 0, width, height);
+    draw.fillStyle = 'rgba(155, 16, 8, 0.94)';
+    draw.strokeStyle = 'rgba(255,140,92,0.95)';
+    draw.lineWidth = 5;
+
+    const radius = height / 2;
+    draw.beginPath();
+    draw.moveTo(radius, 6);
+    draw.lineTo(width - radius, 6);
+    draw.quadraticCurveTo(width - 6, 6, width - 6, radius);
+    draw.quadraticCurveTo(width - 6, height - 6, width - radius, height - 6);
+    draw.lineTo(radius, height - 6);
+    draw.quadraticCurveTo(6, height - 6, 6, radius);
+    draw.quadraticCurveTo(6, 6, radius, 6);
+    draw.closePath();
+    draw.fill();
+    draw.stroke();
+
+    draw.fillStyle = '#fff6dc';
+    draw.textAlign = 'center';
+    draw.textBaseline = 'middle';
+    draw.font = 'bold 72px "Courier New", monospace';
+    draw.shadowColor = 'rgba(0, 0, 0, 0.85)';
+    draw.shadowBlur = 12;
+    draw.fillText(text, width / 2, height / 2 + 4);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.needsUpdate = true;
+    return { texture, aspect: width / height };
+}
+
 const WallTextEntry: React.FC<{ tileX: number; tileY: number; face: CardinalDir; text: string }> = ({ tileX, tileY, face, text }) => {
     const tex = useMemo(() => makeEngravedTexture(text), [text]);
     const [ox, , oz] = FACE_POS_TEXT[face];
@@ -283,6 +338,118 @@ const WALL_TEXT_FACE_VECTORS: Record<CardinalDir, { dx: number; dy: number }> = 
     East: { dx: 1, dy: 0 },
     West: { dx: -1, dy: 0 },
 };
+
+function wallFaceAnchor(tileX: number, tileY: number, face: CardinalDir): { x: number; y: number } {
+    const step = WALL_TEXT_FACE_VECTORS[face];
+    return { x: tileX + step.dx, y: tileY + step.dy };
+}
+
+function blocksWallFaceSight(
+    tile: GameTile | undefined,
+    level: number,
+    openDoors: Set<string>,
+    openWalls: Set<string>,
+): boolean {
+    if (!tile) return true;
+    if (tile.type === 'Wall') {
+        const selfRevealingOpen = isSelfRevealingWallTile(level, tile.x, tile.y) &&
+            openWalls.has(`${level},${tile.y},${tile.x}`);
+        return !selfRevealingOpen;
+    }
+    if (tile.type === 'TrickWall') {
+        return !openWalls.has(`${level},${tile.y},${tile.x}`);
+    }
+    if (tile.type === 'Door') {
+        if (openDoors.has(`${level},${tile.y},${tile.x}`)) return false;
+        const door = tile.objects.find((obj): obj is DoorObject => obj.category === 'Door');
+        return doorBlocksVision(door?.doorType);
+    }
+    return false;
+}
+
+function hasWallFaceLineOfSight(
+    map: GameMap,
+    level: number,
+    openDoors: Set<string>,
+    openWalls: Set<string>,
+    fromX: number,
+    fromY: number,
+    toX: number,
+    toY: number,
+): boolean {
+    const dx = toX - fromX;
+    const dy = toY - fromY;
+    const steps = Math.max(Math.abs(dx), Math.abs(dy));
+    if (steps === 0) return true;
+    for (let i = 1; i < steps; i++) {
+        const x = Math.round(fromX + (dx * i) / steps);
+        const y = Math.round(fromY + (dy * i) / steps);
+        if (blocksWallFaceSight(map.tiles[y]?.[x], level, openDoors, openWalls)) {
+            return false;
+        }
+    }
+    return !blocksWallFaceSight(map.tiles[toY]?.[toX], level, openDoors, openWalls);
+}
+
+function isWallFaceVisible(
+    map: GameMap,
+    level: number,
+    openDoors: Set<string>,
+    openWalls: Set<string>,
+    partyX: number,
+    partyY: number,
+    tileX: number,
+    tileY: number,
+    face: CardinalDir,
+): boolean {
+    const anchor = wallFaceAnchor(tileX, tileY, face);
+    return hasWallFaceLineOfSight(map, level, openDoors, openWalls, partyX, partyY, anchor.x, anchor.y);
+}
+
+function isDoorTileVisible(
+    map: GameMap,
+    level: number,
+    openDoors: Set<string>,
+    openWalls: Set<string>,
+    partyX: number,
+    partyY: number,
+    tileX: number,
+    tileY: number,
+): boolean {
+    const dx = tileX - partyX;
+    const dy = tileY - partyY;
+    const steps = Math.max(Math.abs(dx), Math.abs(dy));
+    if (steps === 0) return true;
+    for (let i = 1; i < steps; i++) {
+        const x = Math.round(partyX + (dx * i) / steps);
+        const y = Math.round(partyY + (dy * i) / steps);
+        if (blocksWallFaceSight(map.tiles[y]?.[x], level, openDoors, openWalls)) {
+            return false;
+        }
+    }
+    const target = map.tiles[tileY]?.[tileX];
+    if (!target) return false;
+    if (target.type === 'Wall') return false;
+    if (target.type === 'TrickWall') return openWalls.has(`${level},${tileY},${tileX}`);
+    return true;
+}
+
+function getDoorButtonFaceSignForView(
+    partyPosition: [number, number],
+    tileX: number,
+    tileY: number,
+    doorOrientation: GameTile['orientation'],
+): 1 | -1 {
+    const normalPositive = doorOrientation === 'WestEast' || doorOrientation === 'EastWest'
+        ? { dx: 1, dy: 0 }
+        : { dx: 0, dy: 1 };
+    const toParty = {
+        dx: partyPosition[1] - tileX,
+        dy: partyPosition[0] - tileY,
+    };
+    const dot = normalPositive.dx * toParty.dx + normalPositive.dy * toParty.dy;
+    return dot >= 0 ? 1 : -1;
+}
 
 const LEFT_FACE_BY_FACE: Record<CardinalDir, CardinalDir> = {
     North: 'West',
@@ -1053,12 +1220,14 @@ const SpellImpactLayer: React.FC = () => {
 
     return (
         <>
-            {impacts.map((event) => (
+            {impacts.map((event) => event.kind === 'death' ? (
+                <DeathDustBurst key={`impact_${event.id}`} event={event} material={dustMaterial} />
+            ) : (
                 <SpellImpactPulse
                     key={`impact_${event.id}`}
                     event={event}
                     geometry={ringGeometry}
-                    material={event.kind === 'death' ? dustMaterial : materialByEffect[event.effect]}
+                    material={materialByEffect[event.effect]}
                 />
             ))}
         </>
@@ -1121,6 +1290,48 @@ const SpellImpactPulse: React.FC<{
                 decay={2}
                 position={[0, GRID_SIZE * 0.18, 0]}
             />
+        </group>
+    );
+};
+
+const DeathDustBurst: React.FC<{
+    event: SpellVisualEvent;
+    material: THREE.MeshBasicMaterial;
+}> = ({ event, material }) => {
+    const groupRef = useRef<THREE.Group>(null);
+    const seed = useMemo(
+        () => Array.from({ length: 12 }, (_, index) => {
+            const angle = (index / 12) * Math.PI * 2;
+            const radius = 0.08 + (index % 4) * 0.045;
+            const rise = 0.08 + (index % 3) * 0.04;
+            return { x: Math.cos(angle) * radius, z: Math.sin(angle) * radius, rise };
+        }),
+        [],
+    );
+
+    useFrame(() => {
+        if (!groupRef.current) return;
+        const age = Date.now() - event.ts;
+        const t = Math.max(0, Math.min(1, age / 850));
+        groupRef.current.children.forEach((child, index) => {
+            const particle = child as THREE.Mesh;
+            const cfg = seed[index];
+            particle.position.x = cfg.x * (0.35 + t * 1.25);
+            particle.position.z = cfg.z * (0.35 + t * 1.25);
+            particle.position.y = cfg.rise * Math.sin(Math.PI * t) - t * 0.08;
+            particle.scale.setScalar((1 - t) * (0.55 + (index % 3) * 0.18));
+            (particle.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.42;
+            particle.visible = t < 1;
+        });
+    });
+
+    return (
+        <group ref={groupRef} position={[event.x * GRID_SIZE, GRID_SIZE * 0.05, event.y * GRID_SIZE]}>
+            {seed.map((_, index) => (
+                <mesh key={index} material={material} frustumCulled={false}>
+                    <sphereGeometry args={[0.08, 6, 6]} />
+                </mesh>
+            ))}
         </group>
     );
 };
@@ -1343,43 +1554,54 @@ const DamageLayer: React.FC = () => {
                 .map(evt => {
                 const age = Math.max(0, now - evt.ts);
                 const progress = Math.min(1, age / DAMAGE_EVENT_LIFETIME_MS);
-                const impactScale = Math.min(2.15, 0.95 + (evt.amount / 26));
-                const fontSize = Math.round(18 + Math.min(26, evt.amount * 0.45));
-                const paddingY = 4 + Math.min(8, evt.amount * 0.08);
-                const paddingX = 11 + Math.min(10, evt.amount * 0.14);
                 return (
-                    <Html
+                    <DamageNumberBillboard
                         key={evt.id}
-                        position={[evt.x! * GRID_SIZE, WALL_HEIGHT * (0.9 + progress * 0.28), evt.y! * GRID_SIZE]}
-                        center
-                        transform
-                        sprite
-                        distanceFactor={8}
-                        occlude={false}
-                        zIndexRange={[200, 300]}
-                        style={{ pointerEvents: 'none' }}
-                    >
-                        <div className="dmg-bubble" style={{
-                            background: 'rgba(155, 16, 8, 0.92)',
-                            color: '#fff6dc',
-                            padding: `${paddingY}px ${paddingX}px`,
-                            borderRadius: 999,
-                            fontFamily: 'monospace',
-                            fontWeight: 'bold',
-                            fontSize,
-                            textShadow: '0 1px 8px #000',
-                            border: '1px solid rgba(255,140,92,0.9)',
-                            boxShadow: '0 8px 18px rgba(0,0,0,0.55)',
-                            whiteSpace: 'nowrap',
-                            transform: `translateY(${-progress * 22}px) scale(${impactScale - progress * 0.18})`,
-                            opacity: 1 - progress * 0.55,
-                        }}>
-                            -{evt.amount}
-                        </div>
-                    </Html>
+                        x={evt.x!}
+                        y={evt.y!}
+                        amount={evt.amount}
+                        progress={progress}
+                    />
                 );
             })}
         </>
+    );
+};
+
+const DamageNumberBillboard: React.FC<{
+    x: number;
+    y: number;
+    amount: number;
+    progress: number;
+}> = ({ x, y, amount, progress }) => {
+    const { texture, aspect } = useMemo(() => makeDamageBubbleTexture(amount), [amount]);
+    useEffect(() => () => texture.dispose(), [texture]);
+    const baseHeight = GRID_SIZE * 0.28;
+    const width = baseHeight * aspect;
+    const height = baseHeight;
+    const scale = Math.min(1.8, 1.02 + (amount / 40)) - progress * 0.12;
+
+    return (
+        <Billboard
+            position={[x * GRID_SIZE, WALL_HEIGHT * (0.92 + progress * 0.34), y * GRID_SIZE]}
+            follow
+            lockX={false}
+            lockY={false}
+            lockZ={false}
+        >
+            <mesh scale={[scale, scale, scale]} frustumCulled={false} renderOrder={30}>
+                <planeGeometry args={[width, height]} />
+                <meshBasicMaterial
+                    map={texture}
+                    transparent
+                    alphaTest={0.05}
+                    depthWrite={false}
+                    depthTest={false}
+                    opacity={1 - progress * 0.45}
+                    toneMapped={false}
+                />
+            </mesh>
+        </Billboard>
     );
 };
 
@@ -1442,6 +1664,8 @@ const FloorItemsLayer: React.FC = () => {
 const TileGrid: React.FC<{
     map: GameMap;
     level: number;
+    partyPosition: [number, number];
+    partyDirection: Direction;
     openDoors: Set<string>;
     openWalls: Set<string>;
     recruitedIds: Set<number>;
@@ -1450,7 +1674,9 @@ const TileGrid: React.FC<{
     pressurePlates: { tileX: number; tileY: number }[];
     onCellClick: (e: ThreeEvent<MouseEvent>, renderType: CellRenderType, x: number, y: number) => void;
     onWallSensor: (level: number, x: number, y: number, sensorIndex: number) => void;
-}> = memo(({ map, level, openDoors, openWalls, recruitedIds, wallButtons, wallDecals, pressurePlates, onCellClick, onWallSensor  }) => {
+}> = memo(({ map, level, partyPosition, partyDirection, openDoors, openWalls, recruitedIds, wallButtons, wallDecals, pressurePlates, onCellClick, onWallSensor }) => {
+    const frontTileY = partyDirection === 'NORTH' ? partyPosition[0] - 1 : partyDirection === 'SOUTH' ? partyPosition[0] + 1 : partyPosition[0];
+    const frontTileX = partyDirection === 'EAST' ? partyPosition[1] + 1 : partyDirection === 'WEST' ? partyPosition[1] - 1 : partyPosition[1];
     return (
         <group>
             {/* One draw call each for floor, ceiling, and walls */}
@@ -1482,6 +1708,17 @@ const TileGrid: React.FC<{
                     const doorType = renderType === 'Door'
                         ? (tile.objects.find(o => o.category === 'Door') as DoorObject | undefined)?.doorType
                         : undefined;
+                    const isFrontDoor = x === frontTileX && y === frontTileY;
+                    const doorButtonVisible = renderType === 'Door'
+                        ? ((doorHasButton ?? false) &&
+                            (isFrontDoor || isDoorTileVisible(map, level, openDoors, openWalls, partyPosition[1], partyPosition[0], x, y)))
+                        : undefined;
+                    const doorButtonSideSign = renderType === 'Door' && doorHasButton
+                        ? 1
+                        : undefined;
+                    const doorButtonFaceSign = renderType === 'Door' && doorHasButton
+                        ? getDoorButtonFaceSignForView(partyPosition, x, y, tile.orientation)
+                        : undefined;
 
                     return (
                         <Cell
@@ -1494,6 +1731,9 @@ const TileGrid: React.FC<{
                             doorOpen={doorOpen}
                             doorOrientation={doorOrientation}
                             doorHasButton={doorHasButton}
+                            doorButtonVisible={doorButtonVisible}
+                            doorButtonSideSign={doorButtonSideSign}
+                            doorButtonFaceSign={doorButtonFaceSign}
                             doorType={doorType}
                             onClick={(e) => onCellClick(e, renderType, x, y)}
                         />
@@ -1508,7 +1748,7 @@ const TileGrid: React.FC<{
                     onClick={() => onWallSensor(level, tileX, tileY, sensorIndex)}
                 />
             ))}
-            {wallDecals.map(({ tileX, tileY, face, image, label, accent, width, height }, i) => (
+            {wallDecals.map(({ tileX, tileY, face, image, label, accent, width, height, interactiveSensorIndices }, i) => (
                 <WallDecal
                     key={`wdecal_${tileX}_${tileY}_${face}_${i}`}
                     tileX={tileX}
@@ -1519,6 +1759,9 @@ const TileGrid: React.FC<{
                     accent={accent}
                     width={width}
                     height={height}
+                    onClick={interactiveSensorIndices && interactiveSensorIndices.length > 0
+                        ? () => interactiveSensorIndices.forEach((sensorIndex) => onWallSensor(level, tileX, tileY, sensorIndex))
+                        : undefined}
                 />
             ))}
         </group>
@@ -1543,6 +1786,7 @@ export const DungeonScene = () => {
     const useItemOnFrontWall = useStore(s => s.useItemOnFrontWall);
     const useFloorItemOnFrontWall = useStore(s => s.useFloorItemOnFrontWall);
     const dropCarriedItem = useStore(s => s.dropCarriedItem);
+    const throwCarriedItem = useStore(s => s.throwCarriedItem);
     const activeSensors  = useStore(s => s.activeSensors);
     const activeFloorDrag = useStore(s => s.activeFloorDrag);
     const floorItems      = useStore(s => s.floorItems);
@@ -1576,6 +1820,8 @@ export const DungeonScene = () => {
         const overlayKeys = new Set(
             getOriginalWallOverlaysForMap(map, activeSensors).map((overlay) => `${overlay.tileX}:${overlay.tileY}:${overlay.face}`),
         );
+        const partyX = position[1];
+        const partyY = position[0];
         for (const row of map.tiles) {
             for (const tile of row) {
                 const hiddenWallOpen = tile.type === 'Wall' && isSelfRevealingWallTile(level, tile.x, tile.y) && openWalls.has(`${level},${tile.y},${tile.x}`);
@@ -1586,12 +1832,13 @@ export const DungeonScene = () => {
                     if (hiddenWallOpen) continue;
                     const hasExplicitOverlay = overlayKeys.has(`${tile.x}:${tile.y}:${s.tilePos}`);
                     if (hasExplicitOverlay) continue;
+                    if (!isWallFaceVisible(map, level, openDoors, openWalls, partyX, partyY, tile.x, tile.y, s.tilePos)) continue;
                     buttons.push({ tileX: tile.x, tileY: tile.y, face: s.tilePos, sensorIndex: s.index });
                 }
             }
         }
         return buttons;
-    }, [level, map, openWalls]);
+    }, [activeSensors, level, map, openDoors, openWalls, position]);
 
     const wallDecals = useMemo(() => {
         const stairsEntryFace = (x: number, y: number): CardinalDir => {
@@ -1611,10 +1858,13 @@ export const DungeonScene = () => {
 
         const decals: OriginalWallOverlayRender[] = [];
         const seen = new Set<string>();
+        const partyX = position[1];
+        const partyY = position[0];
         const add = (overlay: OriginalWallOverlayRender) => {
             const visualKey = overlay.image ?? overlay.label ?? 'overlay';
             const key = `${overlay.tileX}_${overlay.tileY}_${overlay.face}_${visualKey}`;
             if (seen.has(key)) return;
+            if (!isWallFaceVisible(map, level, openDoors, openWalls, partyX, partyY, overlay.tileX, overlay.tileY, overlay.face)) return;
             seen.add(key);
             decals.push(overlay);
         };
@@ -1646,7 +1896,7 @@ export const DungeonScene = () => {
         }
 
         return decals;
-    }, [map, level, activeSensors, openWalls]);
+    }, [activeSensors, level, map, openDoors, openWalls, position]);
 
     const pressurePlates = useMemo(() => {
         const seen = new Set<string>();
@@ -1694,8 +1944,13 @@ export const DungeonScene = () => {
             const champion = MIRROR_WALL_MAP.get(`${level},${x},${y}`);
             if (champion) openMirror(champion.id);
         }
-        if (renderType === 'Door') toggleDoor(x, y);
-    }, [level, openMirror, toggleDoor]);
+        if (renderType === 'Door') {
+            const frontTileY = direction === 'NORTH' ? position[0] - 1 : direction === 'SOUTH' ? position[0] + 1 : position[0];
+            const frontTileX = direction === 'EAST' ? position[1] + 1 : direction === 'WEST' ? position[1] - 1 : position[1];
+            if (x !== frontTileX || y !== frontTileY) return;
+            toggleDoor(x, y);
+        }
+    }, [direction, level, openMirror, position, toggleDoor]);
 
     const frontWallItemMechanism = useMemo(() => {
         const frontTileY = direction === 'NORTH' ? position[0] - 1 : direction === 'SOUTH' ? position[0] + 1 : position[0];
@@ -1781,7 +2036,13 @@ export const DungeonScene = () => {
                 event.preventDefault();
                 event.stopPropagation();
                 setIsItemDragActive(false);
-                dropCarriedItem(payload.fromChampionId, payload.itemId, payload.fromSlot);
+                const floorDropThreshold = window.innerHeight * FLOOR_DROP_SCREEN_RATIO;
+                const shouldDropToFloor = event.clientY >= floorDropThreshold;
+                if (shouldDropToFloor) {
+                    dropCarriedItem(payload.fromChampionId, payload.itemId, payload.fromSlot);
+                } else {
+                    throwCarriedItem(payload.fromChampionId, payload.itemId, payload.fromSlot);
+                }
             }}
             style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', background: '#000', overflow: 'hidden' }}
         >
@@ -1832,6 +2093,7 @@ export const DungeonScene = () => {
                 <TileGrid
                     map={map}
                     level={level}
+                    partyPosition={position}
                     openDoors={openDoors}
                     openWalls={openWalls}
                     recruitedIds={recruitedIds}
@@ -1840,15 +2102,16 @@ export const DungeonScene = () => {
                     pressurePlates={pressurePlates}
                     onCellClick={handleCellClick}
                     onWallSensor={activateWallSensor}
+                    partyDirection={direction}
                 />
 
                 <FootprintLayer />
                 <MagicVisionLayer
-                    wallButtons={wallButtons}
-                    pressurePlates={pressurePlates}
-                    trickWalls={trickWalls}
-                    pits={pits}
-                />
+            wallButtons={wallButtons}
+            pressurePlates={pressurePlates}
+            trickWalls={trickWalls}
+            pits={pits}
+        />
                 <CreaturesLayer />
                 <FluxcageLayer />
                 <DamageLayer />

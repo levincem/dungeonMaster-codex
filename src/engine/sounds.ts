@@ -108,6 +108,8 @@ export function preloadAllSounds(): void {
 // Per-sound cooldown: prevents the same sound from re-triggering within MIN_INTERVAL ms
 const MIN_INTERVAL = 250; // ms
 const lastPlayed: Record<string, number> = {};
+const activeLoops: Record<string, HTMLAudioElement | null> = {};
+const loopTimeouts: Record<string, number | undefined> = {};
 
 // ─── Debug overlay pub/sub ────────────────────────────────────────────────────
 type SoundListener = (name: string, file: string) => void;
@@ -117,7 +119,15 @@ export function onSoundPlayed(fn: SoundListener): () => void {
     return () => soundListeners.delete(fn);
 }
 
-function play(name: string, volume = 0.65): void {
+function play(
+    name: string,
+    volume = 0.65,
+    options?: {
+        volumeJitter?: number;
+        playbackRateMin?: number;
+        playbackRateMax?: number;
+    },
+): void {
     const now = Date.now();
     if (now - (lastPlayed[name] ?? 0) < MIN_INTERVAL) return;
     lastPlayed[name] = now;
@@ -125,18 +135,69 @@ function play(name: string, volume = 0.65): void {
     if (!audios.length) return;
     const audio = audios.find(a => a.paused || a.ended) ?? audios[0];
     try {
-        audio.volume = volume;
+        const volumeJitter = options?.volumeJitter ?? 0;
+        const playbackRateMin = options?.playbackRateMin ?? 1;
+        const playbackRateMax = options?.playbackRateMax ?? 1;
+        const volumeOffset = volumeJitter > 0 ? (Math.random() * 2 - 1) * volumeJitter : 0;
+        const playbackRate = playbackRateMax > playbackRateMin
+            ? playbackRateMin + Math.random() * (playbackRateMax - playbackRateMin)
+            : playbackRateMin;
+        audio.volume = Math.max(0, Math.min(1, volume + volumeOffset));
+        audio.playbackRate = playbackRate;
         audio.currentTime = 0;
         audio.play().catch(() => { /* autoplay policy */ });
         for (const fn of soundListeners) fn(name, FILES[name] ?? name);
     } catch { /* ignore */ }
 }
 
+function playLoopFor(name: string, durationMs: number, volume = 0.65): void {
+    const audios = getOrCreate(name);
+    if (!audios.length) return;
+
+    const currentLoop = activeLoops[name];
+    if (currentLoop) {
+        currentLoop.loop = false;
+        currentLoop.pause();
+        currentLoop.currentTime = 0;
+    }
+
+    const audio = audios.find(a => a !== currentLoop && (a.paused || a.ended)) ?? audios[0];
+    const timeoutId = loopTimeouts[name];
+    if (timeoutId !== undefined) {
+        window.clearTimeout(timeoutId);
+    }
+
+    try {
+        audio.loop = true;
+        audio.volume = volume;
+        audio.currentTime = 0;
+        audio.play().catch(() => { /* autoplay policy */ });
+        for (const fn of soundListeners) fn(name, FILES[name] ?? name);
+        activeLoops[name] = audio;
+        loopTimeouts[name] = window.setTimeout(() => {
+            audio.loop = false;
+            audio.pause();
+            audio.currentTime = 0;
+            if (activeLoops[name] === audio) {
+                activeLoops[name] = null;
+            }
+            loopTimeouts[name] = undefined;
+        }, durationMs);
+    } catch { /* ignore */ }
+}
+
 // ─── Player ───────────────────────────────────────────────────────────────────
-export function playStep():  void { play('footstep', 0.45); }
+export function playStep():  void {
+    play('footstep', 0.37, {
+        volumeJitter: 0.035,
+        playbackRateMin: 0.96,
+        playbackRateMax: 1.04,
+    });
+}
 export function playCry():   void { play('cry',       0.55); }
 export function playPlate(): void { play('plate',     0.80); }
 export function playDoor(): void { play('door', 0.65); }
+export function playDoorMotion(durationMs = 1000, volume = 0.65): void { playLoopFor('door', durationMs, volume); }
 export function playTeleport(): void { play('teleport', 0.70); }
 export function playWallBump(): void { play('wall_bump', 0.70); }
 export function playChampionWounded(): void {

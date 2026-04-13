@@ -103,6 +103,8 @@ export const en = {
         unreadableRunes: 'The scroll is covered\nwith unreadable runes.',
         close: 'Close',
         giveTo: (name: string) => `Give to ${name}`,
+        dungeon: 'DUNGEON',
+        dungeonDropTitle: 'Drag here to close the sheet and continue dropping the item into the dungeon view',
         backpack: 'Backpack',
         equip: 'Equip',
         read: 'Read',

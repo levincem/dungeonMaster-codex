@@ -153,13 +153,19 @@ const ItemThumb: React.FC<{ item: FloorItem; size?: number; equipped?: boolean }
 };
 
 // ─── Vital bar ────────────────────────────────────────────────────────────────
-const VitalBar: React.FC<{ icon: string; label: string; value: number; max: number; color: string; frameColor?: string }> = ({ icon, label, value, max, color, frameColor }) => (
+const VitalBar: React.FC<{ icon: string; label: string; value: number; max: number; color: string; frameColor?: string }> = ({ icon, label, value, max, color, frameColor }) => {
+    const safeMax = Math.max(0, max);
+    const fillPercent = safeMax > 0
+        ? Math.max(0, Math.min(100, (value / safeMax) * 100))
+        : 0;
+
+    return (
     <div style={{ marginBottom: 7 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3 }}>
             <span style={{ fontSize: 15, lineHeight: 1, width: 18, textAlign: 'center' }}>{icon}</span>
             <span style={{ fontSize: 14, color: T.creamDim, letterSpacing: 1, flex: 1 }}>{label}</span>
             <span style={{ fontSize: 15, fontWeight: 'bold', color: '#ffffff', fontVariantNumeric: 'tabular-nums' }}>
-                {Math.ceil(value)}<span style={{ fontSize: 12, color: T.creamDim, fontWeight: 'normal' }}>/{max}</span>
+                {Math.ceil(value)}<span style={{ fontSize: 12, color: T.creamDim, fontWeight: 'normal' }}>/{safeMax}</span>
             </span>
         </div>
         <div style={{
@@ -170,10 +176,11 @@ const VitalBar: React.FC<{ icon: string; label: string; value: number; max: numb
             overflow: 'hidden',
             boxShadow: frameColor ? `0 0 0 1px ${frameColor}22` : undefined,
         }}>
-            <div style={{ height: '100%', width: `${Math.max(0, Math.min(100, (value / max) * 100))}%`, background: `linear-gradient(90deg, ${color}88, ${color})`, borderRadius: 4, transition: 'width 0.3s ease', boxShadow: `0 0 5px ${color}55` }} />
+            <div style={{ height: '100%', width: `${fillPercent}%`, background: `linear-gradient(90deg, ${color}88, ${color})`, borderRadius: 4, transition: 'width 0.3s ease', boxShadow: `0 0 5px ${color}55` }} />
         </div>
     </div>
-);
+    );
+};
 
 // ─── Equipment slot ───────────────────────────────────────────────────────────
 const EquipSlot: React.FC<{
@@ -580,7 +587,7 @@ export const ChampionSheet: React.FC = () => {
                             <VitalBar icon="⚡" label={text.stamina} value={stamina} max={champion.stamina} color={T.yellow} />
                             <VitalBar icon="🍗" label={text.hunger} value={food} max={MAX_FOOD} color="#d88b2d" frameColor={foodFrame} />
                             <VitalBar icon="💧" label={text.thirst} value={water} max={MAX_WATER} color="#3aa0d8" frameColor={waterFrame} />
-                            {effectiveStats.mana > 0 && <VitalBar icon="🔮" label="MANA" value={mana} max={effectiveStats.mana} color={T.blue} />}
+                            <VitalBar icon="🔮" label="MANA" value={mana} max={effectiveStats.mana} color={T.blue} />
                         </div>
 
                         {/* Base stats */}
@@ -744,7 +751,7 @@ export const ChampionSheet: React.FC = () => {
                         </div>
                         {otherMembers.length > 0 && (
                             <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 6, padding: '10px 12px', minHeight: 118, display: 'flex', alignItems: 'center' }}>
-                                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 84px)', gap: 10, alignItems: 'start', width: '100%', justifyContent: 'space-between' }}>
                                     {otherMembers.map(other => (
                                         <PartyMemberDropTarget
                                             key={other.id}
@@ -756,6 +763,14 @@ export const ChampionSheet: React.FC = () => {
                                             title={text.giveTo(other.name)}
                                         />
                                     ))}
+                                    <DungeonHandoffTarget
+                                        label={text.dungeon}
+                                        title={text.dungeonDropTitle}
+                                        onHandoff={() => {
+                                            clearDragState();
+                                            closePartyMember();
+                                        }}
+                                    />
                                 </div>
                             </div>
                         )}
@@ -773,6 +788,95 @@ export const ChampionSheet: React.FC = () => {
             </div>
 
             {scrollItem && <ScrollPopup item={scrollItem} onClose={() => setScrollItem(null)} text={text} />}
+        </div>
+    );
+};
+
+const DungeonHandoffTarget: React.FC<{
+    label: string;
+    title: string;
+    onHandoff: () => void;
+}> = ({ label, title, onHandoff }) => {
+    const [over, setOver] = useState(false);
+
+    const triggerHandoff = (e: React.DragEvent) => {
+        const payload = getDragPayload(e);
+        if (!payload) return;
+        e.preventDefault();
+        setOver(true);
+        onHandoff();
+    };
+
+    return (
+        <div
+            title={title}
+            style={{
+                width: 84,
+                border: `2px solid ${over ? T.gold : T.slotBorder}`,
+                borderRadius: 4,
+                background: over
+                    ? 'linear-gradient(180deg, rgba(255,248,230,0.98), rgba(214,190,138,0.94))'
+                    : 'linear-gradient(180deg, rgba(31,24,13,0.96), rgba(12,10,8,0.98))',
+                cursor: 'alias',
+                transition: 'border-color 0.12s, background 0.12s',
+                overflow: 'hidden',
+                boxShadow: over ? '0 0 14px rgba(224,168,48,0.28)' : 'inset 0 0 18px rgba(0,0,0,0.35)',
+            }}
+            onDragEnter={triggerHandoff}
+            onDragOver={triggerHandoff}
+            onDragLeave={() => setOver(false)}
+        >
+            <div style={{
+                width: 84,
+                height: 84,
+                position: 'relative',
+                background: over
+                    ? 'linear-gradient(180deg, #74603a 0%, #2d2518 100%)'
+                    : 'linear-gradient(180deg, #4b3b22 0%, #17130d 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+            }}>
+                <div style={{
+                    position: 'absolute',
+                    inset: 10,
+                    border: `2px solid ${over ? '#f3d27a' : '#8a6418'}`,
+                    borderRadius: 6,
+                    boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.4)',
+                }} />
+                <div style={{
+                    position: 'relative',
+                    width: 34,
+                    height: 44,
+                    borderRadius: '18px 18px 6px 6px',
+                    background: over ? '#0f1216' : '#050608',
+                    border: `2px solid ${over ? '#f3d27a' : '#a27a2a'}`,
+                    boxShadow: `0 0 14px ${over ? 'rgba(243,210,122,0.22)' : 'rgba(0,0,0,0.4)'}`,
+                }}>
+                    <div style={{
+                        position: 'absolute',
+                        left: '50%',
+                        top: 8,
+                        width: 4,
+                        height: 20,
+                        transform: 'translateX(-50%)',
+                        background: over ? 'rgba(243,210,122,0.5)' : 'rgba(255,214,120,0.16)',
+                        borderRadius: 999,
+                    }} />
+                    <div style={{
+                        position: 'absolute',
+                        left: 7,
+                        right: 7,
+                        bottom: 6,
+                        height: 6,
+                        background: over ? '#3b4a58' : '#23303a',
+                        borderRadius: 999,
+                    }} />
+                </div>
+            </div>
+            <div style={{ fontSize: 9, textAlign: 'center', padding: '5px 0', background: 'rgba(0,0,0,0.94)', letterSpacing: 1, color: T.gold }}>
+                {label}
+            </div>
         </div>
     );
 };

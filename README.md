@@ -26,11 +26,14 @@ The project is now well beyond prototype stage and already playable end to end t
 - original wall overlays positioned from extracted dungeon data
 - runtime data for champions, creatures, items, doors, spells, projectiles and maps sourced primarily from extracted original data
 - wall mechanisms substantially reworked: switches, pressure plates, locks, alcoves, receptacles, delayed sensors and wall item usage
+- button doors now share one global rendering model: variable door material, one narrow jamb, and the original `wall_switch` image anchored on the player-facing side of that jamb
 - creature AI substantially revised: open-door traversal, pursuit memory, ranged spacing, teleporter usage, invisibility handling, missile absorption, sight-range driven detection
 - upgraded spell visuals: better projectile identities, impacts, local flashes, shields and `Fluxcage`
+- pits are now rendered as visible openings and can trigger party falls to the matching tile below
 - endgame path wired through Firestaff completion, Grey Lord transition, and victory screen
 - persistent save / resume of the mutable runtime state
 - in-game options modal with movement key rebinding
+- blocking beta welcome modal and lightweight help modal available in-game
 - simple `i18n` layer present with English as the default locale
 
 It is not a finished remake yet. The largest remaining work is no longer data extraction, but the last fidelity gaps, architectural cleanup, and optimization.
@@ -47,6 +50,7 @@ Main remaining gaps before calling the runtime "fully aligned":
 
 - final path still needs a targeted full playtest from `Zokathra` through Lord Chaos fusion
 - some rare late-game or edge-case mechanism interactions still need targeted play verification
+- fall damage values are currently heuristic and still need confirmation against original references
 - creature AI still has fine-grained fidelity gaps for special families and end-game cases
 - some item-image aliases and other compatibility glue remain manual by design
 - optimization is now the next major phase, especially around the remaining large runtime/data chunks
@@ -171,6 +175,7 @@ The most useful detailed internal summaries are:
 - The production build currently passes.
 - `npm run preview` boots correctly with the dungeon data embedded in `src/assets/data/dungeon.json`.
 - The app blocks smartphone play and remains desktop-first.
+- The HUD debug line now distinguishes global and local map coordinates, for example `front [g:x,y / l:x,y]`; gameplay reports should prefer the local `l:` coordinate when discussing extracted map data.
 - The bundle is still heavy because of the 3D stack, assets, and embedded critical JSON datasets.
 - The main remaining heavy runtime payloads are now the compact dungeon snapshot and the 3D vendor stack.
 - The next major phase is optimization, now focused more on data loading strategy than on the old `game-core`.

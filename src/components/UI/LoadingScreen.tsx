@@ -113,7 +113,7 @@ export const LoadingScreen = ({ onDone, autoStart = true }: Props) => {
 
             <img
                 src={miscPath('Dm_logo.png')}
-                alt="Dungeon Master"
+                alt="Dungeon Master Remastered"
                 draggable={false}
                 onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 style={{
@@ -134,7 +134,7 @@ export const LoadingScreen = ({ onDone, autoStart = true }: Props) => {
                 fontFamily: '"Courier New", monospace',
                 textTransform: 'uppercase',
             }}>
-                Dungeon Master
+                Dungeon Master Remastered
             </div>
 
             <div style={{
