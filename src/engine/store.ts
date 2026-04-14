@@ -4505,7 +4505,7 @@ function applyPartyMoveFatigue(state: Pick<GameState, 'party' | 'championVitals'
                 getChampionRuntimeBonuses(champ, current, state.activePotionBoosts),
             ),
         );
-        const staminaCost = Math.floor((load * 25) / maxLoad) + 1;
+        const staminaCost = Math.floor((load * 3) / maxLoad) + 1;
         const next = applyChampionStaminaDeltaOriginal(current, effective.stamina, -staminaCost);
 
         if (next !== current && (next.hp !== current.hp || next.stamina !== current.stamina)) {
