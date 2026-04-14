@@ -26,10 +26,14 @@ export interface CreatureDef {
     moveSpd: number;
     exp: number;
     poison: boolean;
+    originalAttackType: OriginalAttackType;
     attackTypes: AttackType[];
     drops: string[];
     rawAttack: number;
     poisonAttack: number;
+    dexterity: number;
+    fireResistance: number;
+    poisonResistance: number;
     nonMaterial: boolean;
     attackAnyChampion: boolean;
     attackFromAllSides: boolean;
@@ -39,9 +43,11 @@ export interface CreatureDef {
     levitates: boolean;
     absorbMissiles: boolean;
     seeInvisible: boolean;
+    fearResistance: number;
+    archenemy: boolean;
 }
 
-type OriginalAttackType = 'Unconditional' | 'Fire' | 'Impact' | 'Blunt' | 'Sharp' | 'Magic' | 'Mental' | 'Blast';
+export type OriginalAttackType = 'Unconditional' | 'Fire' | 'Impact' | 'Blunt' | 'Sharp' | 'Magic' | 'Mental' | 'Blast';
 
 interface OriginalCreatureDef {
     id: number;
@@ -64,6 +70,10 @@ type RawI559Creature = {
     index: number;
     attack?: number;
     poisonAttack?: number;
+    dexterity?: number;
+    archenemy?: boolean;
+    properties?: { fearResistance?: number };
+    resistances?: { fire?: number; poison?: number };
     nonMaterial?: boolean;
     attackAnyChampion?: boolean;
     attackFromAllSides?: boolean;
@@ -131,10 +141,14 @@ export const CREATURE_TYPES: Record<number, CreatureDef> = Object.fromEntries(
             moveSpd: creature.moveSpd,
             exp: creature.exp,
             poison: creature.poison,
+            originalAttackType: creature.attackType,
             attackTypes: ATTACK_TYPE_OVERRIDES[creature.id] ?? BASE_ATTACK_TYPE_MAP[creature.attackType] ?? ['Physical'],
             drops: DROP_OVERRIDES[creature.id] ?? [],
             rawAttack: original?.attack ?? 0,
             poisonAttack: original?.poisonAttack ?? 0,
+            dexterity: original?.dexterity ?? 0,
+            fireResistance: original?.resistances?.fire ?? 0,
+            poisonResistance: original?.resistances?.poison ?? 0,
             nonMaterial: Boolean(original?.nonMaterial),
             attackAnyChampion: Boolean(original?.attackAnyChampion),
             attackFromAllSides: Boolean(original?.attackFromAllSides),
@@ -144,6 +158,8 @@ export const CREATURE_TYPES: Record<number, CreatureDef> = Object.fromEntries(
             levitates: Boolean(original?.levitates),
             absorbMissiles: Boolean(original?.absorbMissiles),
             seeInvisible: Boolean(original?.seeInvisible),
+            fearResistance: Math.max(0, Math.min(15, original?.properties?.fearResistance ?? 0)),
+            archenemy: Boolean(original?.archenemy),
         } satisfies CreatureDef];
     }),
 );

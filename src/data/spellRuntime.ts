@@ -1,5 +1,10 @@
 import type { SpellDef } from './runes';
-import { getOriginalShieldProtectionApprox, getOriginalSpellDurationMs, getOriginalSpellLightContribution } from './originalSpells';
+import {
+    getOriginalShieldStrength,
+    getOriginalSpellDurationMs,
+    getOriginalSpellLightContribution,
+    getOriginalSpellPowerLevel,
+} from './originalSpells';
 
 export interface SpellProjectileDamage {
     min: number;
@@ -12,14 +17,18 @@ export interface SpellCloudDamage {
 }
 
 export interface SpellShieldProfile {
-    protection: number;
+    defense: number;
     durationMs: number;
 }
 
 export interface SpellProjectileLaunchProfile {
     initialRange: number;
-    initialAttack: number;
     stepDecay: number;
+}
+
+export interface SpellProjectileImpactResult {
+    damage: number;
+    poisonStrength: number;
 }
 
 function signature(spell: SpellDef): string {
@@ -37,11 +46,11 @@ export function getSpellLightContribution(spell: SpellDef): number {
 export function getSpellShieldProfile(spell: SpellDef): SpellShieldProfile | null {
     const sig = signature(spell);
     if (sig !== 'ya,ir' && sig !== 'ful,bro,neta') return null;
-    const protection = getOriginalShieldProtectionApprox(spell.runes);
+    const defense = getOriginalShieldStrength(spell.runes);
     const durationMs = getOriginalSpellDurationMs(spell.runes);
-    if (protection == null || durationMs == null) return null;
+    if (defense == null || durationMs == null) return null;
     return {
-        protection,
+        defense,
         durationMs,
     };
 }
@@ -71,23 +80,75 @@ export function getPoisonCloudDamage(spell: SpellDef): SpellCloudDamage {
 
 export function getSpellProjectileLaunchProfile(spell: SpellDef, maxMana: number): SpellProjectileLaunchProfile | null {
     const sig = signature(spell);
-    if (!['ful,ir', 'oh,kath,ra', 'des,ven', 'des,ew', 'oh,ven'].includes(sig)) return null;
+    if (!['ful,ir', 'oh,kath,ra', 'des,ven', 'des,ew', 'oh,ven', 'zo'].includes(sig)) return null;
 
-    const powerRune = spell.runes[0];
-    const powerLevel = ['lo', 'um', 'on', 'ee', 'pal', 'mon'].indexOf(powerRune) + 1;
-    if (powerLevel <= 0) return null;
+    return {
+        initialRange: 21,
+        stepDecay: 10 - Math.min(8, Math.max(0, Math.floor(maxMana / 8))),
+    };
+}
 
-    const d6 = 4 * (powerLevel + 1);
-    let initialRange = Math.max(21, Math.min(255, (2 * d6 + 4) * (powerLevel + 2)));
-    let stepDecay = 10 - Math.min(8, Math.floor(Math.max(0, maxMana) / 8));
-    if (initialRange < 4 * stepDecay) {
-        initialRange += 3;
-        stepDecay = Math.max(1, stepDecay - 1);
-    }
+export function getOriginalSpellProjectileLaunchProfile(
+    spell: SpellDef,
+    skillLevel: number,
+    maxMana: number,
+): SpellProjectileLaunchProfile | null {
+    const sig = signature(spell);
+    if (!['ful,ir', 'oh,kath,ra', 'des,ven', 'des,ew', 'oh,ven', 'zo'].includes(sig)) return null;
+
+    const powerLevel = getOriginalSpellPowerLevel(spell.runes);
+    if (!powerLevel || powerLevel <= 0) return null;
+
+    const launchSkillLevel = spell.effect === 'open' ? skillLevel << 1 : skillLevel;
+    const initialRange = Math.max(21, Math.min(255, (powerLevel + 2) * (4 + (launchSkillLevel << 1))));
+    const stepDecay = Math.max(2, 10 - Math.min(8, Math.floor(Math.max(0, maxMana) / 8)));
 
     return {
         initialRange,
-        initialAttack: 90,
         stepDecay,
     };
+}
+
+function rollFireLikeProjectileImpact(
+    multiplier: number,
+    kineticEnergy: number,
+    projectileAttack: number,
+    rollExclusive: (maxExclusive: number) => number,
+): SpellProjectileImpactResult {
+    let attack = rollExclusive(16) + rollExclusive(16) + 10;
+    attack *= multiplier;
+    attack = ((attack + kineticEnergy) >> 4) + 1;
+    attack += rollExclusive((attack >> 1) + 1) + rollExclusive(4);
+    attack = Math.max(attack >> 1, attack - (32 - (projectileAttack >> 3)));
+    return {
+        damage: Math.max(0, attack),
+        poisonStrength: 0,
+    };
+}
+
+export function rollOriginalSpellProjectileImpact(
+    spell: SpellDef,
+    kineticEnergy: number,
+    projectileAttack: number,
+    rollExclusive: (maxExclusive: number) => number,
+): SpellProjectileImpactResult | null {
+    switch (spell.effect) {
+        case 'fireball':
+            return rollFireLikeProjectileImpact(1, kineticEnergy, projectileAttack, rollExclusive);
+        case 'lightning':
+            return rollFireLikeProjectileImpact(5, kineticEnergy, projectileAttack, rollExclusive);
+        case 'poison_bolt':
+            return {
+                damage: 1,
+                poisonStrength: Math.max(0, kineticEnergy),
+            };
+        case 'poison_cloud':
+        case 'disrupt_nonmaterial':
+            return {
+                damage: 0,
+                poisonStrength: 0,
+            };
+        default:
+            return null;
+    }
 }

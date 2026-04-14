@@ -1,7 +1,1368 @@
 {
-  "generatedAt": "2026-04-07T16:58:04.508Z",
+  "generatedAt": "2026-04-14T13:04:57.884Z",
+  "sources": {
+    "dungeon": "assets/OriginalDataExtraction/output/dungeon.json",
+    "canonical": "assets/OriginalDataExtraction/output/original_level_content.json"
+  },
+  "caveats": [
+    "Some canonical item references use the wall-facing square the player stands on, while the extracted object is stored on the adjacent floor tile that actually hosts the wall-mounted visual.",
+    "This is expected for wall-mounted torch holders and can also happen for alcove-backed placements that visually read as being on the wall rather than on the floor tile payload.",
+    "Creature names appearing in a mismatch are audit noise caused by shared occupancy on the tile; they do not mean the creature was parsed as an item.",
+    "Some remaining mismatches are naming or presentation differences in the canonical reference, such as expanded counts, potion aliases, or item variant labels."
+  ],
   "totalCanonicalItemTiles": 300,
-  "exactCount": 300,
-  "mismatchCount": 0,
-  "mismatches": []
+  "exactCount": 254,
+  "explainedCount": 46,
+  "unresolvedCount": 0,
+  "mismatchCount": 46,
+  "classificationCounts": {
+    "wall_adjacent_or_alcove": 16,
+    "nearby_reference_offset": 30,
+    "presentation_or_alias": 0,
+    "unresolved": 0
+  },
+  "mismatches": [
+    {
+      "mapIndex": 0,
+      "mapName": "Hall of Champions",
+      "x": 4,
+      "y": 14,
+      "classification": "wall_adjacent_or_alcove",
+      "expected": [
+        "Torch (Charges=15)"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "torch"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 3,
+          "y": 14,
+          "matched": [
+            "torch"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 0,
+      "mapName": "Hall of Champions",
+      "x": 4,
+      "y": 17,
+      "classification": "wall_adjacent_or_alcove",
+      "expected": [
+        "Scroll \"New lives for old bones\""
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "scroll new lives for old bones"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 4,
+          "y": 18,
+          "matched": [
+            "scroll new lives for old bones"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 1,
+      "mapName": "Level 1",
+      "x": 6,
+      "y": 17,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Corn",
+        "Apple",
+        "Scroll \"Small details can hide great rewards\"",
+        "Dagger",
+        "Falchion"
+      ],
+      "actual": [
+        "Dagger",
+        "Apple",
+        "Corn",
+        "Scroll \"Small details can hide great rewards\""
+      ],
+      "missingNormalized": [
+        "falchion"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 6,
+          "y": 18,
+          "matched": [
+            "falchion"
+          ]
+        }
+      ],
+      "actualObjects": [
+        {
+          "category": "Weapon",
+          "index": 26,
+          "type": 8,
+          "name": "Dagger",
+          "displayName": "Dagger"
+        },
+        {
+          "category": "Misc",
+          "index": 208,
+          "type": 29,
+          "name": "Apple",
+          "displayName": "Apple"
+        },
+        {
+          "category": "Misc",
+          "index": 250,
+          "type": 30,
+          "name": "Corn",
+          "displayName": "Corn"
+        },
+        {
+          "category": "Scroll",
+          "index": 29,
+          "type": null,
+          "name": "",
+          "displayName": "Scroll \"Small details can hide great rewards\""
+        }
+      ]
+    },
+    {
+      "mapIndex": 1,
+      "mapName": "Level 1",
+      "x": 14,
+      "y": 22,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Torch (Charges=15)",
+        "Leather Boots"
+      ],
+      "actual": [
+        "Leather Boots"
+      ],
+      "missingNormalized": [
+        "torch"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 15,
+          "y": 22,
+          "matched": [
+            "torch"
+          ]
+        }
+      ],
+      "actualObjects": [
+        {
+          "category": "Armor",
+          "index": 61,
+          "type": 4,
+          "name": "Leather Boots",
+          "displayName": "Leather Boots"
+        }
+      ]
+    },
+    {
+      "mapIndex": 1,
+      "mapName": "Level 1",
+      "x": 16,
+      "y": 27,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Apple",
+        "Cheese (2)",
+        "Torch (Charges=15)"
+      ],
+      "actual": [
+        "Cheese",
+        "Cheese",
+        "Apple"
+      ],
+      "missingNormalized": [
+        "torch"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 15,
+          "y": 27,
+          "matched": [
+            "torch"
+          ]
+        }
+      ],
+      "actualObjects": [
+        {
+          "category": "Misc",
+          "index": 107,
+          "type": 32,
+          "name": "Cheese",
+          "displayName": "Cheese"
+        },
+        {
+          "category": "Misc",
+          "index": 108,
+          "type": 32,
+          "name": "Cheese",
+          "displayName": "Cheese"
+        },
+        {
+          "category": "Misc",
+          "index": 109,
+          "type": 29,
+          "name": "Apple",
+          "displayName": "Apple"
+        }
+      ]
+    },
+    {
+      "mapIndex": 1,
+      "mapName": "Level 1",
+      "x": 30,
+      "y": 39,
+      "classification": "wall_adjacent_or_alcove",
+      "expected": [
+        "Torch (Charges=15)"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "torch"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 30,
+          "y": 40,
+          "matched": [
+            "torch"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 1,
+      "mapName": "Level 1",
+      "x": 6,
+      "y": 43,
+      "classification": "wall_adjacent_or_alcove",
+      "expected": [
+        "Torch (Charges=15)"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "torch"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 5,
+          "y": 43,
+          "matched": [
+            "torch"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 2,
+      "mapName": "Level 2",
+      "x": 5,
+      "y": 34,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Chest [Mirror Of Dawn]"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "chest [mirror of dawn]"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 5,
+          "y": 36,
+          "matched": [
+            "chest [mirror of dawn]"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 2,
+      "mapName": "Level 2",
+      "x": 9,
+      "y": 27,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Silver Coin"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "silver coin"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 10,
+          "y": 27,
+          "matched": [
+            "silver coin"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 2,
+      "mapName": "Level 2",
+      "x": 32,
+      "y": 40,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Ra Key"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "ra key"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 33,
+          "y": 40,
+          "matched": [
+            "ra key"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 2,
+      "mapName": "Level 2",
+      "x": 32,
+      "y": 38,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Empty Flask",
+        "Scroll \"The spell Des Ew weakens nonmaterial beings\""
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "empty flask",
+        "scroll the spell des ew weakens nonmaterial beings"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 32,
+          "y": 37,
+          "matched": [
+            "empty flask",
+            "scroll the spell des ew weakens nonmaterial beings"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 2,
+      "mapName": "Level 2",
+      "x": 34,
+      "y": 39,
+      "classification": "wall_adjacent_or_alcove",
+      "expected": [
+        "Torch (Charges=15)"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "torch"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 33,
+          "y": 39,
+          "matched": [
+            "torch"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 2,
+      "mapName": "Level 2",
+      "x": 35,
+      "y": 39,
+      "classification": "wall_adjacent_or_alcove",
+      "expected": [
+        "Torch (Charges=15)"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "torch"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 36,
+          "y": 39,
+          "matched": [
+            "torch"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 2,
+      "mapName": "Level 2",
+      "x": 35,
+      "y": 40,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Cheese",
+        "Bread",
+        "Drumstick",
+        "Apple"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "apple",
+        "bread",
+        "cheese",
+        "drumstick"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 36,
+          "y": 40,
+          "matched": [
+            "apple",
+            "bread",
+            "cheese",
+            "drumstick"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 3,
+      "mapName": "Level 3",
+      "x": 10,
+      "y": 29,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Gold Key"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "gold key"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 10,
+          "y": 30,
+          "matched": [
+            "gold key"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 4,
+      "mapName": "Level 4",
+      "x": 18,
+      "y": 16,
+      "classification": "wall_adjacent_or_alcove",
+      "expected": [
+        "Torch (Charges=15)"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "torch"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 18,
+          "y": 17,
+          "matched": [
+            "torch"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 4,
+      "mapName": "Level 4",
+      "x": 26,
+      "y": 6,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Drumstick",
+        "Torch (Charges=15)"
+      ],
+      "actual": [
+        "Drumstick"
+      ],
+      "missingNormalized": [
+        "torch"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 27,
+          "y": 6,
+          "matched": [
+            "torch"
+          ]
+        }
+      ],
+      "actualObjects": [
+        {
+          "category": "Misc",
+          "index": 127,
+          "type": 35,
+          "name": "Drumstick",
+          "displayName": "Drumstick"
+        }
+      ]
+    },
+    {
+      "mapIndex": 5,
+      "mapName": "Level 5",
+      "x": 14,
+      "y": 7,
+      "classification": "wall_adjacent_or_alcove",
+      "expected": [
+        "Torch (Charges=13)"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "torch"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 15,
+          "y": 7,
+          "matched": [
+            "torch"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 5,
+      "mapName": "Level 5",
+      "x": 17,
+      "y": 24,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Iron Key"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "iron key"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 18,
+          "y": 24,
+          "matched": [
+            "iron key"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 5,
+      "mapName": "Level 5",
+      "x": 9,
+      "y": 17,
+      "classification": "wall_adjacent_or_alcove",
+      "expected": [
+        "Torch (Charges=15)"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "torch"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 8,
+          "y": 17,
+          "matched": [
+            "torch"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 6,
+      "mapName": "Level 6",
+      "x": 31,
+      "y": 25,
+      "classification": "wall_adjacent_or_alcove",
+      "expected": [
+        "Scroll \"The keys to passage lie hidden deep.\""
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "scroll the keys to passage lie hidden deep."
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 30,
+          "y": 25,
+          "matched": [
+            "scroll the keys to passage lie hidden deep."
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 6,
+      "mapName": "Level 6",
+      "x": 9,
+      "y": 23,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Ven Potion",
+        "Ful Bomb",
+        "The Inquisitor"
+      ],
+      "actual": [
+        "Ven Potion",
+        "Ful Bomb"
+      ],
+      "missingNormalized": [
+        "the inquisitor"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 9,
+          "y": 24,
+          "matched": [
+            "the inquisitor"
+          ]
+        }
+      ],
+      "actualObjects": [
+        {
+          "category": "Potion",
+          "index": 29,
+          "type": 3,
+          "name": "Ven Potion",
+          "displayName": "Ven Potion"
+        },
+        {
+          "category": "Potion",
+          "index": 30,
+          "type": 19,
+          "name": "Ful Bomb",
+          "displayName": "Ful Bomb"
+        }
+      ]
+    },
+    {
+      "mapIndex": 6,
+      "mapName": "Level 6",
+      "x": 9,
+      "y": 7,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Empty Flask (3)"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "empty flask",
+        "empty flask",
+        "empty flask"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 8,
+          "y": 7,
+          "matched": [
+            "empty flask",
+            "empty flask",
+            "empty flask"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 6,
+      "mapName": "Level 6",
+      "x": 10,
+      "y": 7,
+      "classification": "wall_adjacent_or_alcove",
+      "expected": [
+        "Scroll \"Neither Chaos nor Order is truly balanced\"",
+        "Scroll \"The Firestaff can restore balance or destroy it.\"",
+        "Scroll \"The power gem is sealed in the mountain by a strange magical force.\""
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "scroll neither chaos nor order is truly balanced",
+        "scroll the firestaff can restore balance or destroy it.",
+        "scroll the power gem is sealed in the mountain by a strange magical force."
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 11,
+          "y": 7,
+          "matched": [
+            "scroll neither chaos nor order is truly balanced",
+            "scroll the firestaff can restore balance or destroy it.",
+            "scroll the power gem is sealed in the mountain by a strange magical force."
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 6,
+      "mapName": "Level 6",
+      "x": 10,
+      "y": 6,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Orange Gem",
+        "Corbamite",
+        "Magnifier"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "corbamite",
+        "magnifier",
+        "orange gem"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 10,
+          "y": 5,
+          "matched": [
+            "corbamite",
+            "magnifier",
+            "orange gem"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 6,
+      "mapName": "Level 6",
+      "x": 14,
+      "y": 8,
+      "classification": "wall_adjacent_or_alcove",
+      "expected": [
+        "Torch (Charges=15)"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "torch"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 14,
+          "y": 9,
+          "matched": [
+            "torch"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 6,
+      "mapName": "Level 6",
+      "x": 18,
+      "y": 8,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Boulder",
+        "Rock"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "boulder",
+        "rock"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 18,
+          "y": 9,
+          "matched": [
+            "boulder",
+            "rock"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 6,
+      "mapName": "Level 6",
+      "x": 22,
+      "y": 8,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Empty Flask"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "empty flask"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 22,
+          "y": 9,
+          "matched": [
+            "empty flask"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 6,
+      "mapName": "Level 6",
+      "x": 26,
+      "y": 8,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Water Flask"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "water flask"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 26,
+          "y": 9,
+          "matched": [
+            "water flask"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 6,
+      "mapName": "Level 6",
+      "x": 29,
+      "y": 8,
+      "classification": "wall_adjacent_or_alcove",
+      "expected": [
+        "Scroll \"Balance is the ultimate good\""
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "scroll balance is the ultimate good"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 28,
+          "y": 8,
+          "matched": [
+            "scroll balance is the ultimate good"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 6,
+      "mapName": "Level 6",
+      "x": 31,
+      "y": 9,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Ashes",
+        "Tourquoise Key"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "ashes",
+        "tourquoise key"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 31,
+          "y": 10,
+          "matched": [
+            "ashes",
+            "tourquoise key"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 6,
+      "mapName": "Level 6",
+      "x": 33,
+      "y": 12,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Ra Key",
+        "Scroll \"I fear for the people of the world should the power gem and the Firestaff get in the wrong hands\"",
+        "Scroll \"I have given the Firestaff much power. Power to do and undo. Power to break and mend.\"",
+        "Scroll \"The Firestaff can contain a being of pure alignment with its fluxcage.\"",
+        "Scroll \"Once fluxcaged a being can be transmuted by the power of the staff which should always be used for balance.\"",
+        "Scroll \"Zokathra might create a plasma that could burn through the amalgam encasing the gem.\""
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "ra key",
+        "scroll i fear for the people of the world should the power gem and the firestaff get in the wrong hands",
+        "scroll i have given the firestaff much power. power to do and undo. power to break and mend.",
+        "scroll once fluxcaged a being can be transmuted by the power of the staff which should always be used for balance.",
+        "scroll the firestaff can contain a being of pure alignment with its fluxcage.",
+        "scroll zokathra might create a plasma that could burn through the amalgam encasing the gem."
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 33,
+          "y": 13,
+          "matched": [
+            "ra key",
+            "scroll i fear for the people of the world should the power gem and the firestaff get in the wrong hands",
+            "scroll i have given the firestaff much power. power to do and undo. power to break and mend.",
+            "scroll once fluxcaged a being can be transmuted by the power of the staff which should always be used for balance.",
+            "scroll the firestaff can contain a being of pure alignment with its fluxcage.",
+            "scroll zokathra might create a plasma that could burn through the amalgam encasing the gem."
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 6,
+      "mapName": "Level 6",
+      "x": 19,
+      "y": 20,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "The Firestaff"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "the firestaff"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 19,
+          "y": 21,
+          "matched": [
+            "the firestaff"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 8,
+      "mapName": "Level 8",
+      "x": 23,
+      "y": 22,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Ra Key"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "ra key"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 23,
+          "y": 21,
+          "matched": [
+            "ra key"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 9,
+      "mapName": "Level 9",
+      "x": 27,
+      "y": 27,
+      "classification": "wall_adjacent_or_alcove",
+      "expected": [
+        "Torch (Charges=15)"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "torch"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 26,
+          "y": 27,
+          "matched": [
+            "torch"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 10,
+      "mapName": "Level 10",
+      "x": 11,
+      "y": 24,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Diamond Edge"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "diamond edge"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 10,
+          "y": 24,
+          "matched": [
+            "diamond edge"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 10,
+      "mapName": "Level 10",
+      "x": 36,
+      "y": 38,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Ven Potion",
+        "Ful Bomb"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "ful bomb",
+        "ven potion"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 35,
+          "y": 38,
+          "matched": [
+            "ful bomb"
+          ]
+        },
+        {
+          "x": 36,
+          "y": 39,
+          "matched": [
+            "ven potion"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 10,
+      "mapName": "Level 10",
+      "x": 36,
+      "y": 37,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Ful Bomb",
+        "Magical Box (Green)",
+        "Copper Coin (2)"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "copper coin",
+        "copper coin",
+        "ful bomb",
+        "magical box (green)"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 35,
+          "y": 37,
+          "matched": [
+            "ful bomb",
+            "magical box (green)"
+          ]
+        },
+        {
+          "x": 36,
+          "y": 36,
+          "matched": [
+            "copper coin",
+            "copper coin"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 10,
+      "mapName": "Level 10",
+      "x": 37,
+      "y": 37,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Cross Key",
+        "Chest [Drumstick (4), Cheese (2), Bread (2)]"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "chest [bread, bread, cheese, cheese, drumstick, drumstick, drumstick, drumstick]",
+        "cross key"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 38,
+          "y": 37,
+          "matched": [
+            "chest [bread, bread, cheese, cheese, drumstick, drumstick, drumstick, drumstick]"
+          ]
+        },
+        {
+          "x": 37,
+          "y": 36,
+          "matched": [
+            "cross key"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 10,
+      "mapName": "Level 10",
+      "x": 37,
+      "y": 38,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Magical Box (Green)"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "magical box (green)"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 38,
+          "y": 38,
+          "matched": [
+            "magical box (green)"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 10,
+      "mapName": "Level 10",
+      "x": 26,
+      "y": 35,
+      "classification": "wall_adjacent_or_alcove",
+      "expected": [
+        "Scroll \"The only way out is another way in.\""
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "scroll the only way out is another way in."
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 25,
+          "y": 35,
+          "matched": [
+            "scroll the only way out is another way in."
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 10,
+      "mapName": "Level 10",
+      "x": 32,
+      "y": 30,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Ruby Key"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "ruby key"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 32,
+          "y": 29,
+          "matched": [
+            "ruby key"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 11,
+      "mapName": "Level 11",
+      "x": 21,
+      "y": 42,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Ra Key"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "ra key"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 21,
+          "y": 43,
+          "matched": [
+            "ra key"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 11,
+      "mapName": "Level 11",
+      "x": 32,
+      "y": 32,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Master Key"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "master key"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 31,
+          "y": 32,
+          "matched": [
+            "master key"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "x": 43,
+      "y": 31,
+      "classification": "nearby_reference_offset",
+      "expected": [
+        "Flamitt (Charges=7)",
+        "The Hellion"
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "flamitt",
+        "the hellion"
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 43,
+          "y": 32,
+          "matched": [
+            "flamitt",
+            "the hellion"
+          ]
+        }
+      ],
+      "actualObjects": []
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "x": 49,
+      "y": 36,
+      "classification": "wall_adjacent_or_alcove",
+      "expected": [
+        "Scroll \"Only the touch of the proper spell will free the gem and only the Firestaff can possess it.\""
+      ],
+      "actual": [],
+      "missingNormalized": [
+        "scroll only the touch of the proper spell will free the gem and only the firestaff can possess it."
+      ],
+      "unexpectedNormalized": [],
+      "nearbySupport": [
+        {
+          "x": 48,
+          "y": 36,
+          "matched": [
+            "scroll only the touch of the proper spell will free the gem and only the firestaff can possess it."
+          ]
+        }
+      ],
+      "actualObjects": []
+    }
+  ]
 }

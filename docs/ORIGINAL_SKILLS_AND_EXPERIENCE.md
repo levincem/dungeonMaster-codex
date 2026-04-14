@@ -56,6 +56,8 @@ The supplied rules document:
 - danger bonuses
 - dungeon-level multipliers
 - the rule that hidden-skill XP is also added to the associated basic skill
+- temporary experience that decays over time
+- skill level bonuses granted by equipped objects such as The Firestaff, Pendant Feral, Ekkhard Cross, Gem Of Ages, Moonstone and Sceptre Of Lyf
 
 This is enough to reconstruct a much more faithful XP/training model than a hand-tuned approximation.
 
@@ -68,6 +70,8 @@ This gives a source-backed basis for:
 - skill names by level
 - experience required per level
 - how hidden/basic skill levels should be computed
+- when temporary experience must be ignored
+- when equipped items must change the effective skill level without changing permanent XP
 
 ## Statistics And Growth
 
@@ -87,6 +91,19 @@ The supplied material covers:
 - Luck
 
 It also documents how statistics increase when a champion levels specific skills.
+
+## Runtime Status
+
+The runtime now treats this domain as source-backed for the following points:
+
+- initial hidden-skill XP seeding and reconstruction of the four basic skills
+- base and hidden skill level computation using the original doubling thresholds
+- temporary experience gain and decay
+- low-danger penalties and danger bonuses when awarding hidden-skill XP
+- level-up stat growth by basic skill branch
+- effective skill-level modifiers from the key original items named above
+
+The main remaining work in this domain is now validation over long play sessions rather than missing formulas.
 
 ## Resurrect And Reincarnate
 

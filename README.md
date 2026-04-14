@@ -14,6 +14,8 @@ The current public build is available at [dungeon-master.fr](https://dungeon-mas
 
 This is currently a desktop-first beta. Smartphone play is explicitly blocked in the app.
 
+Current local project version: `v0.4.0-alpha`.
+
 ## Current State
 
 The project is now well beyond prototype stage and already playable end to end through a substantial part of the original loop:
@@ -30,11 +32,12 @@ The project is now well beyond prototype stage and already playable end to end t
 - creature AI substantially revised: open-door traversal, pursuit memory, ranged spacing, teleporter usage, invisibility handling, missile absorption, sight-range driven detection
 - upgraded spell visuals: better projectile identities, impacts, local flashes, shields and `Fluxcage`
 - pits are now rendered as visible openings and can trigger party falls to the matching tile below
-- endgame path wired through Firestaff completion, Grey Lord transition, and victory screen
+- endgame path wired through Firestaff completion, Lord Chaos fusion, Grey Lord transition, and victory screen
 - persistent save / resume of the mutable runtime state
 - in-game options modal with movement key rebinding
 - blocking beta welcome modal and lightweight help modal available in-game
 - simple `i18n` layer present with English as the default locale
+- sleep now runs as a continuous accelerated state instead of a single large fast-forward step
 
 It is not a finished remake yet. The largest remaining work is no longer data extraction, but the last fidelity gaps, architectural cleanup, and optimization.
 
@@ -48,6 +51,7 @@ Current save/load behavior:
 
 Main remaining gaps before calling the runtime "fully aligned":
 
+- `Game Over` is still pending as a dedicated final-loss flow
 - final path still needs a targeted full playtest from `Zokathra` through Lord Chaos fusion
 - some rare late-game or edge-case mechanism interactions still need targeted play verification
 - fall damage values are currently heuristic and still need confirmation against original references
@@ -90,7 +94,7 @@ npm run dev
 npm run build
 ```
 
-The production build passes as of this update (`2026-04-13`).
+The production build passes as of this update (`2026-04-14`).
 
 ## Project Structure
 
@@ -177,7 +181,7 @@ The most useful detailed internal summaries are:
 - The app blocks smartphone play and remains desktop-first.
 - The HUD debug line now distinguishes global and local map coordinates, for example `front [g:x,y / l:x,y]`; gameplay reports should prefer the local `l:` coordinate when discussing extracted map data.
 - The bundle is still heavy because of the 3D stack, assets, and embedded critical JSON datasets.
-- The main remaining heavy runtime payloads are now the compact dungeon snapshot and the 3D vendor stack.
+- The main remaining heavy runtime payloads are now the compact dungeon snapshot, wall-overlay data, and the core Three.js stack.
 - The next major phase is optimization, now focused more on data loading strategy than on the old `game-core`.
 - The project should currently be treated as a playable beta rather than a finished remake.
 - The world-content extraction is now treated as reliable.

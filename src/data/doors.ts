@@ -39,6 +39,6 @@ export function getDoorTexturePath(doorType: number | undefined): string {
         case 0:
             return miscPath('grille_metal.png');
         default:
-            return texturesPath('door.png');
+            return texturesPath('doorWood.png');
     }
 }

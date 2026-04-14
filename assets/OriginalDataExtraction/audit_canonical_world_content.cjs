@@ -2,9 +2,12 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.join(__dirname, '..', '..');
-const dungeon = JSON.parse(fs.readFileSync(path.join(root, 'src', 'assets', 'data', 'dungeon.json'), 'utf8'));
-const canonical = JSON.parse(fs.readFileSync(path.join(root, 'assets', 'OriginalDataExtraction', 'output', 'original_level_content.json'), 'utf8'));
-const overlays = JSON.parse(fs.readFileSync(path.join(root, 'src', 'assets', 'original_wall_overlay_positions.json'), 'utf8'));
+const dungeon = JSON.parse(fs.readFileSync(path.join(root, 'assets', 'OriginalDataExtraction', 'output', 'dungeon.json'), 'utf8'));
+const canonicalPath = fs.existsSync(path.join(root, 'assets', 'OriginalDataExtraction', 'output', 'original_level_content.json'))
+  ? path.join(root, 'assets', 'OriginalDataExtraction', 'output', 'original_level_content.json')
+  : path.join(root, 'assets', 'OriginalDataExtraction', 'reference_exports', 'original_level_content.json');
+const canonical = JSON.parse(fs.readFileSync(canonicalPath, 'utf8'));
+const overlays = JSON.parse(fs.readFileSync(path.join(root, 'public', 'original_wall_overlay_positions.json'), 'utf8'));
 
 function normalizeText(value) {
   return String(value ?? '')
@@ -18,7 +21,11 @@ function normalizeText(value) {
 }
 
 function getTile(mapIndex, x, y) {
-  return dungeon.maps[mapIndex]?.tiles?.find((tile) => tile.globalX === x && tile.globalY === y) ?? null;
+  return dungeon.maps[mapIndex]?.tiles?.find((tile) => {
+    const tileX = tile.globalX ?? tile.x;
+    const tileY = tile.globalY ?? tile.y;
+    return tileX === x && tileY === y;
+  }) ?? null;
 }
 
 function getOverlayPlacementsAt(mapIndex, x, y) {
@@ -47,8 +54,8 @@ function getNearbyTextObjects(mapIndex, x, y, radius = 1) {
       if (obj.category !== 'Text') continue;
       texts.push({
         mapIndex,
-        x: tile.globalX,
-        y: tile.globalY,
+        x: tile.globalX ?? tile.x,
+        y: tile.globalY ?? tile.y,
         text: obj.text ?? '',
         visible: obj.visible !== false,
         textOffset: obj.textOffset,
@@ -66,8 +73,8 @@ function getNearbyLockSensors(mapIndex, x, y, radius = 1) {
       if (obj.category !== 'Sensor' || !sensorTypes.has(obj.type)) continue;
       sensors.push({
         mapIndex,
-        x: tile.globalX,
-        y: tile.globalY,
+        x: tile.globalX ?? tile.x,
+        y: tile.globalY ?? tile.y,
         sensorType: obj.type,
         requiredObjectType: obj.requiredObjectType,
         requiredObjectName: obj.requiredObjectName ?? null,
@@ -279,9 +286,11 @@ function auditCreatures() {
 const report = {
   generatedAt: new Date().toISOString(),
   sources: {
-  dungeon: 'src/assets/data/dungeon.json',
-  canonical: 'assets/OriginalDataExtraction/output/original_level_content.json',
-  overlays: 'src/assets/original_wall_overlay_positions.json',
+    dungeon: 'assets/OriginalDataExtraction/output/dungeon.json',
+    canonical: canonicalPath.includes(`${path.sep}output${path.sep}`)
+      ? 'assets/OriginalDataExtraction/output/original_level_content.json'
+      : 'assets/OriginalDataExtraction/reference_exports/original_level_content.json',
+    overlays: 'public/original_wall_overlay_positions.json',
   },
   caveats: [
     'Inscriptions are audited against reconstructed fixed wall text placements, allowing a one-tile wall-facing offset.',

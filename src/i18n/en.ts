@@ -30,9 +30,9 @@ export const en = {
         },
         runeFamilyLabels: {
             power: 'POWER',
-            element: 'ELEMENT',
-            form: 'FORM',
-            alignment: 'ALIGNMENT',
+            element: 'ROW I',
+            form: 'ROW II',
+            alignment: 'ROW III',
         },
     },
     dungeonScene: {
@@ -48,9 +48,9 @@ export const en = {
     runePanel: {
         familyLabels: {
             power: 'POWER',
-            element: 'ELEMENT',
-            form: 'FORM',
-            alignment: 'ALIGNMENT',
+            element: 'ROW I',
+            form: 'ROW II',
+            alignment: 'ROW III',
         },
         removeRune: (name: string) => `Remove ${name}`,
         slot: (index: number) => `Slot ${index}`,

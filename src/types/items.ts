@@ -37,30 +37,32 @@ export interface ArmorDef {
     slot: ArmorSlot;
     armor: number;
     weight: number;
+    sharpDefense?: number;
+    isShield?: boolean;
 }
 
 // Potions
 export type PotionEffect =
-    | 'spellPower'
-    | 'health'
-    | 'stamina'
-    | 'mana'
-    | 'poison'
     | 'strength'
     | 'dexterity'
     | 'wisdom'
     | 'vitality'
-    | 'antiMagic'
-    | 'antiFire';
+    | 'antivenin'
+    | 'stamina'
+    | 'shield'
+    | 'mana'
+    | 'health'
+    | 'water'
+    | 'poisonCloud'
+    | 'firebomb'
+    | 'empty';
 
 export interface PotionDef {
     id: number;
     name: string;
     effect: PotionEffect;
-    level?: number;
-    restore?: number;
-    boost?: number;
-    duration?: number;
+    drinkable?: boolean;
+    throwable?: boolean;
 }
 
 // Misc

@@ -107,7 +107,10 @@ const DECAL_PRESETS: Record<string, DecalPreset> = {
 // ─── Inner sprite (loads texture) ─────────────────────────────────────────────
 
 function useSafeTexture(url: string, fallbackUrl?: string): THREE.Texture | null {
-    const [texture, setTexture] = useState<THREE.Texture | null>(null);
+    const [textureEntry, setTextureEntry] = useState<{ source: string; texture: THREE.Texture | null }>({
+        source: '',
+        texture: null,
+    });
 
     useEffect(() => {
         let disposed = false;
@@ -123,7 +126,7 @@ function useSafeTexture(url: string, fallbackUrl?: string): THREE.Texture | null
             }
             activeTexture?.dispose();
             activeTexture = next;
-            setTexture(next);
+            setTextureEntry({ source: url, texture: next });
         };
 
         const load = (source: string, fallback?: string) => {
@@ -135,13 +138,12 @@ function useSafeTexture(url: string, fallbackUrl?: string): THREE.Texture | null
                     if (fallback && fallback !== source) {
                         load(fallback);
                     } else if (!disposed) {
-                        setTexture(null);
+                        setTextureEntry({ source: url, texture: null });
                     }
                 },
             );
         };
 
-        setTexture(null);
         load(url, fallbackUrl);
 
         return () => {
@@ -150,7 +152,7 @@ function useSafeTexture(url: string, fallbackUrl?: string): THREE.Texture | null
         };
     }, [url, fallbackUrl]);
 
-    return texture;
+    return textureEntry.source === url ? textureEntry.texture : null;
 }
 
 const DecalSprite = ({

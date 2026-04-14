@@ -96,15 +96,72 @@ Reste a faire:
 Etat actuel:
 
 - pipeline runtime reel branche autour de `src/data/runes.ts` et `src/engine/store.ts`
+- ordre des runes runtime recale sur les `spellID` Atari / `i560`
+- catalogue extrait des sorts recale sur les 25 descripteurs Atari, sans sorts de soin speculatifs dans `game_db`
 - large set de sorts jouables et de projectiles differencies
+- reussite des sorts recalee sur la logique source `ReDMCSB`:
+  - niveau requis = `baseDifficulty + rune de puissance`
+  - verification par paliers manquants avec seuil `wisdom + 15` borne a `115`
+  - XP de cast derivee de la formule originale au lieu d'un gain moyen fixe
+- energie initiale et decroissance des projectiles magiques recalees sur `MENUS.C` / `CHAMPION.C`
+- impacts directs de `Fireball` et `Lightning Bolt` recales sur la formule de `PROJEXPL.C`
+- `Poison Bolt` reapplique maintenant aussi sa composante poison avec resistance de creature issue de `i559`
+- les projectiles magiques standards traversent de nouveau les creatures non materielles, sauf `Disrupt Nonmaterial`
+- `Open Door` est maintenant lance comme un vrai projectile magique avec trajet, impact et VFX dedie, au lieu d'un simple effet instantane sur la premiere porte en ligne
+- les potions buvables suivent maintenant les formules de `INVNTORY.C`:
+  - `Ros/Ku/Dane/Neta` modifient bien les statistiques courantes, avec retour progressif vers la valeur max
+  - `Mon` restaure l'endurance
+  - `Ya` est traite comme une protection magique locale
+  - `Ee` restaure le mana avec la meme logique de depassement adouci
+  - `Vi` soigne et tente de guerir les blessures
+  - `Water Flask` rehydrate et redevient une flasque vide
+- le parser runtime conserve desormais aussi la `power` des potions dans `src/assets/data/dungeon.json`, au lieu de la perdre dans le snapshot compact
+- `Ven Potion` et `Ful Bomb` jetes convertissent de nouveau leur `power` en impact toxique / feu au contact, au lieu de rester de simples projectiles physiques
+- la nutrition des aliments suit maintenant bien `foodValues`; manger n'ajoute plus de regain d'endurance invente par le remake
 - VFX de sorts et protections sensiblement ameliores
+- `Lightning Bolt` a maintenant un rendu `Photons2` plus allonge, davantage lu comme un eclair que comme une boule
 - `Fluxcage` visible et branche dans le runtime
+- `Poison Cloud` n'est plus un simple burst:
+  - le nuage persiste sur la case comme dans la source
+  - il pulse avec decroissance interne et reste sauvegardable/rechargeable
+  - `Ven Potion` jetee reutilise maintenant cette meme logique persistante
+- `Disrupt Nonmaterial` suit maintenant mieux le cas special de `PROJEXPL.C`:
+  - les creatures non materielles classiques sur la case prennent toutes le meme impact
+  - `Materializer` / `Zytaz` ne peuvent etre touches que pendant leur fenetre d'attaque
+  - leur degat utilise aussi la composante aleatoire supplementaire de la source
+- faim, soif, nourriture et boisson ont ete reverifiees contre `CHAMPION.C` et `INVNTORY.C`:
+  - regen mana, stamina, HP et cadence sommeil/eveil recalees sur la boucle de survie source (`256` ticks eveille, `64` en dormant)
+  - nourriture et eau suivent bien les reserves `Food` / `Water`
+  - boire une gourde ou une flasque applique de nouveau `+800` / `+1600` eau comme dans l'original
+  - la fatigue appliquee a chaque pas suit de nouveau la formule de `MOVE.C` basee sur `load / maxLoad`, au lieu d'un cout maison trop bas et d'une cadence de regen trop rapide
+- les degats de retour des sorts sur le groupe ne sont plus repartis par simple facteur avant/arriere; ils suivent maintenant une dispersion plus proche de `F324_aezz_CHAMPION_DamageAll_GetDamagedChampionCount`
+- le combat creatures utilise maintenant plus directement la famille d'attaque originale en melee (`Blunt`, `Sharp`, `Magic`, `Fire`, `Mental`) au lieu d'un tirage hybride trop libre, et les shields magiques ne reduisent plus les attaques physiques par erreur
+- la probabilite de blessure est maintenant recalee sur le seuil source `random(128) + 10` ajuste par la vitalite, au lieu d'une formule maison beaucoup plus agressive
+- la mitigation des attaques creatures suit maintenant mieux le branchement original:
+  - `Sharp` passe par la vraie voie `sharp defense` issue de `i559`
+  - `Impact` divise de nouveau la defense
+  - `Mental` passe par la sagesse plutot que par `Anti-Magic`
+  - `Unconditional` n'utilise plus la mitigation physique standard
+  - les shields tenus en main utilisent maintenant aussi la vraie table `Graphic 562` `G050 = [5,5,4,6,3,1]`, remontee dans le pipeline sous `woundDefenseFactors`
+- les creatures lanceuses de sorts source-backed (`Vexirk`, `Wizard Eye`, `Materializer/Zytaz`, `Demon`, `Red Dragon`, `Lord Chaos`) recreent maintenant de vrais projectiles runtime avec type de missile et energie proches de `GROUP1.C`, au lieu d'un simple degat instantane a distance
+- les impacts de projectiles de creatures sur le groupe suivent de nouveau plus directement `PROJEXPL.C`:
+  - impact cible `tete/torse` pour le champion vise
+  - explosion secondaire sur la case du groupe pour `Fireball` / `Lightning Bolt`
+  - `Poison Cloud` sur la case du groupe reapplique une attaque normale sans blessures, puis laisse un nuage persistant
+- les shields de sorts et objets ne sont plus traites comme des pourcentages generiques:
+  - `Party Shield` et `Ya Potion` alimentent une vraie defense additive `physical`
+  - `Spellshield` alimente une defense additive `magic`
+  - `Fire Shield` / `Fireshield` alimentent une defense additive `fire`
 
 Reste a faire:
 
 - `src/data/spells.ts` reste encore un fichier legacy de reference
-- quelques nuances fines de missiles / effets restent a verifier
-- `Zo Ven` reste documente mais non implemente
+- quelques `reference_exports` peuvent encore garder une nomenclature de sorts plus ancienne que le runtime regenere
+- quelques nuances fines de missiles / effets restent a verifier:
+  - quelques `local effects` rares restent plus subtils que le simple ciblage `(x,y)`, meme si `F271` et la rotation locale de liste de sensors sont maintenant recables
+  - l'effet local `ADD_EXPERIENCE` de `F270` n'apparait pas dans le donjon DM extrait actuel
+- `Zo Ven` est de nouveau present dans la couche de reference extraite; son comportement runtime fin reste a confirmer par playtest
+- les launchers muraux `type 14-15` existent cote moteur mais ne sont pas utilises dans le donjon DM extrait
 
 ### Mecanismes
 
@@ -118,9 +175,21 @@ Etat actuel:
 - alcoves et receptacles muraux fonctionnels
 - objets montes sur mur visibles en scene
 - capteurs `Hold`, possession et objets specifiques de sol recales
+- rotation locale `F271` recablee sur un ordre persistant par face murale pour clics, locks, alcoves et echangeurs
+- parser recale sur le vrai champ `Multiple` source-backed pour les sensors locaux / generators / launchers
+- sensors reguliers `isLocal` recables sur une vraie branche locale au lieu d'une cible `(0,0)` parasite
 - file d'evenements differee pour les mecanismes avec `delay`
 - clic sonore partage pour switchs / dalles quand pertinent
 - portes a bouton recalees sur un modele unique: un seul jambage et un `wall switch` fixe sur la face du jambage cote joueur, quel que soit le materiau de porte
+- launchers muraux `type 7-10` recrees comme de vrais projectiles runtime, avec payloads `kineticEnergy/stepEnergy` issus du parser
+- le depot d'ossements sur un `Vi Altar` repasse bien par `Bones` (`Misc typeId 5`) et n'attend plus un identifiant erronne
+- la resurrection au `Vi Altar` ne repart plus a `1 HP`:
+  - le maximum de sante est reduit comme dans `F283_CHAMPION_ViAltarRebirth`
+  - le champion revient avec la moitie de ce nouveau maximum
+- `Reincarnate` suit maintenant la procedure source de `CHAMPION.C`:
+  - skills remises a zero
+  - sante / endurance / mana divisees par deux
+  - statistiques recalees par reduction au huitieme puis `12` increments aleatoires
 
 Reste a faire:
 
@@ -180,8 +249,14 @@ Etat actuel:
 Reste a faire:
 
 - certaines formules restent encore simplifiees
+- la mitigation de degats reste intentionnellement "bug-fixee" sur un point: le runtime continue d'utiliser `Anti-Magic` / `Anti-Fire`, alors que le binaire original souffrait du bug compilateur `BUG0_41` qui les neutralisait largement
 - `Rust`, `Teleport` et `Immobilize` ne doivent toujours pas etre vendus comme pleinement reproduits
 - confirmer si les valeurs de degats de chute peuvent etre derivees proprement des references originales
+- `THRUST` est de nouveau traite comme une vraie attaque de melee, au lieu de retomber par erreur dans le fallback des actions non physiques
+- `Freeze Life` est maintenant un vrai etat runtime source-backed, persiste en sauvegarde et ignore bien les creatures `archenemy`
+- `Calm`, `Brandish`, `Blow Horn` et `War Cry` ne sont plus des no-op: ils reutilisent la resistance a la peur extraite depuis `i559` et poussent bien les creatures a fuir
+- le sommeil n'est plus un gros fast-forward par clic: il est maintenant continu, tick par tick, et s'interrompt au prochain clic / appui clavier
+- `FUSE` sur Lord Chaos ne passe plus directement de "mort" a l'ecran de victoire: le runtime joue maintenant une vraie phase `endgame` avec alternance Chaos/Order, apparition du Grey Lord, purge des autres groupes et bascule finale vers la victoire
 
 ### Assets, presentation et finition
 
@@ -233,6 +308,18 @@ Point de controle avant optimisation:
 - game over
 - fin / victoire
 - dernier polish UX
+
+## Note Demain
+
+- `Game over`: comportement voulu simple a integrer/valider
+  - les 4 champions morts
+  - ecran noir
+  - message `GAME OVER`
+  - retour a l'ecran titre
+- verifier quelques cas rares de mecanismes / countdowns en situation reelle
+- refaire un petit tour de families creatures sensibles en playtest
+- confirmer les degats de chute contre les references originales si une formule exploitable apparait
+- continuer le polish visuel leger seulement si quelque chose choque encore en jeu
 
 ### 4. Ameliorations beta / confort
 

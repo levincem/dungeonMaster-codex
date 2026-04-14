@@ -1,7 +1,7 @@
 // Runtime-facing item definitions built from extracted original data,
 // plus the minimal local metadata still needed by the remake.
 
-import type { WeaponDef, ArmorDef, PotionDef, MiscDef } from '../types/items';
+import type { WeaponDef, ArmorDef, PotionDef, MiscDef, ArmorSlot } from '../types/items';
 import { getGameDbRawSync } from './gameDbData';
 
 const PLACEHOLDER_NAME_RE = /^([A-Za-z]+_\d+|\(W\d+\))$/;
@@ -59,6 +59,12 @@ type RawGameDb = {
             miscWeightsKg?: number[];
             foodValues?: number[];
         };
+        i562?: {
+            woundDefenseFactors?: number[];
+            underscoreCharacterString?: number[];
+            renameChampionInputCharacterString?: number[];
+            reincarnateSpecialCharacters?: number[];
+        };
     };
 };
 
@@ -75,6 +81,7 @@ const I559_CLOTHS_BY_INDEX = new Map<number, RawI559Cloth>(
 
 const I559_MISC_WEIGHTS = originalI559?.miscWeightsKg ?? [];
 const I559_FOOD_VALUES = originalI559?.foodValues ?? [];
+const I562_WOUND_DEFENSE_FACTORS_RAW = gameDb.originalAtari?.i562?.woundDefenseFactors ?? [];
 const WEAPON_ATTACK_REFERENCE = gameDb.weaponAttackReference ?? [];
 const ITEM_TYPE_NAMES = gameDb.itemTypeNames ?? {};
 const WEAPON_ALLOWED_SLOT_MASK_BY_INDEX = new Map<number, number>(
@@ -253,22 +260,19 @@ const CANONICAL_MISC_NAMES: Record<number, string> = {
 };
 
 const CANONICAL_POTION_NAMES: Record<number, string> = {
-     0: 'Mon Potion',
-     1: 'Um Potion',
-     2: 'Dee Potion',
-     3: 'Zo Potion',
-     4: 'Ful Potion',
-     8: 'Vi Potion',
-     9: 'Ya Potion',
-    10: 'Ee Potion',
-    11: 'Antivenin',
-    13: 'Ku Potion',
-    14: 'Ros Potion',
-    15: 'Dane Potion',
-    16: 'Neta Potion',
-    17: 'Mon Potion',
-    18: 'Anti-Fire Potion',
-    24: 'Water Flask',
+     3: 'Ven Potion',
+     6: 'Ros Potion',
+     7: 'Ku Potion',
+     8: 'Dane Potion',
+     9: 'Neta Potion',
+    10: 'Antivenin',
+    11: 'Mon Potion',
+    12: 'Ya Potion',
+    13: 'Ee Potion',
+    14: 'Vi Potion',
+    15: 'Water Flask',
+    19: 'Ful Bomb',
+    20: 'Empty Flask',
 };
 
 // ─── Weapons ──────────────────────────────────────────────────────────────────
@@ -330,15 +334,15 @@ const OFFICIAL_ARMOR_TYPES: Record<number, ArmorDef> = {
      1: { id:  1, name: 'Cloak Of Night',     slot: 'torso', armor:  10, weight: 0.4 },
      4: { id:  4, name: 'Leather Boots',      slot: 'feet',  armor:  25, weight: 1.6 },
      5: { id:  5, name: 'Robe Of The Kite Lord', slot: 'torso', armor: 25, weight: 8.0 },
-     6: { id:  6, name: 'Robe',               slot: 'torso', armor:   5, weight: 0.4 },
+     6: { id:  6, name: 'Robe',               slot: 'legs',  armor:   5, weight: 0.4 },
      7: { id:  7, name: 'Fine Robe (Body)',   slot: 'torso', armor:   7, weight: 0.3 },
      8: { id:  8, name: 'Fine Robe (Legs)',   slot: 'legs',  armor:   7, weight: 0.3 },
      9: { id:  9, name: 'Plate Mail',         slot: 'torso', armor:  35, weight: 25.0 },
     10: { id: 10, name: 'Tunic',              slot: 'torso', armor:   9, weight: 0.5 },
     11: { id: 11, name: 'Silk Shirt',         slot: 'torso', armor:   4, weight: 0.2 },
-    12: { id: 12, name: 'Gunna',              slot: 'torso', armor:   7, weight: 0.5 },
+    12: { id: 12, name: 'Gunna',              slot: 'legs',  armor:   7, weight: 0.5 },
     13: { id: 13, name: 'Elven Doublet',      slot: 'torso', armor:  11, weight: 0.3 },
-    14: { id: 14, name: 'Elven Huke',         slot: 'torso', armor:  13, weight: 0.3 },
+    14: { id: 14, name: 'Elven Huke',         slot: 'legs',  armor:  13, weight: 0.3 },
     15: { id: 15, name: 'Elven Boots',        slot: 'feet',  armor:  13, weight: 0.4 },
     16: { id: 16, name: 'Leather Jerkin',     slot: 'torso', armor:  17, weight: 0.6 },
     17: { id: 17, name: 'Leather Pants',      slot: 'legs',  armor:  20, weight: 0.8 },
@@ -359,7 +363,7 @@ const OFFICIAL_ARMOR_TYPES: Record<number, ArmorDef> = {
     32: { id: 32, name: 'Mail Aketon',        slot: 'torso', armor:  35, weight: 6.5 },
     33: { id: 33, name: 'Leg Mail',           slot: 'legs',  armor:  35, weight: 5.3 },
     34: { id: 34, name: 'Mithral Aketon',     slot: 'torso', armor:  70, weight: 5.2 },
-    35: { id: 35, name: 'Mithral Mail',       slot: 'torso', armor:  55, weight: 4.1 },
+    35: { id: 35, name: 'Mithral Mail',       slot: 'legs',  armor:  55, weight: 4.1 },
     36: { id: 36, name: "Casque'n Coif",      slot: 'head',  armor:  25, weight: 1.6 },
     37: { id: 37, name: 'Hosen',              slot: 'feet',  armor:  30, weight: 1.6 },
     38: { id: 38, name: 'Armet',              slot: 'head',  armor:  40, weight: 1.9 },
@@ -388,7 +392,7 @@ const STARTER_ARMOR_NAME_OVERRIDES: Record<string, ArmorDef> = {
     'fine robe (body)': { id:  7, name: 'Fine Robe (Body)', slot: 'torso', armor:  7, weight: 0.3 },
     'fine robe (legs)': { id:  8, name: 'Fine Robe (Legs)', slot: 'legs',  armor:  7, weight: 0.3 },
     kirtle:             { id: -3, name: 'Kirtle',           slot: 'torso', armor:  6, weight: 0.4 },
-    tabard:             { id: -4, name: 'Tabard',           slot: 'torso', armor:  5, weight: 0.4 },
+    tabard:             { id: -4, name: 'Tabard',           slot: 'legs',  armor:  5, weight: 0.4 },
     'blue pants':       { id: -5, name: 'Blue Pants',       slot: 'legs',  armor: 12, weight: 0.6 },
     sandals:            { id: -6, name: 'Sandals',          slot: 'feet',  armor:  5, weight: 0.6 },
     'hide shield':      { id: -7, name: 'Hide Shield',      slot: 'hands', armor: 16, weight: 1.0 },
@@ -398,25 +402,81 @@ export const STARTER_ARMOR_SLOT_BY_NAME: Record<string, ArmorDef['slot']> = Obje
     Object.entries(STARTER_ARMOR_NAME_OVERRIDES).map(([name, def]) => [name, def.slot]),
 );
 
+export const SOURCE_BACKED_ARMOR_ALLOWED_SLOTS_BY_NAME: Record<string, ArmorSlot[]> = {
+    // The original carry masks allow both neck and torso here.
+    // We keep torso first so default auto-equip preserves the established silhouette.
+    cape: ['torso', 'neck'],
+    'cloak of night': ['torso', 'neck'],
+    robe: ['legs'],
+    'fine robe (body)': ['torso'],
+    'fine robe (legs)': ['legs'],
+    kirtle: ['torso'],
+    'silk shirt': ['torso'],
+    tabard: ['legs'],
+    gunna: ['legs'],
+    'elven doublet': ['torso'],
+    'elven huke': ['legs'],
+    'leather jerkin': ['torso'],
+    tunic: ['torso'],
+    ghi: ['torso'],
+    'mail aketon': ['torso'],
+    'mithral aketon': ['torso'],
+    'torso plate': ['torso'],
+    'plate of lyte': ['torso'],
+    'plate of darc': ['torso'],
+    'barbarian hide': ['torso'],
+    flamebain: ['torso'],
+    halter: ['torso'],
+    'leather pants': ['legs'],
+    'blue pants': ['legs'],
+    'ghi trousers': ['legs'],
+    'leg mail': ['legs'],
+    'mithral mail': ['legs'],
+    'leg plate': ['legs'],
+    'poleyn of lyte': ['legs'],
+    'poleyn of darc': ['legs'],
+    sandals: ['feet'],
+    'suede boots': ['feet'],
+    'leather boots': ['feet'],
+    hosen: ['feet'],
+    'foot plate': ['feet'],
+    'greave of lyte': ['feet'],
+    'greave of darc': ['feet'],
+    'elven boots': ['feet'],
+    'boots of speed': ['feet'],
+    calista: ['head'],
+    'crown of nerra': ['head'],
+    'bezerker helm': ['head'],
+    helmet: ['head'],
+    basinet: ['head'],
+    "casque'n coif": ['head'],
+    armet: ['head'],
+    'helm of lyte': ['head'],
+    'helm of darc': ['head'],
+    buckler: ['hands'],
+    'wooden shield': ['hands'],
+    'small shield': ['hands'],
+    'large shield': ['hands'],
+    'shield of lyte': ['hands'],
+    'shield of darc': ['hands'],
+};
+
 // ─── Potions ──────────────────────────────────────────────────────────────────
 
 const OFFICIAL_POTION_TYPES: Record<number, PotionDef> = {
-     0: { id:  0, name: 'Mon Potion',          effect: 'spellPower', level: 1 },
-     1: { id:  1, name: 'Um Potion',           effect: 'spellPower', level: 2 },
-     2: { id:  2, name: 'Dee Potion',          effect: 'spellPower', level: 3 },
-     3: { id:  3, name: 'Zo Potion',           effect: 'spellPower', level: 4 },
-     4: { id:  4, name: 'Ful Potion',          effect: 'spellPower', level: 5 },
-     8: { id:  8, name: 'Vi Potion',           effect: 'health',     restore: 100 },
-     9: { id:  9, name: 'Ya Potion',           effect: 'stamina',    restore: 100 },
-    10: { id: 10, name: 'Ee Potion',           effect: 'mana',       restore: 100 },
-    11: { id: 11, name: 'Antivenin',           effect: 'poison',     restore: 0 },
-    13: { id: 13, name: 'Ku Potion',           effect: 'strength',   boost: 10, duration: 1000 },
-    14: { id: 14, name: 'Ros Potion',          effect: 'dexterity',  boost: 10, duration: 1000 },
-    15: { id: 15, name: 'Dane Potion',         effect: 'wisdom',     boost: 10, duration: 1000 },
-    16: { id: 16, name: 'Neta Potion',         effect: 'vitality',   boost: 10, duration: 1000 },
-    17: { id: 17, name: 'Mon Potion',          effect: 'antiMagic',  boost: 20, duration: 1000 },
-    18: { id: 18, name: 'Anti-Fire Potion',    effect: 'antiFire',   boost: 20, duration: 1000 },
-    24: { id: 24, name: 'Water Flask',         effect: 'stamina',    restore: 30 },
+     3: { id:  3, name: 'Ven Potion',  effect: 'poisonCloud', drinkable: false, throwable: true },
+     6: { id:  6, name: 'Ros Potion',  effect: 'dexterity',   drinkable: true },
+     7: { id:  7, name: 'Ku Potion',   effect: 'strength',    drinkable: true },
+     8: { id:  8, name: 'Dane Potion', effect: 'wisdom',      drinkable: true },
+     9: { id:  9, name: 'Neta Potion', effect: 'vitality',    drinkable: true },
+    10: { id: 10, name: 'Antivenin',   effect: 'antivenin',   drinkable: true },
+    11: { id: 11, name: 'Mon Potion',  effect: 'stamina',     drinkable: true },
+    12: { id: 12, name: 'Ya Potion',   effect: 'shield',      drinkable: true },
+    13: { id: 13, name: 'Ee Potion',   effect: 'mana',        drinkable: true },
+    14: { id: 14, name: 'Vi Potion',   effect: 'health',      drinkable: true },
+    15: { id: 15, name: 'Water Flask', effect: 'water',       drinkable: true },
+    19: { id: 19, name: 'Ful Bomb',    effect: 'firebomb',    drinkable: false, throwable: true },
+    20: { id: 20, name: 'Empty Flask', effect: 'empty',       drinkable: false },
 };
 
 // ─── Misc ─────────────────────────────────────────────────────────────────────
@@ -567,6 +627,8 @@ function normalizeArmorEntries(): ArmorDef[] {
         ...entry,
         weight: I559_CLOTHS_BY_INDEX.get(entry.id)?.weightKg ?? entry.weight,
         armor: I559_CLOTHS_BY_INDEX.get(entry.id)?.protection ?? entry.armor,
+        sharpDefense: I559_CLOTHS_BY_INDEX.get(entry.id)?.sharpDefense ?? entry.sharpDefense ?? 0,
+        isShield: I559_CLOTHS_BY_INDEX.get(entry.id)?.isShield ?? entry.isShield ?? false,
         name: resolveItemName('Armor', entry.id, entry.name),
     }));
 }
@@ -609,34 +671,34 @@ export const WEAPON_TYPES: Record<number, WeaponDef> = byId(weaponEntries);
 export const ARMOR_TYPES: Record<number, ArmorDef> = byId(armorEntries);
 export const POTION_TYPES: Record<number, PotionDef> = byId(potionEntries);
 export const MISC_TYPES: Record<number, MiscDef> = byId(miscEntries);
+export const I562_WOUND_DEFENSE_FACTORS = Array.from({ length: 6 }, (_, index) =>
+    I562_WOUND_DEFENSE_FACTORS_RAW[index] ?? 0,
+);
 
 const POTION_NAME_TO_RUNTIME_TYPE_ID: Record<string, number> = {
-    'vi potion': 8,
-    'health potion': 8,
-    'ya potion': 9,
-    'stamina potion': 9,
-    'ee potion': 10,
-    'mana potion': 10,
-    antivenin: 11,
-    antidote: 11,
-    'bro potion': 11,
-    'ku potion': 13,
-    'strength potion': 13,
-    'ros potion': 14,
-    'dexterity potion': 14,
-    'dane potion': 15,
-    'wisdom potion': 15,
-    'ninja boost potion': 15,
-    'neta potion': 16,
-    'vitality potion': 16,
-    'wizard boost potion': 16,
-    'mon potion': 17,
-    'shield potion': 17,
-    'anti-magic potion': 17,
-    'anti fire potion': 18,
-    'anti-fire potion': 18,
-    'water flask': 24,
-    'waterskin (water)': 24,
+    'ven potion': 3,
+    'ros potion': 6,
+    'dexterity potion': 6,
+    'ku potion': 7,
+    'strength potion': 7,
+    'dane potion': 8,
+    'wisdom potion': 8,
+    'neta potion': 9,
+    'vitality potion': 9,
+    antivenin: 10,
+    antidote: 10,
+    'bro potion': 10,
+    'mon potion': 11,
+    'stamina potion': 11,
+    'ya potion': 12,
+    'shield potion': 12,
+    'ee potion': 13,
+    'mana potion': 13,
+    'vi potion': 14,
+    'health potion': 14,
+    'water flask': 15,
+    'ful bomb': 19,
+    'empty flask': 20,
 };
 
 export function normalizeLookupName(value: string | undefined): string | null {

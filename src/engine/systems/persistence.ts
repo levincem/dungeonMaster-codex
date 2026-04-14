@@ -1,8 +1,10 @@
 import type { Champion } from '../../data/champions';
 import type { ChampionEquipment, CreatureInstance, FloorItem } from '../../types/game';
 import type {
+    ActivePoisonCloud,
     ActivePotionBoost,
     ChampionCombat,
+    ChampionTemporaryXP,
     ChampionVitals,
     ChampionXP,
     Direction,
@@ -27,6 +29,8 @@ export interface PersistableGameState {
     openWalls: Set<string>;
     activeSensors: Set<string>;
     firedSensors: Set<string>;
+    sensorRuntimeData: Record<string, number>;
+    sensorRotationOffsets: Record<string, number>;
     visibleTexts: Set<string>;
     pendingSensorEvents: unknown[];
     creatures: CreatureInstance[];
@@ -37,14 +41,18 @@ export interface PersistableGameState {
     championManaRegenBlockedUntilTick: Record<number, number>;
     elapsedGameTimeTicks: number;
     regenTickRemainder: number;
+    lastSurvivalEffectGameTick: number;
+    freezeLifeRemainingTicks: number;
     lastPartyMoveGameTick: number;
     movementCooldown: number;
     championXP: Record<number, ChampionXP>;
+    championTemporaryXP: Record<number, ChampionTemporaryXP>;
     championCombat: Record<number, ChampionCombat>;
     crushingDoors: Record<string, { phase: 'closing' | 'bouncing'; timer: number }>;
     torchBurnStart: Record<string, number>;
     spellLights: SpellLight[];
     projectiles: Projectile[];
+    activePoisonClouds: ActivePoisonCloud[];
     activeShields: PartyShield[];
     activePotionBoosts: ActivePotionBoost[];
     invisibleUntil: number;
@@ -53,6 +61,7 @@ export interface PersistableGameState {
     footprintsUntil: number;
     footprintHistory: FootprintEntry[];
     deadChampions: Record<number, Champion>;
+    lastCreatureAttackGameTick: number;
 }
 
 export interface CreatureRuntimeMaps {
@@ -60,6 +69,7 @@ export interface CreatureRuntimeMaps {
     creatureAttackWindows: Map<string, number>;
     creatureConfusedUntil: Map<string, number>;
     creatureFluxcageUntil: Map<string, number>;
+    creatureFrightenedUntil: Map<string, number>;
     creatureLastSeenPartyPos: Map<string, { x: number; y: number; expiresAt: number }>;
 }
 
@@ -74,6 +84,7 @@ export function buildPersistedSaveData(
         ...runtime.creatureAttackWindows.keys(),
         ...runtime.creatureConfusedUntil.keys(),
         ...runtime.creatureFluxcageUntil.keys(),
+        ...runtime.creatureFrightenedUntil.keys(),
     ]);
     const serializedCreatureTimers: Record<string, PersistedCreatureTimers> = {};
     for (const id of timerIds) {
@@ -84,6 +95,7 @@ export function buildPersistedSaveData(
             attackWindowRemainingMs: Math.max(0, (runtime.creatureAttackWindows.get(id) ?? 0) - now),
             confusedRemainingMs: Math.max(0, (runtime.creatureConfusedUntil.get(id) ?? 0) - now),
             fluxcageRemainingMs: Math.max(0, (runtime.creatureFluxcageUntil.get(id) ?? 0) - now),
+            frightenedRemainingMs: Math.max(0, (runtime.creatureFrightenedUntil.get(id) ?? 0) - now),
             lastSeenPartyX: runtime.creatureLastSeenPartyPos.get(id)?.x,
             lastSeenPartyY: runtime.creatureLastSeenPartyPos.get(id)?.y,
             lastSeenPartyRemainingMs: Math.max(0, (runtime.creatureLastSeenPartyPos.get(id)?.expiresAt ?? 0) - now),
@@ -105,6 +117,8 @@ export function buildPersistedSaveData(
         openWalls: [...state.openWalls],
         activeSensors: [...state.activeSensors],
         firedSensors: [...state.firedSensors],
+        sensorRuntimeData: state.sensorRuntimeData,
+        sensorRotationOffsets: state.sensorRotationOffsets,
         visibleTexts: [...state.visibleTexts],
         pendingSensorEvents: state.pendingSensorEvents,
         creatures: state.creatures,
@@ -115,9 +129,12 @@ export function buildPersistedSaveData(
         championManaRegenBlockedUntilTick: state.championManaRegenBlockedUntilTick,
         elapsedGameTimeTicks: state.elapsedGameTimeTicks,
         regenTickRemainder: state.regenTickRemainder,
+        lastSurvivalEffectGameTick: state.lastSurvivalEffectGameTick,
+        freezeLifeRemainingTicks: state.freezeLifeRemainingTicks,
         lastPartyMoveGameTick: state.lastPartyMoveGameTick,
         movementCooldown: state.movementCooldown,
         championXP: state.championXP,
+        championTemporaryXP: state.championTemporaryXP,
         championCombat: state.championCombat,
         crushingDoors: state.crushingDoors,
         torchBurnElapsed: Object.fromEntries(
@@ -132,6 +149,7 @@ export function buildPersistedSaveData(
             ...projectile,
             nextMoveInMs: Math.max(0, projectile.nextMoveAt - now),
         })),
+        activePoisonClouds: state.activePoisonClouds,
         activeShields: state.activeShields.map((shield) => ({
             ...shield,
             remainingMs: Math.max(0, shield.expiresAt - now),
@@ -146,6 +164,7 @@ export function buildPersistedSaveData(
         footprintsRemainingMs: Math.max(0, state.footprintsUntil - now),
         footprintHistory: state.footprintHistory,
         deadChampions: state.deadChampions,
+        lastCreatureAttackGameTick: state.lastCreatureAttackGameTick,
         creatureTimers: serializedCreatureTimers,
     };
 }
@@ -174,6 +193,7 @@ export function restoreExternalCreatureRuntimeFromSave(
     runtime.creatureAttackWindows.clear();
     runtime.creatureConfusedUntil.clear();
     runtime.creatureFluxcageUntil.clear();
+    runtime.creatureFrightenedUntil.clear();
     runtime.creatureLastSeenPartyPos.clear();
 
     for (const [id, timers] of Object.entries(data.creatureTimers)) {
@@ -189,6 +209,9 @@ export function restoreExternalCreatureRuntimeFromSave(
         }
         if (timers.fluxcageRemainingMs > 0) {
             runtime.creatureFluxcageUntil.set(id, now + timers.fluxcageRemainingMs);
+        }
+        if ((timers.frightenedRemainingMs ?? 0) > 0) {
+            runtime.creatureFrightenedUntil.set(id, now + (timers.frightenedRemainingMs ?? 0));
         }
         if (
             timers.lastSeenPartyRemainingMs &&

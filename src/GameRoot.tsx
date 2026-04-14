@@ -32,6 +32,7 @@ function GameRoot() {
   const loadGame = useStore((state) => state.loadGame);
   const closeMirror = useStore((state) => state.closeMirror);
   const closePartyMember = useStore((state) => state.closePartyMember);
+  const wakeUp = useStore((state) => state.wakeUp);
 
   const lastTimeRef = useRef<number | null>(null);
   const tickInFlightRef = useRef(false);
@@ -60,9 +61,11 @@ function GameRoot() {
           const delta = clampFrameDeltaSeconds((now - lastTimeRef.current) / 1000);
           const wallClockNow = Date.now();
           state.tickFrame(delta, wallClockNow);
-          state.tickMonsters(delta);
-          state.tickDoors(delta);
-          state.tickSpells(wallClockNow);
+          if ((state.gamePhase === 'exploration' || state.gamePhase === 'mirror_open') && !state.sleeping) {
+            state.tickMonsters(delta);
+            state.tickDoors(delta);
+            state.tickSpells(wallClockNow);
+          }
         }
 
         lastTimeRef.current = now;
@@ -86,6 +89,7 @@ function GameRoot() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      wakeUp();
       if (e.key === 'Escape') {
         e.preventDefault();
         closeMirror();
@@ -93,9 +97,21 @@ function GameRoot() {
       }
     };
 
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (target instanceof Element && target.closest('[data-sleep-toggle="true"]')) {
+        return;
+      }
+      wakeUp();
+    };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [closeMirror, closePartyMember]);
+    window.addEventListener('pointerdown', handlePointerDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('pointerdown', handlePointerDown);
+    };
+  }, [closeMirror, closePartyMember, wakeUp]);
 
   return (
     <div className="app">
@@ -104,6 +120,10 @@ function GameRoot() {
       ) : gamePhase === 'victory' ? (
         <Suspense fallback={null}>
           <VictoryScreen />
+        </Suspense>
+      ) : gamePhase === 'endgame' ? (
+        <Suspense fallback={null}>
+          <DungeonScene />
         </Suspense>
       ) : (
         <Suspense fallback={null}>

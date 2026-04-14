@@ -14,7 +14,7 @@ import {
     useStore,
     xpToLevel,
 } from '../../engine/store';
-import { MISC_TYPES, resolveItemName } from '../../data/items';
+import { MISC_TYPES, getPotionDef, resolveItemName } from '../../data/items';
 import type { EquipSlotKey } from '../../types/items';
 import type { FloorItem, ChampionEquipment } from '../../types/game';
 import { getEquippedItemImage, getInventoryItemImage } from '../../data/itemImages';
@@ -49,6 +49,16 @@ const SKILL_LEVEL_NAMES: string[] = [
 ];
 
 function getChampionPotionBonusesForSheet(
+    champion: Champion,
+    vitals: { currentStats?: Partial<{
+        luck: number;
+        strength: number;
+        dexterity: number;
+        wisdom: number;
+        vitality: number;
+        antiMagic: number;
+        antiFire: number;
+    }> } | undefined,
     activePotionBoosts: Array<{
         championId: number;
         stat: 'strength' | 'dexterity' | 'wisdom' | 'vitality' | 'antiMagic' | 'antiFire';
@@ -58,7 +68,7 @@ function getChampionPotionBonusesForSheet(
     championId: number,
 ) {
     const now = Date.now();
-    return activePotionBoosts.reduce(
+    const timedBonuses = activePotionBoosts.reduce(
         (sum, boost) => {
             if (boost.championId !== championId || boost.expiresAt <= now) return sum;
             return { ...sum, [boost.stat]: sum[boost.stat] + boost.amount };
@@ -74,6 +84,18 @@ function getChampionPotionBonusesForSheet(
             luck: 0,
         },
     );
+    const currentStats = vitals?.currentStats;
+    if (!currentStats) return timedBonuses;
+    return {
+        ...timedBonuses,
+        strength: timedBonuses.strength + ((currentStats.strength ?? champion.strength) - champion.strength),
+        dexterity: timedBonuses.dexterity + ((currentStats.dexterity ?? champion.dexterity) - champion.dexterity),
+        wisdom: timedBonuses.wisdom + ((currentStats.wisdom ?? champion.wisdom) - champion.wisdom),
+        vitality: timedBonuses.vitality + ((currentStats.vitality ?? champion.vitality) - champion.vitality),
+        antiMagic: timedBonuses.antiMagic + ((currentStats.antiMagic ?? champion.antiMagic) - champion.antiMagic),
+        antiFire: timedBonuses.antiFire + ((currentStats.antiFire ?? champion.antiFire) - champion.antiFire),
+        luck: timedBonuses.luck + ((currentStats.luck ?? champion.luck) - champion.luck),
+    };
 }
 
 function getSkillLevelName(xp: number): string {
@@ -125,7 +147,7 @@ function getItemName(item: FloorItem): string {
 function isConsumable(item: FloorItem): boolean {
     if (isWaterContainer(item)) return canDrinkFromContainer(item);
     if (canDrinkFromContainer(item)) return true;
-    if (item.category === 'Potion') return item.typeId !== 24;
+    if (item.category === 'Potion') return !!getPotionDef(item.typeId, item.rawName)?.drinkable;
     if (item.category === 'Misc') return !!(MISC_TYPES[item.typeId]?.food);
     return false;
 }
@@ -360,7 +382,7 @@ export const ChampionSheet: React.FC = () => {
         activePartyMemberId, party, level, position, direction,
         closePartyMember, openPartyMember, removeFromParty,
         championInventories, championEquipment, championVitals, championXP, firedSensors,
-        equipItem, unequipItem, dropItem, giveItem, giveEquippedItem,
+        equipItem, unequipItem, dropItem, giveItem, giveEquippedItem, sleeping,
         useItem: consumeItem, fillWaterContainer, sleep, saveGame, showTransientMessage, useItemOnFrontWall: frontWallItemAction,
     } = useStore();
     const activePotionBoosts = useStore((s) => s.activePotionBoosts);
@@ -401,7 +423,7 @@ export const ChampionSheet: React.FC = () => {
     const equip      = championEquipment[champion.id]   ?? {};
     const vitals     = championVitals[champion.id];
     const xp         = championXP?.[champion.id];
-    const potionBonuses = getChampionPotionBonusesForSheet(activePotionBoosts, champion.id);
+    const potionBonuses = getChampionPotionBonusesForSheet(champion, vitals, activePotionBoosts, champion.id);
     const effectiveStats = getEffectiveChampionStatsWithBonuses(champion, equip, potionBonuses);
     const weight     = getTotalWeight(equip, inv);
     const maxWeight  = getChampionMaxLoad(champion, equip, vitals?.stamina, vitals?.wounds, potionBonuses);
@@ -549,7 +571,27 @@ export const ChampionSheet: React.FC = () => {
                         {champion.title && <span style={{ fontSize: 12, fontWeight: 'normal', color: T.goldDim, marginLeft: 12 }}>{champion.title}</span>}
                     </div>
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                        <button onClick={() => sleep()} title={text.sleepTitle} style={{ width: 36, height: 36, background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 4, color: T.cream, fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🛏</button>
+                        <button
+                            data-sleep-toggle="true"
+                            onClick={() => sleep()}
+                            title={text.sleepTitle}
+                            style={{
+                                width: 36,
+                                height: 36,
+                                background: sleeping ? 'rgba(120,80,170,0.35)' : T.panelBg,
+                                border: `1px solid ${sleeping ? T.gold : T.panelBorder}`,
+                                borderRadius: 4,
+                                color: T.cream,
+                                fontSize: 18,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                boxShadow: sleeping ? '0 0 14px rgba(180,140,255,0.35)' : 'none',
+                            }}
+                        >
+                            🛏
+                        </button>
                         <button
                             onClick={() => {
                                 triggerSaveFeedback();
@@ -616,7 +658,7 @@ export const ChampionSheet: React.FC = () => {
                                     <span style={{ fontSize: 12, color: T.creamDim }}>{s.label}</span>
                                     <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
                                         <div style={{ width: 50, height: 3, background: 'rgba(0,0,0,0.4)', borderRadius: 2, overflow: 'hidden' }}>
-                                            <div style={{ height: '100%', width: `${s.val}%`, background: s.color, borderRadius: 2 }} />
+                                        <div style={{ height: '100%', width: `${Math.max(0, Math.min(100, s.val))}%`, background: s.color, borderRadius: 2 }} />
                                         </div>
                                         <span style={{ fontSize: 13, fontWeight: 'bold', color: s.color, minWidth: 24, textAlign: 'right' }}>{s.val}</span>
                                     </div>

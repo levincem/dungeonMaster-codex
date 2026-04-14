@@ -42,6 +42,15 @@ Audit de contenu confirmé dans `WORLD_CONTENT_AUDIT.md` :
 | Créatures | 225 | 225 ✓ |
 | Générateurs | 50 | 50 ✓ |
 
+Note importante sur les placements d'items :
+
+- certains objets visuellement “sur le mur” ne sont pas stockés sur la case regardée par le joueur, mais sur la case de sol adjacente qui porte la représentation runtime
+- c'est un comportement normal pour les porte-torches muraux
+- le même phénomène peut apparaître pour certains objets ou parchemins associés à une alcôve murale
+- en conséquence, un audit naïf “coordonnée canonique exacte = coordonnée brute de l'objet” peut produire de faux écarts alors que l'extraction est correcte
+- l'audit items classe désormais ces cas comme `wall_adjacent_or_alcove` ou `nearby_reference_offset` au lieu de les traiter comme des erreurs de parseur
+- les créatures co-occupantes sont filtrées du diff items pour éviter le bruit de diagnostic
+
 ### Graphismes et noms — `sck` + `parse_sck_graphics.cjs` → `public/graphics_db.json`
 
 - 199 noms d'items en anglais (offset 0x47150 de GRAPHICS.DAT)
@@ -196,11 +205,11 @@ Ces données existent dans les fichiers JSON mais ne sont pas encore utilisées 
 | Donnée | Source extraite | Fichier runtime | Statut |
 |---|---|---|---|
 | `carryLocationMasks` (38 entrées) | `atari_i562_stats.json`, `atari_i559_stats.json` | `src/data/equipment.ts` | Règles de slots encore manuelles |
-| Sémantique complète des sorts | `atari_i560_stats.json` (25 sorts) | `src/data/spells.ts` | Liste manuelle, non branchée sur i560 |
-| Valeurs nutritionnelles (foodValues) | `atari_i559_stats.json` | `src/engine/store.ts` | Boucle faim/soif non calée sur l'original |
+| Sémantique complète des sorts | `atari_i560_stats.json` (25 sorts) + `ReDMCSB/SOURCE/ENGINE/{MENUS.C,CHAMPION.C,PROJEXPL.C,INVNTORY.C}` | `src/data/originalSpells.ts`, `src/data/runes.ts`, `src/data/spellRuntime.ts`, `src/engine/store.ts` | Largement branchée : ordre, difficultés, XP de cast, réussite, recovery, projectiles directs, `Open Door`, `Poison Cloud` persistant, `Disrupt Nonmaterial` special-case et potions jetables explosives sont désormais source-backed |
+| Valeurs nutritionnelles (foodValues) | `atari_i559_stats.json` | `src/engine/store.ts` | Branchées pour l'ingestion des aliments ; boucle faim/soif/survie revérifiée contre `CHAMPION.C`, avec nourriture/eau et cadence sommeil/éveil recalées ; reste surtout la validation par playtest long |
 | Rendu des familles de portes | `public/graphics_db.json` (4 familles, 12 frames) | `src/components/Dungeon/Cell.tsx` | Toujours une texture générique |
 | Attaques/drops des créatures | `atari_i559_stats.json` | `src/data/creatures.ts` | `BASE_ATTACK_TYPE_MAP` encore manuel |
-| Timing original (ticks) | `atari_i562_stats.json` | `src/engine/store.ts` | Faim, buffs, certains sorts hors horloge originale |
+| Timing original (ticks) | `atari_i562_stats.json` | `src/engine/store.ts` | Cadence de survie et recovery magique largement réalignées ; certains buffs et quelques cas spéciaux de sorts restent hors horloge originale stricte |
 | Tables UI / zones de drop | `atari_i561_stats.json` | — | Non utilisé (remake 3D, UI différente) |
 | Sons | `atari_i562_stats.json` (22 entrées) | — | Pas de système audio |
 | Palettes et données couleur | `atari_i562_stats.json` | — | Non pertinent pour le rendu 3D |
@@ -209,12 +218,57 @@ Ces données existent dans les fichiers JSON mais ne sont pas encore utilisées 
 
 ## Verdict global
 
+### Update 2026-04-14
+
+- L'ordre canonique des runes a ete recale en comparant les `runeOrdinals` de `atari_i560_stats.json` aux `spellID` Atari.
+- Ordre actif a respecter: `LO, UM, ON, EE, PAL, MON, YA, VI, OH, FUL, DES, ZO, VEN, EW, KATH, IR, BRO, GOR, KU, ROS, DAIN, NETA, RA, SAR`
+- La source runtime active pour les runes et signatures de sorts est `output/game_db.json` puis `src/assets/data/game_db.json`, avec `src/data/runes.ts` comme table d'execution.
+- Le catalogue de sorts regenere par `parse_full` a ete nettoye pour refleter les 25 descripteurs Atari canoniques: plus de `Heal (minor)` / `Heal (major)` speculatifs, retour de `Des Ew` et `Zo Ven`, et realignement des `manaBase` sur les `baseDifficulty` originaux.
+- Les ecoles de lancement dans les exports canoniques suivent les hidden skills Atari: les sorts bases sur `Defend` (par ex. `Darkness`, `Party Shield`, `Fire Shield`, `Mon Potion`) remontent donc vers `Priest`, meme si leur thematique peut sembler plus "fighter" au premier abord.
+- Les sources `ReDMCSB` ont permis de retrouver plusieurs formules runtime directement exploitables:
+  - reussite de cast dans `MENUS.C`: niveau requis = `baseDifficulty + puissance`, puis un test par niveau manquant avec seuil `min(wisdom + 15, 115)`
+  - experience de cast dans `MENUS.C`: `random(8) + (required << 4) + (((power - 1) * baseDifficulty) << 3) + required^2`
+  - energie initiale des projectiles magiques dans `MENUS.C`: `(power + 2) * (4 + (skillLevel << 1))`, bornee a `21..255`
+  - decroissance des projectiles dans `CHAMPION.C`: `10 - min(8, maximumMana >> 3)`
+  - impacts directs `Fireball` / `Lightning Bolt` dans `PROJEXPL.C`
+  - puissance et effets des potions dans `INVNTORY.C`, y compris les ajustements de stats courantes et les formules `Mon/Ya/Ee/Vi`
+- Le snapshot runtime compact regenere par `parse_full` conserve maintenant explicitement la cle `power` sur les objets `Potion`, ce qui etait un trou reel du pipeline.
+- Ces formules sont maintenant branchees dans le runtime TypeScript pour la couche de cast, les projectiles directs les plus simples, `Poison Bolt` avec resistance poison, et les potions jetables explosives (`Ven Potion`, `Ful Bomb`).
+- `Open Door` est de nouveau traite comme un vrai projectile magique avec impact sur porte, au lieu d'un simple toggle instantane de la premiere porte en ligne.
+- `compare_atari_stats_to_game_db.cjs` audite maintenant aussi la copie `i560` packagee dans `game_db.json` et la presence des 25 signatures de sorts canoniques dans le catalogue runtime, pour eviter un nouveau decalage de runes ou de sorts lors d'une regeneration.
+- Ce qui reste encore partiellement interprete plutot que reproduit instruction par instruction:
+  - mitigation et blessures de combat au sens large, car le runtime n'emule pas volontairement certains bugs compilateur du binaire original (`BUG0_41`, `BUG0_45`)
+- `src/data/spells.ts` reste une table legacy de reference.
+- Certains fichiers sous `assets/OriginalDataExtraction/reference_exports/` peuvent conserver des signatures plus anciennes tant qu'ils n'ont pas ete regeneres explicitement. Pour les audits de runes, preferer `atari_i560_stats.json` et le `game_db.json` regenere par `parse_full`.
+
 L'extraction est dans un très bon état. La totalité des fichiers source originaux accessibles sont lus. Les tables Atari ST (i559/i560/i561/i562) sont proprement décodées et constituent une base fiable.
 
 Les blocages restants sont :
 
 1. **`0696.RAW1`** — seul vrai verrou extraction encore ouvert, probablement non critique pour le gameplay de base
-2. **Intégration runtime** — les données existent, elles ne sont pas encore branchées sur plusieurs systèmes (équipement, sorts, faim, portes)
+2. **Intégration runtime** — les données existent encore sans être branchées partout (slots i562, quelques combats/effets spéciaux, rendus de portes)
 3. **Noms d'armures** — 12 placeholders à résoudre, effort mineur
 
 Il n'y a plus de manque d'information qui bloque la fidélité du gameplay principal. Le travail prioritaire est désormais l'intégration, pas l'extraction.
+
+### Update 2026-04-14 (Poison Cloud)
+
+- `Poison Cloud` suit maintenant la logique de `PROJEXPL.C` beaucoup plus directement:
+  - le nuage reste actif sur la case
+  - chaque pulse consomme `3` points d'attaque tant que l'attaque restante est `>= 6`
+  - l'etat est sauvegarde et recharge dans le runtime
+- `Ven Potion` jetee reutilise la meme logique persistante que `Poison Cloud`, avec la `power` conservee par le parser runtime.
+
+### Update 2026-04-14 (Disrupt + Survie)
+
+- `Disrupt Nonmaterial` suit maintenant plus directement `PROJEXPL.C`:
+  - les creatures non materielles standards sur la case subissent le meme impact d'explosion
+  - `Materializer` / `Zytaz` ne peuvent etre touches que pendant leur fenetre d'attaque
+  - leur degat integre la composante aleatoire supplementaire du code source
+- La boucle faim/soif/regen a ete reverifiee contre `CHAMPION.C`:
+  - cadence de survie `64` ticks eveille / `16` ticks endormi
+  - regen mana `maxMana / 40 + 1`, doublee en dormant
+  - consommation `Food` / `Water` et fatigue recalees sur la boucle source
+- L'ingestion `nourriture + eau + potions buvables` reste branchee sur `INVNTORY.C`.
+- Divergence volontaire documentee:
+  - le runtime n'emule pas les bugs compilateur du binaire original qui neutralisaient largement `Anti-Magic` / `Anti-Fire`

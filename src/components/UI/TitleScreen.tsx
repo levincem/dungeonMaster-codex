@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { hasPersistedSave } from '../../engine/saveGame';
 import { miscPath, texturesPath } from '../../data/assetPaths';
 import { useI18n } from '../../i18n';
+import packageInfo from '../../../package.json';
 
 interface Props {
     onEnter: () => void;
@@ -10,6 +11,7 @@ interface Props {
 
 export const TitleScreen = ({ onEnter, onResume }: Props) => {
     const text = useI18n().titleScreen;
+    const appVersion = `v${packageInfo.version}`;
     const [hasSave] = useState(() => hasPersistedSave());
     const [opening, setOpening] = useState(false);
     const [logoVisible, setLogoVisible] = useState(false);
@@ -260,6 +262,21 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
                         transition: 'width 0.8s ease, transform 1.65s ease',
                     }}
                 />
+            </div>
+
+            <div style={{
+                position: 'absolute',
+                left: 14,
+                bottom: 10,
+                color: 'rgba(214, 193, 145, 0.86)',
+                fontSize: 12,
+                letterSpacing: 1.2,
+                fontFamily: '"Courier New", monospace',
+                textShadow: '0 1px 6px rgba(0,0,0,0.85)',
+                pointerEvents: 'none',
+                zIndex: 4,
+            }}>
+                {appVersion}
             </div>
         </div>
     );

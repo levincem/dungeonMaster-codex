@@ -1,12 +1,19 @@
 {
   "summary": {
-    "generatedAt": "2026-04-07T19:01:44.122Z",
+    "generatedAt": "2026-04-14T16:02:09.609Z",
     "creaturesCompared": 28,
     "creaturesWithDifferences": 0,
     "foodsCompared": 8,
     "foodsWithDifferences": 0,
     "weaponsCompared": 20,
-    "clothingCompared": 18
+    "weaponsWithDifferences": 0,
+    "clothingCompared": 18,
+    "clothingWithDifferences": 0,
+    "spellsCompared": 25,
+    "copiedSpellsWithDifferences": 0,
+    "runtimeCatalogSpellCount": 25,
+    "runtimeCatalogHasExpectedCount": true,
+    "runtimeCatalogDuplicateSignatures": 0
   },
   "creatures": [
     {
@@ -21,18 +28,12 @@
         "poisonAttack": 240
       },
       "current": {
-        "name": "Giant Scorpion",
         "baseHP": 150,
         "armor": 55,
         "hitProb": 55,
         "atkSpd": 20,
         "moveSpd": 8,
-        "exp": 20,
-        "poison": true,
-        "attackTypes": [
-          "Physical"
-        ],
-        "drops": []
+        "poisonAttack": 240
       },
       "differences": []
     },
@@ -48,18 +49,12 @@
         "poisonAttack": 15
       },
       "current": {
-        "name": "Swamp Slime",
         "baseHP": 110,
         "armor": 20,
         "hitProb": 20,
         "atkSpd": 32,
         "moveSpd": 15,
-        "exp": 12,
-        "poison": true,
-        "attackTypes": [
-          "Physical"
-        ],
-        "drops": []
+        "poisonAttack": 15
       },
       "differences": []
     },
@@ -75,19 +70,12 @@
         "poisonAttack": 0
       },
       "current": {
-        "name": "Giggler",
         "baseHP": 10,
         "armor": 50,
         "hitProb": 110,
         "atkSpd": 5,
         "moveSpd": 3,
-        "exp": 15,
-        "poison": false,
-        "attackTypes": [
-          "Physical",
-          "Steal"
-        ],
-        "drops": []
+        "poisonAttack": 0
       },
       "differences": []
     },
@@ -103,18 +91,12 @@
         "poisonAttack": 0
       },
       "current": {
-        "name": "Wizard Eye",
         "baseHP": 40,
         "armor": 30,
         "hitProb": 80,
         "atkSpd": 21,
         "moveSpd": 10,
-        "exp": 20,
-        "poison": false,
-        "attackTypes": [
-          "Magic"
-        ],
-        "drops": []
+        "poisonAttack": 0
       },
       "differences": []
     },
@@ -130,18 +112,12 @@
         "poisonAttack": 0
       },
       "current": {
-        "name": "Pain Rat",
         "baseHP": 101,
         "armor": 45,
         "hitProb": 65,
         "atkSpd": 8,
         "moveSpd": 9,
-        "exp": 10,
-        "poison": false,
-        "attackTypes": [
-          "Physical"
-        ],
-        "drops": []
+        "poisonAttack": 0
       },
       "differences": []
     },
@@ -157,18 +133,12 @@
         "poisonAttack": 0
       },
       "current": {
-        "name": "Ruster",
         "baseHP": 60,
         "armor": 100,
         "hitProb": 30,
         "atkSpd": 18,
         "moveSpd": 20,
-        "exp": 15,
-        "poison": false,
-        "attackTypes": [
-          "Rust"
-        ],
-        "drops": []
+        "poisonAttack": 0
       },
       "differences": []
     },
@@ -184,18 +154,12 @@
         "poisonAttack": 0
       },
       "current": {
-        "name": "Screamer",
         "baseHP": 165,
         "armor": 5,
         "hitProb": 5,
         "atkSpd": 10,
         "moveSpd": 120,
-        "exp": 5,
-        "poison": false,
-        "attackTypes": [
-          "Alert"
-        ],
-        "drops": []
+        "poisonAttack": 0
       },
       "differences": []
     },
@@ -211,18 +175,12 @@
         "poisonAttack": 5
       },
       "current": {
-        "name": "Rockpile",
         "baseHP": 50,
         "armor": 170,
         "hitProb": 10,
         "atkSpd": 15,
         "moveSpd": 185,
-        "exp": 30,
-        "poison": true,
-        "attackTypes": [
-          "Physical"
-        ],
-        "drops": []
+        "poisonAttack": 5
       },
       "differences": []
     },
@@ -238,18 +196,12 @@
         "poisonAttack": 0
       },
       "current": {
-        "name": "Ghost",
         "baseHP": 30,
         "armor": 15,
         "hitProb": 80,
         "atkSpd": 16,
         "moveSpd": 11,
-        "exp": 25,
-        "poison": false,
-        "attackTypes": [
-          "StaminaDrain"
-        ],
-        "drops": []
+        "poisonAttack": 0
       },
       "differences": []
     },
@@ -265,18 +217,12 @@
         "poisonAttack": 0
       },
       "current": {
-        "name": "Stone Golem",
         "baseHP": 120,
         "armor": 240,
         "hitProb": 35,
         "atkSpd": 14,
         "moveSpd": 21,
-        "exp": 40,
-        "poison": false,
-        "attackTypes": [
-          "Physical"
-        ],
-        "drops": []
+        "poisonAttack": 0
       },
       "differences": []
     },
@@ -292,19 +238,12 @@
         "poisonAttack": 0
       },
       "current": {
-        "name": "Mummy",
         "baseHP": 33,
         "armor": 25,
         "hitProb": 40,
         "atkSpd": 12,
         "moveSpd": 17,
-        "exp": 25,
-        "poison": false,
-        "attackTypes": [
-          "Physical",
-          "Immobilize"
-        ],
-        "drops": []
+        "poisonAttack": 0
       },
       "differences": []
     },
@@ -320,18 +259,12 @@
         "poisonAttack": 0
       },
       "current": {
-        "name": "Black Flame",
         "baseHP": 80,
         "armor": 45,
         "hitProb": 60,
         "atkSpd": 8,
         "moveSpd": 255,
-        "exp": 30,
-        "poison": false,
-        "attackTypes": [
-          "Fire"
-        ],
-        "drops": []
+        "poisonAttack": 0
       },
       "differences": []
     },
@@ -347,18 +280,12 @@
         "poisonAttack": 0
       },
       "current": {
-        "name": "Skeleton",
         "baseHP": 20,
         "armor": 22,
         "hitProb": 80,
         "atkSpd": 7,
         "moveSpd": 7,
-        "exp": 20,
-        "poison": false,
-        "attackTypes": [
-          "Physical"
-        ],
-        "drops": []
+        "poisonAttack": 0
       },
       "differences": []
     },
@@ -374,19 +301,12 @@
         "poisonAttack": 100
       },
       "current": {
-        "name": "Couatl",
         "baseHP": 39,
         "armor": 42,
         "hitProb": 88,
         "atkSpd": 10,
         "moveSpd": 5,
-        "exp": 35,
-        "poison": true,
-        "attackTypes": [
-          "Physical",
-          "Poison"
-        ],
-        "drops": []
+        "poisonAttack": 100
       },
       "differences": []
     },
@@ -402,19 +322,12 @@
         "poisonAttack": 0
       },
       "current": {
-        "name": "Vexirk",
         "baseHP": 44,
         "armor": 47,
         "hitProb": 90,
         "atkSpd": 20,
         "moveSpd": 10,
-        "exp": 40,
-        "poison": false,
-        "attackTypes": [
-          "Magic",
-          "Physical"
-        ],
-        "drops": []
+        "poisonAttack": 0
       },
       "differences": []
     },
@@ -430,19 +343,12 @@
         "poisonAttack": 35
       },
       "current": {
-        "name": "Magenta Worm",
         "baseHP": 70,
         "armor": 72,
         "hitProb": 35,
         "atkSpd": 19,
         "moveSpd": 18,
-        "exp": 50,
-        "poison": true,
-        "attackTypes": [
-          "Physical",
-          "Poison"
-        ],
-        "drops": []
+        "poisonAttack": 35
       },
       "differences": []
     },
@@ -458,18 +364,12 @@
         "poisonAttack": 0
       },
       "current": {
-        "name": "Trolin",
         "baseHP": 20,
         "armor": 28,
         "hitProb": 41,
         "atkSpd": 8,
         "moveSpd": 13,
-        "exp": 20,
-        "poison": false,
-        "attackTypes": [
-          "Physical"
-        ],
-        "drops": []
+        "poisonAttack": 0
       },
       "differences": []
     },
@@ -485,19 +385,12 @@
         "poisonAttack": 20
       },
       "current": {
-        "name": "Giant Wasp",
         "baseHP": 8,
         "armor": 180,
         "hitProb": 150,
         "atkSpd": 16,
         "moveSpd": 1,
-        "exp": 20,
-        "poison": true,
-        "attackTypes": [
-          "Physical",
-          "Poison"
-        ],
-        "drops": []
+        "poisonAttack": 20
       },
       "differences": []
     },
@@ -513,21 +406,12 @@
         "poisonAttack": 0
       },
       "current": {
-        "name": "Animated Armour",
         "baseHP": 60,
         "armor": 140,
         "hitProb": 70,
         "atkSpd": 6,
         "moveSpd": 14,
-        "exp": 45,
-        "poison": false,
-        "attackTypes": [
-          "Physical"
-        ],
-        "drops": [
-          "Falchion",
-          "TorsoPlateCursed"
-        ]
+        "poisonAttack": 0
       },
       "differences": []
     },
@@ -543,19 +427,12 @@
         "poisonAttack": 0
       },
       "current": {
-        "name": "Materializer",
         "baseHP": 33,
         "armor": 15,
         "hitProb": 65,
         "atkSpd": 18,
         "moveSpd": 5,
-        "exp": 35,
-        "poison": false,
-        "attackTypes": [
-          "Physical",
-          "Teleport"
-        ],
-        "drops": []
+        "poisonAttack": 0
       },
       "differences": []
     },
@@ -571,18 +448,12 @@
         "poisonAttack": 0
       },
       "current": {
-        "name": "Water Elemental",
         "baseHP": 144,
         "armor": 75,
         "hitProb": 50,
         "atkSpd": 25,
         "moveSpd": 25,
-        "exp": 40,
-        "poison": false,
-        "attackTypes": [
-          "Physical"
-        ],
-        "drops": []
+        "poisonAttack": 0
       },
       "differences": []
     },
@@ -598,19 +469,12 @@
         "poisonAttack": 0
       },
       "current": {
-        "name": "Oitu",
         "baseHP": 77,
         "armor": 33,
         "hitProb": 60,
         "atkSpd": 15,
         "moveSpd": 7,
-        "exp": 50,
-        "poison": false,
-        "attackTypes": [
-          "Physical",
-          "Magic"
-        ],
-        "drops": []
+        "poisonAttack": 0
       },
       "differences": []
     },
@@ -626,19 +490,12 @@
         "poisonAttack": 0
       },
       "current": {
-        "name": "Demon",
         "baseHP": 100,
         "armor": 68,
         "hitProb": 75,
         "atkSpd": 14,
         "moveSpd": 10,
-        "exp": 60,
-        "poison": false,
-        "attackTypes": [
-          "Physical",
-          "Fire"
-        ],
-        "drops": []
+        "poisonAttack": 0
       },
       "differences": []
     },
@@ -654,20 +511,12 @@
         "poisonAttack": 0
       },
       "current": {
-        "name": "Lord Chaos",
         "baseHP": 180,
         "armor": 255,
         "hitProb": 130,
         "atkSpd": 22,
         "moveSpd": 12,
-        "exp": 500,
-        "poison": false,
-        "attackTypes": [
-          "Magic",
-          "Physical",
-          "Fire"
-        ],
-        "drops": []
+        "poisonAttack": 0
       },
       "differences": []
     },
@@ -683,19 +532,12 @@
         "poisonAttack": 0
       },
       "current": {
-        "name": "Red Dragon",
         "baseHP": 255,
         "armor": 110,
         "hitProb": 70,
         "atkSpd": 28,
         "moveSpd": 13,
-        "exp": 200,
-        "poison": false,
-        "attackTypes": [
-          "Fire",
-          "Physical"
-        ],
-        "drops": []
+        "poisonAttack": 0
       },
       "differences": []
     },
@@ -711,19 +553,12 @@
         "poisonAttack": 0
       },
       "current": {
-        "name": "Lord Order",
         "baseHP": 180,
         "armor": 255,
         "hitProb": 130,
         "atkSpd": 22,
         "moveSpd": 12,
-        "exp": 100,
-        "poison": false,
-        "attackTypes": [
-          "Physical",
-          "Magic"
-        ],
-        "drops": []
+        "poisonAttack": 0
       },
       "differences": []
     },
@@ -739,19 +574,12 @@
         "poisonAttack": 0
       },
       "current": {
-        "name": "Grey Lord",
         "baseHP": 180,
         "armor": 255,
         "hitProb": 130,
         "atkSpd": 22,
         "moveSpd": 12,
-        "exp": 100,
-        "poison": false,
-        "attackTypes": [
-          "Physical",
-          "Magic"
-        ],
-        "drops": []
+        "poisonAttack": 0
       },
       "differences": []
     },
@@ -769,7 +597,6 @@
       "name": "Apple",
       "atariNutrition": 500,
       "currentNutrition": 500,
-      "currentWeight": 1,
       "different": false
     },
     {
@@ -777,7 +604,6 @@
       "name": "Corn",
       "atariNutrition": 600,
       "currentNutrition": 600,
-      "currentWeight": 1,
       "different": false
     },
     {
@@ -785,7 +611,6 @@
       "name": "Bread",
       "atariNutrition": 650,
       "currentNutrition": 650,
-      "currentWeight": 1,
       "different": false
     },
     {
@@ -793,7 +618,6 @@
       "name": "Cheese",
       "atariNutrition": 820,
       "currentNutrition": 820,
-      "currentWeight": 1,
       "different": false
     },
     {
@@ -801,7 +625,6 @@
       "name": "Screamer Slice",
       "atariNutrition": 550,
       "currentNutrition": 550,
-      "currentWeight": 1,
       "different": false
     },
     {
@@ -809,7 +632,6 @@
       "name": "Worm Round",
       "atariNutrition": 350,
       "currentNutrition": 350,
-      "currentWeight": 1,
       "different": false
     },
     {
@@ -817,7 +639,6 @@
       "name": "Shank",
       "atariNutrition": 990,
       "currentNutrition": 990,
-      "currentWeight": 1,
       "different": false
     },
     {
@@ -825,7 +646,6 @@
       "name": "Dragon Steak",
       "atariNutrition": 1400,
       "currentNutrition": 1400,
-      "currentWeight": 3,
       "different": false
     }
   ],
@@ -840,8 +660,12 @@
         "kineticEnergy": 2
       },
       "current": {
-        "weight": 3
-      }
+        "weight": 1.1,
+        "damage": 8,
+        "atkClass": 0,
+        "kineticEnergy": 2
+      },
+      "differences": []
     },
     {
       "index": 4,
@@ -853,8 +677,12 @@
         "kineticEnergy": 7
       },
       "current": {
-        "weight": 12
-      }
+        "weight": 0.9,
+        "damage": 16,
+        "atkClass": 129,
+        "kineticEnergy": 7
+      },
+      "differences": []
     },
     {
       "index": 8,
@@ -866,8 +694,12 @@
         "kineticEnergy": 19
       },
       "current": {
-        "weight": 3
-      }
+        "weight": 0.5,
+        "damage": 10,
+        "atkClass": 2,
+        "kineticEnergy": 19
+      },
+      "differences": []
     },
     {
       "index": 9,
@@ -879,8 +711,12 @@
         "kineticEnergy": 8
       },
       "current": {
-        "weight": 10
-      }
+        "weight": 3.3,
+        "damage": 30,
+        "atkClass": 0,
+        "kineticEnergy": 8
+      },
+      "differences": []
     },
     {
       "index": 10,
@@ -892,8 +728,12 @@
         "kineticEnergy": 10
       },
       "current": {
-        "weight": 12
-      }
+        "weight": 3.2,
+        "damage": 34,
+        "atkClass": 0,
+        "kineticEnergy": 10
+      },
+      "differences": []
     },
     {
       "index": 11,
@@ -905,8 +745,12 @@
         "kineticEnergy": 10
       },
       "current": {
-        "weight": 7
-      }
+        "weight": 2.6,
+        "damage": 38,
+        "atkClass": 0,
+        "kineticEnergy": 10
+      },
+      "differences": []
     },
     {
       "index": 16,
@@ -918,8 +762,12 @@
         "kineticEnergy": 13
       },
       "current": {
-        "weight": 8
-      }
+        "weight": 3,
+        "damage": 48,
+        "atkClass": 0,
+        "kineticEnergy": 13
+      },
+      "differences": []
     },
     {
       "index": 19,
@@ -931,8 +779,12 @@
         "kineticEnergy": 44
       },
       "current": {
-        "weight": 18
-      }
+        "weight": 6.5,
+        "damage": 70,
+        "atkClass": 2,
+        "kineticEnergy": 44
+      },
+      "differences": []
     },
     {
       "index": 25,
@@ -944,8 +796,12 @@
         "kineticEnergy": 50
       },
       "current": {
-        "weight": 8
-      }
+        "weight": 1,
+        "damage": 1,
+        "atkClass": 20,
+        "kineticEnergy": 50
+      },
+      "differences": []
     },
     {
       "index": 26,
@@ -957,8 +813,12 @@
         "kineticEnergy": 180
       },
       "current": {
-        "weight": 10
-      }
+        "weight": 2.8,
+        "damage": 1,
+        "atkClass": 30,
+        "kineticEnergy": 180
+      },
+      "differences": []
     },
     {
       "index": 27,
@@ -970,8 +830,12 @@
         "kineticEnergy": 10
       },
       "current": {
-        "weight": 1
-      }
+        "weight": 0.2,
+        "damage": 2,
+        "atkClass": 10,
+        "kineticEnergy": 10
+      },
+      "differences": []
     },
     {
       "index": 28,
@@ -983,8 +847,12 @@
         "kineticEnergy": 28
       },
       "current": {
-        "weight": 1
-      }
+        "weight": 0.2,
+        "damage": 2,
+        "atkClass": 10,
+        "kineticEnergy": 28
+      },
+      "differences": []
     },
     {
       "index": 29,
@@ -996,8 +864,12 @@
         "kineticEnergy": 20
       },
       "current": {
-        "weight": 3
-      }
+        "weight": 1.9,
+        "damage": 5,
+        "atkClass": 39,
+        "kineticEnergy": 20
+      },
+      "differences": []
     },
     {
       "index": 30,
@@ -1009,8 +881,12 @@
         "kineticEnergy": 18
       },
       "current": {
-        "weight": 4
-      }
+        "weight": 1,
+        "damage": 6,
+        "atkClass": 11,
+        "kineticEnergy": 18
+      },
+      "differences": []
     },
     {
       "index": 31,
@@ -1022,8 +898,12 @@
         "kineticEnergy": 23
       },
       "current": {
-        "weight": 1
-      }
+        "weight": 0.3,
+        "damage": 7,
+        "atkClass": 12,
+        "kineticEnergy": 23
+      },
+      "differences": []
     },
     {
       "index": 32,
@@ -1035,8 +915,12 @@
         "kineticEnergy": 19
       },
       "current": {
-        "weight": 2
-      }
+        "weight": 0.1,
+        "damage": 3,
+        "atkClass": 1,
+        "kineticEnergy": 19
+      },
+      "differences": []
     },
     {
       "index": 34,
@@ -1048,8 +932,12 @@
         "kineticEnergy": 4
       },
       "current": {
-        "weight": 8
-      }
+        "weight": 2.6,
+        "damage": 12,
+        "atkClass": 129,
+        "kineticEnergy": 4
+      },
+      "differences": []
     },
     {
       "index": 35,
@@ -1061,8 +949,12 @@
         "kineticEnergy": 0
       },
       "current": {
-        "weight": 3
-      }
+        "weight": 0.1,
+        "damage": 0,
+        "atkClass": 130,
+        "kineticEnergy": 0
+      },
+      "differences": []
     },
     {
       "index": 36,
@@ -1074,8 +966,12 @@
         "kineticEnergy": 20
       },
       "current": {
-        "weight": 4
-      }
+        "weight": 0.2,
+        "damage": 1,
+        "atkClass": 140,
+        "kineticEnergy": 20
+      },
+      "differences": []
     },
     {
       "index": 37,
@@ -1087,8 +983,12 @@
         "kineticEnergy": 6
       },
       "current": {
-        "weight": 10
-      }
+        "weight": 3.5,
+        "damage": 18,
+        "atkClass": 128,
+        "kineticEnergy": 6
+      },
+      "differences": []
     }
   ],
   "clothing": [
@@ -1102,9 +1002,12 @@
         "isShield": false
       },
       "current": {
-        "weight": 1,
-        "armor": 0
-      }
+        "weight": 0.3,
+        "armor": 5,
+        "sharpDefense": 1,
+        "isShield": false
+      },
+      "differences": []
     },
     {
       "index": 1,
@@ -1116,9 +1019,12 @@
         "isShield": false
       },
       "current": {
-        "weight": 3,
-        "armor": 6
-      }
+        "weight": 0.4,
+        "armor": 10,
+        "sharpDefense": 1,
+        "isShield": false
+      },
+      "differences": []
     },
     {
       "index": 3,
@@ -1130,9 +1036,12 @@
         "isShield": false
       },
       "current": {
-        "weight": 2,
-        "armor": 2
-      }
+        "weight": 0.6,
+        "armor": 5,
+        "sharpDefense": 2,
+        "isShield": false
+      },
+      "differences": []
     },
     {
       "index": 4,
@@ -1144,9 +1053,12 @@
         "isShield": false
       },
       "current": {
-        "weight": 4,
-        "armor": 6
-      }
+        "weight": 1.6,
+        "armor": 25,
+        "sharpDefense": 4,
+        "isShield": false
+      },
+      "differences": []
     },
     {
       "index": 6,
@@ -1158,9 +1070,12 @@
         "isShield": false
       },
       "current": {
-        "weight": 4,
-        "armor": 5
-      }
+        "weight": 0.4,
+        "armor": 5,
+        "sharpDefense": 0,
+        "isShield": false
+      },
+      "differences": []
     },
     {
       "index": 13,
@@ -1172,9 +1087,12 @@
         "isShield": false
       },
       "current": {
-        "weight": 5,
-        "armor": 10
-      }
+        "weight": 0.3,
+        "armor": 11,
+        "sharpDefense": 2,
+        "isShield": false
+      },
+      "differences": []
     },
     {
       "index": 16,
@@ -1186,9 +1104,12 @@
         "isShield": false
       },
       "current": {
-        "weight": 7,
-        "armor": 14
-      }
+        "weight": 0.6,
+        "armor": 17,
+        "sharpDefense": 3,
+        "isShield": false
+      },
+      "differences": []
     },
     {
       "index": 17,
@@ -1200,9 +1121,12 @@
         "isShield": false
       },
       "current": {
-        "weight": 5,
-        "armor": 8
-      }
+        "weight": 0.8,
+        "armor": 20,
+        "sharpDefense": 3,
+        "isShield": false
+      },
+      "differences": []
     },
     {
       "index": 20,
@@ -1214,9 +1138,12 @@
         "isShield": false
       },
       "current": {
-        "weight": 3,
-        "armor": 4
-      }
+        "weight": 0.5,
+        "armor": 9,
+        "sharpDefense": 1,
+        "isShield": false
+      },
+      "differences": []
     },
     {
       "index": 21,
@@ -1228,9 +1155,12 @@
         "isShield": false
       },
       "current": {
-        "weight": 4,
-        "armor": 8
-      }
+        "weight": 0.5,
+        "armor": 8,
+        "sharpDefense": 1,
+        "isShield": false
+      },
+      "differences": []
     },
     {
       "index": 24,
@@ -1242,9 +1172,12 @@
         "isShield": false
       },
       "current": {
-        "weight": 10,
-        "armor": 28
-      }
+        "weight": 0.6,
+        "armor": 5,
+        "sharpDefense": 4,
+        "isShield": false
+      },
+      "differences": []
     },
     {
       "index": 26,
@@ -1256,9 +1189,12 @@
         "isShield": false
       },
       "current": {
-        "weight": 8,
-        "armor": 15
-      }
+        "weight": 1.4,
+        "armor": 17,
+        "sharpDefense": 5,
+        "isShield": false
+      },
+      "differences": []
     },
     {
       "index": 33,
@@ -1270,9 +1206,12 @@
         "isShield": false
       },
       "current": {
-        "weight": 12,
-        "armor": 18
-      }
+        "weight": 5.3,
+        "armor": 35,
+        "sharpDefense": 5,
+        "isShield": false
+      },
+      "differences": []
     },
     {
       "index": 37,
@@ -1284,9 +1223,12 @@
         "isShield": false
       },
       "current": {
-        "weight": 5,
-        "armor": 8
-      }
+        "weight": 1.6,
+        "armor": 30,
+        "sharpDefense": 6,
+        "isShield": false
+      },
+      "differences": []
     },
     {
       "index": 38,
@@ -1298,9 +1240,12 @@
         "isShield": false
       },
       "current": {
-        "weight": 12,
-        "armor": 22
-      }
+        "weight": 1.9,
+        "armor": 40,
+        "sharpDefense": 7,
+        "isShield": false
+      },
+      "differences": []
     },
     {
       "index": 39,
@@ -1312,9 +1257,12 @@
         "isShield": false
       },
       "current": {
-        "weight": 30,
-        "armor": 40
-      }
+        "weight": 12,
+        "armor": 65,
+        "sharpDefense": 4,
+        "isShield": false
+      },
+      "differences": []
     },
     {
       "index": 40,
@@ -1326,9 +1274,12 @@
         "isShield": false
       },
       "current": {
-        "weight": 18,
-        "armor": 25
-      }
+        "weight": 8,
+        "armor": 56,
+        "sharpDefense": 4,
+        "isShield": false
+      },
+      "differences": []
     },
     {
       "index": 41,
@@ -1340,9 +1291,663 @@
         "isShield": false
       },
       "current": {
-        "weight": 12,
-        "armor": 18
-      }
+        "weight": 2.8,
+        "armor": 37,
+        "sharpDefense": 5,
+        "isShield": false
+      },
+      "differences": []
     }
-  ]
+  ],
+  "spells": [
+    {
+      "index": 0,
+      "atari": {
+        "runeOrdinals": [
+          6,
+          15
+        ],
+        "skillRequired": 2,
+        "spellType": 3,
+        "missileTypeBits": 4,
+        "recoveryTicks": 30
+      },
+      "copied": {
+        "runeOrdinals": [
+          6,
+          15
+        ],
+        "skillRequired": 2,
+        "spellType": 3,
+        "missileTypeBits": 4,
+        "recoveryTicks": 30
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 1,
+      "atari": {
+        "runeOrdinals": [
+          6,
+          16,
+          19
+        ],
+        "skillRequired": 1,
+        "spellType": 3,
+        "missileTypeBits": 6,
+        "recoveryTicks": 18
+      },
+      "copied": {
+        "runeOrdinals": [
+          6,
+          16,
+          19
+        ],
+        "skillRequired": 1,
+        "spellType": 3,
+        "missileTypeBits": 6,
+        "recoveryTicks": 18
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 2,
+      "atari": {
+        "runeOrdinals": [
+          8,
+          13,
+          23
+        ],
+        "skillRequired": 3,
+        "spellType": 3,
+        "missileTypeBits": 3,
+        "recoveryTicks": 45
+      },
+      "copied": {
+        "runeOrdinals": [
+          8,
+          13,
+          23
+        ],
+        "skillRequired": 3,
+        "spellType": 3,
+        "missileTypeBits": 3,
+        "recoveryTicks": 45
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 3,
+      "atari": {
+        "runeOrdinals": [
+          8,
+          12
+        ],
+        "skillRequired": 3,
+        "spellType": 2,
+        "missileTypeBits": 7,
+        "recoveryTicks": 27
+      },
+      "copied": {
+        "runeOrdinals": [
+          8,
+          12
+        ],
+        "skillRequired": 3,
+        "spellType": 2,
+        "missileTypeBits": 7,
+        "recoveryTicks": 27
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 4,
+      "atari": {
+        "runeOrdinals": [
+          8,
+          13,
+          22
+        ],
+        "skillRequired": 3,
+        "spellType": 3,
+        "missileTypeBits": 2,
+        "recoveryTicks": 33
+      },
+      "copied": {
+        "runeOrdinals": [
+          8,
+          13,
+          22
+        ],
+        "skillRequired": 3,
+        "spellType": 3,
+        "missileTypeBits": 2,
+        "recoveryTicks": 33
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 5,
+      "atari": {
+        "runeOrdinals": [
+          8,
+          14,
+          22
+        ],
+        "skillRequired": 4,
+        "spellType": 2,
+        "missileTypeBits": 2,
+        "recoveryTicks": 30
+      },
+      "copied": {
+        "runeOrdinals": [
+          8,
+          14,
+          22
+        ],
+        "skillRequired": 4,
+        "spellType": 2,
+        "missileTypeBits": 2,
+        "recoveryTicks": 30
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 6,
+      "atari": {
+        "runeOrdinals": [
+          8,
+          15,
+          22
+        ],
+        "skillRequired": 4,
+        "spellType": 3,
+        "missileTypeBits": 0,
+        "recoveryTicks": 22
+      },
+      "copied": {
+        "runeOrdinals": [
+          8,
+          15,
+          22
+        ],
+        "skillRequired": 4,
+        "spellType": 3,
+        "missileTypeBits": 0,
+        "recoveryTicks": 22
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 7,
+      "atari": {
+        "runeOrdinals": [
+          9
+        ],
+        "skillRequired": 1,
+        "spellType": 3,
+        "missileTypeBits": 5,
+        "recoveryTicks": 15
+      },
+      "copied": {
+        "runeOrdinals": [
+          9
+        ],
+        "skillRequired": 1,
+        "spellType": 3,
+        "missileTypeBits": 5,
+        "recoveryTicks": 15
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 8,
+      "atari": {
+        "runeOrdinals": [
+          9,
+          15
+        ],
+        "skillRequired": 3,
+        "spellType": 2,
+        "missileTypeBits": 0,
+        "recoveryTicks": 42
+      },
+      "copied": {
+        "runeOrdinals": [
+          9,
+          15
+        ],
+        "skillRequired": 3,
+        "spellType": 2,
+        "missileTypeBits": 0,
+        "recoveryTicks": 42
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 9,
+      "atari": {
+        "runeOrdinals": [
+          9,
+          16,
+          18
+        ],
+        "skillRequired": 4,
+        "spellType": 1,
+        "missileTypeBits": 7,
+        "recoveryTicks": 15
+      },
+      "copied": {
+        "runeOrdinals": [
+          9,
+          16,
+          18
+        ],
+        "skillRequired": 4,
+        "spellType": 1,
+        "missileTypeBits": 7,
+        "recoveryTicks": 15
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 10,
+      "atari": {
+        "runeOrdinals": [
+          9,
+          16,
+          21
+        ],
+        "skillRequired": 4,
+        "spellType": 3,
+        "missileTypeBits": 8,
+        "recoveryTicks": 28
+      },
+      "copied": {
+        "runeOrdinals": [
+          9,
+          16,
+          21
+        ],
+        "skillRequired": 4,
+        "spellType": 3,
+        "missileTypeBits": 8,
+        "recoveryTicks": 28
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 11,
+      "atari": {
+        "runeOrdinals": [
+          10,
+          13
+        ],
+        "skillRequired": 1,
+        "spellType": 2,
+        "missileTypeBits": 3,
+        "recoveryTicks": 20
+      },
+      "copied": {
+        "runeOrdinals": [
+          10,
+          13
+        ],
+        "skillRequired": 1,
+        "spellType": 2,
+        "missileTypeBits": 3,
+        "recoveryTicks": 20
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 12,
+      "atari": {
+        "runeOrdinals": [
+          10,
+          12
+        ],
+        "skillRequired": 1,
+        "spellType": 2,
+        "missileTypeBits": 6,
+        "recoveryTicks": 16
+      },
+      "copied": {
+        "runeOrdinals": [
+          10,
+          12
+        ],
+        "skillRequired": 1,
+        "spellType": 2,
+        "missileTypeBits": 6,
+        "recoveryTicks": 16
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 13,
+      "atari": {
+        "runeOrdinals": [
+          10,
+          15,
+          23
+        ],
+        "skillRequired": 1,
+        "spellType": 3,
+        "missileTypeBits": 1,
+        "recoveryTicks": 12
+      },
+      "copied": {
+        "runeOrdinals": [
+          10,
+          15,
+          23
+        ],
+        "skillRequired": 1,
+        "spellType": 3,
+        "missileTypeBits": 1,
+        "recoveryTicks": 12
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 14,
+      "atari": {
+        "runeOrdinals": [
+          11
+        ],
+        "skillRequired": 1,
+        "spellType": 2,
+        "missileTypeBits": 4,
+        "recoveryTicks": 15
+      },
+      "copied": {
+        "runeOrdinals": [
+          11
+        ],
+        "skillRequired": 1,
+        "spellType": 2,
+        "missileTypeBits": 4,
+        "recoveryTicks": 15
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 15,
+      "atari": {
+        "runeOrdinals": [
+          6,
+          16
+        ],
+        "skillRequired": 2,
+        "spellType": 1,
+        "missileTypeBits": 12,
+        "recoveryTicks": 25
+      },
+      "copied": {
+        "runeOrdinals": [
+          6,
+          16
+        ],
+        "skillRequired": 2,
+        "spellType": 1,
+        "missileTypeBits": 12,
+        "recoveryTicks": 25
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 16,
+      "atari": {
+        "runeOrdinals": [
+          6
+        ],
+        "skillRequired": 2,
+        "spellType": 1,
+        "missileTypeBits": 11,
+        "recoveryTicks": 15
+      },
+      "copied": {
+        "runeOrdinals": [
+          6
+        ],
+        "skillRequired": 2,
+        "spellType": 1,
+        "missileTypeBits": 11,
+        "recoveryTicks": 15
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 17,
+      "atari": {
+        "runeOrdinals": [
+          6,
+          16,
+          20
+        ],
+        "skillRequired": 4,
+        "spellType": 1,
+        "missileTypeBits": 8,
+        "recoveryTicks": 15
+      },
+      "copied": {
+        "runeOrdinals": [
+          6,
+          16,
+          20
+        ],
+        "skillRequired": 4,
+        "spellType": 1,
+        "missileTypeBits": 8,
+        "recoveryTicks": 15
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 18,
+      "atari": {
+        "runeOrdinals": [
+          6,
+          16,
+          21
+        ],
+        "skillRequired": 4,
+        "spellType": 1,
+        "missileTypeBits": 9,
+        "recoveryTicks": 15
+      },
+      "copied": {
+        "runeOrdinals": [
+          6,
+          16,
+          21
+        ],
+        "skillRequired": 4,
+        "spellType": 1,
+        "missileTypeBits": 9,
+        "recoveryTicks": 15
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 19,
+      "atari": {
+        "runeOrdinals": [
+          7
+        ],
+        "skillRequired": 1,
+        "spellType": 1,
+        "missileTypeBits": 14,
+        "recoveryTicks": 32
+      },
+      "copied": {
+        "runeOrdinals": [
+          7
+        ],
+        "skillRequired": 1,
+        "spellType": 1,
+        "missileTypeBits": 14,
+        "recoveryTicks": 32
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 20,
+      "atari": {
+        "runeOrdinals": [
+          7,
+          16
+        ],
+        "skillRequired": 1,
+        "spellType": 1,
+        "missileTypeBits": 10,
+        "recoveryTicks": 26
+      },
+      "copied": {
+        "runeOrdinals": [
+          7,
+          16
+        ],
+        "skillRequired": 1,
+        "spellType": 1,
+        "missileTypeBits": 10,
+        "recoveryTicks": 26
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 21,
+      "atari": {
+        "runeOrdinals": [
+          8,
+          16,
+          19
+        ],
+        "skillRequired": 4,
+        "spellType": 1,
+        "missileTypeBits": 6,
+        "recoveryTicks": 15
+      },
+      "copied": {
+        "runeOrdinals": [
+          8,
+          16,
+          19
+        ],
+        "skillRequired": 4,
+        "spellType": 1,
+        "missileTypeBits": 6,
+        "recoveryTicks": 15
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 22,
+      "atari": {
+        "runeOrdinals": [
+          11,
+          16,
+          22
+        ],
+        "skillRequired": 3,
+        "spellType": 1,
+        "missileTypeBits": 13,
+        "recoveryTicks": 63
+      },
+      "copied": {
+        "runeOrdinals": [
+          11,
+          16,
+          22
+        ],
+        "skillRequired": 3,
+        "spellType": 1,
+        "missileTypeBits": 13,
+        "recoveryTicks": 63
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 23,
+      "atari": {
+        "runeOrdinals": [
+          11,
+          12
+        ],
+        "skillRequired": 2,
+        "spellType": 1,
+        "missileTypeBits": 3,
+        "recoveryTicks": 30
+      },
+      "copied": {
+        "runeOrdinals": [
+          11,
+          12
+        ],
+        "skillRequired": 2,
+        "spellType": 1,
+        "missileTypeBits": 3,
+        "recoveryTicks": 30
+      },
+      "copiedDifferences": []
+    },
+    {
+      "index": 24,
+      "atari": {
+        "runeOrdinals": [
+          11,
+          14,
+          22
+        ],
+        "skillRequired": 0,
+        "spellType": 3,
+        "missileTypeBits": 7,
+        "recoveryTicks": 15
+      },
+      "copied": {
+        "runeOrdinals": [
+          11,
+          14,
+          22
+        ],
+        "skillRequired": 0,
+        "spellType": 3,
+        "missileTypeBits": 7,
+        "recoveryTicks": 15
+      },
+      "copiedDifferences": []
+    }
+  ],
+  "runtimeCatalog": {
+    "count": 25,
+    "signatures": [
+      "FUL",
+      "DES IR SAR",
+      "OH IR RA",
+      "OH EW RA",
+      "OH EW SAR",
+      "FUL IR",
+      "FUL BRO NETA",
+      "OH KATH RA",
+      "OH VEN",
+      "DES VEN",
+      "YA BRO ROS",
+      "ZO",
+      "DES EW",
+      "VI",
+      "VI BRO",
+      "YA",
+      "YA BRO",
+      "ZO BRO RA",
+      "ZO VEN",
+      "FUL BRO KU",
+      "OH BRO ROS",
+      "YA BRO DAIN",
+      "YA BRO NETA",
+      "YA IR",
+      "ZO KATH RA"
+    ],
+    "duplicateSignatures": []
+  }
 }

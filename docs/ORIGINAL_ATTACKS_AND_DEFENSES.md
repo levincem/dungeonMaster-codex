@@ -57,6 +57,29 @@ After adding this source, the attacks/defenses domain should be viewed as:
 - `documented strongly enough to integrate`
 - `still requiring mapping into the remake combat model`
 
+## Current Runtime Status
+
+As of `2026-04-14`, the remake now uses this source more directly for spell/projectile-side damage than it did originally:
+
+- `Fireball`, `Lightning Bolt`, `Poison Cloud`, `Open Door`, and `Disrupt Nonmaterial` now follow source-backed projectile/explosion branches much more closely
+- party-wide spell backlash no longer uses a simple front-row/back-row split and instead uses a spread closer to `F324_aezz_CHAMPION_DamageAll_GetDamagedChampionCount`
+- food, water, drinking, mana regen, stamina regen, and HP regen have been rechecked against `CHAMPION.C` / `INVNTORY.C`
+- creature-vs-champion mitigation now follows the original branching more closely too:
+  - `Sharp` uses the `sharpDefense` path exported from `i559`
+  - `Impact` halves physical defense again
+  - `Mental` is reduced through wisdom instead of the generic anti-magic bucket
+  - `Unconditional` bypasses the normal physical mitigation path
+  - the hand-held shield weighting table from `Graphic 562` is now exposed in the packaged runtime as `woundDefenseFactors = [5,5,4,6,3,1]` and used directly by the remake
+  - active shields are no longer modeled as generic percentages; the runtime now distinguishes additive `physical`, `magic`, and `fire` defense paths like the original engine
+  - creature spellcasters now recreate real ranged projectiles from `GROUP1.C` rather than only instant ranged damage shortcuts
+  - `Poison Cloud` on the party square is now resolved as a normal attack with no wounds, matching `PROJEXPL.C`
+
+Important deliberate divergence:
+
+- the remake does **not** currently emulate the original compiled-game bug (`BUG0_41`) that effectively neutralized much of `Anti-Magic` / `Anti-Fire`
+- instead, those statistics remain active in the runtime because this is closer to the intended design than to the buggy Megamax output
+- `Slime` is still intentionally left as a remaining gap in full projectile-semantics parity
+
 ## Recommended Integration Order
 
 1. Add a structured attack-type table to project data

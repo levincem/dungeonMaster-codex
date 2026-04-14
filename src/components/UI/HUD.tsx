@@ -1,16 +1,9 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import {
-    CRITICAL_FOOD_THRESHOLD,
-    CRITICAL_WATER_THRESHOLD,
-    LOW_FOOD_THRESHOLD,
-    LOW_WATER_THRESHOLD,
-    MAX_FOOD,
-    MAX_WATER,
     useStore,
-    xpToLevel,
 } from '../../engine/store';
 import { playStep, playCry, onSoundPlayed } from '../../engine/sounds';
-import type { ChampionCombat, ChampionXP, GameAction } from '../../engine/runtimeTypes';
+import type { ChampionCombat, ChampionTemporaryXP, ChampionXP, GameAction } from '../../engine/runtimeTypes';
 import { WEAPON_TYPES } from '../../data/items';
 import { getGameMap } from '../../data/mapLoader';
 import type { Champion } from '../../data/champions';
@@ -28,9 +21,9 @@ import {
     getAttackOptionUnusableReason,
     getWeaponAttackOptions,
     isAttackOptionUsableAtMastery,
-    mapOriginalSkillNumberToBasicSkill,
     type WeaponAttackOption,
 } from '../../data/weaponAttacks';
+import { getChampionSkillLevel, mapOriginalSkillNumberToSkillKey } from '../../data/skillProgression';
 
 function getRuneImagePath(runeId: string): string {
     return runesPath(`${runeId}.png`);
@@ -42,8 +35,9 @@ const CombatGrid: React.FC<{
     championCombat: Record<number, ChampionCombat>;
     championEquipment: Record<number, ChampionEquipment>;
     championXP: Record<number, ChampionXP>;
+    championTemporaryXP: Record<number, ChampionTemporaryXP>;
     attackFront: (id: number, attackType?: number) => void;
-}> = ({ party, championCombat, championEquipment, championXP, attackFront }) => {
+}> = ({ party, championCombat, championEquipment, championXP, championTemporaryXP, attackFront }) => {
     const text = useI18n().hud;
     const [flash, setFlash] = useState([false, false, false, false]);
     const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null);
@@ -88,8 +82,12 @@ const CombatGrid: React.FC<{
                 const allAttacks = getWeaponAttackOptions(weapon);
                 const getMasteryForAttack = (attack: WeaponAttackOption) => {
                     if (!champ) return 0;
-                    const skill = mapOriginalSkillNumberToBasicSkill(attack.attack.skillNumber);
-                    return xpToLevel(championXP[champ.id]?.[skill] ?? 0);
+                    const skill = mapOriginalSkillNumberToSkillKey(attack.attack.skillNumber);
+                    return getChampionSkillLevel(
+                        championXP[champ.id],
+                        championTemporaryXP[champ.id],
+                        skill,
+                    );
                 };
                 const usableAttacks = allAttacks.filter((attack) =>
                     isAttackOptionUsableAtMastery(attack, getMasteryForAttack(attack)),
@@ -283,11 +281,6 @@ const FormationSilhouette: React.FC<{
 const CLASS_COLORS: Record<string, string> = {
     Fighter: '#e05040', Ninja: '#40cc70', Wizard: '#a060e0', Priest: '#4090e0',
 };
-function getAlertFrameColor(value: number, lowThreshold: number, criticalThreshold: number): string | undefined {
-    if (value <= criticalThreshold) return '#b83a30';
-    if (value <= lowThreshold) return 'rgba(212, 168, 32, 0.7)';
-    return undefined;
-}
 
 const HandSlot: React.FC<{
     championId: number;
@@ -391,23 +384,19 @@ const VitalsStrip: React.FC<{
     hp: number; maxHp: number;
     sta: number; maxSta: number;
     mana: number; maxMana: number;
-    food: number; maxFood: number;
-    water: number; maxWater: number;
 }> = (
-    { hp, maxHp, sta, maxSta, mana, maxMana, food, maxFood, water, maxWater }
+    { hp, maxHp, sta, maxSta, mana, maxMana }
 ) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: '3px 4px', background: '#060408' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '5px 4px', background: '#060408' }}>
         {([
             { val: hp, max: maxHp, color: '#c0251a', frameColor: undefined },
             { val: sta, max: maxSta, color: '#1e9940', frameColor: undefined },
             { val: mana, max: maxMana, color: '#1a6ec0', frameColor: undefined },
-            { val: food, max: maxFood, color: '#c47b24', frameColor: getAlertFrameColor(food, LOW_FOOD_THRESHOLD, CRITICAL_FOOD_THRESHOLD) },
-            { val: water, max: maxWater, color: '#2d91d0', frameColor: getAlertFrameColor(water, LOW_WATER_THRESHOLD, CRITICAL_WATER_THRESHOLD) },
         ] as const).map(({ val, max, color, frameColor }, i) => (
             <div key={i} style={{
-                height: 3,
+                height: 6,
                 background: '#1a1220',
-                borderRadius: 1,
+                borderRadius: 2,
                 border: frameColor ? `1px solid ${frameColor}` : '1px solid transparent',
                 boxSizing: 'border-box',
                 boxShadow: frameColor ? `0 0 0 1px ${frameColor}18` : undefined,
@@ -416,7 +405,7 @@ const VitalsStrip: React.FC<{
                     height: '100%',
                     width: max > 0 ? `${Math.max(0, Math.min(100, (val / max) * 100))}%` : '0%',
                     background: color,
-                    borderRadius: 1,
+                    borderRadius: 2,
                     transition: 'width 0.4s linear',
                 }} />
             </div>
@@ -547,11 +536,9 @@ const ChampionCard: React.FC<{
                             hp={vitals.hp}       maxHp={champion.health}
                             sta={vitals.stamina} maxSta={champion.stamina}
                             mana={vitals.mana}   maxMana={champion.mana}
-                            food={vitals.food}   maxFood={MAX_FOOD}
-                            water={vitals.water} maxWater={MAX_WATER}
                         />
                     ) : (
-                        <div style={{ height: 23, background: '#050505' }} />
+                        <div style={{ height: 34, background: '#050505' }} />
                     )}
                     {/* Name strip */}
                     <div style={{
@@ -605,15 +592,17 @@ const RuneBtn: React.FC<{
     onClick: () => void;
 }> = ({ runeId, selected, onClick }) => {
     const rune = RUNES_BY_ID[runeId];
+    const auraColor = selected ? 'rgba(182,130,255,0.34)' : 'rgba(140,110,220,0.14)';
 
     return (
         <button
+            onMouseDown={(e) => e.preventDefault()}
             onClick={onClick}
             title={rune?.name}
             style={{
                 flex: '1 1 0',
                 aspectRatio: '1',
-                padding: 2,
+                padding: 1,
                 background: 'rgba(0,0,0,0.94)',
                 border: `1px solid ${selected ? 'rgba(240,196,96,0.95)' : 'rgba(212,184,112,0.72)'}`,
                 borderRadius: 3,
@@ -622,21 +611,47 @@ const RuneBtn: React.FC<{
                 outlineOffset: 1,
                 transition: 'background 0.1s',
                 display: 'flex', flexDirection: 'column',
-                alignItems: 'center', justifyContent: 'center', gap: 2,
+                alignItems: 'center', justifyContent: 'center', gap: 1,
                 minWidth: 0,
                 boxShadow: selected ? '0 0 10px rgba(255,170,48,0.55), inset 0 0 10px rgba(255,196,96,0.18)' : undefined,
+                position: 'relative',
+                overflow: 'hidden',
             }}
         >
+            {selected && (
+                <>
+                    <span style={{
+                        position: 'absolute',
+                        inset: '6% 12%',
+                        borderRadius: '50%',
+                        background: `radial-gradient(circle, ${auraColor} 0%, rgba(166,120,255,0.14) 42%, rgba(166,120,255,0) 74%)`,
+                        filter: 'blur(5px)',
+                        opacity: 0.95,
+                        pointerEvents: 'none',
+                    }} className="rune-arcane-aura" />
+                    <span style={{
+                        position: 'absolute',
+                        inset: '18% 22%',
+                        borderRadius: '50%',
+                        border: '1px solid rgba(198,164,255,0.34)',
+                        boxShadow: '0 0 10px rgba(176,120,255,0.22)',
+                        opacity: 0.8,
+                        pointerEvents: 'none',
+                    }} className="rune-arcane-ring" />
+                </>
+            )}
             <img
                 src={getRuneImagePath(runeId)}
                 alt={rune?.name}
-                style={{ width: '74%', height: '74%', objectFit: 'contain' }}
+                style={{ width: '82%', height: '82%', objectFit: 'contain', position: 'relative', zIndex: 1 }}
                 draggable={false}
             />
             <span style={{
                 fontSize: 9, letterSpacing: 1,
                 color: selected ? '#f0c870' : 'rgba(212,184,112,0.8)',
                 fontFamily: 'monospace', lineHeight: 1,
+                position: 'relative',
+                zIndex: 1,
             }}>
                 {rune?.name?.toUpperCase()}
             </span>
@@ -679,6 +694,13 @@ const MOVEMENT_ACTIONS: Array<{ action: GameAction; icon: string }> = [
 ];
 type RebindingTarget = { action: GameAction; slot: 0 | 1 };
 
+function isTextEntryTarget(target: EventTarget | null): boolean {
+    const element = target as HTMLElement | null;
+    if (!element) return false;
+    if (element.isContentEditable) return true;
+    return ['INPUT', 'TEXTAREA', 'SELECT'].includes(element.tagName);
+}
+
 // ─── HUD ──────────────────────────────────────────────────────────────────────
 export const HUD = () => {
     const text = useI18n().hud;
@@ -687,12 +709,13 @@ export const HUD = () => {
         selectedChampionIndex, selectChampion, openPartyMember, reorderParty,
         moveForward, moveBackward, strafeLeft, strafeRight, turnLeft, turnRight,
         championVitals, castSpell: storeCastSpell, lastCastResult,
-        championXP, championCombat, attackFront, championEquipment, gameOptions,
+        championXP, championTemporaryXP, championCombat, attackFront, championEquipment, gameOptions,
         damageEvents, optionsModalOpen, openOptionsModal, closeOptionsModal, setGameOptions,
         activeFloorDrag, pickupItemToChampion, endFloorDrag, giveItem, giveEquippedItem, equipItem,
         openDoors, openWalls, openPits,
     } = useStore();
     const currentMap = getGameMap(level);
+    const keybindings = gameOptions.keybindings;
     const globalX = (currentMap.mapOffset?.x ?? 0) + position[1];
     const globalY = (currentMap.mapOffset?.y ?? 0) + position[0];
     const frontLocalX = direction === 'EAST' ? position[1] + 1 : direction === 'WEST' ? position[1] - 1 : position[1];
@@ -725,6 +748,10 @@ export const HUD = () => {
     const [rebindingTarget, setRebindingTarget] = useState<RebindingTarget | null>(null);
     const [tutorialModalOpen, setTutorialModalOpen] = useState(false);
     const [tutorialPressedButton, setTutorialPressedButton] = useState<'close' | 'continue' | null>(null);
+    const handleCloseOptionsModal = useCallback(() => {
+        setRebindingTarget(null);
+        closeOptionsModal();
+    }, [closeOptionsModal]);
     const flash = useCallback((key: string, action: () => void) => {
         action();
         if (flashTimer.current) clearTimeout(flashTimer.current);
@@ -749,7 +776,7 @@ export const HUD = () => {
     useEffect(() => {
         const handleKey = (e: KeyboardEvent) => {
             if (optionsModalOpen || tutorialModalOpen) return;
-            if (['INPUT', 'TEXTAREA', 'BUTTON'].includes((e.target as HTMLElement)?.tagName)) return;
+            if (isTextEntryTarget(e.target)) return;
             const { keybindings } = gameOptions;
             if (matchesKeybinding(keybindings.moveForward, e.key)) { e.preventDefault(); move('fwd', moveForward); return; }
             if (matchesKeybinding(keybindings.moveBackward, e.key)) { e.preventDefault(); move('bck', moveBackward); return; }
@@ -763,16 +790,13 @@ export const HUD = () => {
     }, [flash, gameOptions, move, moveForward, moveBackward, optionsModalOpen, tutorialModalOpen, turnLeft, turnRight, strafeLeft, strafeRight]);
 
     useEffect(() => {
-        if (!optionsModalOpen) {
-            if (rebindingTarget !== null) setRebindingTarget(null);
-            return;
-        }
+        if (!optionsModalOpen) return;
 
         const handleRebind = (e: KeyboardEvent) => {
             if (rebindingTarget === null) {
                 if (e.key === 'Escape') {
                     e.preventDefault();
-                    closeOptionsModal();
+                    handleCloseOptionsModal();
                 }
                 return;
             }
@@ -791,19 +815,19 @@ export const HUD = () => {
             setGameOptions({
                 keybindings: {
                     [rebindingTarget.action]: (() => {
-                        const current = [...(gameOptions.keybindings[rebindingTarget.action] ?? [])];
+                        const current = [...(keybindings[rebindingTarget.action] ?? [])];
                         while (current.length < 2) current.push('');
                         current[rebindingTarget.slot] = normalizeBindingKey(e.key);
                         return current.filter((value, index, arr) => value && arr.indexOf(value) === index);
                     })(),
-                } as typeof gameOptions.keybindings,
+                } as typeof keybindings,
             });
             setRebindingTarget(null);
         };
 
         window.addEventListener('keydown', handleRebind, true);
         return () => window.removeEventListener('keydown', handleRebind, true);
-    }, [closeOptionsModal, gameOptions.keybindings, optionsModalOpen, rebindingTarget, setGameOptions]);
+    }, [handleCloseOptionsModal, keybindings, optionsModalOpen, rebindingTarget, setGameOptions]);
 
     // ── Drag-and-drop (champion reorder) ────────────────────────────────────
     const [dragFrom, setDragFrom] = useState<number | null>(null);
@@ -863,9 +887,11 @@ export const HUD = () => {
     const spell = findSpell(selectedRunes);
     const selectedChamp = party[selectedChampionIndex];
     const selectedVitals = selectedChamp ? championVitals[selectedChamp.id] : undefined;
+    const selectedCombat = selectedChamp ? championCombat[selectedChamp.id] : undefined;
 
     // Disable LANCER if no mana or insufficient mana for the matched spell
     const canCast = selectedRunes.length >= 2 && selectedChamp &&
+        (selectedCombat?.cooldown ?? 0) <= 0 &&
         (spell ? (selectedVitals?.mana ?? 0) >= spell.manaCost : true);
     // ── Panel wrapper (subtle border/bg, no title) ──────────────────────────
     const panel: React.CSSProperties = {
@@ -1106,13 +1132,16 @@ export const HUD = () => {
             {/* ── Magie ─────────────────────────────────────────────────── */}
             <div style={panel}>
                 {/* 4 rune slots + cast/clear buttons on same row */}
-                <div style={{ display: 'flex', gap: 4, marginBottom: 6 }}>
+                <div style={{ display: 'flex', gap: 3, marginBottom: 6 }}>
                     {Array.from({ length: 4 }).map((_, i) => {
                         const runeId = selectedRunes[i];
                         const rune = runeId ? RUNES_BY_ID[runeId] : undefined;
                         return (
                             <div
                                 key={i}
+                                onMouseDown={(e) => {
+                                    if (runeId) e.preventDefault();
+                                }}
                                 onClick={() => runeId && setSelectedRunes(prev => prev.slice(0, i))}
                                 title={runeId ? `Retirer ${rune?.name}` : `Slot ${i + 1}`}
                                 style={{
@@ -1122,16 +1151,36 @@ export const HUD = () => {
                                     border: `1px solid ${runeId ? 'rgba(240,196,96,0.95)' : 'rgba(212,184,112,0.58)'}`,
                                     borderRadius: 4,
                                     display: 'flex', flexDirection: 'column',
-                                    alignItems: 'center', justifyContent: 'center', gap: 2,
-                                    cursor: runeId ? 'pointer' : 'default', padding: 3,
+                                    alignItems: 'center', justifyContent: 'center', gap: 0,
+                                    cursor: runeId ? 'pointer' : 'default', padding: 1,
                                     boxShadow: runeId ? '0 0 10px rgba(255,160,32,0.42), inset 0 0 10px rgba(255,196,96,0.16)' : undefined,
+                                    position: 'relative',
+                                    overflow: 'hidden',
                                 }}
                             >
                                 {runeId ? (
                                     <>
+                                        <span style={{
+                                            position: 'absolute',
+                                            inset: '8% 16%',
+                                            borderRadius: '50%',
+                                            background: 'radial-gradient(circle, rgba(176,120,255,0.34) 0%, rgba(166,112,255,0.14) 44%, rgba(166,112,255,0) 74%)',
+                                            filter: 'blur(6px)',
+                                            opacity: 0.95,
+                                            pointerEvents: 'none',
+                                        }} className="rune-arcane-aura" />
+                                        <span style={{
+                                            position: 'absolute',
+                                            inset: '22% 28%',
+                                            borderRadius: '50%',
+                                            border: '1px solid rgba(196,158,255,0.3)',
+                                            boxShadow: '0 0 10px rgba(164,116,255,0.18)',
+                                            opacity: 0.75,
+                                            pointerEvents: 'none',
+                                        }} className="rune-arcane-ring" />
                                         <img src={getRuneImagePath(runeId)} alt=""
-                                            style={{ width: '58%', height: '58%', objectFit: 'contain' }} />
-                                        <span style={{ fontSize: 7, color: '#f0c870', letterSpacing: 1, lineHeight: 1, textShadow: '0 0 6px rgba(255,160,32,0.42)' }}>
+                                            style={{ width: '74%', height: '74%', objectFit: 'contain', position: 'relative', zIndex: 1 }} />
+                                        <span style={{ fontSize: 6, color: '#f0c870', letterSpacing: 0.8, lineHeight: 1, textShadow: '0 0 6px rgba(255,160,32,0.42)', position: 'relative', zIndex: 1, marginTop: -2 }}>
                                             {rune?.name?.toUpperCase()}
                                         </span>
                                     </>
@@ -1159,7 +1208,7 @@ export const HUD = () => {
                             <div style={{ fontSize: 10, color: '#8a7650', fontStyle: 'italic' }}>{text.selectRunes}</div>
                         )}
                     </div>
-                    <button onClick={handleCast} disabled={!canCast} style={{
+                    <button onMouseDown={(e) => e.preventDefault()} onClick={handleCast} disabled={!canCast} style={{
                         padding: '4px 9px',
                         background: canCast ? 'rgba(0,0,0,0.95)' : 'rgba(0,0,0,0.82)',
                         border: `1px solid ${canCast ? 'rgba(212,184,112,0.82)' : 'rgba(212,184,112,0.28)'}`,
@@ -1169,7 +1218,7 @@ export const HUD = () => {
                         cursor: canCast ? 'pointer' : 'default',
                         fontFamily: '"Courier New", monospace', whiteSpace: 'nowrap',
                     }}>✦ {text.cast}</button>
-                    <button onClick={clearRunes} disabled={selectedRunes.length === 0} style={{
+                    <button onMouseDown={(e) => e.preventDefault()} onClick={clearRunes} disabled={selectedRunes.length === 0} style={{
                         padding: '4px 7px',
                         background: selectedRunes.length > 0 ? 'rgba(0,0,0,0.95)' : 'rgba(0,0,0,0.82)',
                         border: `1px solid ${selectedRunes.length > 0 ? 'rgba(212,184,112,0.72)' : 'rgba(212,184,112,0.22)'}`, borderRadius: 4,
@@ -1222,6 +1271,7 @@ export const HUD = () => {
                             championCombat={championCombat}
                             championEquipment={championEquipment}
                             championXP={championXP}
+                            championTemporaryXP={championTemporaryXP}
                             attackFront={attackFront}
                         />
                     </div>

@@ -170,6 +170,13 @@ export function getOriginalSpellPowerLevel(runes: readonly string[]): number | n
     return index >= 0 ? index + 1 : null;
 }
 
+export function getOriginalSpellRequiredSkillLevel(runes: readonly string[]): number | null {
+    const descriptor = getOriginalSpellDescriptorForRunes(runes);
+    const powerLevel = getOriginalSpellPowerLevel(runes);
+    if (!descriptor || !powerLevel) return null;
+    return descriptor.baseDifficulty + powerLevel;
+}
+
 export function getOriginalSpellDisableTimeTicks(runes: readonly string[]): number | null {
     return getOriginalSpellDescriptorForRunes(runes)?.disableTimeTicks ?? null;
 }
@@ -262,9 +269,10 @@ export function getOriginalPotionStrengthRange(runes: readonly string[]): { min:
 export function getOriginalSpellCastXpRange(runes: readonly string[]): { min: number; max: number } | null {
     const descriptor = getOriginalSpellDescriptorForRunes(runes);
     const powerLevel = getOriginalSpellPowerLevel(runes);
-    if (!descriptor || !powerLevel) return null;
+    const requiredSkillLevel = getOriginalSpellRequiredSkillLevel(runes);
+    if (!descriptor || !powerLevel || !requiredSkillLevel) return null;
 
-    const d4 = descriptor.baseDifficulty + powerLevel;
+    const d4 = requiredSkillLevel;
     const base = (16 * d4) + (8 * ((powerLevel - 1) * descriptor.baseDifficulty)) + (d4 * d4);
     return {
         min: base,

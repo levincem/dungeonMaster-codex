@@ -204,6 +204,30 @@
     "Index 10 is the neck slot.",
     "Indices 30-37 are chest contents and are not part of CarryLocation[38]."
   ],
+  "woundDefenseFactors": [
+    5,
+    5,
+    4,
+    6,
+    3,
+    1
+  ],
+  "underscoreCharacterString": [
+    95,
+    0
+  ],
+  "renameChampionInputCharacterString": [
+    32,
+    0
+  ],
+  "reincarnateSpecialCharacters": [
+    44,
+    46,
+    59,
+    58,
+    32,
+    0
+  ],
   "defaultGraphicList": [
     1872,
     0,

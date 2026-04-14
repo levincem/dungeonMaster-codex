@@ -59,6 +59,7 @@ export interface SensorObject {
     data: number;
     graphic: number;
     isLocal: boolean;
+    multipleValue?: number;
     delay: number;
     sound: boolean;
     revert: boolean;
@@ -69,6 +70,8 @@ export interface SensorObject {
     targetGlobalY?: number;
     targetGlobalX?: number;
     targetDir: CardinalDir;
+    kineticEnergy?: number;
+    stepEnergy?: number;
     requiredObjectType?: number;
     requiredObjectName?: string;
 }
@@ -118,6 +121,7 @@ export interface PotionObject {
     globalX?: number;
     globalY?: number;
     type: number;
+    power?: number;
 }
 
 export interface ScrollObject {
@@ -231,6 +235,7 @@ export interface FloorItem {
     tilePos: CardinalDir;
     actionCharges?: number;
     actionMaxCharges?: number;
+    potionPower?: number;
     waterCharges?: number;
     waterMaxCharges?: number;
     /** Set on bones items (Misc typeId 5) - links to the dead champion's id */

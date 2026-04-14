@@ -301,7 +301,7 @@
     },
     {
       "id": 9,
-      "symbol": "KATH",
+      "symbol": "FUL",
       "row": "element1",
       "uiPos": [
         1,
@@ -310,7 +310,7 @@
     },
     {
       "id": 10,
-      "symbol": "FUL",
+      "symbol": "DES",
       "row": "element1",
       "uiPos": [
         1,
@@ -319,7 +319,7 @@
     },
     {
       "id": 11,
-      "symbol": "DES",
+      "symbol": "ZO",
       "row": "element1",
       "uiPos": [
         1,
@@ -328,7 +328,7 @@
     },
     {
       "id": 12,
-      "symbol": "ZO",
+      "symbol": "VEN",
       "row": "form",
       "uiPos": [
         2,
@@ -337,7 +337,7 @@
     },
     {
       "id": 13,
-      "symbol": "NETA",
+      "symbol": "EW",
       "row": "form",
       "uiPos": [
         2,
@@ -346,7 +346,7 @@
     },
     {
       "id": 14,
-      "symbol": "VEN",
+      "symbol": "KATH",
       "row": "form",
       "uiPos": [
         2,
@@ -355,7 +355,7 @@
     },
     {
       "id": 15,
-      "symbol": "KU",
+      "symbol": "IR",
       "row": "form",
       "uiPos": [
         2,
@@ -364,7 +364,7 @@
     },
     {
       "id": 16,
-      "symbol": "IR",
+      "symbol": "BRO",
       "row": "form",
       "uiPos": [
         2,
@@ -373,7 +373,7 @@
     },
     {
       "id": 17,
-      "symbol": "BRO",
+      "symbol": "GOR",
       "row": "form",
       "uiPos": [
         2,
@@ -382,7 +382,7 @@
     },
     {
       "id": 18,
-      "symbol": "GOR",
+      "symbol": "KU",
       "row": "alignment",
       "uiPos": [
         3,
@@ -391,7 +391,7 @@
     },
     {
       "id": 19,
-      "symbol": "SAR",
+      "symbol": "ROS",
       "row": "alignment",
       "uiPos": [
         3,
@@ -400,7 +400,7 @@
     },
     {
       "id": 20,
-      "symbol": "ROS",
+      "symbol": "DAIN",
       "row": "alignment",
       "uiPos": [
         3,
@@ -409,7 +409,7 @@
     },
     {
       "id": 21,
-      "symbol": "EW",
+      "symbol": "NETA",
       "row": "alignment",
       "uiPos": [
         3,
@@ -427,7 +427,7 @@
     },
     {
       "id": 23,
-      "symbol": "DAIN",
+      "symbol": "SAR",
       "row": "alignment",
       "uiPos": [
         3,
@@ -437,9 +437,9 @@
   ],
   "spells": [
     {
-      "name": "Torch (light)",
+      "name": "Torch",
       "runes": [
-        10
+        9
       ],
       "runeStr": "FUL",
       "effect": "Creates a magic torch in hand",
@@ -450,97 +450,97 @@
     {
       "name": "Darkness",
       "runes": [
-        11,
-        16,
-        19
+        10,
+        15,
+        23
       ],
       "runeStr": "DES IR SAR",
       "effect": "Extinguishes all light sources nearby",
-      "skill": "Wizard",
-      "manaBase": 2
+      "skill": "Priest",
+      "manaBase": 1
     },
     {
-      "name": "Light (Oh Ir Ra)",
+      "name": "Light",
       "runes": [
         8,
-        16,
+        15,
         22
       ],
       "runeStr": "OH IR RA",
       "effect": "Creates a powerful sustained light",
       "skill": "Wizard",
-      "manaBase": 3,
+      "manaBase": 4,
       "note": "Confirmed: \"LIGHT / OH IR RA\""
     },
     {
-      "name": "Magic Vision",
+      "name": "See Through Walls",
       "runes": [
         8,
-        21,
+        13,
         22
       ],
       "runeStr": "OH EW RA",
-      "effect": "Reveals invisible objects and secret doors",
+      "effect": "Lets the party see through walls while keeping them solid",
       "skill": "Wizard",
-      "manaBase": 4,
+      "manaBase": 3,
       "note": "Confirmed: \"OH EW RA BESTOWS MAGIC VISION\""
     },
     {
       "name": "Invisibility",
       "runes": [
         8,
-        21,
-        19
+        13,
+        23
       ],
       "runeStr": "OH EW SAR",
       "effect": "Makes the party invisible to monsters",
       "skill": "Wizard",
-      "manaBase": 5,
+      "manaBase": 3,
       "note": "Confirmed: \"INVISIBILITY / OH EW SAR\""
     },
     {
       "name": "Fireball",
       "runes": [
-        10,
-        16
+        9,
+        15
       ],
       "runeStr": "FUL IR",
       "effect": "Launches a fireball projectile",
       "skill": "Wizard",
-      "manaBase": 4,
+      "manaBase": 3,
       "note": "Confirmed: \"FIREBALL / FUL IR\""
     },
     {
       "name": "Fire Shield",
       "runes": [
-        10,
-        17,
-        13
+        9,
+        16,
+        21
       ],
       "runeStr": "FUL BRO NETA",
-      "effect": "Creates a protective fire shield potion",
-      "skill": "Wizard",
-      "manaBase": 3,
+      "effect": "Surrounds the party with a protective fire shield",
+      "skill": "Priest",
+      "manaBase": 4,
       "note": "Confirmed: \"FIRE SHIELD / FUL BRO NETA\""
     },
     {
       "name": "Lightning Bolt",
       "runes": [
         8,
-        9,
+        14,
         22
       ],
       "runeStr": "OH KATH RA",
       "effect": "Launches a lightning bolt",
       "skill": "Wizard",
-      "manaBase": 5,
+      "manaBase": 4,
       "note": "Confirmed: \"LIGHTNING BOLT / OH KATH RA\""
     },
     {
       "name": "Poison Cloud",
       "runes": [
         8,
-        14
+        12
       ],
       "runeStr": "OH VEN",
       "effect": "Casts a cloud of poison in front of party",
@@ -551,205 +551,201 @@
     {
       "name": "Poison Bolt",
       "runes": [
-        11,
-        14,
-        20
+        10,
+        12
       ],
       "runeStr": "DES VEN",
       "effect": "Conjures a poison bolt projectile",
       "skill": "Wizard",
-      "manaBase": 3,
+      "manaBase": 1,
       "note": "Confirmed: \"DES VEN WILL CONJURE A POISON SPELL\""
     },
     {
       "name": "Magic Footprints",
       "runes": [
         6,
-        17,
-        20
+        16,
+        19
       ],
       "runeStr": "YA BRO ROS",
       "effect": "Creates glowing footprints to mark your path",
-      "skill": "Priest",
-      "manaBase": 2,
+      "skill": "Wizard",
+      "manaBase": 1,
       "note": "Confirmed: \"YA BRO ROS LEAVES A TRAIL OF MAGIC FOOTPRINTS\""
     },
     {
       "name": "Open Door",
       "runes": [
-        12
+        11
       ],
       "runeStr": "ZO",
       "effect": "Opens certain locked doors",
-      "skill": "Priest",
-      "manaBase": 2,
+      "skill": "Wizard",
+      "manaBase": 1,
       "note": "Confirmed: \"SOME DOORS CAN BE OPENED WITH A ZO SPELL\""
     },
     {
-      "name": "Heal (minor)",
+      "name": "Weaken Nonmaterial Beings",
       "runes": [
-        8,
-        17
+        10,
+        13
       ],
-      "runeStr": "OH BRO",
-      "effect": "Heals light wounds of one champion",
-      "skill": "Priest",
-      "manaBase": 3
+      "runeStr": "DES EW",
+      "effect": "Launches a magical projectile effective against nonmaterial beings",
+      "skill": "Wizard",
+      "manaBase": 1,
+      "note": "Confirmed: \"THE SPELL DES EW WEAKENS NONMATERIAL BEINGS\""
     },
     {
-      "name": "Heal (major)",
+      "name": "Vi Potion",
       "runes": [
-        8,
-        17,
-        22
+        7
       ],
-      "runeStr": "OH BRO RA",
-      "effect": "Heals moderate wounds of one champion",
+      "runeStr": "VI",
+      "effect": "Creates a Vi potion (cast into empty flask)",
       "skill": "Priest",
-      "manaBase": 5
-    },
-    {
-      "name": "Health Potion",
-      "runes": [
-        7,
-        17,
-        22
-      ],
-      "runeStr": "VI BRO RA",
-      "effect": "Creates a health potion (cast into empty flask)",
-      "skill": "Priest",
-      "manaBase": 4,
+      "manaBase": 1,
       "note": "Confirmed: \"CASTING VI / INTO A FLASK CREATES A SERUM THAT HEALS WOUNDS\""
     },
     {
-      "name": "Antidote Potion",
+      "name": "Antivenin",
       "runes": [
         7,
-        17
+        16
       ],
       "runeStr": "VI BRO",
-      "effect": "Creates an antidote/anti-poison potion (cast into empty flask)",
+      "effect": "Creates an antivenin potion (cast into empty flask)",
       "skill": "Priest",
-      "manaBase": 3,
+      "manaBase": 1,
       "note": "Confirmed: \"CASTING VI BRO INTO A FLASK CREATES A SERUM FOR CURING POISON\""
     },
     {
-      "name": "Stamina Potion",
+      "name": "Ya Potion",
       "runes": [
         6
       ],
       "runeStr": "YA",
-      "effect": "Creates a stamina potion (cast into empty flask)",
-      "skill": "Fighter",
+      "effect": "Creates a Ya potion (cast into empty flask)",
+      "skill": "Priest",
       "manaBase": 2,
       "note": "Confirmed: \"YA WILL CREATE A STAMINA POTION\""
     },
     {
-      "name": "Shield Potion",
+      "name": "Mon Potion",
       "runes": [
         6,
-        17
+        16
       ],
       "runeStr": "YA BRO",
-      "effect": "Creates a magic shield potion (cast into empty flask)",
-      "skill": "Fighter",
-      "manaBase": 3,
+      "effect": "Creates a Mon potion (cast into empty flask)",
+      "skill": "Priest",
+      "manaBase": 2,
       "note": "Confirmed: \"SHIELD POTION / YA BRO\" and \"YA BRO CREATES A MAGICAL SHIELD POTION\""
     },
     {
-      "name": "Mana Potion",
+      "name": "Ee Potion",
       "runes": [
-        12,
-        17,
+        11,
+        16,
         22
       ],
       "runeStr": "ZO BRO RA",
-      "effect": "Creates a mana potion (cast into empty flask)",
-      "skill": "Wizard",
-      "manaBase": 4,
+      "effect": "Creates an Ee potion (cast into empty flask)",
+      "skill": "Priest",
+      "manaBase": 3,
       "note": "Confirmed: \"ZO BRO RA CREATES A PURE MANA POTION\""
     },
     {
-      "name": "Fighter Boost Potion",
+      "name": "Ven Potion",
       "runes": [
-        10,
-        17,
-        15
+        11,
+        12
       ],
-      "runeStr": "FUL BRO KU",
-      "effect": "Creates a potion boosting Fighter skills",
-      "skill": "Fighter",
-      "manaBase": 4,
-      "note": "Confirmed in dungeon text"
+      "runeStr": "ZO VEN",
+      "effect": "Creates a Ven potion (cast into empty flask)",
+      "skill": "Wizard",
+      "manaBase": 2
     },
     {
-      "name": "Priest Boost Potion",
+      "name": "Ku Potion",
       "runes": [
-        8,
-        17,
-        20
+        9,
+        16,
+        18
       ],
-      "runeStr": "OH BRO ROS",
-      "effect": "Creates a potion boosting Priest skills",
+      "runeStr": "FUL BRO KU",
+      "effect": "Creates a Ku potion (cast into empty flask)",
       "skill": "Priest",
       "manaBase": 4,
       "note": "Confirmed in dungeon text"
     },
     {
-      "name": "Ninja Boost Potion",
+      "name": "Ros Potion",
+      "runes": [
+        8,
+        16,
+        19
+      ],
+      "runeStr": "OH BRO ROS",
+      "effect": "Creates a Ros potion (cast into empty flask)",
+      "skill": "Priest",
+      "manaBase": 4,
+      "note": "Confirmed in dungeon text"
+    },
+    {
+      "name": "Dane Potion",
       "runes": [
         6,
-        17,
-        23
+        16,
+        20
       ],
       "runeStr": "YA BRO DAIN",
-      "effect": "Creates a potion boosting Ninja skills",
-      "skill": "Ninja",
+      "effect": "Creates a Dane potion (cast into empty flask)",
+      "skill": "Priest",
       "manaBase": 4,
       "note": "Confirmed in dungeon text"
     },
     {
-      "name": "Wizard Boost Potion",
+      "name": "Neta Potion",
       "runes": [
         6,
-        17,
-        13
+        16,
+        21
       ],
       "runeStr": "YA BRO NETA",
-      "effect": "Creates a potion boosting Wizard skills",
-      "skill": "Wizard",
+      "effect": "Creates a Neta potion (cast into empty flask)",
+      "skill": "Priest",
       "manaBase": 4,
       "note": "Confirmed in dungeon text"
     },
     {
-      "name": "Magic Shield",
+      "name": "Party Shield",
       "runes": [
         6,
-        16
+        15
       ],
       "runeStr": "YA IR",
       "effect": "Surrounds party with a defensive magical shield",
-      "skill": "Fighter",
-      "manaBase": 3,
+      "skill": "Priest",
+      "manaBase": 2,
       "note": "Confirmed: \"MAGIC SHIELD / YA IR\""
     },
     {
       "name": "Zokathra",
       "runes": [
-        12,
-        15,
-        9,
+        11,
+        14,
         22
       ],
       "runeStr": "ZO KATH RA",
       "effect": "Creates a plasma bolt that can melt certain magical barriers (needed for Gem)",
       "skill": "Wizard",
-      "manaBase": 6,
+      "manaBase": 0,
       "note": "Confirmed: \"ZOKATHRA MIGHT CREATE A PLASMA THAT COULD BURN THROUGH THE AMALGAM\""
     }
   ],
   "spellCastingRules": {
-    "castingOrder": "Power rune first, then 1-3 additional runes in any order",
+    "castingOrder": "Power rune first, then 1-3 additional runes in the exact spell order",
     "maxRunes": 4,
     "failureIfNoMana": true,
     "skillEffect": "Higher skill level increases damage/duration/effect and reduces mana waste",
@@ -10696,6 +10692,30 @@
       }
     },
     "i562": {
+      "woundDefenseFactors": [
+        5,
+        5,
+        4,
+        6,
+        3,
+        1
+      ],
+      "underscoreCharacterString": [
+        95,
+        0
+      ],
+      "renameChampionInputCharacterString": [
+        32,
+        0
+      ],
+      "reincarnateSpecialCharacters": [
+        44,
+        46,
+        59,
+        58,
+        32,
+        0
+      ],
       "dropOrder": [
         5,
         4,

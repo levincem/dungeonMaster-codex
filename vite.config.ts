@@ -20,10 +20,29 @@ export default defineConfig({
 
           if (normalizedId.includes('/node_modules/')) {
             if (
-              normalizedId.includes('/three/') ||
-              normalizedId.includes('/@react-three/')
+              normalizedId.includes('/react/') ||
+              normalizedId.includes('/react-dom/') ||
+              normalizedId.includes('/scheduler/')
             ) {
-              return 'three-vendor'
+              return 'react-vendor'
+            }
+
+            if (
+              normalizedId.includes('/three/') ||
+              normalizedId.includes('/photons2/')
+            ) {
+              return 'three-core'
+            }
+
+            if (normalizedId.includes('/@react-three/')) {
+              return 'three-r3f'
+            }
+
+            if (
+              normalizedId.includes('/framer-motion/') ||
+              normalizedId.includes('/lucide-react/')
+            ) {
+              return 'ui-vendor'
             }
 
             return 'vendor'

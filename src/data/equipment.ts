@@ -1,5 +1,5 @@
 import type { Champion } from './champions';
-import { getArmorDef, getWeaponAllowedSlotsMask, MISC_TYPES, STARTER_ARMOR_SLOT_BY_NAME, normalizeLookupName, WEAPON_TYPES } from './items';
+import { getArmorDef, getWeaponAllowedSlotsMask, MISC_TYPES, SOURCE_BACKED_ARMOR_ALLOWED_SLOTS_BY_NAME, STARTER_ARMOR_SLOT_BY_NAME, normalizeLookupName, WEAPON_TYPES } from './items';
 import type { ChampionEquipment, FloorItem } from '../types/game';
 import type { ArmorSlot, EquipSlotKey } from '../types/items';
 
@@ -113,6 +113,10 @@ export function getEquippableSlots(item: FloorItem): EquipSlotKey[] {
         case 'Armor': {
             const def = getArmorDef(item.typeId, item.rawName);
             const rawName = normalizeLookupName(item.rawName) ?? '';
+            const sourceBackedSlots = SOURCE_BACKED_ARMOR_ALLOWED_SLOTS_BY_NAME[rawName];
+            if (sourceBackedSlots && sourceBackedSlots.length > 0) {
+                return sourceBackedSlots.map((slot) => ARMOR_SLOT_TO_EQUIP_SLOT[slot]);
+            }
             const overriddenSlot = STARTER_ARMOR_SLOT_BY_NAME[rawName];
             if (overriddenSlot) return [overriddenSlot];
             if (!def) return [];

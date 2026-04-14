@@ -20,6 +20,9 @@ The item art coverage is now in good shape overall.
 
 - Champion starter equipment in the Hall of Champions still depends on raw Hall tile object decoding.
 - That means the visual mapping is stronger than before, but starter loadouts should still be cross-checked against the trusted hero equipment lists before calling them fully canonical.
+- `Tabard` is now confirmed from the original carry-location masks as a `legs` item; the same slot-family cleanup also covers `Robe`, `Gunna`, `Elven Huke` and `Mithral Mail`, so the runtime equip-slot layer should prefer the source-backed slot masks over older manual slot assumptions for this clothing group.
+- `Cape` and `Cloak of Night` are dual-slot items in the original carry masks (`torso` and `neck`).
+  The runtime now keeps `torso` as the default auto-equip preference so existing starter silhouettes do not jump unexpectedly, while still allowing manual equip on `neck`.
 
 There is no longer a single obvious missing runtime mapping on the item art side.
 

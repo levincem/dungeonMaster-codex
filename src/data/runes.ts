@@ -1,11 +1,17 @@
 // --- DM1 Rune system ----------------------------------------------------------
-// 4 families x 6 runes = 24 runes total.
+// 4 panel rows x 6 runes = 24 runes total.
 // Source of truth: canonical runtime data derived from `src/assets/data/game_db.json`
 //
+// Important:
+// - the rune ordinals must match the original Atari spell IDs
+// - after the power row, the visible panel rows are NOT grouped by semantic family
+// - the internal family buckets below are therefore used as row/stage groupings for the UI
+//
 // Casting rule: power rune FIRST, then 1-3 additional runes.
-// mana cost = round(manaBase x manaFactor / 8)
+// mana cost = floor(manaBase x manaFactor / 8)
 // manaFactor per power rune: LO=8, UM=12, ON=16, EE=20, PAL=24, MON=28
 import { getOriginalCastSkillForRunes, getOriginalSpellDescriptorForRunes } from './originalSpells';
+import { mapOriginalSkillNumberToSkillKey, type SkillKey } from './skillProgression';
 
 export type RuneFamily = 'power' | 'element' | 'form' | 'alignment';
 export type CastSkill  = 'fighter' | 'ninja' | 'priest' | 'wizard';
@@ -13,8 +19,8 @@ export type CastSkill  = 'fighter' | 'ninja' | 'priest' | 'wizard';
 export interface RuneDef {
     id: string;          // lowercase key, matches public/runes/{id}_on/off.png
     name: string;
-    family: RuneFamily;
-    level: number;       // 1-6 within family (column in game_db uiPos)
+    family: RuneFamily;  // UI row/stage bucket used by the casting panel
+    level: number;       // 1-6 within the visible row (column in game_db uiPos)
     manaFactor?: number; // power runes only
     hasImage: boolean;
 }
@@ -29,29 +35,29 @@ export const RUNES: RuneDef[] = [
     { id: 'pal',  name: 'Pal',  family: 'power',     level: 5, manaFactor: 24, hasImage: true },
     { id: 'mon',  name: 'Mon',  family: 'power',     level: 6, manaFactor: 28, hasImage: true },
 
-    // -- Element (row 1) --------------------------------------------------------
+    // -- Row 1 after power ------------------------------------------------------
     { id: 'ya',   name: 'Ya',   family: 'element',   level: 1, hasImage: true },
     { id: 'vi',   name: 'Vi',   family: 'element',   level: 2, hasImage: true },
     { id: 'oh',   name: 'Oh',   family: 'element',   level: 3, hasImage: true },
-    { id: 'kath', name: 'Kath', family: 'element',   level: 4, hasImage: true },
-    { id: 'ful',  name: 'Ful',  family: 'element',   level: 5, hasImage: true },
-    { id: 'des',  name: 'Des',  family: 'element',   level: 6, hasImage: true },
+    { id: 'ful',  name: 'Ful',  family: 'element',   level: 4, hasImage: true },
+    { id: 'des',  name: 'Des',  family: 'element',   level: 5, hasImage: true },
+    { id: 'zo',   name: 'Zo',   family: 'element',   level: 6, hasImage: true },
 
-    // -- Form (row 2) -----------------------------------------------------------
-    { id: 'zo',   name: 'Zo',   family: 'form',      level: 1, hasImage: true },
-    { id: 'neta', name: 'Neta', family: 'form',      level: 2, hasImage: true },
-    { id: 'ven',  name: 'Ven',  family: 'form',      level: 3, hasImage: true },
-    { id: 'ku',   name: 'Ku',   family: 'form',      level: 4, hasImage: true },
-    { id: 'ir',   name: 'Ir',   family: 'form',      level: 5, hasImage: true },
-    { id: 'bro',  name: 'Bro',  family: 'form',      level: 6, hasImage: true },
+    // -- Row 2 after power ------------------------------------------------------
+    { id: 'ven',  name: 'Ven',  family: 'form',      level: 1, hasImage: true },
+    { id: 'ew',   name: 'Ew',   family: 'form',      level: 2, hasImage: true },
+    { id: 'kath', name: 'Kath', family: 'form',      level: 3, hasImage: true },
+    { id: 'ir',   name: 'Ir',   family: 'form',      level: 4, hasImage: true },
+    { id: 'bro',  name: 'Bro',  family: 'form',      level: 5, hasImage: true },
+    { id: 'gor',  name: 'Gor',  family: 'form',      level: 6, hasImage: true },
 
-    // -- Alignment (row 3) ------------------------------------------------------
-    { id: 'gor',  name: 'Gor',  family: 'alignment', level: 1, hasImage: true },
-    { id: 'sar',  name: 'Sar',  family: 'alignment', level: 2, hasImage: true },
-    { id: 'ros',  name: 'Ros',  family: 'alignment', level: 3, hasImage: true },
-    { id: 'ew',   name: 'Ew',   family: 'alignment', level: 4, hasImage: true },
+    // -- Row 3 after power ------------------------------------------------------
+    { id: 'ku',   name: 'Ku',   family: 'alignment', level: 1, hasImage: true },
+    { id: 'ros',  name: 'Ros',  family: 'alignment', level: 2, hasImage: true },
+    { id: 'dain', name: 'Dain', family: 'alignment', level: 3, hasImage: true },
+    { id: 'neta', name: 'Neta', family: 'alignment', level: 4, hasImage: true },
     { id: 'ra',   name: 'Ra',   family: 'alignment', level: 5, hasImage: true },
-    { id: 'dain', name: 'Dain', family: 'alignment', level: 6, hasImage: true },
+    { id: 'sar',  name: 'Sar',  family: 'alignment', level: 6, hasImage: true },
 ];
 
 export const RUNES_BY_ID: Record<string, RuneDef> =
@@ -76,9 +82,10 @@ export interface SpellDef {
     runes: string[];       // power rune first, then spell runes
     name: string;
     effect: SpellEffect;
-    manaCost: number;      // = round(manaBase x powerRune.manaFactor / 8)
+    manaCost: number;      // = floor(manaBase x powerRune.manaFactor / 8)
     manaBase: number;      // base cost from game_db (power-independent)
     castSkill: CastSkill;  // skill that governs this spell
+    progressionSkill?: SkillKey;
     sourceSkillIndex?: number;
     sourceBaseDifficulty?: number;
     sourceDisableTimeTicks?: number;
@@ -103,7 +110,7 @@ function variants(
         runes: [p, ...spellRunes],
         name: names[i],
         effect,
-        manaCost: Math.round(manaBase * MANA_FACTORS[i] / 8),
+        manaCost: Math.floor(manaBase * MANA_FACTORS[i] / 8),
         manaBase,
         castSkill,
         description: descriptions[i],
@@ -367,8 +374,9 @@ export const SPELLS: SpellDef[] = RAW_SPELLS.map((spell) => {
     return {
         ...spell,
         manaBase,
-        manaCost: Math.round(manaBase * powerFactor / 8),
+        manaCost: Math.floor(manaBase * powerFactor / 8),
         castSkill: sourceCastSkill,
+        progressionSkill: mapOriginalSkillNumberToSkillKey(source.skillIndex),
         sourceSkillIndex: source.skillIndex,
         sourceBaseDifficulty: source.baseDifficulty,
         sourceDisableTimeTicks: source.disableTimeTicks,

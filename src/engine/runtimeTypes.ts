@@ -1,7 +1,9 @@
 import type { Champion } from '../data/champions';
-import type { CastSkill } from '../data/runes';
 import type { ChampionWounds } from '../data/equipment';
+import type { ChampionTemporaryXP, ChampionXP } from '../data/skillProgression';
 import type { ChampionEquipment, CreatureInstance, FloorItem } from '../types/game';
+
+export type { ChampionTemporaryXP, ChampionXP } from '../data/skillProgression';
 
 export type Direction = 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
 
@@ -11,6 +13,15 @@ export interface ChampionVitals {
     mana: number;
     food: number;
     water: number;
+    currentStats: {
+        luck: number;
+        strength: number;
+        dexterity: number;
+        wisdom: number;
+        vitality: number;
+        antiMagic: number;
+        antiFire: number;
+    };
     wounds: ChampionWounds;
     poisonEntries: { remaining: number; nextTickIn: number }[];
 }
@@ -29,8 +40,10 @@ export interface DamageEvent {
 export type ProjectileEffect =
     | 'fireball'
     | 'lightning'
+    | 'slime'
     | 'poison_cloud'
     | 'poison_bolt'
+    | 'open'
     | 'disrupt_nonmaterial'
     | 'physical';
 
@@ -39,7 +52,11 @@ export interface SpellVisualEvent {
     level: number;
     x: number;
     y: number;
+    offsetX?: number;
+    offsetZ?: number;
+    height?: number;
     effect: Exclude<ProjectileEffect, 'physical'>;
+    visualScale?: number;
     ts: number;
     kind: 'wall' | 'creature' | 'death';
 }
@@ -57,19 +74,39 @@ export interface Projectile {
     y: number;
     direction: Direction;
     effect: ProjectileEffect;
+    launchedBy?: 'party' | 'creature';
+    sourceCreatureId?: string;
+    targetChampionId?: number;
+    spellRunes?: string[];
+    visualScale?: number;
     damage: [number, number];
     nextMoveAt: number;
     remainingRange?: number;
     remainingAttack?: number;
     stepDecay?: number;
     physicalItem?: FloorItem;
+    explosionOnImpact?: Exclude<ProjectileEffect, 'physical'>;
+    explosionAttack?: number;
+}
+
+export interface ActivePoisonCloud {
+    id: string;
+    level: number;
+    x: number;
+    y: number;
+    remainingAttack: number;
+    nextPulseGameTick: number;
+    visualScale?: number;
 }
 
 export interface PartyShield {
     id: string;
     expiresAt: number;
-    protection: number;
-    fireOnly: boolean;
+    defense: number;
+    kind?: 'physical' | 'magic' | 'fire';
+    protection?: number;
+    fireOnly?: boolean;
+    championId?: number;
 }
 
 export interface ActivePotionBoost {
@@ -86,8 +123,6 @@ export interface FootprintEntry {
     level: number;
     ts: number;
 }
-
-export type ChampionXP = Record<CastSkill, number>;
 
 export interface ChampionCombat {
     cooldown: number;
@@ -115,6 +150,7 @@ export interface PersistedCreatureTimers {
     attackWindowRemainingMs: number;
     confusedRemainingMs: number;
     fluxcageRemainingMs: number;
+    frightenedRemainingMs?: number;
     lastSeenPartyX?: number;
     lastSeenPartyY?: number;
     lastSeenPartyRemainingMs?: number;
@@ -135,6 +171,8 @@ export interface PersistedSaveData {
     openWalls: string[];
     activeSensors: string[];
     firedSensors: string[];
+    sensorRuntimeData?: Record<string, number>;
+    sensorRotationOffsets?: Record<string, number>;
     visibleTexts: string[];
     pendingSensorEvents: unknown[];
     creatures: CreatureInstance[];
@@ -145,15 +183,19 @@ export interface PersistedSaveData {
     championManaRegenBlockedUntilTick?: Record<number, number>;
     elapsedGameTimeTicks: number;
     regenTickRemainder: number;
+    lastSurvivalEffectGameTick?: number;
+    freezeLifeRemainingTicks?: number;
     lastPartyMoveGameTick: number;
     movementCooldown: number;
     championXP: Record<number, ChampionXP>;
+    championTemporaryXP?: Record<number, ChampionTemporaryXP>;
     championCombat: Record<number, ChampionCombat>;
     spellVisualEvents?: SpellVisualEvent[];
     crushingDoors: Record<string, { phase: 'closing' | 'bouncing'; timer: number }>;
     torchBurnElapsed: Record<string, number>;
     spellLights: Array<Omit<SpellLight, 'expiresAt'> & { remainingMs: number }>;
     projectiles: Array<Omit<Projectile, 'nextMoveAt'> & { nextMoveInMs: number }>;
+    activePoisonClouds?: ActivePoisonCloud[];
     activeShields: Array<Omit<PartyShield, 'expiresAt'> & { remainingMs: number }>;
     activePotionBoosts: Array<Omit<ActivePotionBoost, 'expiresAt'> & { remainingMs: number }>;
     invisibleRemainingMs: number;
@@ -163,4 +205,5 @@ export interface PersistedSaveData {
     footprintHistory: FootprintEntry[];
     deadChampions: Record<number, Champion>;
     creatureTimers: Record<string, PersistedCreatureTimers>;
+    lastCreatureAttackGameTick?: number;
 }

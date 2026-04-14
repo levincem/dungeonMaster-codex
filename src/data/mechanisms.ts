@@ -14,6 +14,7 @@ export type MechAction = SensorAction;
 export type MechanismTrigger =
     | 'wall-button'
     | 'wall-lock'
+    | 'projectile-launcher'
     | 'logic-gate'
     | 'countdown'
     | 'alcove'
@@ -65,9 +66,15 @@ const WALL_SENSOR_LABELS: Record<number, string> = {
     4: 'Serrure (objet consomme)',
     5: 'Porte logique AND/OR',
     6: 'Compte a rebours',
+    7: 'Lanceur simple (objet)',
+    8: 'Lanceur simple (explosion)',
+    9: 'Lanceur double (objet)',
+    10: 'Lanceur double (explosion)',
     11: 'Serrure (objet consomme + rotation)',
     12: 'Generateur d objet mural',
     13: 'Alcove (depot/retrait objet)',
+    14: 'Lanceur simple (objet du carre)',
+    15: 'Lanceur double (objet du carre)',
     16: 'Echangeur d objet',
     17: 'Serrure (objet consomme + suppression sensor)',
     18: 'Fin de jeu',
@@ -97,6 +104,9 @@ function getMechanismLabel(tileType: TileType, sensorType: number): string {
 function getMechanismTrigger(tileType: TileType, sensorType: number): MechanismTrigger {
     const isWall = tileType === 'Wall' || tileType === 'TrickWall';
     if (isWall) {
+        if (sensorType === 7 || sensorType === 8 || sensorType === 9 || sensorType === 10 || sensorType === 14 || sensorType === 15) {
+            return 'projectile-launcher';
+        }
         if (sensorType === 5) return 'logic-gate';
         if (sensorType === 6) return 'countdown';
         if (sensorType === 13) return 'alcove';

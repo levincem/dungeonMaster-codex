@@ -138,7 +138,10 @@ function makeWhiteTransparentTexture(texture: THREE.Texture): THREE.Texture {
 }
 
 function useSafeTexture(url: string, fallbackUrl: string): THREE.Texture | null {
-    const [texture, setTexture] = useState<THREE.Texture | null>(null);
+    const [textureEntry, setTextureEntry] = useState<{ source: string; texture: THREE.Texture | null }>({
+        source: '',
+        texture: null,
+    });
 
     useEffect(() => {
         let disposed = false;
@@ -152,7 +155,7 @@ function useSafeTexture(url: string, fallbackUrl: string): THREE.Texture | null 
             }
             activeTexture?.dispose();
             activeTexture = next;
-            setTexture(next);
+            setTextureEntry({ source: url, texture: next });
         };
 
         const loadWithFallback = (source: string, fallback?: string) => {
@@ -165,12 +168,11 @@ function useSafeTexture(url: string, fallbackUrl: string): THREE.Texture | null 
                         loadWithFallback(fallback);
                         return;
                     }
-                    setTexture(null);
+                    setTextureEntry({ source: url, texture: null });
                 },
             );
         };
 
-        setTexture(null);
         loadWithFallback(url, fallbackUrl);
 
         return () => {
@@ -179,7 +181,7 @@ function useSafeTexture(url: string, fallbackUrl: string): THREE.Texture | null 
         };
     }, [fallbackUrl, url]);
 
-    return texture;
+    return textureEntry.source === url ? textureEntry.texture : null;
 }
 
 /** Decorative frame always visible on mirror wall, regardless of champion state. */
@@ -293,16 +295,17 @@ const DoorMeshInner: React.FC<{
     const groupRef = useRef<THREE.Group>(null);
     const matRef1  = useRef<THREE.MeshBasicMaterial>(null);
     const progress = useRef(open ? 1 : 0);
+    const didInitPosition = useRef(false);
 
     const clipPlane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, -1, 0), HALF), []);
     useEffect(() => {
         if (matRef1.current) matRef1.current.clippingPlanes = [clipPlane];
     }, [clipPlane]);
     useEffect(() => {
+        if (!groupRef.current || didInitPosition.current) return;
         progress.current = open ? 1 : 0;
-        if (groupRef.current) {
-            groupRef.current.position.y = DOOR_LIFT * progress.current;
-        }
+        groupRef.current.position.y = DOOR_LIFT * progress.current;
+        didInitPosition.current = true;
     }, [open]);
 
     useFrame((_, delta) => {
@@ -322,8 +325,15 @@ const DoorMeshInner: React.FC<{
     const buttonStripWidth = BTN_W;
     const buttonSize = BTN_W * 0.39;
     const tex = useMemo(
-        () => cloneTexture(baseDoorTex, next => { next.colorSpace = THREE.SRGBColorSpace; }),
-        [baseDoorTex],
+        () => cloneTexture(baseDoorTex, next => {
+            next.colorSpace = THREE.SRGBColorSpace;
+            if (doorType !== 0) {
+                next.wrapS = THREE.RepeatWrapping;
+                next.wrapT = THREE.RepeatWrapping;
+                next.repeat.set(1, WALL_HEIGHT / doorW);
+            }
+        }),
+        [baseDoorTex, doorType, doorW],
     );
     const wallTex = useMemo(
         () => cloneTexture(baseWallTex, next => {

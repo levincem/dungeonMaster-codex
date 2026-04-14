@@ -87,18 +87,19 @@ const NAME_IMG_ALIASES: Record<string, string> = {
     'waterskin (water)': 'water_waterskin_full.png',
     'gold key': 'solid_key.png',
     'health potion': 'vi_potion.png',
-    'stamina potion': 'ma_potion_stamina.png',
+    'stamina potion': 'mon_potion.png',
     'mana potion': 'ee_potion_mana.png',
     'antidote': 'bro_potion_antivenin.png',
     'strength potion': 'ku_potion.png',
     'dexterity potion': 'ros_potion.png',
     'wisdom potion': 'dane_potion.png',
     'vitality potion': 'neta_potion.png',
-    'anti-magic potion': 'mon_potion.png',
-    'anti fire potion': 'anti_fire_potion.png',
-    'anti-fire potion': 'anti_fire_potion.png',
     'bro potion': 'bro_potion_antivenin.png',
-    'ma potion': 'ma_potion_stamina.png',
+    'shield potion': 'ya_potion.png',
+    'ven potion': 'ven_potion.png',
+    'ful bomb': 'ful_bomb.png',
+    'empty flask': 'empty_flask.png',
+    'water flask': 'water_flask.png',
     'cross of neta': 'cross_key.png',
 };
 
@@ -268,35 +269,21 @@ const ARMOR_IMG: Record<number, string> = {
 };
 
 // ─── Potion images ────────────────────────────────────────────────────────────
-// DM1 raw typeId encoding for potions (bits 5-7 = power, bits 0-4 = type slot)
-// We map the 10 known dungeon IDs to their images:
+// Canonical DM1 potion type ids from the extracted game_db.
 const POTION_IMG: Record<number, string> = {
-      0: 'mon_potion.png',
-     40: 'ya_potion.png',
-     50: 'ma_potion_stamina.png',
-     60: 'vi_potion.png',
-     72: 'ee_potion_mana.png',
-     92: 'zo_potion.png',
-    100: 'ful_potion.png',
-    112: 'ku_potion.png',
-    120: 'neta_potion.png',
-    127: 'bro_potion_antivenin.png',
-    // game_db clean IDs (fallback)
-      1: 'um_potion.png',
-      2: 'dee_potion.png',
-      3: 'zo_potion.png',
-      4: 'ful_potion.png',
-      8: 'vi_potion.png',
-      9: 'ya_potion.png',
-     10: 'ee_potion_mana.png',
-     11: 'bro_potion_antivenin.png',
-     13: 'ku_potion.png',
-     14: 'ros_potion.png',
-     15: 'dane_potion.png',
-     16: 'neta_potion.png',
-     17: 'mon_potion.png',
-     18: 'anti_fire_potion.png',
-     24: 'water_flask.png',
+      3: 'ven_potion.png',
+      6: 'ros_potion.png',
+      7: 'ku_potion.png',
+      8: 'dane_potion.png',
+      9: 'neta_potion.png',
+     10: 'bro_potion_antivenin.png',
+     11: 'mon_potion.png',
+     12: 'ya_potion.png',
+     13: 'ee_potion_mana.png',
+     14: 'vi_potion.png',
+     15: 'water_flask.png',
+     19: 'ful_bomb.png',
+     20: 'empty_flask.png',
 };
 
 // ─── Misc images ──────────────────────────────────────────────────────────────

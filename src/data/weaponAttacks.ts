@@ -2,6 +2,7 @@ import { WEAPON_TYPES } from './items';
 import type { FloorItem } from '../types/game';
 import type { CastSkill } from './runes';
 import { getGameDbRawSync } from './gameDbData';
+import { getParentBasicSkill, mapOriginalSkillNumberToSkillKey } from './skillProgression';
 
 const gameDb = JSON.parse(getGameDbRawSync()) as unknown;
 
@@ -206,13 +207,7 @@ export function matchesRequiredAmmoRawClass(item: FloorItem | undefined, rawClas
 }
 
 export function mapOriginalSkillNumberToBasicSkill(skillNumber: number): CastSkill {
-    const basicIndex = skillNumber >= 4 ? Math.floor((skillNumber - 4) / 4) : skillNumber;
-    switch (basicIndex) {
-        case 1: return 'ninja';
-        case 2: return 'priest';
-        case 3: return 'wizard';
-        default: return 'fighter';
-    }
+    return getParentBasicSkill(mapOriginalSkillNumberToSkillKey(skillNumber));
 }
 
 export function getAttackCooldownSeconds(option: WeaponAttackOption | null): number {
@@ -252,6 +247,7 @@ export function isPhysicalAttack(option: WeaponAttackOption | null): boolean {
         'Stab',
         'Stun',
         'Swing',
+        'Thrust',
         'Throw',
         'Shoot',
         'Bash',

@@ -19,6 +19,10 @@ The structured portion proven by `Data.h` and `ReadTablesFromGraphicsFile()` con
 - text mask tables
 - three `RectPos` records
 - `22` sound descriptors
+- `G050_auc_Graphic562_WoundDefenseFactor[6]`
+- `G051_ac_Graphic562_UnderscoreCharacterString[2]`
+- `G052_ac_Graphic562_RenameChampionInputCharacterString[2]`
+- `G053_ac_Graphic562_ReincarnateSpecialCharacters[6]`
 - `DropOrder[30]`
 - `CarryLocation[38]`
 - icon display descriptors for `46` inventory/body/chest positions
@@ -49,6 +53,9 @@ This is intentional. Those bytes are not thrown away and not guessed at.
 ## High-Value Gameplay Tables
 
 `atari_i562_stats.json` now exposes without reinterpretation:
+- `woundDefenseFactors`
+  - exact `Graphic 562` table used by `F313_xxxx_CHAMPION_GetWoundDefense`
+  - current proven value: `[5, 5, 4, 6, 3, 1]`
 - `dropOrder`
   - exact order used when a champion drops possessions
   - see [Character.cpp](D:\DungeonMaster-codex\assets\OriginalDataExtraction\sourceCode\Dungeon_Master_FTL_Games_1987_Source_Code\csb\CSBwin_SRC_20190702\src\Character.cpp#L2507)
@@ -61,6 +68,8 @@ This is intentional. Those bytes are not thrown away and not guessed at.
   - original sound table entries used by `QueueSound`
 - `iconDisplay`
   - original inventory/body/chest icon anchor table
+- `underscoreCharacterString`, `renameChampionInputCharacterString`, `reincarnateSpecialCharacters`
+  - the small text/UI helper globals adjacent to `G050..G053`
 
 ## Notes On Carry Slots
 

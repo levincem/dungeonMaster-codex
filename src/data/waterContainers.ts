@@ -1,9 +1,6 @@
 import type { FloorItem } from '../types/game';
 import { resolveItemName } from './items';
 
-export const WATER_RATION_POINTS = 1000;
-export const WATER_STAMINA_PER_RATION = 20;
-
 export type WaterContainerKind = 'waterskin' | 'flask';
 
 export type WaterContainerState = {
@@ -29,6 +26,12 @@ function createWaterContainerState(
 }
 
 export function getWaterContainerState(item: FloorItem): WaterContainerState | null {
+    if (item.category === 'Potion' && item.typeId === 15) {
+        return createWaterContainerState('flask', item.waterCharges ?? 1, 1, 'Potion', 15, 'Potion', 20);
+    }
+    if (item.category === 'Potion' && item.typeId === 20) {
+        return createWaterContainerState('flask', item.waterCharges ?? 0, 1, 'Potion', 15, 'Potion', 20);
+    }
     if (item.category === 'Potion' && item.typeId === 24) {
         return createWaterContainerState('waterskin', item.waterCharges ?? 4, 4, 'Potion', 24, 'Misc', 1);
     }
@@ -89,8 +92,8 @@ export function consumeWaterContainer(item: FloorItem): { nextItem: FloorItem; w
 
     return {
         nextItem,
-        waterGain: WATER_RATION_POINTS,
-        staminaGain: WATER_STAMINA_PER_RATION,
+        waterGain: state.kind === 'flask' ? 1600 : 800,
+        staminaGain: 0,
     };
 }
 

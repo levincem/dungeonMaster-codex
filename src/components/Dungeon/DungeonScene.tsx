@@ -21,6 +21,7 @@ import { FloorItemMesh } from './FloorItemMesh';
 import { WallMountedItemMesh } from './WallMountedItemMesh';
 import { WallSensor } from './WallSensor';
 import { WallDecal } from './WallDecal';
+import { PhotonsDisruptProjectile, PhotonsFireball, PhotonsLightningProjectile, PhotonsOpenDoorProjectile, PhotonsPoisonProjectile } from './PhotonsFireball';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import { getFloorItemImage } from '../../data/itemImages';
 import type { FloorItem } from '../../types/game';
@@ -57,6 +58,22 @@ function createPulseMaterial(color: string, opacity: number) {
     });
 }
 
+function useWallClock(intervalMs = 200): number {
+    const [nowMs, setNowMs] = useState(0);
+
+    useEffect(() => {
+        const intervalId = window.setInterval(() => {
+            setNowMs(Date.now());
+        }, intervalMs);
+
+        return () => {
+            window.clearInterval(intervalId);
+        };
+    }, [intervalMs]);
+
+    return nowMs;
+}
+
 // ─── Camera smooth follow ─────────────────────────────────────────────────────
 const CameraController = () => {
     const level = useStore(s => s.level);
@@ -72,8 +89,8 @@ const CameraController = () => {
     );
     const rotationMap = { NORTH: 0, EAST: -Math.PI / 2, SOUTH: Math.PI, WEST: Math.PI / 2 };
     const targetRot = rotationMap[direction as keyof typeof rotationMap];
-    const initialCameraPosition = useRef<[number, number, number]>([position[1] * GRID_SIZE, 0, position[0] * GRID_SIZE]);
-    const initialCameraRotation = useRef<[number, number, number]>([0, targetRot, 0]);
+    const [initialCameraPosition] = useState<[number, number, number]>(() => [position[1] * GRID_SIZE, 0, position[0] * GRID_SIZE]);
+    const [initialCameraRotation] = useState<[number, number, number]>(() => [0, targetRot, 0]);
 
     useEffect(() => {
         const camera = cameraRef.current;
@@ -114,8 +131,8 @@ const CameraController = () => {
         <PerspectiveCamera
             ref={cameraRef}
             makeDefault
-            position={initialCameraPosition.current}
-            rotation={initialCameraRotation.current}
+            position={initialCameraPosition}
+            rotation={initialCameraRotation}
             fov={75}
         />
     );
@@ -600,8 +617,10 @@ const DarknessOverlay: React.FC = () => {
 const PROJ_COLORS: Record<MagicProjectileEffect, string> = {
     fireball: '#ff6200',
     lightning: '#aaddff',
+    slime: '#a4d96a',
     poison_cloud: '#7cff88',
     poison_bolt: '#44ff66',
+    open: '#8cf1ff',
     disrupt_nonmaterial: '#c8f6ff',
 };
 
@@ -812,8 +831,10 @@ const ProjectileRenderer: React.FC = () => {
         () => ({
             fireball: new THREE.MeshBasicMaterial({ color: FIREBALL_CORE_COLOR, toneMapped: false }),
             lightning: new THREE.MeshBasicMaterial({ color: LIGHTNING_CORE_COLOR, toneMapped: false }),
+            slime: new THREE.MeshBasicMaterial({ color: '#f2ffd4', toneMapped: false }),
             poison_cloud: new THREE.MeshBasicMaterial({ color: '#dcffd7', toneMapped: false }),
             poison_bolt: new THREE.MeshBasicMaterial({ color: '#e7ffe7', toneMapped: false }),
+            open: new THREE.MeshBasicMaterial({ color: '#fff5d0', toneMapped: false }),
             disrupt_nonmaterial: new THREE.MeshBasicMaterial({ color: DISRUPT_CORE_COLOR, toneMapped: false }),
         }),
         [],
@@ -822,8 +843,10 @@ const ProjectileRenderer: React.FC = () => {
         () => ({
             fireball: createPulseMaterial(FIREBALL_OUTER_COLOR, 0.28),
             lightning: createPulseMaterial(PROJ_COLORS.lightning, 0.22),
+            slime: createPulseMaterial(PROJ_COLORS.slime, 0.22),
             poison_cloud: createPulseMaterial(PROJ_COLORS.poison_cloud, 0.22),
             poison_bolt: createPulseMaterial(PROJ_COLORS.poison_bolt, 0.2),
+            open: createPulseMaterial(PROJ_COLORS.open, 0.18),
             disrupt_nonmaterial: createPulseMaterial(PROJ_COLORS.disrupt_nonmaterial, 0.2),
         }),
         [],
@@ -832,8 +855,10 @@ const ProjectileRenderer: React.FC = () => {
         () => ({
             fireball: createPulseMaterial(FIREBALL_INNER_COLOR, 0.36),
             lightning: createPulseMaterial('#dff2ff', 0.32),
+            slime: createPulseMaterial('#d8f59a', 0.3),
             poison_cloud: createPulseMaterial('#c8ffb8', 0.24),
             poison_bolt: createPulseMaterial('#8cff6f', 0.3),
+            open: createPulseMaterial('#baf7ff', 0.26),
             disrupt_nonmaterial: createPulseMaterial('#9be8ff', 0.26),
         }),
         [],
@@ -876,7 +901,6 @@ const ProjectileRenderer: React.FC = () => {
                         sphereShellGeometry={sphereShellGeometry}
                         sphereGlowGeometry={sphereGlowGeometry}
                         sphereCoreGeometry={sphereCoreGeometry}
-                        fireballFlareGeometry={fireballFlareGeometry}
                         poisonCloudGeometry={poisonCloudGeometry}
                         lightningBoltGeometry={lightningBoltGeometry}
                         disruptRingGeometry={disruptRingGeometry}
@@ -891,12 +915,11 @@ const ProjectileRenderer: React.FC = () => {
 };
 
 const ProjectileOrb: React.FC<{
-    projectile: { x: number; y: number; effect: MagicProjectileEffect; direction?: Direction };
+    projectile: { x: number; y: number; effect: MagicProjectileEffect; direction?: Direction; visualScale?: number };
     index: number;
     sphereShellGeometry: THREE.SphereGeometry;
     sphereGlowGeometry: THREE.SphereGeometry;
     sphereCoreGeometry: THREE.SphereGeometry;
-    fireballFlareGeometry: THREE.IcosahedronGeometry;
     poisonCloudGeometry: THREE.SphereGeometry;
     lightningBoltGeometry: THREE.CylinderGeometry;
     disruptRingGeometry: THREE.TorusGeometry;
@@ -909,7 +932,6 @@ const ProjectileOrb: React.FC<{
     sphereShellGeometry,
     sphereGlowGeometry,
     sphereCoreGeometry,
-    fireballFlareGeometry,
     poisonCloudGeometry,
     lightningBoltGeometry,
     disruptRingGeometry,
@@ -917,89 +939,105 @@ const ProjectileOrb: React.FC<{
     glowMaterial,
     accentMaterial,
 }) => {
-    const shellRef = useRef<THREE.Mesh>(null);
-    const glowRef = useRef<THREE.Mesh>(null);
-    const accentRef = useRef<THREE.Mesh>(null);
-    const coreRef = useRef<THREE.Mesh>(null);
-    const phaseRef = useRef(index * 0.7);
-
-    useFrame((_, delta) => {
-        phaseRef.current += delta * (1000 / 180);
-        const phase = phaseRef.current;
-        const shellScale = 1 + Math.sin(phase) * 0.08;
-        const glowScale = 1.35 + Math.sin(phase * 1.2) * 0.12;
-        if (shellRef.current) shellRef.current.scale.setScalar(shellScale);
-        if (glowRef.current) glowRef.current.scale.setScalar(glowScale);
-        if (projectile.effect === 'fireball') {
-            const ember = 0.92 + Math.sin(phase * 1.8) * 0.14;
-            const flare = 1.08 + Math.cos(phase * 1.35) * 0.1;
-            if (accentRef.current) {
-                accentRef.current.scale.setScalar(flare);
-                accentRef.current.rotation.y += delta * 1.8;
-                accentRef.current.rotation.x += delta * 0.9;
-            }
-            if (coreRef.current) coreRef.current.scale.setScalar(ember);
-        } else if (projectile.effect === 'lightning') {
-            if (accentRef.current) {
-                accentRef.current.rotation.z = Math.sin(phase * 3.2) * 0.42;
-                accentRef.current.scale.set(1, 0.9 + Math.sin(phase * 4) * 0.12, 1);
-            }
-        } else if (projectile.effect === 'poison_cloud' || projectile.effect === 'poison_bolt') {
-            if (accentRef.current) accentRef.current.scale.setScalar(1.02 + Math.sin(phase * 0.9) * 0.16);
-            if (coreRef.current) coreRef.current.scale.setScalar(0.92 + Math.cos(phase * 1.1) * 0.08);
-        } else if (projectile.effect === 'disrupt_nonmaterial') {
-            if (accentRef.current) {
-                accentRef.current.rotation.x += delta * 2.2;
-                accentRef.current.rotation.y += delta * 1.6;
-                accentRef.current.scale.setScalar(1 + Math.sin(phase * 1.7) * 0.1);
-            }
-        }
-    });
-
     const directionRotation: Record<Direction, number> = {
         NORTH: 0,
         SOUTH: Math.PI,
         EAST: -Math.PI / 2,
         WEST: Math.PI / 2,
     };
+    const visualScale = projectile.visualScale ?? 1;
 
     return (
         <group position={[projectile.x * GRID_SIZE, 0, projectile.y * GRID_SIZE]}>
             {projectile.effect === 'fireball' ? (
-                <>
-                    <mesh ref={glowRef} geometry={sphereShellGeometry} material={glowMaterial} />
-                    <mesh ref={accentRef} geometry={fireballFlareGeometry} material={accentMaterial} />
-                    <mesh ref={shellRef} geometry={sphereGlowGeometry} material={accentMaterial} />
-                    <mesh ref={coreRef} geometry={sphereCoreGeometry} material={coreMaterial} />
-                </>
+                <PhotonsFireball scale={visualScale} />
             ) : projectile.effect === 'lightning' ? (
-                <>
-                    <mesh ref={glowRef} geometry={sphereGlowGeometry} material={glowMaterial} />
-                    <mesh
-                        ref={accentRef}
-                        geometry={lightningBoltGeometry}
-                        material={accentMaterial}
-                        rotation={[0, 0, directionRotation[projectile.direction ?? 'NORTH']]}
-                    />
-                    <mesh ref={coreRef} geometry={sphereCoreGeometry} material={coreMaterial} />
-                </>
-            ) : projectile.effect === 'poison_cloud' || projectile.effect === 'poison_bolt' ? (
-                <>
-                    <mesh ref={glowRef} geometry={sphereShellGeometry} material={glowMaterial} />
-                    <mesh ref={accentRef} geometry={poisonCloudGeometry} material={accentMaterial} position={[0.08, 0.03, -0.05]} />
-                    <mesh ref={shellRef} geometry={poisonCloudGeometry} material={glowMaterial} position={[-0.06, -0.02, 0.07]} />
-                    <mesh ref={coreRef} geometry={sphereCoreGeometry} material={coreMaterial} />
-                </>
+                <LightningProjectileVisual
+                    seed={index}
+                    visualScale={visualScale}
+                    directionRotation={directionRotation[projectile.direction ?? 'NORTH']}
+                    sphereGlowGeometry={sphereGlowGeometry}
+                    sphereCoreGeometry={sphereCoreGeometry}
+                    lightningBoltGeometry={lightningBoltGeometry}
+                    coreMaterial={coreMaterial}
+                    glowMaterial={glowMaterial}
+                    accentMaterial={accentMaterial}
+                />
+            ) : projectile.effect === 'open' ? (
+                <OpenDoorProjectileVisual visualScale={visualScale} />
+            ) : projectile.effect === 'poison_cloud' || projectile.effect === 'poison_bolt' || projectile.effect === 'slime' ? (
+                <PoisonProjectileVisual
+                    seed={index}
+                    effect={projectile.effect}
+                    visualScale={visualScale}
+                    sphereShellGeometry={sphereShellGeometry}
+                    sphereCoreGeometry={sphereCoreGeometry}
+                    poisonCloudGeometry={poisonCloudGeometry}
+                    coreMaterial={coreMaterial}
+                    glowMaterial={glowMaterial}
+                    accentMaterial={accentMaterial}
+                />
             ) : (
-                <>
-                    <mesh ref={glowRef} geometry={sphereShellGeometry} material={glowMaterial} />
-                    <mesh ref={accentRef} geometry={disruptRingGeometry} material={accentMaterial} rotation={[Math.PI / 2, 0, 0]} />
-                    <mesh ref={shellRef} geometry={sphereGlowGeometry} material={glowMaterial} />
-                    <mesh ref={coreRef} geometry={sphereCoreGeometry} material={coreMaterial} />
-                </>
+                <DisruptProjectileVisual
+                    seed={index}
+                    visualScale={visualScale}
+                    sphereShellGeometry={sphereShellGeometry}
+                    sphereGlowGeometry={sphereGlowGeometry}
+                    sphereCoreGeometry={sphereCoreGeometry}
+                    disruptRingGeometry={disruptRingGeometry}
+                    coreMaterial={coreMaterial}
+                    glowMaterial={glowMaterial}
+                    accentMaterial={accentMaterial}
+                />
             )}
         </group>
     );
+};
+
+const OpenDoorProjectileVisual: React.FC<{ visualScale: number }> = ({ visualScale }) => {
+    return <PhotonsOpenDoorProjectile scale={visualScale} />;
+};
+
+const LightningProjectileVisual: React.FC<{
+    seed: number;
+    visualScale: number;
+    directionRotation: number;
+    sphereGlowGeometry: THREE.SphereGeometry;
+    sphereCoreGeometry: THREE.SphereGeometry;
+    lightningBoltGeometry: THREE.CylinderGeometry;
+    coreMaterial: THREE.MeshBasicMaterial;
+    glowMaterial: THREE.MeshBasicMaterial;
+    accentMaterial: THREE.MeshBasicMaterial;
+}> = ({ visualScale, directionRotation }) => {
+    return <PhotonsLightningProjectile scale={visualScale} directionRotation={directionRotation} />;
+};
+
+const PoisonProjectileVisual: React.FC<{
+    seed: number;
+    effect: 'poison_cloud' | 'poison_bolt' | 'slime';
+    visualScale: number;
+    sphereShellGeometry: THREE.SphereGeometry;
+    sphereCoreGeometry: THREE.SphereGeometry;
+    poisonCloudGeometry: THREE.SphereGeometry;
+    coreMaterial: THREE.MeshBasicMaterial;
+    glowMaterial: THREE.MeshBasicMaterial;
+    accentMaterial: THREE.MeshBasicMaterial;
+}> = ({ effect, visualScale }) => {
+    return <PhotonsPoisonProjectile effect={effect} scale={visualScale} />;
+};
+
+const DisruptProjectileVisual: React.FC<{
+    seed: number;
+    visualScale: number;
+    sphereShellGeometry: THREE.SphereGeometry;
+    sphereGlowGeometry: THREE.SphereGeometry;
+    sphereCoreGeometry: THREE.SphereGeometry;
+    disruptRingGeometry: THREE.TorusGeometry;
+    coreMaterial: THREE.MeshBasicMaterial;
+    glowMaterial: THREE.MeshBasicMaterial;
+    accentMaterial: THREE.MeshBasicMaterial;
+}> = ({ visualScale }) => {
+    return <PhotonsDisruptProjectile scale={visualScale} />;
 };
 
 const PhysicalProjectileSprite: React.FC<{
@@ -1062,9 +1100,8 @@ const ShieldAuraLayer: React.FC = () => {
         shellMaterial.dispose();
     }, [ringGeometry, shellGeometry, magicMaterial, fireMaterial, shellMaterial]);
 
-    const now = Date.now();
-    const magicActive = activeShields.some((shield) => shield.expiresAt > now && !shield.fireOnly);
-    const fireActive = activeShields.some((shield) => shield.expiresAt > now && shield.fireOnly);
+    const magicActive = activeShields.some((shield) => (shield.kind ?? (shield.fireOnly ? 'fire' : 'physical')) === 'magic');
+    const fireActive = activeShields.some((shield) => (shield.kind ?? (shield.fireOnly ? 'fire' : 'physical')) === 'fire');
     if (!magicActive && !fireActive) return null;
 
     return (
@@ -1128,9 +1165,10 @@ const ShieldAuraVisual: React.FC<{
 const FluxcageLayer: React.FC = () => {
     const creatures = useStore(s => s.creatures);
     const level = useStore(s => s.level);
+    const nowMs = useWallClock();
     const activeCreatures = useMemo(
-        () => creatures.filter((creature) => creature.alive && creature.mapIndex === level && getCreatureFluxcageExpiry(creature.id) > Date.now()),
-        [creatures, level],
+        () => creatures.filter((creature) => creature.alive && creature.mapIndex === level && getCreatureFluxcageExpiry(creature.id) > nowMs),
+        [creatures, level, nowMs],
     );
     const ringGeometry = useMemo(() => new THREE.TorusGeometry(0.28, 0.02, 8, 24), []);
     const barGeometry = useMemo(() => new THREE.CylinderGeometry(0.012, 0.012, 0.8, 6), []);
@@ -1187,6 +1225,56 @@ const FluxcageVisual: React.FC<{
     );
 };
 
+const PoisonCloudLayer: React.FC = () => {
+    const activePoisonClouds = useStore((state) => state.activePoisonClouds);
+    const level = useStore((state) => state.level);
+    const clouds = useMemo(
+        () => activePoisonClouds.filter((cloud) => cloud.level === level),
+        [activePoisonClouds, level],
+    );
+
+    return (
+        <>
+            {clouds.map((cloud) => (
+                <PersistentPoisonCloudVisual key={cloud.id} cloud={cloud} />
+            ))}
+        </>
+    );
+};
+
+const PersistentPoisonCloudVisual: React.FC<{
+    cloud: { x: number; y: number; visualScale?: number };
+}> = ({ cloud }) => {
+    const groupRef = useRef<THREE.Group>(null);
+    const lightRef = useRef<THREE.PointLight>(null);
+
+    useFrame((_, delta) => {
+        if (!groupRef.current) return;
+        groupRef.current.rotation.y += delta * 0.18;
+        const pulse = 1 + Math.sin(Date.now() / 180) * 0.05;
+        groupRef.current.scale.setScalar(pulse);
+        if (lightRef.current) {
+            lightRef.current.intensity = 0.32 + ((Math.sin(Date.now() / 220) + 1) * 0.08);
+        }
+    });
+
+    return (
+        <group position={[cloud.x * GRID_SIZE, GRID_SIZE * 0.02, cloud.y * GRID_SIZE]}>
+            <group ref={groupRef}>
+                <PhotonsPoisonProjectile effect="poison_cloud" scale={(cloud.visualScale ?? 1) * 1.16} />
+            </group>
+            <pointLight
+                ref={lightRef}
+                color="#8cff8b"
+                intensity={0.36}
+                distance={GRID_SIZE * 1.4}
+                decay={2}
+                position={[0, GRID_SIZE * 0.16, 0]}
+            />
+        </group>
+    );
+};
+
 const SpellImpactLayer: React.FC = () => {
     const spellVisualEvents = useStore(s => s.spellVisualEvents);
     const level = useStore(s => s.level);
@@ -1196,25 +1284,67 @@ const SpellImpactLayer: React.FC = () => {
     );
     const ringGeometry = useMemo(() => new THREE.RingGeometry(0.1, 0.26, 24), []);
     const fireMaterial = useMemo(() => createPulseMaterial('#ff8a3d', 0.42), []);
+    const fireCoreMaterial = useMemo(() => createPulseMaterial('#ffd97a', 0.7), []);
+    const fireFlameMaterial = useMemo(() => createPulseMaterial('#ffbe55', 0.58), []);
     const lightningMaterial = useMemo(() => createPulseMaterial('#d7f7ff', 0.34), []);
+    const lightningCoreMaterial = useMemo(() => createPulseMaterial('#ffffff', 0.8), []);
+    const lightningArcMaterial = useMemo(() => createPulseMaterial('#8fdfff', 0.48), []);
     const poisonMaterial = useMemo(() => createPulseMaterial('#8cff8b', 0.32), []);
+    const poisonCoreMaterial = useMemo(() => createPulseMaterial('#d6ff9f', 0.56), []);
+    const poisonMistMaterial = useMemo(() => createPulseMaterial('#6fdb75', 0.28), []);
+    const openMaterial = useMemo(() => createPulseMaterial('#8cf1ff', 0.28), []);
+    const openCoreMaterial = useMemo(() => createPulseMaterial('#fff6c8', 0.5), []);
+    const openSparkMaterial = useMemo(() => createPulseMaterial('#b9ffff', 0.34), []);
     const disruptMaterial = useMemo(() => createPulseMaterial('#aeefff', 0.3), []);
+    const disruptCoreMaterial = useMemo(() => createPulseMaterial('#f3ffff', 0.52), []);
+    const disruptShardMaterial = useMemo(() => createPulseMaterial('#8dd8ff', 0.34), []);
     const dustMaterial = useMemo(() => createPulseMaterial('#c9a56c', 0.38), []);
 
     useEffect(() => () => {
         ringGeometry.dispose();
         fireMaterial.dispose();
+        fireCoreMaterial.dispose();
+        fireFlameMaterial.dispose();
         lightningMaterial.dispose();
+        lightningCoreMaterial.dispose();
+        lightningArcMaterial.dispose();
         poisonMaterial.dispose();
+        poisonCoreMaterial.dispose();
+        poisonMistMaterial.dispose();
+        openMaterial.dispose();
+        openCoreMaterial.dispose();
+        openSparkMaterial.dispose();
         disruptMaterial.dispose();
+        disruptCoreMaterial.dispose();
+        disruptShardMaterial.dispose();
         dustMaterial.dispose();
-    }, [ringGeometry, fireMaterial, lightningMaterial, poisonMaterial, disruptMaterial, dustMaterial]);
+    }, [
+        ringGeometry,
+        fireMaterial,
+        fireCoreMaterial,
+        fireFlameMaterial,
+        lightningMaterial,
+        lightningCoreMaterial,
+        lightningArcMaterial,
+        poisonMaterial,
+        poisonCoreMaterial,
+        poisonMistMaterial,
+        openMaterial,
+        openCoreMaterial,
+        openSparkMaterial,
+        disruptMaterial,
+        disruptCoreMaterial,
+        disruptShardMaterial,
+        dustMaterial,
+    ]);
 
     const materialByEffect: Record<SpellVisualEvent['effect'], THREE.MeshBasicMaterial> = {
         fireball: fireMaterial,
         lightning: lightningMaterial,
+        slime: poisonMaterial,
         poison_cloud: poisonMaterial,
         poison_bolt: poisonMaterial,
+        open: openMaterial,
         disrupt_nonmaterial: disruptMaterial,
     };
 
@@ -1222,6 +1352,51 @@ const SpellImpactLayer: React.FC = () => {
         <>
             {impacts.map((event) => event.kind === 'death' ? (
                 <DeathDustBurst key={`impact_${event.id}`} event={event} material={dustMaterial} />
+            ) : event.effect === 'fireball' ? (
+                <FireballImpactBurst
+                    key={`impact_${event.id}`}
+                    event={event}
+                    ringGeometry={ringGeometry}
+                    material={fireMaterial}
+                    coreMaterial={fireCoreMaterial}
+                    flameMaterial={fireFlameMaterial}
+                />
+            ) : event.effect === 'lightning' ? (
+                <LightningImpactBurst
+                    key={`impact_${event.id}`}
+                    event={event}
+                    ringGeometry={ringGeometry}
+                    material={lightningMaterial}
+                    coreMaterial={lightningCoreMaterial}
+                    arcMaterial={lightningArcMaterial}
+                />
+            ) : event.effect === 'poison_bolt' || event.effect === 'poison_cloud' || event.effect === 'slime' ? (
+                <PoisonImpactBurst
+                    key={`impact_${event.id}`}
+                    event={event}
+                    ringGeometry={ringGeometry}
+                    material={poisonMaterial}
+                    coreMaterial={poisonCoreMaterial}
+                    mistMaterial={poisonMistMaterial}
+                />
+            ) : event.effect === 'open' ? (
+                <OpenDoorImpactBurst
+                    key={`impact_${event.id}`}
+                    event={event}
+                    ringGeometry={ringGeometry}
+                    material={openMaterial}
+                    coreMaterial={openCoreMaterial}
+                    sparkMaterial={openSparkMaterial}
+                />
+            ) : event.effect === 'disrupt_nonmaterial' ? (
+                <DisruptImpactBurst
+                    key={`impact_${event.id}`}
+                    event={event}
+                    ringGeometry={ringGeometry}
+                    material={disruptMaterial}
+                    coreMaterial={disruptCoreMaterial}
+                    shardMaterial={disruptShardMaterial}
+                />
             ) : (
                 <SpellImpactPulse
                     key={`impact_${event.id}`}
@@ -1231,6 +1406,463 @@ const SpellImpactLayer: React.FC = () => {
                 />
             ))}
         </>
+    );
+};
+
+const PoisonImpactBurst: React.FC<{
+    event: SpellVisualEvent;
+    ringGeometry: THREE.RingGeometry;
+    material: THREE.MeshBasicMaterial;
+    coreMaterial: THREE.MeshBasicMaterial;
+    mistMaterial: THREE.MeshBasicMaterial;
+}> = ({ event, ringGeometry, material, coreMaterial, mistMaterial }) => {
+    const ringRef = useRef<THREE.Mesh>(null);
+    const coreRef = useRef<THREE.Mesh>(null);
+    const lightRef = useRef<THREE.PointLight>(null);
+    const mistNodes = useMemo(
+        () => Array.from({ length: event.effect === 'poison_cloud' ? 9 : event.effect === 'slime' ? 7 : 6 }, (_, index) => {
+            const count = event.effect === 'poison_cloud' ? 9 : event.effect === 'slime' ? 7 : 6;
+            const angle = (index / count) * Math.PI * 2;
+            const spread = 0.08 + (index % 3) * 0.04;
+            const drift = 0.09 + (index % 4) * 0.035;
+            const rise = 0.08 + (index % 3) * 0.03;
+            return { x: Math.cos(angle) * spread, z: Math.sin(angle) * spread, drift, rise, phase: index * 0.65 };
+        }),
+        [event.effect],
+    );
+
+    useFrame(() => {
+        const duration = event.effect === 'poison_cloud' ? 760 : event.effect === 'slime' ? 620 : 580;
+        const age = Date.now() - event.ts;
+        const t = Math.max(0, Math.min(1, age / duration));
+        const spellScale = (event.visualScale ?? 1) * (event.effect === 'poison_cloud' ? 1.22 : event.effect === 'slime' ? 1.02 : 0.95);
+
+        if (ringRef.current) {
+            ringRef.current.scale.setScalar((0.64 + t * 1.65) * spellScale);
+            (ringRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.34;
+            ringRef.current.visible = t < 1;
+        }
+
+        if (coreRef.current) {
+            coreRef.current.scale.setScalar((0.28 + Math.sin(Math.PI * t) * 0.54) * spellScale);
+            (coreRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.44;
+            coreRef.current.visible = t < 1;
+        }
+
+        if (lightRef.current) {
+            lightRef.current.intensity = Math.max(0, (1 - t) * (event.effect === 'poison_cloud' ? 1.1 : event.effect === 'slime' ? 0.9 : 0.8) * Math.max(1, spellScale * 0.85));
+            lightRef.current.distance = GRID_SIZE * (event.effect === 'poison_cloud' ? 1.65 : event.effect === 'slime' ? 1.42 : 1.3) * Math.max(1, spellScale * 0.85);
+        }
+    });
+
+    return (
+        <group
+            position={[
+                event.x * GRID_SIZE + (event.offsetX ?? 0),
+                event.height ?? GRID_SIZE * 0.06,
+                event.y * GRID_SIZE + (event.offsetZ ?? 0),
+            ]}
+        >
+            <mesh
+                ref={ringRef}
+                rotation={[-Math.PI / 2, 0, 0]}
+                geometry={ringGeometry}
+                material={material}
+                frustumCulled={false}
+            />
+            <mesh ref={coreRef} material={coreMaterial} frustumCulled={false}>
+                <sphereGeometry args={[0.16, 10, 10]} />
+            </mesh>
+            {mistNodes.map((mist, index) => (
+                <PoisonImpactWisp
+                    key={`poison_wisp_${index}`}
+                    event={event}
+                    material={mistMaterial}
+                    offset={mist}
+                />
+            ))}
+            <pointLight
+                ref={lightRef}
+                color="#95ff7d"
+                intensity={0}
+                distance={GRID_SIZE * 1.35}
+                decay={2}
+                position={[0, GRID_SIZE * 0.16, 0]}
+            />
+        </group>
+    );
+};
+
+const PoisonImpactWisp: React.FC<{
+    event: SpellVisualEvent;
+    material: THREE.MeshBasicMaterial;
+    offset: { x: number; z: number; drift: number; rise: number; phase: number };
+}> = ({ event, material, offset }) => {
+    const wispRef = useRef<THREE.Mesh>(null);
+    useFrame(() => {
+        if (!wispRef.current) return;
+        const duration = event.effect === 'poison_cloud' ? 760 : 580;
+        const age = Date.now() - event.ts;
+        const t = Math.max(0, Math.min(1, age / duration));
+        const spellScale = (event.visualScale ?? 1) * (event.effect === 'poison_cloud' ? 1.18 : 0.92);
+        wispRef.current.position.x = offset.x * (0.55 + t * 1.9) * spellScale;
+        wispRef.current.position.z = offset.z * (0.55 + t * 1.9) * spellScale;
+        wispRef.current.position.y = (offset.rise * Math.sin(Math.PI * t) + Math.sin(offset.phase + t * Math.PI * 2) * 0.03) * spellScale;
+        wispRef.current.scale.set(
+            (0.22 + (1 - t) * 0.08) * spellScale,
+            (0.18 + Math.sin(Math.PI * t) * offset.drift) * spellScale,
+            (0.22 + (1 - t) * 0.08) * spellScale,
+        );
+        (wispRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * (event.effect === 'poison_cloud' ? 0.3 : 0.38);
+        wispRef.current.visible = t < 1;
+    });
+
+    return (
+        <mesh ref={wispRef} material={material} frustumCulled={false}>
+            <sphereGeometry args={[0.1, 8, 8]} />
+        </mesh>
+    );
+};
+
+const LightningImpactBurst: React.FC<{
+    event: SpellVisualEvent;
+    ringGeometry: THREE.RingGeometry;
+    material: THREE.MeshBasicMaterial;
+    coreMaterial: THREE.MeshBasicMaterial;
+    arcMaterial: THREE.MeshBasicMaterial;
+}> = ({ event, ringGeometry, material, coreMaterial, arcMaterial }) => {
+    const ringRef = useRef<THREE.Mesh>(null);
+    const flashRef = useRef<THREE.Mesh>(null);
+    const lightRef = useRef<THREE.PointLight>(null);
+    const arcs = useMemo(
+        () => Array.from({ length: 6 }, (_, index) => ({
+            angle: (index / 6) * Math.PI * 2,
+            tilt: index % 2 === 0 ? 0.32 : -0.32,
+            reach: 0.34 + (index % 3) * 0.05,
+            rise: 0.03 + (index % 2) * 0.035,
+        })),
+        [],
+    );
+
+    useFrame(() => {
+        const age = Date.now() - event.ts;
+        const t = Math.max(0, Math.min(1, age / 300));
+        const visualScale = event.visualScale ?? 1;
+
+        if (ringRef.current) {
+            ringRef.current.scale.setScalar((0.58 + t * 1.25) * visualScale);
+            (ringRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.42;
+            ringRef.current.visible = t < 1;
+        }
+
+        if (flashRef.current) {
+            flashRef.current.scale.setScalar((0.26 + Math.sin(Math.PI * t) * 0.72) * visualScale);
+            (flashRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.68;
+            flashRef.current.visible = t < 1;
+        }
+
+        if (lightRef.current) {
+            lightRef.current.intensity = Math.max(0, (1 - t) * 2.35 * Math.max(1, visualScale));
+            lightRef.current.distance = GRID_SIZE * (1.85 + visualScale * 0.55);
+        }
+    });
+
+    return (
+        <group
+            position={[
+                event.x * GRID_SIZE + (event.offsetX ?? 0),
+                event.height ?? GRID_SIZE * 0.05,
+                event.y * GRID_SIZE + (event.offsetZ ?? 0),
+            ]}
+        >
+            <mesh
+                ref={ringRef}
+                rotation={[-Math.PI / 2, 0, 0]}
+                geometry={ringGeometry}
+                material={material}
+                frustumCulled={false}
+            />
+            <mesh ref={flashRef} material={coreMaterial} frustumCulled={false}>
+                <sphereGeometry args={[0.12, 10, 10]} />
+            </mesh>
+            {arcs.map((arc, index) => (
+                <LightningImpactArc
+                    key={`lightning_arc_${index}`}
+                    event={event}
+                    material={arcMaterial}
+                    arc={arc}
+                />
+            ))}
+            <pointLight
+                ref={lightRef}
+                color="#c7f1ff"
+                intensity={0}
+                distance={GRID_SIZE * 1.7}
+                decay={2}
+                position={[0, GRID_SIZE * 0.16, 0]}
+            />
+        </group>
+    );
+};
+
+const LightningImpactArc: React.FC<{
+    event: SpellVisualEvent;
+    material: THREE.MeshBasicMaterial;
+    arc: { angle: number; tilt: number; reach: number; rise: number };
+}> = ({ event, material, arc }) => {
+    const arcRef = useRef<THREE.Mesh>(null);
+    useFrame(() => {
+        if (!arcRef.current) return;
+        const age = Date.now() - event.ts;
+        const t = Math.max(0, Math.min(1, age / 300));
+        const visualScale = event.visualScale ?? 1;
+        arcRef.current.position.x = Math.cos(arc.angle) * arc.reach * (0.3 + t * 0.95) * visualScale;
+        arcRef.current.position.z = Math.sin(arc.angle) * arc.reach * (0.3 + t * 0.95) * visualScale;
+        arcRef.current.position.y = arc.rise * Math.sin(Math.PI * t) * visualScale;
+        arcRef.current.rotation.y = arc.angle;
+        arcRef.current.rotation.z = arc.tilt + Math.sin((arc.angle * 2) + t * Math.PI * 3) * 0.18;
+        arcRef.current.scale.set(
+            (0.06 + (1 - t) * 0.03) * visualScale,
+            (0.45 + Math.sin(Math.PI * t) * 0.28) * visualScale,
+            (0.06 + (1 - t) * 0.03) * visualScale,
+        );
+        (arcRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.6;
+        arcRef.current.visible = t < 1;
+    });
+
+    return (
+        <mesh ref={arcRef} material={material} frustumCulled={false}>
+            <boxGeometry args={[0.08, 0.5, 0.08]} />
+        </mesh>
+    );
+};
+
+const OpenDoorImpactBurst: React.FC<{
+    event: SpellVisualEvent;
+    ringGeometry: THREE.RingGeometry;
+    material: THREE.MeshBasicMaterial;
+    coreMaterial: THREE.MeshBasicMaterial;
+    sparkMaterial: THREE.MeshBasicMaterial;
+}> = ({ event, ringGeometry, material, coreMaterial, sparkMaterial }) => {
+    const ringRef = useRef<THREE.Mesh>(null);
+    const coreRef = useRef<THREE.Mesh>(null);
+    const lightRef = useRef<THREE.PointLight>(null);
+    const sparks = useMemo(
+        () => Array.from({ length: 6 }, (_, index) => ({
+            angle: (index / 6) * Math.PI * 2,
+            radius: 0.18 + (index % 2) * 0.05,
+            rise: 0.06 + (index % 3) * 0.025,
+        })),
+        [],
+    );
+
+    useFrame(() => {
+        const age = Date.now() - event.ts;
+        const t = Math.max(0, Math.min(1, age / 520));
+        const visualScale = event.visualScale ?? 1;
+
+        if (ringRef.current) {
+            ringRef.current.scale.setScalar((0.55 + t * 1.25) * visualScale);
+            ringRef.current.rotation.z = t * Math.PI * 0.9;
+            (ringRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.34;
+            ringRef.current.visible = t < 1;
+        }
+
+        if (coreRef.current) {
+            coreRef.current.scale.setScalar((0.18 + Math.sin(Math.PI * t) * 0.5) * visualScale);
+            coreRef.current.rotation.y = t * Math.PI * 1.4;
+            (coreRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.46;
+            coreRef.current.visible = t < 1;
+        }
+
+        if (lightRef.current) {
+            lightRef.current.intensity = Math.max(0, (1 - t) * 1.1 * Math.max(1, visualScale * 0.85));
+            lightRef.current.distance = GRID_SIZE * (1.25 + visualScale * 0.4);
+        }
+    });
+
+    return (
+        <group
+            position={[
+                event.x * GRID_SIZE + (event.offsetX ?? 0),
+                event.height ?? GRID_SIZE * 0.07,
+                event.y * GRID_SIZE + (event.offsetZ ?? 0),
+            ]}
+        >
+            <mesh
+                ref={ringRef}
+                rotation={[-Math.PI / 2, 0, 0]}
+                geometry={ringGeometry}
+                material={material}
+                frustumCulled={false}
+            />
+            <mesh ref={coreRef} material={coreMaterial} frustumCulled={false}>
+                <torusGeometry args={[0.18, 0.03, 8, 24]} />
+            </mesh>
+            {sparks.map((spark, index) => (
+                <OpenDoorImpactSpark
+                    key={`open_spark_${index}`}
+                    event={event}
+                    material={sparkMaterial}
+                    spark={spark}
+                />
+            ))}
+            <pointLight
+                ref={lightRef}
+                color="#a8f8ff"
+                intensity={0}
+                distance={GRID_SIZE * 1.25}
+                decay={2}
+                position={[0, GRID_SIZE * 0.12, 0]}
+            />
+        </group>
+    );
+};
+
+const OpenDoorImpactSpark: React.FC<{
+    event: SpellVisualEvent;
+    material: THREE.MeshBasicMaterial;
+    spark: { angle: number; radius: number; rise: number };
+}> = ({ event, material, spark }) => {
+    const sparkRef = useRef<THREE.Mesh>(null);
+    useFrame(() => {
+        if (!sparkRef.current) return;
+        const age = Date.now() - event.ts;
+        const t = Math.max(0, Math.min(1, age / 520));
+        const visualScale = event.visualScale ?? 1;
+        sparkRef.current.position.x = Math.cos(spark.angle) * spark.radius * (0.45 + t * 0.95) * visualScale;
+        sparkRef.current.position.z = Math.sin(spark.angle) * spark.radius * (0.45 + t * 0.95) * visualScale;
+        sparkRef.current.position.y = spark.rise * Math.sin(Math.PI * t) * visualScale;
+        sparkRef.current.rotation.y = spark.angle;
+        sparkRef.current.rotation.z = Math.PI / 4 + t * Math.PI * 0.5;
+        sparkRef.current.scale.set(
+            (0.06 + (1 - t) * 0.02) * visualScale,
+            (0.22 + Math.sin(Math.PI * t) * 0.12) * visualScale,
+            (0.06 + (1 - t) * 0.02) * visualScale,
+        );
+        (sparkRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.42;
+        sparkRef.current.visible = t < 1;
+    });
+
+    return (
+        <mesh ref={sparkRef} material={material} frustumCulled={false}>
+            <boxGeometry args={[0.08, 0.24, 0.08]} />
+        </mesh>
+    );
+};
+
+const DisruptImpactBurst: React.FC<{
+    event: SpellVisualEvent;
+    ringGeometry: THREE.RingGeometry;
+    material: THREE.MeshBasicMaterial;
+    coreMaterial: THREE.MeshBasicMaterial;
+    shardMaterial: THREE.MeshBasicMaterial;
+}> = ({ event, ringGeometry, material, coreMaterial, shardMaterial }) => {
+    const ringRef = useRef<THREE.Mesh>(null);
+    const shellRef = useRef<THREE.Mesh>(null);
+    const lightRef = useRef<THREE.PointLight>(null);
+    const shards = useMemo(
+        () => Array.from({ length: 8 }, (_, index) => {
+            const angle = (index / 8) * Math.PI * 2;
+            const radius = 0.12 + (index % 2) * 0.05;
+            const rise = 0.04 + (index % 3) * 0.025;
+            return { angle, radius, rise, spin: index % 2 === 0 ? 1 : -1 };
+        }),
+        [],
+    );
+
+    useFrame(() => {
+        const age = Date.now() - event.ts;
+        const t = Math.max(0, Math.min(1, age / 520));
+        const visualScale = event.visualScale ?? 1;
+
+        if (ringRef.current) {
+            ringRef.current.scale.setScalar((0.7 + t * 1.55) * visualScale);
+            ringRef.current.rotation.z = t * Math.PI * 0.85;
+            (ringRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.38;
+            ringRef.current.visible = t < 1;
+        }
+
+        if (shellRef.current) {
+            shellRef.current.scale.setScalar((0.2 + Math.sin(Math.PI * t) * 0.62) * visualScale);
+            (shellRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.34;
+            shellRef.current.visible = t < 1;
+        }
+
+        if (lightRef.current) {
+            lightRef.current.intensity = Math.max(0, (1 - t) * 1.4 * Math.max(1, visualScale * 0.85));
+            lightRef.current.distance = GRID_SIZE * (1.45 + visualScale * 0.45);
+        }
+    });
+
+    return (
+        <group
+            position={[
+                event.x * GRID_SIZE + (event.offsetX ?? 0),
+                event.height ?? GRID_SIZE * 0.06,
+                event.y * GRID_SIZE + (event.offsetZ ?? 0),
+            ]}
+        >
+            <mesh
+                ref={ringRef}
+                rotation={[-Math.PI / 2, 0, 0]}
+                geometry={ringGeometry}
+                material={material}
+                frustumCulled={false}
+            />
+            <mesh ref={shellRef} material={coreMaterial} frustumCulled={false}>
+                <sphereGeometry args={[0.13, 10, 10]} />
+            </mesh>
+            {shards.map((shard, index) => (
+                <DisruptImpactShard
+                    key={`disrupt_shard_${index}`}
+                    event={event}
+                    material={shardMaterial}
+                    shard={shard}
+                />
+            ))}
+            <pointLight
+                ref={lightRef}
+                color="#b7ecff"
+                intensity={0}
+                distance={GRID_SIZE * 1.45}
+                decay={2}
+                position={[0, GRID_SIZE * 0.14, 0]}
+            />
+        </group>
+    );
+};
+
+const DisruptImpactShard: React.FC<{
+    event: SpellVisualEvent;
+    material: THREE.MeshBasicMaterial;
+    shard: { angle: number; radius: number; rise: number; spin: number };
+}> = ({ event, material, shard }) => {
+    const shardRef = useRef<THREE.Mesh>(null);
+    useFrame(() => {
+        if (!shardRef.current) return;
+        const age = Date.now() - event.ts;
+        const t = Math.max(0, Math.min(1, age / 520));
+        const visualScale = event.visualScale ?? 1;
+        const orbit = shard.angle + (t * Math.PI * 1.4 * shard.spin);
+        shardRef.current.position.x = Math.cos(orbit) * shard.radius * (0.55 + t * 0.95) * visualScale;
+        shardRef.current.position.z = Math.sin(orbit) * shard.radius * (0.55 + t * 0.95) * visualScale;
+        shardRef.current.position.y = shard.rise * Math.sin(Math.PI * t) * visualScale;
+        shardRef.current.rotation.y = orbit;
+        shardRef.current.rotation.z = t * Math.PI * shard.spin;
+        shardRef.current.scale.set(
+            (0.08 + (1 - t) * 0.03) * visualScale,
+            (0.28 + Math.sin(Math.PI * t) * 0.16) * visualScale,
+            (0.08 + (1 - t) * 0.03) * visualScale,
+        );
+        (shardRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.46;
+        shardRef.current.visible = t < 1;
+    });
+
+    return (
+        <mesh ref={shardRef} material={material} frustumCulled={false}>
+            <octahedronGeometry args={[0.12, 0]} />
+        </mesh>
     );
 };
 
@@ -1245,11 +1877,12 @@ const SpellImpactPulse: React.FC<{
         if (!meshRef.current) return;
         const age = Date.now() - event.ts;
         const t = Math.max(0, Math.min(1, age / DAMAGE_EVENT_LIFETIME_MS));
+        const visualScale = event.visualScale ?? 1;
         const scale = event.kind === 'death'
-            ? 0.85 + t * 1.85
+            ? (0.85 + t * 1.85) * visualScale
             : event.kind === 'wall'
-                ? 0.58 + t * 1.55
-                : 0.72 + t * 1.3;
+                ? (0.58 + t * 1.55) * visualScale
+                : (0.72 + t * 1.3) * visualScale;
         meshRef.current.scale.setScalar(scale);
         (meshRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.45;
         meshRef.current.visible = t < 1;
@@ -1259,10 +1892,10 @@ const SpellImpactPulse: React.FC<{
                     event.effect === 'fireball' ? 1.8 :
                         event.effect === 'lightning' ? 1.55 :
                             event.effect === 'poison_cloud' || event.effect === 'poison_bolt' ? 0.8 : 1.0;
-            lightRef.current.intensity = Math.max(0, (1 - t) * baseIntensity);
+            lightRef.current.intensity = Math.max(0, (1 - t) * baseIntensity * Math.max(1, visualScale * 0.85));
             lightRef.current.distance =
-                event.effect === 'fireball' ? GRID_SIZE * 1.7 :
-                    event.effect === 'lightning' ? GRID_SIZE * 1.45 : GRID_SIZE * 1.1;
+                (event.effect === 'fireball' ? GRID_SIZE * 1.7 :
+                    event.effect === 'lightning' ? GRID_SIZE * 1.45 : GRID_SIZE * 1.1) * Math.max(1, visualScale * 0.9);
         }
     });
 
@@ -1274,7 +1907,13 @@ const SpellImpactPulse: React.FC<{
                         : '#aeefff';
 
     return (
-        <group position={[event.x * GRID_SIZE, event.kind === 'death' ? GRID_SIZE * 0.14 : GRID_SIZE * 0.06, event.y * GRID_SIZE]}>
+        <group
+            position={[
+                event.x * GRID_SIZE + (event.offsetX ?? 0),
+                event.height ?? (event.kind === 'death' ? GRID_SIZE * 0.14 : GRID_SIZE * 0.06),
+                event.y * GRID_SIZE + (event.offsetZ ?? 0),
+            ]}
+        >
             <mesh
                 ref={meshRef}
                 rotation={[-Math.PI / 2, 0, 0]}
@@ -1291,6 +1930,162 @@ const SpellImpactPulse: React.FC<{
                 position={[0, GRID_SIZE * 0.18, 0]}
             />
         </group>
+    );
+};
+
+const FireballImpactBurst: React.FC<{
+    event: SpellVisualEvent;
+    ringGeometry: THREE.RingGeometry;
+    material: THREE.MeshBasicMaterial;
+    coreMaterial: THREE.MeshBasicMaterial;
+    flameMaterial: THREE.MeshBasicMaterial;
+}> = ({ event, ringGeometry, material, coreMaterial, flameMaterial }) => {
+    const ringRef = useRef<THREE.Mesh>(null);
+    const flashRef = useRef<THREE.Mesh>(null);
+    const lightRef = useRef<THREE.PointLight>(null);
+    const shards = useMemo(
+        () => Array.from({ length: 10 }, (_, index) => {
+            const angle = (index / 10) * Math.PI * 2;
+            const spread = 0.16 + (index % 3) * 0.05;
+            const rise = 0.04 + (index % 4) * 0.02;
+            return { x: Math.cos(angle) * spread, z: Math.sin(angle) * spread, rise };
+        }),
+        [],
+    );
+    const flames = useMemo(
+        () => Array.from({ length: 6 }, (_, index) => {
+            const angle = (index / 6) * Math.PI * 2;
+            const spread = 0.07 + (index % 2) * 0.035;
+            const lift = 0.18 + (index % 3) * 0.04;
+            return { x: Math.cos(angle) * spread, z: Math.sin(angle) * spread, lift, rotation: angle };
+        }),
+        [],
+    );
+
+    useFrame(() => {
+        const age = Date.now() - event.ts;
+        const t = Math.max(0, Math.min(1, age / 520));
+        const visualScale = event.visualScale ?? 1;
+
+        if (ringRef.current) {
+            ringRef.current.scale.setScalar((0.9 + t * 2.1) * visualScale);
+            (ringRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.62;
+            ringRef.current.visible = t < 1;
+        }
+
+        if (flashRef.current) {
+            flashRef.current.scale.setScalar((0.42 + Math.sin(Math.PI * t) * 1.05) * visualScale);
+            (flashRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.55;
+            flashRef.current.visible = t < 1;
+        }
+
+        if (lightRef.current) {
+            lightRef.current.intensity = Math.max(0, (1 - t) * 2.9 * Math.max(1, visualScale));
+            lightRef.current.distance = GRID_SIZE * (2 + visualScale * 0.75);
+        }
+    });
+
+    return (
+        <group
+            position={[
+                event.x * GRID_SIZE + (event.offsetX ?? 0),
+                event.height ?? GRID_SIZE * 0.08,
+                event.y * GRID_SIZE + (event.offsetZ ?? 0),
+            ]}
+        >
+            <mesh
+                ref={ringRef}
+                rotation={[-Math.PI / 2, 0, 0]}
+                geometry={ringGeometry}
+                material={material}
+                frustumCulled={false}
+            />
+            <mesh ref={flashRef} material={coreMaterial} frustumCulled={false}>
+                <sphereGeometry args={[0.18, 12, 12]} />
+            </mesh>
+            {flames.map((flame, index) => (
+                <FireballImpactFlame
+                    key={`flame_${index}`}
+                    event={event}
+                    material={flameMaterial}
+                    offset={flame}
+                />
+            ))}
+            {shards.map((shard, index) => (
+                <FireballImpactShard
+                    key={index}
+                    event={event}
+                    material={material}
+                    offset={shard}
+                />
+            ))}
+            <pointLight
+                ref={lightRef}
+                color="#ff9a43"
+                intensity={0}
+                distance={GRID_SIZE * 1.8}
+                decay={2}
+                position={[0, GRID_SIZE * 0.2, 0]}
+            />
+        </group>
+    );
+};
+
+const FireballImpactFlame: React.FC<{
+    event: SpellVisualEvent;
+    material: THREE.MeshBasicMaterial;
+    offset: { x: number; z: number; lift: number; rotation: number };
+}> = ({ event, material, offset }) => {
+    const flameRef = useRef<THREE.Mesh>(null);
+    useFrame(() => {
+        if (!flameRef.current) return;
+        const age = Date.now() - event.ts;
+        const t = Math.max(0, Math.min(1, age / 520));
+        const visualScale = event.visualScale ?? 1;
+        flameRef.current.position.x = offset.x * (0.6 + t * 1.8) * visualScale;
+        flameRef.current.position.z = offset.z * (0.6 + t * 1.8) * visualScale;
+        flameRef.current.position.y = offset.lift * Math.sin(Math.PI * t) * visualScale;
+        flameRef.current.rotation.y = offset.rotation;
+        flameRef.current.rotation.z = 0.18 + Math.sin((offset.rotation * 2) + (t * Math.PI)) * 0.22;
+        flameRef.current.scale.set(
+            (0.22 + (1 - t) * 0.1) * visualScale,
+            (0.55 + Math.sin(Math.PI * t) * 0.9) * visualScale,
+            (0.22 + (1 - t) * 0.1) * visualScale,
+        );
+        (flameRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.5;
+        flameRef.current.visible = t < 1;
+    });
+
+    return (
+        <mesh ref={flameRef} material={material} frustumCulled={false}>
+            <sphereGeometry args={[0.12, 8, 8]} />
+        </mesh>
+    );
+};
+
+const FireballImpactShard: React.FC<{
+    event: SpellVisualEvent;
+    material: THREE.MeshBasicMaterial;
+    offset: { x: number; z: number; rise: number };
+}> = ({ event, material, offset }) => {
+    const shardRef = useRef<THREE.Mesh>(null);
+    useFrame(() => {
+        if (!shardRef.current) return;
+        const age = Date.now() - event.ts;
+        const t = Math.max(0, Math.min(1, age / 520));
+        const visualScale = event.visualScale ?? 1;
+        shardRef.current.position.x = offset.x * t * visualScale;
+        shardRef.current.position.z = offset.z * t * visualScale;
+        shardRef.current.position.y = offset.rise * Math.sin(Math.PI * t) * visualScale;
+        shardRef.current.scale.setScalar((1 - t) * (0.22 + visualScale * 0.08));
+        (shardRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.46;
+        shardRef.current.visible = t < 1;
+    });
+
+    return (
+        <mesh ref={shardRef} material={material} frustumCulled={false}>
+            <sphereGeometry args={[0.09, 6, 6]} />
+        </mesh>
     );
 };
 
@@ -1614,7 +2409,7 @@ const FloorItemsLayer: React.FC = () => {
     const beginFloorDrag = useStore(s => s.beginFloorDrag);
     const updateFloorDrag = useStore(s => s.updateFloorDrag);
     const endFloorDrag = useStore(s => s.endFloorDrag);
-    const useFloorItemOnFrontWall = useStore(s => s.useFloorItemOnFrontWall);
+    const applyFloorItemOnFrontWall = useStore(s => s.useFloorItemOnFrontWall);
     const selectedChampionIndex = useStore(s => s.selectedChampionIndex);
     const party = useStore(s => s.party);
     const selectedChampionId = party[selectedChampionIndex]?.id ?? party[0]?.id ?? null;
@@ -1648,7 +2443,7 @@ const FloorItemsLayer: React.FC = () => {
                                     const hovered = document.elementFromPoint(pointerX, pointerY) as HTMLElement | null;
                                     const wallDrop = hovered?.closest('[data-dm-front-wall-drop="true"]');
                                     if (wallDrop && selectedChampionId != null) {
-                                        useFloorItemOnFrontWall(i.id, selectedChampionId);
+                                        applyFloorItemOnFrontWall(i.id, selectedChampionId);
                                     }
                                     endFloorDrag();
                                 }}
@@ -1760,7 +2555,7 @@ const TileGrid: React.FC<{
                     width={width}
                     height={height}
                     onClick={interactiveSensorIndices && interactiveSensorIndices.length > 0
-                        ? () => interactiveSensorIndices.forEach((sensorIndex) => onWallSensor(level, tileX, tileY, sensorIndex))
+                        ? () => onWallSensor(level, tileX, tileY, interactiveSensorIndices[0])
                         : undefined}
                 />
             ))}
@@ -1783,8 +2578,8 @@ export const DungeonScene = () => {
     const openMirror     = useStore(s => s.openMirror);
     const toggleDoor     = useStore(s => s.toggleDoor);
     const activateWallSensor = useStore(s => s.activateWallSensor);
-    const useItemOnFrontWall = useStore(s => s.useItemOnFrontWall);
-    const useFloorItemOnFrontWall = useStore(s => s.useFloorItemOnFrontWall);
+    const applyItemOnFrontWall = useStore(s => s.useItemOnFrontWall);
+    const applyFloorItemOnFrontWall = useStore(s => s.useFloorItemOnFrontWall);
     const dropCarriedItem = useStore(s => s.dropCarriedItem);
     const throwCarriedItem = useStore(s => s.throwCarriedItem);
     const activeSensors  = useStore(s => s.activeSensors);
@@ -1816,7 +2611,7 @@ export const DungeonScene = () => {
     }, []);
 
     const wallButtons = useMemo(() => {
-        const buttons: { tileX: number; tileY: number; face: CardinalDir; sensorIndex: number }[] = [];
+        const buttonsByFace = new Map<string, { tileX: number; tileY: number; face: CardinalDir; sensorIndex: number; isLocal: boolean }>();
         const overlayKeys = new Set(
             getOriginalWallOverlaysForMap(map, activeSensors).map((overlay) => `${overlay.tileX}:${overlay.tileY}:${overlay.face}`),
         );
@@ -1833,11 +2628,26 @@ export const DungeonScene = () => {
                     const hasExplicitOverlay = overlayKeys.has(`${tile.x}:${tile.y}:${s.tilePos}`);
                     if (hasExplicitOverlay) continue;
                     if (!isWallFaceVisible(map, level, openDoors, openWalls, partyX, partyY, tile.x, tile.y, s.tilePos)) continue;
-                    buttons.push({ tileX: tile.x, tileY: tile.y, face: s.tilePos, sensorIndex: s.index });
+                    const key = `${tile.x}:${tile.y}:${s.tilePos}`;
+                    const current = buttonsByFace.get(key);
+                    if (!current || (current.isLocal && !s.isLocal)) {
+                        buttonsByFace.set(key, {
+                            tileX: tile.x,
+                            tileY: tile.y,
+                            face: s.tilePos,
+                            sensorIndex: s.index,
+                            isLocal: s.isLocal,
+                        });
+                    }
                 }
             }
         }
-        return buttons;
+        return [...buttonsByFace.values()].map((button) => ({
+            tileX: button.tileX,
+            tileY: button.tileY,
+            face: button.face,
+            sensorIndex: button.sensorIndex,
+        }));
     }, [activeSensors, level, map, openDoors, openWalls, position]);
 
     const wallDecals = useMemo(() => {
@@ -1940,13 +2750,14 @@ export const DungeonScene = () => {
         e: ThreeEvent<MouseEvent>, renderType: CellRenderType, x: number, y: number,
     ) => {
         e.stopPropagation();
+        const frontTileY = direction === 'NORTH' ? position[0] - 1 : direction === 'SOUTH' ? position[0] + 1 : position[0];
+        const frontTileX = direction === 'EAST' ? position[1] + 1 : direction === 'WEST' ? position[1] - 1 : position[1];
         if (renderType === 'Mirror') {
+            if (x !== frontTileX || y !== frontTileY) return;
             const champion = MIRROR_WALL_MAP.get(`${level},${x},${y}`);
             if (champion) openMirror(champion.id);
         }
         if (renderType === 'Door') {
-            const frontTileY = direction === 'NORTH' ? position[0] - 1 : direction === 'SOUTH' ? position[0] + 1 : position[0];
-            const frontTileX = direction === 'EAST' ? position[1] + 1 : direction === 'WEST' ? position[1] - 1 : position[1];
             if (x !== frontTileX || y !== frontTileY) return;
             toggleDoor(x, y);
         }
@@ -2114,6 +2925,7 @@ export const DungeonScene = () => {
         />
                 <CreaturesLayer />
                 <FluxcageLayer />
+                <PoisonCloudLayer />
                 <DamageLayer />
                 <SpellImpactLayer />
                 <FloorItemsLayer />
@@ -2122,10 +2934,10 @@ export const DungeonScene = () => {
             {frontWallItemMechanism && (isItemDragActive || activeFloorDrag) && (
                 <FrontWallMechanismDropTarget
                     kind={frontWallItemMechanism.kind}
-                    onUseItem={useItemOnFrontWall}
+                    onUseItem={applyItemOnFrontWall}
                     activeFloorDragItemId={activeFloorDrag?.itemId ?? null}
                     selectedChampionId={selectedChampionId}
-                    onUseFloorItem={useFloorItemOnFrontWall}
+                    onUseFloorItem={applyFloorItemOnFrontWall}
                 />
             )}
         </div>
