@@ -570,6 +570,9 @@ export function resolveItemName(
     if (category === 'Potion' && rawName && !PLACEHOLDER_NAME_RE.test(rawName)) {
         return rawName;
     }
+    if (category === 'Misc' && typeId === 1 && rawName && !PLACEHOLDER_NAME_RE.test(rawName)) {
+        return rawName;
+    }
 
     const canonical = getCanonicalName(category, typeId);
     if (canonical) return canonical;

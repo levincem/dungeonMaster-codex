@@ -85,6 +85,7 @@ const NAME_IMG_ALIASES: Record<string, string> = {
     'illumulet': 'illumulet_unlit.png',
     'waterskin': 'waterskin_empty.png',
     'waterskin (water)': 'water_waterskin_full.png',
+    'empty waterskin': 'waterskin_empty.png',
     'gold key': 'solid_key.png',
     'health potion': 'vi_potion.png',
     'stamina potion': 'mon_potion.png',

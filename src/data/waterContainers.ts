@@ -1,5 +1,5 @@
 import type { FloorItem } from '../types/game';
-import { resolveItemName } from './items';
+import { normalizeLookupName, resolveItemName } from './items';
 
 export type WaterContainerKind = 'waterskin' | 'flask';
 
@@ -26,6 +26,7 @@ function createWaterContainerState(
 }
 
 export function getWaterContainerState(item: FloorItem): WaterContainerState | null {
+    const normalizedName = normalizeLookupName(item.rawName);
     if (item.category === 'Potion' && item.typeId === 15) {
         return createWaterContainerState('flask', item.waterCharges ?? 1, 1, 'Potion', 15, 'Potion', 20);
     }
@@ -36,7 +37,8 @@ export function getWaterContainerState(item: FloorItem): WaterContainerState | n
         return createWaterContainerState('waterskin', item.waterCharges ?? 4, 4, 'Potion', 24, 'Misc', 1);
     }
     if (item.category === 'Misc' && item.typeId === 1) {
-        return createWaterContainerState('waterskin', item.waterCharges ?? 0, 4, 'Potion', 24, 'Misc', 1);
+        const defaultCharges = normalizedName === 'empty waterskin' ? 0 : 4;
+        return createWaterContainerState('waterskin', item.waterCharges ?? defaultCharges, 4, 'Potion', 24, 'Misc', 1);
     }
     if (item.category === 'Misc' && (item.typeId === 7 || item.typeId === 41)) {
         return createWaterContainerState('flask', item.waterCharges ?? 1, 1, 'Misc', 41, 'Misc', 40);
@@ -69,11 +71,14 @@ export function normaliseWaterContainer(item: FloorItem): FloorItem {
     const isFull = charges > 0;
     const category = isFull ? state.fullCategory : state.emptyCategory;
     const typeId = isFull ? state.fullTypeId : state.emptyTypeId;
+    const rawName = state.kind === 'waterskin'
+        ? (isFull ? 'Waterskin' : 'Empty Waterskin')
+        : resolveItemName(category, typeId, item.rawName);
     return {
         ...item,
         category,
         typeId,
-        rawName: resolveItemName(category, typeId, item.rawName),
+        rawName,
         waterCharges: charges,
         waterMaxCharges: state.maxCharges,
     };

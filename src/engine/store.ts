@@ -436,8 +436,8 @@ const MIN_FOOD_WATER = -1024;
 const POISON_TICK_INTERVAL_SEC = originalTimerTicksToSeconds(36);
 const FOOD_DRAIN_SCALE = 1;
 const WATER_DRAIN_SCALE = 1;
-const AWAKE_SURVIVAL_INTERVAL_TICKS = 256;
-const SLEEP_SURVIVAL_INTERVAL_TICKS = 64;
+const AWAKE_SURVIVAL_INTERVAL_TICKS = 64;
+const SLEEP_SURVIVAL_INTERVAL_TICKS = 16;
 const ORIGINAL_SPELL_PROJECTILE_ATTACK = 90;
 
 function clampVital(value: number, max: number): number {
@@ -6401,6 +6401,21 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         const data = tryParsePersistedSaveDataSystem(readPersistedSave());
         if (!data) return false;
         const now = Date.now();
+        const elapsedGameTimeTicks = Number.isFinite(data.elapsedGameTimeTicks)
+            ? data.elapsedGameTimeTicks
+            : 0;
+        const regenTickRemainder = Number.isFinite(data.regenTickRemainder)
+            ? data.regenTickRemainder
+            : 0;
+        const lastSurvivalEffectGameTick = Number.isFinite(data.lastSurvivalEffectGameTick)
+            ? data.lastSurvivalEffectGameTick
+            : elapsedGameTimeTicks;
+        const lastPartyMoveGameTick = Number.isFinite(data.lastPartyMoveGameTick)
+            ? data.lastPartyMoveGameTick
+            : elapsedGameTimeTicks;
+        const movementCooldown = Number.isFinite(data.movementCooldown)
+            ? Math.max(0, data.movementCooldown)
+            : 0;
         const normalizedChampionXP = Object.fromEntries(
             data.party.map((champion) => {
                 const loaded = normalizeChampionXP(data.championXP?.[champion.id]);
@@ -6458,12 +6473,12 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                     .filter((entry): entry is [number, ChampionVitals] => entry !== null),
             ),
             championManaRegenBlockedUntilTick: data.championManaRegenBlockedUntilTick ?? {},
-            elapsedGameTimeTicks: data.elapsedGameTimeTicks,
-            regenTickRemainder: data.regenTickRemainder,
-            lastSurvivalEffectGameTick: data.lastSurvivalEffectGameTick ?? data.elapsedGameTimeTicks,
+            elapsedGameTimeTicks,
+            regenTickRemainder,
+            lastSurvivalEffectGameTick,
             freezeLifeRemainingTicks: Math.max(0, data.freezeLifeRemainingTicks ?? 0),
-            lastPartyMoveGameTick: data.lastPartyMoveGameTick,
-            movementCooldown: data.movementCooldown,
+            lastPartyMoveGameTick,
+            movementCooldown,
             sleeping: false,
             endgameSequence: null,
             lastCastResult: null,
