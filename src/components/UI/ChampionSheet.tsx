@@ -104,6 +104,12 @@ const T = {
     text:        '#f4dfa0',
 };
 
+function acceptDrag(event: React.DragEvent, onOver?: () => void): void {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+    onOver?.();
+}
+
 const SKILL_COLORS: Record<string, string> = {
     fighter: '#d04030',
     ninja:   '#40b060',
@@ -243,17 +249,18 @@ const ScrollPopup: React.FC<{
 );
 
 // ─── Interactive drop zone (eye / mouth) ──────────────────────────────────────
-const DropZone: React.FC<{ icon: string; label: string; title: string; borderColor: string; highlight?: boolean; onDrop: (p: DragPayload) => void }> = ({ icon, label, title, borderColor, highlight = false, onDrop }) => {
+const DropZone: React.FC<{ icon: React.ReactNode; label: string; title: string; borderColor: string; highlight?: boolean; onDrop: (p: DragPayload) => void }> = ({ icon, label, title, borderColor, highlight = false, onDrop }) => {
     const [over, setOver] = useState(false);
     return (
         <div title={title}
             className={highlight && !over ? 'slot-valid' : undefined}
-            style={{ width: 48, height: 48, border: `1px solid ${over ? borderColor : T.slotBorder}`, borderRadius: 3, background: over ? 'rgba(30,15,0,0.9)' : 'rgba(0,0,0,0.58)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, cursor: 'default', transition: over ? undefined : 'border-color 0.1s' }}
-            onDragOver={e => { e.preventDefault(); setOver(true); }}
+            style={{ width: 48, height: 48, border: `1px solid ${over ? borderColor : T.slotBorder}`, borderRadius: 3, background: over ? 'rgba(30,15,0,0.9)' : 'rgba(0,0,0,0.58)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, cursor: 'default', transition: over ? undefined : 'border-color 0.1s', position: 'relative', zIndex: 3 }}
+            onDragEnter={e => acceptDrag(e, () => setOver(true))}
+            onDragOver={e => acceptDrag(e, () => setOver(true))}
             onDragLeave={() => setOver(false)}
             onDrop={e => { e.preventDefault(); setOver(false); const p = getDragPayload(e); if (p) onDrop(p); }}
         >
-            <span style={{ fontSize: 20, lineHeight: 1 }}>{icon}</span>
+            <span style={{ fontSize: 20, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24 }}>{icon}</span>
             <span style={{ fontSize: 7, color: T.goldDim, letterSpacing: 1 }}>{label}</span>
         </div>
     );
@@ -354,8 +361,9 @@ export const ChampionSheet: React.FC = () => {
         closePartyMember, openPartyMember, removeFromParty,
         championInventories, championEquipment, championVitals, championXP, firedSensors,
         equipItem, unequipItem, dropItem, giveItem, giveEquippedItem,
-        useItem: consumeItem, fillWaterContainer, sleep, saveGame, showTransientMessage, useItemOnFrontWall,
+        useItem: consumeItem, fillWaterContainer, sleep, saveGame, showTransientMessage, useItemOnFrontWall: frontWallItemAction,
     } = useStore();
+    const activePotionBoosts = useStore((s) => s.activePotionBoosts);
 
     const [scrollItem, setScrollItem] = useState<FloorItem | null>(null);
     const [draggingItem, setDraggingItem] = useState<FloorItem | null>(null);
@@ -393,7 +401,6 @@ export const ChampionSheet: React.FC = () => {
     const equip      = championEquipment[champion.id]   ?? {};
     const vitals     = championVitals[champion.id];
     const xp         = championXP?.[champion.id];
-    const activePotionBoosts = useStore((s) => s.activePotionBoosts);
     const potionBonuses = getChampionPotionBonusesForSheet(activePotionBoosts, champion.id);
     const effectiveStats = getEffectiveChampionStatsWithBonuses(champion, equip, potionBonuses);
     const weight     = getTotalWeight(equip, inv);
@@ -429,6 +436,11 @@ export const ChampionSheet: React.FC = () => {
         ) ?? null
         : null;
     const canDismissChampion = level === 0 && !firedSensors.has('0_64');
+    const getDraggedItem = (payload: DragPayload) => (
+        payload.fromSlot === 'inventory'
+            ? inv.find((item) => item.id === payload.itemId)
+            : equip[payload.fromSlot as EquipSlotKey]
+    );
 
     const handleDropOnSlot = (payload: DragPayload, targetSlot: EquipSlotKey) => {
         if (payload.fromChampionId !== champion.id) {
@@ -467,14 +479,12 @@ export const ChampionSheet: React.FC = () => {
     };
 
     const handleConsume = (payload: DragPayload) => {
-        if (payload.fromSlot === 'inventory') {
-            consumeItem(champion.id, payload.itemId);
-            clearDragState();
-        }
+        consumeItem(champion.id, payload.itemId, payload.fromSlot);
+        clearDragState();
     };
 
     const handleReadScroll = (payload: DragPayload) => {
-        const item = inv.find(i => i.id === payload.itemId);
+        const item = getDraggedItem(payload);
         if (item?.category === 'Scroll') {
             setScrollItem(item);
             clearDragState();
@@ -488,7 +498,7 @@ export const ChampionSheet: React.FC = () => {
     };
 
     const handleUseOnWallMechanism = (payload: DragPayload) => {
-        const used = useItemOnFrontWall(payload.fromChampionId, payload.itemId, payload.fromSlot);
+        const used = frontWallItemAction(payload.fromChampionId, payload.itemId, payload.fromSlot);
         if (used) clearDragState();
     };
 
@@ -633,9 +643,16 @@ export const ChampionSheet: React.FC = () => {
                             </div>
                         )}
                         {/* Eye + Context + Mouth */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', gap: 12, marginBottom: 0 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', gap: 12, marginBottom: 0, position: 'relative', zIndex: 4 }}>
                             <div style={{ display: 'flex', justifyContent: 'flex-start', paddingLeft: 18 }}>
-                                <DropZone icon="??" label={text.readDropZone} title={text.readDropZoneTitle} borderColor="#d4a840" highlight={highlightEye} onDrop={handleReadScroll} />
+                                <DropZone
+                                    icon={<img src={miscPath('eye.png')} alt="" draggable={false} style={{ width: 22, height: 22, objectFit: 'contain', imageRendering: 'crisp-edges' }} />}
+                                    label={text.readDropZone}
+                                    title={text.readDropZoneTitle}
+                                    borderColor="#d4a840"
+                                    highlight={highlightEye}
+                                    onDrop={handleReadScroll}
+                                />
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'center', minHeight: 48 }}>
                                 {facingFountain ? (
@@ -662,7 +679,14 @@ export const ChampionSheet: React.FC = () => {
                                 ) : null}
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'flex-end', paddingRight: 18 }}>
-                                <DropZone icon="??" label={text.eat} title={text.eatTitle} borderColor="#d04040" highlight={highlightMouth} onDrop={handleConsume} />
+                                <DropZone
+                                    icon={<img src={miscPath('mouth.png')} alt="" draggable={false} style={{ width: 22, height: 22, objectFit: 'contain', imageRendering: 'crisp-edges' }} />}
+                                    label={text.eat}
+                                    title={text.eatTitle}
+                                    borderColor="#d04040"
+                                    highlight={highlightMouth}
+                                    onDrop={handleConsume}
+                                />
                             </div>
                         </div>
 

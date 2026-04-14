@@ -2689,7 +2689,7 @@ interface GameState {
     giveEquippedItem: (fromChampionId: number, slotKey: EquipSlotKey, toChampionId: number) => void;
     killChampion: (championId: number) => void;
     resurrectChampion: (bonesItemId: string) => void;
-    useItem: (championId: number, itemId: string) => void;
+    useItem: (championId: number, itemId: string, fromSlot?: EquipSlotKey | 'inventory') => void;
     fillWaterContainer: (championId: number, itemId: string) => void;
     sleep: () => void;
     enterDungeon: () => void;
@@ -4310,17 +4310,23 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         };
     }),
 
-    useItem: (championId, itemId) => set((state) => {
-        const inv = state.championInventories[championId];
-        if (!inv) return state;
-        const itemIndex = inv.findIndex(i => i.id === itemId);
-        const item = itemIndex >= 0 ? inv[itemIndex] : undefined;
+    useItem: (championId, itemId, fromSlot = 'inventory') => set((state) => {
+        const inv = state.championInventories[championId] ?? [];
+        const equip = state.championEquipment[championId] ?? {};
+        const inventoryIndex = inv.findIndex((entry) => entry.id === itemId);
+        const equippedEntry = Object.entries(equip).find(([, entry]) => entry?.id === itemId) as [EquipSlotKey, FloorItem] | undefined;
+
+        const slotKey =
+            fromSlot !== 'inventory' && equip[fromSlot]?.id === itemId
+                ? fromSlot
+                : equippedEntry?.[0];
+        const item = slotKey ? equip[slotKey] : inventoryIndex >= 0 ? inv[inventoryIndex] : undefined;
         if (!item) return state;
         const vitals = state.championVitals[championId];
         if (!vitals) return state;
         const champ = state.party.find(c => c.id === championId);
         if (!champ) return state;
-        const effective = getEffectiveChampionStatsRuntime(champ, state.championEquipment[championId] ?? {}, state.activePotionBoosts);
+        const effective = getEffectiveChampionStatsRuntime(champ, equip, state.activePotionBoosts);
 
         const newVitals = { ...vitals };
         let replacementItem: FloorItem | null = null;
@@ -4359,10 +4365,23 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 ];
                 return {
                     championVitals: { ...state.championVitals, [championId]: newVitals },
-                    championInventories: {
-                        ...state.championInventories,
-                        [championId]: inv.filter(i => i.id !== itemId),
-                    },
+                    ...(slotKey
+                        ? {
+                            championEquipment: {
+                                ...state.championEquipment,
+                                [championId]: (() => {
+                                    const nextEquip = { ...equip };
+                                    delete nextEquip[slotKey];
+                                    return nextEquip;
+                                })(),
+                            },
+                        }
+                        : {
+                            championInventories: {
+                                ...state.championInventories,
+                                [championId]: inv.filter((entry) => entry.id !== itemId),
+                            },
+                        }),
                     activePotionBoosts,
                     lastCastResult: buildAttackResultMessage(
                         `${def.name} active for ${def.duration} ticks.`,
@@ -4378,13 +4397,28 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             }
         }
 
-        const nextInventory = shouldConsumeOriginal
-            ? inv.filter(i => i.id !== itemId)
-            : inv.map((entry, index) => index === itemIndex ? (replacementItem ?? entry) : entry);
-
         return {
             championVitals: { ...state.championVitals, [championId]: newVitals },
-            championInventories: { ...state.championInventories, [championId]: nextInventory },
+            ...(slotKey
+                ? {
+                    championEquipment: {
+                        ...state.championEquipment,
+                        [championId]: (() => {
+                            const nextEquip = { ...equip };
+                            if (shouldConsumeOriginal) delete nextEquip[slotKey];
+                            else nextEquip[slotKey] = replacementItem ?? item;
+                            return nextEquip;
+                        })(),
+                    },
+                }
+                : {
+                    championInventories: {
+                        ...state.championInventories,
+                        [championId]: shouldConsumeOriginal
+                            ? inv.filter((entry) => entry.id !== itemId)
+                            : inv.map((entry, index) => index === inventoryIndex ? (replacementItem ?? entry) : entry),
+                    },
+                }),
         };
     }),
 

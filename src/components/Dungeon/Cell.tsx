@@ -298,6 +298,12 @@ const DoorMeshInner: React.FC<{
     useEffect(() => {
         if (matRef1.current) matRef1.current.clippingPlanes = [clipPlane];
     }, [clipPlane]);
+    useEffect(() => {
+        progress.current = open ? 1 : 0;
+        if (groupRef.current) {
+            groupRef.current.position.y = DOOR_LIFT * progress.current;
+        }
+    }, [open]);
 
     useFrame((_, delta) => {
         if (!groupRef.current) return;
