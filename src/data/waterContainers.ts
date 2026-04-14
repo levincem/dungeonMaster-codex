@@ -34,11 +34,11 @@ export function getWaterContainerState(item: FloorItem): WaterContainerState | n
         return createWaterContainerState('flask', item.waterCharges ?? 0, 1, 'Potion', 15, 'Potion', 20);
     }
     if (item.category === 'Potion' && item.typeId === 24) {
-        return createWaterContainerState('waterskin', item.waterCharges ?? 4, 4, 'Potion', 24, 'Misc', 1);
+        return createWaterContainerState('waterskin', item.waterCharges ?? 4, 4, 'Misc', 1, 'Misc', 1);
     }
     if (item.category === 'Misc' && item.typeId === 1) {
         const defaultCharges = normalizedName === 'empty waterskin' ? 0 : 4;
-        return createWaterContainerState('waterskin', item.waterCharges ?? defaultCharges, 4, 'Potion', 24, 'Misc', 1);
+        return createWaterContainerState('waterskin', item.waterCharges ?? defaultCharges, 4, 'Misc', 1, 'Misc', 1);
     }
     if (item.category === 'Misc' && (item.typeId === 7 || item.typeId === 41)) {
         return createWaterContainerState('flask', item.waterCharges ?? 1, 1, 'Misc', 41, 'Misc', 40);

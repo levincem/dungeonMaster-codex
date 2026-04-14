@@ -416,7 +416,7 @@ export const ChampionSheet: React.FC = () => {
     };
 
     if (activePartyMemberId === null) return null;
-    const champion = CHAMPIONS.find(c => c.id === activePartyMemberId);
+    const champion = party.find(c => c.id === activePartyMemberId) ?? CHAMPIONS.find(c => c.id === activePartyMemberId);
     if (!champion) return null;
 
     const inv        = championInventories[champion.id] ?? [];
