@@ -2,7 +2,142 @@
 
 Etat du runtime actuel compare aux donnees originales desormais considerees comme fiables.
 
-Version observee dans le code au 2026-04-11.
+Version observee dans le code au 2026-04-15.
+
+Reference prioritaire de fidelite gameplay:
+
+- version PC DOS `DM12/DM13` quand une divergence existe entre branches source
+- version Atari ST comme source de recoupement utile sur les donnees et comportements tres proches, pas comme cible prioritaire du remake
+
+## Fermetures recentes - 2026-04-15
+
+Points a considerer comme clos sauf regression constatee en jeu:
+
+- Les donnees canoniques actives (`game_db.json`, `runtime_dungeon.json`, manifestes, creatures, doors) sont maintenant considerees comme alignees avec l'extraction. Les ecarts trouves pendant cette passe venaient surtout du runtime TypeScript, pas du parser ni des snapshots.
+- Les masques de slots source-backed et les references d'attaques d'objets ont ete recales dans [src/data/items.ts](/D:/DungeonMaster-codex/src/data/items.ts), [src/data/equipment.ts](/D:/DungeonMaster-codex/src/data/equipment.ts) et [src/data/weaponAttacks.ts](/D:/DungeonMaster-codex/src/data/weaponAttacks.ts).
+  - les armes, armures, potions, scrolls et objets divers exploitent maintenant correctement les masques originaux
+  - les actions source-backed non limitees aux armes sont de nouveau visibles cote runtime (`Block`, `Climb Down`, `Flip`, `Freeze Life`, etc.)
+- Les regles de portes ont ete recalees:
+  - une grille ajouree ne laisse plus passer n'importe quel projectile physique
+  - la regle "objets de poche seulement, clefs exclues" est appliquee
+  - les portes `iron` et `ra` ont maintenant des placeholders issus des bitmaps originaux
+  - les overlays / textures refaits restent prioritaires; les bitmaps originaux ne servent que de fallback placeholder
+  - la fermeture de porte sur creature n'utilise plus un degat maison `25-40`; elle suit maintenant l'ordre de grandeur source `5`
+  - la grille remonte plus haut pendant son rebond, ce qui evite l'effet visuel "retombe trop bas" observe au debut du jeu
+  - un impact sonore `wall_bump` est maintenant joue a chaque coup de porte sur creature
+- Les portes `Ra` ont un premier rendu energie runtime dedie. Ce n'est pas encore un rendu final moderne, mais la logique de porte et le placeholder visuel sont en place.
+- Les collisions de deplacement sans avance reelle utilisent maintenant `wall_bump` au lieu de `cry`.
+- Les degats sur creature utilisent maintenant un burst court et plus lisible, ancre sur la sous-case du monstre quand la cible est connue, au lieu d'un simple chiffre trop haut sur la tuile.
+- Le cout d'endurance du deplacement suit de nouveau la formule source de `COMMAND.C`:
+  - `((Load * 3) / MaximumLoad) + 1`
+  - le runtime utilisait par erreur `* 25`, ce qui faisait fondre l'endurance beaucoup trop vite a chaque pas
+  - la descente au puits avec `Climb Down` applique de nouveau son cout specifique de `MOVE.C`: `((Load * 25) / MaximumLoad) + 1`
+- La boucle de survie / regeneration runtime suit maintenant explicitement la branche source `C19` de `CHAMPION.C`:
+  - cadence d'application des time effects `64` ticks eveille / `16` ticks en sommeil, comme dans `MAIN.C`
+  - le palier plus lent `256` ticks eveille / `64` ticks en sommeil ne concerne que la detente progressive des statistiques courantes vers leur maximum, pas toute la regeneration
+  - la detente des statistiques courantes vise maintenant bien les maxima runtime modifies par l'equipement et les boosts temporaires, pas seulement les stats de base du champion
+  - regen mana `((MaximumMana / 40) + 1)` avec doublement en sommeil
+  - cout d'endurance de regen mana = `ManaGain * Max(7, 16 - WizardLevel)`
+  - bonus de regen stamina apres inactivite sur les seuils source `80 / 250`
+  - regen HP conditionnee par `stamina >= MaximumStamina / 4` et `timeCriteria < Vitality + 12`
+  - les degats de chute de la party ne sont plus un jet maison `2-6 HP`; ils repassent maintenant par une vraie attaque source-backed de force `20` sur `legs/feet`, comme dans `MOVE.C`
+- Les generateurs de creatures au sol sont de nouveau actifs via [src/data/originalGenerators.ts](/D:/DungeonMaster-codex/src/data/originalGenerators.ts) et [src/engine/store.ts](/D:/DungeonMaster-codex/src/engine/store.ts).
+  - le manque de monstres constate venait bien en grande partie de cette absence
+  - les creatures generees reapparaissent maintenant depuis leur vraie case de spawn source-backed
+  - la table compacte runtime embarque desormais `54` generateurs `type 6` issus de l'export source
+  - l'ancien chiffre `50` correspondait au sous-ensemble "canonical world content" suivi par l'audit de placement, pas au total brut des capteurs de generation presents dans l'export
+  - le runtime suit maintenant aussi la formule source pour les HP initiaux:
+    - `healthMultiplier == 0` retombe sur la difficulte de la map
+    - HP = `baseHealth * multiplier + random((baseHealth >> 2) + 1)`
+  - les delais de reactivation longs suivent aussi la regle source:
+    - si `ticks > 127`, le delai effectif devient `(ticks - 126) << 6`
+  - le runtime applique maintenant aussi le garde-fou FTL sur la saturation de la map de la party:
+    - FTL bloque les nouveaux groupes quand on approche des `60` groupes actifs et garde `5` slots de marge
+    - le remake approxime maintenant cela par des `groupId` runtime partages quand ils existent, avec fallback sur les cases occupees pour les vieux cas sans groupe explicite
+  - quand une case de spawn est occupee par le groupe ou par d'autres creatures, le runtime ne "remplit" plus artificiellement cette case:
+    - un groupe genere est maintenant mis en attente puis retente plus tard
+    - le retry suit la cadence FTL des events `move later`, soit `5` ticks source
+    - cela rapproche le remake du vrai comportement `event 60/61 move group later`
+  - les creatures generees sont maintenant creees comme un vrai groupe runtime atomique:
+    - elles partagent un `groupId` commun
+    - leur placement initial n'est plus "center puis normalize", mais une vraie formation de groupe appliquee des le spawn
+    - les sous-cases initiales utilisent maintenant une rotation de depart aleatoire, plus proche de la logique source de `F185_auzz_GROUP_GetGenerated`
+  - les groupes generes differes ne reutilisent plus artificiellement le meme `groupId` d'un ancien spawn sur la meme case:
+    - chaque activation genere maintenant une identite de groupe distincte
+    - le comptage de saturation des groupes actifs est donc moins faussement compresse
+  - un spawn differe ne contourne plus la limite approximate des groupes actifs:
+    - si la map de la party est encore saturee, le retry repart simplement sur son delai `move later`
+  - les generateurs de sol locaux `type 6` ne sont plus oublies dans le pipeline `enter floor square`:
+    - ils se declenchent maintenant aussi quand la party entre directement sur leur case
+    - le runtime n'est donc plus limite aux seuls cas ou un autre sensor cible ensuite le generateur
+- Les creatures ne reposent plus seulement sur un simple `left/right` runtime:
+  - un monstre seul sur une case est maintenant recentre
+  - les groupes partages utilisent des sous-cases `frontLeft`, `frontRight`, `backLeft`, `backRight`
+  - les groupes de `3-4` creatures peuvent donc enfin occuper une vraie disposition `2x2`
+  - le ciblage melee preserve la priorite "meme colonne avant, sinon autre case avant" au lieu de frapper dans le vide
+  - les petites creatures melee placees en back row sur une case adjacente peuvent maintenant avancer vers une sous-case de contact au lieu de rester bloquees derriere leur propre groupe
+- Les fixed possessions de creatures ne reposent plus sur un override manuel:
+  - le runtime relit maintenant la vraie table `creatureDroppings` extraite de `I559`
+  - les drops fixes de `Skeleton`, `Stone Golem`, `Trolin`, `Animated Armour`, `Rockpile`, `Pain Rat`, `Screamer`, `Magenta Worm` et `Red Dragon` suivent a nouveau les quantites et flags aleatoires d'origine
+  - les items maudits de l'`Animated Armour` sont maintenant identifies comme tels dans les donnees runtime
+  - les objets maudits equipes appliquent maintenant aussi le malus source `-3 luck` par objet
+  - le source FTL recale ici ne montre pas de blocage special au retrait manuel: `cursed` doit donc etre traite comme un attribut et un malus, pas comme une impossibilite prouvee de desequiper
+- Les deplacements forces et effets de case ouverts ont ete recales sur le moteur original:
+  - si la party arrive sur une case occupee par une creature via pit ou teleporter, la creature est maintenant tuee instantanement (`telefrag`)
+  - si un pit s'ouvre sous une creature, le runtime lui applique a nouveau une vraie resolution de chute au lieu de la laisser flotter sur place
+  - si un pit ou un teleporter s'ouvre sous la party, l'effet est maintenant applique immediatement au lieu d'attendre un deplacement manuel ulterieur
+  - pour la campagne DM de reference, `allowedCreatureTypes` est vide sur toutes les maps extraites; le cas "creature teleportee vers une map non autorisee" n'est donc pas un ecart gameplay observable sur ce donjon precis
+- L'IA de `Lord Chaos` a maintenant recupere son deplacement special "double square move":
+  - quand le deplacement normal echoue, l'archenemy peut maintenant se projeter jusqu'a `2` cases plus loin
+  - la case intermediaire n'est pas testee comme obstacle, ce qui lui permet de traverser murs et portes fermees comme dans la branche source
+  - la destination reste, elle, validee runtime (case finale praticable et non saturee)
+  - ce point reste encore a confirmer en playtest de fin de jeu pour les cas les plus exotiques autour des fluxcages
+- Les sprites d'objets au sol ecrivent maintenant correctement dans le depth buffer:
+  - un objet sur la case avant ne doit plus rester visible "a travers" un monstre occupant cette meme case
+- Les wall sensors cliquables avec effet `Hold` suivent maintenant la semantique FTL de `SENSOR.C`:
+  - un clic mural convertit bien `Hold` en activation effective `Set`
+  - ces boutons/serrures murales ne restent donc plus silencieusement sans effet dans le runtime
+- Les alcoves `type 13` suivent maintenant mieux `SENSOR.C`:
+  - depot et retrait font bien tourner la face murale concernee
+  - cela couvre aussi les cas ou la metadata runtime compacte n'expose pas explicitement la rotation locale, comme certaines alcoves speciales non-torches
+- Les wall sensors `type 2` "click with any object" sont maintenant relies au flux `use item on wall`:
+  - tenir n'importe quel objet peut de nouveau activer ces boutons muraux dans les cas non-`revert`
+  - les rares variantes `Hold` utilisent aussi la conversion source vers `Set` lors d'une activation avec objet en main
+- Les serrures murales consomptibles ne peuvent plus reconsommer un objet apres usage:
+  - les sensors `onceOnly` et le cas special `type 17` sont maintenant ignores une fois deja servis
+  - on evite donc de reperdre une clef, une piece ou `ZOKATHRA` sur un sensor deja consomme
+- Les sauvegardes sont maintenant versionnees avec une build et un schema de save distincts.
+  - le schema courant est `2`
+  - le passage au schema `2` correspond a la recale de l'echelle interne de l'endurance et casse volontairement les saves precedentes de schema `1`
+  - tant que le projet reste en alpha, aucune compatibilite ascendante n'est maintenue pour ces ruptures
+- Le point "generateur d'objet mural type 12" n'est pas un trou gameplay actif du donjon DM charge par ce projet:
+  - le label existe toujours dans le format et dans [src/data/mechanisms.ts](/D:/DungeonMaster-codex/src/data/mechanisms.ts)
+  - mais les snapshots runtime utilises par l'application ne contiennent pas de capteurs muraux `type 12`
+  - ce sujet ne doit donc plus etre traite comme une priorite d'alignement pour cette campagne
+
+Point restant ouvert mais borne:
+
+- `generatorHealthMultiplier` n'est pas une croissance de vie dans le temps.
+  - ce champ n'agit qu'au moment du spawn
+  - la formule source est maintenant rebranchee; ce qui reste a verifier, c'est surtout le ressenti gameplay et les derniers cas limites
+- la notion exacte de `groupes actifs` reste encore approximee cote remake.
+  - le runtime a maintenant des sous-cases de tile pour les creatures et un `groupId` runtime leger pour les spawns / groupes poses sur une meme case
+  - il ne reproduit pas encore toute la structure interne `GROUP/ACTIVE_GROUP` du moteur FTL
+  - la limite de saturation des generateurs est maintenant recalee sur l'esprit FTL, mais pas encore sur une representation interne complete des groupes source
+- quelques comportements de creatures restent encore partiellement manuels.
+  - les projectiles des vrais lanceurs de sorts (`Wizard Eye`, `Vexirk`, `Materializer`, `Demon`, `Red Dragon`, `Lord Chaos`) sont maintenant recales directement sur `GROUP1.C`
+  - `Giggler -> steal` ne repose plus sur un simple tirage aleatoire dans le backpack:
+    - le runtime suit maintenant un ordre de tentatives de slots beaucoup plus proche de `F193_xxxx_GROUP_StealFromChampion` (`neck`, `pouch`, `backpack`, `quiver`, etc.)
+    - un Giggler peut desormais voler aussi depuis certains slots equipes, pas seulement depuis l'inventaire
+    - apres un vol reussi, il repasse aussi dans une logique de fuite proche de l'original
+  - le `Screamer` ne doit plus etre traite comme un comportement runtime special `Alert`:
+    - ce reliquat manuel a ete retire
+    - le runtime retombe maintenant sur la lecture source-backed de son attaque `Mental`
+  - `Ruster -> rust` ne doit pas etre traite comme un trou d'implementation a combler a tout prix: l'etat actuel de la reference indique au contraire que cette mecanique etait prevue mais n'a jamais ete reellement programmee dans le jeu original cible
+  - `Immobilize` ne doit pas etre traite comme une competence speciale manquante: aucune trace fiable n'a ete retrouvee ni comme attaque de creature ni comme sort dans la cible DM PC DOS
+  - `Teleport` ne doit pas etre modelise comme un type d'attaque generique:
+    - le cas avise reste celui de `Lord Chaos`, qui peut se teleporter specialement jusqu'a `2` cases, y compris a travers murs et portes fermees
+    - ce comportement est maintenant rebranche cote IA, mais reste a valider en playtest sur les cas de fin de jeu les plus tordus; il ne doit pas etre confondu avec une attaque standard reusable par d'autres creatures
 
 ## Conclusion courte
 
@@ -43,6 +178,50 @@ Autrement dit:
 - on ne doit plus ajouter de nouvelles approximations faute de donnees
 - quand un comportement n'est pas encore fidele, il faut le classer comme `integration en cours`
 - si une valeur du runtime contredit la source extraite, la source extraite doit l'emporter par defaut
+
+## Checklist prochaine passe
+
+Ordre recommande pour la prochaine vague de verification / alignement:
+
+### Priorite 1 - gameplay central
+
+- IA speciale de `Lord Chaos`
+  - valider en jeu son vrai teleporter special jusqu'a `2` cases
+  - confirmer le ressenti avec fluxcages / portes / murs fermes
+  - confirmer qu'il ne subit aucun degat sur cette action
+- generateurs de creatures
+  - cadence exacte observee en jeu
+  - taille reelle des groupes au spawn
+  - cas limites de saturation / retries / coexistence avec la party
+- pits / teleporters / telefrag
+  - valider en playtest les ouvertures sous creatures
+  - valider les chutes multi-niveaux
+  - valider les telefrags de party dans des cas reels
+- combat / survie
+  - confirmer les degats de chute
+  - confirmer les derniers timings de regen / sommeil / inactivite
+  - verifier les dernieres formules simplifiees encore sensibles
+
+### Priorite 2 - mecanismes et fin de jeu
+
+- countdowns et mecanismes rares encore interpretes
+- sequence complete `Firestaff / Amalgam / Fuse / fin de jeu`
+- derniers cas subtils de local effects / rotations locales de sensors
+
+### Priorite 3 - creatures et cas speciaux
+
+- valider en jeu `Giggler -> steal` maintenant que le vol vise aussi l'equipement leger et declenche une fuite
+- confirmer en playtest le ressenti du `Screamer` apres suppression de l'ancien override `Alert`
+- validation de quelques familles de fin de jeu / arch-enemies
+- garder explicitement hors scope "mecaniques fantasmees" non prouvees:
+  - `Rust`
+  - `Immobilize`
+  - `Teleport` comme attaque generique
+
+### Priorite 4 - couches encore interpretees
+
+- equipement: continuer a remplacer les regles manuelles residuelles par des derives directs de la source quand c'est prouve
+- items / glue runtime: reduire les couches de compatibilite qui n'ont plus de raison d'etre
 
 ## Deja bien aligne
 
@@ -123,6 +302,7 @@ Autrement dit:
 Reste explicitement en attente cote mecanismes rares:
 
 - les launchers muraux `type 14-15` existent bien dans le moteur FTL, mais n'apparaissent pas dans le donjon DM extrait (`0` occurrence dans les donnees courantes). Ce n'est donc plus un trou gameplay actif, plutot un point de completude moteur.
+- les generateurs muraux d'objets `type 12` sont eux aussi a traiter comme un point de completude moteur generique, pas comme un manque du donjon DM runtime courant
 - l'effet special `Slime` a maintenant sa propre branche runtime: projectile de creature distinct, impact `Blunt` et composante poison dedies, au lieu d'un fallback generique
 - les rotations locales `F271` restent le vrai point subtil: FTL ne traite pas ces sensors comme des cibles `(x,y)` mais comme un champ `Multiple` 12 bits pour les sensors locaux / launchers / generators. Le pipeline conserve maintenant `isLocal` et `multipleValue` pour eviter une nouvelle derive sur cette couche.
 
@@ -170,8 +350,8 @@ Reste explicitement en attente cote mecanismes rares:
 
 ### Creatures: attaques et drops
 
-- [src/data/creatures.ts](/D:/DungeonMaster-codex/src/data/creatures.ts) garde encore quelques overrides de categorie d'attaque et de drops.
-- Les stats et plusieurs flags comportementaux sont maintenant fiables, mais toute la semantique creature n'est pas encore 100% source-backed.
+- [src/data/creatures.ts](/D:/DungeonMaster-codex/src/data/creatures.ts) garde encore quelques overrides de categorie d'attaque.
+- Les stats, plusieurs flags comportementaux et les fixed possessions sont maintenant fiables, mais toute la semantique creature n'est pas encore 100% source-backed.
 - Le runtime de combat exploite maintenant davantage l'`attackType` original pour la melee, ce qui reduit les tirages hybrides trop libres entre physique / feu / magie.
 - Les protections de type shield ne s'appliquent plus aux attaques physiques de creatures, ce qui etait une approximation de trop par rapport au modele original.
 - Le seuil de blessure suit maintenant la comparaison source `random(128) + 10` ajustee par la vitalite, ce qui devrait reduire les blessures excessives par rapport a l'ancien calcul maison.
@@ -237,7 +417,27 @@ Reste explicitement en attente cote mecanismes rares:
 - les actions de peur equipees (`Calm`, `Brandish`, `Blow Horn`, `War Cry`) reutilisent desormais la `fearResistance` extraite depuis `i559` au lieu d'un comportement placeholder
 - le fallback "Action originale non encore integree" ne doit plus attraper `THRUST`, qui est reclassee cote melee
 - le sommeil est maintenant traite comme un etat runtime continu et non plus comme un fast-forward compact sur un seul clic; la regen et le vieillissement des effets avancent par ticks acceleres jusqu'au reveil
-- la victoire n'est plus un simple kill-switch sur `Fuse`: le runtime passe par une phase `endgame` dediee qui neutralise les ticks normaux, alterne `Lord Chaos` / `Lord Order`, fixe ensuite `Grey Lord`, nettoie les autres creatures et ne bascule vers l'ecran final qu'apres cette sequence
+- la victoire n'est plus un simple kill-switch sur `Fuse`: le runtime passe par une phase `endgame` dediee qui neutralise les ticks normaux, alterne `Lord Chaos` / `Lord Order` sur une cadence plus proche de `STARTND2.C`, fixe ensuite `Grey Lord`, masque les fluxcages au bon moment, nettoie les autres creatures du niveau courant seulement et ne bascule vers l'ecran final qu'apres cette sequence
+- la phase `endgame` sait aussi relire les textes ordonnes en `(0,0)` si le snapshot runtime les expose, au lieu d'imposer un texte de victoire hardcode
+- l'Amalgam de fin suit maintenant mieux son vrai etat runtime: `encased gem` avant `ZOKATHRA`, `free gem` apres liberation, puis `without gem` apres absorption par le Firestaff; l'exchange Firestaff reste donc bloque tant que le gem n'a pas ete libere
+- les teleporteurs reappliquent maintenant leur vraie rotation a la party via une table compacte derivee de l'extraction complete (`rotationType` relatif/absolu + `rotation`), au lieu de conserver toujours la direction courante
+- les cases speciales de transport (`pit`, `stairs`, `teleporter`) ne sont plus limitees au seul `moveForward`: `moveBackward` et les strafes passent maintenant par le meme pipeline de resolution a l'entree de case
+- les projectiles ne traitent plus un teleporter ouvert comme une simple dalle:
+  - ils traversent maintenant les teleporteurs ouverts
+  - leur direction est reappliquee via la vraie rotation du teleporter
+  - les impacts sont resolves sur la case d'arrivee, y compris sur creatures / party
+- les creatures qui traversent un teleporter ne gardent plus systematiquement une disposition de groupe figee:
+  - leur sous-case runtime est maintenant reappliquee avec rotation approximative du groupe
+  - l'entree dans un teleporter ne bloque plus artificiellement des destinations pourtant partageables par le runtime de groupes
+- la party et les creatures ne s'arretent plus au premier saut dans les reseaux de teleporteurs en chaine:
+  - le runtime suit maintenant les teleporteurs ouverts successifs jusqu'a la destination stable
+  - la rotation est reappliquee a chaque saut intermediaire
+- certains launchers muraux locaux ne sont plus muets cote runtime:
+  - les capteurs muraux locaux `type 7-10 / 14-15` peuvent maintenant etre actives directement sur leur face quand le donjon les expose sans bouton `type 1/2` separe
+  - leur branche locale cree bien un projectile runtime au lieu d'etre court-circuitee par le fallback `isLocal`
+- les capteurs muraux locaux de type gate / countdown ne perdent plus leur effet local final quand ils sont actives par evenement:
+  - si une gate murale locale valide sa condition et doit ensuite faire tourner sa face de sensors, la rotation est maintenant reappliquee cote runtime
+  - cela couvre notamment les cas rares de puzzle ou une gate locale sert elle-meme de mecanisme de rotation, sans bouton mural standard expose
 
 ## Ce que cela veut dire concretement
 
@@ -259,12 +459,21 @@ Maintenant:
 
 ### Priorite haute
 
-- finir les derniers cas rares de mecanismes et de fin de jeu
+- raffiner la fidelite fine des generateurs de creatures
+  - cadence exacte
+  - randomisation du compte
+  - interpretation exacte de `generatorHealthMultiplier`
+- finir les derniers cas rares de `pits / teleporters / telefrag`
+  - rotation / transport des projectiles
+  - rotation / placement de groupes de creatures
+  - derniers cas limites de transports en chaine
+- finir les derniers cas rares de mecanismes
 - verifier quelques familles creatures encore sensibles
 - reduire encore les couches de compatibilite quand elles ne servent plus
 
 ### Priorite moyenne
 
+- laisser explicitement la sequence de fin de jeu et le playtest lourd pour une passe ulterieure
 - continuer a simplifier `items.ts`, `itemImages.ts` et les couches de glue voisines
 - recoller les derniers raffinements de gameplay qui restent interpretes
 - preparer le chantier d'optimisation du bundle et du `game-core`

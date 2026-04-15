@@ -107,6 +107,10 @@ function formatWeight(value: number): string {
     return (Math.round(value * 10) / 10).toFixed(1);
 }
 
+function formatDisplayedStamina(value: number): string {
+    return `${Math.max(0, Math.floor(value / 10))}`;
+}
+
 // ─── Theme ────────────────────────────────────────────────────────────────────
 const T = {
     parchment:   '#d4b87a',   // background parchment
@@ -181,7 +185,16 @@ const ItemThumb: React.FC<{ item: FloorItem; size?: number; equipped?: boolean }
 };
 
 // ─── Vital bar ────────────────────────────────────────────────────────────────
-const VitalBar: React.FC<{ icon: string; label: string; value: number; max: number; color: string; frameColor?: string }> = ({ icon, label, value, max, color, frameColor }) => {
+const VitalBar: React.FC<{
+    icon: string;
+    label: string;
+    value: number;
+    max: number;
+    color: string;
+    frameColor?: string;
+    displayValue?: string;
+    displayMax?: string;
+}> = ({ icon, label, value, max, color, frameColor, displayValue, displayMax }) => {
     const safeMax = Math.max(0, max);
     const fillPercent = safeMax > 0
         ? Math.max(0, Math.min(100, (value / safeMax) * 100))
@@ -193,7 +206,8 @@ const VitalBar: React.FC<{ icon: string; label: string; value: number; max: numb
             <span style={{ fontSize: 15, lineHeight: 1, width: 18, textAlign: 'center' }}>{icon}</span>
             <span style={{ fontSize: 14, color: T.creamDim, letterSpacing: 1, flex: 1 }}>{label}</span>
             <span style={{ fontSize: 15, fontWeight: 'bold', color: '#ffffff', fontVariantNumeric: 'tabular-nums' }}>
-                {Math.ceil(value)}<span style={{ fontSize: 12, color: T.creamDim, fontWeight: 'normal' }}>/{safeMax}</span>
+                {displayValue ?? Math.ceil(value)}
+                <span style={{ fontSize: 12, color: T.creamDim, fontWeight: 'normal' }}>/{displayMax ?? safeMax}</span>
             </span>
         </div>
         <div style={{
@@ -636,7 +650,15 @@ export const ChampionSheet: React.FC = () => {
                         {/* Vitals */}
                         <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 5, padding: '10px 12px' }}>
                             <VitalBar icon="❤" label={text.health} value={hp} max={champion.health} color={T.red} />
-                            <VitalBar icon="⚡" label={text.stamina} value={stamina} max={champion.stamina} color={T.yellow} />
+                            <VitalBar
+                                icon="⚡"
+                                label={text.stamina}
+                                value={stamina}
+                                max={champion.stamina}
+                                color={T.yellow}
+                                displayValue={formatDisplayedStamina(stamina)}
+                                displayMax={formatDisplayedStamina(champion.stamina)}
+                            />
                             <VitalBar icon="🍗" label={text.hunger} value={food} max={MAX_FOOD} color="#d88b2d" frameColor={foodFrame} />
                             <VitalBar icon="💧" label={text.thirst} value={water} max={MAX_WATER} color="#3aa0d8" frameColor={waterFrame} />
                             <VitalBar icon="🔮" label="MANA" value={mana} max={effectiveStats.mana} color={T.blue} />

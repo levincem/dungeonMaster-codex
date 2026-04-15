@@ -37,6 +37,13 @@ export type ExtractedAllowedSlots = {
     chest: boolean;
 };
 
+type RawObjectInfo = {
+    index: number;
+    allowedSlotsMask: number;
+    allowedSlots?: ExtractedAllowedSlots;
+    attackClass?: number;
+};
+
 type RawWeaponAttackReference = {
     weaponIndex: number;
     allowedSlotsMask: number;
@@ -53,11 +60,13 @@ type RawGameDb = {
     };
     weaponAttackReference?: RawWeaponAttackReference[];
     originalAtari?: {
+        weaponAttackReference?: RawWeaponAttackReference[];
         i559?: {
             weapons?: RawI559Weapon[];
             cloths?: RawI559Cloth[];
             miscWeightsKg?: number[];
             foodValues?: number[];
+            objectInfo?: RawObjectInfo[];
         };
         i562?: {
             woundDefenseFactors?: number[];
@@ -79,14 +88,25 @@ const I559_CLOTHS_BY_INDEX = new Map<number, RawI559Cloth>(
     (originalI559?.cloths ?? []).map((entry) => [entry.index, entry]),
 );
 
+const I559_OBJECT_INFO = originalI559?.objectInfo ?? [];
+
 const I559_MISC_WEIGHTS = originalI559?.miscWeightsKg ?? [];
 const I559_FOOD_VALUES = originalI559?.foodValues ?? [];
 const I562_WOUND_DEFENSE_FACTORS_RAW = gameDb.originalAtari?.i562?.woundDefenseFactors ?? [];
-const WEAPON_ATTACK_REFERENCE = gameDb.weaponAttackReference ?? [];
+const WEAPON_ATTACK_REFERENCE = gameDb.originalAtari?.weaponAttackReference ?? gameDb.weaponAttackReference ?? [];
 const ITEM_TYPE_NAMES = gameDb.itemTypeNames ?? {};
 const WEAPON_ALLOWED_SLOT_MASK_BY_INDEX = new Map<number, number>(
     WEAPON_ATTACK_REFERENCE.map((entry) => [entry.weaponIndex, entry.allowedSlotsMask]),
 );
+
+const SOURCE_ITEM_OBJECT_INDEX_OFFSETS = {
+    Scroll: 0,
+    Container: 1,
+    Potion: 2,
+    Weapon: 23,
+    Armor: 69,
+    Misc: 127,
+} as const;
 
 function getExtractedItemName(
     collection: Record<string, string> | undefined,
@@ -739,6 +759,22 @@ export function getPotionDef(typeId: number, rawName?: string): PotionDef | unde
 
 export function getWeaponAllowedSlotsMask(typeId: number): number | undefined {
     return WEAPON_ALLOWED_SLOT_MASK_BY_INDEX.get(typeId);
+}
+
+export function getSourceItemAllowedSlotsMask(
+    category: 'Weapon' | 'Armor' | 'Potion' | 'Misc' | 'Scroll' | 'Container',
+    typeId: number,
+): number | undefined {
+    const offset = SOURCE_ITEM_OBJECT_INDEX_OFFSETS[category];
+    return I559_OBJECT_INFO[offset + typeId]?.allowedSlotsMask;
+}
+
+export function getSourceItemAttackClass(
+    category: 'Weapon' | 'Armor' | 'Potion' | 'Misc' | 'Scroll' | 'Container',
+    typeId: number,
+): number | undefined {
+    const offset = SOURCE_ITEM_OBJECT_INDEX_OFFSETS[category];
+    return I559_OBJECT_INFO[offset + typeId]?.attackClass;
 }
 
 const ARMOR_NAME_LOOKUP: Record<string, ArmorDef> = Object.fromEntries(

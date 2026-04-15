@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
-import { hasPersistedSave } from '../../engine/saveGame';
+import { getPersistedSaveStatus } from '../../engine/saveGame';
+import { APP_VERSION } from '../../appInfo';
 import { miscPath, texturesPath } from '../../data/assetPaths';
 import { useI18n } from '../../i18n';
-import packageInfo from '../../../package.json';
 
 interface Props {
     onEnter: () => void;
@@ -11,8 +11,9 @@ interface Props {
 
 export const TitleScreen = ({ onEnter, onResume }: Props) => {
     const text = useI18n().titleScreen;
-    const appVersion = `v${packageInfo.version}`;
-    const [hasSave] = useState(() => hasPersistedSave());
+    const appVersion = `v${APP_VERSION}`;
+    const [saveStatus] = useState(() => getPersistedSaveStatus());
+    const hasCompatibleSave = saveStatus.kind === 'ready';
     const [opening, setOpening] = useState(false);
     const [logoVisible, setLogoVisible] = useState(false);
     const [showScene, setShowScene] = useState(false);
@@ -38,7 +39,7 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
     };
 
     const handleResume = () => {
-        if (!hasSave || opening || !onResume) return;
+        if (!hasCompatibleSave || opening || !onResume) return;
         onResume();
     };
 
@@ -209,13 +210,21 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
                     <button
                         type="button"
                         onClick={handleResume}
-                        disabled={!hasSave}
+                        disabled={!hasCompatibleSave}
                         style={{
                             ...buttonBase,
-                            opacity: hasSave ? 1 : 0.46,
-                            cursor: hasSave ? 'pointer' : 'not-allowed',
+                            opacity: hasCompatibleSave ? 1 : 0.46,
+                            cursor: hasCompatibleSave ? 'pointer' : 'not-allowed',
                         }}
-                        title={hasSave ? text.resumeTitle : text.noSaveTitle}
+                        title={
+                            hasCompatibleSave
+                                ? text.resumeTitle
+                                : saveStatus.kind === 'incompatible'
+                                    ? text.incompatibleSaveTitle
+                                    : saveStatus.kind === 'corrupt'
+                                        ? text.corruptSaveTitle
+                                        : text.noSaveTitle
+                        }
                     >
                         <img
                             src={miscPath('wall_switch_red_out.png')}
@@ -234,6 +243,35 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
                             {text.resume}
                         </span>
                     </button>
+                    {saveStatus.kind === 'incompatible' && (
+                        <div style={{
+                            width: 320,
+                            color: '#d9b46b',
+                            fontSize: 12,
+                            lineHeight: 1.5,
+                            textAlign: 'center',
+                            textShadow: '0 1px 6px rgba(0,0,0,0.85)',
+                        }}>
+                            {text.incompatibleSaveNotice(
+                                saveStatus.savedBuildVersion,
+                                saveStatus.savedSchemaVersion,
+                                saveStatus.currentBuildVersion,
+                                saveStatus.currentSchemaVersion,
+                            )}
+                        </div>
+                    )}
+                    {saveStatus.kind === 'corrupt' && (
+                        <div style={{
+                            width: 320,
+                            color: '#d9b46b',
+                            fontSize: 12,
+                            lineHeight: 1.5,
+                            textAlign: 'center',
+                            textShadow: '0 1px 6px rgba(0,0,0,0.85)',
+                        }}>
+                            {text.corruptSaveNotice}
+                        </div>
+                    )}
                 </div>
             </div>
 

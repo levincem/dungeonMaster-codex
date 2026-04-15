@@ -111,7 +111,7 @@ function App() {
         fontFamily: '"Courier New", monospace',
         textAlign: 'center',
       }}>
-        This is a desktop-first beta. Smartphone play is not supported yet.
+        This is a desktop-first alpha. Smartphone play is not supported yet.
       </div>
     );
   }
@@ -146,7 +146,13 @@ function App() {
                 Welcome to Dungeon Master Remastered.
               </p>
               <p style={{ margin: '0 0 12px' }}>
-                The game is currently in beta, and some bugs or behaviors that differ from the original game may still remain.
+                The game is currently in alpha, and some bugs or behaviors that differ from the original game may still remain.
+              </p>
+              <p style={{ margin: '0 0 12px' }}>
+                Saves are not guaranteed to remain compatible or reliable during alpha, before the beta version.
+              </p>
+              <p style={{ margin: '0 0 12px' }}>
+                For the best experience, play at 1920x1080 or higher with a keyboard and mouse.
               </p>
               <p style={{ margin: '0 0 12px' }}>
                 Thank you for reporting any issues on GitHub:{' '}

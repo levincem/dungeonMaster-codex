@@ -4,6 +4,15 @@ export const en = {
         resume: 'Resume',
         resumeTitle: 'Resume saved game',
         noSaveTitle: 'No saved game available',
+        incompatibleSaveTitle: 'Saved game incompatible with this alpha build',
+        corruptSaveTitle: 'Saved game unreadable',
+        incompatibleSaveNotice: (
+            savedBuildVersion: string | undefined,
+            savedSchemaVersion: number | undefined,
+            currentBuildVersion: string,
+            currentSchemaVersion: number,
+        ) => `This save was created with ${savedBuildVersion ? `v${savedBuildVersion}` : 'an older build'}${savedSchemaVersion ? ` (save schema ${savedSchemaVersion})` : ''} and is not compatible with v${currentBuildVersion} (save schema ${currentSchemaVersion}).`,
+        corruptSaveNotice: 'The saved game data is damaged or incomplete and cannot be resumed.',
     },
     hud: {
         fist: 'Fist',

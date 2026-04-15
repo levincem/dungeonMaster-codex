@@ -4,6 +4,15 @@ export const fr = {
         resume: 'Reprendre',
         resumeTitle: 'Reprendre la sauvegarde',
         noSaveTitle: 'Aucune sauvegarde disponible',
+        incompatibleSaveTitle: 'Sauvegarde incompatible avec cette build alpha',
+        corruptSaveTitle: 'Sauvegarde illisible',
+        incompatibleSaveNotice: (
+            savedBuildVersion: string | undefined,
+            savedSchemaVersion: number | undefined,
+            currentBuildVersion: string,
+            currentSchemaVersion: number,
+        ) => `Cette sauvegarde provient de ${savedBuildVersion ? `v${savedBuildVersion}` : 'une build plus ancienne'}${savedSchemaVersion ? ` (schéma ${savedSchemaVersion})` : ''} et n'est pas compatible avec v${currentBuildVersion} (schéma ${currentSchemaVersion}).`,
+        corruptSaveNotice: 'Les données de sauvegarde sont endommagées ou incomplètes et ne peuvent pas être reprises.',
     },
     hud: {
         fist: 'Poing',

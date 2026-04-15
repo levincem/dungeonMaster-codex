@@ -104,7 +104,7 @@ const ItemSprite = ({
                 transparent
                 alphaTest={0.05}
                 side={THREE.DoubleSide}
-                depthWrite={false}
+                depthWrite
             />
         </Plane>
     );

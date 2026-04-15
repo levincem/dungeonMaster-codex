@@ -34,7 +34,7 @@ export function quantizeMsToOriginalTimerTicks(ms: number): number {
     return originalTimerTicksToMs(Math.max(1, Math.round(ms / ORIGINAL_TIMER_TICK_MS)));
 }
 
-export const DAMAGE_EVENT_LIFETIME_MS = quantizeMsToOriginalVbls(600);
+export const DAMAGE_EVENT_LIFETIME_MS = quantizeMsToOriginalVbls(500);
 export const TRANSIENT_MESSAGE_LIFETIME_MS = quantizeMsToOriginalVbls(3000);
 export const FOOTPRINT_LIFETIME_MS = quantizeMsToOriginalTimerTicks(60_000);
 export const CREATURE_ATTACK_WINDOW_MS = quantizeMsToOriginalVbls(900);

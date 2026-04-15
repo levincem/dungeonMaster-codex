@@ -54,6 +54,11 @@ export type OriginalWallOverlayRender = {
     interactiveSensorIndices?: number[];
 };
 
+type OverlayRuntimeState = {
+    activeSensors: Set<string>;
+    firedSensors?: Set<string>;
+};
+
 let fixedFacesByMap: Map<number, FixedFace[]> | null = null;
 let fixedFaceNameKeys: Set<string> | null = null;
 
@@ -89,6 +94,10 @@ const OMITTED_OVERLAYS = new Set([
     'Unreadable Wall Inscription',
 ]);
 
+function originalOverlayPath(file: string): string {
+    return miscPath(`original/${file}`);
+}
+
 const VISUALS_BY_NAME: Record<string, OverlayVisual> = {
     'Fountain': { image: miscPath('wall_foutain_overlay.png'), accent: '#78a8d8', width: 0.8, height: 1.06 },
     'Vi Altar': { image: miscPath('autel.png'), accent: '#d5b175', width: 1.0, height: 0.94 },
@@ -111,7 +120,7 @@ const VISUALS_BY_NAME: Record<string, OverlayVisual> = {
     'Master Lock': { image: miscPath('serrure.png'), accent: '#f1d18a', width: 0.42, height: 0.42 },
     'Coin Slot': { image: miscPath('serrure.png'), accent: '#ccb173', width: 0.34, height: 0.34 },
     'Gem Hole': { image: miscPath('serrure.png'), accent: '#5bbad6', width: 0.34, height: 0.34 },
-    'Full Torch Holder': { image: miscPath('wall_torch_holder_empty.png'), accent: '#d59a54', width: 0.24, height: 0.92 },
+    'Full Torch Holder': { image: originalOverlayPath('full_torch_holder.bmp'), accent: '#d59a54', width: 0.24, height: 0.92 },
     'Empty Torch Holder': { image: miscPath('wall_torch_holder_empty.png'), accent: '#7e6c5c', width: 0.42, height: 0.48 },
     'Square Alcove': { image: miscPath('wall_alcove_square.png'), accent: '#8c7a66', width: 0.72, height: 0.74 },
     'Arched Alcove': { image: miscPath('wall_alcove_arched.png'), accent: '#92785f', width: 0.74, height: 0.86 },
@@ -165,9 +174,14 @@ function getInteractiveSensorIndices(face: FixedFace): number[] {
     return (preferred.length > 0 ? preferred : interactiveVariants).map((variant) => variant.objectIndex);
 }
 
-function chooseOverlayName(level: number, face: FixedFace, activeSensors: Set<string>): string {
+function chooseOverlayName(
+    level: number,
+    face: FixedFace,
+    runtimeState: OverlayRuntimeState,
+): string {
     const names = new Set(face.variants.map(variant => variant.overlayName));
-    const active = isFaceActive(level, face, activeSensors);
+    const active = isFaceActive(level, face, runtimeState.activeSensors);
+    const firedSensors = runtimeState.firedSensors ?? new Set<string>();
 
     if (names.has('Lever Up') && names.has('Lever Down')) {
         return active ? 'Lever Down' : 'Lever Up';
@@ -189,6 +203,21 @@ function chooseOverlayName(level: number, face: FixedFace, activeSensors: Set<st
     }
     if (names.has('Empty Torch Holder') && names.has('Full Torch Holder')) {
         return active ? 'Full Torch Holder' : 'Empty Torch Holder';
+    }
+    if (
+        names.has('Amalgam (Encased Gem)') &&
+        names.has('Amalgam (Free Gem)') &&
+        names.has('Amalgam (Without Gem)')
+    ) {
+        const freeGemVariant = face.variants.find((variant) => variant.overlayName === 'Amalgam (Free Gem)');
+        const withoutGemVariant = face.variants.find((variant) => variant.overlayName === 'Amalgam (Without Gem)');
+        if (withoutGemVariant && firedSensors.has(`${level}_${withoutGemVariant.objectIndex}`)) {
+            return 'Amalgam (Without Gem)';
+        }
+        if (freeGemVariant && firedSensors.has(`${level}_${freeGemVariant.objectIndex}`)) {
+            return 'Amalgam (Free Gem)';
+        }
+        return 'Amalgam (Encased Gem)';
     }
     return face.primaryOverlayName;
 }
@@ -222,13 +251,15 @@ function getVisual(name: string, classification: OverlayClassification): Overlay
 export function getOriginalWallOverlaysForMap(
     map: GameMap,
     activeSensors: Set<string>,
+    firedSensors?: Set<string>,
 ): OriginalWallOverlayRender[] {
     const { fixedFacesByMap } = ensureOverlayIndexes();
     const faces = fixedFacesByMap.get(map.index) ?? [];
     const renders: OriginalWallOverlayRender[] = [];
+    const runtimeState: OverlayRuntimeState = { activeSensors, firedSensors };
 
     for (const face of faces) {
-        const overlayName = chooseOverlayName(map.index, face, activeSensors);
+        const overlayName = chooseOverlayName(map.index, face, runtimeState);
         if (OMITTED_OVERLAYS.has(overlayName)) continue;
 
         const variant = face.variants.find(entry => entry.overlayName === overlayName) ?? face.variants[0];

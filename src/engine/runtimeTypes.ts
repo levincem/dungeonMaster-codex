@@ -31,6 +31,7 @@ export interface DamageEvent {
     level: number;
     target: 'creature' | 'champion';
     championId?: number;
+    creatureId?: string;
     x?: number;
     y?: number;
     amount: number;
@@ -157,7 +158,8 @@ export interface PersistedCreatureTimers {
 }
 
 export interface PersistedSaveData {
-    version: 1;
+    version: number;
+    buildVersion?: string;
     savedAt: number;
     gameOptions?: GameOptions;
     level: number;
@@ -175,6 +177,7 @@ export interface PersistedSaveData {
     sensorRotationOffsets?: Record<string, number>;
     visibleTexts: string[];
     pendingSensorEvents: unknown[];
+    pendingGeneratorSpawns?: unknown[];
     creatures: CreatureInstance[];
     floorItems: FloorItem[];
     championInventories: Record<number, FloorItem[]>;

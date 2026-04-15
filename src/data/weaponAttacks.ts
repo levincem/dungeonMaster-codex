@@ -1,4 +1,4 @@
-import { WEAPON_TYPES } from './items';
+import { WEAPON_TYPES, getSourceItemAttackClass } from './items';
 import type { FloorItem } from '../types/game';
 import type { CastSkill } from './runes';
 import { getGameDbRawSync } from './gameDbData';
@@ -47,6 +47,12 @@ type RawWeaponAttackReference = {
     };
 };
 
+type RawLegalAttackClass = {
+    index: number;
+    primaryAttack?: RawLegalAttack;
+    optionalAttacks?: RawLegalAttack[];
+};
+
 export type WeaponAttackOption = {
     attackType: number;
     enumName: string;
@@ -71,7 +77,10 @@ export type WeaponProjectileDescriptor = {
 
 const originalAtari = (gameDb as unknown as {
     originalAtari?: {
-        i560?: { attacks?: RawAttack[] };
+        i560?: {
+            attacks?: RawAttack[];
+            legalAttacks?: RawLegalAttackClass[];
+        };
         weaponAttackReference?: RawWeaponAttackReference[];
     };
 }).originalAtari;
@@ -81,6 +90,9 @@ const ATTACKS_BY_INDEX = new Map<number, RawAttack>(
 );
 
 const REFERENCE_ENTRIES = originalAtari?.weaponAttackReference ?? [];
+const LEGAL_ATTACKS_BY_INDEX = new Map<number, RawLegalAttackClass>(
+    (originalAtari?.i560?.legalAttacks ?? []).map((attackClass) => [attackClass.index, attackClass]),
+);
 
 const DISPLAY_NAME_TO_ENTRY = new Map<string, RawWeaponAttackReference>();
 const SYMBOL_NAME_TO_ENTRY = new Map<string, RawWeaponAttackReference>();
@@ -152,9 +164,25 @@ export function getOriginalWeaponReference(item: FloorItem | undefined): WeaponP
     };
 }
 
+function getItemAttackClassEntry(item: FloorItem | undefined): RawLegalAttackClass | null {
+    if (!item) return null;
+    if (item.category === 'Weapon') {
+        const entry = getReferenceEntry(item);
+        return entry?.legalAttacks ? {
+            index: entry.objectInfoIndex,
+            primaryAttack: entry.legalAttacks.primaryAttack,
+            optionalAttacks: entry.legalAttacks.optionalAttacks,
+        } : null;
+    }
+
+    const attackClass = getSourceItemAttackClass(item.category, item.typeId);
+    if (!attackClass || attackClass <= 0) return null;
+    return LEGAL_ATTACKS_BY_INDEX.get(attackClass) ?? null;
+}
+
 export function getWeaponAttackOptions(item: FloorItem | undefined): WeaponAttackOption[] {
-    const entry = getReferenceEntry(item);
-    if (!entry?.legalAttacks?.primaryAttack) return [];
+    const entry = getItemAttackClassEntry(item);
+    if (!entry?.primaryAttack) return [];
 
     const options: WeaponAttackOption[] = [];
     const pushOption = (raw: RawLegalAttack | undefined, source: 'primary' | 'optional') => {
@@ -172,8 +200,8 @@ export function getWeaponAttackOptions(item: FloorItem | undefined): WeaponAttac
         });
     };
 
-    pushOption(entry.legalAttacks.primaryAttack, 'primary');
-    for (const optional of entry.legalAttacks.optionalAttacks ?? []) {
+    pushOption(entry.primaryAttack, 'primary');
+    for (const optional of entry.optionalAttacks ?? []) {
         pushOption(optional, 'optional');
     }
     return options;
@@ -235,9 +263,9 @@ export function isPhysicalAttack(option: WeaponAttackOption | null): boolean {
     if (!option) return true;
     return new Set([
         'Chop',
-        'Climb Down',
         'Cleave',
         'Hack',
+        'Hit',
         'Jab',
         'Kick',
         'Melee',

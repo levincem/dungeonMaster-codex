@@ -115,6 +115,7 @@ function deriveChampionClass(skills: ChampionSkills): ChampionClass {
 }
 
 const rawChampions = getDungeonDataSync<RawDungeon>().champions ?? [];
+const ORIGINAL_STAMINA_SCALE = 10;
 
 export const CHAMPIONS: Champion[] = rawChampions
     .map((champion) => {
@@ -127,7 +128,7 @@ export const CHAMPIONS: Champion[] = rawChampions
             gender: champion.gender,
             class: championClass,
             health: champion.health,
-            stamina: champion.stamina,
+            stamina: champion.stamina * ORIGINAL_STAMINA_SCALE,
             mana: champion.mana,
             luck: champion.luck,
             strength: champion.strength,

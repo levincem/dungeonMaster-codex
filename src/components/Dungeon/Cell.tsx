@@ -2,6 +2,7 @@ import React, { useMemo, useRef, useEffect, Suspense, useState } from 'react';
 import { Box, Plane, useTexture } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { PhotonsRaDoorCurtain } from './PhotonsFireball';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import { subscribePlateActivated } from '../../engine/store';
 import type { ThreeEvent } from '@react-three/fiber';
@@ -262,12 +263,13 @@ const ProceduralPortrait: React.FC<{ champion: Champion; wallFace: CardinalDir }
 // ─── Animated door ─────────────────────────────────────────────────────────────
 
 const HALF = GRID_SIZE / 2;
-// How many world-units of door bottom peek below the ceiling when fully open
-const DOOR_PEEK = 0.22;
-// Lift needed so the door bottom sits DOOR_PEEK below the ceiling:
-//   world_bottom = lift - WALL_HEIGHT/2  =  HALF - DOOR_PEEK
-//   → lift = HALF + WALL_HEIGHT/2 - DOOR_PEEK
-const DOOR_LIFT = HALF + WALL_HEIGHT / 2 - DOOR_PEEK; // ≈ 2.03
+const DEFAULT_DOOR_PEEK = 0.18;
+const GRATE_DOOR_PEEK = 0.08;
+
+function getDoorLift(doorType?: number): number {
+    const peek = doorType === 0 ? GRATE_DOOR_PEEK : DEFAULT_DOOR_PEEK;
+    return HALF + WALL_HEIGHT / 2 - peek;
+}
 
 // Door-panel proportion when a wall-button is present
 const BTN_RATIO  = 0.22;                     // generic side strip width
@@ -276,6 +278,7 @@ const BTN_W      = GRID_SIZE * BTN_RATIO;
 const DOOR_OFF_X = -(BTN_W / 2);
 const BTN_CX     = GRID_SIZE / 2 - BTN_W / 2;
 const BTN_OVERLAY_Z = 0.003;
+const RA_DOOR_CURTAIN_Z = 0.012;
 
 const DoorMeshInner: React.FC<{
     open: boolean;
@@ -288,6 +291,7 @@ const DoorMeshInner: React.FC<{
 }> = ({ open, hasButton, showButton, buttonSideSign = 1, buttonFaceSign = 1, doorType, onButtonClick }) => {
     const baseDoorTex = useTexture(getDoorTexturePath(doorType));
     const baseWallTex = useTexture(`${texturesPath('wall.png')}?v=2`);
+    const doorLift = useMemo(() => getDoorLift(doorType), [doorType]);
     const buttonTexturePath = open
         ? miscPath('wall_switch_small_in.png')
         : miscPath('wall_switch_small_out.png');
@@ -304,9 +308,9 @@ const DoorMeshInner: React.FC<{
     useEffect(() => {
         if (!groupRef.current || didInitPosition.current) return;
         progress.current = open ? 1 : 0;
-        groupRef.current.position.y = DOOR_LIFT * progress.current;
+        groupRef.current.position.y = doorLift * progress.current;
         didInitPosition.current = true;
-    }, [open]);
+    }, [doorLift, open]);
 
     useFrame((_, delta) => {
         if (!groupRef.current) return;
@@ -315,7 +319,7 @@ const DoorMeshInner: React.FC<{
         progress.current = target > progress.current
             ? Math.min(target, progress.current + delta)
             : Math.max(target, progress.current - delta);
-        groupRef.current.position.y = DOOR_LIFT * progress.current;
+        groupRef.current.position.y = doorLift * progress.current;
     });
 
     const renderButtonStrip = hasButton;
@@ -369,6 +373,11 @@ const DoorMeshInner: React.FC<{
         <>
             {/* ── Animated door panel ── */}
             <group ref={groupRef}>
+                {doorType === 3 && (
+                    <group position={[doorOff, 0, RA_DOOR_CURTAIN_Z * buttonFaceSign]}>
+                        <PhotonsRaDoorCurtain scaleX={doorW * 0.96} scaleY={WALL_HEIGHT * 0.58} />
+                    </group>
+                )}
                 <Plane args={[doorW, WALL_HEIGHT]} position={[doorOff, 0, 0]}>
                     <meshBasicMaterial ref={matRef1} map={tex} transparent alphaTest={0.05} side={THREE.DoubleSide} />
                 </Plane>

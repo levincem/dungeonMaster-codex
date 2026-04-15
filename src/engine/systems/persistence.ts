@@ -1,4 +1,5 @@
 import type { Champion } from '../../data/champions';
+import { APP_VERSION, CURRENT_SAVE_SCHEMA_VERSION } from '../../appInfo';
 import type { ChampionEquipment, CreatureInstance, FloorItem } from '../../types/game';
 import type {
     ActivePoisonCloud,
@@ -33,6 +34,7 @@ export interface PersistableGameState {
     sensorRotationOffsets: Record<string, number>;
     visibleTexts: Set<string>;
     pendingSensorEvents: unknown[];
+    pendingGeneratorSpawns: unknown[];
     creatures: CreatureInstance[];
     floorItems: FloorItem[];
     championInventories: Record<number, FloorItem[]>;
@@ -73,6 +75,12 @@ export interface CreatureRuntimeMaps {
     creatureLastSeenPartyPos: Map<string, { x: number; y: number; expiresAt: number }>;
 }
 
+export type PersistedSaveInspection =
+    | { status: 'missing' }
+    | { status: 'corrupt' }
+    | { status: 'incompatible'; foundVersion?: number; buildVersion?: string }
+    | { status: 'compatible'; data: PersistedSaveData };
+
 export function buildPersistedSaveData(
     state: PersistableGameState,
     runtime: CreatureRuntimeMaps,
@@ -103,7 +111,8 @@ export function buildPersistedSaveData(
     }
 
     return {
-        version: 1,
+        version: CURRENT_SAVE_SCHEMA_VERSION,
+        buildVersion: APP_VERSION,
         savedAt: now,
         gameOptions: state.gameOptions,
         level: state.level,
@@ -121,6 +130,7 @@ export function buildPersistedSaveData(
         sensorRotationOffsets: state.sensorRotationOffsets,
         visibleTexts: [...state.visibleTexts],
         pendingSensorEvents: state.pendingSensorEvents,
+        pendingGeneratorSpawns: state.pendingGeneratorSpawns,
         creatures: state.creatures,
         floorItems: state.floorItems,
         championInventories: state.championInventories,
@@ -169,19 +179,31 @@ export function buildPersistedSaveData(
     };
 }
 
-export function tryParsePersistedSaveData(raw: string | null): PersistedSaveData | null {
-    if (!raw) return null;
+export function inspectPersistedSaveData(raw: string | null): PersistedSaveInspection {
+    if (!raw) return { status: 'missing' };
     try {
-        const parsed = JSON.parse(raw) as PersistedSaveData;
-        if (parsed?.version !== 1) return null;
-        if (!Array.isArray(parsed.position) || parsed.position.length !== 2) return null;
-        if (!Array.isArray(parsed.party) || !Array.isArray(parsed.creatures) || !Array.isArray(parsed.floorItems)) {
-            return null;
+        const parsed = JSON.parse(raw) as Partial<PersistedSaveData>;
+        if (typeof parsed?.version !== 'number') return { status: 'corrupt' };
+        if (parsed.version !== CURRENT_SAVE_SCHEMA_VERSION) {
+            return {
+                status: 'incompatible',
+                foundVersion: parsed.version,
+                buildVersion: typeof parsed.buildVersion === 'string' ? parsed.buildVersion : undefined,
+            };
         }
-        return parsed;
+        if (!Array.isArray(parsed.position) || parsed.position.length !== 2) return { status: 'corrupt' };
+        if (!Array.isArray(parsed.party) || !Array.isArray(parsed.creatures) || !Array.isArray(parsed.floorItems)) {
+            return { status: 'corrupt' };
+        }
+        return { status: 'compatible', data: parsed as PersistedSaveData };
     } catch {
-        return null;
+        return { status: 'corrupt' };
     }
+}
+
+export function tryParsePersistedSaveData(raw: string | null): PersistedSaveData | null {
+    const inspection = inspectPersistedSaveData(raw);
+    return inspection.status === 'compatible' ? inspection.data : null;
 }
 
 export function restoreExternalCreatureRuntimeFromSave(

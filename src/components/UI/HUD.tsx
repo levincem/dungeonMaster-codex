@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import {
     useStore,
 } from '../../engine/store';
-import { playStep, playCry, onSoundPlayed } from '../../engine/sounds';
+import { playStep, playWallBump, onSoundPlayed } from '../../engine/sounds';
 import type { ChampionCombat, ChampionTemporaryXP, ChampionXP, GameAction } from '../../engine/runtimeTypes';
-import { WEAPON_TYPES } from '../../data/items';
+import { WEAPON_TYPES, resolveItemName } from '../../data/items';
 import { getGameMap } from '../../data/mapLoader';
 import type { Champion } from '../../data/champions';
 import type { ChampionEquipment } from '../../types/game';
@@ -92,8 +92,10 @@ const CombatGrid: React.FC<{
                 const usableAttacks = allAttacks.filter((attack) =>
                     isAttackOptionUsableAtMastery(attack, getMasteryForAttack(attack)),
                 );
-                const weaponName = weapon?.category === 'Weapon'
-                    ? (WEAPON_TYPES[weapon.typeId]?.name ?? weapon.rawName ?? '?')
+                const weaponName = weapon
+                    ? (weapon.category === 'Weapon'
+                        ? (WEAPON_TYPES[weapon.typeId]?.name ?? weapon.rawName ?? '?')
+                        : resolveItemName(weapon.category, weapon.typeId, weapon.rawName))
                     : text.fist;
                 const isFlash = flash[i];
                 const menuOpen = openMenuIndex === i && ready && !!champ && allAttacks.length > 1;
@@ -759,7 +761,7 @@ export const HUD = () => {
         flashTimer.current = setTimeout(() => setFlashKey(null), 150);
     }, []);
 
-    // Like flash but also plays footstep/cry sound for movement actions
+    // Like flash but also plays footstep / wall-bump feedback for movement actions
     const move = useCallback((key: string, action: () => void) => {
         const cooldown = useStore.getState().movementCooldown;
         if (Number.isFinite(cooldown) && cooldown > 0) return;
@@ -767,7 +769,7 @@ export const HUD = () => {
         action();
         const posAfter = useStore.getState().position;
         const moved = posAfter[0] !== posBefore[0] || posAfter[1] !== posBefore[1];
-        if (moved) playStep(); else playCry();
+        if (moved) playStep(); else playWallBump();
         if (flashTimer.current) clearTimeout(flashTimer.current);
         setFlashKey(key);
         flashTimer.current = setTimeout(() => setFlashKey(null), 150);

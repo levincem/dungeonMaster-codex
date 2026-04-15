@@ -4,7 +4,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import { useStore, onCreatureAction } from '../../engine/store';
-import type { CreatureInstance } from '../../types/game';
+import type { CreatureCell, CreatureInstance } from '../../types/game';
 import { spritesPath } from '../../data/assetPaths';
 
 // Default sprite size
@@ -73,22 +73,27 @@ const SpriteInner = ({ typeId, frameRef, frameTimerRef }: SpriteInnerProps) => {
                 transparent
                 alphaTest={0.05}
                 side={THREE.DoubleSide}
-                depthWrite={false}
+                depthWrite
+                depthTest
             />
         </Plane>
     );
 };
 
-// Side offset: perpendicular to player's facing direction, ~25% of a tile
-const SIDE_OFFSET = GRID_SIZE * 0.25;
+const CELL_OFFSET_X = GRID_SIZE * 0.22;
+const CELL_OFFSET_Z = GRID_SIZE * 0.18;
 
-function sideOffsetXZ(direction: string, side: 'left' | 'right'): [number, number] {
-    const sign = side === 'left' ? -1 : 1;
+export function getCreatureCellOffsetXZ(direction: string, cell: CreatureCell): [number, number] {
+    if (cell === 'center') return [0, 0];
+
+    const lateral = cell.endsWith('Left') ? -CELL_OFFSET_X : CELL_OFFSET_X;
+    const depth = cell.startsWith('back') ? CELL_OFFSET_Z : -CELL_OFFSET_Z;
+
     switch (direction) {
-        case 'NORTH': return [sign * -SIDE_OFFSET, 0];
-        case 'SOUTH': return [sign *  SIDE_OFFSET, 0];
-        case 'EAST':  return [0, sign * -SIDE_OFFSET];
-        case 'WEST':  return [0, sign *  SIDE_OFFSET];
+        case 'NORTH': return [-lateral, depth];
+        case 'SOUTH': return [lateral, -depth];
+        case 'EAST':  return [-depth, -lateral];
+        case 'WEST':  return [depth, lateral];
         default:      return [0, 0];
     }
 }
@@ -96,7 +101,7 @@ function sideOffsetXZ(direction: string, side: 'left' | 'right'): [number, numbe
 // ─── Public component ──────────────────────────────────────────────────────────
 
 export const CreatureSprite = ({ creature }: { creature: CreatureInstance }) => {
-    const { x, y, typeId, side, id } = creature;
+    const { x, y, typeId, cell, id } = creature;
     const direction = useStore(s => s.direction);
 
     // Frame 0 = idle, 1 = move, 2 = attack
@@ -113,7 +118,7 @@ export const CreatureSprite = ({ creature }: { creature: CreatureInstance }) => 
     }, [id]);
 
     const billboardY = -GRID_SIZE / 2 + DEFAULT_H / 2 - 0.08;
-    const [offX, offZ] = sideOffsetXZ(direction, side);
+    const [offX, offZ] = getCreatureCellOffsetXZ(direction, cell);
 
     return (
         <Billboard

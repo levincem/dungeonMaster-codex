@@ -1,5 +1,5 @@
 import type { Champion } from './champions';
-import { getArmorDef, getWeaponAllowedSlotsMask, MISC_TYPES, SOURCE_BACKED_ARMOR_ALLOWED_SLOTS_BY_NAME, STARTER_ARMOR_SLOT_BY_NAME, normalizeLookupName, WEAPON_TYPES } from './items';
+import { getArmorDef, getSourceItemAllowedSlotsMask, getWeaponAllowedSlotsMask, MISC_TYPES, STARTER_ARMOR_SLOT_BY_NAME, normalizeLookupName, WEAPON_TYPES } from './items';
 import type { ChampionEquipment, FloorItem } from '../types/game';
 import type { ArmorSlot, EquipSlotKey } from '../types/items';
 
@@ -47,16 +47,6 @@ export const EMPTY_CHAMPION_WOUNDS: ChampionWounds = {
     feet: false,
 };
 
-const ARMOR_SLOT_TO_EQUIP_SLOT: Record<ArmorSlot, EquipSlotKey> = {
-    head: 'head',
-    neck: 'neck',
-    torso: 'torso',
-    legs: 'legs',
-    feet: 'feet',
-    hands: 'hands',
-    belt: 'belt',
-};
-
 const ZERO_BONUSES: EquipmentStatBonuses = {
     mana: 0,
     strength: 0,
@@ -68,26 +58,129 @@ const ZERO_BONUSES: EquipmentStatBonuses = {
     luck: 0,
 };
 
+function pushUniqueSlots(target: EquipSlotKey[], ...entries: EquipSlotKey[]): void {
+    for (const entry of entries) {
+        if (!target.includes(entry)) target.push(entry);
+    }
+}
+
+function addHandCarrySlots(target: EquipSlotKey[], allowedMask: number): void {
+    if (allowedMask === 0) return;
+    pushUniqueSlots(target, 'rightHand', 'leftHand');
+}
+
+function addSourceStorageSlots(target: EquipSlotKey[], allowedMask: number): void {
+    if (allowedMask & 64) pushUniqueSlots(target, 'quiver1', 'quiver2');
+    if (allowedMask & 128) pushUniqueSlots(target, 'quiver3', 'quiver4');
+    if (allowedMask & 256) pushUniqueSlots(target, 'pocket1', 'pocket2');
+}
+
+function mapArmorWearSlots(slot: ArmorSlot): EquipSlotKey[] {
+    switch (slot) {
+        case 'head':
+            return ['head'];
+        case 'neck':
+            return ['neck'];
+        case 'torso':
+            return ['torso'];
+        case 'legs':
+            return ['legs'];
+        case 'feet':
+            return ['feet'];
+        case 'hands':
+            return ['rightHand', 'leftHand'];
+        case 'belt':
+            return [];
+        default:
+            return [];
+    }
+}
+
+function addSourceWearSlots(target: EquipSlotKey[], allowedMask: number): void {
+    if (allowedMask & 2) pushUniqueSlots(target, 'head');
+    if (allowedMask & 4) pushUniqueSlots(target, 'neck');
+    if (allowedMask & 8) pushUniqueSlots(target, 'torso');
+    if (allowedMask & 16) pushUniqueSlots(target, 'legs');
+    if (allowedMask & 32) pushUniqueSlots(target, 'feet');
+}
+
 function mapExtractedWeaponSlots(typeId: number): EquipSlotKey[] {
     const allowedMask = getWeaponAllowedSlotsMask(typeId);
-    if (allowedMask == null) return [];
+    if (allowedMask == null || allowedMask === 0) return [];
 
-    const slots = new Set<EquipSlotKey>();
-    if (allowedMask & 64) {
-        slots.add('rightHand');
-        slots.add('leftHand');
+    const slots: EquipSlotKey[] = [];
+    const def = WEAPON_TYPES[typeId];
+    const preferStorageFirst = def?.type === 'Ammo' || def?.thrown === true;
+
+    if (preferStorageFirst) {
+        addSourceStorageSlots(slots, allowedMask);
+        addHandCarrySlots(slots, allowedMask);
+        return slots;
     }
-    if (allowedMask & 128) {
-        slots.add('quiver1');
-        slots.add('quiver2');
-        slots.add('quiver3');
-        slots.add('quiver4');
+
+    addHandCarrySlots(slots, allowedMask);
+    addSourceStorageSlots(slots, allowedMask);
+    return slots;
+}
+
+function mapExtractedArmorSlots(item: FloorItem): EquipSlotKey[] {
+    const allowedMask = getSourceItemAllowedSlotsMask('Armor', item.typeId);
+    const def = getArmorDef(item.typeId, item.rawName);
+    const slots: EquipSlotKey[] = [];
+
+    if (def) {
+        pushUniqueSlots(slots, ...mapArmorWearSlots(def.slot));
     }
-    if ((allowedMask & 256) || (allowedMask & 1024)) {
-        slots.add('pocket1');
-        slots.add('pocket2');
+
+    if (allowedMask == null || allowedMask === 0) return slots;
+
+    addSourceWearSlots(slots, allowedMask);
+    addHandCarrySlots(slots, allowedMask);
+    addSourceStorageSlots(slots, allowedMask);
+    return slots;
+}
+
+function mapExtractedMiscSlots(typeId: number): EquipSlotKey[] {
+    const allowedMask = getSourceItemAllowedSlotsMask('Misc', typeId);
+    if (allowedMask == null || allowedMask === 0) return [];
+
+    const slots: EquipSlotKey[] = [];
+    addSourceWearSlots(slots, allowedMask);
+    addSourceStorageSlots(slots, allowedMask);
+    addHandCarrySlots(slots, allowedMask);
+    return slots;
+}
+
+function mapExtractedConsumableSlots(category: 'Potion' | 'Scroll', typeId: number): EquipSlotKey[] {
+    const allowedMask = getSourceItemAllowedSlotsMask(category, typeId);
+    if (allowedMask == null || allowedMask === 0) return [];
+
+    const slots: EquipSlotKey[] = [];
+    addSourceStorageSlots(slots, allowedMask);
+    addHandCarrySlots(slots, allowedMask);
+    return slots;
+}
+
+function mapFallbackArmorSlots(item: FloorItem): EquipSlotKey[] {
+    const def = getArmorDef(item.typeId, item.rawName);
+    const rawName = normalizeLookupName(item.rawName) ?? '';
+    const overriddenSlot = STARTER_ARMOR_SLOT_BY_NAME[rawName];
+    if (overriddenSlot) return mapArmorWearSlots(overriddenSlot);
+    if (!def) return [];
+    return mapArmorWearSlots(def.slot);
+}
+
+function mapFallbackMiscSlots(item: FloorItem): EquipSlotKey[] {
+    const def = MISC_TYPES[item.typeId];
+    const name = (def?.name ?? item.rawName ?? '').toLowerCase();
+    if (
+        /jewel symal|illumulet|moonstone|ekkhard cross|pendant feral|choker/.test(name)
+    ) {
+        return ['neck', 'pocket1', 'pocket2', 'rightHand', 'leftHand'];
     }
-    return [...slots];
+    if (/rabbit/.test(name)) return ['pocket1', 'pocket2', 'rightHand', 'leftHand'];
+    if (def?.key) return ['pocket1', 'pocket2', 'rightHand', 'leftHand'];
+    return ['pocket1', 'pocket2', 'rightHand', 'leftHand'];
 }
 
 export function getItemWeight(item: FloorItem): number {
@@ -111,32 +204,22 @@ export function getEquippableSlots(item: FloorItem): EquipSlotKey[] {
             return ['rightHand', 'leftHand'];
         }
         case 'Armor': {
-            const def = getArmorDef(item.typeId, item.rawName);
-            const rawName = normalizeLookupName(item.rawName) ?? '';
-            const sourceBackedSlots = SOURCE_BACKED_ARMOR_ALLOWED_SLOTS_BY_NAME[rawName];
-            if (sourceBackedSlots && sourceBackedSlots.length > 0) {
-                return sourceBackedSlots.map((slot) => ARMOR_SLOT_TO_EQUIP_SLOT[slot]);
-            }
-            const overriddenSlot = STARTER_ARMOR_SLOT_BY_NAME[rawName];
-            if (overriddenSlot) return [overriddenSlot];
-            if (!def) return [];
-            return [ARMOR_SLOT_TO_EQUIP_SLOT[def.slot]];
+            const extractedSlots = mapExtractedArmorSlots(item);
+            if (extractedSlots.length > 0) return extractedSlots;
+            return mapFallbackArmorSlots(item);
         }
         case 'Misc': {
-            const def = MISC_TYPES[item.typeId];
-            const name = (def?.name ?? item.rawName ?? '').toLowerCase();
-            if (
-                /jewel symal|illumulet|moonstone|ekkhard cross|pendant feral|choker/.test(name)
-            ) {
-                return ['neck', 'pocket1', 'pocket2'];
-            }
-            if (/rabbit/.test(name)) return ['pocket1', 'pocket2'];
-            if (def?.key) return ['pocket1', 'pocket2', 'rightHand', 'leftHand'];
-            return ['pocket1', 'pocket2', 'rightHand', 'leftHand'];
+            const extractedSlots = mapExtractedMiscSlots(item.typeId);
+            if (extractedSlots.length > 0) return extractedSlots;
+            return mapFallbackMiscSlots(item);
         }
         case 'Potion':
-        case 'Scroll':
+            return mapExtractedConsumableSlots('Potion', item.typeId);
+        case 'Scroll': {
+            const extractedSlots = mapExtractedConsumableSlots('Scroll', item.typeId);
+            if (extractedSlots.length > 0) return extractedSlots;
             return ['pocket1', 'pocket2', 'rightHand', 'leftHand'];
+        }
         default:
             return [];
     }
@@ -157,6 +240,10 @@ export function getEquipmentStatBonuses(equip: ChampionEquipment | undefined): E
     const bonuses: EquipmentStatBonuses = { ...ZERO_BONUSES };
     for (const item of Object.values(equip)) {
         if (!item) continue;
+
+        if (item.cursed && (item.category === 'Weapon' || item.category === 'Armor')) {
+            bonuses.luck -= 3;
+        }
 
         if (item.category === 'Misc') {
             const def = MISC_TYPES[item.typeId];

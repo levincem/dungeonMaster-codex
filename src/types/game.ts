@@ -205,21 +205,23 @@ export interface GameMap {
 
 // ─── Runtime instances ─────────────────────────────────────────────────────────
 
-/** Left/right sub-position within a tile (up to 2 creatures per tile) */
-export type CreatureSide = 'left' | 'right';
+/** Sub-position within a tile, modeled after the original group cells. */
+export type CreatureCell = 'center' | 'frontLeft' | 'frontRight' | 'backLeft' | 'backRight';
 
 /** A creature alive in the dungeon */
 export interface CreatureInstance {
     id: string;          // unique per-spawn id
+    groupId?: string;    // shared by creatures belonging to the same original group
     typeId: number;      // references CREATURE_TYPES
     mapIndex: number;
     x: number;
     y: number;
     currentHP: number;
     alive: boolean;
-    /** Sub-position within the tile — 'left' or 'right' (at most 2 per tile) */
-    side: CreatureSide;
+    /** Sub-position within the tile */
+    cell: CreatureCell;
     carriedItems?: FloorItem[];
+    fixedDropsDropped?: boolean;
 }
 
 /** An item lying on the dungeon floor */
@@ -229,6 +231,7 @@ export interface FloorItem {
     typeId: number;
     /** Raw name from dungeon.json — may be a placeholder like "Misc_29" */
     rawName?: string;
+    cursed?: boolean;
     mapIndex: number;
     x: number;
     y: number;

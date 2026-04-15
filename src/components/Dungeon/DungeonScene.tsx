@@ -16,7 +16,7 @@ import type { EquipSlotKey } from '../../types/items';
 import { Cell, PressurePlate } from './Cell';
 import type { CellRenderType } from './Cell';
 import { InstancedTiles } from './InstancedTiles';
-import { CreatureSprite } from './CreatureSprite';
+import { CreatureSprite, getCreatureCellOffsetXZ } from './CreatureSprite';
 import { FloorItemMesh } from './FloorItemMesh';
 import { WallMountedItemMesh } from './WallMountedItemMesh';
 import { WallSensor } from './WallSensor';
@@ -37,6 +37,9 @@ const BASE_FOG_FAR = GRID_SIZE * 7;
 const FLOOR_DROP_SCREEN_RATIO = 0.7;
 const DUNGEON_AMBIENT_COLOR = new THREE.Color('#f4e2ba');
 const DUNGEON_DARK_AMBIENT_COLOR = new THREE.Color('#8ea0c0');
+const CAMERA_HEIGHT_OFFSET = 0;
+const CAMERA_FORWARD_OFFSET = 0;
+const CAMERA_LATERAL_OFFSET = 0;
 type MagicProjectileEffect = Exclude<ProjectileEffect, 'physical'>;
 function cloneTexture<T extends THREE.Texture>(
     texture: T,
@@ -83,13 +86,27 @@ const CameraController = () => {
     const initializedRef = useRef(false);
     const prevLevelRef = useRef(level);
     const prevPositionRef = useRef<[number, number]>(position);
-    const targetPos = useMemo(
-        () => new THREE.Vector3(position[1] * GRID_SIZE, 0, position[0] * GRID_SIZE),
-        [position],
-    );
     const rotationMap = { NORTH: 0, EAST: -Math.PI / 2, SOUTH: Math.PI, WEST: Math.PI / 2 };
+    const forwardVectorMap = {
+        NORTH: new THREE.Vector3(0, 0, -1),
+        EAST: new THREE.Vector3(1, 0, 0),
+        SOUTH: new THREE.Vector3(0, 0, 1),
+        WEST: new THREE.Vector3(-1, 0, 0),
+    };
+    const rightVectorMap = {
+        NORTH: new THREE.Vector3(1, 0, 0),
+        EAST: new THREE.Vector3(0, 0, 1),
+        SOUTH: new THREE.Vector3(-1, 0, 0),
+        WEST: new THREE.Vector3(0, 0, -1),
+    };
+    const targetPos = useMemo(() => {
+        const base = new THREE.Vector3(position[1] * GRID_SIZE, CAMERA_HEIGHT_OFFSET, position[0] * GRID_SIZE);
+        const forward = forwardVectorMap[direction as keyof typeof forwardVectorMap].clone().multiplyScalar(CAMERA_FORWARD_OFFSET);
+        const lateral = rightVectorMap[direction as keyof typeof rightVectorMap].clone().multiplyScalar(CAMERA_LATERAL_OFFSET);
+        return base.add(forward).add(lateral);
+    }, [direction, position]);
     const targetRot = rotationMap[direction as keyof typeof rotationMap];
-    const [initialCameraPosition] = useState<[number, number, number]>(() => [position[1] * GRID_SIZE, 0, position[0] * GRID_SIZE]);
+    const [initialCameraPosition] = useState<[number, number, number]>(() => [targetPos.x, targetPos.y, targetPos.z]);
     const [initialCameraRotation] = useState<[number, number, number]>(() => [0, targetRot, 0]);
 
     useEffect(() => {
@@ -277,10 +294,11 @@ function makeDamageBubbleTexture(amount: number): { texture: THREE.CanvasTexture
         return { texture: fallback, aspect: 1.6 };
     }
 
-    ctx.font = 'bold 72px "Courier New", monospace';
+    ctx.font = 'bold 76px "Courier New", monospace';
     const metrics = ctx.measureText(text);
-    const width = Math.max(220, Math.ceil(metrics.width + 64));
-    const height = 132;
+    const severity = Math.min(1, amount / 48);
+    const width = Math.max(220, Math.ceil(metrics.width + 82 + severity * 28));
+    const height = Math.max(132, Math.ceil(142 + severity * 18));
     canvas.width = width;
     canvas.height = height;
 
@@ -291,30 +309,61 @@ function makeDamageBubbleTexture(amount: number): { texture: THREE.CanvasTexture
     }
 
     draw.clearRect(0, 0, width, height);
-    draw.fillStyle = 'rgba(155, 16, 8, 0.94)';
-    draw.strokeStyle = 'rgba(255,140,92,0.95)';
-    draw.lineWidth = 5;
+    const cx = width / 2;
+    const cy = height / 2;
+    const outerRadiusX = width * (0.46 + severity * 0.03);
+    const outerRadiusY = height * (0.42 + severity * 0.04);
+    const innerRadiusX = outerRadiusX * 0.78;
+    const innerRadiusY = outerRadiusY * 0.73;
+    const spikes = 10;
 
-    const radius = height / 2;
     draw.beginPath();
-    draw.moveTo(radius, 6);
-    draw.lineTo(width - radius, 6);
-    draw.quadraticCurveTo(width - 6, 6, width - 6, radius);
-    draw.quadraticCurveTo(width - 6, height - 6, width - radius, height - 6);
-    draw.lineTo(radius, height - 6);
-    draw.quadraticCurveTo(6, height - 6, 6, radius);
-    draw.quadraticCurveTo(6, 6, radius, 6);
+    for (let i = 0; i < spikes * 2; i++) {
+        const angle = (-Math.PI / 2) + (i * Math.PI) / spikes;
+        const radiusX = i % 2 === 0 ? outerRadiusX : innerRadiusX;
+        const radiusY = i % 2 === 0 ? outerRadiusY : innerRadiusY;
+        const px = cx + Math.cos(angle) * radiusX;
+        const py = cy + Math.sin(angle) * radiusY;
+        if (i === 0) draw.moveTo(px, py); else draw.lineTo(px, py);
+    }
     draw.closePath();
+
+    const fill = draw.createRadialGradient(cx, cy, 8, cx, cy, Math.max(outerRadiusX, outerRadiusY));
+    fill.addColorStop(0, 'rgba(255, 246, 212, 0.98)');
+    fill.addColorStop(0.24, 'rgba(255, 194, 110, 0.96)');
+    fill.addColorStop(0.62, 'rgba(176, 40, 14, 0.96)');
+    fill.addColorStop(1, 'rgba(86, 6, 2, 0.98)');
+    draw.fillStyle = fill;
+    draw.strokeStyle = 'rgba(255, 236, 170, 0.98)';
+    draw.lineWidth = 7;
+    draw.lineJoin = 'round';
     draw.fill();
     draw.stroke();
 
-    draw.fillStyle = '#fff6dc';
+    draw.beginPath();
+    for (let i = 0; i < spikes * 2; i++) {
+        const angle = (-Math.PI / 2) + (i * Math.PI) / spikes;
+        const radiusX = (i % 2 === 0 ? outerRadiusX : innerRadiusX) * 0.79;
+        const radiusY = (i % 2 === 0 ? outerRadiusY : innerRadiusY) * 0.74;
+        const px = cx + Math.cos(angle) * radiusX;
+        const py = cy + Math.sin(angle) * radiusY;
+        if (i === 0) draw.moveTo(px, py); else draw.lineTo(px, py);
+    }
+    draw.closePath();
+    draw.strokeStyle = 'rgba(82, 10, 4, 0.9)';
+    draw.lineWidth = 3.5;
+    draw.stroke();
+
+    draw.fillStyle = '#fff7d2';
     draw.textAlign = 'center';
     draw.textBaseline = 'middle';
-    draw.font = 'bold 72px "Courier New", monospace';
-    draw.shadowColor = 'rgba(0, 0, 0, 0.85)';
+    draw.font = 'bold 76px "Courier New", monospace';
+    draw.shadowColor = 'rgba(24, 0, 0, 0.95)';
     draw.shadowBlur = 12;
-    draw.fillText(text, width / 2, height / 2 + 4);
+    draw.lineWidth = 5;
+    draw.strokeStyle = 'rgba(64, 8, 0, 0.95)';
+    draw.strokeText(text, cx, cy + 5);
+    draw.fillText(text, cx, cy + 5);
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
@@ -1165,10 +1214,15 @@ const ShieldAuraVisual: React.FC<{
 const FluxcageLayer: React.FC = () => {
     const creatures = useStore(s => s.creatures);
     const level = useStore(s => s.level);
+    const gamePhase = useStore(s => s.gamePhase);
+    const endgameSequence = useStore(s => s.endgameSequence);
     const nowMs = useWallClock();
+    const hideFluxcages = gamePhase === 'endgame' && Boolean(endgameSequence?.hideFluxcages);
     const activeCreatures = useMemo(
-        () => creatures.filter((creature) => creature.alive && creature.mapIndex === level && getCreatureFluxcageExpiry(creature.id) > nowMs),
-        [creatures, level, nowMs],
+        () => hideFluxcages
+            ? []
+            : creatures.filter((creature) => creature.alive && creature.mapIndex === level && getCreatureFluxcageExpiry(creature.id) > nowMs),
+        [creatures, level, nowMs, hideFluxcages],
     );
     const ringGeometry = useMemo(() => new THREE.TorusGeometry(0.28, 0.02, 8, 24), []);
     const barGeometry = useMemo(() => new THREE.CylinderGeometry(0.012, 0.012, 0.8, 6), []);
@@ -2335,6 +2389,8 @@ const CreaturesLayer: React.FC = () => {
 const DamageLayer: React.FC = () => {
     const damageEvents = useStore(s => s.damageEvents);
     const level = useStore(s => s.level);
+    const creatures = useStore(s => s.creatures);
+    const direction = useStore(s => s.direction);
     const [now, setNow] = useState(() => Date.now());
 
     useEffect(() => {
@@ -2347,18 +2403,26 @@ const DamageLayer: React.FC = () => {
             {damageEvents
                 .filter((evt) => evt.target === 'creature' && evt.level === level && evt.x !== undefined && evt.y !== undefined)
                 .map(evt => {
-                const age = Math.max(0, now - evt.ts);
-                const progress = Math.min(1, age / DAMAGE_EVENT_LIFETIME_MS);
-                return (
-                    <DamageNumberBillboard
-                        key={evt.id}
-                        x={evt.x!}
-                        y={evt.y!}
-                        amount={evt.amount}
-                        progress={progress}
-                    />
-                );
-            })}
+                    const age = Math.max(0, now - evt.ts);
+                    const progress = Math.min(1, age / DAMAGE_EVENT_LIFETIME_MS);
+                    const creature = evt.creatureId
+                        ? creatures.find((entry) => entry.alive && entry.mapIndex === level && entry.id === evt.creatureId)
+                        : undefined;
+                    const [offsetX, offsetZ] = creature
+                        ? getCreatureCellOffsetXZ(direction, creature.cell)
+                        : [0, 0];
+                    return (
+                        <DamageNumberBillboard
+                            key={evt.id}
+                            x={evt.x!}
+                            y={evt.y!}
+                            amount={evt.amount}
+                            progress={progress}
+                            offsetX={offsetX}
+                            offsetZ={offsetZ}
+                        />
+                    );
+                })}
         </>
     );
 };
@@ -2368,17 +2432,21 @@ const DamageNumberBillboard: React.FC<{
     y: number;
     amount: number;
     progress: number;
-}> = ({ x, y, amount, progress }) => {
+    offsetX?: number;
+    offsetZ?: number;
+}> = ({ x, y, amount, progress, offsetX = 0, offsetZ = 0 }) => {
     const { texture, aspect } = useMemo(() => makeDamageBubbleTexture(amount), [amount]);
     useEffect(() => () => texture.dispose(), [texture]);
-    const baseHeight = GRID_SIZE * 0.28;
+    const baseHeight = GRID_SIZE * (0.28 + Math.min(0.18, amount / 180));
     const width = baseHeight * aspect;
     const height = baseHeight;
-    const scale = Math.min(1.8, 1.02 + (amount / 40)) - progress * 0.12;
+    const scale = Math.max(0.94, Math.min(2.15, 0.96 + (amount / 30)) - progress * 0.1);
+    const verticalRise = GRID_SIZE * 0.12;
+    const burstY = GRID_SIZE * 0.36 + progress * verticalRise;
 
     return (
         <Billboard
-            position={[x * GRID_SIZE, WALL_HEIGHT * (0.92 + progress * 0.34), y * GRID_SIZE]}
+            position={[x * GRID_SIZE + offsetX, burstY, y * GRID_SIZE + offsetZ]}
             follow
             lockX={false}
             lockY={false}
@@ -2392,7 +2460,7 @@ const DamageNumberBillboard: React.FC<{
                     alphaTest={0.05}
                     depthWrite={false}
                     depthTest={false}
-                    opacity={1 - progress * 0.45}
+                    opacity={1 - progress * 0.3}
                     toneMapped={false}
                 />
             </mesh>
@@ -2583,6 +2651,7 @@ export const DungeonScene = () => {
     const dropCarriedItem = useStore(s => s.dropCarriedItem);
     const throwCarriedItem = useStore(s => s.throwCarriedItem);
     const activeSensors  = useStore(s => s.activeSensors);
+    const firedSensors   = useStore(s => s.firedSensors);
     const activeFloorDrag = useStore(s => s.activeFloorDrag);
     const floorItems      = useStore(s => s.floorItems);
     const party          = useStore(s => s.party);
@@ -2613,7 +2682,7 @@ export const DungeonScene = () => {
     const wallButtons = useMemo(() => {
         const buttonsByFace = new Map<string, { tileX: number; tileY: number; face: CardinalDir; sensorIndex: number; isLocal: boolean }>();
         const overlayKeys = new Set(
-            getOriginalWallOverlaysForMap(map, activeSensors).map((overlay) => `${overlay.tileX}:${overlay.tileY}:${overlay.face}`),
+            getOriginalWallOverlaysForMap(map, activeSensors, firedSensors).map((overlay) => `${overlay.tileX}:${overlay.tileY}:${overlay.face}`),
         );
         const partyX = position[1];
         const partyY = position[0];
@@ -2648,7 +2717,7 @@ export const DungeonScene = () => {
             face: button.face,
             sensorIndex: button.sensorIndex,
         }));
-    }, [activeSensors, level, map, openDoors, openWalls, position]);
+    }, [activeSensors, firedSensors, level, map, openDoors, openWalls, position]);
 
     const wallDecals = useMemo(() => {
         const stairsEntryFace = (x: number, y: number): CardinalDir => {
@@ -2695,7 +2764,7 @@ export const DungeonScene = () => {
             }
         }
 
-        for (const overlay of getOriginalWallOverlaysForMap(map, activeSensors)) {
+        for (const overlay of getOriginalWallOverlaysForMap(map, activeSensors, firedSensors)) {
             if (
                 isSelfRevealingWallTile(level, overlay.tileX, overlay.tileY) &&
                 openWalls.has(`${level},${overlay.tileY},${overlay.tileX}`)
@@ -2706,7 +2775,7 @@ export const DungeonScene = () => {
         }
 
         return decals;
-    }, [activeSensors, level, map, openDoors, openWalls, position]);
+    }, [activeSensors, firedSensors, level, map, openDoors, openWalls, position]);
 
     const pressurePlates = useMemo(() => {
         const seen = new Set<string>();

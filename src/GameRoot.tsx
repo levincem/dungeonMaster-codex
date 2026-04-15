@@ -1,4 +1,11 @@
-import { Suspense, lazy, useEffect, useRef } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useRef } from 'react';
+import {
+  endTrackedGameSession,
+  maybeTrackGameplayHeartbeat,
+  startTrackedGameSession,
+  trackGameVictory,
+  type GameAnalyticsSnapshot,
+} from './analytics';
 import { TitleScreen } from './components/UI/TitleScreen';
 import { useStore } from './engine/store';
 import { preloadAllSounds } from './engine/sounds';
@@ -25,6 +32,20 @@ const VictoryScreen = lazy(() =>
   import('./components/UI/VictoryScreen').then((module) => ({ default: module.VictoryScreen })),
 );
 
+function getAnalyticsSnapshot(): GameAnalyticsSnapshot {
+  const state = useStore.getState();
+  return {
+    level: state.level,
+    partySize: state.party.length,
+    phase: state.gamePhase,
+    sleeping: state.sleeping,
+  };
+}
+
+function isGameplayPhase(phase: GameAnalyticsSnapshot['phase']): boolean {
+  return phase === 'exploration' || phase === 'mirror_open' || phase === 'endgame';
+}
+
 function GameRoot() {
   const gamePhase = useStore((state) => state.gamePhase);
   const activePartyMemberId = useStore((state) => state.activePartyMemberId);
@@ -36,6 +57,18 @@ function GameRoot() {
 
   const lastTimeRef = useRef<number | null>(null);
   const tickInFlightRef = useRef(false);
+  const previousPhaseRef = useRef(gamePhase);
+
+  const handleEnterDungeon = useCallback(() => {
+    enterDungeon();
+    startTrackedGameSession('new_game', getAnalyticsSnapshot());
+  }, [enterDungeon]);
+
+  const handleLoadGame = useCallback(() => {
+    const loaded = loadGame();
+    if (!loaded) return;
+    startTrackedGameSession('resume', getAnalyticsSnapshot());
+  }, [loadGame]);
 
   useEffect(() => {
     let rafId: number;
@@ -88,6 +121,41 @@ function GameRoot() {
   useEffect(() => { preloadAllSounds(); }, []);
 
   useEffect(() => {
+    const heartbeatTimer = window.setInterval(() => {
+      const snapshot = getAnalyticsSnapshot();
+      if (!isGameplayPhase(snapshot.phase)) return;
+      maybeTrackGameplayHeartbeat(snapshot);
+    }, 10_000);
+
+    return () => window.clearInterval(heartbeatTimer);
+  }, []);
+
+  useEffect(() => {
+    const handlePageHide = () => {
+      endTrackedGameSession('page_hide', getAnalyticsSnapshot());
+    };
+
+    window.addEventListener('pagehide', handlePageHide);
+    return () => window.removeEventListener('pagehide', handlePageHide);
+  }, []);
+
+  useEffect(() => {
+    const previousPhase = previousPhaseRef.current;
+    if (previousPhase === gamePhase) return;
+
+    const snapshot = getAnalyticsSnapshot();
+
+    if (gamePhase === 'victory') {
+      trackGameVictory(snapshot);
+      endTrackedGameSession('victory', snapshot);
+    } else if (previousPhase !== 'title' && gamePhase === 'title') {
+      endTrackedGameSession('return_to_title', snapshot);
+    }
+
+    previousPhaseRef.current = gamePhase;
+  }, [gamePhase]);
+
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       wakeUp();
       if (e.key === 'Escape') {
@@ -116,7 +184,7 @@ function GameRoot() {
   return (
     <div className="app">
       {gamePhase === 'title' ? (
-        <TitleScreen onEnter={enterDungeon} onResume={loadGame} />
+        <TitleScreen onEnter={handleEnterDungeon} onResume={handleLoadGame} />
       ) : gamePhase === 'victory' ? (
         <Suspense fallback={null}>
           <VictoryScreen />

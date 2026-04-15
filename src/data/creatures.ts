@@ -1,5 +1,6 @@
 import originalCreaturesRaw from '../assets/data/original_creatures_runtime.json?raw';
 import { getGameDbRawSync } from './gameDbData';
+import { resolveItemName } from './items';
 
 const gameDb = JSON.parse(getGameDbRawSync()) as unknown;
 const originalCreatures = JSON.parse(originalCreaturesRaw) as unknown;
@@ -11,14 +12,12 @@ export type AttackType =
     | 'Poison'
     | 'Steal'
     | 'Rust'
-    | 'Alert'
-    | 'StaminaDrain'
-    | 'Immobilize'
-    | 'Teleport';
+    | 'StaminaDrain';
 
 export interface CreatureDef {
     id: number;
     name: string;
+    sizeOnTile: number;
     baseHP: number;
     armor: number;
     hitProb: number;
@@ -29,6 +28,7 @@ export interface CreatureDef {
     originalAttackType: OriginalAttackType;
     attackTypes: AttackType[];
     drops: string[];
+    fixedDrops: CreatureFixedDropSpec[];
     rawAttack: number;
     poisonAttack: number;
     dexterity: number;
@@ -49,6 +49,15 @@ export interface CreatureDef {
 
 export type OriginalAttackType = 'Unconditional' | 'Fire' | 'Impact' | 'Blunt' | 'Sharp' | 'Magic' | 'Mental' | 'Blast';
 
+export interface CreatureFixedDropSpec {
+    category: 'Weapon' | 'Armor' | 'Misc';
+    typeId: number;
+    rawName: string;
+    random: boolean;
+    cursed: boolean;
+    sourceObjectIndex: number;
+}
+
 interface OriginalCreatureDef {
     id: number;
     name: string;
@@ -68,6 +77,7 @@ interface OriginalCreaturesDataset {
 
 type RawI559Creature = {
     index: number;
+    sizeOnTile?: number;
     attack?: number;
     poisonAttack?: number;
     dexterity?: number;
@@ -107,7 +117,6 @@ const BASE_ATTACK_TYPE_MAP: Record<OriginalAttackType, AttackType[]> = {
 const ATTACK_TYPE_OVERRIDES: Partial<Record<number, AttackType[]>> = {
     2: ['Physical', 'Steal'],
     5: ['Physical', 'Rust'],
-    6: ['Alert'],
     8: ['StaminaDrain'],
     13: ['Physical', 'Poison'],
     14: ['Magic', 'Physical'],
@@ -122,18 +131,78 @@ const ATTACK_TYPE_OVERRIDES: Partial<Record<number, AttackType[]>> = {
     26: ['Physical', 'Magic'],
 };
 
-const DROP_OVERRIDES: Partial<Record<number, string[]>> = {
-    18: ['Falchion', 'TorsoPlateCursed'],
+// True fixed-possession tables extracted from I559 creature droppings.
+// Values are object-info indexes with 0x8000 marking a 50% random drop.
+const ORIGINAL_FIXED_DROP_OBJECTS: Partial<Record<number, readonly number[]>> = {
+    24: [163, 163, 163, 163, 163, 163, 163, 163, 0x80A3, 0x80A3],
+    15: [161, 0x80A1, 0x80A1],
+    6: [160, 0x80A0],
+    4: [162, 0x80A2],
+    7: [152, 0x8098, 0x8035, 0x8035],
+    18: [110, 109, 108, 33, 107, 33],
+    16: [46],
+    9: [47],
+    12: [32, 99],
 };
+
+function decodeFixedDropObject(
+    rawValue: number,
+    cursed: boolean,
+): CreatureFixedDropSpec {
+    const random = (rawValue & 0x8000) !== 0;
+    const objectInfoIndex = rawValue & 0x7fff;
+
+    if (objectInfoIndex >= 127) {
+        const typeId = objectInfoIndex - 127;
+        return {
+            category: 'Misc',
+            typeId,
+            rawName: resolveItemName('Misc', typeId),
+            random,
+            cursed,
+            sourceObjectIndex: objectInfoIndex,
+        };
+    }
+
+    if (objectInfoIndex >= 69) {
+        const typeId = objectInfoIndex - 69;
+        return {
+            category: 'Armor',
+            typeId,
+            rawName: resolveItemName('Armor', typeId),
+            random,
+            cursed,
+            sourceObjectIndex: objectInfoIndex,
+        };
+    }
+
+    const typeId = objectInfoIndex - 23;
+    return {
+        category: 'Weapon',
+        typeId,
+        rawName: resolveItemName('Weapon', typeId),
+        random,
+        cursed,
+        sourceObjectIndex: objectInfoIndex,
+    };
+}
+
+export function getOriginalCreatureFixedDropSpecs(creatureId: number): CreatureFixedDropSpec[] {
+    const rawEntries = ORIGINAL_FIXED_DROP_OBJECTS[creatureId] ?? [];
+    const cursed = creatureId === 18;
+    return rawEntries.map((entry) => decodeFixedDropObject(entry, cursed));
+}
 
 const dataset = originalCreatures as OriginalCreaturesDataset;
 
 export const CREATURE_TYPES: Record<number, CreatureDef> = Object.fromEntries(
     dataset.creatures.map((creature) => {
         const original = I559_CREATURES_BY_INDEX.get(creature.id);
+        const fixedDrops = getOriginalCreatureFixedDropSpecs(creature.id);
         return [creature.id, {
             id: creature.id,
             name: creature.name,
+            sizeOnTile: Math.max(0, Math.min(2, original?.sizeOnTile ?? 0)),
             baseHP: creature.baseHP,
             armor: creature.armor,
             hitProb: creature.hitProb,
@@ -143,7 +212,8 @@ export const CREATURE_TYPES: Record<number, CreatureDef> = Object.fromEntries(
             poison: creature.poison,
             originalAttackType: creature.attackType,
             attackTypes: ATTACK_TYPE_OVERRIDES[creature.id] ?? BASE_ATTACK_TYPE_MAP[creature.attackType] ?? ['Physical'],
-            drops: DROP_OVERRIDES[creature.id] ?? [],
+            drops: fixedDrops.map((drop) => drop.rawName),
+            fixedDrops,
             rawAttack: original?.attack ?? 0,
             poisonAttack: original?.poisonAttack ?? 0,
             dexterity: original?.dexterity ?? 0,

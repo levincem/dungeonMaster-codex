@@ -1,6 +1,6 @@
 ﻿# Dungeon Master Remake - Etat du projet
 
-Version remise a jour a partir du code observe le `2026-04-13`.
+Version remise a jour a partir du code observe le `2026-04-15`.
 
 ## Resume rapide
 
@@ -10,7 +10,8 @@ Le point important a ce stade:
 
 - l'extraction des donnees originales essentielles est consideree comme fiable
 - la dette principale n'est plus "trouver les donnees", mais "fermer les derniers ecarts de fidelite, nettoyer l'UX et optimiser"
-- le projet doit maintenant etre traite comme une beta desktop-first jouable, pas comme un prototype
+- le projet doit maintenant etre traite comme une alpha desktop-first jouable, pas comme un prototype
+- la reference prioritaire pour la fidelite runtime est la branche PC DOS `DM12/DM13`; l'Atari ST sert surtout de recoupement quand les comportements restent tres proches
 
 ## Passe recente frontend et prod
 
@@ -22,11 +23,62 @@ Points recales:
 - reorganisation des assets runtime sous `public/game/images` et `public/game/sounds`
 - embarquement des JSON critiques sous `src/assets/data` pour fiabiliser le boot
 - ecran titre avec `Enter The Dungeon` et `Resume`
-- modale de bienvenue beta bloquante au demarrage, plus aide rapide accessible depuis le HUD
+- modale de bienvenue alpha bloquante au demarrage, plus aide rapide accessible depuis le HUD
 - couche `i18n` simple avec anglais par defaut
 - panneau d'options en jeu avec remapping des touches de deplacement
 - blocage explicite sur smartphone tant qu'un vrai support mobile n'existe pas
 - ecran de victoire branche
+- instrumentation GA4 ajoutee pour suivre une session de jeu dans une SPA:
+  - `game_start`
+  - `game_resume`
+  - `game_heartbeat`
+  - `game_end`
+  - `game_victory`
+
+## Session 2026-04-15
+
+Points fermes dans cette passe:
+
+- generateurs de creatures au sol rebranches depuis une table source-backed compacte
+- spawns de generateurs recales un cran plus loin:
+  - creation atomique d'un vrai groupe runtime
+  - `groupId` partage pour les creatures d'un meme groupe
+  - formation initiale non artificielle au lieu d'un simple empilement centre puis renormalise
+- comportement de vol des `Gigglers` recale:
+  - le vol ne se limite plus a un objet aleatoire du backpack
+  - certains slots equipes legers sont maintenant aussi ciblables
+  - le Giggler repasse en fuite apres le vol dans l'esprit de la logique FTL
+- override manuel `Alert` retire pour le `Screamer`; retour a la lecture source-backed de son attaque `Mental`
+- actions d'objets source-backed restaurees au-dela des seules armes (`Block`, `Climb Down`, `Freeze Life`, `Flip`, etc.)
+- placeholders originaux ajoutes pour les portes `iron` et `ra`, avec effet energie runtime sur les portes `Ra`
+- recentrage automatique d'un monstre seul sur sa case, puis passage a de vraies sous-cases runtime pour les groupes (`frontLeft`, `frontRight`, `backLeft`, `backRight`)
+- ciblage melee recale pour conserver la logique "meme colonne avant sinon autre cible joignable de la ligne avant" avec ces nouvelles sous-cases
+- drops fixes de creatures recales sur `I559 creatureDroppings`, avec premiers objets maudits source-backed pour l'`Animated Armour`
+- malus `-3 luck` par objet maudit equipe comme dans le moteur original; aucun blocage de retrait manuel n'est actuellement prouve par le source FTL recale
+- `telefrag` retabli pour les arrivees forcees de la party par pit ou teleporter sur une case de creature
+- ouverture immediate des pits / teleporteurs sous la party ou sous les creatures rebranchee dans le runtime, au lieu d'attendre un deplacement ulterieur
+- `Lord Chaos` a retrouve un premier teleporter special cote IA: deplacement jusqu'a `2` cases avec case intermediaire ignoree, donc passage possible a travers murs et portes fermees comme dans la logique source
+- sprites d'objets au sol remis dans la profondeur normale pour ne plus traverser visuellement les monstres
+- teleporteurs recales un cran plus loin:
+  - la party recupere la vraie rotation runtime source-backed
+  - `back / strafe` declenchent aussi pits / stairs / teleporteurs
+  - les projectiles traversent maintenant les teleporteurs ouverts avec rotation
+  - les creatures reappliquent maintenant une rotation de sous-case approximative en traversant un teleporter
+  - les reseaux de teleporteurs en chaine sont maintenant suivis sur plusieurs sauts pour la party, les creatures et les projectiles
+- generateurs/groupes recales un cran plus loin:
+  - chaque groupe genere garde maintenant sa propre identite runtime
+  - les retries de generateur ne contournent plus la limite approximate des groupes actifs
+  - les generateurs de sol locaux se declenchent maintenant aussi sur entree directe de la party
+
+Decision de maintenance a ne plus reouvrir sans nouvelle evidence:
+
+- les assets refaits / modernises sont prioritaires sur tous les bitmaps originaux equivalents
+- les bitmaps originaux ne servent que de placeholders ou de secours temporaires
+- aucune couche de compatibilite de sauvegarde n'est a maintenir tant que le projet n'est pas en beta; les recalages runtime peuvent casser les saves existantes pendant cette phase
+
+Constat de scope important:
+
+- les generateurs muraux d'objets `type 12` existent dans le format moteur general, mais ne sont pas presents dans le donjon runtime DM charge par l'application; ce n'est donc pas un trou gameplay actif a traiter en priorite
 
 ## Tour des systemes du jeu
 
@@ -44,6 +96,7 @@ Reste a faire:
 
 - vrai game over
 - playtest complet et cible du flow de fin autour du `Firestaff` complet et de Lord Chaos
+  - volontairement reporte a plus tard tant que les chantiers runtime centraux ne sont pas clos
 
 ### Maps, geometrie et contenu spatial
 
@@ -59,6 +112,7 @@ Reste a faire:
 
 - verifier finement les derniers cas specifiques de pits, eau et cartes rares
 - continuer a tester les cas de teleports et transitions de niveau les plus atypiques
+  - note: le cas source "creature teleportee sur une map interdite" n'est pas observable dans la campagne DM de reference actuelle, car les `allowedCreatureTypes` extraits sont vides sur toutes les maps de ce donjon
 
 ### Champions, UI et inventaire
 
@@ -130,10 +184,11 @@ Etat actuel:
   - `Materializer` / `Zytaz` ne peuvent etre touches que pendant leur fenetre d'attaque
   - leur degat utilise aussi la composante aleatoire supplementaire de la source
 - faim, soif, nourriture et boisson ont ete reverifiees contre `CHAMPION.C` et `INVNTORY.C`:
-  - regen mana, stamina, HP et cadence sommeil/eveil recalees sur la boucle de survie source (`256` ticks eveille, `64` en dormant)
+  - regen mana, stamina, HP et cadence sommeil/eveil recalees sur la boucle de survie source (`64` ticks eveille, `16` en dormant)
+  - le palier plus lent (`256` ticks eveille, `64` en dormant) ne sert plus qu'a la detente progressive des statistiques courantes vers leur maximum
   - nourriture et eau suivent bien les reserves `Food` / `Water`
   - boire une gourde ou une flasque applique de nouveau `+800` / `+1600` eau comme dans l'original
-  - la fatigue appliquee a chaque pas suit de nouveau la formule de `MOVE.C` basee sur `load / maxLoad`, au lieu d'un cout maison trop bas et d'une cadence de regen trop rapide
+  - la fatigue appliquee a chaque pas suit de nouveau la formule source de deplacement `((Load * 3) / MaximumLoad) + 1`, au lieu d'un coefficient runtime errone qui vidait l'endurance beaucoup trop vite
 - les degats de retour des sorts sur le groupe ne sont plus repartis par simple facteur avant/arriere; ils suivent maintenant une dispersion plus proche de `F324_aezz_CHAMPION_DamageAll_GetDamagedChampionCount`
 - le combat creatures utilise maintenant plus directement la famille d'attaque originale en melee (`Blunt`, `Sharp`, `Magic`, `Fire`, `Mental`) au lieu d'un tirage hybride trop libre, et les shields magiques ne reduisent plus les attaques physiques par erreur
 - la probabilite de blessure est maintenant recalee sur le seuil source `random(128) + 10` ajuste par la vitalite, au lieu d'une formule maison beaucoup plus agressive
@@ -144,6 +199,7 @@ Etat actuel:
   - `Unconditional` n'utilise plus la mitigation physique standard
   - les shields tenus en main utilisent maintenant aussi la vraie table `Graphic 562` `G050 = [5,5,4,6,3,1]`, remontee dans le pipeline sous `woundDefenseFactors`
 - les creatures lanceuses de sorts source-backed (`Vexirk`, `Wizard Eye`, `Materializer/Zytaz`, `Demon`, `Red Dragon`, `Lord Chaos`) recreent maintenant de vrais projectiles runtime avec type de missile et energie proches de `GROUP1.C`, au lieu d'un simple degat instantane a distance
+- les fixed possessions de creatures suivent maintenant la vraie table `I559 creatureDroppings`, y compris les jets aleatoires de `Screamer Slice`, `Worm Round`, `Drumstick`, `Dragon Steak`, rochers, armes et armures fixes
 - les impacts de projectiles de creatures sur le groupe suivent de nouveau plus directement `PROJEXPL.C`:
   - impact cible `tete/torse` pour le champion vise
   - explosion secondaire sur la case du groupe pour `Fireball` / `Lightning Bolt`
@@ -222,11 +278,17 @@ Etat actuel:
 - absorption de missiles pour les familles qui l'ont
 - usage des teleporteurs par les monstres
 - meilleur espacement des attaquants a distance et profils magiques / flottants / non materiels
+- generateurs de creatures au sol revenus dans le runtime
+- creature seule rendue au centre de sa case, au lieu d'un decalage lateral permanent
 
 Reste a faire:
 
 - plusieurs comportements tres fins restent encore interpretes plutot que reproduits instruction par instruction
 - quelques familles speciales et cas de fin de jeu meritent encore des tests cibles
+- raffiner la fidelite des generateurs:
+  - cadence exacte
+  - nombre reel de creatures par repop
+  - interpretation exacte de `generatorHealthMultiplier`
 
 Verdict:
 
@@ -244,19 +306,27 @@ Etat actuel:
 - poison et steal sont branches cote monstres
 - plusieurs timings gameplay importants ont ete recales sur une base plus proche de l'original
 - degats flottants monstres visibles en scene et petit nuage de poussiere a la mort
-- chute dans les pits: impact sonore et degats sur les champions vivants, mais valeurs encore a confirmer
+- chute dans les pits: impact sonore et degats sur les champions vivants maintenant recales sur une vraie attaque source-backed `20` ciblee `legs/feet`, au lieu d'un petit jet maison
 
 Reste a faire:
 
 - certaines formules restent encore simplifiees
 - la mitigation de degats reste intentionnellement "bug-fixee" sur un point: le runtime continue d'utiliser `Anti-Magic` / `Anti-Fire`, alors que le binaire original souffrait du bug compilateur `BUG0_41` qui les neutralisait largement
-- `Rust`, `Teleport` et `Immobilize` ne doivent toujours pas etre vendus comme pleinement reproduits
-- confirmer si les valeurs de degats de chute peuvent etre derivees proprement des references originales
+- `Rust` ne doit pas etre traite comme une mecanique manquante a rebrancher a tout prix: tout indique qu'elle avait ete prevue puis jamais reellement programmee dans le jeu cible
+- `Immobilize` ne doit pas etre traite comme un manque: aucune trace fiable n'a ete retrouvee ni comme competence speciale de monstre ni comme sort
+- `Teleport` ne doit pas etre traite comme un type d'attaque creature generique:
+  - le vrai sujet restant est le teleporter special de `Lord Chaos`
+  - d'apres la reference, il peut se teleporter jusqu'a `2` cases, a travers murs et portes fermees, sans subir de degats
+  - ce point est maintenant rebranche dans l'IA, mais reste a verifier en playtest cible pour fermer completement l'alignement de fin de jeu
 - `THRUST` est de nouveau traite comme une vraie attaque de melee, au lieu de retomber par erreur dans le fallback des actions non physiques
 - `Freeze Life` est maintenant un vrai etat runtime source-backed, persiste en sauvegarde et ignore bien les creatures `archenemy`
 - `Calm`, `Brandish`, `Blow Horn` et `War Cry` ne sont plus des no-op: ils reutilisent la resistance a la peur extraite depuis `i559` et poussent bien les creatures a fuir
 - le sommeil n'est plus un gros fast-forward par clic: il est maintenant continu, tick par tick, et s'interrompt au prochain clic / appui clavier
-- `FUSE` sur Lord Chaos ne passe plus directement de "mort" a l'ecran de victoire: le runtime joue maintenant une vraie phase `endgame` avec alternance Chaos/Order, apparition du Grey Lord, purge des autres groupes et bascule finale vers la victoire
+- `FUSE` sur Lord Chaos ne passe plus directement de "mort" a l'ecran de victoire: le runtime joue maintenant une vraie phase `endgame` avec alternance Chaos/Order plus proche de `STARTND2.C`, apparition du Grey Lord, masquage des fluxcages, purge des autres groupes du niveau courant et bascule finale vers la victoire
+- l'Amalgam de fin ne laisse plus absorber son energie trop tot: l'etat mural et le verrou logique suivent de nouveau la progression `ZOKATHRA -> gem libre -> Firestaff complet`
+- la party recupere enfin la rotation source-backed des teleporteurs, et les deplacements `back/strafe` declenchent eux aussi correctement pits, stairs et teleporteurs au lieu de se comporter comme de simples pas "plats"
+- les projectiles traversent maintenant les teleporteurs ouverts avec rotation, au lieu d'etre resolus comme s'ils continuaient toujours sur leur ligne d'origine
+- les creatures qui franchissent un teleporter reappliquent maintenant une rotation de sous-case runtime, ce qui reduit l'ecart de disposition de groupe a l'arrivee
 
 ### Assets, presentation et finition
 
@@ -266,6 +336,8 @@ Etat actuel:
 - chargement des paths d'assets securise pour les deploys non-racine
 - rendu des projectiles et protections nettement meilleur
 - preload plus fiable depuis l'embarquement des JSON critiques dans `src/assets/data`
+- placeholders d'origine disponibles pour certaines portes encore non refaites (`iron`, `ra`)
+- les overlays / textures / images refaits restent prioritaires sur tout bitmap original equivalent
 
 Reste a faire:
 
@@ -286,14 +358,16 @@ Point de controle avant optimisation:
 - mecanismes: oui, grosse passe recente
 - creatures / IA: oui, grosse passe recente
 - sauvegarde / reprise: oui
-- sequence de fin / game over / victoire: non, encore incomplet
+- sequence de fin / game over / victoire: a revoir plus tard, volontairement pas prioritaire sur cette passe
 - optimisation: les builds passent, mais plusieurs chunks restent encore lourds
 
 ## Priorites recommandees
 
 ### 1. Fermer les derniers trous de fidelite
 
-- verifier les derniers cas rares de mecanismes et de fin de jeu
+- finir generateurs / groupes
+- finir `pits / teleporters / telefrag`
+- verifier les derniers cas rares de mecanismes
 - tester quelques familles de creatures encore sensibles
 - continuer a reduire la glue runtime restante la ou elle ne sert plus
 
@@ -305,6 +379,7 @@ Point de controle avant optimisation:
 
 ### 3. Finir le flow de jeu complet
 
+- a revoir plus tard, apres fermeture des trois chantiers runtime prioritaires
 - game over
 - fin / victoire
 - dernier polish UX
@@ -321,7 +396,7 @@ Point de controle avant optimisation:
 - confirmer les degats de chute contre les references originales si une formule exploitable apparait
 - continuer le polish visuel leger seulement si quelque chose choque encore en jeu
 
-### 4. Ameliorations beta / confort
+### 4. Ameliorations futures / confort
 
 - etendre le menu d'options
 - prevoir un export / import de sauvegarde en fichier texte, en plus du `localStorage`

@@ -1,4 +1,19 @@
+import { APP_VERSION, CURRENT_SAVE_SCHEMA_VERSION } from '../appInfo';
+import { inspectPersistedSaveData } from './systems/persistence';
+
 export const SAVE_STORAGE_KEY = 'dungeon-master-save-v1';
+
+export type PersistedSaveStatus =
+    | { kind: 'none' }
+    | { kind: 'ready' }
+    | { kind: 'corrupt' }
+    | {
+        kind: 'incompatible';
+        savedBuildVersion?: string;
+        savedSchemaVersion?: number;
+        currentBuildVersion: string;
+        currentSchemaVersion: number;
+    };
 
 export function hasPersistedSave(): boolean {
     try {
@@ -32,5 +47,25 @@ export function clearPersistedSave(): void {
         window.localStorage.removeItem(SAVE_STORAGE_KEY);
     } catch {
         // ignore storage failures
+    }
+}
+
+export function getPersistedSaveStatus(): PersistedSaveStatus {
+    const inspection = inspectPersistedSaveData(readPersistedSave());
+    switch (inspection.status) {
+        case 'missing':
+            return { kind: 'none' };
+        case 'compatible':
+            return { kind: 'ready' };
+        case 'corrupt':
+            return { kind: 'corrupt' };
+        case 'incompatible':
+            return {
+                kind: 'incompatible',
+                savedBuildVersion: inspection.buildVersion,
+                savedSchemaVersion: inspection.foundVersion,
+                currentBuildVersion: APP_VERSION,
+                currentSchemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
+            };
     }
 }

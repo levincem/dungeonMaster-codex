@@ -11,6 +11,11 @@ Useful files:
 
 The item art coverage is now in good shape overall.
 
+- Visual priority rule for the project:
+  - remade / modernized project art is always the first choice at runtime
+  - original extracted bitmaps are only placeholders or fallbacks when no remade asset exists yet
+  - this applies to overlays, door textures, and item-family placeholders as well as regular inventory art
+
 - Armor canonical IDs: fully mapped in the current runtime image table.
 - Misc canonical IDs: fully mapped except for one duplicate-name family handled by a shared image.
 - Runtime rendering now supports explicit name-based overrides for special objects whose extracted names are reliable even when raw type decoding is still heterogeneous in some places.
