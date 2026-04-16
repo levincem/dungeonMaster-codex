@@ -28,10 +28,13 @@ export default defineConfig({
             }
 
             if (
-              normalizedId.includes('/three/') ||
-              normalizedId.includes('/photons2/')
+              normalizedId.includes('/three/')
             ) {
               return 'three-core'
+            }
+
+            if (normalizedId.includes('/photons2/')) {
+              return 'photons-vendor'
             }
 
             if (normalizedId.includes('/@react-three/')) {
@@ -116,6 +119,10 @@ export default defineConfig({
             normalizedId.includes('/src/engine/sounds.ts')
           ) {
             return 'game-core'
+          }
+
+          if (normalizedId.includes('/src/components/Dungeon/PhotonsFireball.tsx')) {
+            return 'dungeon-effects'
           }
 
           if (normalizedId.includes('/src/components/Dungeon/')) {

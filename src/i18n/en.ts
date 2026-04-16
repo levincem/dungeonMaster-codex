@@ -6,6 +6,8 @@ export const en = {
         noSaveTitle: 'No saved game available',
         incompatibleSaveTitle: 'Saved game incompatible with this alpha build',
         corruptSaveTitle: 'Saved game unreadable',
+        resumeLoadingPrimary: 'Loading saved game...',
+        resumeLoadingBackup: 'Loading backup save...',
         incompatibleSaveNotice: (
             savedBuildVersion: string | undefined,
             savedSchemaVersion: number | undefined,

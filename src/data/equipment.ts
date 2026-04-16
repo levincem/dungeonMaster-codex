@@ -1,4 +1,4 @@
-import type { Champion } from './champions';
+import type { Champion } from '../types/champion';
 import { getArmorDef, getSourceItemAllowedSlotsMask, getWeaponAllowedSlotsMask, MISC_TYPES, STARTER_ARMOR_SLOT_BY_NAME, normalizeLookupName, WEAPON_TYPES } from './items';
 import type { ChampionEquipment, FloorItem } from '../types/game';
 import type { ArmorSlot, EquipSlotKey } from '../types/items';

@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tests.tsbuildinfo",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "types": ["node"],
+    "rootDir": ".",
+    "outDir": "./.test-dist",
+    "noEmit": false,
+    "verbatimModuleSyntax": false,
+    "allowImportingTsExtensions": false,
+    "erasableSyntaxOnly": false,
+    "esModuleInterop": true
+  },
+  "include": ["tests/**/*.ts", "tests/**/*.d.ts"]
+}

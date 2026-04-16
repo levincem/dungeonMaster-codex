@@ -1,5 +1,10 @@
-import type { Champion } from '../../data/champions';
+import type { Champion } from '../../types/champion';
 import { APP_VERSION, CURRENT_SAVE_SCHEMA_VERSION } from '../../appInfo';
+import { getGameMaps } from '../../data/mapLoader';
+import {
+    normalizeChampionTemporaryXP,
+    normalizeChampionXP,
+} from '../../data/skillProgression';
 import type { ChampionEquipment, CreatureInstance, FloorItem } from '../../types/game';
 import type {
     ActivePoisonCloud,
@@ -16,6 +21,12 @@ import type {
     Projectile,
     SpellLight,
 } from '../runtimeTypes';
+import { DEFAULT_GAME_OPTIONS } from '../options';
+import {
+    buildInitialChampionXP,
+    isLegacyChampionXPForChampion,
+    normalizeChampionVitalsForChampion,
+} from './championState';
 
 export interface PersistableGameState {
     gameOptions: import('../runtimeTypes').GameOptions;
@@ -25,6 +36,7 @@ export interface PersistableGameState {
     party: Champion[];
     gateOpen: boolean;
     openDoors: Set<string>;
+    brokenDoors: Set<string>;
     openPits: Set<string>;
     openTeleporters: Set<string>;
     openWalls: Set<string>;
@@ -75,11 +87,46 @@ export interface CreatureRuntimeMaps {
     creatureLastSeenPartyPos: Map<string, { x: number; y: number; expiresAt: number }>;
 }
 
+function buildDefaultOpenPits(): Set<string> {
+    const open = new Set<string>();
+    for (const map of getGameMaps()) {
+        for (const row of map.tiles) {
+            for (const tile of row) {
+                if (tile.type === 'Pit' && tile.open) {
+                    open.add(`${map.index},${tile.y},${tile.x}`);
+                }
+            }
+        }
+    }
+    return open;
+}
+
 export type PersistedSaveInspection =
     | { status: 'missing' }
     | { status: 'corrupt' }
     | { status: 'incompatible'; foundVersion?: number; buildVersion?: string }
     | { status: 'compatible'; data: PersistedSaveData };
+
+type PersistedSaveDataWithoutIntegrity = Omit<PersistedSaveData, 'integrity'>;
+
+function stripIntegrity(data: PersistedSaveData): PersistedSaveDataWithoutIntegrity {
+    const { integrity, ...rest } = data;
+    void integrity;
+    return rest;
+}
+
+function computeIntegrityHash(input: string): string {
+    let hash = 0x811c9dc5;
+    for (let index = 0; index < input.length; index += 1) {
+        hash ^= input.charCodeAt(index);
+        hash = Math.imul(hash, 0x01000193);
+    }
+    return (hash >>> 0).toString(16).padStart(8, '0');
+}
+
+export function computePersistedSaveIntegrity(data: PersistedSaveDataWithoutIntegrity): string {
+    return computeIntegrityHash(JSON.stringify(data));
+}
 
 export function buildPersistedSaveData(
     state: PersistableGameState,
@@ -110,7 +157,7 @@ export function buildPersistedSaveData(
         };
     }
 
-    return {
+    const baseData: PersistedSaveDataWithoutIntegrity = {
         version: CURRENT_SAVE_SCHEMA_VERSION,
         buildVersion: APP_VERSION,
         savedAt: now,
@@ -121,6 +168,7 @@ export function buildPersistedSaveData(
         party: state.party,
         gateOpen: state.gateOpen,
         openDoors: [...state.openDoors],
+        brokenDoors: [...state.brokenDoors],
         openPits: [...state.openPits],
         openTeleporters: [...state.openTeleporters],
         openWalls: [...state.openWalls],
@@ -177,6 +225,11 @@ export function buildPersistedSaveData(
         lastCreatureAttackGameTick: state.lastCreatureAttackGameTick,
         creatureTimers: serializedCreatureTimers,
     };
+
+    return {
+        ...baseData,
+        integrity: computePersistedSaveIntegrity(baseData),
+    };
 }
 
 export function inspectPersistedSaveData(raw: string | null): PersistedSaveInspection {
@@ -195,6 +248,12 @@ export function inspectPersistedSaveData(raw: string | null): PersistedSaveInspe
         if (!Array.isArray(parsed.party) || !Array.isArray(parsed.creatures) || !Array.isArray(parsed.floorItems)) {
             return { status: 'corrupt' };
         }
+        if (parsed.integrity !== undefined) {
+            if (typeof parsed.integrity !== 'string') return { status: 'corrupt' };
+            const saveData = parsed as PersistedSaveData;
+            const expectedIntegrity = computePersistedSaveIntegrity(stripIntegrity(saveData));
+            if (parsed.integrity !== expectedIntegrity) return { status: 'corrupt' };
+        }
         return { status: 'compatible', data: parsed as PersistedSaveData };
     } catch {
         return { status: 'corrupt' };
@@ -204,6 +263,106 @@ export function inspectPersistedSaveData(raw: string | null): PersistedSaveInspe
 export function tryParsePersistedSaveData(raw: string | null): PersistedSaveData | null {
     const inspection = inspectPersistedSaveData(raw);
     return inspection.status === 'compatible' ? inspection.data : null;
+}
+
+export function hydratePersistedGameState(
+    data: PersistedSaveData,
+    now = Date.now(),
+): PersistableGameState {
+    const championXP = Object.fromEntries(
+        data.party.map((champion) => {
+            const loaded = normalizeChampionXP(data.championXP?.[champion.id]);
+            const migrated = isLegacyChampionXPForChampion(champion, loaded)
+                ? buildInitialChampionXP(champion)
+                : loaded;
+            return [champion.id, migrated];
+        }),
+    );
+    const championTemporaryXP = Object.fromEntries(
+        data.party.map((champion) => [
+            champion.id,
+            normalizeChampionTemporaryXP(data.championTemporaryXP?.[champion.id]),
+        ]),
+    );
+
+    return {
+        gameOptions: data.gameOptions ?? DEFAULT_GAME_OPTIONS,
+        level: data.level,
+        position: data.position,
+        direction: data.direction,
+        party: data.party,
+        gateOpen: data.gateOpen,
+        openDoors: new Set<string>(data.openDoors),
+        brokenDoors: new Set<string>(data.brokenDoors ?? []),
+        openPits: new Set<string>(data.openPits ?? [...buildDefaultOpenPits()]),
+        openTeleporters: new Set<string>(data.openTeleporters),
+        openWalls: new Set<string>(data.openWalls),
+        activeSensors: new Set<string>(data.activeSensors),
+        firedSensors: new Set<string>(data.firedSensors),
+        sensorRuntimeData: data.sensorRuntimeData ?? {},
+        sensorRotationOffsets: data.sensorRotationOffsets ?? {},
+        visibleTexts: new Set<string>(data.visibleTexts),
+        pendingSensorEvents: data.pendingSensorEvents ?? [],
+        pendingGeneratorSpawns: data.pendingGeneratorSpawns ?? [],
+        creatures: data.creatures,
+        floorItems: data.floorItems,
+        championInventories: data.championInventories,
+        championEquipment: data.championEquipment,
+        championVitals: Object.fromEntries(
+            data.party
+                .map((champion) => {
+                    const vitals = data.championVitals[champion.id];
+                    return vitals ? [champion.id, normalizeChampionVitalsForChampion(champion, vitals)] : null;
+                })
+                .filter((entry): entry is [number, ChampionVitals] => entry !== null),
+        ),
+        championManaRegenBlockedUntilTick: data.championManaRegenBlockedUntilTick ?? {},
+        elapsedGameTimeTicks: data.elapsedGameTimeTicks,
+        regenTickRemainder: data.regenTickRemainder,
+        lastSurvivalEffectGameTick: data.lastSurvivalEffectGameTick ?? data.elapsedGameTimeTicks,
+        freezeLifeRemainingTicks: Math.max(0, data.freezeLifeRemainingTicks ?? 0),
+        lastPartyMoveGameTick: data.lastPartyMoveGameTick,
+        movementCooldown: data.movementCooldown,
+        championXP,
+        championTemporaryXP,
+        championCombat: data.championCombat,
+        crushingDoors: data.crushingDoors,
+        torchBurnStart: Object.fromEntries(
+            Object.entries(data.torchBurnElapsed).map(([itemId, elapsed]) => [itemId, now - elapsed]),
+        ),
+        spellLights: data.spellLights
+            .map((light) => ({ id: light.id, lightContrib: light.lightContrib, expiresAt: now + light.remainingMs }))
+            .filter((light) => light.expiresAt > now),
+        projectiles: data.projectiles.map((projectile) => {
+            const { nextMoveInMs, ...rest } = projectile;
+            return {
+                ...rest,
+                remainingAttack:
+                    rest.remainingAttack ?? (rest.effect !== 'physical' ? 90 : rest.remainingAttack),
+                nextMoveAt: now + nextMoveInMs,
+            };
+        }),
+        activePoisonClouds: data.activePoisonClouds ?? [],
+        activeShields: data.activeShields
+            .map((shield) => {
+                const { remainingMs, ...rest } = shield;
+                return { ...rest, expiresAt: now + remainingMs };
+            })
+            .filter((shield) => shield.expiresAt > now),
+        activePotionBoosts: (data.activePotionBoosts ?? [])
+            .map((boost) => {
+                const { remainingMs, ...rest } = boost;
+                return { ...rest, expiresAt: now + remainingMs };
+            })
+            .filter((boost) => boost.expiresAt > now),
+        invisibleUntil: data.invisibleRemainingMs > 0 ? now + data.invisibleRemainingMs : 0,
+        magicVisionUntil: data.magicVisionRemainingMs > 0 ? now + data.magicVisionRemainingMs : 0,
+        seeThroughWallsUntil: data.seeThroughWallsRemainingMs > 0 ? now + data.seeThroughWallsRemainingMs : 0,
+        footprintsUntil: data.footprintsRemainingMs > 0 ? now + data.footprintsRemainingMs : 0,
+        footprintHistory: data.footprintHistory,
+        deadChampions: data.deadChampions,
+        lastCreatureAttackGameTick: data.lastCreatureAttackGameTick ?? 0,
+    };
 }
 
 export function restoreExternalCreatureRuntimeFromSave(

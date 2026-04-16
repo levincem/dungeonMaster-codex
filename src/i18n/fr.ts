@@ -6,6 +6,8 @@ export const fr = {
         noSaveTitle: 'Aucune sauvegarde disponible',
         incompatibleSaveTitle: 'Sauvegarde incompatible avec cette build alpha',
         corruptSaveTitle: 'Sauvegarde illisible',
+        resumeLoadingPrimary: 'Chargement de la sauvegarde...',
+        resumeLoadingBackup: 'Chargement depuis la sauvegarde de secours...',
         incompatibleSaveNotice: (
             savedBuildVersion: string | undefined,
             savedSchemaVersion: number | undefined,

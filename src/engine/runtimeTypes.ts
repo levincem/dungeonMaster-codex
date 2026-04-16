@@ -1,4 +1,4 @@
-import type { Champion } from '../data/champions';
+import type { Champion } from '../types/champion';
 import type { ChampionWounds } from '../data/equipment';
 import type { ChampionTemporaryXP, ChampionXP } from '../data/skillProgression';
 import type { ChampionEquipment, CreatureInstance, FloorItem } from '../types/game';
@@ -161,6 +161,7 @@ export interface PersistedSaveData {
     version: number;
     buildVersion?: string;
     savedAt: number;
+    integrity?: string;
     gameOptions?: GameOptions;
     level: number;
     position: [number, number];
@@ -168,6 +169,7 @@ export interface PersistedSaveData {
     party: Champion[];
     gateOpen: boolean;
     openDoors: string[];
+    brokenDoors?: string[];
     openPits: string[];
     openTeleporters: string[];
     openWalls: string[];

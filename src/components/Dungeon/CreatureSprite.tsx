@@ -4,8 +4,9 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import { useStore, onCreatureAction } from '../../engine/store';
-import type { CreatureCell, CreatureInstance } from '../../types/game';
+import type { CreatureInstance } from '../../types/game';
 import { spritesPath } from '../../data/assetPaths';
+import { getCreatureCellOffsetXZ } from './creatureCellOffsets';
 
 // Default sprite size
 const DEFAULT_W = GRID_SIZE   * 0.65;
@@ -79,24 +80,6 @@ const SpriteInner = ({ typeId, frameRef, frameTimerRef }: SpriteInnerProps) => {
         </Plane>
     );
 };
-
-const CELL_OFFSET_X = GRID_SIZE * 0.22;
-const CELL_OFFSET_Z = GRID_SIZE * 0.18;
-
-export function getCreatureCellOffsetXZ(direction: string, cell: CreatureCell): [number, number] {
-    if (cell === 'center') return [0, 0];
-
-    const lateral = cell.endsWith('Left') ? -CELL_OFFSET_X : CELL_OFFSET_X;
-    const depth = cell.startsWith('back') ? CELL_OFFSET_Z : -CELL_OFFSET_Z;
-
-    switch (direction) {
-        case 'NORTH': return [-lateral, depth];
-        case 'SOUTH': return [lateral, -depth];
-        case 'EAST':  return [-depth, -lateral];
-        case 'WEST':  return [depth, lateral];
-        default:      return [0, 0];
-    }
-}
 
 // ─── Public component ──────────────────────────────────────────────────────────
 

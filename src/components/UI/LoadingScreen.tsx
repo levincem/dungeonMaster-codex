@@ -41,7 +41,7 @@ interface Props {
 }
 
 export const LoadingScreen = ({ onDone, autoStart = true }: Props) => {
-    const totalAssets = IMAGE_ASSETS.length + 3;
+    const totalAssets = IMAGE_ASSETS.length + 2;
     const [loaded, setLoaded] = useState(autoStart ? 0 : totalAssets);
     const [fadeOut, setFadeOut] = useState(false);
     const pct = totalAssets > 0 ? Math.round((loaded / totalAssets) * 100) : 0;
@@ -83,11 +83,7 @@ export const LoadingScreen = ({ onDone, autoStart = true }: Props) => {
             void finishOne();
         });
 
-        preloadOriginalWallOverlayData().then(() => {
-            void finishOne();
-        }).catch(() => {
-            void finishOne();
-        });
+        void preloadOriginalWallOverlayData().catch(() => {});
 
         return () => {
             active = false;

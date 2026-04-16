@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState, type CSSProperties } from 'react';
-import { getPersistedSaveStatus } from '../../engine/saveGame';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { getPersistedSaveStatus, type SaveSource } from '../../engine/saveGame';
 import { APP_VERSION } from '../../appInfo';
 import { miscPath, texturesPath } from '../../data/assetPaths';
 import { useI18n } from '../../i18n';
@@ -17,6 +17,8 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
     const [opening, setOpening] = useState(false);
     const [logoVisible, setLogoVisible] = useState(false);
     const [showScene, setShowScene] = useState(false);
+    const [resumeLoadingSource, setResumeLoadingSource] = useState<SaveSource | null>(null);
+    const resumeTimerRef = useRef<number | null>(null);
 
     useEffect(() => {
         const logoTimer = window.setTimeout(() => setLogoVisible(true), 120);
@@ -24,6 +26,9 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
         return () => {
             window.clearTimeout(logoTimer);
             window.clearTimeout(sceneTimer);
+            if (resumeTimerRef.current !== null) {
+                window.clearTimeout(resumeTimerRef.current);
+            }
         };
     }, []);
 
@@ -39,9 +44,16 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
     };
 
     const handleResume = () => {
-        if (!hasCompatibleSave || opening || !onResume) return;
-        onResume();
+        if (!hasCompatibleSave || opening || resumeLoadingSource || !onResume) return;
+        setResumeLoadingSource(saveStatus.source);
+        resumeTimerRef.current = window.setTimeout(() => {
+            onResume();
+        }, 1350);
     };
+
+    const resumeLoadingMessage = resumeLoadingSource === 'backup'
+        ? text.resumeLoadingBackup
+        : text.resumeLoadingPrimary;
 
     const buttonBase: CSSProperties = {
         width: 216,
@@ -188,6 +200,7 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
                         type="button"
                         onClick={handleEnter}
                         style={buttonBase}
+                        disabled={resumeLoadingSource !== null}
                     >
                         <img
                             src={miscPath('wall_switch_green_out.png')}
@@ -214,7 +227,7 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
                         style={{
                             ...buttonBase,
                             opacity: hasCompatibleSave ? 1 : 0.46,
-                            cursor: hasCompatibleSave ? 'pointer' : 'not-allowed',
+                            cursor: hasCompatibleSave && !resumeLoadingSource ? 'pointer' : 'not-allowed',
                         }}
                         title={
                             hasCompatibleSave
@@ -315,6 +328,32 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
                 zIndex: 4,
             }}>
                 {appVersion}
+            </div>
+
+            <div style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'rgba(0, 0, 0, 0.96)',
+                opacity: resumeLoadingSource ? 1 : 0,
+                pointerEvents: resumeLoadingSource ? 'auto' : 'none',
+                transition: 'opacity 0.2s ease',
+                zIndex: 10,
+            }}>
+                <div style={{
+                    color: '#d7c288',
+                    fontSize: 20,
+                    letterSpacing: 1.8,
+                    textTransform: 'uppercase',
+                    fontFamily: '"Times New Roman", serif',
+                    textAlign: 'center',
+                    textShadow: '0 2px 12px rgba(0,0,0,0.9)',
+                    padding: '0 24px',
+                }}>
+                    {resumeLoadingMessage}
+                </div>
             </div>
         </div>
     );

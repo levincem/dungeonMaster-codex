@@ -7,6 +7,7 @@ import {
   type GameAnalyticsSnapshot,
 } from './analytics';
 import { TitleScreen } from './components/UI/TitleScreen';
+import { GameOverScreen } from './components/UI/GameOverScreen';
 import { useStore } from './engine/store';
 import { preloadAllSounds } from './engine/sounds';
 import { clampFrameDeltaSeconds } from './engine/time';
@@ -90,7 +91,7 @@ function GameRoot() {
       tickInFlightRef.current = true;
       try {
         const state = useStore.getState();
-        if (lastTimeRef.current !== null && state.gamePhase !== 'title' && state.gamePhase !== 'victory') {
+        if (lastTimeRef.current !== null && state.gamePhase !== 'title' && state.gamePhase !== 'victory' && state.gamePhase !== 'game_over') {
           const delta = clampFrameDeltaSeconds((now - lastTimeRef.current) / 1000);
           const wallClockNow = Date.now();
           state.tickFrame(delta, wallClockNow);
@@ -148,6 +149,8 @@ function GameRoot() {
     if (gamePhase === 'victory') {
       trackGameVictory(snapshot);
       endTrackedGameSession('victory', snapshot);
+    } else if (gamePhase === 'game_over') {
+      endTrackedGameSession('game_over', snapshot);
     } else if (previousPhase !== 'title' && gamePhase === 'title') {
       endTrackedGameSession('return_to_title', snapshot);
     }
@@ -185,6 +188,8 @@ function GameRoot() {
     <div className="app">
       {gamePhase === 'title' ? (
         <TitleScreen onEnter={handleEnterDungeon} onResume={handleLoadGame} />
+      ) : gamePhase === 'game_over' ? (
+        <GameOverScreen />
       ) : gamePhase === 'victory' ? (
         <Suspense fallback={null}>
           <VictoryScreen />

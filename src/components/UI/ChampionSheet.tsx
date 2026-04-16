@@ -4,6 +4,7 @@ import type { Champion } from '../../data/champions';
 import { getGameMap } from '../../data/mapLoader';
 import { getMechanismsAt } from '../../data/mechanisms';
 import { hasOriginalWallOverlayAt } from '../../data/originalWallOverlays';
+import { getDisplayedItemName } from '../../data/itemDisplay';
 import {
     CRITICAL_FOOD_THRESHOLD,
     CRITICAL_WATER_THRESHOLD,
@@ -15,6 +16,7 @@ import {
     xpToLevel,
 } from '../../engine/store';
 import { MISC_TYPES, getPotionDef, resolveItemName } from '../../data/items';
+import type { Direction } from '../../engine/runtimeTypes';
 import type { EquipSlotKey } from '../../types/items';
 import type { FloorItem, ChampionEquipment } from '../../types/game';
 import { getEquippedItemImage, getInventoryItemImage } from '../../data/itemImages';
@@ -144,8 +146,12 @@ const SKILL_COLORS: Record<string, string> = {
 };
 
 // ─── Item helpers ─────────────────────────────────────────────────────────────
-function getItemName(item: FloorItem): string {
-    return resolveItemName(item.category, item.typeId, item.rawName);
+function getItemName(item: FloorItem, direction?: Direction): string {
+    return getDisplayedItemName(
+        resolveItemName(item.category, item.typeId, item.rawName),
+        item,
+        direction,
+    );
 }
 
 function isConsumable(item: FloorItem): boolean {
@@ -341,8 +347,9 @@ const BackpackGrid: React.FC<{
     onReadScroll: (item: FloorItem) => void; onUseItem: (id: string) => void;
     onUnequipToInventory: (e: React.DragEvent) => void;
     onItemDragStart: (p: DragPayload) => void; onItemDragEnd: () => void;
+    direction: Direction;
     text: ReturnType<typeof useI18n>['championSheet'];
-}> = ({ inv, champion, onEquip, onDropToFloor, onReadScroll, onUseItem, onUnequipToInventory, onItemDragStart, onItemDragEnd, text }) => (
+}> = ({ inv, champion, onEquip, onDropToFloor, onReadScroll, onUseItem, onUnequipToInventory, onItemDragStart, onItemDragEnd, direction, text }) => (
     <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 6, padding: 10, display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}
         onDragOver={e => e.preventDefault()} onDrop={onUnequipToInventory}
     >
@@ -358,7 +365,7 @@ const BackpackGrid: React.FC<{
                     <div key={item.id} draggable
                         onDragStart={e => { const p: DragPayload = { itemId: item.id, fromChampionId: champion.id, fromSlot: 'inventory' }; setDragPayload(e, p); onItemDragStart(p); }}
                         onDragEnd={onItemDragEnd}
-                        title={getItemName(item)}
+                        title={getItemName(item, direction)}
                         style={{ aspectRatio: '1', border: `1px solid ${T.slotBorder}`, borderRadius: 3, background: T.slotBg, cursor: 'grab', position: 'relative', overflow: 'hidden' }}>
                         <ItemThumb item={item} size={72} />
                         <div style={{
@@ -373,7 +380,7 @@ const BackpackGrid: React.FC<{
                             gap: 2,
                         }}>
                             <div style={{ fontSize: 8, color: T.cream, textAlign: 'center', lineHeight: 1.1, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%', textShadow: '0 1px 2px rgba(0,0,0,0.85)' }}>
-                                {getItemName(item).substring(0, 12)}
+                                {getItemName(item, direction).substring(0, 12)}
                             </div>
                             <div style={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
                                 {getEquippableSlots(item).length > 0 && <button onClick={() => onEquip(item)} title={text.equip} style={{ background: T.goldDim, border: 'none', borderRadius: 2, color: '#000', fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>↑</button>}
@@ -814,6 +821,7 @@ export const ChampionSheet: React.FC = () => {
                             onUnequipToInventory={handleUnequipToInventory}
                             onItemDragStart={p => handleDragBegin(p, equip, inv)}
                             onItemDragEnd={handleDragEnd}
+                            direction={direction}
                             text={text}
                         />
 

@@ -279,26 +279,96 @@ const DOOR_OFF_X = -(BTN_W / 2);
 const BTN_CX     = GRID_SIZE / 2 - BTN_W / 2;
 const BTN_OVERLAY_Z = 0.003;
 const RA_DOOR_CURTAIN_Z = 0.012;
+const BROKEN_DOOR_HEIGHT = WALL_HEIGHT * 0.34;
+const BROKEN_DOOR_Y = -(WALL_HEIGHT - BROKEN_DOOR_HEIGHT) / 2;
+
+function makeBrokenDoorTexture(texture: THREE.Texture): THREE.Texture {
+    const image = texture.image as CanvasImageSource | undefined;
+    const width = (image as { width?: number } | undefined)?.width ?? 0;
+    const height = (image as { height?: number } | undefined)?.height ?? 0;
+    if (!image || !width || !height) {
+        return cloneTexture(texture, next => {
+            next.colorSpace = THREE.SRGBColorSpace;
+        });
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        return cloneTexture(texture, next => {
+            next.colorSpace = THREE.SRGBColorSpace;
+        });
+    }
+
+    ctx.drawImage(image, 0, 0, width, height);
+
+    const jag = [
+        [0, height * 0.44],
+        [width * 0.16, height * 0.2],
+        [width * 0.3, height * 0.36],
+        [width * 0.48, height * 0.12],
+        [width * 0.63, height * 0.3],
+        [width * 0.82, height * 0.18],
+        [width, height * 0.28],
+    ] as const;
+
+    ctx.globalCompositeOperation = 'destination-in';
+    ctx.beginPath();
+    ctx.moveTo(jag[0][0], jag[0][1]);
+    jag.slice(1).forEach(([x, y]) => ctx.lineTo(x, y));
+    ctx.lineTo(width, height);
+    ctx.lineTo(0, height);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.globalCompositeOperation = 'source-atop';
+    ctx.fillStyle = 'rgba(24, 16, 12, 0.28)';
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.42)';
+    ctx.lineWidth = Math.max(2, width * 0.012);
+    for (const startX of [0.18, 0.39, 0.71]) {
+        ctx.beginPath();
+        ctx.moveTo(width * startX, height * 0.08);
+        ctx.lineTo(width * (startX - 0.04), height * 0.34);
+        ctx.lineTo(width * (startX + 0.02), height * 0.6);
+        ctx.lineTo(width * (startX - 0.03), height * 0.92);
+        ctx.stroke();
+    }
+
+    ctx.fillStyle = 'rgba(255, 230, 180, 0.08)';
+    ctx.fillRect(0, height * 0.72, width, height * 0.28);
+
+    const next = new THREE.CanvasTexture(canvas);
+    next.colorSpace = THREE.SRGBColorSpace;
+    next.needsUpdate = true;
+    return next;
+}
 
 const DoorMeshInner: React.FC<{
     open: boolean;
+    broken: boolean;
     hasButton: boolean;
     showButton: boolean;
     buttonSideSign?: 1 | -1;
     buttonFaceSign?: 1 | -1;
     doorType?: number;
     onButtonClick?: (e: ThreeEvent<MouseEvent>) => void;
-}> = ({ open, hasButton, showButton, buttonSideSign = 1, buttonFaceSign = 1, doorType, onButtonClick }) => {
+}> = ({ open, broken, hasButton, showButton, buttonSideSign = 1, buttonFaceSign = 1, doorType, onButtonClick }) => {
     const baseDoorTex = useTexture(getDoorTexturePath(doorType));
     const baseWallTex = useTexture(`${texturesPath('wall.png')}?v=2`);
     const doorLift = useMemo(() => getDoorLift(doorType), [doorType]);
-    const buttonTexturePath = open
+    const effectiveOpen = open || broken;
+    const buttonTexturePath = effectiveOpen
         ? miscPath('wall_switch_small_in.png')
         : miscPath('wall_switch_small_out.png');
     const baseButtonTex = useSafeTexture(buttonTexturePath, miscPath('wall_switch_small.png'));
     const groupRef = useRef<THREE.Group>(null);
     const matRef1  = useRef<THREE.MeshBasicMaterial>(null);
-    const progress = useRef(open ? 1 : 0);
+    const progress = useRef(effectiveOpen ? 1 : 0);
     const didInitPosition = useRef(false);
 
     const clipPlane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, -1, 0), HALF), []);
@@ -307,14 +377,14 @@ const DoorMeshInner: React.FC<{
     }, [clipPlane]);
     useEffect(() => {
         if (!groupRef.current || didInitPosition.current) return;
-        progress.current = open ? 1 : 0;
+        progress.current = effectiveOpen ? 1 : 0;
         groupRef.current.position.y = doorLift * progress.current;
         didInitPosition.current = true;
-    }, [doorLift, open]);
+    }, [doorLift, effectiveOpen]);
 
     useFrame((_, delta) => {
         if (!groupRef.current) return;
-        const target = open ? 1 : 0;
+        const target = effectiveOpen ? 1 : 0;
         if (progress.current === target) return;
         progress.current = target > progress.current
             ? Math.min(target, progress.current + delta)
@@ -323,7 +393,7 @@ const DoorMeshInner: React.FC<{
     });
 
     const renderButtonStrip = hasButton;
-    const renderButtons = hasButton && showButton;
+    const renderButtons = hasButton && showButton && !broken;
     const doorW   = renderButtonStrip ? DOOR_W_BTN : GRID_SIZE;
     const doorOff = renderButtonStrip ? DOOR_OFF_X * buttonSideSign : 0;
     const buttonStripWidth = BTN_W;
@@ -360,9 +430,14 @@ const DoorMeshInner: React.FC<{
             }),
         );
     }, [baseButtonTex]);
+    const brokenDoorTex = useMemo(
+        () => (broken ? makeBrokenDoorTexture(baseDoorTex) : null),
+        [baseDoorTex, broken],
+    );
     useEffect(() => () => tex.dispose(), [tex]);
     useEffect(() => () => wallTex.dispose(), [wallTex]);
     useEffect(() => () => buttonTex?.dispose(), [buttonTex]);
+    useEffect(() => () => brokenDoorTex?.dispose(), [brokenDoorTex]);
 
     const handleBtnClick = (e: ThreeEvent<MouseEvent>) => {
         e.stopPropagation();
@@ -372,16 +447,27 @@ const DoorMeshInner: React.FC<{
     return (
         <>
             {/* ── Animated door panel ── */}
-            <group ref={groupRef}>
-                {doorType === 3 && (
-                    <group position={[doorOff, 0, RA_DOOR_CURTAIN_Z * buttonFaceSign]}>
-                        <PhotonsRaDoorCurtain scaleX={doorW * 0.96} scaleY={WALL_HEIGHT * 0.58} />
-                    </group>
-                )}
-                <Plane args={[doorW, WALL_HEIGHT]} position={[doorOff, 0, 0]}>
-                    <meshBasicMaterial ref={matRef1} map={tex} transparent alphaTest={0.05} side={THREE.DoubleSide} />
+            {broken ? (
+                <Plane args={[doorW, BROKEN_DOOR_HEIGHT]} position={[doorOff, BROKEN_DOOR_Y, 0]}>
+                    <meshBasicMaterial
+                        map={brokenDoorTex ?? tex}
+                        transparent
+                        alphaTest={0.05}
+                        side={THREE.DoubleSide}
+                    />
                 </Plane>
-            </group>
+            ) : (
+                <group ref={groupRef}>
+                    {doorType === 3 && (
+                        <group position={[doorOff, 0, RA_DOOR_CURTAIN_Z * buttonFaceSign]}>
+                            <PhotonsRaDoorCurtain scaleX={doorW * 0.96} scaleY={WALL_HEIGHT * 0.58} />
+                        </group>
+                    )}
+                    <Plane args={[doorW, WALL_HEIGHT]} position={[doorOff, 0, 0]}>
+                        <meshBasicMaterial ref={matRef1} map={tex} transparent alphaTest={0.05} side={THREE.DoubleSide} />
+                    </Plane>
+                </group>
+            )}
 
             {/* ── Static button strip on the door jamb ── */}
             {renderButtonStrip && (
@@ -419,15 +505,16 @@ const DoorMeshInner: React.FC<{
 
 const DoorMesh: React.FC<{
     open: boolean;
+    broken: boolean;
     hasButton: boolean;
     showButton: boolean;
     buttonSideSign?: 1 | -1;
     buttonFaceSign?: 1 | -1;
     doorType?: number;
     onButtonClick?: (e: ThreeEvent<MouseEvent>) => void;
-}> = ({ open, hasButton, showButton, buttonSideSign, buttonFaceSign, doorType, onButtonClick }) => (
+}> = ({ open, broken, hasButton, showButton, buttonSideSign, buttonFaceSign, doorType, onButtonClick }) => (
     <Suspense fallback={null}>
-        <DoorMeshInner open={open} hasButton={hasButton} showButton={showButton} buttonSideSign={buttonSideSign} buttonFaceSign={buttonFaceSign} doorType={doorType} onButtonClick={onButtonClick} />
+        <DoorMeshInner open={open} broken={broken} hasButton={hasButton} showButton={showButton} buttonSideSign={buttonSideSign} buttonFaceSign={buttonFaceSign} doorType={doorType} onButtonClick={onButtonClick} />
     </Suspense>
 );
 
@@ -559,6 +646,7 @@ interface CellProps {
     frameChampion?: Champion | null;
     wallFace?: CardinalDir;
     doorOpen?: boolean;
+    doorBroken?: boolean;
     doorOrientation?: string;
     doorHasButton?: boolean;
     doorButtonVisible?: boolean;
@@ -568,7 +656,7 @@ interface CellProps {
     onClick?: (e: ThreeEvent<MouseEvent>) => void;
 }
 
-export const Cell: React.FC<CellProps> = ({ type, position, wallFace, champion, frameChampion, doorOpen, doorOrientation, doorHasButton, doorButtonVisible, doorButtonSideSign, doorButtonFaceSign, doorType, onClick }) => {
+export const Cell: React.FC<CellProps> = ({ type, position, wallFace, champion, frameChampion, doorOpen, doorBroken, doorOrientation, doorHasButton, doorButtonVisible, doorButtonSideSign, doorButtonFaceSign, doorType, onClick }) => {
     const baseWallTex = useTexture(`${texturesPath('wall.png')}?v=2`);
     const wallTex = useMemo(
         () => cloneTexture(baseWallTex, next => {
@@ -608,6 +696,7 @@ export const Cell: React.FC<CellProps> = ({ type, position, wallFace, champion, 
                 <group rotation={[0, doorRotY, 0]}>
                     <DoorMesh
                         open={doorOpen ?? false}
+                        broken={doorBroken ?? false}
                         hasButton={hasBtn}
                         showButton={doorButtonVisible ?? hasBtn}
                         buttonSideSign={doorButtonSideSign}

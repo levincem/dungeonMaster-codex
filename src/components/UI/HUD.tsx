@@ -4,6 +4,7 @@ import {
 } from '../../engine/store';
 import { playStep, playWallBump, onSoundPlayed } from '../../engine/sounds';
 import type { ChampionCombat, ChampionTemporaryXP, ChampionXP, GameAction } from '../../engine/runtimeTypes';
+import { getDisplayedItemName } from '../../data/itemDisplay';
 import { WEAPON_TYPES, resolveItemName } from '../../data/items';
 import { getGameMap } from '../../data/mapLoader';
 import type { Champion } from '../../data/champions';
@@ -42,6 +43,7 @@ const CombatGrid: React.FC<{
     const [flash, setFlash] = useState([false, false, false, false]);
     const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null);
     const torchBurnStart = useStore((s) => s.torchBurnStart);
+    const direction = useStore((s) => s.direction);
 
     const triggerAttack = (i: number, champ: Champion, attackType?: number) => {
         attackFront(champ.id, attackType);
@@ -95,7 +97,11 @@ const CombatGrid: React.FC<{
                 const weaponName = weapon
                     ? (weapon.category === 'Weapon'
                         ? (WEAPON_TYPES[weapon.typeId]?.name ?? weapon.rawName ?? '?')
-                        : resolveItemName(weapon.category, weapon.typeId, weapon.rawName))
+                        : getDisplayedItemName(
+                            resolveItemName(weapon.category, weapon.typeId, weapon.rawName),
+                            weapon,
+                            direction,
+                        ))
                     : text.fist;
                 const isFlash = flash[i];
                 const menuOpen = openMenuIndex === i && ready && !!champ && allAttacks.length > 1;

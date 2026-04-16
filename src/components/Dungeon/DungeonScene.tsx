@@ -1,4 +1,4 @@
-import { useRef, useMemo, memo, useCallback, useEffect, useState } from 'react';
+import { Suspense, lazy, useRef, useMemo, memo, useCallback, useEffect, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import type { ThreeEvent } from '@react-three/fiber';
 import { PerspectiveCamera, Plane, Html, useTexture, Billboard } from '@react-three/drei';
@@ -16,12 +16,11 @@ import type { EquipSlotKey } from '../../types/items';
 import { Cell, PressurePlate } from './Cell';
 import type { CellRenderType } from './Cell';
 import { InstancedTiles } from './InstancedTiles';
-import { CreatureSprite, getCreatureCellOffsetXZ } from './CreatureSprite';
+import { CreatureSprite } from './CreatureSprite';
 import { FloorItemMesh } from './FloorItemMesh';
 import { WallMountedItemMesh } from './WallMountedItemMesh';
 import { WallSensor } from './WallSensor';
 import { WallDecal } from './WallDecal';
-import { PhotonsDisruptProjectile, PhotonsFireball, PhotonsLightningProjectile, PhotonsOpenDoorProjectile, PhotonsPoisonProjectile } from './PhotonsFireball';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import { getFloorItemImage } from '../../data/itemImages';
 import type { FloorItem } from '../../types/game';
@@ -30,6 +29,7 @@ import { miscPath, texturesPath } from '../../data/assetPaths';
 import { doorBlocksVision } from '../../data/doors';
 import { getDragPayload } from '../UI/dragPayload';
 import { useI18n } from '../../i18n';
+import { getCreatureCellOffsetXZ } from './creatureCellOffsets';
 
 const HALF = GRID_SIZE / 2;
 const BASE_FOG_NEAR = GRID_SIZE * 2;
@@ -40,7 +40,42 @@ const DUNGEON_DARK_AMBIENT_COLOR = new THREE.Color('#8ea0c0');
 const CAMERA_HEIGHT_OFFSET = 0;
 const CAMERA_FORWARD_OFFSET = 0;
 const CAMERA_LATERAL_OFFSET = 0;
+const CAMERA_ROTATION_MAP = { NORTH: 0, EAST: -Math.PI / 2, SOUTH: Math.PI, WEST: Math.PI / 2 };
+const CAMERA_FORWARD_VECTOR_MAP = {
+    NORTH: new THREE.Vector3(0, 0, -1),
+    EAST: new THREE.Vector3(1, 0, 0),
+    SOUTH: new THREE.Vector3(0, 0, 1),
+    WEST: new THREE.Vector3(-1, 0, 0),
+};
+const CAMERA_RIGHT_VECTOR_MAP = {
+    NORTH: new THREE.Vector3(1, 0, 0),
+    EAST: new THREE.Vector3(0, 0, 1),
+    SOUTH: new THREE.Vector3(-1, 0, 0),
+    WEST: new THREE.Vector3(0, 0, -1),
+};
 type MagicProjectileEffect = Exclude<ProjectileEffect, 'physical'>;
+
+const loadPhotonEffects = () => import('./PhotonsFireball');
+
+const LazyPhotonsFireball = lazy(() =>
+    loadPhotonEffects().then((module) => ({ default: module.PhotonsFireball })),
+);
+
+const LazyPhotonsLightningProjectile = lazy(() =>
+    loadPhotonEffects().then((module) => ({ default: module.PhotonsLightningProjectile })),
+);
+
+const LazyPhotonsOpenDoorProjectile = lazy(() =>
+    loadPhotonEffects().then((module) => ({ default: module.PhotonsOpenDoorProjectile })),
+);
+
+const LazyPhotonsPoisonProjectile = lazy(() =>
+    loadPhotonEffects().then((module) => ({ default: module.PhotonsPoisonProjectile })),
+);
+
+const LazyPhotonsDisruptProjectile = lazy(() =>
+    loadPhotonEffects().then((module) => ({ default: module.PhotonsDisruptProjectile })),
+);
 function cloneTexture<T extends THREE.Texture>(
     texture: T,
     configure?: (next: T) => void,
@@ -86,26 +121,17 @@ const CameraController = () => {
     const initializedRef = useRef(false);
     const prevLevelRef = useRef(level);
     const prevPositionRef = useRef<[number, number]>(position);
-    const rotationMap = { NORTH: 0, EAST: -Math.PI / 2, SOUTH: Math.PI, WEST: Math.PI / 2 };
-    const forwardVectorMap = {
-        NORTH: new THREE.Vector3(0, 0, -1),
-        EAST: new THREE.Vector3(1, 0, 0),
-        SOUTH: new THREE.Vector3(0, 0, 1),
-        WEST: new THREE.Vector3(-1, 0, 0),
-    };
-    const rightVectorMap = {
-        NORTH: new THREE.Vector3(1, 0, 0),
-        EAST: new THREE.Vector3(0, 0, 1),
-        SOUTH: new THREE.Vector3(-1, 0, 0),
-        WEST: new THREE.Vector3(0, 0, -1),
-    };
     const targetPos = useMemo(() => {
         const base = new THREE.Vector3(position[1] * GRID_SIZE, CAMERA_HEIGHT_OFFSET, position[0] * GRID_SIZE);
-        const forward = forwardVectorMap[direction as keyof typeof forwardVectorMap].clone().multiplyScalar(CAMERA_FORWARD_OFFSET);
-        const lateral = rightVectorMap[direction as keyof typeof rightVectorMap].clone().multiplyScalar(CAMERA_LATERAL_OFFSET);
+        const forward = CAMERA_FORWARD_VECTOR_MAP[direction as keyof typeof CAMERA_FORWARD_VECTOR_MAP]
+            .clone()
+            .multiplyScalar(CAMERA_FORWARD_OFFSET);
+        const lateral = CAMERA_RIGHT_VECTOR_MAP[direction as keyof typeof CAMERA_RIGHT_VECTOR_MAP]
+            .clone()
+            .multiplyScalar(CAMERA_LATERAL_OFFSET);
         return base.add(forward).add(lateral);
     }, [direction, position]);
-    const targetRot = rotationMap[direction as keyof typeof rotationMap];
+    const targetRot = CAMERA_ROTATION_MAP[direction as keyof typeof CAMERA_ROTATION_MAP];
     const [initialCameraPosition] = useState<[number, number, number]>(() => [targetPos.x, targetPos.y, targetPos.z]);
     const [initialCameraRotation] = useState<[number, number, number]>(() => [0, targetRot, 0]);
 
@@ -275,6 +301,12 @@ function makeEngravedTexture(text: string): THREE.CanvasTexture {
         // Inner light (highlight of carved ridge)
         ctx.fillStyle = 'rgba(255,220,120,0.25)';
         ctx.fillText(line, W / 2 - 1, y - 1);
+        // Subtle dark contour to keep the engraving readable on bright stone.
+        ctx.lineJoin = 'round';
+        ctx.miterLimit = 2;
+        ctx.lineWidth = Math.max(1.25, fontSize * 0.055);
+        ctx.strokeStyle = 'rgba(0,0,0,0.42)';
+        ctx.strokeText(line, W / 2, y);
         // Main engraved text
         ctx.fillStyle = '#c8a040';
         ctx.fillText(line, W / 2, y);
@@ -999,7 +1031,9 @@ const ProjectileOrb: React.FC<{
     return (
         <group position={[projectile.x * GRID_SIZE, 0, projectile.y * GRID_SIZE]}>
             {projectile.effect === 'fireball' ? (
-                <PhotonsFireball scale={visualScale} />
+                <Suspense fallback={null}>
+                    <LazyPhotonsFireball scale={visualScale} />
+                </Suspense>
             ) : projectile.effect === 'lightning' ? (
                 <LightningProjectileVisual
                     seed={index}
@@ -1044,7 +1078,11 @@ const ProjectileOrb: React.FC<{
 };
 
 const OpenDoorProjectileVisual: React.FC<{ visualScale: number }> = ({ visualScale }) => {
-    return <PhotonsOpenDoorProjectile scale={visualScale} />;
+    return (
+        <Suspense fallback={null}>
+            <LazyPhotonsOpenDoorProjectile scale={visualScale} />
+        </Suspense>
+    );
 };
 
 const LightningProjectileVisual: React.FC<{
@@ -1058,7 +1096,11 @@ const LightningProjectileVisual: React.FC<{
     glowMaterial: THREE.MeshBasicMaterial;
     accentMaterial: THREE.MeshBasicMaterial;
 }> = ({ visualScale, directionRotation }) => {
-    return <PhotonsLightningProjectile scale={visualScale} directionRotation={directionRotation} />;
+    return (
+        <Suspense fallback={null}>
+            <LazyPhotonsLightningProjectile scale={visualScale} directionRotation={directionRotation} />
+        </Suspense>
+    );
 };
 
 const PoisonProjectileVisual: React.FC<{
@@ -1072,7 +1114,11 @@ const PoisonProjectileVisual: React.FC<{
     glowMaterial: THREE.MeshBasicMaterial;
     accentMaterial: THREE.MeshBasicMaterial;
 }> = ({ effect, visualScale }) => {
-    return <PhotonsPoisonProjectile effect={effect} scale={visualScale} />;
+    return (
+        <Suspense fallback={null}>
+            <LazyPhotonsPoisonProjectile effect={effect} scale={visualScale} />
+        </Suspense>
+    );
 };
 
 const DisruptProjectileVisual: React.FC<{
@@ -1086,7 +1132,11 @@ const DisruptProjectileVisual: React.FC<{
     glowMaterial: THREE.MeshBasicMaterial;
     accentMaterial: THREE.MeshBasicMaterial;
 }> = ({ visualScale }) => {
-    return <PhotonsDisruptProjectile scale={visualScale} />;
+    return (
+        <Suspense fallback={null}>
+            <LazyPhotonsDisruptProjectile scale={visualScale} />
+        </Suspense>
+    );
 };
 
 const PhysicalProjectileSprite: React.FC<{
@@ -1313,9 +1363,11 @@ const PersistentPoisonCloudVisual: React.FC<{
     });
 
     return (
-        <group position={[cloud.x * GRID_SIZE, GRID_SIZE * 0.02, cloud.y * GRID_SIZE]}>
+            <group position={[cloud.x * GRID_SIZE, GRID_SIZE * 0.02, cloud.y * GRID_SIZE]}>
             <group ref={groupRef}>
-                <PhotonsPoisonProjectile effect="poison_cloud" scale={(cloud.visualScale ?? 1) * 1.16} />
+                <Suspense fallback={null}>
+                    <LazyPhotonsPoisonProjectile effect="poison_cloud" scale={(cloud.visualScale ?? 1) * 1.16} />
+                </Suspense>
             </group>
             <pointLight
                 ref={lightRef}
@@ -2530,6 +2582,7 @@ const TileGrid: React.FC<{
     partyPosition: [number, number];
     partyDirection: Direction;
     openDoors: Set<string>;
+    brokenDoors: Set<string>;
     openWalls: Set<string>;
     recruitedIds: Set<number>;
     wallButtons: { tileX: number; tileY: number; face: CardinalDir; sensorIndex: number }[];
@@ -2537,7 +2590,7 @@ const TileGrid: React.FC<{
     pressurePlates: { tileX: number; tileY: number }[];
     onCellClick: (e: ThreeEvent<MouseEvent>, renderType: CellRenderType, x: number, y: number) => void;
     onWallSensor: (level: number, x: number, y: number, sensorIndex: number) => void;
-}> = memo(({ map, level, partyPosition, partyDirection, openDoors, openWalls, recruitedIds, wallButtons, wallDecals, pressurePlates, onCellClick, onWallSensor }) => {
+}> = memo(({ map, level, partyPosition, partyDirection, openDoors, brokenDoors, openWalls, recruitedIds, wallButtons, wallDecals, pressurePlates, onCellClick, onWallSensor }) => {
     const frontTileY = partyDirection === 'NORTH' ? partyPosition[0] - 1 : partyDirection === 'SOUTH' ? partyPosition[0] + 1 : partyPosition[0];
     const frontTileX = partyDirection === 'EAST' ? partyPosition[1] + 1 : partyDirection === 'WEST' ? partyPosition[1] - 1 : partyPosition[1];
     return (
@@ -2564,6 +2617,7 @@ const TileGrid: React.FC<{
                         ? mirrorChampion : null;
                     const wallFace = renderType === 'Mirror' ? MIRROR_FACE_MAP.get(`${level},${x},${y}`) : undefined;
                     const doorOpen = renderType === 'Door' ? openDoors.has(`${level},${y},${x}`) : undefined;
+                    const doorBroken = renderType === 'Door' ? brokenDoors.has(`${level},${y},${x}`) : undefined;
                     const doorOrientation = renderType === 'Door' ? tile.orientation : undefined;
                     const doorHasButton = renderType === 'Door'
                         ? (tile.objects.find(o => o.category === 'Door') as DoorObject | undefined)?.hasButton ?? false
@@ -2592,6 +2646,7 @@ const TileGrid: React.FC<{
                             frameChampion={mirrorChampion}
                             wallFace={wallFace}
                             doorOpen={doorOpen}
+                            doorBroken={doorBroken}
                             doorOrientation={doorOrientation}
                             doorHasButton={doorHasButton}
                             doorButtonVisible={doorButtonVisible}
@@ -2642,6 +2697,7 @@ export const DungeonScene = () => {
     const direction      = useStore(s => s.direction);
     const selectedChampionIndex = useStore(s => s.selectedChampionIndex);
     const openDoors      = useStore(s => s.openDoors);
+    const brokenDoors    = useStore(s => s.brokenDoors);
     const openWalls      = useStore(s => s.openWalls);
     const openMirror     = useStore(s => s.openMirror);
     const toggleDoor     = useStore(s => s.toggleDoor);
@@ -2663,6 +2719,10 @@ export const DungeonScene = () => {
         () => activeFloorDrag ? floorItems.find((item) => item.id === activeFloorDrag.itemId) ?? null : null,
         [activeFloorDrag, floorItems],
     );
+
+    useEffect(() => {
+        void loadPhotonEffects();
+    }, []);
 
     useEffect(() => {
         const handleDragStart = () => setIsItemDragActive(true);
@@ -2975,6 +3035,7 @@ export const DungeonScene = () => {
                     level={level}
                     partyPosition={position}
                     openDoors={openDoors}
+                    brokenDoors={brokenDoors}
                     openWalls={openWalls}
                     recruitedIds={recruitedIds}
                     wallButtons={wallButtons}
