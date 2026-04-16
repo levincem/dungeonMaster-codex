@@ -14,11 +14,11 @@ The current public build is available at [dungeon-master.fr](https://dungeon-mas
 
 This is currently a desktop-first alpha. Smartphone play is explicitly blocked in the app.
 
-Current local project version: `v0.5.0-alpha.1`.
+Current local project version: `v0.5.0-alpha.2`.
 
 ## Current State
 
-The project is now well beyond prototype stage and already playable end to end through a substantial part of the original loop:
+The project is now well beyond prototype stage and already playable through a substantial part of the original loop:
 
 - 3D dungeon exploration with grid movement and original map data
 - title screen with `Enter The Dungeon` and persisted `Resume`
@@ -33,17 +33,19 @@ The project is now well beyond prototype stage and already playable end to end t
 - upgraded spell visuals: better projectile identities, impacts, local flashes, shields and `Fluxcage`
 - pits are now rendered as visible openings and can trigger party falls to the matching tile below
 - endgame path wired through Firestaff completion, Lord Chaos fusion, Grey Lord transition, and victory screen
+- dedicated `Game Over` screen with manual return to title
 - floor creature generators restored from source-backed runtime data
 - creature groups now use true runtime subcells (`frontLeft`, `frontRight`, `backLeft`, `backRight`) instead of a simple `left/right` fallback
 - lone creatures are now rendered centered on their tile when they occupy it alone
 - persistent save / resume of the mutable runtime state
+- save integrity checks plus automatic backup fallback
 - in-game options modal with movement key rebinding
 - blocking alpha welcome modal and lightweight help modal available in-game
 - simple `i18n` layer present with English as the default locale
 - sleep now runs as a continuous accelerated state instead of a single large fast-forward step
 - GA4 game-session events are instrumented for SPA play tracking (`game_start`, `game_resume`, `game_heartbeat`, `game_end`, `game_victory`)
 
-It is not a finished remake yet. The largest remaining work is no longer data extraction, but the last fidelity gaps, architectural cleanup, and optimization.
+It is not a finished remake yet. The largest remaining work is no longer data extraction or core runtime cleanup, but long-form play validation, the last fidelity gaps, and targeted optimization.
 
 Current save/load behavior:
 
@@ -55,8 +57,7 @@ Current save/load behavior:
 
 Main remaining gaps before calling the runtime "fully aligned":
 
-- `Game Over` is still pending as a dedicated final-loss flow
-- final path still needs a targeted full playtest from `Zokathra` through Lord Chaos fusion
+- the full path still needs a targeted long playtest from `Zokathra` through Lord Chaos fusion
 - some rare late-game or edge-case mechanism interactions still need targeted play verification
 - some combat damage and timing edge cases still need targeted confirmation against original references
 - creature AI still has fine-grained fidelity gaps for special families and end-game cases
@@ -66,7 +67,7 @@ Main remaining gaps before calling the runtime "fully aligned":
 - save import/export is still a future convenience feature; saves currently live in browser `localStorage`
 - localization is only partially implemented:
   - translation dictionaries exist, but locale switching is not exposed yet
-  - the current build still mixes original English game text with some French UI/runtime strings
+  - the current build still keeps original English game text as the main in-world language
 
 ## Tech Stack
 
@@ -98,7 +99,7 @@ npm run dev
 npm run build
 ```
 
-The production build passes as of this update (`2026-04-15`).
+The production build passes as of this update (`2026-04-16`).
 
 ## Project Structure
 
@@ -187,10 +188,10 @@ The most useful detailed internal summaries are:
 - The HUD debug line now distinguishes global and local map coordinates, for example `front [g:x,y / l:x,y]`; gameplay reports should prefer the local `l:` coordinate when discussing extracted map data.
 - The bundle is still heavy because of the 3D stack, assets, and embedded critical JSON datasets.
 - The main remaining heavy runtime payloads are now the compact dungeon snapshot, wall-overlay data, and the core Three.js stack.
-- The next major phase is optimization, now focused more on data loading strategy than on the old `game-core`.
+- The next major phase is long-form playtesting plus targeted optimization, especially around data loading strategy.
 - The project should currently be treated as a playable alpha rather than a finished remake.
 - The world-content extraction is now treated as reliable.
-- Several gameplay layers are now source-backed, but a thinner runtime interpretation layer still exists in a few systems.
+- The central runtime has now been heavily refactored into smaller tested subsystems, so most remaining risk is gameplay validation rather than core maintainability.
 - Remade project visuals are always preferred when available; extracted original bitmaps are kept only as placeholders / fallback art.
 - `docs/` is used as project memory and audit notes; the README stays intentionally concise.
 

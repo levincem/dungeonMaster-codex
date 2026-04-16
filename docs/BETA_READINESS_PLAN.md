@@ -196,6 +196,10 @@ Ce qui doit etre ferme avant de parler beta:
 - organisation des assets de portes:
   - `grille_metal.png` vit encore dans `misc` alors qu'elle fait partie des trois textures de porte
   - a realigner plus tard vers `textures` pour avoir une famille d'assets coherente
+- drag and drop direct d'un objet au sol:
+  - aujourd'hui: `sol -> main`, puis `main -> donjon` fonctionne deja
+  - a ajouter plus tard: `sol -> donjon` direct pour jeter un objet sans passage par la main
+  - priorite: confort UX, non bloquant beta
 
 ## Plan de travail detaille
 
