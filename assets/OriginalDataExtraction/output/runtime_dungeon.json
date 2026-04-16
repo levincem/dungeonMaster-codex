@@ -5047,7 +5047,17 @@
           "y": 0,
           "type": "Door",
           "orientation": "WestEast",
-          "objects": []
+          "objects": [
+            {
+              "category": "Door",
+              "index": 0,
+              "tilePos": "North",
+              "destructChop": false,
+              "destructFire": false,
+              "hasButton": true,
+              "doorType": 1
+            }
+          ]
         },
         {
           "x": 1,

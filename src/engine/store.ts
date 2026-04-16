@@ -140,6 +140,7 @@ import {
 } from './systems/creatureProjectiles';
 import { tryStealChampionItem } from './systems/creatureSteal';
 import { buildProjectileSpellStatePatch } from './systems/spellProjectileState';
+import { getDoorObject } from './systems/doorMetadata';
 import { resolvePotionConsumption } from './systems/potionConsumption';
 import { resolveFillWaterAction } from './systems/fillWaterAction';
 import { resolveUseItemConsumption } from './systems/useItemConsumption';
@@ -1252,7 +1253,7 @@ function isBlockedForProjectile(
     if (tile.type === 'Wall') return true;
     if (tile.type === 'TrickWall' && !state.openWalls.has(`${level},${y},${x}`)) return true;
     if (tile.type !== 'Door' || state.openDoors.has(`${level},${y},${x}`)) return false;
-    const door = tile.objects.find((obj): obj is DoorObject => obj.category === 'Door');
+    const door = getDoorObject(tile);
     return doorBlocksThrownItems(door?.doorType);
 }
 
@@ -1266,7 +1267,7 @@ function getClosedDoorAt(
     if (!tile || tile.type !== 'Door') return null;
     const key = `${level},${y},${x}`;
     if (state.openDoors.has(key)) return null;
-    const door = tile.objects.find((obj): obj is DoorObject => obj.category === 'Door');
+    const door = getDoorObject(tile);
     return door ? { key, door } : null;
 }
 
@@ -1912,7 +1913,7 @@ function hasLineOfSight(map: GameMap, level: number, openDoors: Set<string>, ax:
         if (!tile || tile.type === 'Wall' || tile.type === 'TrickWall') return false;
         if (tile.type === 'Door') {
             if (openDoors.has(`${level},${cy},${cx}`)) continue;
-            const door = tile.objects.find((o): o is import('../types/game').DoorObject => o.category === 'Door');
+            const door = getDoorObject(tile);
             if (doorBlocksVision(door?.doorType)) return false;
         }
     }
@@ -2380,7 +2381,7 @@ function isDoorControlledByMechanism(level: number, x: number, y: number): boole
 function hasDoorButton(level: number, x: number, y: number): boolean {
     const tile = getMap(level).tiles[y]?.[x];
     if (!tile || tile.type !== 'Door') return false;
-    return tile.objects.some((object) => object.category === 'Door' && (object as DoorObject).hasButton);
+    return getDoorObject(tile)?.hasButton ?? false;
 }
 
 function getSelfRevealingWallSensor(tile: GameTile | undefined): SensorObject | null {

@@ -540,7 +540,9 @@ function decodeChampionText(wordOffset) {
 // ─── OBJECT ID ───────────────────────────────────────────────────────────────
 
 function decodeObjId(word) {
-  if (word === 0xFFFF || word === 0xFFFE || word === 0x0000) return null;
+  // In DM object references, 0xFFFE = RNeof and 0xFFFF = RNnul.
+  // 0x0000 is a valid thing reference: Door, tilePos North, index 0.
+  if (word === 0xFFFF || word === 0xFFFE) return null;
   return {
     pos:      (word >> 14) & 0x03,  // position on tile
     category: (word >> 10) & 0x0F,  // object type

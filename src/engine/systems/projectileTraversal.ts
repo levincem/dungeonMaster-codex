@@ -1,6 +1,7 @@
 import type { DoorObject, FloorItem, GameTile } from '../../types/game';
 import type { ActivePoisonCloud, Projectile, SpellVisualEvent } from '../runtimeTypes';
 import type { Direction } from '../runtimeTypes';
+import { getDoorObject } from './doorMetadata';
 
 type TraversalState = {
     projectile: Projectile;
@@ -95,7 +96,7 @@ export function resolveProjectileTraversalStep(
     const doorKey = `${level},${y},${x}`;
     const wallKey = `${level},${y},${x}`;
     const closedDoor = tile?.type === 'Door' && !state.openDoors.has(doorKey)
-        ? tile.objects.find((object): object is DoorObject => object.category === 'Door')
+        ? getDoorObject(tile)
         : undefined;
 
     if (projectile.effect === 'open' && closedDoor) {
@@ -170,7 +171,14 @@ export function resolveProjectileTraversalStep(
         }
         if (projectile.effect === 'physical' && projectile.physicalItem && !projectile.explosionOnImpact) {
             if (floorItems === state.floorItems) floorItems = [...floorItems];
-            floorItems.push(deps.buildDroppedItem(projectile.physicalItem, level, projectile.x, projectile.y));
+            floorItems.push(
+                deps.buildDroppedItem(
+                    projectile.physicalItem,
+                    level,
+                    projectile.x,
+                    projectile.y,
+                ),
+            );
         }
         return {
             kind: 'consumed',

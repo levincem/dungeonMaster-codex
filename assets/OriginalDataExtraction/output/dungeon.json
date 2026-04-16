@@ -3441,7 +3441,7 @@
     "Door": [
       {
         "index": 0,
-        "usedInDungeon": false,
+        "usedInDungeon": true,
         "next": null,
         "destructChop": false,
         "destructFire": false,
@@ -109563,7 +109563,45 @@
           "objectListIndex": 72,
           "objectListWord": 0,
           "objectListWordHex": "0x0000",
-          "objects": []
+          "objects": [
+            {
+              "category": "Door",
+              "index": 0,
+              "tilePos": "North",
+              "destructChop": false,
+              "destructFire": false,
+              "hasButton": true,
+              "openDirection": "Vertical",
+              "ornate": 0,
+              "doorType": 1,
+              "raw": {
+                "offset": 7942,
+                "bytes": [
+                  254,
+                  255,
+                  97,
+                  0
+                ],
+                "words": [
+                  "0xfffe",
+                  "0x0061"
+                ],
+                "nextWord": 65534,
+                "attributesWord": 97,
+                "fields": {
+                  "destructChopBit": false,
+                  "destructFireBit": false,
+                  "hasButtonBit": true,
+                  "openDirectionBit": true,
+                  "ornateBits": 0,
+                  "doorTypeBit": 1,
+                  "unreferencedBits": 0
+                }
+              },
+              "globalX": 1,
+              "globalY": 14
+            }
+          ]
         },
         {
           "x": 1,

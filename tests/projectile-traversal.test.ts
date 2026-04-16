@@ -153,3 +153,88 @@ test('resolveProjectileTraversalStep applies teleporter transport before later h
         );
     }
 });
+
+test('resolveProjectileTraversalStep drops blocked physical projectiles on the square before a closed door', () => {
+    const door = { category: 'Door', doorType: 1, hasButton: false } as DoorObject;
+    const result = resolveProjectileTraversalStep(
+        createState({
+            projectile: createProjectile({
+                effect: 'physical',
+                physicalItem: {
+                    id: 'club-1',
+                    category: 'Weapon',
+                    typeId: 23,
+                    mapIndex: 0,
+                    x: 2,
+                    y: 2,
+                    tilePos: 'North',
+                },
+            }),
+        }),
+        {
+            getTile: () => ({ type: 'Door', objects: [door] } as unknown as GameTile),
+            doorBlocksProjectile: () => true,
+            buildActivePoisonCloud: () => {
+                throw new Error('no cloud expected');
+            },
+            getThrownExplosionVisualScale: () => 1,
+            buildDroppedItem: (item, level, x, y) => ({ ...item, mapIndex: level, x, y }),
+            resolveProjectileTeleporterTransport: (level, x, y, direction) => ({ level, x, y, direction }),
+            gridSize: 2,
+            originalSpellProjectileAttack: 32,
+        },
+    );
+
+    assert.equal(result.kind, 'consumed');
+    if (result.kind === 'consumed') {
+        assert.equal(result.floorItems.length, 1);
+        assert.equal(result.floorItems[0]?.x, 2);
+        assert.equal(result.floorItems[0]?.y, 2);
+    }
+});
+
+test('resolveProjectileTraversalStep treats metadata-less closed doors as solid wooden doors', () => {
+    let receivedDoorType: number | undefined;
+    const result = resolveProjectileTraversalStep(
+        createState({
+            projectile: createProjectile({
+                effect: 'physical',
+                direction: 'WEST',
+                x: 2,
+                y: 0,
+                physicalItem: {
+                    id: 'apple-1',
+                    category: 'Misc',
+                    typeId: 29,
+                    mapIndex: 1,
+                    x: 2,
+                    y: 0,
+                    tilePos: 'North',
+                },
+            }),
+        }),
+        {
+            getTile: (_level, x, y) => ({ x, y, type: 'Door', orientation: 'WestEast', objects: [] } as unknown as GameTile),
+            doorBlocksProjectile: (door) => {
+                receivedDoorType = door.doorType;
+                return true;
+            },
+            buildActivePoisonCloud: () => {
+                throw new Error('no cloud expected');
+            },
+            getThrownExplosionVisualScale: () => 1,
+            buildDroppedItem: (item, level, x, y) => ({ ...item, mapIndex: level, x, y }),
+            resolveProjectileTeleporterTransport: (level, x, y, direction) => ({ level, x, y, direction }),
+            gridSize: 2,
+            originalSpellProjectileAttack: 32,
+        },
+    );
+
+    assert.equal(receivedDoorType, 1);
+    assert.equal(result.kind, 'consumed');
+    if (result.kind === 'consumed') {
+        assert.equal(result.floorItems.length, 1);
+        assert.equal(result.floorItems[0]?.x, 2);
+        assert.equal(result.floorItems[0]?.y, 0);
+    }
+});
