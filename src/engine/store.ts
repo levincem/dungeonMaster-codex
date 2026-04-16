@@ -81,7 +81,6 @@ import {
     isShootAttack,
     isThrowAttack,
     matchesRequiredAmmoRawClass,
-    type WeaponAttackOption,
 } from '../data/weaponAttacks';
 import {
     canFillWaterContainer,
@@ -135,9 +134,7 @@ import {
     buildCreatureProjectile,
     chooseOriginalCreatureProjectileEffect,
 } from './systems/creatureProjectiles';
-import { resolveCreatureControlAction } from './systems/creatureControlActions';
 import { tryStealChampionItem } from './systems/creatureSteal';
-import { resolveBreakDoorAttempt } from './systems/breakDoorAction';
 import { buildProjectileSpellStatePatch } from './systems/spellProjectileState';
 import { resolvePotionConsumption } from './systems/potionConsumption';
 import { resolveFillWaterAction } from './systems/fillWaterAction';
@@ -148,11 +145,15 @@ import { buildHandledNonProjectileSpellPatch } from './systems/spellNonProjectil
 import { prepareSpellCast } from './systems/spellCastPreparation';
 import { tickCombatState } from './systems/combatTick';
 import { tickMovementCooldown, tickRegenState } from './systems/timeStateTicks';
-import { buildShotAttackProjectile, buildThrownAttackProjectile } from './systems/attackPhysicalProjectiles';
+import { buildPhysicalProjectileAttackPatch } from './systems/attackPhysicalState';
+import { resolveAttackFrontContext } from './systems/attackFrontContext';
 import { resolveAttackSelection } from './systems/attackSelection';
-import { resolveUtilityBuffAction } from './systems/utilityAttackBuffs';
-import { buildUtilityAttackProjectile } from './systems/utilityAttackProjectiles';
-import { applyUtilityHeal } from './systems/utilityAttackVitals';
+import { applyChampionAttackVitals as applyChampionAttackVitalsSystem } from './systems/attackVitals';
+import { tryBreakFrontDoor as tryBreakFrontDoorSystem } from './systems/frontDoorBreak';
+import { determineMeleeDamage } from './systems/meleeDamage';
+import { buildMeleeAttackResolutionPatch } from './systems/meleeAttackResolution';
+import { buildAttackMeleeStatePatch } from './systems/attackMeleeState';
+import { buildSupportedUtilityAttackPatch } from './systems/utilityAttackOrchestration';
 import {
     tryUseChampionItemOnFrontWall,
     tryUseFloorItemOnFrontWall,
@@ -166,11 +167,8 @@ import {
 } from './systems/directionState';
 import {
     compareCreatureCells,
-    creaturesInFront,
     getCreatureColumn,
     isCreatureContactCell,
-    selectFrontCreatureTarget,
-    type CreatureColumn,
 } from './systems/frontCreatureState';
 import { isFacingFountain as isFacingFountainSystem } from './systems/frontWallState';
 import {
@@ -194,7 +192,6 @@ import { resolveClimbDownAction as resolveClimbDownActionSystem } from './system
 import { resolveStairStepTransport as resolveStairStepTransportSystem } from './systems/stairStepTransport';
 import { resolveStandardStepTransport as resolveStandardStepTransportSystem } from './systems/standardStepTransport';
 import { resolveTeleporterStepTransport as resolveTeleporterStepTransportSystem } from './systems/teleporterStepTransport';
-import { resolveFearUtilityAction as resolveFearUtilityActionSystem } from './systems/fearUtilityActions';
 import { applyOpenedPitEffects as applyOpenedPitEffectsSystem } from './systems/openedPitSquares';
 import { applyOpenedTeleporterEffects as applyOpenedTeleporterEffectsSystem } from './systems/openedTransportSquares';
 import {
@@ -1379,67 +1376,6 @@ function getClosedDoorAt(
     return door ? { key, door } : null;
 }
 
-function tryBreakFrontDoor(
-    state: Pick<GameState, 'level' | 'position' | 'direction' | 'openDoors' | 'brokenDoors' | 'championVitals'>,
-    champion: Champion,
-    equip: ChampionEquipment | undefined,
-    activePotionBoosts: ActivePotionBoost[],
-    selectedAttack: WeaponAttackOption | null,
-): { openDoors: Set<string>; brokenDoors: Set<string>; message: CastResult } | null {
-    const { x, y } = getFrontPosition(state.position, state.direction);
-    const tile = getMap(state.level).tiles[y]?.[x];
-    if (!tile || tile.type !== 'Door') return null;
-
-    const key = `${state.level},${y},${x}`;
-
-    const door = tile.objects.find((obj): obj is import('../types/game').DoorObject => obj.category === 'Door');
-
-    const effective = getEffectiveChampionStatsRuntime(champion, equip, activePotionBoosts, state.championVitals[champion.id]);
-    const weaponMax = equip?.rightHand?.category === 'Weapon'
-        ? (WEAPON_TYPES[equip.rightHand.typeId]?.damage[1] ?? 0)
-        : 0;
-    const attackBonus = selectedAttack ? Math.max(0, selectedAttack.attack.strengthRequired) : 0;
-    const breakPower = effective.strength + weaponMax + attackBonus + randomInt(16);
-    const result = resolveBreakDoorAttempt({
-        openDoors: state.openDoors,
-        brokenDoors: state.brokenDoors,
-        doorKey: key,
-        doorBreakable: Boolean(door?.destructChop),
-        breakPower,
-    });
-    if (!result) return null;
-
-    return {
-        openDoors: result.nextOpenDoors,
-        brokenDoors: result.nextBrokenDoors,
-        message: result.outcome === 'broken'
-            ? buildAttackResultMessage('La porte cede.', true)
-            : buildAttackResultMessage('La porte resiste.'),
-    };
-}
-
-function applyChampionAttackVitals(
-    state: GameState,
-    championId: number,
-    champion: Champion,
-    option: WeaponAttackOption | null,
-) {
-    const current = state.championVitals[championId];
-    if (!current) return null;
-    const effective = getEffectiveChampionStatsRuntime(
-        champion,
-        state.championEquipment[championId] ?? {},
-        state.activePotionBoosts,
-        current,
-    );
-    const staminaCost = option ? option.attack.staminaCost + randomInt(2) : 0;
-    const nextVitals = {
-        ...current,
-        stamina: clampVital(current.stamina - staminaCost, effective.stamina),
-    };
-    return { current, nextVitals, effective };
-}
-
 function createChampionCombatState(cooldownSec: number, defenseModifier = 0): ChampionCombat {
     return {
         cooldown: cooldownSec,
@@ -2033,119 +1969,6 @@ function getWeaponName(item: FloorItem | undefined): string {
     if (!item) return '';
     if (item.category === 'Weapon') return WEAPON_TYPES[item.typeId]?.name ?? item.rawName ?? '';
     return resolveItemName(item.category, item.typeId, item.rawName);
-}
-
-function determineMeleeDamageApprox(
-    state: GameState,
-    championId: number,
-    champion: Champion,
-    equip: ChampionEquipment | undefined,
-    attackOption: WeaponAttackOption | null,
-    currentStamina: number | undefined,
-    target: CreatureInstance,
-): number {
-    const inventory = state.championInventories[championId] ?? [];
-    const effective = getEffectiveChampionStatsRuntime(
-        champion,
-        equip ?? {},
-        state.activePotionBoosts,
-        state.championVitals[championId],
-    );
-    const descriptor = getOriginalWeaponReference(equip?.rightHand);
-    const attackBaseDamage = attackOption?.attack.baseDamage ?? 32;
-    const strengthRequired = attackOption?.attack.strengthRequired ?? 0;
-    const levelDifficulty = getMap(state.level).difficulty;
-    const targetDef = CREATURE_TYPES[target.typeId];
-    const weaponName = getWeaponName(equip?.rightHand);
-    const nonMaterial = isLikelyNonMaterial(target);
-    const isDisrupt = attackOption?.enumName === 'Disrupt';
-    const vorpalOrDisrupt = /vorpal blade/i.test(weaponName) || isDisrupt;
-
-    if (nonMaterial && !vorpalOrDisrupt) {
-        return 0;
-    }
-
-    const quickness = computeOriginalQuicknessApprox(
-        champion,
-        equip,
-        inventory,
-        currentStamina,
-        state.championVitals[championId]?.wounds,
-        getChampionRuntimeBonuses(champion, state.championVitals[championId], state.activePotionBoosts),
-    );
-    const requiredQuickness = randomInt(32) + (targetDef?.hitProb ?? 40) + levelDifficulty - 16;
-    const luckyHit = randomInt(4) === 0;
-    if (
-        quickness <= requiredQuickness &&
-        !luckyHit &&
-        !isCharacterLuckyApprox(effective.luck, 75 - strengthRequired)
-    ) {
-        return 0;
-    }
-
-    const throwingDistance = equip?.rightHand
-        ? originalThrowingDistance(
-            champion,
-            equip,
-            currentStamina,
-            equip.rightHand,
-            descriptor,
-            getChampionMasteryLevel(state, championId, champion, 'fighter'),
-            getChampionMasteryLevel(state, championId, champion, 'ninja'),
-            getChampionRuntimeBonuses(champion, state.championVitals[championId], state.activePotionBoosts),
-        )
-        : Math.max(0, Math.floor((effective.strength + randomInt(16)) / 2));
-
-    let attackValue = 0;
-    if (throwingDistance !== 0) {
-        attackValue = throwingDistance + randomInt(Math.floor(throwingDistance / 2) + 1);
-        attackValue = Math.floor((attackValue * attackBaseDamage) / 32);
-
-        let defenseValue = randomInt(32) + (targetDef?.armor ?? 20) + levelDifficulty;
-        if (/diamond edge/i.test(weaponName)) defenseValue -= Math.floor(defenseValue / 4);
-        else if (/executioner/i.test(weaponName)) defenseValue -= Math.floor(defenseValue / 8);
-
-        attackValue = attackValue + randomInt(32) - defenseValue;
-    }
-
-    if (throwingDistance === 0 || attackValue <= 1) {
-        let salvageRoll = randomInt(4);
-        if (salvageRoll === 0) return 0;
-        attackValue += randomInt(16);
-        if (attackValue > 0 || randomInt(2) !== 0) {
-            salvageRoll += randomInt(4);
-            if (randomInt(4) === 0) {
-                salvageRoll += Math.max(0, randomInt(16) + attackValue);
-            }
-        }
-        attackValue = salvageRoll;
-    }
-
-    attackValue = Math.floor(attackValue / 2);
-    const firstSpread = attackValue > 0 ? randomInt(attackValue) : 0;
-    attackValue += randomInt(4) + firstSpread;
-    if (attackValue > 0) {
-        attackValue += randomInt(attackValue);
-    }
-    attackValue = Math.floor(attackValue / 4);
-    attackValue += randomInt(4) + 1;
-
-    if (/vorpal blade/i.test(weaponName) && !nonMaterial) {
-        attackValue = Math.floor(attackValue / 2);
-        if (attackValue === 0) return 0;
-    }
-
-    const mastery = getChampionMasteryLevel(
-        state,
-        championId,
-        champion,
-        attackOption ? mapOriginalSkillNumberToSkillKey(attackOption.attack.skillNumber) : 'fighter',
-    );
-    if (randomInt(64) < mastery) {
-        attackValue += 10;
-    }
-
-    return Math.max(0, attackValue);
 }
 
 function getCreatureSizeOnTile(typeId: number): number {
@@ -3822,15 +3645,6 @@ function buildClimbDownActionDeps() {
             mode,
         ),
         computeMovementCooldown: computePartyMovementCooldownSecondsApprox,
-    };
-}
-
-function buildFearUtilityActionDeps() {
-    return {
-        getCreatureDef: (typeId: number) => CREATURE_TYPES[typeId],
-        randomInt,
-        quantizeDurationMs: quantizeMsToOriginalTimerTicks,
-        timerTickMs: ORIGINAL_TIMER_TICK_MS,
     };
 }
 
@@ -6529,7 +6343,18 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             cooldownSec,
             selectedAttack?.attack.defenseModifier ?? 0,
         );
-        const vitalsUpdate = applyChampionAttackVitals(state, championId, champion, selectedAttack);
+        const vitalsUpdate = applyChampionAttackVitalsSystem(
+            champion,
+            state.championEquipment[championId] ?? {},
+            state.activePotionBoosts,
+            state.championVitals[championId],
+            selectedAttack,
+            {
+                getEffectiveChampionStatsRuntime,
+                randomInt,
+                clampVital,
+            },
+        );
         const championVitals = vitalsUpdate
             ? { ...state.championVitals, [championId]: vitalsUpdate.nextVitals }
             : state.championVitals;
@@ -6545,122 +6370,61 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             ? updateEquippedItemCharges(equip, 'rightHand', rightHandCharges === null ? null : Math.max(0, rightHandCharges - 1))
             : equip;
 
-        if (selectedAttack && isThrowAttack(selectedAttack) && rightHand) {
-            const descriptor = getOriginalWeaponReference(rightHand);
-            const fighterMastery = getChampionMasteryLevel(state, championId, champion, 'fighter');
-            const ninjaMastery = getChampionMasteryLevel(state, championId, champion, 'ninja');
-            const projectile = buildThrownAttackProjectile(
+        if (selectedAttack && (isThrowAttack(selectedAttack) || isShootAttack(selectedAttack))) {
+            const projectileAttackPatch = buildPhysicalProjectileAttackPatch(
+                selectedAttack,
                 {
-                    champion,
-                    equip,
-                    currentStamina: vitalsUpdate?.nextVitals.stamina,
-                    item: rightHand,
-                    descriptor,
-                    fighterMastery,
-                    ninjaMastery,
-                    runtimeBonuses: getChampionRuntimeBonuses(
-                        champion,
-                        vitalsUpdate?.nextVitals ?? state.championVitals[championId],
-                        state.activePotionBoosts,
-                    ),
+                    championId,
                     level: state.level,
                     position: state.position,
                     direction: state.direction,
                     now: Date.now(),
+                    championCombat: state.championCombat,
+                    championVitals,
+                    championEquipment: state.championEquipment,
+                    projectiles: state.projectiles,
                 },
+                champion,
+                equip,
+                rightHand,
+                vitalsUpdate?.nextVitals.stamina,
+                newCombat,
                 {
+                    isThrowAttack,
+                    isShootAttack,
+                    getOriginalWeaponReference,
+                    getFighterMastery: () => getChampionMasteryLevel(state, championId, champion, 'fighter'),
+                    getNinjaMastery: () => getChampionMasteryLevel(state, championId, champion, 'ninja'),
+                    getRuntimeBonuses: (currentVitals) => getChampionRuntimeBonuses(
+                        champion,
+                        currentVitals ?? state.championVitals[championId],
+                        state.activePotionBoosts,
+                    ),
                     originalThrowingDistance,
                     getThrownPotionExplosionEffect,
                     buildDroppedItem,
                     randomInt,
+                    findAmmo: (currentEquip, currentRightHand) => findQuiverAmmo(
+                        currentEquip,
+                        getRequiredAmmoRawClass(currentRightHand ?? undefined),
+                    ),
+                    buildAttackXpPatch: () => applyChampionSkillExperienceOriginalApprox(
+                        state,
+                        championId,
+                        selectedSkill,
+                        selectedAttack.attack.experienceForAttacking,
+                    ),
+                    buildAttackResultMessage,
                 },
             );
-            const attackXpPatch = applyChampionSkillExperienceOriginalApprox(
-                state,
-                championId,
-                selectedSkill,
-                selectedAttack.attack.experienceForAttacking,
-            );
-            return {
-                championCombat: { ...state.championCombat, [championId]: newCombat },
-                championVitals,
-                championEquipment: { ...state.championEquipment, [championId]: { ...equip, rightHand: undefined } },
-                ...(attackXpPatch ?? {}),
-                projectiles: [...state.projectiles, projectile],
-                lastCastResult: buildAttackResultMessage(selectedAttack.displayName, true),
-            };
-        }
-
-        if (selectedAttack && isShootAttack(selectedAttack)) {
-            const launcher = getOriginalWeaponReference(rightHand);
-            const requiredAmmoRawClass = getRequiredAmmoRawClass(rightHand);
-            const ammo = findQuiverAmmo(equip, requiredAmmoRawClass);
-            if (!ammo) {
-                return {
-                    lastCastResult: buildAttackResultMessage('Aucune munition compatible dans le carquois.'),
-                };
+            if (projectileAttackPatch) {
+                return projectileAttackPatch;
             }
-            const ammoDescriptor = getOriginalWeaponReference(ammo.item);
-            const mastery = getChampionMasteryLevel(state, championId, champion, 'ninja');
-            const projectile = buildShotAttackProjectile(
-                {
-                    launcher,
-                    ammoDescriptor,
-                    ammoItem: ammo.item,
-                    mastery,
-                    level: state.level,
-                    position: state.position,
-                    direction: state.direction,
-                    now: Date.now(),
-                },
-                {
-                    buildDroppedItem,
-                },
-            );
-            const nextEquip = { ...equip, [ammo.slot]: undefined };
-            const attackXpPatch = applyChampionSkillExperienceOriginalApprox(
-                state,
-                championId,
-                selectedSkill,
-                selectedAttack.attack.experienceForAttacking,
-            );
-            return {
-                championCombat: { ...state.championCombat, [championId]: newCombat },
-                championVitals,
-                championEquipment: { ...state.championEquipment, [championId]: nextEquip },
-                ...(attackXpPatch ?? {}),
-                projectiles: [...state.projectiles, projectile],
-                lastCastResult: buildAttackResultMessage(selectedAttack.displayName, true),
-            };
         }
 
         const performSupportedUtilityAction = (): Partial<GameState> | null => {
             if (!selectedAttack) return null;
             const now = Date.now();
-            const champIdx = state.party.findIndex(c => c.id === championId);
-            const isLeftCol = champIdx === 0 || champIdx === 2;
-            const preferredColumn: CreatureColumn = isLeftCol ? 'left' : 'right';
-            const front = creaturesInFront(state.level, state.position, state.direction, state.creatures);
-            const target = selectFrontCreatureTarget(front, preferredColumn);
-            const applyFearUtilityAction = (
-                action: 'Calm' | 'Brandish' | 'Blow Horn' | 'War Cry',
-            ): void => {
-                const result = resolveFearUtilityActionSystem(
-                    action,
-                    front,
-                    now,
-                    rightHand?.typeId,
-                    buildFearUtilityActionDeps(),
-                );
-                if (result.sound === 'horn') playHornOfFear();
-                if (result.sound === 'war-cry') playWarCry();
-                for (const frightened of result.frightenedCreatures) {
-                    creatureFrightenedUntil.set(frightened.id, frightened.expiresAt);
-                }
-                for (const creatureId of result.clearLastSeenIds) {
-                    creatureLastSeenPartyPos.delete(creatureId);
-                }
-            };
             const utilityXP = selectedAttack.attack.experienceForAttacking;
             const utilityXpPatch = utilityXP > 0
                 ? applyChampionSkillExperienceOriginalApprox(state, championId, selectedSkill, utilityXP)
@@ -6672,307 +6436,76 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 ...(chargedEquip !== equip ? { championEquipment: { ...state.championEquipment, [championId]: chargedEquip } } : {}),
                 lastCastResult: buildAttackResultMessage(selectedAttack.displayName, true),
             } satisfies Partial<GameState>;
-
-            switch (selectedAttack.enumName) {
-                case 'Heal': {
-                    const healedVitals = applyUtilityHeal(
-                        championVitals[championId],
-                        champion.health,
-                    );
-                    if (!healedVitals) return base;
-                    return {
-                        ...base,
-                        championVitals: {
-                            ...championVitals,
-                            [championId]: healedVitals,
-                        },
-                    };
-                }
-                case 'Light': {
-                    const buff = resolveUtilityBuffAction(
-                        'Light',
-                        now,
-                        state.freezeLifeRemainingTicks,
-                        state.seeThroughWallsUntil,
-                        { quantizeDurationMs: quantizeMsToOriginalTimerTicks },
-                    );
-                    return {
-                        ...base,
-                        spellLights: buff.spellLight ? [...state.spellLights, buff.spellLight] : state.spellLights,
-                    };
-                }
-                case 'Spellshield': {
-                    const buff = resolveUtilityBuffAction(
-                        'Spellshield',
-                        now,
-                        state.freezeLifeRemainingTicks,
-                        state.seeThroughWallsUntil,
-                        { quantizeDurationMs: quantizeMsToOriginalTimerTicks },
-                    );
-                    return {
-                        ...base,
-                        activeShields: buff.shield ? [...state.activeShields, buff.shield] : state.activeShields,
-                    };
-                }
-                case 'Fireshield': {
-                    const buff = resolveUtilityBuffAction(
-                        'Fireshield',
-                        now,
-                        state.freezeLifeRemainingTicks,
-                        state.seeThroughWallsUntil,
-                        { quantizeDurationMs: quantizeMsToOriginalTimerTicks },
-                    );
-                    return {
-                        ...base,
-                        activeShields: buff.shield ? [...state.activeShields, buff.shield] : state.activeShields,
-                    };
-                }
-                case 'Lightning': {
-                    const newProj = buildUtilityAttackProjectile(
-                        'Lightning',
-                        state.level,
-                        state.position,
-                        state.direction,
-                        now,
-                        { randomInt },
-                    );
-                    return {
-                        ...base,
-                        projectiles: [...state.projectiles, newProj],
-                    };
-                }
-                case 'Fireball': {
-                    const newProj = buildUtilityAttackProjectile(
-                        'Fireball',
-                        state.level,
-                        state.position,
-                        state.direction,
-                        now,
-                        { randomInt },
-                    );
-                    return {
-                        ...base,
-                        projectiles: [...state.projectiles, newProj],
-                    };
-                }
-                case 'Dispell': {
-                    const newProj = buildUtilityAttackProjectile(
-                        'Dispell',
-                        state.level,
-                        state.position,
-                        state.direction,
-                        now,
-                        { randomInt },
-                    );
-                    return {
-                        ...base,
-                        projectiles: [...state.projectiles, newProj],
-                    };
-                }
-                case 'Confuse': {
-                    if (!target) {
-                        return {
-                            ...base,
-                            lastCastResult: buildAttackResultMessage('CONFUSE sans cible.'),
-                        };
-                    }
-                    const control = resolveCreatureControlAction(
-                        'Confuse',
-                        now,
-                        creatureTimers.get(target.id),
-                        { quantizeDurationMs: quantizeMsToOriginalTimerTicks },
-                    );
-                    creatureConfusedUntil.set(target.id, control.expiresAt);
-                    if (control.nextTimers) {
-                        creatureTimers.set(target.id, control.nextTimers);
-                    }
-                    return base;
-                }
-                case 'Fluxcage': {
-                    if (!target) {
-                        return {
-                            ...base,
-                            lastCastResult: buildAttackResultMessage('FLUXCAGE sans cible.'),
-                        };
-                    }
-                    const control = resolveCreatureControlAction(
-                        'Fluxcage',
-                        now,
-                        creatureTimers.get(target.id),
-                        { quantizeDurationMs: quantizeMsToOriginalTimerTicks },
-                    );
-                    creatureFluxcageUntil.set(target.id, control.expiresAt);
-                    if (control.nextTimers) {
-                        creatureTimers.set(target.id, control.nextTimers);
-                    }
-                    return base;
-                }
-                case 'Freeze Life': {
-                    const buff = resolveUtilityBuffAction(
-                        'Freeze Life',
-                        now,
-                        state.freezeLifeRemainingTicks,
-                        state.seeThroughWallsUntil,
-                        { quantizeDurationMs: quantizeMsToOriginalTimerTicks },
-                    );
-                    return {
-                        ...base,
-                        freezeLifeRemainingTicks: buff.freezeLifeRemainingTicks ?? state.freezeLifeRemainingTicks,
-                    };
-                }
-                case 'Block':
-                case 'Flip': {
-                    return base;
-                }
-                case 'Climb Down': {
-                    const climbDown = resolveClimbDownActionSystem(
-                        state,
-                        base,
+            return buildSupportedUtilityAttackPatch(
+                selectedAttack,
+                {
+                    now,
+                    level: state.level,
+                    position: state.position,
+                    direction: state.direction,
+                    creatures: state.creatures,
+                    party: state.party,
+                    championVitals,
+                    championId,
+                    championHealth: champion.health,
+                    freezeLifeRemainingTicks: state.freezeLifeRemainingTicks,
+                    seeThroughWallsUntil: state.seeThroughWallsUntil,
+                    spellLights: state.spellLights,
+                    activeShields: state.activeShields,
+                    projectiles: state.projectiles,
+                    rightHandTypeId: rightHand?.typeId,
+                    rightHand,
+                    rightHandWeaponName: rightHand ? getWeaponName(rightHand) : '',
+                    floorItems: state.floorItems,
+                    damageEvents: state.damageEvents,
+                    spellVisualEvents: state.spellVisualEvents,
+                },
+                base,
+                {
+                    randomInt,
+                    quantizeDurationMs: quantizeMsToOriginalTimerTicks,
+                    buildAttackResultMessage,
+                    getCreatureDef: (typeId: number) => CREATURE_TYPES[typeId],
+                    timerTickMs: ORIGINAL_TIMER_TICK_MS,
+                    getFluxcageExpiresAt: (creatureId: string) => creatureFluxcageUntil.get(creatureId) ?? 0,
+                    getTargetTimers: (creatureId: string) => creatureTimers.get(creatureId),
+                    resolveClimbDown: (climbDownState, climbDownBase) => resolveClimbDownActionSystem(
+                        climbDownState,
+                        climbDownBase,
                         buildClimbDownActionDeps(),
-                    );
-                    if (climbDown.errorMessage) {
-                        return {
-                            ...base,
-                            lastCastResult: buildAttackResultMessage(climbDown.errorMessage),
-                        };
-                    }
-                    return climbDown.patch ?? base;
-                }
-                case 'Calm': {
-                    applyFearUtilityAction('Calm');
-                    return base;
-                }
-                case 'Brandish': {
-                    applyFearUtilityAction('Brandish');
-                    return base;
-                }
-                case 'Blow Horn': {
-                    applyFearUtilityAction('Blow Horn');
-                    return base;
-                }
-                case 'War Cry': {
-                    applyFearUtilityAction('War Cry');
-                    return base;
-                }
-                case 'Fuse': {
-                    if (!target) {
-                        return {
-                            ...base,
-                            lastCastResult: buildAttackResultMessage('FUSE sans cible.'),
-                        };
-                    }
-                    const firestaffName = rightHand ? getWeaponName(rightHand).toLowerCase() : '';
-                    const completeFirestaff =
-                        Boolean(rightHand) &&
-                        (
-                            (rightHand?.typeId === 45) ||
-                            (/firestaff/.test(firestaffName) && /complete|final/i.test((rightHand?.rawName ?? '').toLowerCase()))
-                        );
-                    if (!completeFirestaff) {
-                        return {
-                            ...base,
-                            lastCastResult: buildAttackResultMessage('FUSE requiert le Firestaff complet.'),
-                        };
-                    }
-                    const trapped = (creatureFluxcageUntil.get(target.id) ?? 0) > now;
-                    if (target.typeId === 23 && !trapped) {
-                        return {
-                            ...base,
-                            lastCastResult: buildAttackResultMessage('Lord Chaos doit etre fluxcage avant FUSE.'),
-                        };
-                    }
-                    if (target.typeId === 23) {
+                    ),
+                    climbDownState: state,
+                    applyControlUpdate: (update) => {
+                        if (update.kind === 'confused') {
+                            creatureConfusedUntil.set(update.targetId, update.expiresAt);
+                        } else {
+                            creatureFluxcageUntil.set(update.targetId, update.expiresAt);
+                        }
+                        if (update.nextTimers) {
+                            creatureTimers.set(update.targetId, update.nextTimers);
+                        }
+                    },
+                    applyFearResult: (fearResult) => {
+                        if (fearResult.sound === 'horn') playHornOfFear();
+                        if (fearResult.sound === 'war-cry') playWarCry();
+                        for (const frightened of fearResult.frightenedCreatures) {
+                            creatureFrightenedUntil.set(frightened.id, frightened.expiresAt);
+                        }
+                        for (const creatureId of fearResult.clearLastSeenIds) {
+                            creatureLastSeenPartyPos.delete(creatureId);
+                        }
+                    },
+                    clearCreatureControlStatuses: () => {
                         creatureFluxcageUntil.clear();
                         creatureConfusedUntil.clear();
                         creatureFrightenedUntil.clear();
-                        return {
-                            ...base,
-                            projectiles: [],
-                            activePoisonClouds: [],
-                            creatures: state.creatures.map((creature) =>
-                                creature.id === target.id
-                                    ? {
-                                        ...creature,
-                                        currentHP: 10000,
-                                        alive: true,
-                                        cell: 'center',
-                                        typeId: 23,
-                                    }
-                                    : creature,
-                            ),
-                            gamePhase: 'endgame' as const,
-                            endgameSequence: {
-                                startedAt: now,
-                                level: state.level,
-                                x: target.x,
-                                y: target.y,
-                                lordChaosId: target.id,
-                                processedStepCount: 0,
-                                hideFluxcages: false,
-                                shownMessageCount: 0,
-                                messages: getEndgameMessagesForMap(state.level),
-                            },
-                            activeMirrorChampionId: null,
-                            activePartyMemberId: null,
-                            sleeping: false,
-                        };
-                    }
-                    const fuseDamage = target.typeId === 23 ? Math.max(999, target.currentHP) : 90;
-                    const newHP = Math.max(0, target.currentHP - fuseDamage);
-                    const killed = newHP <= 0;
-                    let newCreatures = state.creatures.map(c =>
-                        c.id === target.id ? { ...c, currentHP: newHP, alive: !killed } : c
-                    );
-                    let newFloorItems = state.floorItems;
-                    if (killed) {
-                        const dropped = dropCreatureCarriedItems(newCreatures, newFloorItems, target.id);
-                        newCreatures = dropped.creatures;
-                        newFloorItems = dropped.floorItems;
-                    }
-                    const dmgEvt = buildCreatureDamageEvent(state.level, target.x, target.y, fuseDamage, target.id);
-                    return {
-                        ...base,
-                        creatures: newCreatures,
-                        ...(newFloorItems !== state.floorItems ? { floorItems: newFloorItems } : {}),
-                        damageEvents: [...state.damageEvents, dmgEvt],
-                        ...(killed ? { spellVisualEvents: [...state.spellVisualEvents, buildDeathDustEvent(state.level, target.x, target.y)] } : {}),
-                        ...(target.typeId === 23 && killed ? {
-                            gamePhase: 'victory' as const,
-                            activeMirrorChampionId: null,
-                            activePartyMemberId: null,
-                        } : {}),
-                    };
-                }
-                case 'Invoke': {
-                    const newProj = buildUtilityAttackProjectile(
-                        'Invoke',
-                        state.level,
-                        state.position,
-                        state.direction,
-                        now,
-                        { randomInt },
-                    );
-                    return {
-                        ...base,
-                        projectiles: [...state.projectiles, newProj],
-                    };
-                }
-                case 'Window': {
-                    const buff = resolveUtilityBuffAction(
-                        'Window',
-                        now,
-                        state.freezeLifeRemainingTicks,
-                        state.seeThroughWallsUntil,
-                        { quantizeDurationMs: quantizeMsToOriginalTimerTicks },
-                    );
-                    return {
-                        ...base,
-                        seeThroughWallsUntil: buff.seeThroughWallsUntil ?? state.seeThroughWallsUntil,
-                    };
-                }
-                default:
-                    return null;
-            }
+                    },
+                    getEndgameMessagesForMap,
+                    dropCreatureCarriedItems,
+                    buildCreatureDamageEvent,
+                    buildDeathDustEvent,
+                },
+            );
         };
 
         if (selectedAttack && !isPhysicalAttack(selectedAttack)) {
@@ -6985,125 +6518,123 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             };
         }
 
-        // Determine champion's column: party[0/2] = left, party[1/3] = right
-        const champIdx = state.party.findIndex(c => c.id === championId);
-        const isLeftCol = champIdx === 0 || champIdx === 2;
-        const preferredColumn: CreatureColumn = isLeftCol ? 'left' : 'right';
-
-        const front = creaturesInFront(state.level, state.position, state.direction, state.creatures);
-        // Prefer same-column front cell, then the other front cell, then any reachable creature.
-        const target = selectFrontCreatureTarget(front, preferredColumn);
+        const { target } = resolveAttackFrontContext(
+            state.level,
+            state.position,
+            state.direction,
+            state.creatures,
+            state.party,
+            championId,
+        );
 
         playPartyAttack();
-
-        if (!target) {
-            const brokenDoor = tryBreakFrontDoor(
-                state,
-                champion,
-                equip,
-                state.activePotionBoosts,
-                selectedAttack,
-            );
-            return {
-                championCombat: { ...state.championCombat, [championId]: newCombat },
+        return buildAttackMeleeStatePatch(
+            {
+                championId,
+                championCombat: state.championCombat,
                 championVitals,
-                ...(brokenDoor
-                    ? {
-                        openDoors: brokenDoor.openDoors,
-                        brokenDoors: brokenDoor.brokenDoors,
-                        lastCastResult: brokenDoor.message,
-                    }
-                    : {}),
-            };
-        }
-
-        const totalDmg = determineMeleeDamageApprox(
-            state,
-            championId,
+                level: state.level,
+                position: state.position,
+                direction: state.direction,
+                openDoors: state.openDoors,
+                brokenDoors: state.brokenDoors,
+                creatures: state.creatures,
+                floorItems: state.floorItems,
+                party: state.party,
+                championXP: state.championXP,
+                championTemporaryXP: state.championTemporaryXP,
+                elapsedGameTimeTicks: state.elapsedGameTimeTicks,
+                lastCreatureAttackGameTick: state.lastCreatureAttackGameTick,
+                damageEvents: state.damageEvents,
+                spellVisualEvents: state.spellVisualEvents,
+            },
             champion,
             equip,
+            state.activePotionBoosts,
             selectedAttack,
-            vitalsUpdate?.nextVitals.stamina,
             target,
+            newCombat,
+            stats.skill,
+            {
+                tryBreakFrontDoor: (breakState, currentChampion, currentEquip, activePotionBoosts, attackOption) => tryBreakFrontDoorSystem(
+                    breakState,
+                    currentChampion,
+                    currentEquip,
+                    activePotionBoosts,
+                    attackOption,
+                    {
+                        getFrontPosition,
+                        getTile: (level: number, x: number, y: number) => getMap(level).tiles[y]?.[x],
+                        getEffectiveChampionStatsRuntime,
+                        getWeaponMaxDamage: (equipment) => equipment?.rightHand?.category === 'Weapon'
+                            ? (WEAPON_TYPES[equipment.rightHand.typeId]?.damage[1] ?? 0)
+                            : 0,
+                        randomInt,
+                        buildAttackResultMessage,
+                    },
+                ),
+                determineMeleeDamage: (currentTarget) => determineMeleeDamage(
+                    {
+                        champion,
+                        equip,
+                        inventory: state.championInventories[championId] ?? [],
+                        currentVitals: state.championVitals[championId],
+                        currentStamina: vitalsUpdate?.nextVitals.stamina,
+                        attackOption: selectedAttack,
+                        target: currentTarget,
+                        levelDifficulty: getMap(state.level).difficulty,
+                    },
+                    {
+                        getEffectiveChampionStats: (currentChampion, currentEquip, currentVitals) => getEffectiveChampionStatsRuntime(
+                            currentChampion,
+                            currentEquip,
+                            state.activePotionBoosts,
+                            currentVitals,
+                        ),
+                        getWeaponDescriptor: getOriginalWeaponReference,
+                        getWeaponName,
+                        isLikelyNonMaterial,
+                        computeQuickness: computeOriginalQuicknessApprox,
+                        getRuntimeBonuses: (currentChampion, currentVitals) => getChampionRuntimeBonuses(
+                            currentChampion,
+                            currentVitals,
+                            state.activePotionBoosts,
+                        ),
+                        randomInt,
+                        isCharacterLucky: isCharacterLuckyApprox,
+                        originalThrowingDistance,
+                        getFighterMastery: () => getChampionMasteryLevel(state, championId, champion, 'fighter'),
+                        getNinjaMastery: () => getChampionMasteryLevel(state, championId, champion, 'ninja'),
+                        getAttackMastery: (attackOption) => getChampionMasteryLevel(
+                            state,
+                            championId,
+                            champion,
+                            attackOption ? mapOriginalSkillNumberToSkillKey(attackOption.attack.skillNumber) : 'fighter',
+                        ),
+                        getTargetDefense: (typeId: number) => CREATURE_TYPES[typeId],
+                    },
+                ),
+                getAttackSkill: (attackOption, fallbackSkill) => attackOption
+                    ? mapOriginalSkillNumberToSkillKey(attackOption.attack.skillNumber)
+                    : fallbackSkill,
+                buildMeleeAttackResolution: (attackSkill, currentTarget, totalDmg) => buildMeleeAttackResolutionPatch(
+                    state,
+                    championId,
+                    currentTarget,
+                    totalDmg,
+                    attackSkill,
+                    newCombat,
+                    championVitals,
+                    {
+                        applyChampionSkillExperience: applyChampionSkillExperienceOriginalApprox,
+                        getCreatureKillXp: (typeId: number) => CREATURE_TYPES[typeId]?.exp ?? 0,
+                        dropCreatureCarriedItems,
+                        buildCreatureDamageEvent,
+                        buildDeathDustEvent,
+                    },
+                ),
+            },
         );
-
-        if (totalDmg <= 0) {
-            return {
-                championCombat: { ...state.championCombat, [championId]: newCombat },
-                championVitals,
-            };
-        }
-
-        const newHP = target.currentHP - totalDmg;
-        const killed = newHP <= 0;
-        let newCreatures = state.creatures.map(c =>
-            c.id === target.id ? { ...c, currentHP: Math.max(0, newHP), alive: !killed } : c
-        );
-        let newFloorItems = state.floorItems;
-        if (killed) {
-            const dropped = dropCreatureCarriedItems(newCreatures, newFloorItems, target.id);
-            newCreatures = dropped.creatures;
-            newFloorItems = dropped.floorItems;
-        }
-
-        // XP: attacker gains fighter/wizard XP = damage dealt
-        const attackSkill = selectedAttack
-            ? mapOriginalSkillNumberToSkillKey(selectedAttack.attack.skillNumber)
-            : stats.skill;
-        let xpCarrier: Pick<GameState, 'level' | 'party' | 'championVitals' | 'championXP' | 'championTemporaryXP' | 'elapsedGameTimeTicks' | 'lastCreatureAttackGameTick'> = state;
-        let newChampXP = state.championXP;
-        let newChampionTemporaryXP = state.championTemporaryXP;
-        let xpParty = state.party;
-
-        const attackerXpPatch = applyChampionSkillExperienceOriginalApprox(xpCarrier, championId, attackSkill, totalDmg);
-        if (attackerXpPatch) {
-            newChampXP = attackerXpPatch.championXP;
-            newChampionTemporaryXP = attackerXpPatch.championTemporaryXP;
-            xpParty = attackerXpPatch.party ?? xpParty;
-            xpCarrier = {
-                ...xpCarrier,
-                championXP: newChampXP,
-                championTemporaryXP: newChampionTemporaryXP,
-                party: xpParty,
-            };
-        }
-
-        // Kill XP: shared equally among living party members
-        if (killed) {
-            const def = CREATURE_TYPES[target.typeId];
-            const killXP = def?.exp ?? 0;
-            const living = xpParty.filter(c => (state.championVitals[c.id]?.hp ?? 0) > 0);
-            const share = living.length > 0 ? Math.floor(killXP / living.length) : 0;
-            if (share > 0) {
-                for (const c of living) {
-                    const killXpPatch = applyChampionSkillExperienceOriginalApprox(xpCarrier, c.id, 'fighter', share);
-                    if (!killXpPatch) continue;
-                    newChampXP = killXpPatch.championXP;
-                    newChampionTemporaryXP = killXpPatch.championTemporaryXP;
-                    xpParty = killXpPatch.party ?? xpParty;
-                    xpCarrier = {
-                        ...xpCarrier,
-                        championXP: newChampXP,
-                        championTemporaryXP: newChampionTemporaryXP,
-                        party: xpParty,
-                    };
-                }
-            }
-        }
-
-        const newDmgEvent = buildCreatureDamageEvent(state.level, target.x, target.y, totalDmg, target.id);
-
-        return {
-            creatures: newCreatures,
-            ...(newFloorItems !== state.floorItems ? { floorItems: newFloorItems } : {}),
-            championVitals,
-            championXP: newChampXP,
-            championTemporaryXP: newChampionTemporaryXP,
-            ...(xpParty !== state.party ? { party: xpParty } : {}),
-            championCombat: { ...state.championCombat, [championId]: newCombat },
-            damageEvents: [...state.damageEvents, newDmgEvent],
-            ...(killed ? { spellVisualEvents: [...state.spellVisualEvents, buildDeathDustEvent(state.level, target.x, target.y)] } : {}),
-        };
     }),
 
     // ─── Door crush tick ─────────────────────────────────────────────────────

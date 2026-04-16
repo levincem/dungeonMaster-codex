@@ -100,7 +100,21 @@ Chantiers deja fermes:
   - preparation des sorts projectiles dans `castSpell`
   - orchestration partagee des sorts projectiles dans `castSpell` `porte immediate / blocage immediat / backlash / lancement projectile`
   - tick de combat partage `cooldowns / defenseModifier / purge des damageEvents`
+  - ticks temps partage `regenTick / tickMovement`
   - resolution partagee de la selection d'action dans `attackFront` `attaque choisie / skill / indisponible / munitions`
+  - projectiles physiques de `attackFront` `Throw / Shoot`
+  - orchestration partagee des actions utilitaires simples de `attackFront` `Heal / buffs / projectiles / Block / Flip`
+  - orchestration partagee des actions utilitaires de controle / peur dans `attackFront` `Confuse / Fluxcage / Calm / Brandish / Blow Horn / War Cry`
+  - resolution partagee de l'action `Fuse` dans `attackFront`
+  - resolution partagee des suites d'attaque de melee dans `attackFront` `degats / kill XP / drops / death dust`
+  - application partagee des vitals d'attaque dans `attackFront` `stamina cost / clamp / effective stats`
+  - resolution partagee du cas `pas de cible -> casser une porte` dans `attackFront`
+  - patchs partages des attaques projectile physiques dans `attackFront` `Throw / Shoot / missing ammo`
+  - contexte partage des cibles frontales dans `attackFront` `preferred column / front creatures / target`
+  - orchestration partagee complete des actions utilitaires dans `attackFront` `simple / controle / peur / Climb Down / Fuse`
+  - orchestration partagee des attaques projectile physiques dans `attackFront` `Throw / Shoot / quiver ammo`
+  - formule partagee des degats de melee dans `attackFront`
+  - orchestration partagee de la branche melee / porte frontale dans `attackFront`
   - impacts immediats et visuels des sorts projectiles dans `castSpell`
   - patchs de sortie du sort `open` dans `castSpell`
   - patchs des sorts projectiles bloques dans `castSpell`
@@ -111,7 +125,7 @@ Etat courant confirme:
 - `npm run test` passe
 - `npm run lint` passe
 - `npm run build` passe
-- la suite locale couvre actuellement `183` tests
+- la suite locale couvre actuellement `225` tests
 
 ## Priorites
 
@@ -140,6 +154,15 @@ Ce qui doit etre ferme avant de parler beta:
 1. validation perf desktop-first
 2. documentation de release beta
 3. passe finale de non-regression
+
+## Bugs notes a reprendre
+
+- portes ecrasantes / rebond sur monstre:
+  - symptome: quand une porte se referme sur un monstre, remonte, puis redescend, la hauteur de blocage descend un peu plus bas a chaque cycle
+  - comportement attendu: la porte doit remonter puis redescendre jusqu'au meme point de blocage a chaque fois, sans derive cumulative de hauteur
+- organisation des assets de portes:
+  - `grille_metal.png` vit encore dans `misc` alors qu'elle fait partie des trois textures de porte
+  - a realigner plus tard vers `textures` pour avoir une famille d'assets coherente
 
 ## Plan de travail detaille
 

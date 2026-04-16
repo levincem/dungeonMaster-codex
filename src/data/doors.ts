@@ -60,7 +60,7 @@ export function getDoorTexturePath(doorType: number | undefined): string {
         case 0:
             return miscPath('grille_metal.png');
         case 2:
-            return texturesPath('doorIronOriginal.bmp');
+            return texturesPath('doorIron.png');
         case 3:
             return texturesPath('doorRaOriginal.bmp');
         default:
