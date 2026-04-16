@@ -115,6 +115,13 @@ Chantiers deja fermes:
   - orchestration partagee des attaques projectile physiques dans `attackFront` `Throw / Shoot / quiver ammo`
   - formule partagee des degats de melee dans `attackFront`
   - orchestration partagee de la branche melee / porte frontale dans `attackFront`
+  - gestion partagee des degats de groupe entrants `wall bump / backlash / attaques de groupe / death drops`
+  - resolution partagee des degats entrants sur champion `wounds / resistances / shields / damage resolution`
+  - coeur partage de survie `regen / mana / stamina / food / water / poison / relax stats`
+  - detection partagee de groupe repose pour la boucle de sommeil
+  - orchestration partagee de la boucle de sommeil `survival / timed effects / pending events / generator spawns / combat`
+  - vieillissement partage des effets temporises `torches / spell lights / shields / potion boosts / vision timers`
+  - fatigue partagee du groupe `load-based fatigue / party move fatigue`
   - orchestration partagee de `tickFrame` `game over / endgame / sleeping / regen / movement / combat / pending world events`
   - resolution partagee des pulses de `activePoisonClouds` dans `tickSpells`
   - resolution partagee des impacts projectile sur la party dans `tickSpells`
@@ -140,13 +147,18 @@ Chantiers deja fermes:
   - patchs de sortie du sort `open` dans `castSpell`
   - patchs des sorts projectiles bloques dans `castSpell`
   - consequences des sorts projectiles bloques dans `castSpell` `poison cloud / source-backed damage / backlash`
+  - bonus runtime de champion partages `potion boosts / current stat deltas / effective runtime bonuses`
+  - calcul partage du cooldown de mouvement du groupe `load / wounds / boots of speed / slowest champion`
+  - transfert partage du pickup au sol vers l'inventaire `alcove cleanup / hidden Firestaff guard`
+  - application partagee de l'endgame frame `fusion ticks / messages / bascule victory`
 
 Etat courant confirme:
 
 - `npm run test` passe
 - `npm run lint` passe
 - `npm run build` passe
-- la suite locale couvre actuellement `286` tests
+- la suite locale couvre actuellement `315` tests
+- `src/engine/store.ts` est descendu a environ `6181` lignes
 
 ## Priorites
 

@@ -128,8 +128,12 @@ import {
 } from './systems/inventoryState';
 import {
     buildFloorItemPickupPatch,
-    hasHiddenFirestaffPickupRestriction,
+    transferFloorItemToChampionState as transferFloorItemToChampionStateSystem,
 } from './systems/floorItemState';
+import {
+    getChampionPotionBonuses,
+    getChampionRuntimeBonuses,
+} from './systems/championRuntimeBonuses';
 import {
     buildCreatureProjectile,
     chooseOriginalCreatureProjectileEffect,
@@ -140,11 +144,19 @@ import { resolvePotionConsumption } from './systems/potionConsumption';
 import { resolveFillWaterAction } from './systems/fillWaterAction';
 import { resolveUseItemConsumption } from './systems/useItemConsumption';
 import { buildUseItemPatch } from './systems/useItemPatch';
+import { buildUseItemStatePatch } from './systems/useItemState';
 import { buildLoadedGameUiResetPatch, buildReturnToTitlePatch } from './systems/uiStateTransitions';
 import { buildHandledNonProjectileSpellPatch } from './systems/spellNonProjectileEffects';
 import { prepareSpellCast } from './systems/spellCastPreparation';
+import { buildCastSpellStatePatch } from './systems/spellCastState';
+import { resolveChampionIncomingAttack } from './systems/incomingAttackState';
+import { advanceSurvivalTimeState, isPartyRestedState } from './systems/survivalState';
+import { buildSleepFramePatch } from './systems/sleepFrameState';
+import { ageTimedEffectsState } from './systems/timedEffectsState';
+import { applyPartyLoadBasedFatigueState } from './systems/partyFatigueState';
 import { tickCombatState } from './systems/combatTick';
 import { tickMovementCooldown, tickRegenState } from './systems/timeStateTicks';
+import { computePartyMovementCooldownSeconds } from './systems/partyMovementCooldownState';
 import { buildPhysicalProjectileAttackPatch } from './systems/attackPhysicalState';
 import { resolveAttackFrontContext } from './systems/attackFrontContext';
 import { resolveAttackSelection } from './systems/attackSelection';
@@ -154,6 +166,7 @@ import { determineMeleeDamage } from './systems/meleeDamage';
 import { buildMeleeAttackResolutionPatch } from './systems/meleeAttackResolution';
 import { buildAttackMeleeStatePatch } from './systems/attackMeleeState';
 import { processTickFrame } from './systems/tickFrameState';
+import { applyEndgameFrameState } from './systems/endgameFrame';
 import { tickPoisonClouds } from './systems/tickPoisonClouds';
 import { applyProjectilePartyHit } from './systems/tickProjectilePartyHit';
 import { applyProjectileCreatureHit } from './systems/tickProjectileCreatureHit';
@@ -173,6 +186,11 @@ import { buildCreatureRuntimeStateArgs, resolveCreatureRuntimeState } from './sy
 import { resolveCreatureAttackTargetState } from './systems/creatureAttackTargetState';
 import { resolveMonsterAttackAgainstChampion } from './systems/monsterAttackResolution';
 import { processMonsterTickChampionDeaths } from './systems/monsterDeathProcessing';
+import {
+    applyFrontRowWallBumpDamageState,
+    applyPartySpellBacklashDamageState,
+    applyPartyWideIncomingAttackState,
+} from './systems/partyIncomingDamageState';
 import { buildSupportedUtilityAttackPatch } from './systems/utilityAttackOrchestration';
 import {
     tryUseChampionItemOnFrontWall,
@@ -852,70 +870,6 @@ function applyChampionSkillExperienceOriginalApprox(
     };
 }
 
-function createEmptyStatBonuses(): EquipmentStatBonuses {
-    return {
-        mana: 0,
-        strength: 0,
-        dexterity: 0,
-        wisdom: 0,
-        vitality: 0,
-        antiMagic: 0,
-        antiFire: 0,
-        luck: 0,
-    };
-}
-
-function getChampionPotionBonuses(
-    activePotionBoosts: ActivePotionBoost[],
-    championId: number,
-    now = Date.now(),
-): EquipmentStatBonuses {
-    const bonuses = createEmptyStatBonuses();
-    for (const boost of activePotionBoosts) {
-        if (boost.championId !== championId || boost.expiresAt <= now) continue;
-        bonuses[boost.stat] += boost.amount;
-    }
-    return bonuses;
-}
-
-function getChampionCurrentStatBonuses(
-    champion: Champion,
-    vitals: ChampionVitals | undefined,
-): EquipmentStatBonuses {
-    if (!vitals) return createEmptyStatBonuses();
-    const currentStats = normalizeChampionCurrentStats(champion, vitals.currentStats);
-    return {
-        mana: 0,
-        strength: currentStats.strength - champion.strength,
-        dexterity: currentStats.dexterity - champion.dexterity,
-        wisdom: currentStats.wisdom - champion.wisdom,
-        vitality: currentStats.vitality - champion.vitality,
-        antiMagic: currentStats.antiMagic - champion.antiMagic,
-        antiFire: currentStats.antiFire - champion.antiFire,
-        luck: currentStats.luck - champion.luck,
-    };
-}
-
-function getChampionRuntimeBonuses(
-    champion: Champion,
-    vitals: ChampionVitals | undefined,
-    activePotionBoosts: ActivePotionBoost[],
-    now = Date.now(),
-): EquipmentStatBonuses {
-    const timedBonuses = getChampionPotionBonuses(activePotionBoosts, champion.id, now);
-    const currentStatBonuses = getChampionCurrentStatBonuses(champion, vitals);
-    return {
-        mana: (timedBonuses.mana ?? 0) + (currentStatBonuses.mana ?? 0),
-        strength: (timedBonuses.strength ?? 0) + (currentStatBonuses.strength ?? 0),
-        dexterity: (timedBonuses.dexterity ?? 0) + (currentStatBonuses.dexterity ?? 0),
-        wisdom: (timedBonuses.wisdom ?? 0) + (currentStatBonuses.wisdom ?? 0),
-        vitality: (timedBonuses.vitality ?? 0) + (currentStatBonuses.vitality ?? 0),
-        antiMagic: (timedBonuses.antiMagic ?? 0) + (currentStatBonuses.antiMagic ?? 0),
-        antiFire: (timedBonuses.antiFire ?? 0) + (currentStatBonuses.antiFire ?? 0),
-        luck: (timedBonuses.luck ?? 0) + (currentStatBonuses.luck ?? 0),
-    };
-}
-
 function cloneChampionWithUpdatedMaximum(
     champion: Champion,
     updates: Partial<Pick<Champion, 'health' | 'stamina' | 'mana' | 'strength' | 'dexterity' | 'wisdom' | 'vitality' | 'antiMagic' | 'antiFire'>>,
@@ -1000,20 +954,6 @@ function buildLevelUpChampionUpdateApprox(
     });
 
     return updatedChampion;
-}
-
-function getEffectiveChampionStatsRuntime(
-    champion: Champion,
-    equip: ChampionEquipment | undefined,
-    activePotionBoosts: ActivePotionBoost[],
-    currentVitals?: ChampionVitals,
-    now = Date.now(),
-) {
-    return getEffectiveChampionStatsWithBonuses(
-        champion,
-        equip,
-        getChampionRuntimeBonuses(champion, currentVitals, activePotionBoosts, now),
-    );
 }
 
 /** Weapon stats for the item in a champion's right hand (or unarmed). */
@@ -1181,32 +1121,6 @@ function rollOriginalProjectileImpactAttackApprox(
     };
 }
 
-function applyWoundsFromIncomingAttackApprox(
-    vitals: ChampionVitals,
-    champion: Champion,
-    equip: ChampionEquipment | undefined,
-    attack: number,
-    allowedSlots: readonly ChampionWoundSlot[],
-    extraBonuses?: Partial<EquipmentStatBonuses>,
-): ChampionVitals {
-    if (attack <= 0 || allowedSlots.length === 0) return vitals;
-
-    const effective = getEffectiveChampionStatsWithBonuses(champion, equip, extraBonuses);
-    let woundThreshold = adjustByAttributeApprox(randomInt(128) + 10, effective.vitality);
-    if (attack <= woundThreshold) return vitals;
-
-    let nextVitals = vitals;
-    do {
-        const unwounded = allowedSlots.filter((slot) => !nextVitals.wounds[slot]);
-        const pool = unwounded.length > 0 ? unwounded : allowedSlots;
-        const slot = pool[randomInt(pool.length)];
-        if (slot) nextVitals = applyChampionWound(nextVitals, slot);
-        woundThreshold <<= 1;
-    } while (attack > woundThreshold && woundThreshold > 0);
-
-    return nextVitals;
-}
-
 function resolveChampionIncomingAttackApprox(
     state: GameState,
     champion: Champion,
@@ -1216,79 +1130,41 @@ function resolveChampionIncomingAttackApprox(
     allowedSlots: readonly ChampionWoundSlot[],
     nowMs: number,
 ): { damage: number; nextVitals: ChampionVitals } {
-    if (rawAttack <= 0) return { damage: 0, nextVitals: currentVitals };
-
-    const equip = state.championEquipment[champion.id] ?? {};
-    const bonuses = getChampionRuntimeBonuses(champion, currentVitals, state.activePotionBoosts);
-    let attack = rawAttack;
-
-    if (attackType !== 'Normal') {
-        let defense = 0;
-        if (allowedSlots.length > 0) {
-            for (const woundSlot of allowedSlots) {
-                defense += computeChampionWoundDefenseApprox(
-                    state,
-                    champion.id,
-                    champion,
-                    currentVitals,
-                    woundSlot,
-                    attackType === 'Sharp',
-                );
-            }
-            defense = Math.floor(defense / allowedSlots.length);
-        }
-
-        switch (attackType) {
-            case 'Mental':
-                attack = getPsychicAdjustedAttackApprox(attack, getEffectiveChampionStatsWithBonuses(champion, equip, bonuses).wisdom);
-                break;
-            case 'Magic':
-                attack = getChampionAdjustedAttackFromResistanceApprox(champion, equip, attack, 'magic', bonuses);
-                attack -= getActiveShieldDefenseApprox(state.activeShields, nowMs, 'magic', champion.id);
-                break;
-            case 'Fire':
-                attack = getChampionAdjustedAttackFromResistanceApprox(champion, equip, attack, 'fire', bonuses);
-                attack -= getActiveShieldDefenseApprox(state.activeShields, nowMs, 'fire', champion.id);
-                break;
-            case 'Impact':
-                defense = Math.floor(defense / 2);
-                break;
-            case 'Blunt':
-            case 'Sharp':
-            case 'Blast':
-            case 'Lightning':
-                break;
-        }
-
-        if (attack <= 0) return { damage: 0, nextVitals: currentVitals };
-        if (attackType !== 'Magic' && attackType !== 'Mental') {
-            attack = scaleOriginalAttackApprox(attack, 6, Math.max(0, 130 - defense));
-        }
-        if (attack <= 0) return { damage: 0, nextVitals: currentVitals };
-    }
-
-    const damage = Math.max(0, attack);
-    if (damage <= 0) return { damage: 0, nextVitals: currentVitals };
-
-    let nextVitals: ChampionVitals = {
-        ...currentVitals,
-        hp: Math.max(0, currentVitals.hp - damage),
-    };
-    if (nextVitals.hp > 0 && attackType !== 'Normal') {
-        nextVitals = applyWoundsFromIncomingAttackApprox(
-            nextVitals,
-            champion,
-            equip,
-            damage,
-            allowedSlots,
-            bonuses,
-        );
-    }
-
-    return {
-        damage: Math.max(0, currentVitals.hp - nextVitals.hp),
-        nextVitals,
-    };
+    return resolveChampionIncomingAttack(
+        state,
+        champion,
+        currentVitals,
+        rawAttack,
+        attackType,
+        allowedSlots,
+        nowMs,
+        {
+            randomInt,
+            applyChampionWound,
+            adjustByAttribute: adjustByAttributeApprox,
+            getEffectiveChampionStatsWithBonuses,
+            computeChampionWoundDefense: (
+                _attackState,
+                championId,
+                incomingChampion,
+                vitals,
+                woundSlot,
+                useSharpDefense,
+            ) => computeChampionWoundDefenseApprox(
+                state,
+                championId,
+                incomingChampion,
+                vitals,
+                woundSlot,
+                useSharpDefense,
+            ),
+            getPsychicAdjustedAttack: getPsychicAdjustedAttackApprox,
+            getChampionAdjustedAttackFromResistance: getChampionAdjustedAttackFromResistanceApprox,
+            getActiveShieldDefense: getActiveShieldDefenseApprox,
+            scaleOriginalAttack: scaleOriginalAttackApprox,
+            getChampionRuntimeBonuses,
+        },
+    );
 }
 
 function getOriginalSpellSuccessChance(
@@ -4182,209 +4058,34 @@ function advanceSurvivalTimeApprox(
     freezeLifeRemainingTicks: number;
     advancedMs: number;
 } {
-    let elapsedGameTimeTicks = state.elapsedGameTimeTicks;
-    let lastSurvivalEffectGameTick = state.lastSurvivalEffectGameTick;
-    let freezeLifeRemainingTicks = state.freezeLifeRemainingTicks;
-    const championVitals: Record<number, ChampionVitals> = { ...state.championVitals };
-    let championTemporaryXP: Record<number, ChampionTemporaryXP> = { ...state.championTemporaryXP };
-    const sleeping = options?.sleeping ?? false;
-    const survivalIntervalTicks = sleeping ? SLEEP_SURVIVAL_INTERVAL_TICKS : AWAKE_SURVIVAL_INTERVAL_TICKS;
-
-    for (let step = 0; step < stepCount; step += 1) {
-        elapsedGameTimeTicks += 1;
-        if (freezeLifeRemainingTicks > 0) {
-            freezeLifeRemainingTicks -= 1;
-        }
-        const timeCriteria = computeOriginalTimeCriteria(elapsedGameTimeTicks);
-        const timeSinceLastPartyMove = elapsedGameTimeTicks - state.lastPartyMoveGameTick;
-        const applySurvivalTick = (elapsedGameTimeTicks - lastSurvivalEffectGameTick) >= survivalIntervalTicks;
-        if (applySurvivalTick) {
-            lastSurvivalEffectGameTick = elapsedGameTimeTicks;
-        }
-
-        for (const champ of state.party) {
-            const current = championVitals[champ.id];
-            if (!current || current.hp <= 0) continue;
-
-            const normalizedCurrent = normalizeChampionVitalsForChampion(champ, current);
-            const effective = getEffectiveChampionStatsRuntime(
-                champ,
-                state.championEquipment[champ.id] ?? {},
-                state.activePotionBoosts,
-                normalizedCurrent,
-            );
-            const maxHP = effective.health;
-            const maxStamina = effective.stamina;
-            const maxMana = effective.mana;
-            const championEquipment = state.championEquipment[champ.id];
-            const wizardSkill =
-                getChampionSkillLevelFromXP(
-                    state.championXP[champ.id],
-                    championTemporaryXP[champ.id],
-                    'wizard',
-                    { bonusLevels: getEquipmentSkillLevelModifier('wizard', championEquipment) },
-                ) +
-                getChampionSkillLevelFromXP(
-                    state.championXP[champ.id],
-                    championTemporaryXP[champ.id],
-                    'priest',
-                    { bonusLevels: getEquipmentSkillLevelModifier('priest', championEquipment) },
-                );
-
-            let next = normalizedCurrent;
-            const currentTemporaryXP = normalizeChampionTemporaryXP(championTemporaryXP[champ.id]);
-            let championTempChanged = false;
-            const nextTemporaryXPForChampion = { ...currentTemporaryXP };
-            for (const skillKey of Object.keys(nextTemporaryXPForChampion) as SkillKey[]) {
-                if (nextTemporaryXPForChampion[skillKey] <= 0) continue;
-                nextTemporaryXPForChampion[skillKey] -= 1;
-                championTempChanged = true;
-            }
-            if (championTempChanged) {
-                championTemporaryXP = {
-                    ...championTemporaryXP,
-                    [champ.id]: nextTemporaryXPForChampion,
-                };
-            }
-
-            if (applySurvivalTick) {
-                if (
-                    maxMana > 0 &&
-                    next.mana < maxMana &&
-                    timeCriteria < (effective.wisdom + wizardSkill)
-                ) {
-                    let manaGain = Math.floor(maxMana / 40);
-                    if (sleeping) {
-                        manaGain <<= 1;
-                    }
-                    manaGain += 1;
-                    const staminaCost = manaGain * Math.max(7, 16 - wizardSkill);
-                    next = applyChampionStaminaDeltaOriginal(next, maxStamina, -staminaCost);
-                    next = {
-                        ...next,
-                        mana: next.mana + Math.min(manaGain, maxMana - next.mana),
-                    };
-                } else if (next.mana > maxMana) {
-                    next = { ...next, mana: next.mana - 1 };
-                }
-
-                let staminaGainCycleCount = 4;
-                let staminaMagnitude = maxStamina;
-                while (next.stamina < (staminaMagnitude >>= 1)) {
-                    staminaGainCycleCount += 2;
-                }
-
-                let staminaDelta = 0;
-                let staminaAmount = applyLimits(1, (maxStamina >> 8) - 1, 6);
-                if (sleeping) {
-                    staminaAmount <<= 1;
-                }
-                if (timeSinceLastPartyMove > 80) {
-                    staminaAmount += 1;
-                    if (timeSinceLastPartyMove > 250) {
-                        staminaAmount += 1;
-                    }
-                }
-
-                let food = next.food;
-                let water = next.water;
-                do {
-                    const staminaAboveHalf = staminaGainCycleCount <= 4;
-                    if (food < -512) {
-                        if (staminaAboveHalf) {
-                            staminaDelta -= staminaAmount;
-                            food -= 2 * FOOD_DRAIN_SCALE;
-                        }
-                    } else {
-                        if (food >= 0) {
-                            staminaDelta += staminaAmount;
-                        }
-                        food -= (staminaAboveHalf ? 2 : staminaGainCycleCount >> 1) * FOOD_DRAIN_SCALE;
-                    }
-
-                    if (water < -512) {
-                        if (staminaAboveHalf) {
-                            staminaDelta -= staminaAmount;
-                            water -= 1 * WATER_DRAIN_SCALE;
-                        }
-                    } else {
-                        if (water >= 0) {
-                            staminaDelta += staminaAmount;
-                        }
-                        water -= (staminaAboveHalf ? 1 : staminaGainCycleCount >> 2) * WATER_DRAIN_SCALE;
-                    }
-                    staminaGainCycleCount -= 1;
-                } while (staminaGainCycleCount > 0 && ((next.stamina + staminaDelta) < maxStamina));
-
-                next = applyChampionStaminaDeltaOriginal(next, maxStamina, staminaDelta);
-                next = {
-                    ...next,
-                    food: clampFoodWater(food, MAX_FOOD),
-                    water: clampFoodWater(water, MAX_WATER),
-                };
-
-                if (next.hp < maxHP && next.stamina >= (maxStamina >> 2) && timeCriteria < (effective.vitality + 12)) {
-                    let healthGain = (maxHP >> 7) + 1;
-                    if (sleeping) {
-                        healthGain <<= 1;
-                    }
-                    if (state.championEquipment[champ.id]?.neck?.category === 'Misc' && state.championEquipment[champ.id]?.neck?.typeId === 38) {
-                        healthGain += (healthGain >> 1) + 1;
-                    }
-                    next = {
-                        ...next,
-                        hp: Math.min(maxHP, next.hp + healthGain),
-                    };
-                }
-
-                const statRelaxMask = sleeping
-                    ? SLEEP_STAT_RELAX_INTERVAL_MASK
-                    : AWAKE_STAT_RELAX_INTERVAL_MASK;
-                if ((elapsedGameTimeTicks & statRelaxMask) === 0) {
-                    const statRelaxTargets = getChampionStatRelaxTargets(
-                        champ,
-                        state.championEquipment[champ.id],
-                        state.activePotionBoosts,
-                    );
-                    next = {
-                        ...next,
-                        currentStats: relaxChampionCurrentStatsTowardMaximum(next.currentStats, statRelaxTargets),
-                    };
-                }
-            }
-
-            if (next.poisonEntries.length > 0) {
-                const updatedEntries: { remaining: number; nextTickIn: number }[] = [];
-                for (const entry of next.poisonEntries) {
-                    const nextTickIn = entry.nextTickIn - ORIGINAL_TIMER_TICK_SECONDS;
-                    if (nextTickIn > 0) {
-                        updatedEntries.push({ ...entry, nextTickIn });
-                        continue;
-                    }
-                    next = {
-                        ...next,
-                        hp: Math.max(0, next.hp - Math.max(1, Math.floor(entry.remaining / 64))),
-                    };
-                    const nextRemaining = entry.remaining - 1;
-                    if (nextRemaining > 0) {
-                        updatedEntries.push({ remaining: nextRemaining, nextTickIn: POISON_TICK_INTERVAL_SEC });
-                    }
-                }
-                next = { ...next, poisonEntries: updatedEntries };
-            }
-
-            championVitals[champ.id] = next;
-        }
-    }
-
-    return {
-        championVitals,
-        championTemporaryXP,
-        elapsedGameTimeTicks,
-        lastSurvivalEffectGameTick,
-        freezeLifeRemainingTicks,
-        advancedMs: stepCount * (ORIGINAL_TIMER_TICK_SECONDS * 1000),
-    };
+    return advanceSurvivalTimeState(
+        state,
+        stepCount,
+        {
+            sleepSurvivalIntervalTicks: SLEEP_SURVIVAL_INTERVAL_TICKS,
+            awakeSurvivalIntervalTicks: AWAKE_SURVIVAL_INTERVAL_TICKS,
+            originalTimerTickSeconds: ORIGINAL_TIMER_TICK_SECONDS,
+            poisonTickIntervalSec: POISON_TICK_INTERVAL_SEC,
+            foodDrainScale: FOOD_DRAIN_SCALE,
+            waterDrainScale: WATER_DRAIN_SCALE,
+            maxFood: MAX_FOOD,
+            maxWater: MAX_WATER,
+            sleepStatRelaxIntervalMask: SLEEP_STAT_RELAX_INTERVAL_MASK,
+            awakeStatRelaxIntervalMask: AWAKE_STAT_RELAX_INTERVAL_MASK,
+            normalizeChampionVitalsForChampion,
+            getEffectiveChampionStatsRuntime,
+            getChampionSkillLevelFromXP,
+            getEquipmentSkillLevelModifier,
+            normalizeChampionTemporaryXP,
+            computeOriginalTimeCriteria,
+            applyChampionStaminaDeltaOriginal,
+            applyLimits,
+            clampFoodWater,
+            getChampionStatRelaxTargets,
+            relaxChampionCurrentStatsTowardMaximum,
+        },
+        options,
+    );
 }
 
 function applyRegenTickApprox(state: GameState, delta: number): Partial<GameState> | null {
@@ -4408,230 +4109,110 @@ function applyRegenTickApprox(state: GameState, delta: number): Partial<GameStat
 }
 
 function isPartyRestedApprox(state: Pick<GameState, 'party' | 'championVitals' | 'championEquipment' | 'activePotionBoosts'>): boolean {
-    return state.party.every((champ) => {
-        const vitals = state.championVitals[champ.id];
-        if (!vitals || vitals.hp <= 0) return true;
-        const effective = getEffectiveChampionStatsRuntime(
-            champ,
-            state.championEquipment[champ.id] ?? {},
-            state.activePotionBoosts,
-            vitals,
-        );
-        return vitals.hp >= effective.health && vitals.stamina >= effective.stamina && vitals.mana >= effective.mana;
-    });
-}
-
-function applySleepFrameApprox(state: GameState, now: number): Partial<GameState> | null {
-    if (!state.sleeping) return null;
-
-    const advanced = advanceSurvivalTimeApprox(state, 1, { sleeping: true });
-    const timedEffects = ageTimedEffectsByMs(state, advanced.advancedMs);
-    const pendingPatch = processPendingSensorEventsSystem(
-        advanced.advancedMs / 1000,
-        state.pendingSensorEvents,
-        buildSensorStateSnapshot(state),
-        buildPendingWorldEventDeps(),
-    );
-    const generatorPatch = processPendingGeneratorSpawnsSystem(
-        advanced.advancedMs / 1000,
-        state.pendingGeneratorSpawns,
-        buildSensorStateSnapshot(state),
-        {
-            hasApproximateOriginalGeneratorCapacity,
-            isGeneratorSpawnBlocked,
-            createGeneratedCreatureGroupInstances,
-            retrySeconds: ORIGINAL_MOVE_GROUP_RETRY_SECONDS,
-            diffSensorState,
-        },
-    );
-    const hasPendingPatch =
-        Object.keys(pendingPatch.sensorChanges).length > 0 ||
-        pendingPatch.pendingSensorEvents !== state.pendingSensorEvents;
-    const hasGeneratorPatch =
-        Object.keys(generatorPatch.sensorChanges).length > 0 ||
-        generatorPatch.pendingGeneratorSpawns !== state.pendingGeneratorSpawns;
-    const combatPatch = applyCombatTickApprox(state, 0, now);
-    const restedState = {
-        ...state,
-        championVitals: advanced.championVitals,
-        championTemporaryXP: advanced.championTemporaryXP,
-    };
-
-    return {
-        championVitals: advanced.championVitals,
-        championTemporaryXP: advanced.championTemporaryXP,
-        elapsedGameTimeTicks: advanced.elapsedGameTimeTicks,
-        lastSurvivalEffectGameTick: advanced.lastSurvivalEffectGameTick,
-        freezeLifeRemainingTicks: advanced.freezeLifeRemainingTicks,
-        regenTickRemainder: 0,
-        ...timedEffects,
-        ...(combatPatch ?? {}),
-        ...(hasPendingPatch ? { ...pendingPatch.sensorChanges, pendingSensorEvents: pendingPatch.pendingSensorEvents } : {}),
-        ...(hasGeneratorPatch ? { ...generatorPatch.sensorChanges, pendingGeneratorSpawns: generatorPatch.pendingGeneratorSpawns } : {}),
-        sleeping: !isPartyRestedApprox(restedState),
-    };
-}
-
-function applyEndgameFrameApprox(state: GameState, now: number): Partial<GameState> | null {
-    const sequence = state.endgameSequence;
-    if (!sequence) return null;
-
-    const age = now - sequence.startedAt;
-    const elapsedStepCount = Math.floor(age / ENDGAME_FUSE_UPDATE_MS);
-    const messagePhaseStartedAt = 41 * ENDGAME_FUSE_UPDATE_MS;
-    const messagePhaseAge = Math.max(0, age - messagePhaseStartedAt);
-    const nextMessageCount = Math.min(
-        sequence.messages.length,
-        Math.floor(messagePhaseAge / ENDGAME_MESSAGE_INTERVAL_MS),
-    );
-
-    let nextSequence = sequence;
-    let spellVisualEvents = state.spellVisualEvents;
-    let creatures = state.creatures;
-    let lastCastResult = state.lastCastResult;
-    let changed = false;
-
-    if (elapsedStepCount > nextSequence.processedStepCount) {
-        for (const action of ENDGAME_FUSE_ACTIONS) {
-            if (action.step > elapsedStepCount || action.step <= nextSequence.processedStepCount) continue;
-            if (action.buzz) playTeleport();
-            if (action.effects?.length) {
-                spellVisualEvents = [
-                    ...spellVisualEvents,
-                    ...action.effects.map((effect) =>
-                        buildEndgameSpellEvent(effect.effect, sequence.level, sequence.x, sequence.y, now, effect.scale),
-                    ),
-                ];
-            }
-            if (action.switchTypeId !== undefined) {
-                const targetIndex = creatures.findIndex((creature) => creature.id === sequence.lordChaosId);
-                if (targetIndex >= 0) {
-                    if (creatures === state.creatures) creatures = [...creatures];
-                    creatures[targetIndex] = {
-                        ...creatures[targetIndex]!,
-                        typeId: action.switchTypeId,
-                        currentHP: Math.max(creatures[targetIndex]!.currentHP, 10000),
-                        alive: true,
-                        cell: 'center',
-                    };
-                }
-            }
-            if (action.hideFluxcages && !nextSequence.hideFluxcages) {
-                nextSequence = { ...nextSequence, hideFluxcages: true };
-            }
-            if (action.purgeOtherCreatures) {
-                creatures = creatures.filter((creature) =>
-                    creature.id === sequence.lordChaosId ||
-                    creature.mapIndex !== sequence.level ||
-                    !creature.alive,
-                );
-            }
-        }
-        nextSequence = { ...nextSequence, processedStepCount: elapsedStepCount };
-        changed = true;
-    }
-
-    if (nextMessageCount > nextSequence.shownMessageCount) {
-        const nextMessage = nextSequence.messages[nextMessageCount - 1];
-        if (nextMessage) {
-            lastCastResult = buildAttackResultMessage(nextMessage, true);
-        }
-        nextSequence = { ...nextSequence, shownMessageCount: nextMessageCount };
-        changed = true;
-    }
-
-    if (age >= messagePhaseStartedAt + (sequence.messages.length * ENDGAME_MESSAGE_INTERVAL_MS) + ENDGAME_FINAL_DELAY_MS) {
-        return {
-            creatures,
-            spellVisualEvents,
-            gamePhase: 'victory',
-            endgameSequence: null,
-            activeMirrorChampionId: null,
-            activePartyMemberId: null,
-            sleeping: false,
-            ...(lastCastResult !== state.lastCastResult ? { lastCastResult } : {}),
-        };
-    }
-
-    return changed ? {
-        ...(creatures !== state.creatures ? { creatures } : {}),
-        ...(spellVisualEvents !== state.spellVisualEvents ? { spellVisualEvents } : {}),
-        endgameSequence: nextSequence,
-        ...(lastCastResult !== state.lastCastResult ? { lastCastResult } : {}),
-    } : null;
-}
-
-function applyMovementTickApprox(state: GameState, delta: number): Partial<GameState> | null {
-    if (!Number.isFinite(state.movementCooldown)) {
-        return { movementCooldown: 0 };
-    }
-    if (state.movementCooldown <= 0) return null;
-    return { movementCooldown: Math.max(0, state.movementCooldown - delta) };
+    return isPartyRestedState(state, { getEffectiveChampionStatsRuntime });
 }
 
 function applyCombatTickApprox(state: GameState, delta: number, now: number): Partial<GameState> | null {
-    const updates: Record<number, ChampionCombat> = {};
-    let combatChanged = false;
-    for (const c of state.party) {
-        const cb = state.championCombat[c.id];
-        if (!cb) continue;
-        if (cb.cooldown > 0) {
-            const nextCooldown = Math.max(0, cb.cooldown - delta);
-            updates[c.id] = {
-                ...cb,
-                cooldown: nextCooldown,
-                defenseModifier: nextCooldown > 0 ? cb.defenseModifier : 0,
-            };
-            combatChanged = true;
-        } else if (cb.defenseModifier !== 0) {
-            updates[c.id] = { ...cb, defenseModifier: 0 };
-            combatChanged = true;
-        }
-    }
-    const newEvents = state.damageEvents.filter((e) => now - e.ts < DAMAGE_EVENT_LIFETIME_MS);
-    const eventsChanged = newEvents.length !== state.damageEvents.length;
-    if (!combatChanged && !eventsChanged) return null;
-    return {
-        ...(combatChanged ? { championCombat: { ...state.championCombat, ...updates } } : {}),
-        ...(eventsChanged ? { damageEvents: newEvents } : {}),
-    };
+    return tickCombatState({
+        party: state.party,
+        championCombat: state.championCombat,
+        damageEvents: state.damageEvents,
+        delta,
+        now,
+        damageEventLifetimeMs: DAMAGE_EVENT_LIFETIME_MS,
+    });
+}
+
+function applyEndgameFrameApprox(state: GameState, now: number): Partial<GameState> | null {
+    return applyEndgameFrameState(
+        state,
+        now,
+        {
+            fuseUpdateMs: ENDGAME_FUSE_UPDATE_MS,
+            messageIntervalMs: ENDGAME_MESSAGE_INTERVAL_MS,
+            finalDelayMs: ENDGAME_FINAL_DELAY_MS,
+            actions: ENDGAME_FUSE_ACTIONS,
+            playBuzz: playTeleport,
+            buildSpellEvent: (effect, level, x, y, ts, scale) =>
+                buildEndgameSpellEvent(effect, level, x, y, ts, scale),
+            buildMessageResult: (message) => buildAttackResultMessage(message, true),
+        },
+    );
+}
+
+function computePartyMovementCooldownSecondsApprox(
+    state: Pick<GameState, 'party' | 'championVitals' | 'championEquipment' | 'championInventories' | 'activePotionBoosts'>,
+): number {
+    return computePartyMovementCooldownSeconds(state, {
+        getChampionRuntimeBonuses,
+        getTotalWeight,
+        getChampionMaxLoad,
+    });
+}
+
+function getEffectiveChampionStatsRuntime(
+    champion: Champion,
+    equip: ChampionEquipment | undefined,
+    activePotionBoosts: ActivePotionBoost[],
+    currentVitals?: ChampionVitals,
+    now = Date.now(),
+) {
+    return getEffectiveChampionStatsWithBonuses(
+        champion,
+        equip,
+        getChampionRuntimeBonuses(champion, currentVitals, activePotionBoosts, now),
+    );
+}
+
+function applySleepFrameApprox(state: GameState, now: number): Partial<GameState> | null {
+    return buildSleepFramePatch(
+        state,
+        now,
+        {
+            advanceSurvivalTime: (sleepState, stepCount) =>
+                advanceSurvivalTimeApprox(sleepState, stepCount, { sleeping: true }),
+            ageTimedEffectsByMs: (sleepState, advanceMs) => ageTimedEffectsState(sleepState, advanceMs, Date.now()),
+            processPendingSensorEvents: (deltaSeconds, sleepState) =>
+                processPendingSensorEventsSystem(
+                    deltaSeconds,
+                    sleepState.pendingSensorEvents,
+                    buildSensorStateSnapshot(sleepState),
+                    buildPendingWorldEventDeps(),
+                ),
+            processPendingGeneratorSpawns: (deltaSeconds, sleepState) =>
+                processPendingGeneratorSpawnsSystem(
+                    deltaSeconds,
+                    sleepState.pendingGeneratorSpawns,
+                    buildSensorStateSnapshot(sleepState),
+                    {
+                        hasApproximateOriginalGeneratorCapacity,
+                        isGeneratorSpawnBlocked,
+                        createGeneratedCreatureGroupInstances,
+                        retrySeconds: ORIGINAL_MOVE_GROUP_RETRY_SECONDS,
+                        diffSensorState,
+                    },
+                ),
+            applyCombatTick: applyCombatTickApprox,
+            isPartyRested: isPartyRestedApprox,
+        },
+    ) as Partial<GameState> | null;
 }
 
 function applyPartyLoadBasedFatigue(
     state: Pick<GameState, 'party' | 'championVitals' | 'championEquipment' | 'championInventories' | 'activePotionBoosts'>,
     loadFactor: number,
 ): Record<number, ChampionVitals> | null {
-    let changed = false;
-    const nextVitals: Record<number, ChampionVitals> = { ...state.championVitals };
-
-    for (const champ of state.party) {
-        const current = state.championVitals[champ.id];
-        if (!current || current.hp <= 0) continue;
-
-        const equip = state.championEquipment[champ.id] ?? {};
-        const inventory = state.championInventories[champ.id] ?? [];
-        const effective = getEffectiveChampionStatsRuntime(champ, equip, state.activePotionBoosts, current);
-        const load = getTotalWeight(equip, inventory);
-        const maxLoad = Math.max(
-            1,
-            getChampionMaxLoad(
-                champ,
-                equip,
-                current.stamina,
-                current.wounds,
-                getChampionRuntimeBonuses(champ, current, state.activePotionBoosts),
-            ),
-        );
-        const staminaCost = Math.floor((load * loadFactor) / maxLoad) + 1;
-        const next = applyChampionStaminaDeltaOriginal(current, effective.stamina, -staminaCost);
-
-        if (next !== current && (next.hp !== current.hp || next.stamina !== current.stamina)) {
-            nextVitals[champ.id] = next;
-            changed = true;
-        }
-    }
-
-    return changed ? nextVitals : null;
+    return applyPartyLoadBasedFatigueState(
+        state,
+        loadFactor,
+        {
+            getEffectiveChampionStatsRuntime,
+            getTotalWeight,
+            getChampionMaxLoad,
+            getChampionRuntimeBonuses,
+            applyChampionStaminaDeltaOriginal,
+        },
+    );
 }
 
 function applyPartyMoveFatigue(state: Pick<GameState, 'party' | 'championVitals' | 'championEquipment' | 'championInventories' | 'activePotionBoosts'>): Record<number, ChampionVitals> | null {
@@ -4643,74 +4224,21 @@ function applyFrontRowWallBumpDamage(
     state: Pick<GameState, 'level' | 'position' | 'party' | 'championInventories' | 'championEquipment' | 'floorItems' | 'deadChampions' | 'selectedChampionIndex'>,
     championVitals: Record<number, ChampionVitals>,
 ): Partial<GameState> | null {
-    const frontChampions = state.party
-        .slice(0, 2)
-        .filter((champion) => (championVitals[champion.id]?.hp ?? 0) > 0);
-
-    if (frontChampions.length === 0) return null;
-
-    let vitals = championVitals;
-    const newlyDead: number[] = [];
-
-    for (const champion of frontChampions) {
-        const current = vitals[champion.id];
-        if (!current || current.hp <= 0) continue;
-        const damage = 1 + randomInt(3); // light wall impact: 1-3 HP
-        const next = {
-            ...current,
-            hp: Math.max(0, current.hp - damage),
-        };
-        if (next.hp === current.hp) continue;
-        if (vitals === championVitals) vitals = { ...championVitals };
-        vitals[champion.id] = next;
-        if (next.hp === 0) newlyDead.push(champion.id);
-    }
-
-    if (vitals === championVitals) return null;
-
-    let party = state.party;
-    let floorItems = state.floorItems;
-    let championInventories = state.championInventories;
-    let championEquipment = state.championEquipment;
-    let deadChampions = state.deadChampions;
-
-    for (const championId of newlyDead) {
-        const partial = buildDeathDropSystem(
-            {
-                level: state.level,
-                position: state.position,
-                party,
-                championInventories,
-                championEquipment,
-                floorItems,
-                deadChampions,
-            },
-            championId,
-            Date.now(),
-        );
-        party = partial.party;
-        floorItems = partial.floorItems;
-        championInventories = partial.championInventories;
-        championEquipment = partial.championEquipment;
-        deadChampions = partial.deadChampions;
-    }
-
-    const partialState: Partial<GameState> = {
-        championVitals: vitals,
-    };
-
-    if (party !== state.party) {
-        partialState.party = party;
-        partialState.floorItems = floorItems;
-        partialState.championInventories = championInventories;
-        partialState.championEquipment = championEquipment;
-        partialState.deadChampions = deadChampions;
-        partialState.selectedChampionIndex = party.length > 0
-            ? Math.min(state.selectedChampionIndex, party.length - 1)
-            : 0;
-    }
-
-    return partialState;
+    return applyFrontRowWallBumpDamageState(
+        {
+            ...state,
+            damageEvents: [],
+            activeShields: [],
+            activePotionBoosts: [],
+        },
+        championVitals,
+        Date.now(),
+        {
+            randomInt,
+            buildChampionDamageEvent,
+            buildDeathDrop: buildDeathDropSystem,
+        },
+    ) as Partial<GameState> | null;
 }
 
 function applyPartyFallImpactDamage(
@@ -4984,91 +4512,25 @@ function applyPartySpellBacklashDamage(
     rawDamage: number,
     nowMs: number,
 ): Partial<GameState> | null {
-    const livingChampions = state.party.filter((champion) => (championVitals[champion.id]?.hp ?? 0) > 0);
-    if (livingChampions.length === 0 || rawDamage <= 0) return null;
-
-    const damageClass = getProjectileDamageClass(effect);
-    let vitals = championVitals;
-    let damageEvents = state.damageEvents;
-    const newlyDead: number[] = [];
-
-    for (const champion of livingChampions) {
-        const current = vitals[champion.id];
-        if (!current || current.hp <= 0) continue;
-
-        let adjustedAttack = rollOriginalPartyWideAttack(rawDamage);
-        const equip = state.championEquipment[champion.id] ?? {};
-        adjustedAttack = getChampionAdjustedAttackFromResistanceApprox(
-            champion,
-            equip,
-            adjustedAttack,
-            damageClass,
-            getChampionRuntimeBonuses(champion, current, state.activePotionBoosts),
-        );
-        if (damageClass === 'fire') {
-            adjustedAttack -= getActiveShieldDefenseApprox(state.activeShields, nowMs, 'fire', champion.id);
-        } else if (damageClass === 'magic') {
-            adjustedAttack -= getActiveShieldDefenseApprox(state.activeShields, nowMs, 'magic', champion.id);
-        }
-        if (adjustedAttack <= 0) continue;
-        const damage = Math.max(1, adjustedAttack);
-        const next = {
-            ...current,
-            hp: Math.max(0, current.hp - damage),
-        };
-        if (next.hp === current.hp) continue;
-        if (vitals === championVitals) vitals = { ...championVitals };
-        vitals[champion.id] = next;
-        damageEvents = [...damageEvents, buildChampionDamageEvent(state.level, champion.id, damage)];
-        if (next.hp === 0) newlyDead.push(champion.id);
-    }
-
-    if (vitals === championVitals && damageEvents === state.damageEvents) return null;
-
-    let party = state.party;
-    let floorItems = state.floorItems;
-    let championInventories = state.championInventories;
-    let championEquipment = state.championEquipment;
-    let deadChampions = state.deadChampions;
-
-    for (const championId of newlyDead) {
-        const partial = buildDeathDropSystem(
-            {
-                level: state.level,
-                position: state.position,
-                party,
-                championInventories,
-                championEquipment,
-                floorItems,
-                deadChampions,
-            },
-            championId,
-            Date.now(),
-        );
-        party = partial.party;
-        floorItems = partial.floorItems;
-        championInventories = partial.championInventories;
-        championEquipment = partial.championEquipment;
-        deadChampions = partial.deadChampions;
-    }
-
-    const partialState: Partial<GameState> = {
-        championVitals: vitals,
-        damageEvents,
-    };
-
-    if (party !== state.party) {
-        partialState.party = party;
-        partialState.floorItems = floorItems;
-        partialState.championInventories = championInventories;
-        partialState.championEquipment = championEquipment;
-        partialState.deadChampions = deadChampions;
-        partialState.selectedChampionIndex = party.length > 0
-            ? Math.min(state.selectedChampionIndex, party.length - 1)
-            : 0;
-    }
-
-    return partialState;
+    return applyPartySpellBacklashDamageState(
+        {
+            ...state,
+            selectedChampionIndex: state.selectedChampionIndex ?? 0,
+        },
+        championVitals,
+        effect,
+        rawDamage,
+        nowMs,
+        {
+            buildChampionDamageEvent,
+            buildDeathDrop: buildDeathDropSystem,
+            rollOriginalPartyWideAttack,
+            getProjectileDamageClass,
+            getChampionAdjustedAttackFromResistance: getChampionAdjustedAttackFromResistanceApprox,
+            getChampionRuntimeBonuses,
+            getActiveShieldDefense: getActiveShieldDefenseApprox,
+        },
+    ) as Partial<GameState> | null;
 }
 
 function applyPartyWideIncomingAttackApprox(
@@ -5094,182 +4556,38 @@ function applyPartyWideIncomingAttackApprox(
     nowMs: number,
     spread = true,
 ): Partial<GameState> | null {
-    const livingChampions = state.party.filter((champion) => (championVitals[champion.id]?.hp ?? 0) > 0);
-    if (livingChampions.length === 0 || rawAttack <= 0) return null;
-
-    let vitals = championVitals;
-    let damageEvents = state.damageEvents;
-    const newlyDead: number[] = [];
-
-    for (const champion of livingChampions) {
-        const current = vitals[champion.id];
-        if (!current || current.hp <= 0) continue;
-
-        const resolved = resolveChampionIncomingAttackApprox(
-            state as GameState,
-            champion,
-            current,
-            spread ? rollOriginalPartyWideAttack(rawAttack) : rawAttack,
-            attackType,
-            allowedSlots,
-            nowMs,
-        );
-        if (resolved.damage <= 0) continue;
-
-        if (vitals === championVitals) vitals = { ...championVitals };
-        vitals[champion.id] = resolved.nextVitals;
-        damageEvents = [...damageEvents, buildChampionDamageEvent(state.level, champion.id, resolved.damage)];
-        if (resolved.nextVitals.hp === 0) newlyDead.push(champion.id);
-    }
-
-    if (vitals === championVitals && damageEvents === state.damageEvents) return null;
-
-    let party = state.party;
-    let floorItems = state.floorItems;
-    let championInventories = state.championInventories;
-    let championEquipment = state.championEquipment;
-    let deadChampions = state.deadChampions;
-
-    for (const championId of newlyDead) {
-        const partial = buildDeathDropSystem(
-            {
-                level: state.level,
-                position: state.position,
-                party,
-                championInventories,
-                championEquipment,
-                floorItems,
-                deadChampions,
-            },
-            championId,
-            Date.now(),
-        );
-        party = partial.party;
-        floorItems = partial.floorItems;
-        championInventories = partial.championInventories;
-        championEquipment = partial.championEquipment;
-        deadChampions = partial.deadChampions;
-    }
-
-    const partialState: Partial<GameState> = {
-        championVitals: vitals,
-        damageEvents,
-    };
-
-    if (party !== state.party) {
-        partialState.party = party;
-        partialState.floorItems = floorItems;
-        partialState.championInventories = championInventories;
-        partialState.championEquipment = championEquipment;
-        partialState.deadChampions = deadChampions;
-        partialState.selectedChampionIndex = party.length > 0
-            ? Math.min(state.selectedChampionIndex, party.length - 1)
-            : 0;
-    }
-
-    return partialState;
+    return applyPartyWideIncomingAttackState(
+        state as Pick<GameState, keyof GameState>,
+        championVitals,
+        rawAttack,
+        attackType,
+        allowedSlots,
+        nowMs,
+        spread,
+        {
+            buildChampionDamageEvent,
+            buildDeathDrop: buildDeathDropSystem,
+            rollOriginalPartyWideAttack,
+            resolveChampionIncomingAttack: (
+                attackState,
+                champion,
+                currentVitals,
+                attack,
+                incomingAttackType,
+                incomingAllowedSlots,
+                attackNowMs,
+            ) => resolveChampionIncomingAttackApprox(
+                attackState as GameState,
+                champion,
+                currentVitals,
+                attack,
+                incomingAttackType as IncomingAttackTypeApprox,
+                incomingAllowedSlots as readonly ChampionWoundSlot[],
+                attackNowMs,
+            ),
+        },
+    ) as Partial<GameState> | null;
 }
-
-function computeChampionMovementTicksApprox(
-    champion: Champion,
-    vitals: ChampionVitals | undefined,
-    equip: ChampionEquipment | undefined,
-    inventory: FloorItem[] | undefined,
-    extraBonuses?: Partial<EquipmentStatBonuses>,
-): number {
-    if (!vitals || vitals.hp <= 0) return 1;
-    const load = getTotalWeight(equip ?? {}, inventory ?? []);
-    const maxLoad = Math.max(1, getChampionMaxLoad(champion, equip, vitals.stamina, vitals.wounds, extraBonuses));
-
-    let ticks: number;
-    let woundTicks: number;
-
-    if (maxLoad > load) {
-        ticks = 2;
-        if ((load << 3) > (maxLoad * 5)) ticks += 1;
-        woundTicks = 1;
-    } else {
-        ticks = 4 + Math.floor((((load - maxLoad) << 2) / maxLoad));
-        woundTicks = 2;
-    }
-
-    if (vitals.wounds.feet) {
-        ticks += woundTicks;
-    }
-
-    const feetName = equip?.feet?.rawName ?? '';
-    if (/boots of speed/i.test(feetName)) {
-        ticks -= 1;
-    }
-
-    return Math.max(1, ticks);
-}
-
-function computePartyMovementCooldownSecondsApprox(
-    state: Pick<GameState, 'party' | 'championVitals' | 'championEquipment' | 'championInventories' | 'activePotionBoosts'>,
-): number {
-    let ticks = 1;
-    for (const champ of state.party) {
-            ticks = Math.max(
-                ticks,
-                computeChampionMovementTicksApprox(
-                    champ,
-                    state.championVitals[champ.id],
-                    state.championEquipment[champ.id] ?? {},
-                    state.championInventories[champ.id] ?? [],
-                    getChampionRuntimeBonuses(champ, state.championVitals[champ.id], state.activePotionBoosts),
-                ),
-            );
-    }
-    const cooldown = (ticks / 6) * 0.85;
-    return Number.isFinite(cooldown) && cooldown > 0 ? cooldown : 0;
-}
-
-function ageTimedEffectsByMs(state: GameState, advanceMs: number): Partial<GameState> {
-    if (advanceMs <= 0) return {};
-    const now = Date.now();
-
-    const torchBurnStart = Object.fromEntries(
-        Object.entries(state.torchBurnStart).map(([itemId, litAt]) => [itemId, litAt - advanceMs]),
-    );
-    const spellLights = state.spellLights
-        .map((light) => ({ ...light, expiresAt: light.expiresAt - advanceMs }))
-        .filter((light) => light.expiresAt > now);
-    const activeShields = state.activeShields
-        .map((shield) => ({ ...shield, expiresAt: shield.expiresAt - advanceMs }))
-        .filter((shield) => shield.expiresAt > now);
-    const activePotionBoosts = state.activePotionBoosts
-        .map((boost) => ({ ...boost, expiresAt: boost.expiresAt - advanceMs }))
-        .filter((boost) => boost.expiresAt > now);
-
-    return {
-        torchBurnStart,
-        spellLights,
-        activeShields,
-        activePotionBoosts,
-        invisibleUntil: Math.max(0, state.invisibleUntil - advanceMs),
-        magicVisionUntil: Math.max(0, state.magicVisionUntil - advanceMs),
-        seeThroughWallsUntil: Math.max(0, state.seeThroughWallsUntil - advanceMs),
-        footprintsUntil: Math.max(0, state.footprintsUntil - advanceMs),
-    };
-}
-
-function transferFloorItemToChampionState(state: GameState, id: string, championId: number): Partial<GameState> | null {
-    const item = state.floorItems.find(i => i.id === id);
-    if (!item) return null;
-    const champion = state.party.find((entry) => entry.id === championId);
-    if (!champion) return null;
-    const tile = getMap(item.mapIndex).tiles[item.y]?.[item.x];
-    if (hasHiddenFirestaffPickupRestriction(item, tile)) {
-        return {
-            lastCastResult: buildAttackResultMessage('Le Firestaff complet ne peut etre obtenu qu via l Amalgam.'),
-        };
-    }
-    const alcoveState = clearAlcoveStateOnPickupSystem(item, state, buildWallItemSensorDeps());
-    return buildFloorItemPickupPatch(state, item, championId, alcoveState);
-}
-
-
 
 // ─── Store ────────────────────────────────────────────────────────────────────
 
@@ -5618,13 +4936,27 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
     pickupItem: (id) => set((state) => {
         const activeChampion = state.party[state.selectedChampionIndex];
         if (!activeChampion) return state;
-        const patch = transferFloorItemToChampionState(state, id, activeChampion.id);
+        const patch = transferFloorItemToChampionStateSystem(state, id, activeChampion.id, {
+            getTile: (mapIndex, y, x) => getMap(mapIndex).tiles[y]?.[x],
+            buildPickupPatch: buildFloorItemPickupPatch,
+            clearAlcoveStateOnPickup: (item, pickupState) =>
+                clearAlcoveStateOnPickupSystem(item, pickupState, buildWallItemSensorDeps()),
+            buildHiddenFirestaffMessage: () =>
+                buildAttackResultMessage('Le Firestaff complet ne peut etre obtenu qu via l Amalgam.'),
+        });
         return patch ? { ...state, ...patch } : state;
     }),
 
     pickupItemToChampion: (id, championId) => {
         const state = get();
-        const patch = transferFloorItemToChampionState(state, id, championId);
+        const patch = transferFloorItemToChampionStateSystem(state, id, championId, {
+            getTile: (mapIndex, y, x) => getMap(mapIndex).tiles[y]?.[x],
+            buildPickupPatch: buildFloorItemPickupPatch,
+            clearAlcoveStateOnPickup: (item, pickupState) =>
+                clearAlcoveStateOnPickupSystem(item, pickupState, buildWallItemSensorDeps()),
+            buildHiddenFirestaffMessage: () =>
+                buildAttackResultMessage('Le Firestaff complet ne peut etre obtenu qu via l Amalgam.'),
+        });
         if (!patch) return false;
         set(patch);
         return true;
@@ -5757,80 +5089,42 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
     }),
 
     useItem: (championId, itemId, fromSlot = 'inventory') => set((state) => {
-        const located = locateChampionItem(state, championId, itemId, fromSlot);
-        if (!located) return state;
-        const { inventory: inv, equipment: equip, inventoryIndex, slotKey, item } = located;
-        const vitals = state.championVitals[championId];
-        if (!vitals) return state;
-        const champ = state.party.find(c => c.id === championId);
-        if (!champ) return state;
-        const effective = getEffectiveChampionStatsRuntime(champ, equip, state.activePotionBoosts, vitals);
-
-        const newVitals = { ...vitals };
-        let replacementItem: FloorItem | null = null;
-        let shouldConsumeOriginal = true;
-        let nextActiveShields = state.activeShields;
-
-        const consumableUse = resolveUseItemConsumption(
-            {
-                item,
-                championId,
-                vitals,
-                effective: {
-                    stamina: effective.stamina,
-                    mana: effective.mana,
-                    health: effective.health,
-                },
-                normalizedStats: normalizeChampionCurrentStats(champ, newVitals.currentStats),
-                activeShields: state.activeShields,
-                now: Date.now(),
-            },
-            {
-                isWaterContainer,
-                consumeWaterContainer,
-                clampFoodWater,
-                getPotionDef,
-                getMiscNutrition: (typeId) => {
-                    const def = MISC_TYPES[typeId];
-                    return def?.food && def.nutrition ? def.nutrition : null;
-                },
-                resolvePotionConsumption: (args) => resolvePotionConsumption(args, {
-                    adjustStatisticCurrentValue: adjustOriginalStatisticCurrentValue,
-                    buildEmptyFlaskReplacement,
-                    getPartyShieldKind,
-                    quantizeDurationMs: quantizeMsToOriginalTimerTicks,
-                    healChampionWounds: healChampionWoundsApprox,
-                    timerTickMs: ORIGINAL_TIMER_TICK_MS,
-                }),
-                maxFood: MAX_FOOD,
-                maxWater: MAX_WATER,
-            },
-        );
-        if (consumableUse.kind === 'blocked') return state;
-        if (consumableUse.kind === 'handled') {
-            Object.assign(newVitals, consumableUse.nextVitals);
-            replacementItem = consumableUse.replacementItem;
-            shouldConsumeOriginal = consumableUse.shouldConsumeOriginal;
-            nextActiveShields = consumableUse.activeShields ?? state.activeShields;
-        }
-
-        return buildUseItemPatch({
+        return buildUseItemStatePatch(
+            state,
             championId,
             itemId,
-            slotKey,
-            inventoryIndex,
-            item,
-            inventory: inv,
-            equipment: equip,
-            currentChampionVitals: state.championVitals,
-            currentChampionInventories: state.championInventories,
-            currentChampionEquipment: state.championEquipment,
-            nextVitals: newVitals,
-            replacementItem,
-            shouldConsumeOriginal,
-            currentActiveShields: state.activeShields,
-            nextActiveShields,
-        });
+            fromSlot,
+            Date.now(),
+            {
+                locateChampionItem,
+                getEffectiveChampionStatsRuntime,
+                normalizeChampionCurrentStats,
+                resolveUseItemConsumption: (args) => resolveUseItemConsumption(
+                    args,
+                    {
+                        isWaterContainer,
+                        consumeWaterContainer,
+                        clampFoodWater,
+                        getPotionDef,
+                        getMiscNutrition: (typeId) => {
+                            const def = MISC_TYPES[typeId];
+                            return def?.food && def.nutrition ? def.nutrition : null;
+                        },
+                        resolvePotionConsumption: (potionArgs) => resolvePotionConsumption(potionArgs, {
+                            adjustStatisticCurrentValue: adjustOriginalStatisticCurrentValue,
+                            buildEmptyFlaskReplacement,
+                            getPartyShieldKind,
+                            quantizeDurationMs: quantizeMsToOriginalTimerTicks,
+                            healChampionWounds: healChampionWoundsApprox,
+                            timerTickMs: ORIGINAL_TIMER_TICK_MS,
+                        }),
+                        maxFood: MAX_FOOD,
+                        maxWater: MAX_WATER,
+                    },
+                ),
+                buildUseItemPatch,
+            },
+        ) ?? state;
     }),
 
     fillWaterContainer: (championId, itemId) => set((state) => {
@@ -5915,163 +5209,150 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         const champion = state.party.find(c => c.id === championId);
         if (!champion) return state;
 
-        const spell = findSpell(runeIds);
-        if (!spell) {
-            return {
-                lastCastResult: { success: false, message: 'Combinaison de runes inconnue.', ts: Date.now() },
-            };
-        }
-
         const vitals = state.championVitals[championId];
         if (!vitals) return state;
         const now = Date.now();
         const castEquip = state.championEquipment[championId] ?? {};
-        const preparedCast = prepareSpellCast(
-            {
-                championId,
-                spell,
-                vitals,
-                currentChampionCombat: state.championCombat,
-                now,
-            },
-            {
-                getSkillLevel: (skill) => getChampionMasteryLevel(state, championId, champion, skill),
-                rollCastCheck: (skillLevel) => rollOriginalSpellCastSuccess(
-                    champion,
-                    castEquip,
-                    state.activePotionBoosts,
-                    vitals,
+        const castResult = buildCastSpellStatePatch<NonNullable<ReturnType<typeof findSpell>>, Partial<GameState>, ChampionVitals>(runeIds, {
+            findSpell,
+            buildUnknownCombinationPatch: () => ({
+                lastCastResult: { success: false, message: 'Combinaison de runes inconnue.', ts: now },
+            }),
+            prepareCast: (spell) => prepareSpellCast(
+                {
+                    championId,
                     spell,
-                    skillLevel,
-                ),
-                applySkillXp: (skill, amount) => applyChampionSkillExperienceOriginalApprox(state, championId, skill, amount),
-                originalTimerTicksToSeconds,
-                createChampionCombatState,
-                randomInt,
-            },
-        );
-        if (preparedCast.kind === 'blocked') {
-            return preparedCast.patch;
-        }
-
-        const { basePatch: base, castSucceeded, nextVitals: newVitals, skillLevel } = preparedCast;
-
-        if (!castSucceeded) {
-            return {
-                ...base,
-                championVitals: { ...state.championVitals, [championId]: newVitals },
-            };
-        }
-
-        const nonProjectilePatch = buildHandledNonProjectileSpellPatch({
-            championId,
-            championHealth: champion.health,
-            now,
-            spell,
-            level: state.level,
-            position: state.position,
-            nextVitals: newVitals,
-            currentChampionVitals: state.championVitals,
-            currentChampionEquipment: state.championEquipment,
-            currentEquipment: state.championEquipment[championId] ?? {},
-            currentFloorItems: state.floorItems,
-            currentSpellLights: state.spellLights,
-            currentActiveShields: state.activeShields,
-            invisibleUntil: state.invisibleUntil,
-            seeThroughWallsUntil: state.seeThroughWallsUntil,
-            magicVisionUntil: state.magicVisionUntil,
-            footprintsUntil: state.footprintsUntil,
-            quantizeDurationMs: quantizeMsToOriginalTimerTicks,
-            randomInt,
-            resolvePotionName: (typeId) => resolveItemName('Potion', typeId),
-            plasmaName: resolveItemName('Misc', 51),
-            buildDroppedItem: (item) => buildDroppedItem(
-                item,
-                state.level,
-                state.position[1],
-                state.position[0],
-            ),
-        });
-        if (nonProjectilePatch) {
-            return {
-                ...base,
-                ...nonProjectilePatch,
-            };
-        }
-
-        // ── Apply spell effect ────────────────────────────────────────────────
-        switch (spell.effect) {
-            case 'fireball':
-            case 'lightning':
-            case 'poison_cloud':
-            case 'poison_bolt':
-            case 'open':
-            case 'disrupt_nonmaterial': {
-                const equip = state.championEquipment[championId] ?? {};
-                const effective = getEffectiveChampionStatsRuntime(champion, equip, state.activePotionBoosts, newVitals);
-                const projectileResult = buildProjectileSpellStatePatch(
-                    {
+                    vitals,
+                    currentChampionCombat: state.championCombat,
+                    now,
+                },
+                {
+                    getSkillLevel: (skill) => getChampionMasteryLevel(state, championId, champion, skill),
+                    rollCastCheck: (skillLevel) => rollOriginalSpellCastSuccess(
+                        champion,
+                        castEquip,
+                        state.activePotionBoosts,
+                        vitals,
                         spell,
-                        championId,
-                        level: state.level,
-                        position: state.position,
-                        direction: state.direction,
-                        now,
                         skillLevel,
-                        maxMana: effective.mana,
-                        elapsedGameTimeTicks: state.elapsedGameTimeTicks,
-                        nextVitals: newVitals,
-                        currentChampionVitals: state.championVitals,
-                        currentSpellVisualEvents: state.spellVisualEvents,
-                        currentOpenDoors: state.openDoors,
-                        currentProjectiles: state.projectiles,
-                        currentActivePoisonClouds: state.activePoisonClouds,
-                    },
-                    {
-                        projectileAttack: ORIGINAL_SPELL_PROJECTILE_ATTACK,
-                        projectileStepMs: PROJECTILE_STEP_MS,
-                        gridSize: GRID_SIZE,
-                        getImmediateDoor: (level, x, y) => getClosedDoorAt(state, level, x, y),
-                        isImmediatelyBlocked: (level, x, y) => isBlockedForProjectile(state, level, x, y),
-                        buildBlockedPoisonCloud: buildActivePoisonCloud,
-                        rollSourceBackedImpactDamage: (initialRange) => {
-                            const impact = rollOriginalSpellProjectileImpact(
+                    ),
+                    applySkillXp: (skill, amount) => applyChampionSkillExperienceOriginalApprox(state, championId, skill, amount),
+                    originalTimerTicksToSeconds,
+                    createChampionCombatState,
+                    randomInt,
+                },
+            ),
+            buildFailedCastPatch: (basePatch, nextVitals) => ({
+                ...basePatch,
+                championVitals: { ...state.championVitals, [championId]: nextVitals },
+            }),
+            buildNonProjectilePatch: (spell, nextVitals) => buildHandledNonProjectileSpellPatch({
+                championId,
+                championHealth: champion.health,
+                now,
+                spell,
+                level: state.level,
+                position: state.position,
+                nextVitals,
+                currentChampionVitals: state.championVitals,
+                currentChampionEquipment: state.championEquipment,
+                currentEquipment: state.championEquipment[championId] ?? {},
+                currentFloorItems: state.floorItems,
+                currentSpellLights: state.spellLights,
+                currentActiveShields: state.activeShields,
+                invisibleUntil: state.invisibleUntil,
+                seeThroughWallsUntil: state.seeThroughWallsUntil,
+                magicVisionUntil: state.magicVisionUntil,
+                footprintsUntil: state.footprintsUntil,
+                quantizeDurationMs: quantizeMsToOriginalTimerTicks,
+                randomInt,
+                resolvePotionName: (typeId) => resolveItemName('Potion', typeId),
+                plasmaName: resolveItemName('Misc', 51),
+                buildDroppedItem: (item) => buildDroppedItem(
+                    item,
+                    state.level,
+                    state.position[1],
+                    state.position[0],
+                ),
+            }),
+            buildProjectilePatch: (spell, nextVitals, skillLevel) => {
+                switch (spell.effect) {
+                    case 'fireball':
+                    case 'lightning':
+                    case 'poison_cloud':
+                    case 'poison_bolt':
+                    case 'open':
+                    case 'disrupt_nonmaterial': {
+                        const equip = state.championEquipment[championId] ?? {};
+                        const effective = getEffectiveChampionStatsRuntime(champion, equip, state.activePotionBoosts, nextVitals);
+                        return buildProjectileSpellStatePatch(
+                            {
                                 spell,
-                                initialRange,
-                                0,
-                                randomInt,
-                            );
-                            return impact?.damage ?? null;
-                        },
-                        rollRandomDamage: (min, max) => min + Math.floor(Math.random() * (max - min + 1)),
-                        applyBacklash: (effect, rolledDamage) => applyPartySpellBacklashDamage(
-                            state,
-                            { ...state.championVitals, [championId]: newVitals },
-                            effect,
-                            rolledDamage,
-                            now,
-                        ),
-                    },
-                );
-                if (projectileResult.shouldPlayDoorMotion && projectileResult.doorMotionSquare) {
-                    playDoorMotion(
-                        DOOR_TOGGLE_SOUND_DURATION_MS,
-                        getDoorSoundVolume(
-                            projectileResult.doorMotionSquare.level,
-                            projectileResult.doorMotionSquare.x,
-                            projectileResult.doorMotionSquare.y,
-                        ),
-                    );
+                                championId,
+                                level: state.level,
+                                position: state.position,
+                                direction: state.direction,
+                                now,
+                                skillLevel,
+                                maxMana: effective.mana,
+                                elapsedGameTimeTicks: state.elapsedGameTimeTicks,
+                                nextVitals,
+                                currentChampionVitals: state.championVitals,
+                                currentSpellVisualEvents: state.spellVisualEvents,
+                                currentOpenDoors: state.openDoors,
+                                currentProjectiles: state.projectiles,
+                                currentActivePoisonClouds: state.activePoisonClouds,
+                            },
+                            {
+                                projectileAttack: ORIGINAL_SPELL_PROJECTILE_ATTACK,
+                                projectileStepMs: PROJECTILE_STEP_MS,
+                                gridSize: GRID_SIZE,
+                                getImmediateDoor: (level, x, y) => getClosedDoorAt(state, level, x, y),
+                                isImmediatelyBlocked: (level, x, y) => isBlockedForProjectile(state, level, x, y),
+                                buildBlockedPoisonCloud: buildActivePoisonCloud,
+                                rollSourceBackedImpactDamage: (initialRange) => {
+                                    const impact = rollOriginalSpellProjectileImpact(
+                                        spell,
+                                        initialRange,
+                                        0,
+                                        randomInt,
+                                    );
+                                    return impact?.damage ?? null;
+                                },
+                                rollRandomDamage: (min, max) => min + Math.floor(Math.random() * (max - min + 1)),
+                                applyBacklash: (effect, rolledDamage) => applyPartySpellBacklashDamage(
+                                    state,
+                                    { ...state.championVitals, [championId]: nextVitals },
+                                    effect,
+                                    rolledDamage,
+                                    now,
+                                ),
+                            },
+                        );
+                    }
+                    default:
+                        return null;
                 }
-                return {
-                    ...base,
-                    ...projectileResult.patch,
-                };
-            }
-
-            default:
-                return { ...base, championVitals: { ...state.championVitals, [championId]: newVitals } };
+            },
+            mergeBasePatch: (basePatch, nextPatch) => ({
+                ...basePatch,
+                ...nextPatch,
+            }),
+        });
+        if (!castResult) {
+            return state;
         }
+        if (castResult.shouldPlayDoorMotion && castResult.doorMotionSquare) {
+            playDoorMotion(
+                DOOR_TOGGLE_SOUND_DURATION_MS,
+                getDoorSoundVolume(
+                    castResult.doorMotionSquare.level,
+                    castResult.doorMotionSquare.x,
+                    castResult.doorMotionSquare.y,
+                ),
+            );
+        }
+        return castResult.patch;
     }),
 
     tickFrame: (delta, now) => set((state) => {
@@ -6080,7 +5361,10 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             applyEndgameFrame: applyEndgameFrameApprox,
             applySleepFrame: applySleepFrameApprox,
             applyRegenTick: applyRegenTickApprox,
-            applyMovementTick: applyMovementTickApprox,
+            applyMovementTick: (movementState, movementDelta) => tickMovementCooldown({
+                movementCooldown: movementState.movementCooldown,
+                delta: movementDelta,
+            }),
             applyCombatTick: applyCombatTickApprox,
             buildSensorStateSnapshot,
             processPendingSensorEvents: (pendingDelta, pendingSensorEvents, sensorState) => processPendingSensorEventsSystem(

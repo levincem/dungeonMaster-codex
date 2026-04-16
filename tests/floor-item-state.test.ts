@@ -5,6 +5,7 @@ import type { FloorItem, GameTile, SensorObject } from '../src/types/game.js';
 import {
     buildFloorItemPickupPatch,
     hasHiddenFirestaffPickupRestriction,
+    transferFloorItemToChampionState,
 } from '../src/engine/systems/floorItemState.js';
 
 function createChampion(id: number): Champion {
@@ -97,4 +98,66 @@ test('buildFloorItemPickupPatch removes the floor item, adds it to inventory and
     assert.deepEqual(patch.championInventories[1]?.map((entry) => entry.id), [item.id]);
     assert.equal(patch.activeFloorDrag, null);
     assert.deepEqual([...patch.visibleTexts], ['altar']);
+});
+
+test('transferFloorItemToChampionState returns a warning instead of hidden Firestaff pickup', () => {
+    const firestaff = createFloorItem('firestaff', 45);
+    const pickupState: {
+        floorItems: FloorItem[];
+        party: Champion[];
+        championInventories: Record<number, FloorItem[]>;
+        activeFloorDrag: { itemId: string; pointerX: number; pointerY: number } | null;
+        lastCastResult: { success: boolean; message: string; ts: number } | null;
+    } = {
+        floorItems: [firestaff],
+        party: [createChampion(1)],
+        championInventories: { 1: [] },
+        activeFloorDrag: null,
+        lastCastResult: null,
+    };
+    const patch = transferFloorItemToChampionState(
+        pickupState,
+        firestaff.id,
+        1,
+        {
+            getTile: () => ({ x: 0, y: 0, type: 'Wall', objects: [createSensor('THE FIRESTAFF')] }),
+            buildPickupPatch: buildFloorItemPickupPatch,
+            clearAlcoveStateOnPickup: () => ({}),
+            buildHiddenFirestaffMessage: () => ({ success: false, message: 'blocked', ts: 0 }),
+        },
+    );
+
+    assert.deepEqual(patch, { lastCastResult: { success: false, message: 'blocked', ts: 0 } });
+});
+
+test('transferFloorItemToChampionState applies alcove cleanup before pickup', () => {
+    const item = createFloorItem('sword', 1);
+    const pickupState: {
+        floorItems: FloorItem[];
+        party: Champion[];
+        championInventories: Record<number, FloorItem[]>;
+        activeFloorDrag: { itemId: string; pointerX: number; pointerY: number } | null;
+        lastCastResult: { success: boolean; message: string; ts: number } | null;
+    } = {
+        floorItems: [item],
+        party: [createChampion(1)],
+        championInventories: { 1: [] },
+        activeFloorDrag: null,
+        lastCastResult: null,
+    };
+    const patch = transferFloorItemToChampionState(
+        pickupState,
+        item.id,
+        1,
+        {
+            getTile: () => ({ x: 0, y: 0, type: 'Floor', objects: [] }),
+            buildPickupPatch: buildFloorItemPickupPatch,
+            clearAlcoveStateOnPickup: () => ({ visibleTexts: new Set<string>(['cleared']) }),
+            buildHiddenFirestaffMessage: () => ({ success: false, message: 'blocked', ts: 0 }),
+        },
+    );
+
+    assert.ok(patch && 'championInventories' in patch);
+    assert.deepEqual(patch.championInventories[1]?.map((entry: FloorItem) => entry.id), [item.id]);
+    assert.deepEqual([...(patch.visibleTexts as Set<string>)], ['cleared']);
 });

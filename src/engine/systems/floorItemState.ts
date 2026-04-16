@@ -8,6 +8,10 @@ type FloorPickupState = {
     activeFloorDrag: { itemId: string; pointerX: number; pointerY: number } | null;
 };
 
+type FloorItemPickupTransferState<TResult> = FloorPickupState & {
+    lastCastResult?: TResult | null;
+};
+
 export function hasHiddenFirestaffPickupRestriction(item: FloorItem, tile: GameTile | undefined): boolean {
     if (item.category !== 'Weapon' || item.typeId !== 45) return false;
     if (!tile || (tile.type !== 'Wall' && tile.type !== 'TrickWall')) return false;
@@ -38,4 +42,47 @@ export function buildFloorItemPickupPatch<TSensorPatch extends object>(
         activeFloorDrag: state.activeFloorDrag?.itemId === item.id ? null : state.activeFloorDrag,
         ...sensorPatch,
     };
+}
+
+type TransferFloorItemPickupDeps<TState extends FloorItemPickupTransferState<TResult>, TResult, TSensorPatch extends object> = {
+    getTile: (mapIndex: number, y: number, x: number) => GameTile | undefined;
+    buildPickupPatch: (
+        state: TState,
+        item: FloorItem,
+        championId: number,
+        sensorPatch: TSensorPatch,
+    ) => {
+        floorItems: FloorItem[];
+        championInventories: Record<number, FloorItem[]>;
+        activeFloorDrag: TState['activeFloorDrag'];
+    } & TSensorPatch;
+    clearAlcoveStateOnPickup: (item: FloorItem, state: TState) => TSensorPatch;
+    buildHiddenFirestaffMessage: () => TResult;
+};
+
+export function transferFloorItemToChampionState<
+    TResult,
+    TSensorPatch extends object,
+    TState extends FloorItemPickupTransferState<TResult>,
+>(
+    state: TState,
+    id: string,
+    championId: number,
+    deps: TransferFloorItemPickupDeps<TState, TResult, TSensorPatch>,
+): (ReturnType<typeof deps.buildPickupPatch> & { lastCastResult?: TResult | null }) | { lastCastResult: TResult } | null {
+    const item = state.floorItems.find((entry) => entry.id === id);
+    if (!item) return null;
+
+    const champion = state.party.find((entry) => entry.id === championId);
+    if (!champion) return null;
+
+    const tile = deps.getTile(item.mapIndex, item.y, item.x);
+    if (hasHiddenFirestaffPickupRestriction(item, tile)) {
+        return {
+            lastCastResult: deps.buildHiddenFirestaffMessage(),
+        };
+    }
+
+    const alcoveState = deps.clearAlcoveStateOnPickup(item, state);
+    return deps.buildPickupPatch(state, item, championId, alcoveState);
 }
