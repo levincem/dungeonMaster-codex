@@ -147,6 +147,8 @@ import { buildLoadedGameUiResetPatch, buildReturnToTitlePatch } from './systems/
 import { buildHandledNonProjectileSpellPatch } from './systems/spellNonProjectileEffects';
 import { prepareSpellCast } from './systems/spellCastPreparation';
 import { tickCombatState } from './systems/combatTick';
+import { tickMovementCooldown, tickRegenState } from './systems/timeStateTicks';
+import { buildShotAttackProjectile, buildThrownAttackProjectile } from './systems/attackPhysicalProjectiles';
 import { resolveAttackSelection } from './systems/attackSelection';
 import { resolveUtilityBuffAction } from './systems/utilityAttackBuffs';
 import { buildUtilityAttackProjectile } from './systems/utilityAttackProjectiles';
@@ -6467,35 +6469,20 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
 
     regenTick: (delta) => set((state) => {
         if (state.optionsModalOpen) return state;
-        let regenTickRemainder = state.regenTickRemainder + delta;
-        const stepCount = Math.floor(regenTickRemainder / ORIGINAL_TIMER_TICK_SECONDS);
-        regenTickRemainder -= stepCount * ORIGINAL_TIMER_TICK_SECONDS;
-
-        if (stepCount <= 0) {
-            return regenTickRemainder !== state.regenTickRemainder
-                ? { regenTickRemainder }
-                : state;
-        }
-
-        const advanced = advanceSurvivalTimeApprox(state, stepCount);
-
-        return {
-            championVitals: advanced.championVitals,
-            championTemporaryXP: advanced.championTemporaryXP,
-            elapsedGameTimeTicks: advanced.elapsedGameTimeTicks,
-            lastSurvivalEffectGameTick: advanced.lastSurvivalEffectGameTick,
-            freezeLifeRemainingTicks: advanced.freezeLifeRemainingTicks,
-            regenTickRemainder,
-        };
+        return tickRegenState({
+            delta,
+            regenTickRemainder: state.regenTickRemainder,
+            originalTimerTickSeconds: ORIGINAL_TIMER_TICK_SECONDS,
+            advanceSurvivalTime: (stepCount) => advanceSurvivalTimeApprox(state, stepCount),
+        }) ?? state;
     }),
 
     tickMovement: (delta) => set((state) => {
         if (state.optionsModalOpen) return state;
-        if (!Number.isFinite(state.movementCooldown)) {
-            return { movementCooldown: 0 };
-        }
-        if (state.movementCooldown <= 0) return state;
-        return { movementCooldown: Math.max(0, state.movementCooldown - delta) };
+        return tickMovementCooldown({
+            movementCooldown: state.movementCooldown,
+            delta,
+        }) ?? state;
     }),
 
     // ─── XP ───────────────────────────────────────────────────────────────────
@@ -6562,39 +6549,32 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             const descriptor = getOriginalWeaponReference(rightHand);
             const fighterMastery = getChampionMasteryLevel(state, championId, champion, 'fighter');
             const ninjaMastery = getChampionMasteryLevel(state, championId, champion, 'ninja');
-            const throwRange = originalThrowingDistance(
-                champion,
-                equip,
-                vitalsUpdate?.nextVitals.stamina,
-                rightHand,
-                descriptor,
-                fighterMastery,
-                ninjaMastery,
-                getChampionRuntimeBonuses(champion, vitalsUpdate?.nextVitals ?? state.championVitals[championId], state.activePotionBoosts),
+            const projectile = buildThrownAttackProjectile(
+                {
+                    champion,
+                    equip,
+                    currentStamina: vitalsUpdate?.nextVitals.stamina,
+                    item: rightHand,
+                    descriptor,
+                    fighterMastery,
+                    ninjaMastery,
+                    runtimeBonuses: getChampionRuntimeBonuses(
+                        champion,
+                        vitalsUpdate?.nextVitals ?? state.championVitals[championId],
+                        state.activePotionBoosts,
+                    ),
+                    level: state.level,
+                    position: state.position,
+                    direction: state.direction,
+                    now: Date.now(),
+                },
+                {
+                    originalThrowingDistance,
+                    getThrownPotionExplosionEffect,
+                    buildDroppedItem,
+                    randomInt,
+                },
             );
-            const launchBonus = descriptor && descriptor.rawClass <= 12 ? descriptor.kineticEnergy : 1;
-            const rawRange = throwRange + launchBonus;
-            const finalRange = rawRange + Math.floor(Math.random() * 16) + Math.floor(rawRange / 2) + ninjaMastery;
-            const rawDamage = Math.max(40, Math.min(200, 8 * ninjaMastery + Math.floor(Math.random() * 32)));
-            const decay = Math.max(5, 11 - ninjaMastery);
-            const explosionOnImpact = getThrownPotionExplosionEffect(rightHand);
-            const explosionAttack = explosionOnImpact ? Math.max(1, rightHand.potionPower ?? 40) : undefined;
-            const projectile: Projectile = {
-                id: `throw_${Date.now()}_${Math.random().toString(36).slice(2)}`,
-                level: state.level,
-                x: state.position[1],
-                y: state.position[0],
-                direction: state.direction,
-                effect: 'physical',
-                damage: [rawDamage, rawDamage],
-                nextMoveAt: Date.now(),
-                remainingRange: Math.max(1, finalRange),
-                remainingAttack: rawDamage,
-                stepDecay: decay,
-                physicalItem: buildDroppedItem(rightHand, state.level, state.position[1], state.position[0]),
-                explosionOnImpact,
-                explosionAttack,
-            };
             const attackXpPatch = applyChampionSkillExperienceOriginalApprox(
                 state,
                 championId,
@@ -6622,24 +6602,21 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             }
             const ammoDescriptor = getOriginalWeaponReference(ammo.item);
             const mastery = getChampionMasteryLevel(state, championId, champion, 'ninja');
-            const maxDamage = Math.max(6, 2 * ((launcher?.shootDamage ?? 4) + mastery));
-            const minDamage = Math.max(2, Math.floor(maxDamage * 0.55));
-            const range = Math.max(1, (launcher?.kineticEnergy ?? 1) + (ammoDescriptor?.kineticEnergy ?? 1));
-            const decay = Math.max(1, maxDamage & 0x0f);
-            const projectile: Projectile = {
-                id: `shoot_${Date.now()}_${Math.random().toString(36).slice(2)}`,
-                level: state.level,
-                x: state.position[1],
-                y: state.position[0],
-                direction: state.direction,
-                effect: 'physical',
-                damage: [minDamage, maxDamage],
-                nextMoveAt: Date.now(),
-                remainingRange: range,
-                remainingAttack: maxDamage,
-                stepDecay: decay,
-                physicalItem: buildDroppedItem(ammo.item, state.level, state.position[1], state.position[0]),
-            };
+            const projectile = buildShotAttackProjectile(
+                {
+                    launcher,
+                    ammoDescriptor,
+                    ammoItem: ammo.item,
+                    mastery,
+                    level: state.level,
+                    position: state.position,
+                    direction: state.direction,
+                    now: Date.now(),
+                },
+                {
+                    buildDroppedItem,
+                },
+            );
             const nextEquip = { ...equip, [ammo.slot]: undefined };
             const attackXpPatch = applyChampionSkillExperienceOriginalApprox(
                 state,
