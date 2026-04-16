@@ -5,8 +5,12 @@ import {
     creaturesInFront,
     getCreatureColumn,
     isCreatureContactCell,
+    resolveCreatureContactAdvance,
+    selectCreatureAttackTarget,
     selectFrontCreatureTarget,
 } from '../src/engine/systems/frontCreatureState.js';
+import type { Champion } from '../src/types/champion.js';
+import type { ChampionVitals } from '../src/engine/runtimeTypes.js';
 
 function createCreature(
     id: string,
@@ -22,6 +26,63 @@ function createCreature(
         alive: true,
         cell: 'frontLeft',
         ...overrides,
+    };
+}
+
+function createChampion(id: number): Champion {
+    return {
+        id,
+        name: `Champ ${id}`,
+        title: 'The Target',
+        gender: 'M',
+        class: 'Fighter',
+        health: 100,
+        stamina: 100,
+        mana: 10,
+        luck: 10,
+        strength: 10,
+        dexterity: 10,
+        wisdom: 10,
+        vitality: 10,
+        antiMagic: 10,
+        antiFire: 10,
+        skills: {
+            fighter: [0, 0, 0, 0],
+            ninja: [0, 0, 0, 0],
+            priest: [0, 0, 0, 0],
+            wizard: [0, 0, 0, 0],
+        },
+        color: '#fff',
+        equipment: [],
+        portrait: 'portrait.png',
+    };
+}
+
+function createVitals(hp: number): ChampionVitals {
+    return {
+        hp,
+        stamina: 50,
+        mana: 10,
+        food: 900,
+        water: 900,
+        currentStats: {
+            luck: 10,
+            strength: 10,
+            dexterity: 10,
+            wisdom: 10,
+            vitality: 10,
+            antiMagic: 10,
+            antiFire: 10,
+        },
+        wounds: {
+            rightHand: false,
+            leftHand: false,
+            head: false,
+            torso: false,
+            legs: false,
+            feet: false,
+        },
+        poisonEntries: [],
     };
 }
 
@@ -56,4 +117,80 @@ test('creaturesInFront filters the tile ahead and sorts by contact priority', ()
     const result = creaturesInFront(0, [5, 5], 'NORTH', creatures);
 
     assert.deepEqual(result.map((creature) => creature.id), ['center', 'front-right', 'back-right']);
+});
+
+test('selectCreatureAttackTarget follows column priority and skips dead champions', () => {
+    const party = [createChampion(1), createChampion(2), createChampion(3), createChampion(4)];
+    const vitals = {
+        1: createVitals(0),
+        2: createVitals(20),
+        3: createVitals(10),
+        4: createVitals(5),
+    };
+
+    assert.equal(selectCreatureAttackTarget(party, vitals, 'frontLeft')?.id, 2);
+    assert.equal(selectCreatureAttackTarget(party, vitals, 'frontRight')?.id, 2);
+});
+
+test('selectCreatureAttackTarget can pick any living champion for all-sides attacks', () => {
+    const party = [createChampion(1), createChampion(2)];
+    const vitals = {
+        1: createVitals(0),
+        2: createVitals(20),
+    };
+
+    const target = selectCreatureAttackTarget(
+        party,
+        vitals,
+        'frontLeft',
+        true,
+        false,
+        () => 0,
+    );
+
+    assert.equal(target?.id, 2);
+});
+
+test('resolveCreatureContactAdvance moves a back-row creature into the preferred front contact cell', () => {
+    const creature = createCreature('rear', { cell: 'backRight' });
+
+    const result = resolveCreatureContactAdvance(
+        creature,
+        [creature],
+        {
+            frightened: false,
+            movedThisTick: false,
+            adjacentAfterMove: true,
+            attackReach: 1,
+            creatureSizeOnTile: 0,
+        },
+        {
+            isCreatureCellOccupiedOnTile: () => false,
+            nextMonsterMoveDelaySeconds: () => 0.6,
+        },
+    );
+
+    assert.deepEqual(result, { targetCell: 'frontRight', nextMoveTimer: 0.3 });
+});
+
+test('resolveCreatureContactAdvance returns null when the creature cannot advance into contact', () => {
+    const creature = createCreature('rear', { cell: 'backLeft' });
+
+    const result = resolveCreatureContactAdvance(
+        creature,
+        [creature],
+        {
+            frightened: false,
+            movedThisTick: false,
+            adjacentAfterMove: true,
+            attackReach: 1,
+            creatureSizeOnTile: 0,
+        },
+        {
+            isCreatureCellOccupiedOnTile: () => true,
+            nextMonsterMoveDelaySeconds: () => 0.6,
+        },
+    );
+
+    assert.equal(result, null);
 });

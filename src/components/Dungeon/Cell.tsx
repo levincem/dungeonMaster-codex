@@ -351,13 +351,14 @@ function makeBrokenDoorTexture(texture: THREE.Texture): THREE.Texture {
 const DoorMeshInner: React.FC<{
     open: boolean;
     broken: boolean;
+    crushPhase?: 'closing' | 'bouncing';
     hasButton: boolean;
     showButton: boolean;
     buttonSideSign?: 1 | -1;
     buttonFaceSign?: 1 | -1;
     doorType?: number;
     onButtonClick?: (e: ThreeEvent<MouseEvent>) => void;
-}> = ({ open, broken, hasButton, showButton, buttonSideSign = 1, buttonFaceSign = 1, doorType, onButtonClick }) => {
+}> = ({ open, broken, crushPhase, hasButton, showButton, buttonSideSign = 1, buttonFaceSign = 1, doorType, onButtonClick }) => {
     const baseDoorTex = useTexture(getDoorTexturePath(doorType));
     const baseWallTex = useTexture(`${texturesPath('wall.png')}?v=2`);
     const doorLift = useMemo(() => getDoorLift(doorType), [doorType]);
@@ -370,6 +371,7 @@ const DoorMeshInner: React.FC<{
     const matRef1  = useRef<THREE.MeshBasicMaterial>(null);
     const progress = useRef(effectiveOpen ? 1 : 0);
     const didInitPosition = useRef(false);
+    const previousCrushPhase = useRef<typeof crushPhase>(crushPhase);
 
     const clipPlane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, -1, 0), HALF), []);
     useEffect(() => {
@@ -381,6 +383,18 @@ const DoorMeshInner: React.FC<{
         groupRef.current.position.y = doorLift * progress.current;
         didInitPosition.current = true;
     }, [doorLift, effectiveOpen]);
+    useEffect(() => {
+        if (!groupRef.current || broken) {
+            previousCrushPhase.current = crushPhase;
+            return;
+        }
+        if (crushPhase === 'bouncing' && previousCrushPhase.current !== 'bouncing') {
+            // Crushing doors should visibly reopen fully before starting the next descent.
+            progress.current = 1;
+            groupRef.current.position.y = doorLift;
+        }
+        previousCrushPhase.current = crushPhase;
+    }, [broken, crushPhase, doorLift]);
 
     useFrame((_, delta) => {
         if (!groupRef.current) return;
@@ -506,15 +520,16 @@ const DoorMeshInner: React.FC<{
 const DoorMesh: React.FC<{
     open: boolean;
     broken: boolean;
+    crushPhase?: 'closing' | 'bouncing';
     hasButton: boolean;
     showButton: boolean;
     buttonSideSign?: 1 | -1;
     buttonFaceSign?: 1 | -1;
     doorType?: number;
     onButtonClick?: (e: ThreeEvent<MouseEvent>) => void;
-}> = ({ open, broken, hasButton, showButton, buttonSideSign, buttonFaceSign, doorType, onButtonClick }) => (
+}> = ({ open, broken, crushPhase, hasButton, showButton, buttonSideSign, buttonFaceSign, doorType, onButtonClick }) => (
     <Suspense fallback={null}>
-        <DoorMeshInner open={open} broken={broken} hasButton={hasButton} showButton={showButton} buttonSideSign={buttonSideSign} buttonFaceSign={buttonFaceSign} doorType={doorType} onButtonClick={onButtonClick} />
+        <DoorMeshInner open={open} broken={broken} crushPhase={crushPhase} hasButton={hasButton} showButton={showButton} buttonSideSign={buttonSideSign} buttonFaceSign={buttonFaceSign} doorType={doorType} onButtonClick={onButtonClick} />
     </Suspense>
 );
 
@@ -647,6 +662,7 @@ interface CellProps {
     wallFace?: CardinalDir;
     doorOpen?: boolean;
     doorBroken?: boolean;
+    doorCrushPhase?: 'closing' | 'bouncing';
     doorOrientation?: string;
     doorHasButton?: boolean;
     doorButtonVisible?: boolean;
@@ -656,7 +672,7 @@ interface CellProps {
     onClick?: (e: ThreeEvent<MouseEvent>) => void;
 }
 
-export const Cell: React.FC<CellProps> = ({ type, position, wallFace, champion, frameChampion, doorOpen, doorBroken, doorOrientation, doorHasButton, doorButtonVisible, doorButtonSideSign, doorButtonFaceSign, doorType, onClick }) => {
+export const Cell: React.FC<CellProps> = ({ type, position, wallFace, champion, frameChampion, doorOpen, doorBroken, doorCrushPhase, doorOrientation, doorHasButton, doorButtonVisible, doorButtonSideSign, doorButtonFaceSign, doorType, onClick }) => {
     const baseWallTex = useTexture(`${texturesPath('wall.png')}?v=2`);
     const wallTex = useMemo(
         () => cloneTexture(baseWallTex, next => {
@@ -697,6 +713,7 @@ export const Cell: React.FC<CellProps> = ({ type, position, wallFace, champion, 
                     <DoorMesh
                         open={doorOpen ?? false}
                         broken={doorBroken ?? false}
+                        crushPhase={doorCrushPhase}
                         hasButton={hasBtn}
                         showButton={doorButtonVisible ?? hasBtn}
                         buttonSideSign={doorButtonSideSign}

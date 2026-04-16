@@ -26,7 +26,7 @@ import type { Champion } from '../data/champions';
 import { CHAMPION_BY_ID } from '../data/champions';
 import { buildChampionStarterLoadout } from '../data/championStarterItems';
 import { CREATURE_TYPES } from '../data/creatures';
-import type { CreatureDef, OriginalAttackType } from '../data/creatures';
+import type { OriginalAttackType } from '../data/creatures';
 import { findSpell } from '../data/runes';
 import {
     getOriginalSpellRequiredSkillLevel,
@@ -153,6 +153,26 @@ import { tryBreakFrontDoor as tryBreakFrontDoorSystem } from './systems/frontDoo
 import { determineMeleeDamage } from './systems/meleeDamage';
 import { buildMeleeAttackResolutionPatch } from './systems/meleeAttackResolution';
 import { buildAttackMeleeStatePatch } from './systems/attackMeleeState';
+import { processTickFrame } from './systems/tickFrameState';
+import { tickPoisonClouds } from './systems/tickPoisonClouds';
+import { applyProjectilePartyHit } from './systems/tickProjectilePartyHit';
+import { applyProjectileCreatureHit } from './systems/tickProjectileCreatureHit';
+import { resolveProjectileTraversalStep } from './systems/projectileTraversal';
+import { resolveProjectileContinuation } from './systems/projectileContinuation';
+import { buildTickSpellsPatch } from './systems/tickSpellsFinalize';
+import { buildTickMonstersPatch } from './systems/tickMonstersFinalize';
+import { tickCrushingDoors as tickCrushingDoorsSystem } from './systems/tickCrushingDoors';
+import { resolveCreatureAttackOpportunity } from './systems/creatureAttackOpportunity';
+import { resolveCreatureAttackStartState } from './systems/creatureAttackStartState';
+import { resolveCreatureAttackOutcomeState } from './systems/creatureAttackOutcomeState';
+import { resolveCreatureAttackState } from './systems/creatureAttackState';
+import { resolveCreatureDestinationState } from './systems/creatureDestinationState';
+import { resolveCreatureMovementState } from './systems/creatureMovementState';
+import { resolveCreaturePerceptionState } from './systems/creaturePerceptionState';
+import { buildCreatureRuntimeStateArgs, resolveCreatureRuntimeState } from './systems/creatureRuntimeState';
+import { resolveCreatureAttackTargetState } from './systems/creatureAttackTargetState';
+import { resolveMonsterAttackAgainstChampion } from './systems/monsterAttackResolution';
+import { processMonsterTickChampionDeaths } from './systems/monsterDeathProcessing';
 import { buildSupportedUtilityAttackPatch } from './systems/utilityAttackOrchestration';
 import {
     tryUseChampionItemOnFrontWall,
@@ -161,14 +181,12 @@ import {
 import { buildDeathDrop as buildDeathDropSystem } from './systems/deathDrops';
 import {
     getDirectionStep,
-    getOppositeDirection,
-    getPrimaryDirectionTowardTarget,
-    getSecondaryDirectionTowardTarget,
 } from './systems/directionState';
 import {
     compareCreatureCells,
-    getCreatureColumn,
     isCreatureContactCell,
+    resolveCreatureContactAdvance,
+    selectCreatureAttackTarget,
 } from './systems/frontCreatureState';
 import { isFacingFountain as isFacingFountainSystem } from './systems/frontWallState';
 import {
@@ -1677,19 +1695,6 @@ function nextMonsterAttackDelaySecondsApprox(attackTicks: number): number {
 type MonsterDamageClassApprox = 'physical' | 'fire' | 'magic' | 'mental';
 type ArmorCoverageZone = 'head' | 'torso' | 'legs' | 'feet' | 'hands';
 
-const MONSTER_HIT_ZONE_PATTERNS: readonly ArmorCoverageZone[][] = [
-    ['head'],
-    ['torso'],
-    ['hands'],
-    ['legs'],
-    ['feet'],
-    ['head', 'torso'],
-    ['torso', 'hands'],
-    ['torso', 'legs'],
-    ['legs', 'feet'],
-    ['head', 'hands'],
-];
-
 function getArmorDefenseApprox(
     typeId: number,
     rawName: string | undefined,
@@ -1814,41 +1819,6 @@ function computeChampionWoundDefenseApprox(
     return applyLimits(0, Math.floor(woundDefense / 2), 100);
 }
 
-function getMonsterBaseDamageClass(originalAttackType: OriginalAttackType): MonsterDamageClassApprox {
-    switch (originalAttackType) {
-        case 'Fire':
-            return 'fire';
-        case 'Magic':
-            return 'magic';
-        case 'Mental':
-            return 'mental';
-        default:
-            return 'physical';
-    }
-}
-
-function resolveMonsterAttackTypeApprox(
-    def: CreatureDef,
-    attackMode: 'melee' | 'ranged',
-): OriginalAttackType {
-    if (attackMode === 'ranged') {
-        if (def.attackTypes.includes('Fire')) return 'Fire';
-        if (def.attackTypes.includes('Magic') || def.attackTypes.includes('StaminaDrain') || def.nonMaterial) {
-            return 'Magic';
-        }
-    }
-    return def.originalAttackType;
-}
-
-function chooseMonsterHitZonesApprox(
-    damageClass: MonsterDamageClassApprox,
-    attackType?: OriginalAttackType,
-): readonly ArmorCoverageZone[] | undefined {
-    if (damageClass === 'magic' || damageClass === 'mental') return undefined;
-    if (attackType === 'Unconditional') return undefined;
-    return MONSTER_HIT_ZONE_PATTERNS[randomInt(MONSTER_HIT_ZONE_PATTERNS.length)] ?? ['torso'];
-}
-
 function getChampionAdjustedAttackFromResistanceApprox(
     champion: Champion,
     equip: ChampionEquipment | undefined,
@@ -1884,85 +1854,6 @@ function getActiveShieldDefenseApprox(
             if (shield.protection !== undefined) return sum + Math.round(shield.protection * 64);
             return sum;
         }, 0);
-}
-
-function determineMonsterAttackDamageApprox(
-    state: GameState,
-    targetChampion: Champion,
-    targetVitals: ChampionVitals,
-    attacker: CreatureInstance,
-    attackMode: 'melee' | 'ranged' = 'melee',
-    nowMs = Date.now(),
-): {
-    damage: number;
-    hitZones?: readonly ArmorCoverageZone[];
-    damageClass: MonsterDamageClassApprox;
-    nextVitals: ChampionVitals;
-} {
-    const def = CREATURE_TYPES[attacker.typeId];
-    if (!def) return { damage: 0, damageClass: 'physical', nextVitals: targetVitals };
-
-    const equip = state.championEquipment[targetChampion.id] ?? {};
-    const inventory = state.championInventories[targetChampion.id] ?? [];
-    const effective = getEffectiveChampionStatsRuntime(targetChampion, equip, state.activePotionBoosts, targetVitals);
-    const resolvedAttackType = resolveMonsterAttackTypeApprox(def, attackMode);
-    const resolvedDamageClass = getMonsterBaseDamageClass(resolvedAttackType);
-    const hitZones = chooseMonsterHitZonesApprox(resolvedDamageClass, resolvedAttackType);
-    const quickness = computeOriginalQuicknessApprox(
-        targetChampion,
-        equip,
-        inventory,
-        targetVitals.stamina,
-        targetVitals.wounds,
-        getChampionRuntimeBonuses(targetChampion, targetVitals, state.activePotionBoosts),
-    );
-    const levelDifficulty = getMap(state.level).difficulty * 2;
-    const requiredQuickness = randomInt(32) + def.hitProb + levelDifficulty - 16;
-
-    if (quickness >= requiredQuickness && randomInt(4) !== 0) {
-        return { damage: 0, hitZones, damageClass: resolvedDamageClass, nextVitals: targetVitals };
-    }
-
-    if (isCharacterLuckyApprox(effective.luck, 60)) {
-        return { damage: 0, hitZones, damageClass: resolvedDamageClass, nextVitals: targetVitals };
-    }
-
-    let attackValue = levelDifficulty + randomInt(16) + Math.max(1, Math.floor(def.rawAttack / 16));
-
-    if (attackValue <= 1) {
-        if (randomInt(2) !== 0) return { damage: 0, hitZones, damageClass: resolvedDamageClass, nextVitals: targetVitals };
-        attackValue = randomInt(4) + 2;
-    }
-
-    const firstSpread = attackValue > 0 ? randomInt(attackValue) : 0;
-    attackValue += firstSpread + randomInt(4);
-    if (attackValue > 0) {
-        attackValue += randomInt(attackValue);
-    }
-    attackValue = Math.floor(attackValue / 4);
-    attackValue += randomInt(4) + 1;
-
-    if (randomInt(2) !== 0) {
-        attackValue -= randomInt(Math.floor(attackValue / 2) + 1) - 1;
-    }
-
-    const allowedSlots = chooseChampionWoundSlotsFromZones(hitZones);
-    const resolved = resolveChampionIncomingAttackApprox(
-        state,
-        targetChampion,
-        targetVitals,
-        Math.max(0, attackValue),
-        resolvedAttackType,
-        allowedSlots,
-        nowMs,
-    );
-
-    return {
-        damage: resolved.damage,
-        hitZones,
-        damageClass: resolvedDamageClass,
-        nextVitals: resolved.nextVitals,
-    };
 }
 
 function getWeaponName(item: FloorItem | undefined): string {
@@ -6184,101 +6075,34 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
     }),
 
     tickFrame: (delta, now) => set((state) => {
-        if (state.optionsModalOpen) return state;
-        if (shouldEnterGameOver({
-            phase: state.gamePhase,
-            partySize: state.party.length,
-            deadChampionCount: Object.keys(state.deadChampions).length,
-        })) {
-            return {
-                gamePhase: 'game_over',
-                activeMirrorChampionId: null,
-                activePartyMemberId: null,
-                sleeping: false,
-                optionsModalOpen: false,
-                endgameSequence: null,
-                lastCastResult: null,
-                damageEvents: [],
-                spellVisualEvents: [],
-                activeFloorDrag: null,
-            };
-        }
-        if (state.gamePhase === 'game_over') return state;
-        if (state.gamePhase === 'endgame') {
-            return applyEndgameFrameApprox(state, now) ?? state;
-        }
-        if (state.sleeping) {
-            return applySleepFrameApprox(state, now) ?? state;
-        }
-        const regenPatch = applyRegenTickApprox(state, delta);
-        const afterRegen = regenPatch ? { ...state, ...regenPatch } : state;
-
-        const movementPatch = applyMovementTickApprox(afterRegen, delta);
-        const afterMovement = movementPatch ? { ...afterRegen, ...movementPatch } : afterRegen;
-
-        const combatPatch = applyCombatTickApprox(afterMovement, delta, now);
-        const afterCombat = combatPatch ? { ...afterMovement, ...combatPatch } : afterMovement;
-
-        const pendingPatch = processPendingSensorEventsSystem(
-            delta,
-            afterCombat.pendingSensorEvents,
-            buildSensorStateSnapshot(afterCombat),
-            buildPendingWorldEventDeps(),
-        );
-        const generatorPatch = processPendingGeneratorSpawnsSystem(
-            delta,
-            afterCombat.pendingGeneratorSpawns,
-            buildSensorStateSnapshot(afterCombat),
-            {
-                hasApproximateOriginalGeneratorCapacity,
-                isGeneratorSpawnBlocked,
-                createGeneratedCreatureGroupInstances,
-                retrySeconds: ORIGINAL_MOVE_GROUP_RETRY_SECONDS,
-                diffSensorState,
-            },
-        );
-
-        const hasPendingPatch =
-            Object.keys(pendingPatch.sensorChanges).length > 0 ||
-            pendingPatch.pendingSensorEvents !== afterCombat.pendingSensorEvents;
-        const hasGeneratorPatch =
-            Object.keys(generatorPatch.sensorChanges).length > 0 ||
-            generatorPatch.pendingGeneratorSpawns !== afterCombat.pendingGeneratorSpawns;
-
-        if (!regenPatch && !movementPatch && !combatPatch && !hasPendingPatch && !hasGeneratorPatch) return state;
-
-        const nextPatch = applyImmediateTransportSquareEffects(afterCombat, {
-            ...(regenPatch ?? {}),
-            ...(movementPatch ?? {}),
-            ...(combatPatch ?? {}),
-            ...(hasPendingPatch ? { ...pendingPatch.sensorChanges, pendingSensorEvents: pendingPatch.pendingSensorEvents } : {}),
-            ...(hasGeneratorPatch ? { ...generatorPatch.sensorChanges, pendingGeneratorSpawns: generatorPatch.pendingGeneratorSpawns } : {}),
+        return processTickFrame(state, delta, now, {
+            shouldEnterGameOver,
+            applyEndgameFrame: applyEndgameFrameApprox,
+            applySleepFrame: applySleepFrameApprox,
+            applyRegenTick: applyRegenTickApprox,
+            applyMovementTick: applyMovementTickApprox,
+            applyCombatTick: applyCombatTickApprox,
+            buildSensorStateSnapshot,
+            processPendingSensorEvents: (pendingDelta, pendingSensorEvents, sensorState) => processPendingSensorEventsSystem(
+                pendingDelta,
+                pendingSensorEvents,
+                sensorState,
+                buildPendingWorldEventDeps(),
+            ),
+            processPendingGeneratorSpawns: (pendingDelta, pendingGeneratorSpawns, sensorState) => processPendingGeneratorSpawnsSystem(
+                pendingDelta,
+                pendingGeneratorSpawns,
+                sensorState,
+                {
+                    hasApproximateOriginalGeneratorCapacity,
+                    isGeneratorSpawnBlocked,
+                    createGeneratedCreatureGroupInstances,
+                    retrySeconds: ORIGINAL_MOVE_GROUP_RETRY_SECONDS,
+                    diffSensorState,
+                },
+            ),
+            applyImmediateTransportSquareEffects,
         });
-
-        const nextParty = nextPatch.party ?? afterCombat.party;
-        const nextDeadChampions = nextPatch.deadChampions ?? afterCombat.deadChampions;
-
-        if (shouldEnterGameOver({
-            phase: afterCombat.gamePhase,
-            partySize: nextParty.length,
-            deadChampionCount: Object.keys(nextDeadChampions).length,
-        })) {
-            return {
-                ...nextPatch,
-                gamePhase: 'game_over',
-                activeMirrorChampionId: null,
-                activePartyMemberId: null,
-                sleeping: false,
-                optionsModalOpen: false,
-                endgameSequence: null,
-                lastCastResult: null,
-                damageEvents: [],
-                spellVisualEvents: [],
-                activeFloorDrag: null,
-            };
-        }
-
-        return nextPatch;
     }),
 
     regenTick: (delta) => set((state) => {
@@ -6640,85 +6464,21 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
     // ─── Door crush tick ─────────────────────────────────────────────────────
     tickDoors: (delta) => set((state) => {
         if (state.optionsModalOpen) return state;
-        const keys = Object.keys(state.crushingDoors);
-        if (keys.length === 0) return state;
-
-        let crush   = state.crushingDoors;
-        let doors   = state.openDoors;
-        let crtrs   = state.creatures as CreatureInstance[];
-        let dmgEvts = state.damageEvents;
-        let changed = false;
-
-        for (const key of keys) {
-            const c = crush[key];
-            // Parse key `level,y,x`
-            const [, sY, sX] = key.split(',');
-            const tx = parseInt(sX), ty = parseInt(sY);
-
-            const blocker = crtrs.find(cr => cr.alive && cr.x === tx && cr.y === ty);
-
-            if (!blocker) {
-                // Creature gone — door stays closed, remove crush entry
-                if (crush === state.crushingDoors) crush = { ...crush };
-                delete crush[key];
-                if (doors.has(key)) { doors = new Set(doors); doors.delete(key); }
-                changed = true;
-                continue;
-            }
-
-            const newTimer = c.timer - delta;
-
-            if (c.phase === 'closing') {
-                if (newTimer > 0) {
-                    if (crush === state.crushingDoors) crush = { ...crush };
-                    crush[key] = { ...c, timer: newTimer };
-                    changed = true;
-                } else {
-                    // FTL door animation damage is fixed at 5 for both party and creature groups.
-                    const dmg = 5;
-                    const newHP = Math.max(0, blocker.currentHP - dmg);
-                    const killed = newHP <= 0;
-
-                    if (crtrs === state.creatures) crtrs = [...crtrs];
-                    const idx = crtrs.findIndex(cr => cr.id === blocker.id);
-                    if (idx >= 0) crtrs[idx] = { ...crtrs[idx], currentHP: newHP, alive: !killed };
-
-                    dmgEvts = [...dmgEvts, buildCreatureDamageEvent(state.level, tx, ty, dmg, blocker.id)];
-                    playWallBump();
-
-                    if (crush === state.crushingDoors) crush = { ...crush };
-                    if (killed) {
-                        delete crush[key]; // door stays closed, creature dead
-                    } else {
-                        // Bounce door open, then try again
-                        crush[key] = { phase: 'bouncing', timer: DOOR_REBOUND_DURATION_SECONDS };
-                        doors = new Set(doors); doors.add(key);
-                    }
-                    changed = true;
-                }
-            } else {
-                // 'bouncing' — door is open briefly
-                if (newTimer > 0) {
-                    if (crush === state.crushingDoors) crush = { ...crush };
-                    crush[key] = { ...c, timer: newTimer };
-                    changed = true;
-                } else {
-                    // Close again and start next crush countdown
-                    doors = new Set(doors); doors.delete(key);
-                    if (crush === state.crushingDoors) crush = { ...crush };
-                    crush[key] = { phase: 'closing', timer: DOOR_RECLOSE_DURATION_SECONDS };
-                    changed = true;
-                }
-            }
-        }
-
-        if (!changed) return state;
-        return {
-            crushingDoors: crush,
-            openDoors: doors,
-            creatures: crtrs,
-            damageEvents: dmgEvts,
-        };
+        return tickCrushingDoorsSystem(
+            {
+                crushingDoors: state.crushingDoors,
+                openDoors: state.openDoors,
+                creatures: state.creatures,
+                damageEvents: state.damageEvents,
+            },
+            delta,
+            {
+                doorReboundDurationSeconds: DOOR_REBOUND_DURATION_SECONDS,
+                doorRecloseDurationSeconds: DOOR_RECLOSE_DURATION_SECONDS,
+                buildCreatureDamageEvent,
+                playWallBump,
+            },
+        ) ?? state;
     }),
 
     // ─── Monster AI tick ─────────────────────────────────────────────────────
@@ -6745,28 +6505,8 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         let championEquipment = state.championEquipment;
         let projectiles = state.projectiles;
         let lastCreatureAttackGameTick = state.lastCreatureAttackGameTick;
-        let anyChange  = false;
         // Champions that reach 0 HP this tick — processed after the loop
         const newlyDead: number[] = [];
-
-        // Pick an attack target based on creature contact column.
-        // Uses `vitals` (not state.championVitals) so kills earlier this tick are respected.
-        const getTarget = (cell: CreatureCell, attackAnyChampion = false, attackFromAllSides = false) => {
-            if (attackAnyChampion || attackFromAllSides) {
-                const alive = state.party.filter((c) => (vitals[c.id]?.hp ?? 0) > 0);
-                return alive.length > 0 ? alive[Math.floor(Math.random() * alive.length)] : null;
-            }
-            const preferredColumn = getCreatureColumn(cell);
-            const priority = preferredColumn === 'right'
-                ? [1, 0, 3, 2]
-                : [0, 1, 2, 3];
-            const aliveByPriority = priority
-                .map((index) => state.party[index])
-                .filter((champion): champion is import('../data/champions').Champion =>
-                    !!champion && (vitals[champion.id]?.hp ?? 0) > 0,
-                );
-            return aliveByPriority[0] ?? null;
-        };
 
         for (let i = 0; i < creatures.length; i++) {
             const c = creatures[i];
@@ -6783,33 +6523,42 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             let moveTimer = Math.max(0, timers.mt - delta);
             let atkTimer  = Math.max(0, timers.at  - delta);
 
-            const dx   = px - c.x;
-            const dy   = py - c.y;
-            const dist = Math.abs(dx) + Math.abs(dy);
-            const adjacent = dist === 1;
             const nowMs = Date.now();
-            const partyInvisible = nowMs < state.invisibleUntil;
-            const hasVisualLineOfSight =
-                dist <= Math.max(1, def.sightRange ?? 8) &&
-                hasLineOfSight(map, state.level, state.openDoors, c.x, c.y, px, py);
-            const canDetectParty = hasVisualLineOfSight && (!partyInvisible || def.seeInvisible);
-            const confused = (creatureConfusedUntil.get(c.id) ?? 0) > nowMs;
-            const fluxcaged = (creatureFluxcageUntil.get(c.id) ?? 0) > nowMs;
-            const frightened = (creatureFrightenedUntil.get(c.id) ?? 0) > nowMs;
-            const attackReach = Math.max(1, def.attackRange ?? 1);
-            const prefersRangedSpacing =
-                def.preferBackRow ||
-                (attackReach > 1 && (def.nonMaterial || def.attackTypes.includes('Magic') || def.levitates));
             const lastSeen = creatureLastSeenPartyPos.get(c.id);
-            const rememberedTarget = lastSeen && lastSeen.expiresAt > nowMs ? lastSeen : null;
+            const perception = resolveCreaturePerceptionState(
+                {
+                    creaturePosition: [c.x, c.y],
+                    partyPosition: [px, py],
+                    nowMs,
+                    invisibleUntil: state.invisibleUntil,
+                    sightRange: def.sightRange ?? 8,
+                    seeInvisible: def.seeInvisible,
+                    lastSeen,
+                },
+                {
+                    hasLineOfSight: () => hasLineOfSight(map, state.level, state.openDoors, c.x, c.y, px, py),
+                },
+            );
+            const dist = perception.distance;
+            const adjacent = perception.adjacent;
+            const canDetectParty = perception.canDetectParty;
+            const runtimeState = resolveCreatureRuntimeState(
+                buildCreatureRuntimeStateArgs(def, nowMs, {
+                    confusedUntilMs: creatureConfusedUntil.get(c.id) ?? 0,
+                    fluxcageUntilMs: creatureFluxcageUntil.get(c.id) ?? 0,
+                    frightenedUntilMs: creatureFrightenedUntil.get(c.id) ?? 0,
+                }),
+            );
+            const confused = runtimeState.confused;
+            const fluxcaged = runtimeState.fluxcaged;
+            const frightened = runtimeState.frightened;
+            const attackReach = runtimeState.attackReach;
+            const prefersRangedSpacing = runtimeState.prefersRangedSpacing;
+            const rememberedTarget = perception.rememberedTarget;
 
             if (canDetectParty) {
-                creatureLastSeenPartyPos.set(c.id, {
-                    x: px,
-                    y: py,
-                    expiresAt: nowMs + 6000,
-                });
-            } else if (lastSeen && lastSeen.expiresAt <= nowMs) {
+                creatureLastSeenPartyPos.set(c.id, perception.nextRememberedTarget!);
+            } else if (perception.shouldClearExpiredMemory) {
                 creatureLastSeenPartyPos.delete(c.id);
             }
 
@@ -6831,114 +6580,49 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 const tileAvailable = (tx: number, ty: number) =>
                     canCreatureShareTile(c, state.level, tx, ty, creatures);
 
-                if (canDetectParty || rememberedTarget) {
-                    const targetX = canDetectParty ? px : rememberedTarget!.x;
-                    const targetY = canDetectParty ? py : rememberedTarget!.y;
-                    const targetDx = targetX - c.x;
-                    const targetDy = targetY - c.y;
-                    if (frightened) {
-                        const fleeOptions = [[1, 0], [-1, 0], [0, 1], [0, -1]]
-                            .map(([ddx, ddy]) => [c.x + ddx, c.y + ddy] as [number, number])
-                            .filter(([cx, cy]) => monsterWalkable(state.level, cy, cx) && tileAvailable(cx, cy))
-                            .map(([cx, cy]) => ({
-                                x: cx,
-                                y: cy,
-                                distance: Math.abs(targetX - cx) + Math.abs(targetY - cy),
-                            }))
-                            .filter((candidate) => candidate.distance > dist)
-                            .sort((a, b) => b.distance - a.distance);
-                        if (fleeOptions.length > 0) {
-                            nx = fleeOptions[0]!.x;
-                            ny = fleeOptions[0]!.y;
-                            movedThisTick = true;
-                            if (canDetectParty) playCreatureMove(c.typeId);
-                            notifyCreatureAction(c.id, 'move');
-                        }
-                    }
-                if (movedThisTick) {
-                        // frightened flee already resolved for this tick
-                    } else if (prefersRangedSpacing && canDetectParty && dist <= attackReach && dist > 1) {
-                        creatureTimers.set(c.id, { mt: moveTimer, at: atkTimer });
-                        continue;
-                    }
-                    const candidates: [number, number][] = [];
-                    if (targetDx !== 0) candidates.push([c.x + Math.sign(targetDx), c.y]);
-                    if (targetDy !== 0) candidates.push([c.x, c.y + Math.sign(targetDy)]);
-                    const valid = candidates.filter(
-                        ([cx, cy]) => monsterWalkable(state.level, cy, cx) && tileAvailable(cx, cy)
-                    );
-                    if (valid.length > 0) {
-                        [nx, ny] = valid[Math.floor(Math.random() * valid.length)];
-                        if (nx !== c.x || ny !== c.y) {
-                            movedThisTick = true;
-                            if (canDetectParty) playCreatureMove(c.typeId);
-                            notifyCreatureAction(c.id, 'move');
-                        }
-                    } else if (def.archenemy) {
-                        const primaryDirection = getPrimaryDirectionTowardTarget(c.x, c.y, targetX, targetY);
-                        const secondaryDirection = getSecondaryDirectionTowardTarget(c.x, c.y, targetX, targetY);
-                        const doubleMoveDirections: Direction[] = [
-                            primaryDirection,
-                            secondaryDirection,
-                            getOppositeDirection(secondaryDirection),
-                            getOppositeDirection(primaryDirection),
-                        ];
-                        for (const direction of doubleMoveDirections) {
-                            const teleported = canArchenemyDoubleMoveApprox(
-                                c,
-                                state.level,
-                                c.x,
-                                c.y,
+                const movementResult = resolveCreatureMovementState(
+                    {
+                        creature: c,
+                        canDetectParty,
+                        rememberedTarget,
+                        partyPosition: state.position,
+                        currentDistance: dist,
+                        frightened,
+                        prefersRangedSpacing,
+                        attackReach,
+                        isArchenemy: def.archenemy,
+                    },
+                    {
+                        randomInt,
+                        monsterWalkable: (level, y, x) => monsterWalkable(level, y, x),
+                        tileAvailable,
+                        canArchenemyDoubleMove: (creatureState, level, x, y, direction) =>
+                            canArchenemyDoubleMoveApprox(
+                                creatureState,
+                                level,
+                                x,
+                                y,
                                 direction,
                                 creatures,
                                 monsterWalkable,
-                            );
-                            if (!teleported) continue;
-                            nx = teleported.x;
-                            ny = teleported.y;
-                            movedThisTick = true;
+                            ),
+                    },
+                );
+                if (movementResult.kind === 'hold') {
+                    creatureTimers.set(c.id, { mt: moveTimer, at: atkTimer });
+                    continue;
+                }
+                if (movementResult.kind === 'move') {
+                    nx = movementResult.x;
+                    ny = movementResult.y;
+                    if (nx !== c.x || ny !== c.y) {
+                        movedThisTick = true;
+                        if (movementResult.usesTeleport) {
                             playTeleport();
-                            notifyCreatureAction(c.id, 'move');
-                            break;
+                        } else if (canDetectParty) {
+                            playCreatureMove(c.typeId);
                         }
-                    } else if (canDetectParty) {
-                        // Lightweight "waiting" motion when a visible target is blocked by a closed door/grille.
-                        // This keeps nearby monsters lively without pathfinding beyond the four adjacent tiles.
-                        const roamCandidates = [[1,0],[-1,0],[0,1],[0,-1]]
-                            .map(([ddx, ddy]) => [c.x + ddx, c.y + ddy] as [number, number])
-                            .filter(([cx, cy]) =>
-                                monsterWalkable(state.level, cy, cx) &&
-                                tileAvailable(cx, cy) &&
-                                !(cx === px && cy === py),
-                            );
-                        const patrol = roamCandidates.filter(([cx, cy]) => {
-                            const nextDist = Math.abs(targetX - cx) + Math.abs(targetY - cy);
-                            return nextDist >= Math.max(2, attackReach) && nextDist <= dist + 2;
-                        });
-                        const fallbackPatrol = patrol.length > 0 ? patrol : roamCandidates;
-                        if (fallbackPatrol.length > 0) {
-                            [nx, ny] = fallbackPatrol[Math.floor(Math.random() * fallbackPatrol.length)];
-                            if (nx !== c.x || ny !== c.y) {
-                                movedThisTick = true;
-                                playCreatureMove(c.typeId);
-                                notifyCreatureAction(c.id, 'move');
-                            }
-                        }
-                    }
-                } else {
-                    const dirs: [number, number][] = [[1,0],[-1,0],[0,1],[0,-1]];
-                    const valid = dirs
-                        .map(([ddx, ddy]) => [c.x + ddx, c.y + ddy] as [number, number])
-                        .filter(([cx, cy]) => monsterWalkable(state.level, cy, cx) && tileAvailable(cx, cy));
-                    if (valid.length > 0) {
-                        [nx, ny] = valid[Math.floor(Math.random() * valid.length)];
-                        if (nx !== c.x || ny !== c.y) {
-                            movedThisTick = true;
-                            if (canDetectParty) playCreatureMove(c.typeId);
-                            notifyCreatureAction(c.id, 'move');
-                        }
-                    } else {
-                        moveTimer = nextMonsterMoveDelaySecondsApprox(def.moveSpd);
+                        notifyCreatureAction(c.id, 'move');
                     }
                 }
             }
@@ -6947,208 +6631,243 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             const distanceAfterMove = Math.abs(px - nx) + Math.abs(py - ny);
             const adjacentAfterMove = distanceAfterMove === 1;
             const creatureProjectileEffect = chooseOriginalCreatureProjectileEffect(c.typeId, randomInt);
-            const canUseRangedAttackAfterMove =
-                attackReach > 1 &&
-                distanceAfterMove > 1 &&
-                distanceAfterMove <= attackReach &&
-                canDetectParty &&
-                Boolean(creatureProjectileEffect);
+            const attackOpportunity = resolveCreatureAttackOpportunity(
+                {
+                    attackReach,
+                    distanceAfterMove,
+                    canDetectParty,
+                    movedThisTick,
+                    frightened,
+                    atkTimer,
+                    projectileEffectAvailable: Boolean(creatureProjectileEffect),
+                    adjacentAfterMove,
+                    isContactCell: isCreatureContactCell(c.cell),
+                    attackWindowSeconds: CREATURE_ATTACK_WINDOW_MS / 1000,
+                },
+                { randomInt },
+            );
+            atkTimer = attackOpportunity.nextAttackTimer;
 
-            if (movedThisTick && canDetectParty) {
-                atkTimer = Math.max(atkTimer, CREATURE_ATTACK_WINDOW_MS / 1000);
+            const contactAdvance = resolveCreatureContactAdvance(
+                c,
+                creatures,
+                {
+                    frightened,
+                    movedThisTick,
+                    adjacentAfterMove,
+                    attackReach,
+                    creatureSizeOnTile: getCreatureSizeOnTile(c.typeId),
+                },
+                {
+                    isCreatureCellOccupiedOnTile,
+                    nextMonsterMoveDelaySeconds: () => nextMonsterMoveDelaySecondsApprox(def.moveSpd),
+                },
+            );
+            if (contactAdvance) {
+                if (creatures === state.creatures) creatures = [...creatures];
+                creatures[i] = { ...c, cell: contactAdvance.targetCell };
+                moveTimer = contactAdvance.nextMoveTimer;
+                creatureTimers.set(c.id, { mt: moveTimer, at: atkTimer });
+                notifyCreatureAction(c.id, 'move');
+                continue;
             }
 
-            const canUseMeleeAttackAfterMove =
-                adjacentAfterMove &&
-                isCreatureContactCell(c.cell);
-
-            if (
-                !frightened &&
-                !movedThisTick &&
-                adjacentAfterMove &&
-                attackReach === 1 &&
-                getCreatureSizeOnTile(c.typeId) === 0 &&
-                !isCreatureContactCell(c.cell)
-            ) {
-                const preferredContactCells: CreatureCell[] = c.cell === 'backRight'
-                    ? ['frontRight', 'frontLeft']
-                    : ['frontLeft', 'frontRight'];
-                const targetCell = preferredContactCells.find((cell) => !isCreatureCellOccupiedOnTile(creatures, c, cell));
-                if (targetCell) {
-                    if (creatures === state.creatures) creatures = [...creatures];
-                    creatures[i] = { ...c, cell: targetCell };
-                    moveTimer = Math.max(0.1, nextMonsterMoveDelaySecondsApprox(def.moveSpd) / 2);
-                    creatureTimers.set(c.id, { mt: moveTimer, at: atkTimer });
-                    notifyCreatureAction(c.id, 'move');
-                    anyChange = true;
-                    continue;
-                }
+            const attackStart = resolveCreatureAttackStartState({
+                shouldAttemptAttack: attackOpportunity.shouldAttemptAttack,
+                confused,
+                currentAttackTimer: atkTimer,
+                nextAttackDelaySeconds: nextMonsterAttackDelaySecondsApprox(def.atkSpd),
+                nowMs,
+                attackWindowMs: CREATURE_ATTACK_WINDOW_MS,
+                confusedSkipRoll: randomInt(2),
+            });
+            atkTimer = attackStart.nextAttackTimer;
+            if (attackStart.kind === 'blocked') {
+                creatureTimers.set(c.id, { mt: moveTimer, at: atkTimer });
+                continue;
             }
 
-            if (!frightened && !movedThisTick && atkTimer === 0 && (canUseMeleeAttackAfterMove || canUseRangedAttackAfterMove) && canDetectParty) {
-                atkTimer = nextMonsterAttackDelaySecondsApprox(def.atkSpd);
-                if (confused && randomInt(2) === 0) {
-                    creatureTimers.set(c.id, { mt: moveTimer, at: atkTimer });
-                    continue;
-                }
+            if (attackStart.kind === 'started') {
                 playCreatureAttack(c.typeId);
                 notifyCreatureAction(c.id, 'attack');
-                creatureAttackWindows.set(c.id, nowMs + CREATURE_ATTACK_WINDOW_MS);
+                creatureAttackWindows.set(c.id, attackStart.attackWindowExpiresAt);
                 lastCreatureAttackGameTick = state.elapsedGameTimeTicks;
 
-                const target = getTarget(c.cell, def.attackAnyChampion, def.attackFromAllSides);
+                const target = selectCreatureAttackTarget(
+                    state.party,
+                    vitals,
+                    c.cell,
+                    def.attackAnyChampion,
+                    def.attackFromAllSides,
+                    (maxExclusive) => Math.floor(Math.random() * maxExclusive),
+                );
                 if (target) {
-                    const shouldLaunchProjectile =
-                        Boolean(creatureProjectileEffect) &&
-                        attackReach > 1 &&
-                        distanceAfterMove <= attackReach &&
-                        canDetectParty &&
-                        (distanceAfterMove > 1 || randomInt(2) !== 0);
-                    if (shouldLaunchProjectile) {
-                        const projectile = buildCreatureProjectile(
-                            state,
-                            { ...c, x: nx, y: ny, mapIndex: c.mapIndex },
-                            def,
-                            creatureProjectileEffect!,
-                            target.id,
+                    const targetState = resolveCreatureAttackTargetState({
+                        party: state.party,
+                        championVitals: vitals,
+                        championInventories,
+                        championEquipment: {
+                            ...state.championEquipment,
+                            ...championEquipment,
+                        },
+                        selectedTargetId: target.id,
+                    });
+                    const attackResult = resolveCreatureAttackState(
+                        {
+                            state: {
+                                position: state.position,
+                                activePotionBoosts: state.activePotionBoosts,
+                            },
+                            creature: { ...c, x: nx, y: ny, mapIndex: c.mapIndex },
+                            attackerDef: def,
+                            creatureProjectileEffect,
+                            shouldLaunchProjectile: attackOpportunity.shouldLaunchProjectile,
+                            adjacentAfterMove,
+                            targetChampion: targetState.targetChampion,
+                            targetVitals: targetState.targetVitals,
+                            targetInventory: targetState.targetInventory,
+                            targetEquipment: targetState.targetEquipment,
+                            levelDifficulty: getMap(state.level).difficulty * 2,
                             nowMs,
-                            { randomInt },
-                        );
-                        if (projectiles === state.projectiles) projectiles = [...state.projectiles];
-                        projectiles.push(projectile);
-                        anyChange = true;
+                        },
+                        {
+                            randomInt,
+                            buildProjectile: (projectileState, creatureState, creatureDef, effect, targetChampionId, attackNowMs) =>
+                                buildCreatureProjectile(
+                                    projectileState,
+                                    creatureState,
+                                    creatureDef,
+                                    effect,
+                                    targetChampionId,
+                                    attackNowMs,
+                                    { randomInt },
+                                ),
+                            getEffectiveChampionStats: getEffectiveChampionStatsRuntime,
+                            tryStealChampionItem,
+                            isCharacterLucky: isCharacterLuckyApprox,
+                            resolveMonsterAttackAgainstChampion: (attackArgs) =>
+                                resolveMonsterAttackAgainstChampion(
+                                    attackArgs,
+                                    {
+                                        randomInt,
+                                        computeQuickness: computeOriginalQuicknessApprox,
+                                        getRuntimeBonuses: getChampionRuntimeBonuses,
+                                        getEffectiveChampionStats: getEffectiveChampionStatsRuntime,
+                                        isCharacterLucky: isCharacterLuckyApprox,
+                                        chooseChampionWoundSlots: chooseChampionWoundSlotsFromZones,
+                                        resolveIncomingAttack: (
+                                            champion,
+                                            currentVitals,
+                                            rawAttack,
+                                            attackType,
+                                            allowedSlots,
+                                            attackNowMs,
+                                        ) => resolveChampionIncomingAttackApprox(
+                                            state,
+                                            champion,
+                                            currentVitals,
+                                            rawAttack,
+                                            attackType,
+                                            allowedSlots,
+                                            attackNowMs,
+                                        ),
+                                        clampVital,
+                                        adjustByAttribute: adjustByAttributeApprox,
+                                        applyPoison: applyPoisonCharacterApprox,
+                                    },
+                            ),
+                        },
+                    );
+                    const attackOutcome = resolveCreatureAttackOutcomeState(
+                        {
+                            attackResult,
+                            creature: c,
+                            creatures,
+                            stateCreatures: state.creatures,
+                            stateProjectiles: state.projectiles,
+                            currentProjectiles: projectiles,
+                            championInventories,
+                            championEquipment,
+                            baseChampionEquipment: state.championEquipment,
+                            championVitals: vitals,
+                            damageEvents: dmgEvts,
+                            level: state.level,
+                        },
+                        {
+                            buildChampionDamageEvent,
+                        },
+                    );
+                    if (attackOutcome.kind === 'projectile') {
+                        projectiles = attackOutcome.projectiles;
                         continue;
                     }
-                    const tv = vitals[target.id];
-                    if (tv && tv.hp > 0) {
-                        const targetChampion = state.party.find((partyChampion) => partyChampion.id === target.id);
-                        if (!targetChampion) continue;
-                        if (targetChampion && def.attackTypes.includes('Steal')) {
-                            const targetInventory = championInventories[target.id] ?? [];
-                            const targetEquipment = championEquipment[target.id] ?? state.championEquipment[target.id] ?? {};
-                            const effective = getEffectiveChampionStatsRuntime(
-                                targetChampion,
-                                targetEquipment,
-                                state.activePotionBoosts,
-                                vitals[target.id],
+                    if (attackOutcome.kind === 'steal') {
+                        creatures = attackOutcome.creatures;
+                        championInventories = attackOutcome.championInventories;
+                        championEquipment = attackOutcome.championEquipment;
+                        if (attackOutcome.shouldFlee) {
+                            creatureFrightenedUntil.set(
+                                c.id,
+                                nowMs + quantizeMsToOriginalTimerTicks((20 + randomInt(64)) * ORIGINAL_TIMER_TICK_MS),
                             );
-                            const { stolenItem, nextInventory, nextEquipment, shouldFlee } = tryStealChampionItem(
-                                targetInventory,
-                                targetEquipment,
-                                effective.dexterity,
-                                effective.luck,
-                                {
-                                    randomInt,
-                                    isLucky: isCharacterLuckyApprox,
-                                },
-                            );
-                            if (stolenItem) {
-                                if (creatures === state.creatures) creatures = [...creatures];
-                                creatures[i] = {
-                                    ...c,
-                                    carriedItems: [...(c.carriedItems ?? []), stolenItem],
-                                };
-                                championInventories = {
-                                    ...championInventories,
-                                    [target.id]: nextInventory,
-                                };
-                                championEquipment = {
-                                    ...state.championEquipment,
-                                    ...championEquipment,
-                                    [target.id]: nextEquipment,
-                                };
-                                anyChange = true;
-                            }
-                            if (shouldFlee) {
-                                creatureFrightenedUntil.set(
-                                    c.id,
-                                    nowMs + quantizeMsToOriginalTimerTicks((20 + randomInt(64)) * ORIGINAL_TIMER_TICK_MS),
-                                );
-                                creatureLastSeenPartyPos.delete(c.id);
-                            }
-                            continue;
+                            creatureLastSeenPartyPos.delete(c.id);
                         }
-                        const attackMode = canUseRangedAttackAfterMove && !adjacentAfterMove ? 'ranged' : 'melee';
-                        const attackResolution = targetChampion
-                            ? determineMonsterAttackDamageApprox(state, targetChampion, tv, c, attackMode, nowMs)
-                            : {
-                                damage: 0 as number,
-                                hitZones: undefined,
-                                damageClass: 'physical' as const,
-                                nextVitals: tv,
-                            };
-                        const raw = attackResolution.damage;
-                        if (raw <= 0) continue;
-                        const equip = championEquipment[target.id] ?? {};
-                        const dmg = Math.max(1, raw);
-                        let nextTargetVitals = attackResolution.nextVitals;
-                        if (def.attackTypes.includes('StaminaDrain')) {
-                            const staminaDamage = Math.max(1, Math.floor(dmg / 2) + randomInt(4));
-                            const effective = getEffectiveChampionStatsRuntime(targetChampion, equip, state.activePotionBoosts, nextTargetVitals);
-                            nextTargetVitals = {
-                                ...nextTargetVitals,
-                                stamina: clampVital(nextTargetVitals.stamina - staminaDamage, effective.stamina),
-                            };
+                        continue;
+                    }
+                    if (attackOutcome.kind === 'damage') {
+                        vitals = attackOutcome.championVitals;
+                        dmgEvts = attackOutcome.damageEvents;
+                        if (
+                            attackOutcome.defeatedChampionId !== null &&
+                            !newlyDead.includes(attackOutcome.defeatedChampionId)
+                        ) {
+                            newlyDead.push(attackOutcome.defeatedChampionId);
                         }
-                        if (nextTargetVitals.hp > 0 && def.poisonAttack > 0 && randomInt(2) !== 0) {
-                            if (targetChampion) {
-                                const effective = getEffectiveChampionStatsRuntime(targetChampion, equip, state.activePotionBoosts, nextTargetVitals);
-                                const poisonStrength = adjustByAttributeApprox(def.poisonAttack, effective.vitality);
-                                nextTargetVitals = applyPoisonCharacterApprox(nextTargetVitals, poisonStrength);
-                            }
-                        }
-                        const newHP = nextTargetVitals.hp;
-                        vitals = { ...vitals, [target.id]: nextTargetVitals };
-                        if (newHP === 0 && !newlyDead.includes(target.id))
-                            newlyDead.push(target.id);
                         playChampionWounded();
-                        dmgEvts = [...dmgEvts, buildChampionDamageEvent(state.level, target.id, dmg)];
-                        anyChange = true;
                     }
                 }
             }
 
             // Assign side at destination: pick available side
             let destinationMapIndex = c.mapIndex;
-            let destinationCell = c.cell;
             const movementDirection: Direction | null =
                 nx > c.x ? 'EAST'
                     : nx < c.x ? 'WEST'
                         : ny > c.y ? 'SOUTH'
                             : ny < c.y ? 'NORTH'
                                 : null;
-            const destinationTile = getMap(destinationMapIndex).tiles[ny]?.[nx];
-            if (destinationTile?.type === 'Teleporter') {
-                const tpKey = `${destinationMapIndex},${ny},${nx}`;
-                const tp = getTeleporterSystem(destinationTile);
-                if (tp && state.openTeleporters.has(tpKey)) {
-                    const resolvedTransport = resolveCreatureTeleporterTransportSystem(
-                        state,
-                        destinationMapIndex,
-                        nx,
-                        ny,
-                        movementDirection ?? 'NORTH',
-                        c.cell,
-                        buildTerrainTransportDeps(),
-                    );
-                    const teleportedMover: CreatureInstance = {
-                        ...c,
-                        mapIndex: resolvedTransport.level,
-                        x: resolvedTransport.x,
-                        y: resolvedTransport.y,
-                        cell: resolvedTransport.cell,
-                    };
-                    if (
-                        monsterWalkable(resolvedTransport.level, resolvedTransport.y, resolvedTransport.x) &&
-                        canCreatureShareTile(teleportedMover, resolvedTransport.level, resolvedTransport.x, resolvedTransport.y, creatures)
-                    ) {
-                        destinationMapIndex = resolvedTransport.level;
-                        nx = resolvedTransport.x;
-                        ny = resolvedTransport.y;
-                        destinationCell = teleportedMover.cell;
-                    }
-                }
-            }
+            const destinationState = resolveCreatureDestinationState(
+                {
+                    creature: c,
+                    destination: {
+                        mapIndex: destinationMapIndex,
+                        x: nx,
+                        y: ny,
+                    },
+                    movementDirection,
+                    openTeleporters: state.openTeleporters,
+                },
+                {
+                    getTile: (level, x, y) => getMap(level).tiles[y]?.[x],
+                    getTeleporter: getTeleporterSystem,
+                    resolveCreatureTeleporterTransport: (teleporterState, level, x, y, direction, cell) =>
+                        resolveCreatureTeleporterTransportSystem(
+                            teleporterState,
+                            level,
+                            x,
+                            y,
+                            direction,
+                            cell,
+                            buildTerrainTransportDeps(),
+                        ),
+                    monsterWalkable: (level, y, x) => monsterWalkable(level, y, x),
+                    canCreatureShareTile: (creatureState, level, x, y) =>
+                        canCreatureShareTile(creatureState, level, x, y, creatures),
+                },
+            );
+            destinationMapIndex = destinationState.mapIndex;
+            nx = destinationState.x;
+            ny = destinationState.y;
 
             // Always persist updated timers to the external Map (no re-render cost)
             creatureTimers.set(c.id, { mt: moveTimer, at: atkTimer });
@@ -7159,10 +6878,9 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 const previousMapIndex = c.mapIndex;
                 const previousX = c.x;
                 const previousY = c.y;
-                creatures[i] = { ...c, mapIndex: destinationMapIndex, x: nx, y: ny, cell: destinationCell };
+                creatures[i] = { ...c, mapIndex: destinationMapIndex, x: nx, y: ny, cell: destinationState.cell };
                 creatures = normalizeCreatureCellsOnTile(creatures, previousMapIndex, previousX, previousY);
                 creatures = normalizeCreatureCellsOnTile(creatures, destinationMapIndex, nx, ny);
-                anyChange = true;
             }
         }
 
@@ -7171,41 +6889,52 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         let floorItems           = state.floorItems;
         let deadChampions        = state.deadChampions;
 
-        for (const championId of newlyDead) {
-            const partial = buildDeathDropSystem(
-                { level: state.level, position: state.position, party, championInventories, championEquipment, floorItems, deadChampions },
-                championId,
+        if (newlyDead.length > 0) {
+            const deathState = processMonsterTickChampionDeaths(
+                {
+                    level: state.level,
+                    position: state.position,
+                    party,
+                    championInventories,
+                    championEquipment,
+                    floorItems,
+                    deadChampions,
+                },
+                newlyDead,
                 Date.now(),
+                {
+                    buildDeathDrop: (deathInput, championId, nowMs) =>
+                        buildDeathDropSystem(deathInput, championId, nowMs),
+                },
             );
-            party               = partial.party;
-            floorItems          = partial.floorItems;
-            championInventories = partial.championInventories;
-            championEquipment   = partial.championEquipment;
-            deadChampions       = partial.deadChampions;
-            anyChange           = true;
+            party = deathState.party;
+            floorItems = deathState.floorItems;
+            championInventories = deathState.championInventories;
+            championEquipment = deathState.championEquipment;
+            deadChampions = deathState.deadChampions;
         }
 
-        if (!anyChange && creatures === state.creatures && projectiles === state.projectiles) return state;
-
-        const selectedChampionIndex = party.length > 0
-            ? Math.min(state.selectedChampionIndex, party.length - 1)
-            : 0;
-
-        return {
+        return buildTickMonstersPatch({
             creatures,
-            ...(projectiles !== state.projectiles ? { projectiles } : {}),
-            ...(vitals !== state.championVitals             ? { championVitals: vitals }                     : {}),
-            ...(dmgEvts !== state.damageEvents              ? { damageEvents: dmgEvts }                      : {}),
-            ...(championInventories !== state.championInventories ? { championInventories } : {}),
-            ...(championEquipment !== state.championEquipment ? { championEquipment } : {}),
-            ...(lastCreatureAttackGameTick !== state.lastCreatureAttackGameTick ? { lastCreatureAttackGameTick } : {}),
-            ...(party !== state.party ? {
-                party,
-                selectedChampionIndex,
-                floorItems,
-                deadChampions,
-            } : {}),
-        };
+            baseCreatures: state.creatures,
+            projectiles,
+            baseProjectiles: state.projectiles,
+            championVitals: vitals,
+            baseChampionVitals: state.championVitals,
+            damageEvents: dmgEvts,
+            baseDamageEvents: state.damageEvents,
+            championInventories,
+            baseChampionInventories: state.championInventories,
+            championEquipment,
+            baseChampionEquipment: state.championEquipment,
+            lastCreatureAttackGameTick,
+            baseLastCreatureAttackGameTick: state.lastCreatureAttackGameTick,
+            party,
+            baseParty: state.party,
+            selectedChampionIndex: state.selectedChampionIndex,
+            floorItems,
+            deadChampions,
+        }) ?? state;
     }),
 
     // ─── Combat tick (cooldowns + damage event cleanup) ───────────────────────
@@ -7235,119 +6964,63 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         const partyY = state.position[0];
 
         for (const proj of state.projectiles) {
-            // Not yet time to move
-            if (proj.nextMoveAt > now) {
-                keepProjectiles.push(proj);
+            const traversal = resolveProjectileTraversalStep(
+                {
+                    projectile: proj,
+                    now,
+                    currentGameTick,
+                    openDoors,
+                    openWalls: state.openWalls,
+                    floorItems,
+                    spellVisualEvents,
+                    activePoisonClouds,
+                },
+                {
+                    getTile: (level, x, y) => getMap(level).tiles[y]?.[x],
+                    doorBlocksProjectile: (door, projectile) => projectile.effect === 'physical'
+                        ? doorBlocksThrownPhysicalItem(door.doorType, projectile.physicalItem)
+                        : doorBlocksThrownItems(door.doorType),
+                    buildActivePoisonCloud,
+                    getThrownExplosionVisualScale,
+                    buildDroppedItem,
+                    resolveProjectileTeleporterTransport: (level, x, y, direction) =>
+                        resolveProjectileTeleporterTransportSystem(
+                            state,
+                            level,
+                            x,
+                            y,
+                            direction,
+                            buildTerrainTransportDeps(),
+                        ),
+                    gridSize: GRID_SIZE,
+                    originalSpellProjectileAttack: ORIGINAL_SPELL_PROJECTILE_ATTACK,
+                },
+            );
+            if (traversal.kind === 'waiting') {
+                keepProjectiles.push(traversal.keepProjectile);
                 continue;
             }
-
-            // Compute next tile
-            let ny = proj.y, nx = proj.x;
-            let projectileLevel = proj.level;
-            let projectileDirection = proj.direction;
-            if      (proj.direction === 'NORTH') ny--;
-            else if (proj.direction === 'SOUTH') ny++;
-            else if (proj.direction === 'EAST')  nx++;
-            else                                  nx--; // WEST
-
-            // Wall / out-of-bounds / closed door → despawn
-            const map = getMap(projectileLevel);
-            const tile = map.tiles[ny]?.[nx];
-            const doorKey = `${projectileLevel},${ny},${nx}`;
-            const wallKey = `${projectileLevel},${ny},${nx}`;
-            const closedDoor = tile?.type === 'Door' && !state.openDoors.has(doorKey)
-                ? tile.objects.find((o): o is import('../types/game').DoorObject => o.category === 'Door')
-                : undefined;
-            const closedDoorBlocksProjectile = (() => {
-                if (!closedDoor) return false;
-                if (proj.effect === 'physical') {
-                    return doorBlocksThrownPhysicalItem(closedDoor.doorType, proj.physicalItem);
-                }
-                return doorBlocksThrownItems(closedDoor.doorType);
-            })();
-            if (proj.effect === 'open' && closedDoor) {
-                if (closedDoor.hasButton) {
-                    if (openDoors === state.openDoors) openDoors = new Set(state.openDoors);
-                    openDoors.add(doorKey);
+            openDoors = traversal.openDoors;
+            floorItems = traversal.floorItems;
+            spellVisualEvents = traversal.spellVisualEvents;
+            activePoisonClouds = traversal.activePoisonClouds;
+            if (traversal.kind === 'consumed') {
+                if (traversal.shouldPlayDoorMotion && traversal.doorMotionSquare) {
                     playDoorMotion(
                         DOOR_TOGGLE_SOUND_DURATION_MS,
-                        getDoorSoundVolume(projectileLevel, nx, ny),
-                    );
-                }
-                spellVisualEvents = [
-                    ...spellVisualEvents,
-                    {
-                        id: `spellimpact_door_${now}_${Math.random().toString(36).slice(2)}`,
-                        level: projectileLevel,
-                        x: nx,
-                        y: ny,
-                        height: GRID_SIZE * 0.08,
-                        effect: 'open',
-                        visualScale: proj.visualScale,
-                        ts: now,
-                        kind: 'wall',
-                    },
-                ];
-                continue;
-            }
-            if (!tile || tile.type === 'Wall' || (tile.type === 'TrickWall' && !state.openWalls.has(wallKey)) || closedDoorBlocksProjectile) {
-                const wallImpactEffect = proj.effect === 'physical' ? proj.explosionOnImpact : proj.effect;
-                if (wallImpactEffect) {
-                    spellVisualEvents = [
-                        ...spellVisualEvents,
-                        {
-                            id: `spellimpact_wall_${now}_${Math.random().toString(36).slice(2)}`,
-                            level: projectileLevel,
-                            x: proj.x,
-                            y: proj.y,
-                            height: GRID_SIZE * 0.08,
-                            effect: wallImpactEffect,
-                            visualScale: proj.effect === 'physical'
-                                ? getThrownExplosionVisualScale(proj.explosionAttack) * 1.05
-                                : (proj.visualScale ?? 1) * 1.2,
-                            ts: now,
-                            kind: 'wall',
-                        },
-                    ];
-                }
-                if (wallImpactEffect === 'poison_cloud') {
-                    const cloudAttack = proj.effect === 'physical'
-                        ? Math.max(1, proj.explosionAttack ?? 0)
-                        : Math.max(1, proj.remainingAttack ?? ORIGINAL_SPELL_PROJECTILE_ATTACK);
-                    const cloudVisualScale = proj.effect === 'physical'
-                        ? getThrownExplosionVisualScale(proj.explosionAttack)
-                        : (proj.visualScale ?? 1) * 1.08;
-                    if (activePoisonClouds === state.activePoisonClouds) activePoisonClouds = [...activePoisonClouds];
-                    activePoisonClouds.push(
-                        buildActivePoisonCloud(
-                            projectileLevel,
-                            proj.x,
-                            proj.y,
-                            cloudAttack,
-                            currentGameTick,
-                            cloudVisualScale,
+                        getDoorSoundVolume(
+                            traversal.doorMotionSquare.level,
+                            traversal.doorMotionSquare.x,
+                            traversal.doorMotionSquare.y,
                         ),
                     );
                 }
-                if (proj.effect === 'physical' && proj.physicalItem && !proj.explosionOnImpact) {
-                    if (floorItems === state.floorItems) floorItems = [...floorItems];
-                    floorItems.push(buildDroppedItem(proj.physicalItem, projectileLevel, proj.x, proj.y));
-                }
-                continue; // projectile absorbed by wall
+                continue;
             }
-
-            const teleportedProjectile = resolveProjectileTeleporterTransportSystem(
-                state,
-                projectileLevel,
-                nx,
-                ny,
-                projectileDirection,
-                buildTerrainTransportDeps(),
-            );
-            projectileLevel = teleportedProjectile.level;
-            nx = teleportedProjectile.x;
-            ny = teleportedProjectile.y;
-            projectileDirection = teleportedProjectile.direction;
+            const projectileLevel = traversal.level;
+            const nx = traversal.x;
+            const ny = traversal.y;
+            const projectileDirection = traversal.direction;
 
             const hitsPartySquare =
                 proj.launchedBy === 'creature' &&
@@ -7356,189 +7029,98 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 ny === partyY;
             if (hitsPartySquare) {
                 lastCreatureAttackGameTick = state.elapsedGameTimeTicks;
-                const impact = proj.effect === 'physical'
-                    ? { damage: Math.max(1, Math.round(proj.remainingAttack ?? proj.damage[1])), attackType: 'Blunt' as IncomingAttackTypeApprox, poisonAttack: 0 }
-                    : rollOriginalProjectileImpactAttackApprox(
-                        proj.effect,
-                        Math.max(0, Math.round(proj.remainingRange ?? 0)),
-                        Math.max(0, Math.round(proj.remainingAttack ?? 0)),
-                    );
-                const targetChampion = party.find((champion) => champion.id === proj.targetChampionId)
-                    ?? party.find((champion) => (championVitals[champion.id]?.hp ?? 0) > 0);
-                if (targetChampion) {
-                    const currentVitals = championVitals[targetChampion.id];
-                    if (currentVitals && currentVitals.hp > 0 && impact.damage > 0) {
-                        const resolved = resolveChampionIncomingAttackApprox(
-                            state,
+                const partyHit = applyProjectilePartyHit(
+                    proj,
+                    projectileLevel,
+                    nx,
+                    ny,
+                    currentGameTick,
+                    now,
+                    {
+                        level: state.level,
+                        position: state.position,
+                        party,
+                        championVitals,
+                        championInventories,
+                        championEquipment,
+                        floorItems,
+                        deadChampions,
+                        selectedChampionIndex,
+                        damageEvents: dmgEvts,
+                        spellVisualEvents,
+                        activePoisonClouds,
+                        activeShields: state.activeShields,
+                        activePotionBoosts: state.activePotionBoosts,
+                        championCombat: state.championCombat,
+                        lastCreatureAttackGameTick,
+                    },
+                    {
+                        resolveProjectileImpact: (projectile) => projectile.effect === 'physical'
+                            ? {
+                                damage: Math.max(1, Math.round(projectile.remainingAttack ?? projectile.damage[1])),
+                                attackType: 'Blunt' as IncomingAttackTypeApprox,
+                                poisonAttack: 0,
+                            }
+                            : rollOriginalProjectileImpactAttackApprox(
+                                projectile.effect,
+                                Math.max(0, Math.round(projectile.remainingRange ?? 0)),
+                                Math.max(0, Math.round(projectile.remainingAttack ?? 0)),
+                            ),
+                        resolveChampionIncomingAttack: (
+                            incomingState,
                             targetChampion,
                             currentVitals,
-                            impact.damage,
-                            impact.attackType,
+                            rawAttack,
+                            attackType,
+                            currentNow,
+                        ) => resolveChampionIncomingAttackApprox(
+                            {
+                                ...state,
+                                championEquipment: incomingState.championEquipment,
+                                activePotionBoosts: incomingState.activePotionBoosts,
+                                activeShields: incomingState.activeShields,
+                            },
+                            targetChampion,
+                            currentVitals,
+                            rawAttack,
+                            attackType as IncomingAttackTypeApprox,
                             ['head', 'torso'],
-                            now,
-                        );
-                        if (resolved.damage > 0) {
-                            championVitals = {
-                                ...championVitals,
-                                [targetChampion.id]: resolved.nextVitals,
-                            };
-                            dmgEvts = [...dmgEvts, buildChampionDamageEvent(projectileLevel, targetChampion.id, resolved.damage)];
-                            if (impact.poisonAttack > 0 && resolved.nextVitals.hp > 0 && randomInt(2) !== 0) {
-                                championVitals[targetChampion.id] = applyPoisonCharacterApprox(
-                                    championVitals[targetChampion.id]!,
-                                    impact.poisonAttack,
-                                );
-                                if ((championVitals[targetChampion.id]?.hp ?? 0) === 0) {
-                                    const partial = buildDeathDropSystem(
-                                        {
-                                            level: state.level,
-                                            position: state.position,
-                                            party,
-                                            championInventories,
-                                            championEquipment,
-                                            floorItems,
-                                            deadChampions,
-                                        },
-                                        targetChampion.id,
-                                        Date.now(),
-                                    );
-                                    party = partial.party;
-                                    floorItems = partial.floorItems;
-                                    championInventories = partial.championInventories;
-                                    championEquipment = partial.championEquipment;
-                                    deadChampions = partial.deadChampions;
-                                    selectedChampionIndex = party.length > 0
-                                        ? Math.min(selectedChampionIndex, party.length - 1)
-                                        : 0;
-                                }
-                            }
-                            if (championVitals[targetChampion.id]?.hp === 0) {
-                                const partial = buildDeathDropSystem(
-                                    {
-                                        level: state.level,
-                                        position: state.position,
-                                        party,
-                                        championInventories,
-                                        championEquipment,
-                                        floorItems,
-                                        deadChampions,
-                                    },
-                                    targetChampion.id,
-                                    Date.now(),
-                                );
-                                party = partial.party;
-                                floorItems = partial.floorItems;
-                                championInventories = partial.championInventories;
-                                championEquipment = partial.championEquipment;
-                                deadChampions = partial.deadChampions;
-                                selectedChampionIndex = party.length > 0
-                                    ? Math.min(selectedChampionIndex, party.length - 1)
-                                    : 0;
-                            }
-                        }
-                    }
-                }
-
-                if (proj.effect === 'fireball' || proj.effect === 'lightning') {
-                    const splash = applyPartySpellBacklashDamage(
-                        {
-                            level: state.level,
-                            position: state.position,
-                            party,
-                            championInventories,
-                            championEquipment,
-                            floorItems,
-                            deadChampions,
-                            selectedChampionIndex,
-                            damageEvents: dmgEvts,
-                            activeShields: state.activeShields,
-                            activePotionBoosts: state.activePotionBoosts,
-                        },
-                        championVitals,
-                        proj.effect,
-                        rollOriginalExplosionBurstAttack(
-                            proj.effect,
-                            Math.max(1, Math.round(proj.remainingRange ?? 0)),
+                            currentNow,
                         ),
-                        now,
-                    );
-                    if (splash) {
-                        party = splash.party ?? party;
-                        championVitals = splash.championVitals ?? championVitals;
-                        championInventories = splash.championInventories ?? championInventories;
-                        championEquipment = splash.championEquipment ?? championEquipment;
-                        floorItems = splash.floorItems ?? floorItems;
-                        deadChampions = splash.deadChampions ?? deadChampions;
-                        selectedChampionIndex = splash.selectedChampionIndex ?? selectedChampionIndex;
-                        dmgEvts = splash.damageEvents ?? dmgEvts;
-                    }
-                } else if (proj.effect === 'poison_cloud') {
-                    const splash = applyPartyWideIncomingAttackApprox(
-                        {
-                            level: state.level,
-                            position: state.position,
-                            party,
-                            championInventories,
-                            championEquipment,
-                            floorItems,
-                            deadChampions,
-                            selectedChampionIndex,
-                            damageEvents: dmgEvts,
-                            activeShields: state.activeShields,
-                            activePotionBoosts: state.activePotionBoosts,
-                            championCombat: state.championCombat,
-                        },
-                        championVitals,
-                        rollOriginalExplosionBurstAttack(
-                            'poison_cloud',
-                            Math.max(1, Math.round(proj.remainingRange ?? 0)),
+                        buildChampionDamageEvent,
+                        applyPoisonCharacter: applyPoisonCharacterApprox,
+                        randomInt,
+                        buildDeathDrop: buildDeathDropSystem,
+                        applyPartySpellBacklashDamage,
+                        applyPartyWideIncomingAttack: (
+                            incomingState,
+                            currentChampionVitals,
+                            attack,
+                            currentNow,
+                        ) => applyPartyWideIncomingAttackApprox(
+                            incomingState,
+                            currentChampionVitals,
+                            attack,
+                            'Normal',
+                            [],
+                            currentNow,
                         ),
-                        'Normal',
-                        [],
-                        now,
-                    );
-                    if (splash) {
-                        party = splash.party ?? party;
-                        championVitals = splash.championVitals ?? championVitals;
-                        championInventories = splash.championInventories ?? championInventories;
-                        championEquipment = splash.championEquipment ?? championEquipment;
-                        floorItems = splash.floorItems ?? floorItems;
-                        deadChampions = splash.deadChampions ?? deadChampions;
-                        selectedChampionIndex = splash.selectedChampionIndex ?? selectedChampionIndex;
-                        dmgEvts = splash.damageEvents ?? dmgEvts;
-                    }
-                    if (activePoisonClouds === state.activePoisonClouds) activePoisonClouds = [...activePoisonClouds];
-                    activePoisonClouds.push(
-                        buildActivePoisonCloud(
-                            projectileLevel,
-                            nx,
-                            ny,
-                            Math.max(1, proj.remainingRange ?? ORIGINAL_SPELL_PROJECTILE_ATTACK),
-                            currentGameTick,
-                            (proj.visualScale ?? 1) * 1.08,
-                        ),
-                    );
-                }
-
-                const partyImpactEffect = proj.effect === 'physical' ? proj.explosionOnImpact : proj.effect;
-                if (partyImpactEffect) {
-                    spellVisualEvents = [
-                        ...spellVisualEvents,
-                        {
-                            id: `spellimpact_party_${now}_${Math.random().toString(36).slice(2)}`,
-                            level: projectileLevel,
-                            x: nx,
-                            y: ny,
-                            height: GRID_SIZE * 0.08,
-                            effect: partyImpactEffect,
-                            visualScale: proj.effect === 'physical'
-                                ? getThrownExplosionVisualScale(proj.explosionAttack)
-                                : proj.visualScale,
-                            ts: now,
-                            kind: 'creature',
-                        },
-                    ];
-                }
+                        rollExplosionBurstAttack: rollOriginalExplosionBurstAttack,
+                        buildActivePoisonCloud,
+                        getThrownExplosionVisualScale,
+                        gridSize: GRID_SIZE,
+                    },
+                );
+                party = partyHit.party;
+                championVitals = partyHit.championVitals;
+                championInventories = partyHit.championInventories;
+                championEquipment = partyHit.championEquipment;
+                floorItems = partyHit.floorItems;
+                deadChampions = partyHit.deadChampions;
+                selectedChampionIndex = partyHit.selectedChampionIndex;
+                dmgEvts = partyHit.damageEvents;
+                spellVisualEvents = partyHit.spellVisualEvents;
+                activePoisonClouds = partyHit.activePoisonClouds;
                 continue;
             }
 
@@ -7547,21 +7129,24 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             const hit = hitCreatures[0];
             if (hit) {
                 if (proj.effect === 'open') {
-                    const nextRemainingRange = proj.remainingRange === undefined
-                        ? undefined
-                        : Math.max(0, proj.remainingRange - (proj.stepDecay ?? 1));
-                    if (nextRemainingRange !== undefined && nextRemainingRange <= 0) {
-                        continue;
-                    }
-                    keepProjectiles.push({
-                        ...proj,
-                        level: projectileLevel,
-                        x: nx,
-                        y: ny,
-                        direction: projectileDirection,
-                        nextMoveAt: now + PROJECTILE_STEP_MS,
-                        remainingRange: nextRemainingRange,
-                    });
+                    const continuation = resolveProjectileContinuation(
+                        proj,
+                        {
+                            level: projectileLevel,
+                            x: nx,
+                            y: ny,
+                            direction: projectileDirection,
+                        },
+                        now,
+                        floorItems,
+                        {
+                            projectileStepMs: PROJECTILE_STEP_MS,
+                            physicalProjectileStepMs: PHYSICAL_PROJECTILE_STEP_MS,
+                            buildDroppedItem,
+                        },
+                    );
+                    floorItems = continuation.floorItems;
+                    if (continuation.keepProjectile) keepProjectiles.push(continuation.keepProjectile);
                     continue;
                 }
                 const hitDef = CREATURE_TYPES[hit.typeId];
@@ -7574,324 +7159,177 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                     if (proj.effect === 'physical' && hitDef?.absorbMissiles) {
                         continue;
                     }
-                    const sourceBackedImpact =
-                        sourceSpell && (proj.effect === 'fireball' || proj.effect === 'lightning')
-                            ? rollOriginalSpellProjectileImpact(
-                                sourceSpell,
-                                Math.max(0, Math.round(proj.remainingRange ?? 0)),
-                                Math.max(0, Math.round(proj.remainingAttack ?? 0)),
-                                randomInt,
-                            )
-                            : null;
-                    const poisonDamage = sourceBackedImpact?.poisonStrength
-                        ? getOriginalCreaturePoisonAdjustedAttack(hit.typeId, sourceBackedImpact.poisonStrength)
-                        : 0;
-                    const rolledDamage = proj.effect === 'physical'
-                        ? Math.max(1, Math.round(proj.remainingAttack ?? proj.damage[1]))
-                        : sourceBackedImpact
-                            ? sourceBackedImpact.damage + poisonDamage
-                            : proj.damage[0] + Math.floor(Math.random() * (proj.damage[1] - proj.damage[0] + 1));
-                    let totalDmg = 0;
-                    if (proj.effect === 'disrupt_nonmaterial') {
-                        const disruptExplosionAttack = rollOriginalExplosionBurstAttack(
-                            'disrupt_nonmaterial',
-                            Math.max(0, Math.round(proj.remainingAttack ?? 0)),
-                        );
-                        const disruptTargets = hitCreatures.filter((candidate) => isLikelyNonMaterial(candidate));
-                        if (disruptTargets.length > 0) {
-                            if (creatures === state.creatures) creatures = [...creatures];
-                            for (const disruptTarget of disruptTargets) {
-                                const disruptDamage = rollOriginalDisruptNonMaterialAttack(
-                                    now,
-                                    disruptTarget,
-                                    disruptExplosionAttack,
-                                );
-                                if (disruptDamage <= 0) continue;
-                                const idx = creatures.findIndex((candidate) => candidate.id === disruptTarget.id);
-                                if (idx < 0) continue;
-                                const currentTarget = creatures[idx]!;
-                                const newHP = Math.max(0, currentTarget.currentHP - disruptDamage);
-                                const killed = newHP <= 0;
-                                creatures[idx] = { ...currentTarget, currentHP: newHP, alive: !killed };
-                                totalDmg += Math.max(0, currentTarget.currentHP - newHP);
-                                if (killed) {
-                                    const dropped = dropCreatureCarriedItems(creatures, floorItems, currentTarget.id);
-                                    creatures = dropped.creatures;
-                                    floorItems = dropped.floorItems;
-                                    spellVisualEvents = [...spellVisualEvents, buildDeathDustEvent(projectileLevel, nx, ny)];
-                                }
-                            }
-                        }
-                    } else {
-                        let newHP = Math.max(0, hit.currentHP - rolledDamage);
-                        totalDmg = Math.max(0, hit.currentHP - newHP);
-                        if (proj.effect === 'physical' && proj.explosionOnImpact && proj.explosionAttack) {
-                            const rawExplosionDamage = rollOriginalExplosionBurstAttack(
-                                proj.explosionOnImpact,
-                                proj.explosionAttack,
-                            );
-                            const adjustedExplosionDamage = proj.explosionOnImpact === 'poison_cloud'
-                                ? getOriginalCreaturePoisonAdjustedAttack(hit.typeId, rawExplosionDamage)
-                                : rawExplosionDamage;
-                            const appliedExplosionDamage = Math.max(0, Math.min(newHP, adjustedExplosionDamage));
-                            newHP = Math.max(0, newHP - appliedExplosionDamage);
-                            totalDmg += appliedExplosionDamage;
-                            if (proj.explosionOnImpact === 'poison_cloud') {
-                                const lingeringCloud = buildLingeringPoisonCloudAfterImmediatePulse(
-                                    projectileLevel,
-                                    nx,
-                                    ny,
-                                    proj.explosionAttack,
-                                    currentGameTick + 1,
-                                    getThrownExplosionVisualScale(proj.explosionAttack),
-                                );
-                                if (lingeringCloud) {
-                                    if (activePoisonClouds === state.activePoisonClouds) activePoisonClouds = [...activePoisonClouds];
-                                    activePoisonClouds.push(lingeringCloud);
-                                }
-                            }
-                        }
-                        const killed = newHP <= 0;
-                        if (creatures === state.creatures) creatures = [...creatures];
-                        const idx = creatures.findIndex(c => c.id === hit.id);
-                        if (idx >= 0) creatures[idx] = { ...creatures[idx], currentHP: newHP, alive: !killed };
-                        if (killed) {
-                            const dropped = dropCreatureCarriedItems(creatures, floorItems, hit.id);
-                            creatures = dropped.creatures;
-                            floorItems = dropped.floorItems;
-                            spellVisualEvents = [...spellVisualEvents, buildDeathDustEvent(projectileLevel, nx, ny)];
-                        }
-                    }
-                    if (totalDmg > 0) {
-                        dmgEvts = [...dmgEvts, buildCreatureDamageEvent(projectileLevel, nx, ny, totalDmg)];
-                    }
-                    const creatureImpactEffect = proj.effect === 'physical' ? proj.explosionOnImpact : proj.effect;
-                    if (creatureImpactEffect) {
-                        spellVisualEvents = [
-                            ...spellVisualEvents,
-                            {
-                                id: `spellimpact_creature_${now}_${Math.random().toString(36).slice(2)}`,
-                                level: projectileLevel,
-                                x: nx,
-                                y: ny,
-                                height: GRID_SIZE * 0.08,
-                                effect: creatureImpactEffect,
-                                visualScale: proj.effect === 'physical'
-                                    ? getThrownExplosionVisualScale(proj.explosionAttack)
-                                    : proj.visualScale,
-                                ts: now,
-                                kind: 'creature',
-                            },
-                        ];
-                    }
-                    if (proj.effect === 'poison_cloud') {
-                        if (activePoisonClouds === state.activePoisonClouds) activePoisonClouds = [...activePoisonClouds];
-                        activePoisonClouds.push(
-                            buildActivePoisonCloud(
-                                projectileLevel,
-                                nx,
-                                ny,
-                                Math.max(1, proj.remainingAttack ?? ORIGINAL_SPELL_PROJECTILE_ATTACK),
-                                currentGameTick,
-                                (proj.visualScale ?? 1) * 1.08,
-                            ),
-                        );
-                    }
-                    if (proj.effect === 'physical' && proj.physicalItem && !proj.explosionOnImpact) {
-                        if (floorItems === state.floorItems) floorItems = [...floorItems];
-                        floorItems.push(buildDroppedItem(proj.physicalItem, projectileLevel, nx, ny));
-                    }
+                    const creatureHit = applyProjectileCreatureHit(
+                        proj,
+                        hit,
+                        hitCreatures,
+                        Boolean(hitDef?.absorbMissiles),
+                        projectileLevel,
+                        nx,
+                        ny,
+                        currentGameTick,
+                        now,
+                        {
+                            creatures,
+                            floorItems,
+                            damageEvents: dmgEvts,
+                            spellVisualEvents,
+                            activePoisonClouds,
+                        },
+                        {
+                            rollSourceBackedImpact: (projectile) =>
+                                sourceSpell && (projectile.effect === 'fireball' || projectile.effect === 'lightning')
+                                    ? rollOriginalSpellProjectileImpact(
+                                        sourceSpell,
+                                        Math.max(0, Math.round(projectile.remainingRange ?? 0)),
+                                        Math.max(0, Math.round(projectile.remainingAttack ?? 0)),
+                                        randomInt,
+                                    )
+                                    : null,
+                            getCreaturePoisonAdjustedAttack: getOriginalCreaturePoisonAdjustedAttack,
+                            rollRandomProjectileDamage: (projectile) =>
+                                projectile.damage[0] + Math.floor(Math.random() * (projectile.damage[1] - projectile.damage[0] + 1)),
+                            rollExplosionBurstAttack: rollOriginalExplosionBurstAttack,
+                            isLikelyNonMaterial,
+                            rollDisruptNonMaterialAttack: rollOriginalDisruptNonMaterialAttack,
+                            dropCreatureCarriedItems,
+                            buildDeathDustEvent,
+                            buildCreatureDamageEvent,
+                            buildLingeringPoisonCloud: buildLingeringPoisonCloudAfterImmediatePulse,
+                            buildActivePoisonCloud,
+                            getThrownExplosionVisualScale,
+                            buildDroppedItem,
+                            gridSize: GRID_SIZE,
+                        },
+                    );
+                    creatures = creatureHit.creatures;
+                    floorItems = creatureHit.floorItems;
+                    dmgEvts = creatureHit.damageEvents;
+                    spellVisualEvents = creatureHit.spellVisualEvents;
+                    activePoisonClouds = creatureHit.activePoisonClouds;
                     continue; // projectile consumed
                 }
             }
 
-            if (proj.effect === 'physical') {
-                const remainingRange = (proj.remainingRange ?? 1) - 1;
-                const remainingAttack = Math.max(0, (proj.remainingAttack ?? proj.damage[1]) - (proj.stepDecay ?? 1));
-                if (remainingRange <= 0 || remainingAttack <= 0) {
-                    if (proj.physicalItem) {
-                        if (floorItems === state.floorItems) floorItems = [...floorItems];
-                        floorItems.push(buildDroppedItem(proj.physicalItem, projectileLevel, nx, ny));
-                    }
-                    continue;
-                }
-                keepProjectiles.push({
-                    ...proj,
+            const continuation = resolveProjectileContinuation(
+                proj,
+                {
                     level: projectileLevel,
                     x: nx,
                     y: ny,
                     direction: projectileDirection,
-                    nextMoveAt: now + PHYSICAL_PROJECTILE_STEP_MS,
-                    remainingRange,
-                    remainingAttack,
-                });
-                continue;
-            }
-
-            const nextRemainingAttack = proj.remainingAttack === undefined
-                ? undefined
-                : Math.max(0, proj.remainingAttack - (proj.stepDecay ?? 1));
-            const nextMagicRange = proj.remainingRange === undefined
-                ? undefined
-                : Math.max(0, proj.remainingRange - (proj.stepDecay ?? 1));
-            if ((nextMagicRange !== undefined && nextMagicRange <= 0) ||
-                (nextRemainingAttack !== undefined && nextRemainingAttack <= 0)) {
-                continue;
-            }
-
-            // Move forward, schedule next step
-            keepProjectiles.push({
-                ...proj,
-                level: projectileLevel,
-                x: nx,
-                y: ny,
-                direction: projectileDirection,
-                nextMoveAt: now + PROJECTILE_STEP_MS,
-                remainingRange: nextMagicRange,
-                remainingAttack: nextRemainingAttack,
-            });
+                },
+                now,
+                floorItems,
+                {
+                    projectileStepMs: PROJECTILE_STEP_MS,
+                    physicalProjectileStepMs: PHYSICAL_PROJECTILE_STEP_MS,
+                    buildDroppedItem,
+                },
+            );
+            floorItems = continuation.floorItems;
+            if (continuation.keepProjectile) keepProjectiles.push(continuation.keepProjectile);
         }
 
         if (activePoisonClouds.length > 0) {
-            const nextPoisonClouds: ActivePoisonCloud[] = [];
-            for (const cloud of activePoisonClouds) {
-                let workingCloud: ActivePoisonCloud | null = cloud;
-                while (workingCloud && workingCloud.nextPulseGameTick <= currentGameTick) {
-                    const pulseAttack = rollOriginalExplosionBurstAttack('poison_cloud', workingCloud.remainingAttack);
-                    const onPartySquare =
-                        workingCloud.level === state.level &&
-                        state.position[1] === workingCloud.x &&
-                        state.position[0] === workingCloud.y;
-
-                    if (onPartySquare && pulseAttack > 0) {
-                        const backlash = applyPartyWideIncomingAttackApprox(
-                            {
-                                level: state.level,
-                                position: state.position,
-                                party,
-                                championInventories,
-                                championEquipment,
-                                floorItems,
-                                deadChampions,
-                                selectedChampionIndex,
-                                damageEvents: dmgEvts,
-                                activeShields: state.activeShields,
-                                activePotionBoosts: state.activePotionBoosts,
-                                championCombat: state.championCombat,
-                            },
-                            championVitals,
-                            pulseAttack,
-                            'Normal',
-                            [],
-                            now,
-                        );
-                        if (backlash) {
-                            party = backlash.party ?? party;
-                            championVitals = backlash.championVitals ?? championVitals;
-                            championInventories = backlash.championInventories ?? championInventories;
-                            championEquipment = backlash.championEquipment ?? championEquipment;
-                            floorItems = backlash.floorItems ?? floorItems;
-                            deadChampions = backlash.deadChampions ?? deadChampions;
-                            selectedChampionIndex = backlash.selectedChampionIndex ?? selectedChampionIndex;
-                            dmgEvts = backlash.damageEvents ?? dmgEvts;
-                        }
-                    } else {
-                        const currentCloud = workingCloud;
-                        const hit = creatures.find(
-                            (creature) =>
-                                creature.alive &&
-                                creature.mapIndex === currentCloud.level &&
-                                creature.x === currentCloud.x &&
-                                creature.y === currentCloud.y,
-                        );
-                        if (hit) {
-                            const adjustedDamage = getOriginalCreaturePoisonAdjustedAttack(hit.typeId, pulseAttack);
-                            if (adjustedDamage > 0) {
-                                const nextHP = Math.max(0, hit.currentHP - adjustedDamage);
-                                const killed = nextHP <= 0;
-                                if (creatures === state.creatures) creatures = [...creatures];
-                                const idx = creatures.findIndex((creature) => creature.id === hit.id);
-                                if (idx >= 0) creatures[idx] = { ...creatures[idx], currentHP: nextHP, alive: !killed };
-                                dmgEvts = [...dmgEvts, buildCreatureDamageEvent(currentCloud.level, currentCloud.x, currentCloud.y, adjustedDamage, hit.id)];
-                                if (killed) {
-                                    const dropped = dropCreatureCarriedItems(creatures, floorItems, hit.id);
-                                    creatures = dropped.creatures;
-                                    floorItems = dropped.floorItems;
-                                    spellVisualEvents = [...spellVisualEvents, buildDeathDustEvent(currentCloud.level, currentCloud.x, currentCloud.y)];
-                                }
-                            }
-                        }
-                    }
-
-                    if (workingCloud.remainingAttack >= 6) {
-                        workingCloud = {
-                            ...workingCloud,
-                            remainingAttack: workingCloud.remainingAttack - 3,
-                            nextPulseGameTick: workingCloud.nextPulseGameTick + 1,
-                        };
-                    } else {
-                        workingCloud = null;
-                    }
-                }
-
-                if (workingCloud) nextPoisonClouds.push(workingCloud);
-            }
-            activePoisonClouds = nextPoisonClouds;
+            const poisonCloudTick = tickPoisonClouds(
+                {
+                    activePoisonClouds,
+                    creatures,
+                    level: state.level,
+                    position: state.position,
+                    party,
+                    championVitals,
+                    championInventories,
+                    championEquipment,
+                    floorItems,
+                    deadChampions,
+                    selectedChampionIndex,
+                    damageEvents: dmgEvts,
+                    spellVisualEvents,
+                    activeShields: state.activeShields,
+                    activePotionBoosts: state.activePotionBoosts,
+                    championCombat: state.championCombat,
+                },
+                currentGameTick,
+                now,
+                {
+                    rollPoisonCloudPulseAttack: (remainingAttack) => rollOriginalExplosionBurstAttack('poison_cloud', remainingAttack),
+                    applyPartyWideIncomingAttack: (
+                        poisonState,
+                        currentChampionVitals,
+                        attack,
+                        currentNow,
+                    ) => applyPartyWideIncomingAttackApprox(
+                        poisonState,
+                        currentChampionVitals,
+                        attack,
+                        'Normal',
+                        [],
+                        currentNow,
+                    ),
+                    getCreaturePoisonAdjustedAttack: getOriginalCreaturePoisonAdjustedAttack,
+                    buildCreatureDamageEvent,
+                    dropCreatureCarriedItems,
+                    buildDeathDustEvent,
+                },
+            );
+            activePoisonClouds = poisonCloudTick.activePoisonClouds;
+            creatures = poisonCloudTick.creatures;
+            party = poisonCloudTick.party;
+            championVitals = poisonCloudTick.championVitals;
+            championInventories = poisonCloudTick.championInventories;
+            championEquipment = poisonCloudTick.championEquipment;
+            floorItems = poisonCloudTick.floorItems;
+            deadChampions = poisonCloudTick.deadChampions;
+            selectedChampionIndex = poisonCloudTick.selectedChampionIndex;
+            dmgEvts = poisonCloudTick.damageEvents;
+            spellVisualEvents = poisonCloudTick.spellVisualEvents;
         }
 
-        // 3. Clean expired shields and potion boosts
-        const activeShields = state.activeShields.filter(s => s.expiresAt > now);
-        const activePotionBoosts = state.activePotionBoosts.filter(boost => boost.expiresAt > now);
-        // 4. Clean footprints older than 60 s
-        const footprintHistory = state.footprintHistory.filter(e => now - e.ts < FOOTPRINT_LIFETIME_MS);
-        const nextSpellVisualEvents = spellVisualEvents.filter((event) => now - event.ts < DAMAGE_EVENT_LIFETIME_MS);
-
-        const lightsChanged       = spellLights.length !== state.spellLights.length;
-        const projectilesChanged  = keepProjectiles.length !== state.projectiles.length ||
-            keepProjectiles.some((p, i) => p !== state.projectiles[i]);
-        const creaturesChanged    = creatures !== state.creatures;
-        const dmgChanged          = dmgEvts !== state.damageEvents;
-        const spellVisualsChanged = nextSpellVisualEvents !== state.spellVisualEvents;
-        const floorItemsChanged   = floorItems !== state.floorItems;
-        const openDoorsChanged    = openDoors !== state.openDoors;
-        const partyChanged        = party !== state.party;
-        const championVitalsChanged = championVitals !== state.championVitals;
-        const championInventoriesChanged = championInventories !== state.championInventories;
-        const championEquipmentChanged = championEquipment !== state.championEquipment;
-        const deadChampionsChanged = deadChampions !== state.deadChampions;
-        const selectedChampionIndexChanged = selectedChampionIndex !== state.selectedChampionIndex;
-        const poisonCloudsChanged = activePoisonClouds.length !== state.activePoisonClouds.length ||
-            activePoisonClouds.some((cloud, index) => cloud !== state.activePoisonClouds[index]);
-        const shieldsChanged      = activeShields.length !== state.activeShields.length;
-        const potionBoostsChanged = activePotionBoosts.length !== state.activePotionBoosts.length;
-        const footprintsChanged   = footprintHistory.length !== state.footprintHistory.length;
-
-        if (!lightsChanged && !projectilesChanged && !creaturesChanged &&
-            !dmgChanged && !spellVisualsChanged && !floorItemsChanged && !openDoorsChanged &&
-            !partyChanged && !championVitalsChanged && !championInventoriesChanged &&
-            !championEquipmentChanged && !deadChampionsChanged && !selectedChampionIndexChanged &&
-            !poisonCloudsChanged && !shieldsChanged && !potionBoostsChanged && !footprintsChanged) return state;
-
-        return {
-            ...(lightsChanged      ? { spellLights }                   : {}),
-            ...(projectilesChanged ? { projectiles: keepProjectiles }   : {}),
-            ...(partyChanged       ? { party }                         : {}),
-            ...(championVitalsChanged ? { championVitals }             : {}),
-            ...(championInventoriesChanged ? { championInventories }   : {}),
-            ...(championEquipmentChanged ? { championEquipment }       : {}),
-            ...(creaturesChanged   ? { creatures }                      : {}),
-            ...(dmgChanged         ? { damageEvents: dmgEvts }          : {}),
-            ...(spellVisualsChanged ? { spellVisualEvents: nextSpellVisualEvents } : {}),
-            ...(floorItemsChanged  ? { floorItems }                     : {}),
-            ...(openDoorsChanged   ? { openDoors }                     : {}),
-            ...(deadChampionsChanged ? { deadChampions }               : {}),
-            ...(selectedChampionIndexChanged ? { selectedChampionIndex } : {}),
-            ...(poisonCloudsChanged ? { activePoisonClouds }           : {}),
-            ...(shieldsChanged     ? { activeShields }                  : {}),
-            ...(potionBoostsChanged ? { activePotionBoosts }            : {}),
-            ...(footprintsChanged  ? { footprintHistory }               : {}),
-            ...(lastCreatureAttackGameTick !== state.lastCreatureAttackGameTick ? { lastCreatureAttackGameTick } : {}),
-        };
+        return buildTickSpellsPatch(
+            {
+                spellLights,
+                projectiles: state.projectiles,
+                creatures: state.creatures,
+                damageEvents: state.damageEvents,
+                spellVisualEvents: state.spellVisualEvents,
+                floorItems: state.floorItems,
+                openDoors: state.openDoors,
+                party: state.party,
+                championVitals: state.championVitals,
+                championInventories: state.championInventories,
+                championEquipment: state.championEquipment,
+                deadChampions: state.deadChampions,
+                selectedChampionIndex: state.selectedChampionIndex,
+                activePoisonClouds: state.activePoisonClouds,
+                activeShields: state.activeShields,
+                activePotionBoosts: state.activePotionBoosts,
+                footprintHistory: state.footprintHistory,
+                lastCreatureAttackGameTick: state.lastCreatureAttackGameTick,
+            },
+            {
+                keepProjectiles,
+                creatures,
+                damageEvents: dmgEvts,
+                spellVisualEvents,
+                floorItems,
+                openDoors,
+                party,
+                championVitals,
+                championInventories,
+                championEquipment,
+                deadChampions,
+                selectedChampionIndex,
+                activePoisonClouds,
+                lastCreatureAttackGameTick,
+            },
+            now,
+            {
+                footprintLifetimeMs: FOOTPRINT_LIFETIME_MS,
+                damageEventLifetimeMs: DAMAGE_EVENT_LIFETIME_MS,
+            },
+        ) ?? state;
     }),
 
     tickCombat: (delta) => set((state) => {

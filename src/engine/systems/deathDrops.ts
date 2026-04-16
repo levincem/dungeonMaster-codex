@@ -1,7 +1,7 @@
 import type { Champion } from '../../types/champion';
 import type { ChampionEquipment, FloorItem } from '../../types/game';
 
-type DeathDropState = {
+export type DeathDropState = {
     level: number;
     position: [number, number];
     party: Champion[];

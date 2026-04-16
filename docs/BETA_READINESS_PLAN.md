@@ -115,6 +115,27 @@ Chantiers deja fermes:
   - orchestration partagee des attaques projectile physiques dans `attackFront` `Throw / Shoot / quiver ammo`
   - formule partagee des degats de melee dans `attackFront`
   - orchestration partagee de la branche melee / porte frontale dans `attackFront`
+  - orchestration partagee de `tickFrame` `game over / endgame / sleeping / regen / movement / combat / pending world events`
+  - resolution partagee des pulses de `activePoisonClouds` dans `tickSpells`
+  - resolution partagee des impacts projectile sur la party dans `tickSpells`
+  - resolution partagee des impacts projectile sur les creatures dans `tickSpells`
+  - resolution partagee du parcours projectile `mur / porte / teleporter / blocage` dans `tickSpells`
+  - continuation partagee des projectiles actifs dans `tickSpells`
+  - finalisation partagee du patch de fin de `tickSpells`
+  - resolution partagee des attaques monstres sur champion `esquive / degats / StaminaDrain / poison`
+  - selection partagee de la cible d'attaque des creatures `priorite de colonne / any champion / all sides`
+  - repositionnement partage des creatures vers les cellules de contact avant attaque
+  - dispatch partage des attaques de creature `projectile / steal / damage`
+  - resolution partagee du deplacement des creatures `fuite / spacing ranged / poursuite / patrol / wander / double-move archenemy`
+  - resolution partagee de la destination des creatures `teleporter / validation d'arrivee / conservation de cellule`
+  - resolution partagee de la perception des creatures `LOS / invisibilite / memorisation de la position du groupe`
+  - resolution partagee de l'etat runtime des creatures `confused / fluxcaged / frightened / attackReach / spacing`
+  - resolution partagee du contexte de cible d'attaque des creatures `champion / vitals / inventaire / equipement`
+  - resolution partagee du demarrage d'attaque des creatures `timer / confusion / fenetre d'attaque`
+  - resolution partagee de l'application du resultat d'attaque des creatures `projectile / steal / damage`
+  - traitement partage des morts de champions pendant `tickMonsters`
+  - finalisation partagee du patch de `tickMonsters`
+  - tick partage des portes ecrasantes `closing / bouncing / recapture`, avec rebond visuel complet pour les portes bloquees par une creature
   - impacts immediats et visuels des sorts projectiles dans `castSpell`
   - patchs de sortie du sort `open` dans `castSpell`
   - patchs des sorts projectiles bloques dans `castSpell`
@@ -125,7 +146,7 @@ Etat courant confirme:
 - `npm run test` passe
 - `npm run lint` passe
 - `npm run build` passe
-- la suite locale couvre actuellement `225` tests
+- la suite locale couvre actuellement `286` tests
 
 ## Priorites
 
@@ -465,6 +486,6 @@ Ordre de travail recommande pour aujourd'hui:
 
 Le prochain chantier rationnel n'est plus la qualite minimale. Il devient:
 
-1. rendre les etats de save plus lisibles cote UI
+1. poursuivre les blocs runtime plus couples avec prudence `tickMonsters / tickDoors / endgame`
 2. nettoyer les textes / encodage les plus visibles
 3. puis preparer la checklist de playtest critique avant le long playtest

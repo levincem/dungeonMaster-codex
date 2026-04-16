@@ -2583,6 +2583,7 @@ const TileGrid: React.FC<{
     partyDirection: Direction;
     openDoors: Set<string>;
     brokenDoors: Set<string>;
+    crushingDoors: Record<string, { phase: 'closing' | 'bouncing'; timer: number }>;
     openWalls: Set<string>;
     recruitedIds: Set<number>;
     wallButtons: { tileX: number; tileY: number; face: CardinalDir; sensorIndex: number }[];
@@ -2590,7 +2591,7 @@ const TileGrid: React.FC<{
     pressurePlates: { tileX: number; tileY: number }[];
     onCellClick: (e: ThreeEvent<MouseEvent>, renderType: CellRenderType, x: number, y: number) => void;
     onWallSensor: (level: number, x: number, y: number, sensorIndex: number) => void;
-}> = memo(({ map, level, partyPosition, partyDirection, openDoors, brokenDoors, openWalls, recruitedIds, wallButtons, wallDecals, pressurePlates, onCellClick, onWallSensor }) => {
+}> = memo(({ map, level, partyPosition, partyDirection, openDoors, brokenDoors, crushingDoors, openWalls, recruitedIds, wallButtons, wallDecals, pressurePlates, onCellClick, onWallSensor }) => {
     const frontTileY = partyDirection === 'NORTH' ? partyPosition[0] - 1 : partyDirection === 'SOUTH' ? partyPosition[0] + 1 : partyPosition[0];
     const frontTileX = partyDirection === 'EAST' ? partyPosition[1] + 1 : partyDirection === 'WEST' ? partyPosition[1] - 1 : partyPosition[1];
     return (
@@ -2618,6 +2619,7 @@ const TileGrid: React.FC<{
                     const wallFace = renderType === 'Mirror' ? MIRROR_FACE_MAP.get(`${level},${x},${y}`) : undefined;
                     const doorOpen = renderType === 'Door' ? openDoors.has(`${level},${y},${x}`) : undefined;
                     const doorBroken = renderType === 'Door' ? brokenDoors.has(`${level},${y},${x}`) : undefined;
+                    const doorCrushPhase = renderType === 'Door' ? crushingDoors[`${level},${y},${x}`]?.phase : undefined;
                     const doorOrientation = renderType === 'Door' ? tile.orientation : undefined;
                     const doorHasButton = renderType === 'Door'
                         ? (tile.objects.find(o => o.category === 'Door') as DoorObject | undefined)?.hasButton ?? false
@@ -2647,6 +2649,7 @@ const TileGrid: React.FC<{
                             wallFace={wallFace}
                             doorOpen={doorOpen}
                             doorBroken={doorBroken}
+                            doorCrushPhase={doorCrushPhase}
                             doorOrientation={doorOrientation}
                             doorHasButton={doorHasButton}
                             doorButtonVisible={doorButtonVisible}
@@ -2698,6 +2701,7 @@ export const DungeonScene = () => {
     const selectedChampionIndex = useStore(s => s.selectedChampionIndex);
     const openDoors      = useStore(s => s.openDoors);
     const brokenDoors    = useStore(s => s.brokenDoors);
+    const crushingDoors  = useStore(s => s.crushingDoors);
     const openWalls      = useStore(s => s.openWalls);
     const openMirror     = useStore(s => s.openMirror);
     const toggleDoor     = useStore(s => s.toggleDoor);
@@ -3036,6 +3040,7 @@ export const DungeonScene = () => {
                     partyPosition={position}
                     openDoors={openDoors}
                     brokenDoors={brokenDoors}
+                    crushingDoors={crushingDoors}
                     openWalls={openWalls}
                     recruitedIds={recruitedIds}
                     wallButtons={wallButtons}
