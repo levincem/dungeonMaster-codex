@@ -4942,7 +4942,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             clearAlcoveStateOnPickup: (item, pickupState) =>
                 clearAlcoveStateOnPickupSystem(item, pickupState, buildWallItemSensorDeps()),
             buildHiddenFirestaffMessage: () =>
-                buildAttackResultMessage('Le Firestaff complet ne peut etre obtenu qu via l Amalgam.'),
+                buildAttackResultMessage("Le Firestaff complet ne peut être obtenu que via l'Amalgam."),
         });
         return patch ? { ...state, ...patch } : state;
     }),
@@ -4955,7 +4955,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             clearAlcoveStateOnPickup: (item, pickupState) =>
                 clearAlcoveStateOnPickupSystem(item, pickupState, buildWallItemSensorDeps()),
             buildHiddenFirestaffMessage: () =>
-                buildAttackResultMessage('Le Firestaff complet ne peut etre obtenu qu via l Amalgam.'),
+                buildAttackResultMessage("Le Firestaff complet ne peut être obtenu que via l'Amalgam."),
         });
         if (!patch) return false;
         set(patch);
@@ -5622,7 +5622,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             return {
                 championCombat: { ...state.championCombat, [championId]: newCombat },
                 championVitals,
-                lastCastResult: buildAttackResultMessage(`Action originale non encore integree: ${selectedAttack.displayName}.`),
+                lastCastResult: buildAttackResultMessage(`Action originale pas encore intégrée: ${selectedAttack.displayName}.`),
             };
         }
 
