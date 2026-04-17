@@ -2889,6 +2889,49 @@ function applyPartyMoveFatigue(state: Pick<GameState, 'party' | 'championVitals'
     return applyPartyLoadBasedFatigue(state, 3);
 }
 
+function buildStorePartyMoveDeps(enableFrontWallBumpDamage: boolean) {
+    return createStorePartyMoveRuntimeDeps({
+        applyPartyMoveFatigue,
+        getTile: (level: number, x: number, y: number) => getMap(level).tiles[y]?.[x],
+        isWalkable,
+        buildSensorStateSnapshot,
+        buildWallPushSensorDeps,
+        triggerWallPushSensorsSystem: (level, x, y, direction, sensorState, pendingSensorEvents, deps) =>
+            triggerWallPushSensorsSystem(
+                level,
+                x,
+                y,
+                direction,
+                sensorState as SensorState,
+                pendingSensorEvents as PendingSensorEvent[],
+                deps,
+            ),
+        buildPartyDamageState: (damageState: GameState) => damageState,
+        applyFrontRowWallBumpDamageState: enableFrontWallBumpDamage
+            ? (damageState, championVitals, currentNow) =>
+                buildRuntimePartyDamageDeps().applyFrontRowWallBumpDamage(
+                    damageState,
+                    championVitals,
+                    currentNow,
+                )
+            : () => null,
+        enableFrontWallBumpDamage,
+        applyImmediateTransportSquareEffects,
+        resolvePartyStepTransport,
+    });
+}
+
+function applyStorePartyMoveResultSideEffects(
+    result: ReturnType<typeof runStorePartyMoveCommand<GameState>> | null,
+    showTransientMessage: (message: string) => void,
+) {
+    if (!result) return;
+    applyStorePartyMoveSideEffects(result, {
+        playWallBump,
+        showTransientMessage,
+    });
+}
+
 function applyImmediateTransportSquareEffects(
     state: Pick<
         GameState,
@@ -3151,41 +3194,11 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 state,
                 'forward',
                 now,
-                createStorePartyMoveRuntimeDeps({
-                    applyPartyMoveFatigue,
-                    getTile: (level, x, y) => getMap(level).tiles[y]?.[x],
-                    isWalkable,
-                    buildSensorStateSnapshot,
-                    buildWallPushSensorDeps,
-                    triggerWallPushSensorsSystem: (level, x, y, direction, sensorState, pendingSensorEvents, deps) =>
-                        triggerWallPushSensorsSystem(
-                            level,
-                            x,
-                            y,
-                            direction,
-                            sensorState as SensorState,
-                            pendingSensorEvents as PendingSensorEvent[],
-                            deps,
-                        ),
-                    buildPartyDamageState: (damageState) => damageState,
-                    applyFrontRowWallBumpDamageState: (damageState, championVitals, currentNow) =>
-                        buildRuntimePartyDamageDeps().applyFrontRowWallBumpDamage(
-                            damageState,
-                            championVitals,
-                            currentNow,
-                        ),
-                    applyImmediateTransportSquareEffects,
-                    resolvePartyStepTransport,
-                }),
+                buildStorePartyMoveDeps(true),
             );
             return moveResult.patch;
         });
-        if (moveResult) {
-            applyStorePartyMoveSideEffects(moveResult, {
-                playWallBump,
-                showTransientMessage: (message) => get().showTransientMessage(message),
-            });
-        }
+        applyStorePartyMoveResultSideEffects(moveResult, (message) => get().showTransientMessage(message));
     },
 
     moveBackward: () => {
@@ -3196,37 +3209,11 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 state,
                 'backward',
                 now,
-                createStorePartyMoveRuntimeDeps({
-                    applyPartyMoveFatigue,
-                    getTile: (level, x, y) => getMap(level).tiles[y]?.[x],
-                    isWalkable,
-                    buildSensorStateSnapshot,
-                    buildWallPushSensorDeps,
-                    triggerWallPushSensorsSystem: (level, x, y, direction, sensorState, pendingSensorEvents, deps) =>
-                        triggerWallPushSensorsSystem(
-                            level,
-                            x,
-                            y,
-                            direction,
-                            sensorState as SensorState,
-                            pendingSensorEvents as PendingSensorEvent[],
-                            deps,
-                        ),
-                    buildPartyDamageState: (damageState) => damageState,
-                    applyFrontRowWallBumpDamageState: () => null,
-                    enableFrontWallBumpDamage: false,
-                    applyImmediateTransportSquareEffects,
-                    resolvePartyStepTransport,
-                }),
+                buildStorePartyMoveDeps(false),
             );
             return moveResult.patch;
         });
-        if (moveResult) {
-            applyStorePartyMoveSideEffects(moveResult, {
-                playWallBump,
-                showTransientMessage: (message) => get().showTransientMessage(message),
-            });
-        }
+        applyStorePartyMoveResultSideEffects(moveResult, (message) => get().showTransientMessage(message));
     },
 
     strafeLeft: () => {
@@ -3237,37 +3224,11 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 state,
                 'strafeLeft',
                 now,
-                createStorePartyMoveRuntimeDeps({
-                    applyPartyMoveFatigue,
-                    getTile: (level, x, y) => getMap(level).tiles[y]?.[x],
-                    isWalkable,
-                    buildSensorStateSnapshot,
-                    buildWallPushSensorDeps,
-                    triggerWallPushSensorsSystem: (level, x, y, direction, sensorState, pendingSensorEvents, deps) =>
-                        triggerWallPushSensorsSystem(
-                            level,
-                            x,
-                            y,
-                            direction,
-                            sensorState as SensorState,
-                            pendingSensorEvents as PendingSensorEvent[],
-                            deps,
-                        ),
-                    buildPartyDamageState: (damageState) => damageState,
-                    applyFrontRowWallBumpDamageState: () => null,
-                    enableFrontWallBumpDamage: false,
-                    applyImmediateTransportSquareEffects,
-                    resolvePartyStepTransport,
-                }),
+                buildStorePartyMoveDeps(false),
             );
             return moveResult.patch;
         });
-        if (moveResult) {
-            applyStorePartyMoveSideEffects(moveResult, {
-                playWallBump,
-                showTransientMessage: (message) => get().showTransientMessage(message),
-            });
-        }
+        applyStorePartyMoveResultSideEffects(moveResult, (message) => get().showTransientMessage(message));
     },
 
     strafeRight: () => {
@@ -3278,37 +3239,11 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 state,
                 'strafeRight',
                 now,
-                createStorePartyMoveRuntimeDeps({
-                    applyPartyMoveFatigue,
-                    getTile: (level, x, y) => getMap(level).tiles[y]?.[x],
-                    isWalkable,
-                    buildSensorStateSnapshot,
-                    buildWallPushSensorDeps,
-                    triggerWallPushSensorsSystem: (level, x, y, direction, sensorState, pendingSensorEvents, deps) =>
-                        triggerWallPushSensorsSystem(
-                            level,
-                            x,
-                            y,
-                            direction,
-                            sensorState as SensorState,
-                            pendingSensorEvents as PendingSensorEvent[],
-                            deps,
-                        ),
-                    buildPartyDamageState: (damageState) => damageState,
-                    applyFrontRowWallBumpDamageState: () => null,
-                    enableFrontWallBumpDamage: false,
-                    applyImmediateTransportSquareEffects,
-                    resolvePartyStepTransport,
-                }),
+                buildStorePartyMoveDeps(false),
             );
             return moveResult.patch;
         });
-        if (moveResult) {
-            applyStorePartyMoveSideEffects(moveResult, {
-                playWallBump,
-                showTransientMessage: (message) => get().showTransientMessage(message),
-            });
-        }
+        applyStorePartyMoveResultSideEffects(moveResult, (message) => get().showTransientMessage(message));
     },
 
     turnLeft: () => set((state) => {

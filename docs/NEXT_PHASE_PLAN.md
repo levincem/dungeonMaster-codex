@@ -103,6 +103,7 @@ Actions:
 - considerer aussi comme entamee la sortie de la fabrique des degats runtime de party vers `src/engine/systems/storePartyDamageRuntime.ts`, ce qui retire du `store` le builder inline de `wall bump`, `fall impact`, `spell backlash` et `party-wide incoming attack`
 - considerer aussi comme entamee la sortie des wrappers `regen / sleep / endgame` vers `src/engine/systems/storeTimeRuntime.ts`, ce qui retire du `store` trois helpers de plomberie delegataires et clarifie le cablage de `tickFrame` et `regenTick`
 - considerer aussi comme entamee la sortie du builder de deps `pickup / drop` au sol vers `src/engine/systems/storeFloorItemRuntime.ts`, ce qui retire du `store` un autre objet inline de plomberie autour des commandes d'objets au sol
+- considerer aussi comme entamee la factorisation du cablage repetitif des deplacements party directement dans `src/engine/store.ts`, ainsi que la suppression des wrappers morts les plus simples; les reliquats encore "faciles" sont maintenant surtout de petits builders ou callbacks stateful, plus des blocs de duplication massifs
 - conserver les helpers purs comme points de verite
 - supprimer les reliquats morts ou trompeurs quand ils n'ont plus d'appelants
 
