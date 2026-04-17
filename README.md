@@ -2,11 +2,9 @@
 
 Remake / reinterpretation of *Dungeon Master* built with React, TypeScript, Vite, and React Three Fiber.
 
-The goal is to rebuild the original game's exploration, champions, creatures, objects, spells, mechanisms, and dungeon data as faithfully as possible inside a modern and maintainable web codebase.
+The project aims to rebuild the original game's exploration, champions, creatures, objects, spells, mechanisms, and dungeon data as faithfully as possible inside a modern and maintainable web codebase.
 
-This is a non-commercial amateur project. The visuals are a mix of extracted references and AI-assisted asset production. A significant part of the reverse-engineering and implementation workflow has been developed with LLM assistance, then checked and refined inside the repository.
-
-Improving graphics, including images of items on the ground and in the inventory, as well as monster sprites with more frames, is a potential area for development.
+This is a non-commercial amateur project. Visuals are a mix of extracted references, remake assets, and some AI-assisted asset production. A significant part of the reverse-engineering and implementation workflow has been developed with LLM assistance, then checked, corrected, and refined inside the repository.
 
 ## Live Version
 
@@ -14,71 +12,68 @@ The current public build is available at [dungeon-master.fr](https://dungeon-mas
 
 This is currently a desktop-first alpha. Smartphone play is explicitly blocked in the app.
 
-Current local project version: `v0.5.0-alpha.2`.
+Current local project version: `v0.6.0-alpha.0`.
+
+## Credits
+
+Thanks to:
+
+The original team:
+
+- Publisher: FTL Games
+- Director: Doug Bell
+- Producer: Wayne Holder
+- Designer: Doug Bell
+- Programmers: Doug Bell, Dennis Walker, Mike Newton
+- Artist: Andrew Jaros
+- Composer: Wayne Holder
+
+The fans and preservation community:
+
+- the [Dungeon Master community](https://www.dungeon-master.com/forum/)
+- the [Dungeon Master Encyclopaedia](http://dmweb.free.fr/)
+- the [ReDMCSB](https://github.com/gondur/ReDMCSB_Release2) project by Christophe Fontanel
+- the Swoosh Construction Kit ecosystem and related reverse-engineering tools
 
 ## Current State
 
-The project is now well beyond prototype stage and already playable through a substantial part of the original loop:
+The project is now a serious playable alpha, well beyond prototype stage.
 
-- 3D dungeon exploration with grid movement and original map data
-- title screen with `Enter The Dungeon` and persisted `Resume`
+What is already in place:
+
+- 3D dungeon exploration with original map layout and grid movement
+- title flow with `Enter The Dungeon`, persisted `Resume`, and `Game Over` / victory screens
 - champion recruitment through mirrors
-- HUD, detailed champion sheets, drag and drop inventory and equipment
-- creatures, projectiles, combat, lighting, hunger, thirst, sleep, water containers, fountains
-- original wall overlays positioned from extracted dungeon data
-- runtime data for champions, creatures, items, doors, spells, projectiles and maps sourced primarily from extracted original data
-- wall mechanisms substantially reworked: switches, pressure plates, locks, alcoves, receptacles, delayed sensors and wall item usage
-- button doors now share one global rendering model: variable door material, one narrow jamb, and the original `wall_switch` image anchored on the player-facing side of that jamb
-- creature AI substantially revised: open-door traversal, pursuit memory, ranged spacing, teleporter usage, invisibility handling, missile absorption, sight-range driven detection
-- upgraded spell visuals: better projectile identities, impacts, local flashes, shields and `Fluxcage`
-- pits are now rendered as visible openings and can trigger party falls to the matching tile below
-- endgame path wired through Firestaff completion, Lord Chaos fusion, Grey Lord transition, and victory screen
-- dedicated `Game Over` screen with manual return to title
-- floor creature generators restored from source-backed runtime data
-- generator configs now come from decoded extracted data, including spawn tile, raw count, randomized count flag, hp multiplier and disable timing
-- generator saturation is now derived from explicit runtime group records (`alive` / `reserved`) instead of only implicit string counting
-- new generator activations and already-reserved generator retries no longer reuse the same capacity gate
-- reserved generator retries can now resolve within the total `60`-group budget instead of being re-blocked by the stricter `55`-group new-spawn margin
-- distinct delayed reservations from the same generator are no longer collapsed into a single pending retry entry
-- creature groups now use true runtime subcells (`frontLeft`, `frontRight`, `backLeft`, `backRight`) instead of a simple `left/right` fallback
-- distinct creature groups no longer merge onto the same tile just because they share the same creature family
-- creatures from the same local runtime group now reuse a shared movement plan during a monster tick instead of drifting apart from independent movement rolls
-- lone creatures are now rendered centered on their tile when they occupy it alone
-- persistent save / resume of the mutable runtime state
-- save integrity checks plus automatic backup fallback
-- in-game options modal with movement key rebinding
-- blocking alpha welcome modal and tabbed in-game player guide available in-game
-- simple `i18n` layer present with English as the default locale
-- sleep now runs as a continuous accelerated state instead of a single large fast-forward step
-- GA4 game-session events are instrumented for SPA play tracking (`game_start`, `game_resume`, `game_heartbeat`, `game_end`, `game_victory`)
+- HUD, champion sheets, drag and drop inventory and equipment
+- creatures, projectiles, melee and ranged combat, lighting, hunger, thirst, sleep, fountains, and water containers
+- endgame path wired through Firestaff completion, Lord Chaos fusion, Grey Lord transition, and victory
+- persistent save / resume of mutable runtime state, with integrity checks and automatic backup fallback
+- in-game help, options modal, and movement key rebinding
+- desktop-first UX, with smartphone play intentionally blocked
 
-It is not a finished remake yet. The largest remaining work is no longer core data recovery, but long-form play validation, the last fidelity gaps, and targeted optimization.
+On the fidelity side, the project is now in a much stronger place than before:
 
-Current save/load behavior:
+- world content extraction is treated as reliable for the core dungeon content
+- runtime data for champions, creatures, items, doors, spells, projectiles, and maps is primarily sourced from extracted original data
+- most central gameplay logic that used to live as large local approximations in the store has been moved into smaller tested subsystems
+- generator data is decoded and integrated, with the main remaining uncertainty now concentrated on exact `GROUP/ACTIVE_GROUP` lifecycle semantics rather than raw generator parameters
+- the runtime has been heavily cleaned up, so the main remaining risk is now gameplay validation and edge-case fidelity, not core maintainability
 
-- the save button in the champion sheet writes the current mutable runtime state
-- `Resume` reloads the latest persisted save
-- time does not continue to elapse while the game is closed; a loaded save resumes from the exact saved state
+In short: this is already a playable alpha remake with a strong fidelity base, not a prototype and not just a data-recovery experiment anymore.
 
 ## What Still Needs Work
 
-Main remaining gaps before calling the runtime "fully aligned":
+The largest remaining work is no longer finding core data. It is now concentrated in a few clear areas:
 
-- `0696.RAW1` is still not semantically decoded at 100%
-- creature generators still have one important structural approximation:
-  - runtime generator parameters are decoded
-  - the remaining uncertainty is now mostly about exact FTL `GROUP/ACTIVE_GROUP` lifecycle semantics, especially the `active / dormant` boundary
-- the full path still needs a targeted long playtest from `Zokathra` through Lord Chaos fusion
-- some rare late-game or edge-case mechanism interactions still need targeted play verification
-- some combat damage and timing edge cases still need targeted confirmation against original references
-- creature AI still has fine-grained fidelity gaps for special families and end-game cases
-- some item-image aliases and other compatibility glue remain manual by design
-- optimization is now the next major phase, especially around the remaining large runtime/data chunks
-- broader options coverage beyond movement rebinding is still future work
-- save import/export is still a future convenience feature; saves currently live in browser `localStorage`
-- localization is only partially implemented:
-  - translation dictionaries exist, but locale switching is not exposed yet
-  - the current build still keeps original English game text as the main in-world language
+- long-form play validation, especially the full path from early game through Lord Chaos fusion
+- targeted verification of rare late-game mechanisms, special creature behaviors, and combat/timing edge cases
+- the last extraction and semantic gaps, especially around `0696.RAW1`
+- the last structural fidelity gap around exact active-group semantics for creature generators
+- optimization, especially around the still-heavy runtime/data chunks and the Three.js stack
+- broader UX/options polish and newcomer onboarding
+- localization remains partial: dictionaries exist, but locale switching is not yet exposed
+
+So the project is close to a strong public alpha state, but not yet at a point where "100% extraction" or "100% original behavior" can honestly be claimed.
 
 ## Tech Stack
 
@@ -89,28 +84,6 @@ Main remaining gaps before calling the runtime "fully aligned":
 - `@react-three/fiber`
 - `@react-three/drei`
 - Zustand
-
-## Running The Project
-
-### Installation
-
-```bash
-npm install
-```
-
-### Development
-
-```bash
-npm run dev
-```
-
-### Production Build
-
-```bash
-npm run build
-```
-
-The production build passes as of this update (`2026-04-17`).
 
 ## Project Structure
 
@@ -158,19 +131,19 @@ docs/
 
 The runtime now relies primarily on reconstructed data mirrored into `src/assets/data/` for critical boot-time modules.
 
-For the main extracted runtime datasets, `src/assets/data/` is now the canonical runtime location, while `assets/OriginalDataExtraction/output/` remains the extraction/audit output area.
+For the main extracted runtime datasets, `src/assets/data/` is the canonical runtime location, while `assets/OriginalDataExtraction/output/` remains the extraction and audit output area.
 
-For `dungeon.json` specifically:
+For `dungeon.json`:
 
-- `assets/OriginalDataExtraction/output/dungeon.json` is the full extraction/audit dump
+- `assets/OriginalDataExtraction/output/dungeon.json` is the full extraction / audit dump
 - `assets/OriginalDataExtraction/output/runtime_dungeon.json` is the compact runtime snapshot generated from it
-- `src/assets/data/dungeon.json` is the canonical runtime copy actually consumed by the app
+- `src/assets/data/dungeon.json` is the canonical runtime copy consumed by the app
 
 For wall overlays:
 
-- `public/original_wall_overlay_positions.json` remains the full extracted/reference export
+- `public/original_wall_overlay_positions.json` remains the full extracted / reference export
 - `assets/OriginalDataExtraction/output/runtime_wall_overlay_positions.json` is the compact runtime snapshot used for the app
-- `src/assets/original_wall_overlay_positions.json` is the canonical runtime copy actually consumed by the app
+- `src/assets/original_wall_overlay_positions.json` is the canonical runtime copy consumed by the app
 
 The reverse-engineering and provenance work lives under:
 
@@ -183,7 +156,7 @@ That directory contains:
 - generated comparison outputs
 - notes explaining what is proven, derived, or still interpretive
 
-The most useful detailed internal summaries are:
+The most useful project-memory and audit docs are:
 
 - [docs/PROJECT_STATE_INDEX.md](docs/PROJECT_STATE_INDEX.md)
 - [docs/NEXT_PHASE_PLAN.md](docs/NEXT_PHASE_PLAN.md)
@@ -194,49 +167,17 @@ The most useful detailed internal summaries are:
 - [docs/RUNTIME_ALIGNMENT_AUDIT.md](docs/RUNTIME_ALIGNMENT_AUDIT.md)
 - [docs/CODEBASE_REFERENCE.md](docs/CODEBASE_REFERENCE.md)
 - [docs/DATA_PIPELINE.md](docs/DATA_PIPELINE.md)
-- [docs/PUBLIC_DIRECTORY_AUDIT.md](docs/PUBLIC_DIRECTORY_AUDIT.md)
-- [docs/ACTIVE_IMAGE_PLACEHOLDERS.md](docs/ACTIVE_IMAGE_PLACEHOLDERS.md)
-- [docs/STATS_PROVENANCE.md](docs/STATS_PROVENANCE.md)
-- [docs/ATARI_STATS_RECONCILIATION.md](docs/ATARI_STATS_RECONCILIATION.md)
-- [docs/WORLD_CONTENT_AUDIT.md](docs/WORLD_CONTENT_AUDIT.md)
 
 ## Notes
 
-- The production build currently passes.
-- `npm run preview` boots correctly with the dungeon data embedded in `src/assets/data/dungeon.json`.
-- The app blocks smartphone play and remains desktop-first.
-- The HUD debug line now distinguishes global and local map coordinates, for example `front [g:x,y / l:x,y]`; gameplay reports should prefer the local `l:` coordinate when discussing extracted map data.
-- The bundle is still heavy because of the 3D stack, assets, and embedded critical JSON datasets.
-- The main remaining heavy runtime payloads are now the compact dungeon snapshot, wall-overlay data, and the core Three.js stack.
-- The next major phase is long-form playtesting plus targeted optimization, especially around data loading strategy.
-- The project should currently be treated as a playable alpha rather than a finished remake.
-- The world-content extraction is now treated as reliable.
-- The central runtime has now been heavily refactored into smaller tested subsystems, so most remaining risk is gameplay validation rather than core maintainability.
-- The largest remaining structural runtime gap is around exact active-group semantics for creature generators, not basic generator-data decoding.
-- Remade project visuals are always preferred when available; extracted original bitmaps are kept only as placeholders / fallback art.
-- `docs/` is used as project memory and audit notes; the README stays intentionally concise.
-
-## Credits
-
-Thanks to:
-
-The original team : 
-
-- Publishers : FTL Games
-- Director : Doug Bell
-- Producer : Wayne Holder
-- Designer : Doug Bell
-- Programmers : Doug Bell, Dennis Walker, Mike Newton
-- Artist : Andrew Jaros
-- Composer : Wayne Holder
-
-
-The Fans : 
-
-- the [Dungeon Master community](https://www.dungeon-master.com/forum/)
-- the [Dungeon Master Encyclopaedia](http://dmweb.free.fr/)
-- the [ReDMCSB](https://github.com/gondur/ReDMCSB_Release2) project by Christophe Fontanel
-- the Swoosh Construction Kit ecosystem and related reverse-engineering tools
+- The project should currently be treated as a playable alpha, not a finished remake.
+- The production build passes, and the app boots correctly from the runtime data embedded in `src/assets/data/`.
+- The world-content extraction is now considered reliable enough that the remaining uncertainty is mostly about fidelity edge cases, not about missing core dungeon content.
+- The central runtime has been heavily refactored into smaller tested subsystems, so code clarity and maintainability are in a much better place than earlier alpha builds.
+- The main heavy runtime payloads are still the compact dungeon snapshot, wall overlay data, and the core Three.js stack.
+- The next major phase is a mix of long-form playtesting, targeted fidelity verification, and optimization.
+- Remade visuals are preferred when available; extracted original bitmaps remain as placeholders or fallback art where necessary.
+- `docs/` acts as the project's memory and audit trail; the README is intentionally the shorter public-facing overview.
 
 ## Legal / Intent
 

@@ -3134,6 +3134,422 @@ function buildAttackFrontRuntimePatch(
     );
 }
 
+function buildStoreCastSpellPatch(
+    state: GameState,
+    championId: number,
+    runeIds: string[],
+    now: number,
+): Partial<GameState> | null {
+    const castRuntimePartyDamageDeps = buildRuntimePartyDamageDeps();
+    const castResult = buildStoreCastSpellRuntimeResult(
+        state,
+        championId,
+        runeIds,
+        now,
+        createStoreCastSpellRuntimeDeps(state, {
+            applyPartySpellBacklashDamage: (currentState, championVitals, effect, rolledDamage, currentNow) =>
+                castRuntimePartyDamageDeps.applyPartySpellBacklashDamage(
+                    currentState as GameState,
+                    championVitals,
+                    effect,
+                    rolledDamage,
+                    currentNow,
+                ),
+        }, {
+            buildUnknownCombinationPatch: (currentNow) => ({
+                lastCastResult: { success: false, message: 'Combinaison de runes inconnue.', ts: currentNow },
+            }),
+            getChampionMasteryLevel: (currentState, targetChampionId, champion, skill) =>
+                getChampionMasteryLevel(currentState as GameState, targetChampionId, champion, skill),
+            rollCastCheck: (champion, equip, activePotionBoosts, vitals, spell, skillLevel) =>
+                rollOriginalSpellCastSuccess(
+                    champion,
+                    equip,
+                    activePotionBoosts,
+                    vitals,
+                    spell,
+                    skillLevel,
+                ),
+            buildChampionSkillExperiencePatch: (currentState, targetChampionId, skill, amount) =>
+                buildChampionSkillExperiencePatchOriginal(currentState as GameState, targetChampionId, skill, amount),
+            originalTimerTicksToSeconds,
+            createChampionCombatState,
+            randomInt,
+            quantizeDurationMs: quantizeMsToOriginalTimerTicks,
+            buildDroppedItem,
+            getEffectiveChampionStats: getEffectiveChampionStatsRuntime,
+            getImmediateDoor: getClosedDoorAt,
+            isImmediatelyBlocked: isBlockedForProjectile,
+            buildBlockedPoisonCloud: buildActivePoisonCloud,
+            mergeBasePatch: (basePatch, nextPatch) => ({
+                ...basePatch,
+                ...nextPatch,
+            }),
+        }),
+    );
+    if (!castResult) return null;
+    playCastSpellDoorMotionResult(castResult, {
+        playDoorMotion,
+        getDoorSoundVolume,
+        doorToggleSoundDurationMs: DOOR_TOGGLE_SOUND_DURATION_MS,
+    });
+    return castResult.patch as Partial<GameState>;
+}
+
+function buildStoreTickSpellsPatch(
+    state: GameState,
+    now: number,
+): Partial<GameState> | null {
+    const tickSpellsPartyDamageDeps = createStoreTickSpellsRuntimePartyDamageDeps(
+        buildRuntimePartyDamageDeps(),
+        { attackType: 'Normal', allowedSlots: [] },
+    );
+    return buildStoreTickSpellsRuntimePatch(
+        state,
+        now,
+        createStoreTickSpellsRuntimeDeps(
+            tickSpellsPartyDamageDeps,
+            createStoreTickSpellsStatefulDeps({
+                buildTerrainTransportDeps,
+                resolveProjectileTeleporterTransportSystem,
+                buildIncomingAttackState: (currentState, incomingState) => ({
+                    ...(currentState as GameState),
+                    championEquipment: incomingState.championEquipment,
+                    activePotionBoosts: incomingState.activePotionBoosts,
+                    activeShields: incomingState.activeShields,
+                }),
+                resolveChampionIncomingAttackRuntime: (
+                    incomingAttackState,
+                    targetChampion,
+                    currentVitals,
+                    rawAttack,
+                    attackType,
+                    attackNow,
+                ) => resolveChampionIncomingAttackRuntime(
+                    incomingAttackState,
+                    targetChampion,
+                    currentVitals,
+                    rawAttack,
+                    attackType as IncomingAttackType,
+                    ['head', 'torso'],
+                    attackNow,
+                ),
+            }),
+            {
+                getMap,
+                randomInt,
+                buildActivePoisonCloud,
+                buildDroppedItem,
+                buildChampionDamageEvent,
+                applyPoisonCharacter: applyPoisonCharacterOriginal,
+                buildDeathDrop: buildDeathDropSystem,
+                isLikelyNonMaterial,
+                dropCreatureCarriedItems,
+                buildDeathDustEvent,
+                buildCreatureDamageEvent,
+                creatureAttackWindows,
+                onDoorMotion: playDoorMotion,
+                getDoorSoundVolume,
+                footprintLifetimeMs: FOOTPRINT_LIFETIME_MS,
+                damageEventLifetimeMs: DAMAGE_EVENT_LIFETIME_MS,
+            },
+        ),
+    );
+}
+
+function buildStoreTickFramePatch(
+    state: GameState,
+    delta: number,
+    now: number,
+): Partial<GameState> | null {
+    return processTickFrame(state, delta, now, createStoreTickFrameRuntimeDeps({
+        shouldEnterGameOver,
+        applyEndgameFrame: (endgameState, currentNow) => buildStoreEndgameFramePatch(
+            endgameState,
+            currentNow,
+            {
+                fuseUpdateMs: ENDGAME_FUSE_UPDATE_MS,
+                messageIntervalMs: ENDGAME_MESSAGE_INTERVAL_MS,
+                finalDelayMs: ENDGAME_FINAL_DELAY_MS,
+                actions: ENDGAME_FUSE_ACTIONS,
+                playBuzz: playTeleport,
+                buildSpellEvent: (effect, level, x, y, ts, scale) =>
+                    buildEndgameSpellEvent(effect, level, x, y, ts, scale),
+                buildMessageResult: (message) => buildAttackResultMessage(message, true),
+            },
+        ),
+        applySleepFrame: (sleepState, currentNow) => buildStoreSleepFramePatch(
+            sleepState,
+            currentNow,
+            {
+                advanceSurvivalTime: (currentSleepState, stepCount) =>
+                    advanceSurvivalTimeRuntime(currentSleepState, stepCount, { sleeping: true }),
+                ageTimedEffectsByMs: (currentSleepState, advanceMs, sleepNow) =>
+                    ageTimedEffectsState(currentSleepState, advanceMs, sleepNow),
+                processPendingSensorEvents: (deltaSeconds, currentSleepState) =>
+                    processPendingSensorEventsSystem(
+                        deltaSeconds,
+                        currentSleepState.pendingSensorEvents,
+                        buildSensorStateSnapshot(currentSleepState),
+                        buildPendingWorldEventDeps(),
+                    ),
+                processPendingGeneratorSpawns: (deltaSeconds, currentSleepState) =>
+                    processPendingGeneratorSpawnsSystem(
+                        deltaSeconds,
+                        currentSleepState.pendingGeneratorSpawns,
+                        buildSensorStateSnapshot(currentSleepState),
+                        {
+                            canMaterializeReservedGeneratorSpawn: canApproximateOriginalReservedGeneratorSpawn,
+                            isGeneratorSpawnBlocked,
+                            createGeneratedCreatureGroupInstances,
+                            retrySeconds: ORIGINAL_MOVE_GROUP_RETRY_SECONDS,
+                            diffSensorState,
+                        },
+                    ),
+                applyCombatTick: buildCombatTickPatch,
+                isPartyRested: isPartyRestedRuntime,
+            },
+        ),
+        applyRegenTick: (regenState, movementDelta) => buildStoreRegenTickPatch(
+            regenState,
+            movementDelta,
+            {
+                originalTimerTickSeconds: ORIGINAL_TIMER_TICK_SECONDS,
+                advanceSurvivalTime: (currentRegenState, stepCount) =>
+                    advanceSurvivalTimeRuntime(currentRegenState, stepCount),
+            },
+        ),
+        applyMovementTick: (movementState, movementDelta) => tickMovementCooldown({
+            movementCooldown: movementState.movementCooldown,
+            delta: movementDelta,
+        }),
+        applyCombatTick: buildCombatTickPatch,
+        buildSensorStateSnapshot,
+        buildPendingWorldEventDeps,
+        processPendingSensorEvents: (pendingDelta, pendingSensorEvents, sensorState, deps) => processPendingSensorEventsSystem(
+            pendingDelta,
+            pendingSensorEvents,
+            sensorState,
+            deps,
+        ),
+        processPendingGeneratorSpawns: (pendingDelta, pendingGeneratorSpawns, sensorState, deps) => processPendingGeneratorSpawnsSystem(
+            pendingDelta,
+            pendingGeneratorSpawns,
+            sensorState,
+            deps,
+        ),
+        generatorRuntimeDeps: {
+            canMaterializeReservedGeneratorSpawn: canApproximateOriginalReservedGeneratorSpawn,
+            isGeneratorSpawnBlocked,
+            createGeneratedCreatureGroupInstances,
+            retrySeconds: ORIGINAL_MOVE_GROUP_RETRY_SECONDS,
+            diffSensorState,
+        },
+        applyImmediateTransportSquareEffects,
+    }));
+}
+
+function buildStoreExplorationRegenPatch(
+    state: GameState,
+    delta: number,
+): Partial<GameState> | null {
+    return buildStoreRegenTickPatch(
+        state,
+        delta,
+        {
+            originalTimerTickSeconds: ORIGINAL_TIMER_TICK_SECONDS,
+            advanceSurvivalTime: (currentState, stepCount) =>
+                advanceSurvivalTimeRuntime(currentState, stepCount),
+        },
+    );
+}
+
+function buildStorePersistedSavePayload(state: GameState): string {
+    return JSON.stringify(buildPersistedSaveDataSystem(state, {
+        creatureTimers,
+        creatureAttackWindows,
+        creatureConfusedUntil,
+        creatureFluxcageUntil,
+        creatureFrightenedUntil,
+        creatureLastSeenPartyPos,
+    }));
+}
+
+function buildStoreLoadedGamePatch(
+    data: ReturnType<typeof tryParsePersistedSaveDataSystem>,
+    now: number,
+) {
+    if (!data) return null;
+    const hydrated = hydratePersistedGameStateSystem(data, now);
+    restoreExternalCreatureRuntimeFromSaveSystem(data, {
+        creatureTimers,
+        creatureAttackWindows,
+        creatureConfusedUntil,
+        creatureFluxcageUntil,
+        creatureFrightenedUntil,
+        creatureLastSeenPartyPos,
+    });
+    return buildLoadedGameUiResetPatch({
+        ...hydrated,
+        pendingSensorEvents: hydrated.pendingSensorEvents as PendingSensorEvent[],
+        pendingGeneratorSpawns: hydrated.pendingGeneratorSpawns as PendingGeneratorSpawnEvent[],
+    });
+}
+
+function buildStoreMonsterTickPatch(
+    state: GameState,
+    delta: number,
+): Partial<GameState> | null {
+    if (state.optionsModalOpen) return null;
+    if (state.party.length === 0) return null;
+    return runMonsterTickRuntime(
+        createStoreMonsterTickRuntimeState(state),
+        delta,
+        createStoreMonsterTickRuntimeDeps({
+            getMap,
+            getCreatureDef: (typeId) => CREATURE_TYPES[typeId],
+            randomFraction: Math.random,
+            randomInt,
+            creatureTimers,
+            creatureLastSeenPartyPos,
+            creatureConfusedUntil,
+            creatureFluxcageUntil,
+            creatureFrightenedUntil,
+            creatureAttackWindows,
+            hasLineOfSight,
+            nextMonsterMoveDelaySeconds: getMonsterMoveDelaySecondsOriginal,
+            nextMonsterAttackDelaySeconds: getMonsterAttackDelaySecondsOriginal,
+            canCreatureShareTile,
+            canArchenemyDoubleMove: (
+                creatureState,
+                level,
+                x,
+                y,
+                direction,
+                creatures,
+                monsterWalkable,
+            ) => resolveArchenemyDoubleMoveDestinationOriginal(
+                creatureState,
+                level,
+                x,
+                y,
+                direction,
+                creatures,
+                monsterWalkable,
+            ),
+            chooseCreatureProjectileEffect: chooseOriginalCreatureProjectileEffect,
+            getCreatureSizeOnTile,
+            isCreatureCellOccupiedOnTile,
+            buildProjectile: (projectileState, creatureState, creatureDef, effect, targetChampionId, attackNowMs) =>
+                buildCreatureProjectile(
+                    projectileState,
+                    creatureState,
+                    creatureDef,
+                    effect,
+                    targetChampionId,
+                    attackNowMs,
+                    { randomInt },
+                ),
+            getEffectiveChampionStats: getEffectiveChampionStatsRuntime,
+            tryStealChampionItem,
+            ...createStoreMonsterTickStatefulDeps(state, {
+                resolveMonsterAttackAgainstChampionSystem: resolveMonsterAttackAgainstChampion,
+                createIncomingAttackDeps: (currentState) => ({
+                    randomInt,
+                    computeQuickness: computeOriginalQuicknessRuntime,
+                    getRuntimeBonuses: getChampionRuntimeBonuses,
+                    getEffectiveChampionStats: getEffectiveChampionStatsRuntime,
+                    chooseChampionWoundSlots: chooseChampionWoundSlotsFromZones,
+                    resolveIncomingAttack: (
+                        champion,
+                        currentVitals,
+                        rawAttack,
+                        attackType,
+                        allowedSlots,
+                        attackNowMs,
+                    ) => resolveChampionIncomingAttackRuntime(
+                        currentState,
+                        champion,
+                        currentVitals,
+                        rawAttack,
+                        attackType,
+                        allowedSlots,
+                        attackNowMs,
+                    ),
+                    clampVital,
+                    adjustByAttribute: adjustAttackByAttributeOriginal,
+                    applyPoison: applyPoisonCharacterOriginal,
+                }),
+                resolveCreatureTeleporterTransportSystem,
+                buildTerrainTransportDeps,
+            }),
+            buildChampionDamageEvent,
+            attackWindowMs: CREATURE_ATTACK_WINDOW_MS,
+            getTeleporter: getTeleporterSystem,
+            normalizeCreatureCellsOnTile,
+            buildFrightenedUntilMs: (baseNowMs) =>
+                baseNowMs + quantizeMsToOriginalTimerTicks((20 + randomInt(64)) * ORIGINAL_TIMER_TICK_MS),
+            buildDeathDrop: (deathInput, championId, nowMs) =>
+                buildDeathDropSystem(deathInput, championId, nowMs),
+            nowMs: () => Date.now(),
+            playTeleport,
+            playCreatureMove,
+            playCreatureAttack,
+            notifyCreatureAction,
+            playChampionWounded,
+        }),
+    );
+}
+
+function applyStoreFrontWallInteraction<TPatch extends Partial<GameState> & Record<string, unknown>>(
+    result: {
+        matched: boolean;
+        patch: TPatch | null;
+        shouldPlayPlate: boolean;
+    },
+    applyPatch: (patch: TPatch) => void,
+) {
+    return applyStoreFrontWallInteractionResult(result, {
+        applyPatch,
+        playPlate,
+    });
+}
+
+function buildStoreViAltarInteractionDeps() {
+    return {
+        getTile: (level: number, x: number, y: number) => getMap(level).tiles[y]?.[x],
+        isAltarWallFaceSystem,
+        buildBaseResurrectionPatch: (
+            currentState: GameState,
+            deadChampionId: number,
+            consumedItemId: string,
+            carriedChampionId: number | null,
+        ) =>
+            buildViAltarResurrectionPatchSystem(currentState, deadChampionId, consumedItemId, carriedChampionId, {
+                createChampionVitals,
+                maxFood: MAX_FOOD,
+                maxWater: MAX_WATER,
+            }),
+        decorateResurrectionPatch: decorateViAltarResurrectionPatch,
+    };
+}
+
+function buildStorePickupItemPatch(
+    state: GameState,
+    itemId: string,
+    championId: number,
+) {
+    return buildPickupItemToChampionRuntimePatch(state, itemId, championId, floorItemCommandDeps);
+}
+
+function buildStoreDropInventoryItemPatch(
+    state: GameState,
+    championId: number,
+    itemId: string,
+) {
+    return buildDropInventoryItemRuntimePatch(state, championId, itemId, floorItemCommandDeps);
+}
+
 const floorItemCommandDeps = createStoreFloorItemCommandDeps<
     CastResult,
     Partial<GameState>,
@@ -3376,7 +3792,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
 
     useItemOnFrontWall: (championId, itemId, fromSlot) => {
         const state = get();
-        return applyStoreFrontWallInteractionResult(
+        return applyStoreFrontWallInteraction(
             runStoreChampionItemOnFrontWall<GameState, SensorState, Partial<GameState>>(
                 state,
                 championId,
@@ -3384,26 +3800,20 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 fromSlot,
                 buildFrontWallInteractionDeps,
             ),
-            {
-                applyPatch: (patch) => set(patch),
-                playPlate,
-            },
+            (patch) => set(patch),
         );
     },
 
     useFloorItemOnFrontWall: (itemId, championId) => {
         const state = get();
-        return applyStoreFrontWallInteractionResult(
+        return applyStoreFrontWallInteraction(
             runStoreFloorItemOnFrontWall<GameState, SensorState, Partial<GameState>>(
                 state,
                 itemId,
                 championId,
                 buildFrontWallInteractionDeps,
             ),
-            {
-                applyPatch: (patch) => set(patch),
-                playPlate,
-            },
+            (patch) => set(patch),
         );
     },
 
@@ -3417,17 +3827,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             altarX,
             altarY,
             altarFace,
-            {
-                getTile: (level, x, y) => getMap(level).tiles[y]?.[x],
-                isAltarWallFaceSystem,
-                buildBaseResurrectionPatch: (currentState, deadChampionId, consumedItemId, carriedChampionId) =>
-                    buildViAltarResurrectionPatchSystem(currentState, deadChampionId, consumedItemId, carriedChampionId, {
-                        createChampionVitals,
-                        maxFood: MAX_FOOD,
-                        maxWater: MAX_WATER,
-                    }),
-                decorateResurrectionPatch: decorateViAltarResurrectionPatch,
-            },
+            buildStoreViAltarInteractionDeps(),
         );
         if (!patch) return false;
         set(patch);
@@ -3442,17 +3842,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             altarX,
             altarY,
             altarFace,
-            {
-                getTile: (level, x, y) => getMap(level).tiles[y]?.[x],
-                isAltarWallFaceSystem,
-                buildBaseResurrectionPatch: (currentState, deadChampionId, consumedItemId, carriedChampionId) =>
-                    buildViAltarResurrectionPatchSystem(currentState, deadChampionId, consumedItemId, carriedChampionId, {
-                        createChampionVitals,
-                        maxFood: MAX_FOOD,
-                        maxWater: MAX_WATER,
-                    }),
-                decorateResurrectionPatch: decorateViAltarResurrectionPatch,
-            },
+            buildStoreViAltarInteractionDeps(),
         );
         if (!patch) return false;
         set(patch);
@@ -3524,26 +3914,21 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
     pickupItem: (id) => set((state) => {
         const activeChampion = state.party[state.selectedChampionIndex];
         if (!activeChampion) return state;
-        const patch = buildPickupItemToChampionRuntimePatch(
-            state,
-            id,
-            activeChampion.id,
-            floorItemCommandDeps,
-        );
+        const patch = buildStorePickupItemPatch(state, id, activeChampion.id);
         return patch ? { ...state, ...patch } : state;
     }),
 
     pickupItemToChampion: (id, championId) => {
         const state = get();
-        const patch = buildPickupItemToChampionRuntimePatch(state, id, championId, floorItemCommandDeps);
+        const patch = buildStorePickupItemPatch(state, id, championId);
         if (!patch) return false;
         set(patch);
         return true;
     },
 
-    dropItem: (itemId, championId) => set((state) => {
-        return buildDropInventoryItemRuntimePatch(state, championId, itemId, floorItemCommandDeps) ?? state;
-    }),
+    dropItem: (itemId, championId) => set((state) =>
+        buildStoreDropInventoryItemPatch(state, championId, itemId) ?? state
+    ),
 
     dropCarriedItem: (championId, itemId, fromSlot) => {
         const state = get();
@@ -3703,199 +4088,28 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
 
     saveGame: (): boolean => {
         const state: GameState = get();
-        const payload = JSON.stringify(buildPersistedSaveDataSystem(state, {
-            creatureTimers,
-            creatureAttackWindows,
-            creatureConfusedUntil,
-            creatureFluxcageUntil,
-            creatureFrightenedUntil,
-            creatureLastSeenPartyPos,
-        }));
-        return writePersistedSave(payload);
+        return writePersistedSave(buildStorePersistedSavePayload(state));
     },
 
     loadGame: (): boolean => {
         const data = tryParsePersistedSaveDataSystem(readBestPersistedSave());
-        if (!data) return false;
-        const now = Date.now();
-        const hydrated = hydratePersistedGameStateSystem(data, now);
-        restoreExternalCreatureRuntimeFromSaveSystem(data, {
-            creatureTimers,
-            creatureAttackWindows,
-            creatureConfusedUntil,
-            creatureFluxcageUntil,
-            creatureFrightenedUntil,
-            creatureLastSeenPartyPos,
-        });
-        set(buildLoadedGameUiResetPatch({
-            ...hydrated,
-            pendingSensorEvents: hydrated.pendingSensorEvents as PendingSensorEvent[],
-            pendingGeneratorSpawns: hydrated.pendingGeneratorSpawns as PendingGeneratorSpawnEvent[],
-        }));
+        const patch = buildStoreLoadedGamePatch(data, Date.now());
+        if (!patch) return false;
+        set(patch);
         return true;
     },
 
     returnToTitle: () => set(buildReturnToTitlePatch()),
 
-    castSpell: (championId, runeIds) => set((state) => {
-        const now = Date.now();
-        const castRuntimePartyDamageDeps = buildRuntimePartyDamageDeps();
-        const castResult = buildStoreCastSpellRuntimeResult(
-            state,
-            championId,
-            runeIds,
-            now,
-            createStoreCastSpellRuntimeDeps(state, {
-                applyPartySpellBacklashDamage: (currentState, championVitals, effect, rolledDamage, currentNow) =>
-                    castRuntimePartyDamageDeps.applyPartySpellBacklashDamage(
-                        currentState as GameState,
-                        championVitals,
-                        effect,
-                        rolledDamage,
-                        currentNow,
-                    ),
-            }, {
-                buildUnknownCombinationPatch: (currentNow) => ({
-                    lastCastResult: { success: false, message: 'Combinaison de runes inconnue.', ts: currentNow },
-                }),
-                getChampionMasteryLevel: (currentState, targetChampionId, champion, skill) =>
-                    getChampionMasteryLevel(currentState as GameState, targetChampionId, champion, skill),
-                rollCastCheck: (champion, equip, activePotionBoosts, vitals, spell, skillLevel) =>
-                    rollOriginalSpellCastSuccess(
-                        champion,
-                        equip,
-                        activePotionBoosts,
-                        vitals,
-                        spell,
-                        skillLevel,
-                    ),
-                buildChampionSkillExperiencePatch: (currentState, targetChampionId, skill, amount) =>
-                    buildChampionSkillExperiencePatchOriginal(currentState as GameState, targetChampionId, skill, amount),
-                originalTimerTicksToSeconds,
-                createChampionCombatState,
-                randomInt,
-                quantizeDurationMs: quantizeMsToOriginalTimerTicks,
-                buildDroppedItem,
-                getEffectiveChampionStats: getEffectiveChampionStatsRuntime,
-                getImmediateDoor: getClosedDoorAt,
-                isImmediatelyBlocked: isBlockedForProjectile,
-                buildBlockedPoisonCloud: buildActivePoisonCloud,
-                mergeBasePatch: (basePatch, nextPatch) => ({
-                    ...basePatch,
-                    ...nextPatch,
-                }),
-            }),
-        );
-        if (!castResult) {
-            return state;
-        }
-        playCastSpellDoorMotionResult(castResult, {
-            playDoorMotion,
-            getDoorSoundVolume,
-            doorToggleSoundDurationMs: DOOR_TOGGLE_SOUND_DURATION_MS,
-        });
-        return castResult.patch as Partial<GameState>;
-    }),
+    castSpell: (championId, runeIds) => set((state) =>
+        buildStoreCastSpellPatch(state, championId, runeIds, Date.now()) ?? state
+    ),
 
-    tickFrame: (delta, now) => set((state) => {
-        return processTickFrame(state, delta, now, createStoreTickFrameRuntimeDeps({
-            shouldEnterGameOver,
-            applyEndgameFrame: (endgameState, currentNow) => buildStoreEndgameFramePatch(
-                endgameState,
-                currentNow,
-                {
-                    fuseUpdateMs: ENDGAME_FUSE_UPDATE_MS,
-                    messageIntervalMs: ENDGAME_MESSAGE_INTERVAL_MS,
-                    finalDelayMs: ENDGAME_FINAL_DELAY_MS,
-                    actions: ENDGAME_FUSE_ACTIONS,
-                    playBuzz: playTeleport,
-                    buildSpellEvent: (effect, level, x, y, ts, scale) =>
-                        buildEndgameSpellEvent(effect, level, x, y, ts, scale),
-                    buildMessageResult: (message) => buildAttackResultMessage(message, true),
-                },
-            ),
-            applySleepFrame: (sleepState, currentNow) => buildStoreSleepFramePatch(
-                sleepState,
-                currentNow,
-                {
-                    advanceSurvivalTime: (currentSleepState, stepCount) =>
-                        advanceSurvivalTimeRuntime(currentSleepState, stepCount, { sleeping: true }),
-                    ageTimedEffectsByMs: (currentSleepState, advanceMs, sleepNow) =>
-                        ageTimedEffectsState(currentSleepState, advanceMs, sleepNow),
-                    processPendingSensorEvents: (deltaSeconds, currentSleepState) =>
-                        processPendingSensorEventsSystem(
-                            deltaSeconds,
-                            currentSleepState.pendingSensorEvents,
-                            buildSensorStateSnapshot(currentSleepState),
-                            buildPendingWorldEventDeps(),
-                        ),
-                    processPendingGeneratorSpawns: (deltaSeconds, currentSleepState) =>
-                        processPendingGeneratorSpawnsSystem(
-                            deltaSeconds,
-                            currentSleepState.pendingGeneratorSpawns,
-                            buildSensorStateSnapshot(currentSleepState),
-                            {
-                                canMaterializeReservedGeneratorSpawn: canApproximateOriginalReservedGeneratorSpawn,
-                                isGeneratorSpawnBlocked,
-                                createGeneratedCreatureGroupInstances,
-                                retrySeconds: ORIGINAL_MOVE_GROUP_RETRY_SECONDS,
-                                diffSensorState,
-                            },
-                        ),
-                    applyCombatTick: buildCombatTickPatch,
-                    isPartyRested: isPartyRestedRuntime,
-                },
-            ),
-            applyRegenTick: (regenState, movementDelta) => buildStoreRegenTickPatch(
-                regenState,
-                movementDelta,
-                {
-                    originalTimerTickSeconds: ORIGINAL_TIMER_TICK_SECONDS,
-                    advanceSurvivalTime: (currentRegenState, stepCount) =>
-                        advanceSurvivalTimeRuntime(currentRegenState, stepCount),
-                },
-            ),
-            applyMovementTick: (movementState, movementDelta) => tickMovementCooldown({
-                movementCooldown: movementState.movementCooldown,
-                delta: movementDelta,
-            }),
-            applyCombatTick: buildCombatTickPatch,
-            buildSensorStateSnapshot,
-            buildPendingWorldEventDeps,
-            processPendingSensorEvents: (pendingDelta, pendingSensorEvents, sensorState, deps) => processPendingSensorEventsSystem(
-                pendingDelta,
-                pendingSensorEvents,
-                sensorState,
-                deps,
-            ),
-            processPendingGeneratorSpawns: (pendingDelta, pendingGeneratorSpawns, sensorState, deps) => processPendingGeneratorSpawnsSystem(
-                pendingDelta,
-                pendingGeneratorSpawns,
-                sensorState,
-                deps,
-            ),
-            generatorRuntimeDeps: {
-                canMaterializeReservedGeneratorSpawn: canApproximateOriginalReservedGeneratorSpawn,
-                isGeneratorSpawnBlocked,
-                createGeneratedCreatureGroupInstances,
-                retrySeconds: ORIGINAL_MOVE_GROUP_RETRY_SECONDS,
-                diffSensorState,
-            },
-            applyImmediateTransportSquareEffects,
-        }));
-    }),
+    tickFrame: (delta, now) => set((state) => buildStoreTickFramePatch(state, delta, now) ?? state),
 
     regenTick: (delta) => set((state) => {
         if (state.optionsModalOpen) return state;
-        return buildStoreRegenTickPatch(
-            state,
-            delta,
-            {
-                originalTimerTickSeconds: ORIGINAL_TIMER_TICK_SECONDS,
-                advanceSurvivalTime: (currentState, stepCount) =>
-                    advanceSurvivalTimeRuntime(currentState, stepCount),
-            },
-        ) ?? state;
+        return buildStoreExplorationRegenPatch(state, delta) ?? state;
     }),
 
     tickMovement: (delta) => set((state) => {
@@ -3933,166 +4147,11 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
     }),
 
     // ─── Monster AI tick ─────────────────────────────────────────────────────
-    tickMonsters: (delta) => set((state) => {
-        if (state.optionsModalOpen) return state;
-        if (state.party.length === 0) return state;
-        return runMonsterTickRuntime(
-            createStoreMonsterTickRuntimeState(state),
-            delta,
-            createStoreMonsterTickRuntimeDeps({
-                getMap,
-                getCreatureDef: (typeId) => CREATURE_TYPES[typeId],
-                randomFraction: Math.random,
-                randomInt,
-                creatureTimers,
-                creatureLastSeenPartyPos,
-                creatureConfusedUntil,
-                creatureFluxcageUntil,
-                creatureFrightenedUntil,
-                creatureAttackWindows,
-                hasLineOfSight,
-                nextMonsterMoveDelaySeconds: getMonsterMoveDelaySecondsOriginal,
-                nextMonsterAttackDelaySeconds: getMonsterAttackDelaySecondsOriginal,
-                canCreatureShareTile,
-                canArchenemyDoubleMove: (
-                    creatureState,
-                    level,
-                    x,
-                    y,
-                    direction,
-                    creatures,
-                    monsterWalkable,
-                ) => resolveArchenemyDoubleMoveDestinationOriginal(
-                    creatureState,
-                    level,
-                    x,
-                    y,
-                    direction,
-                    creatures,
-                    monsterWalkable,
-                ),
-                chooseCreatureProjectileEffect: chooseOriginalCreatureProjectileEffect,
-                getCreatureSizeOnTile,
-                isCreatureCellOccupiedOnTile,
-                buildProjectile: (projectileState, creatureState, creatureDef, effect, targetChampionId, attackNowMs) =>
-                    buildCreatureProjectile(
-                        projectileState,
-                        creatureState,
-                        creatureDef,
-                        effect,
-                        targetChampionId,
-                        attackNowMs,
-                        { randomInt },
-                    ),
-                getEffectiveChampionStats: getEffectiveChampionStatsRuntime,
-                tryStealChampionItem,
-                ...createStoreMonsterTickStatefulDeps(state, {
-                    resolveMonsterAttackAgainstChampionSystem: resolveMonsterAttackAgainstChampion,
-                    createIncomingAttackDeps: (currentState) => ({
-                        randomInt,
-                        computeQuickness: computeOriginalQuicknessRuntime,
-                        getRuntimeBonuses: getChampionRuntimeBonuses,
-                        getEffectiveChampionStats: getEffectiveChampionStatsRuntime,
-                        chooseChampionWoundSlots: chooseChampionWoundSlotsFromZones,
-                        resolveIncomingAttack: (
-                            champion,
-                            currentVitals,
-                            rawAttack,
-                            attackType,
-                            allowedSlots,
-                            attackNowMs,
-                        ) => resolveChampionIncomingAttackRuntime(
-                            currentState,
-                            champion,
-                            currentVitals,
-                            rawAttack,
-                            attackType,
-                            allowedSlots,
-                            attackNowMs,
-                        ),
-                        clampVital,
-                        adjustByAttribute: adjustAttackByAttributeOriginal,
-                        applyPoison: applyPoisonCharacterOriginal,
-                    }),
-                    resolveCreatureTeleporterTransportSystem,
-                    buildTerrainTransportDeps,
-                }),
-                buildChampionDamageEvent,
-                attackWindowMs: CREATURE_ATTACK_WINDOW_MS,
-                getTeleporter: getTeleporterSystem,
-                normalizeCreatureCellsOnTile,
-                buildFrightenedUntilMs: (baseNowMs) =>
-                    baseNowMs + quantizeMsToOriginalTimerTicks((20 + randomInt(64)) * ORIGINAL_TIMER_TICK_MS),
-                buildDeathDrop: (deathInput, championId, nowMs) =>
-                    buildDeathDropSystem(deathInput, championId, nowMs),
-                nowMs: () => Date.now(),
-                playTeleport,
-                playCreatureMove,
-                playCreatureAttack,
-                notifyCreatureAction,
-                playChampionWounded,
-            }),
-        ) ?? state;
-    }),
+    tickMonsters: (delta) => set((state) => buildStoreMonsterTickPatch(state, delta) ?? state),
 
     // ─── Combat tick (cooldowns + damage event cleanup) ───────────────────────
     // ─── Spell tick (lights expiry + projectile movement) ─────────────────────
-    tickSpells: (now) => set((state) => {
-        const tickSpellsPartyDamageDeps = createStoreTickSpellsRuntimePartyDamageDeps(
-            buildRuntimePartyDamageDeps(),
-            { attackType: 'Normal', allowedSlots: [] },
-        );
-        return buildStoreTickSpellsRuntimePatch(
-            state,
-            now,
-            createStoreTickSpellsRuntimeDeps(
-                tickSpellsPartyDamageDeps,
-                createStoreTickSpellsStatefulDeps({
-                    buildTerrainTransportDeps,
-                    resolveProjectileTeleporterTransportSystem,
-                    buildIncomingAttackState: (currentState, incomingState) => ({
-                        ...(currentState as GameState),
-                        championEquipment: incomingState.championEquipment,
-                        activePotionBoosts: incomingState.activePotionBoosts,
-                        activeShields: incomingState.activeShields,
-                    }),
-                    resolveChampionIncomingAttackRuntime: (
-                        incomingAttackState,
-                        targetChampion,
-                        currentVitals,
-                        rawAttack,
-                        attackType,
-                        attackNow,
-                    ) => resolveChampionIncomingAttackRuntime(
-                        incomingAttackState,
-                        targetChampion,
-                        currentVitals,
-                        rawAttack,
-                        attackType as IncomingAttackType,
-                        ['head', 'torso'],
-                        attackNow,
-                    ),
-                }),
-                {
-                getMap,
-                randomInt,
-                buildActivePoisonCloud,
-                buildDroppedItem,
-                buildChampionDamageEvent,
-                applyPoisonCharacter: applyPoisonCharacterOriginal,
-                buildDeathDrop: buildDeathDropSystem,
-                isLikelyNonMaterial,
-                dropCreatureCarriedItems,
-                buildDeathDustEvent,
-                buildCreatureDamageEvent,
-                creatureAttackWindows,
-                onDoorMotion: playDoorMotion,
-                getDoorSoundVolume,
-                footprintLifetimeMs: FOOTPRINT_LIFETIME_MS,
-                damageEventLifetimeMs: DAMAGE_EVENT_LIFETIME_MS,
-            }),
-        );
-    }),
+    tickSpells: (now) => set((state) => buildStoreTickSpellsPatch(state, now) ?? state),
 
     tickCombat: (delta) => set((state) => {
         if (state.optionsModalOpen) return state;

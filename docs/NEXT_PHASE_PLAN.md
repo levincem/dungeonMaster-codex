@@ -104,6 +104,9 @@ Actions:
 - considerer aussi comme entamee la sortie des wrappers `regen / sleep / endgame` vers `src/engine/systems/storeTimeRuntime.ts`, ce qui retire du `store` trois helpers de plomberie delegataires et clarifie le cablage de `tickFrame` et `regenTick`
 - considerer aussi comme entamee la sortie du builder de deps `pickup / drop` au sol vers `src/engine/systems/storeFloorItemRuntime.ts`, ce qui retire du `store` un autre objet inline de plomberie autour des commandes d'objets au sol
 - considerer aussi comme entamee la factorisation du cablage repetitif des deplacements party directement dans `src/engine/store.ts`, ainsi que la suppression des wrappers morts les plus simples; les reliquats encore "faciles" sont maintenant surtout de petits builders ou callbacks stateful, plus des blocs de duplication massifs
+- considerer aussi comme entamee la sortie des gros pavés inline restants de `castSpell`, `tickSpells`, `tickFrame` et `regenTick` vers des helpers locaux du `store`, afin de laisser les actions Zustand plus proches d'un pur role d'orchestration avant d'attaquer les extractions plus structurelles
+- considerer aussi comme entamee la meme approche sur `tickMonsters` et sur le petit bloc `front wall / Vi altar`, ce qui laisse surtout dans le `store` des utilitaires d'assemblage plus fins et quelques actions encore modestement denses
+- considerer aussi comme entamee la meme approche sur `saveGame / loadGame / pickupItem / pickupItemToChampion / dropItem`, afin de faire disparaitre encore un peu de plomberie repetitive avant de viser les derniers blocs plus structurels
 - conserver les helpers purs comme points de verite
 - supprimer les reliquats morts ou trompeurs quand ils n'ont plus d'appelants
 
