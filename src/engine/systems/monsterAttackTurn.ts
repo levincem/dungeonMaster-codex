@@ -1,7 +1,7 @@
 import type { CreatureDef } from '../../data/creatures';
 import type { Champion } from '../../types/champion';
 import type { ChampionEquipment, CreatureCell, CreatureInstance, FloorItem } from '../../types/game';
-import type { ActivePotionBoost, ChampionVitals, DamageEvent, Projectile } from '../runtimeTypes';
+import type { ActivePotionBoost, ChampionVitals, DamageEvent, Direction, Projectile } from '../runtimeTypes';
 import { resolveCreatureAttackOpportunity } from './creatureAttackOpportunity';
 import { resolveCreatureAttackOutcomeState } from './creatureAttackOutcomeState';
 import { resolveCreatureAttackStartState } from './creatureAttackStartState';
@@ -22,6 +22,7 @@ type MonsterAttackTurnArgs = {
     championVitals: Record<number, ChampionVitals>;
     damageEvents: DamageEvent[];
     party: Champion[];
+    partyDirection: Direction;
     activePotionBoosts: ActivePotionBoost[];
     partyPosition: [number, number];
     movedPosition: { x: number; y: number };
@@ -160,6 +161,11 @@ export function resolveMonsterAttackTurn(
         args.attackerDef.attackAnyChampion,
         args.attackerDef.attackFromAllSides,
         (maxExclusive) => deps.randomInt(maxExclusive),
+        {
+            partyPosition: args.partyPosition,
+            attackerPosition: args.movedPosition,
+            partyDirection: args.partyDirection,
+        },
     );
 
     if (!target) {

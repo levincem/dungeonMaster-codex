@@ -1,7 +1,7 @@
 import type { CreatureDef } from '../../data/creatures';
 import type { Champion } from '../../types/champion';
 import type { ChampionEquipment, CreatureInstance, FloorItem, GameMap } from '../../types/game';
-import type { ActivePotionBoost, ChampionVitals, DamageEvent, Projectile } from '../runtimeTypes';
+import type { ActivePotionBoost, ChampionVitals, DamageEvent, Direction, Projectile } from '../runtimeTypes';
 import type { CreatureMovementStateResult } from './creatureMovementState';
 import { processMonsterTickChampionDeaths } from './monsterDeathProcessing';
 import { resolveMonsterSingleTurn } from './monsterSingleTurn';
@@ -13,6 +13,7 @@ type RuntimeRememberedPartyPosition = { x: number; y: number; expiresAt: number 
 type MonsterTickRuntimeState = {
     level: number;
     position: [number, number];
+    direction: Direction;
     party: Champion[];
     creatures: CreatureInstance[];
     championVitals: Record<number, ChampionVitals>;
@@ -159,6 +160,7 @@ export function runMonsterTickRuntime(
                 level: state.level,
                 levelDifficulty: deps.getMap(state.level).difficulty * 2,
                 partyPosition: state.position,
+                partyDirection: state.direction,
                 party: state.party,
                 activePotionBoosts: state.activePotionBoosts,
                 invisibleUntil: state.invisibleUntil,

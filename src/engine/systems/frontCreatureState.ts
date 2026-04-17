@@ -5,6 +5,12 @@ import type { ChampionVitals } from '../runtimeTypes';
 
 export type CreatureColumn = 'left' | 'right' | 'center';
 
+type PartySlotLayout = {
+    x: number;
+    y: number;
+    column: Exclude<CreatureColumn, 'center'>;
+};
+
 const CREATURE_CELL_PRIORITY: Record<CreatureCell, number> = {
     center: 0,
     frontLeft: 1,
@@ -12,6 +18,13 @@ const CREATURE_CELL_PRIORITY: Record<CreatureCell, number> = {
     backLeft: 3,
     backRight: 4,
 };
+
+const PARTY_SLOT_LAYOUT: readonly PartySlotLayout[] = [
+    { x: -1, y: -1, column: 'left' },
+    { x: 1, y: -1, column: 'right' },
+    { x: -1, y: 1, column: 'left' },
+    { x: 1, y: 1, column: 'right' },
+];
 
 export function compareCreatureCells(a: CreatureCell, b: CreatureCell): number {
     return CREATURE_CELL_PRIORITY[a] - CREATURE_CELL_PRIORITY[b];
@@ -60,6 +73,35 @@ export function creaturesInFront(
         .sort((a, b) => compareCreatureCells(a.cell, b.cell));
 }
 
+function rotateWorldDeltaToPartyLocal(
+    dx: number,
+    dy: number,
+    direction: Direction,
+): { x: number; y: number } {
+    switch (direction) {
+        case 'EAST':
+            return { x: dy, y: -dx };
+        case 'SOUTH':
+            return { x: -dx, y: -dy };
+        case 'WEST':
+            return { x: -dy, y: dx };
+        case 'NORTH':
+        default:
+            return { x: dx, y: dy };
+    }
+}
+
+function getCreatureCellLocalOffset(cell: CreatureCell): { x: number; y: number } {
+    if (cell === 'center') {
+        return { x: 0, y: 0 };
+    }
+
+    return {
+        x: getCreatureColumn(cell) === 'left' ? -1 : 1,
+        y: cell.startsWith('front') ? -1 : 1,
+    };
+}
+
 export function selectCreatureAttackTarget(
     party: Champion[],
     vitals: Record<number, ChampionVitals>,
@@ -67,12 +109,51 @@ export function selectCreatureAttackTarget(
     attackAnyChampion = false,
     attackFromAllSides = false,
     randomInt: (maxExclusive: number) => number = Math.floor,
+    context?: {
+        partyPosition: [number, number];
+        attackerPosition: { x: number; y: number };
+        partyDirection: Direction;
+    },
 ): Champion | null {
     const livingChampions = party.filter((champion) => (vitals[champion.id]?.hp ?? 0) > 0);
     if (livingChampions.length === 0) return null;
 
     if (attackAnyChampion || attackFromAllSides) {
         return livingChampions[randomInt(livingChampions.length)] ?? null;
+    }
+
+    if (context) {
+        const [partyY, partyX] = context.partyPosition;
+        const localTileDelta = rotateWorldDeltaToPartyLocal(
+            context.attackerPosition.x - partyX,
+            context.attackerPosition.y - partyY,
+            context.partyDirection,
+        );
+        const cellOffset = getCreatureCellLocalOffset(cell);
+        const sourceX = (localTileDelta.x * 4) + cellOffset.x;
+        const sourceY = (localTileDelta.y * 4) + cellOffset.y;
+        const preferredColumn = getCreatureColumn(cell);
+
+        const ranked = party
+            .map((champion, index) => ({ champion, index, slot: PARTY_SLOT_LAYOUT[index] }))
+            .filter(({ champion, slot }) => Boolean(slot) && (vitals[champion.id]?.hp ?? 0) > 0)
+            .sort((a, b) => {
+                const aDistance = ((a.slot!.x - sourceX) ** 2) + ((a.slot!.y - sourceY) ** 2);
+                const bDistance = ((b.slot!.x - sourceX) ** 2) + ((b.slot!.y - sourceY) ** 2);
+                if (aDistance !== bDistance) {
+                    return aDistance - bDistance;
+                }
+
+                const aColumnMatch = a.slot!.column === preferredColumn ? 0 : 1;
+                const bColumnMatch = b.slot!.column === preferredColumn ? 0 : 1;
+                if (aColumnMatch !== bColumnMatch) {
+                    return aColumnMatch - bColumnMatch;
+                }
+
+                return a.index - b.index;
+            });
+
+        return ranked[0]?.champion ?? null;
     }
 
     const preferredColumn = getCreatureColumn(cell);

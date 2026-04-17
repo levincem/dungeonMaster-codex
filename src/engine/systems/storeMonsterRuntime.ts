@@ -58,6 +58,7 @@ export function createStoreMonsterTickRuntimeState<TState extends MonsterTickRun
     return {
         level: state.level,
         position: state.position,
+        direction: state.direction,
         party: state.party,
         creatures: state.creatures,
         championVitals: state.championVitals,

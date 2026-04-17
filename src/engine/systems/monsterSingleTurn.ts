@@ -8,7 +8,7 @@ import type {
     GameTile,
     TeleporterObject,
 } from '../../types/game';
-import type { ActivePotionBoost, ChampionVitals, DamageEvent, Projectile } from '../runtimeTypes';
+import type { ActivePotionBoost, ChampionVitals, DamageEvent, Direction, Projectile } from '../runtimeTypes';
 import type { CreatureMovementStateResult } from './creatureMovementState';
 import { resolveMonsterAttackTurn } from './monsterAttackTurn';
 import { resolveMonsterDestinationTurn } from './monsterDestinationTurn';
@@ -29,6 +29,7 @@ type MonsterSingleTurnArgs = {
     level: number;
     levelDifficulty: number;
     partyPosition: [number, number];
+    partyDirection: Direction;
     party: Champion[];
     activePotionBoosts: ActivePotionBoost[];
     invisibleUntil: number;
@@ -257,6 +258,7 @@ export function resolveMonsterSingleTurn(
             championVitals,
             damageEvents,
             party: args.party,
+            partyDirection: args.partyDirection,
             activePotionBoosts: args.activePotionBoosts,
             partyPosition: args.partyPosition,
             movedPosition: { x, y },
