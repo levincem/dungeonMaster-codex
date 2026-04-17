@@ -50,7 +50,7 @@ type IncomingAttackDeps = {
     getActiveShieldDefense: (
         shields: PartyShield[],
         nowMs: number,
-        shieldKind: 'fire' | 'magic',
+        shieldKind: 'physical' | 'fire' | 'magic',
         championId?: number,
     ) => number;
     scaleOriginalAttack: (value: number, shift: number, factor: number) => number;
@@ -120,6 +120,7 @@ export function resolveChampionIncomingAttack(
             }
             defense = Math.floor(defense / allowedSlots.length);
         }
+        defense += deps.getActiveShieldDefense(state.activeShields, nowMs, 'physical', champion.id);
 
         switch (attackType) {
             case 'Mental':

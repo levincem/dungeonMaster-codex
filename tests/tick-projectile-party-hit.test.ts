@@ -282,3 +282,108 @@ test('applyProjectilePartyHit turns poison cloud impacts into lingering active c
     assert.equal(result.activePoisonClouds[0]?.remainingAttack, 5);
     assert.equal(result.spellVisualEvents[0]?.effect, 'poison_cloud');
 });
+
+test('applyProjectilePartyHit preserves direct-hit nextVitals even when no damage event is emitted', () => {
+    const result = applyProjectilePartyHit(
+        createProjectile({ effect: 'lightning' }),
+        0,
+        3,
+        3,
+        10,
+        1000,
+        createState(),
+        {
+            resolveProjectileImpact: () => ({ damage: 5, attackType: 'Magic', poisonAttack: 0 }),
+            resolveChampionIncomingAttack: (_state, _champion, currentVitals) => ({
+                damage: 0,
+                nextVitals: {
+                    ...currentVitals,
+                    currentStats: {
+                        ...currentVitals.currentStats,
+                        luck: currentVitals.currentStats.luck + 2,
+                    },
+                },
+            }),
+            buildChampionDamageEvent: () => {
+                throw new Error('no direct event expected');
+            },
+            applyPoisonCharacter: (vitals) => vitals,
+            randomInt: () => 0,
+            buildDeathDrop: () => {
+                throw new Error('death drop should not happen here');
+            },
+            applyPartySpellBacklashDamage: () => null,
+            applyPartyWideIncomingAttack: () => null,
+            rollExplosionBurstAttack: () => 0,
+            buildActivePoisonCloud: () => {
+                throw new Error('poison cloud should not be created');
+            },
+            getThrownExplosionVisualScale: () => 1,
+            gridSize: 2,
+        },
+    );
+
+    assert.equal(result.championVitals[1]?.currentStats.luck, 12);
+    assert.equal(result.damageEvents.length, 0);
+});
+
+test('applyProjectilePartyHit only drops a poisoned champion once when poison delivers the kill', () => {
+    let deathDropCalls = 0;
+
+    const result = applyProjectilePartyHit(
+        createProjectile({ effect: 'poison_bolt' }),
+        0,
+        3,
+        3,
+        10,
+        1000,
+        createState({
+            championVitals: {
+                1: createVitals({ hp: 2 }),
+            },
+        }),
+        {
+            resolveProjectileImpact: () => ({ damage: 1, attackType: 'Magic', poisonAttack: 64 }),
+            resolveChampionIncomingAttack: (_state, _champion, currentVitals) => ({
+                damage: 1,
+                nextVitals: { ...currentVitals, hp: currentVitals.hp - 1 },
+            }),
+            buildChampionDamageEvent: (level, championId, amount) => ({
+                id: 'damage-1',
+                level,
+                target: 'champion',
+                championId,
+                amount,
+                ts: 1000,
+            }),
+            applyPoisonCharacter: (vitals) => ({
+                ...vitals,
+                hp: 0,
+                poisonEntries: [...vitals.poisonEntries, { remaining: 63, nextTickIn: 4 }],
+            }),
+            randomInt: () => 1,
+            buildDeathDrop: (state, championId) => {
+                deathDropCalls += 1;
+                return {
+                    party: state.party.filter((champion) => champion.id !== championId),
+                    floorItems: state.floorItems,
+                    championInventories: state.championInventories,
+                    championEquipment: state.championEquipment,
+                    deadChampions: { ...state.deadChampions, [championId]: createChampion(championId) },
+                };
+            },
+            applyPartySpellBacklashDamage: () => null,
+            applyPartyWideIncomingAttack: () => null,
+            rollExplosionBurstAttack: () => 0,
+            buildActivePoisonCloud: () => {
+                throw new Error('poison cloud should not be created');
+            },
+            getThrownExplosionVisualScale: () => 1,
+            gridSize: 2,
+        },
+    );
+
+    assert.equal(deathDropCalls, 1);
+    assert.equal(result.party.length, 0);
+    assert.equal(result.deadChampions[1]?.id, 1);
+});

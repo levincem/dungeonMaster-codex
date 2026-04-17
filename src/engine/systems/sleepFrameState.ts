@@ -27,7 +27,7 @@ type GeneratorPatch<TState extends SleepFrameStateBase> = {
 
 type SleepFrameDeps<TState extends SleepFrameStateBase> = {
     advanceSurvivalTime: (state: TState, stepCount: number) => AdvancedSleepState<TState>;
-    ageTimedEffectsByMs: (state: TState, advanceMs: number) => Partial<TState>;
+    ageTimedEffectsByMs: (state: TState, advanceMs: number, now: number) => Partial<TState>;
     processPendingSensorEvents: (deltaSeconds: number, state: TState) => SensorPatch<TState>;
     processPendingGeneratorSpawns: (deltaSeconds: number, state: TState) => GeneratorPatch<TState>;
     applyCombatTick: (state: TState, delta: number, now: number) => Partial<TState> | null;
@@ -42,7 +42,7 @@ export function buildSleepFramePatch<TState extends SleepFrameStateBase>(
     if (!state.sleeping) return null;
 
     const advanced = deps.advanceSurvivalTime(state, 1);
-    const timedEffects = deps.ageTimedEffectsByMs(state, advanced.advancedMs);
+    const timedEffects = deps.ageTimedEffectsByMs(state, advanced.advancedMs, now);
     const pendingPatch = deps.processPendingSensorEvents(advanced.advancedMs / 1000, state);
     const generatorPatch = deps.processPendingGeneratorSpawns(advanced.advancedMs / 1000, state);
     const hasPendingPatch =

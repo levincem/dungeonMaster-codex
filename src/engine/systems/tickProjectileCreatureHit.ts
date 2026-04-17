@@ -201,7 +201,7 @@ export function applyProjectileCreatureHit(
     }
 
     if (totalDamage > 0) {
-        damageEvents = [...damageEvents, deps.buildCreatureDamageEvent(projectileLevel, x, y, totalDamage)];
+        damageEvents = [...damageEvents, deps.buildCreatureDamageEvent(projectileLevel, x, y, totalDamage, hit.id)];
     }
 
     const creatureImpactEffect = projectile.effect === 'physical' ? projectile.explosionOnImpact : projectile.effect;

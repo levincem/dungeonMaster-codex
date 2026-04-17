@@ -14,6 +14,20 @@ const FRONT_WALL_FACE_BY_DIRECTION: Record<Direction, CardinalDir> = {
     WEST: 'East',
 };
 
+const LEFT_WALL_FACE_BY_DIRECTION: Record<Direction, CardinalDir> = {
+    NORTH: 'East',
+    SOUTH: 'West',
+    EAST: 'South',
+    WEST: 'North',
+};
+
+const RIGHT_WALL_FACE_BY_DIRECTION: Record<Direction, CardinalDir> = {
+    NORTH: 'West',
+    SOUTH: 'East',
+    EAST: 'North',
+    WEST: 'South',
+};
+
 export function resolveFrontWallTarget(
     position: [number, number],
     direction: Direction,
@@ -23,6 +37,30 @@ export function resolveFrontWallTarget(
         wallY: direction === 'NORTH' ? y - 1 : direction === 'SOUTH' ? y + 1 : y,
         wallX: direction === 'EAST' ? x + 1 : direction === 'WEST' ? x - 1 : x,
         face: FRONT_WALL_FACE_BY_DIRECTION[direction],
+    };
+}
+
+export function resolveLeftWallTarget(
+    position: [number, number],
+    direction: Direction,
+): FrontWallTarget {
+    const [y, x] = position;
+    return {
+        wallY: direction === 'EAST' ? y - 1 : direction === 'WEST' ? y + 1 : y,
+        wallX: direction === 'NORTH' ? x - 1 : direction === 'SOUTH' ? x + 1 : x,
+        face: LEFT_WALL_FACE_BY_DIRECTION[direction],
+    };
+}
+
+export function resolveRightWallTarget(
+    position: [number, number],
+    direction: Direction,
+): FrontWallTarget {
+    const [y, x] = position;
+    return {
+        wallY: direction === 'EAST' ? y + 1 : direction === 'WEST' ? y - 1 : y,
+        wallX: direction === 'NORTH' ? x + 1 : direction === 'SOUTH' ? x - 1 : x,
+        face: RIGHT_WALL_FACE_BY_DIRECTION[direction],
     };
 }
 

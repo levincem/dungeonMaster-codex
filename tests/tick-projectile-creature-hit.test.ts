@@ -109,6 +109,7 @@ test('applyProjectileCreatureHit damages a creature, drops loot on kill, and emi
 
     assert.equal(result.creatures[0]?.alive, false);
     assert.equal(result.damageEvents.length, 1);
+    assert.equal(result.damageEvents[0]?.creatureId, 'creature-1');
     assert.equal(result.spellVisualEvents.length, 1);
     assert.equal(result.spellVisualEvents[0]?.kind, 'death');
 });
@@ -144,13 +145,14 @@ test('applyProjectileCreatureHit handles disrupt_nonmaterial as an area hit on n
                 ts: 1000,
                 kind: 'death',
             }),
-            buildCreatureDamageEvent: (level, x, y, amount) => ({
+            buildCreatureDamageEvent: (level, x, y, amount, creatureId) => ({
                 id: 'damage-1',
                 level,
                 target: 'creature',
                 x,
                 y,
                 amount,
+                creatureId,
                 ts: 1000,
             }),
             buildLingeringPoisonCloud: () => null,
@@ -205,13 +207,14 @@ test('applyProjectileCreatureHit creates poison clouds from poison impacts and l
                 ts: 1000,
                 kind: 'death',
             }),
-            buildCreatureDamageEvent: (level, x, y, amount) => ({
+            buildCreatureDamageEvent: (level, x, y, amount, creatureId) => ({
                 id: 'damage-1',
                 level,
                 target: 'creature',
                 x,
                 y,
                 amount,
+                creatureId,
                 ts: 1000,
             }),
             buildLingeringPoisonCloud: (level, x, y, initialAttack, nextPulseGameTick, visualScale) => ({
@@ -239,6 +242,7 @@ test('applyProjectileCreatureHit creates poison clouds from poison impacts and l
     );
 
     assert.equal(result.activePoisonClouds.length, 1);
+    assert.equal(result.damageEvents[0]?.creatureId, 'creature-1');
     assert.equal(result.activePoisonClouds[0]?.remainingAttack, 5);
     assert.equal(result.damageEvents[0]?.amount, 9);
     assert.equal(result.spellVisualEvents[0]?.effect, 'poison_cloud');

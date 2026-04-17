@@ -1,0 +1,85 @@
+{
+  "manual": {
+    "title": "Player Guide",
+    "sections": [
+      {
+        "id": "team",
+        "title": "Create Your Party",
+        "blocks": [
+          "Choose up to 4 champions.",
+          "Each character has different stats and skills.",
+          "A balanced party is essential for survival.",
+          "You can reincarnate a champion for better stats."
+        ]
+      },
+      {
+        "id": "leader",
+        "title": "Party Leader",
+        "blocks": [
+          "The selected character is the leader.",
+          "They represent the party in some interactions.",
+          "Change the leader depending on the situation."
+        ]
+      },
+      {
+        "id": "controls",
+        "title": "Movement and Interaction",
+        "blocks": [
+          "Movement is grid-based, one step at a time.",
+          "Turn left or right to change direction.",
+          "Click on objects and walls to interact.",
+          "Carefully explore every area."
+        ]
+      },
+      {
+        "id": "combat",
+        "title": "Real-Time Combat",
+        "blocks": [
+          "Combat happens in real time.",
+          "Each character can attack using their hands.",
+          "Actions consume stamina.",
+          "Positioning is key to survival."
+        ]
+      },
+      {
+        "id": "progression",
+        "title": "Progression",
+        "blocks": [
+          "Skills improve through use.",
+          "Fighting, casting, and actions increase abilities.",
+          "There is no traditional leveling system."
+        ]
+      },
+      {
+        "id": "magic",
+        "title": "Magic",
+        "blocks": [
+          "Spells are created using runes.",
+          "Combine power, element, and form.",
+          "Stronger spells consume more mana.",
+          "Experiment to discover new effects."
+        ]
+      },
+      {
+        "id": "inventory",
+        "title": "Inventory",
+        "blocks": [
+          "Each character has their own inventory.",
+          "Carried weight affects performance.",
+          "Organize items to stay efficient.",
+          "Equip weapons and armor to improve survival."
+        ]
+      },
+      {
+        "id": "exploration",
+        "title": "Exploration",
+        "blocks": [
+          "Look for hidden buttons and secret paths.",
+          "Observe walls and floors carefully.",
+          "Solve puzzles to progress.",
+          "Try different actions if you are stuck."
+        ]
+      }
+    ]
+  }
+}

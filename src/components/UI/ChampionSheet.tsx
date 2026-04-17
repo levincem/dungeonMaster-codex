@@ -5,6 +5,7 @@ import { getGameMap } from '../../data/mapLoader';
 import { getMechanismsAt } from '../../data/mechanisms';
 import { hasOriginalWallOverlayAt } from '../../data/originalWallOverlays';
 import { getDisplayedItemName } from '../../data/itemDisplay';
+import { isAltarWallFace as isAltarWallFaceSystem } from '../../engine/systems/resurrection';
 import {
     CRITICAL_FOOD_THRESHOLD,
     CRITICAL_WATER_THRESHOLD,
@@ -241,6 +242,9 @@ const EquipSlot: React.FC<{
 }> = ({ slotKey, item, championId, size = 48, highlight = false, wounded = false, onDrop, onUnequip, onDragBegin, onDragEnd, labels, unequipTitle }) => {
     const [over, setOver] = useState(false);
     const borderColor = over ? T.gold : wounded ? T.red : item ? T.panelBorder : T.slotBorder;
+    const emptyHandImageSrc = !item && (slotKey === 'leftHand' || slotKey === 'rightHand')
+        ? miscPath(slotKey === 'leftHand' ? 'handLeft.png' : 'handRight.png')
+        : null;
     const payload: DragPayload | null = item
         ? { itemId: item.id, fromChampionId: championId, fromSlot: slotKey }
         : null;
@@ -266,7 +270,38 @@ const EquipSlot: React.FC<{
                     <button onClick={onUnequip} title={unequipTitle} draggable={false} style={{ position: 'absolute', top: 1, right: 2, background: 'none', border: 'none', color: T.goldDim, fontSize: 8, cursor: 'pointer', padding: 0, lineHeight: 1, zIndex: 2 }}>x</button>
                 </>
             ) : (
-                <div style={{ width: size - 18, height: size - 18, border: `1px dashed ${wounded ? T.red : T.slotBorder}`, borderRadius: 2, opacity: wounded ? 0.65 : 0.35, background: 'rgba(255,255,255,0.65)' }} />
+                <>
+                    {emptyHandImageSrc && (
+                        <img
+                            src={emptyHandImageSrc}
+                            alt=""
+                            draggable={false}
+                            style={{
+                                position: 'absolute',
+                                inset: 0,
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'contain',
+                                opacity: 0.18,
+                                imageRendering: 'crisp-edges',
+                                pointerEvents: 'none',
+                                transform: slotKey === 'leftHand' ? 'translateX(-3px)' : 'translateX(3px)',
+                            }}
+                        />
+                    )}
+                    <div
+                        style={{
+                            width: size - 18,
+                            height: size - 18,
+                            border: `1px dashed ${wounded ? T.red : T.slotBorder}`,
+                            borderRadius: 2,
+                            opacity: wounded ? 0.65 : 0.35,
+                            background: 'rgba(255,255,255,0.65)',
+                            position: 'relative',
+                            zIndex: 1,
+                        }}
+                    />
+                </>
             )}
         </div>
     );
@@ -472,6 +507,9 @@ export const ChampionSheet: React.FC = () => {
     const facingFountain = !!frontTile &&
         (frontTile.type === 'Wall' || frontTile.type === 'TrickWall') &&
         hasOriginalWallOverlayAt(level, frontTileX, frontTileY, frontWallFace, 'Fountain');
+    const facingAltar = !!frontTile &&
+        (frontTile.type === 'Wall' || frontTile.type === 'TrickWall') &&
+        isAltarWallFaceSystem(level, frontTileX, frontTileY, frontWallFace, (mapLevel, tileX, tileY) => getGameMap(mapLevel).tiles[tileY]?.[tileX]);
     const frontWallItemMechanism = !!frontTile &&
         (frontTile.type === 'Wall' || frontTile.type === 'TrickWall')
         ? getMechanismsAt(level, frontTileX, frontTileY, frontWallFace).find((mechanism) =>
@@ -734,6 +772,14 @@ export const ChampionSheet: React.FC = () => {
                                         borderColor="#3aa0d8"
                                         highlight={highlightFountain}
                                         onDrop={handleFillAtFountain}
+                                    />
+                                ) : facingAltar ? (
+                                    <DropZone
+                                        icon="VI"
+                                        label={text.altar}
+                                        title={text.altarTitle}
+                                        borderColor="#d4a840"
+                                        onDrop={handleUseOnWallMechanism}
                                     />
                                 ) : frontWallItemMechanism ? (
                                     <DropZone

@@ -1,0 +1,1681 @@
+{
+  "songIndex": 5,
+  "name": "Dungeon Theme E",
+  "offset": "0x01e9a0",
+  "byteLength": 19992,
+  "stats": {
+    "eventCount": 4998,
+    "totalDelayTicks": 165616510,
+    "assumedClockHz": 560,
+    "durationSecondsAtAssumed560Hz": 295743.8,
+    "durationFormattedAtAssumed560Hz": "4929:03",
+    "maxSingleDelay": 65527,
+    "keyOnEvents": 61,
+    "keyOffEvents": 58,
+    "activeChannels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "topRegisters": [
+      {
+        "reg": 143,
+        "name": "Op15_SL_RR",
+        "count": 396
+      },
+      {
+        "reg": 128,
+        "name": "Op0_SL_RR",
+        "count": 375
+      },
+      {
+        "reg": 8,
+        "name": "CSM_NoteSel",
+        "count": 153
+      },
+      {
+        "reg": 248,
+        "name": "Reg_F8",
+        "count": 136
+      },
+      {
+        "reg": 129,
+        "name": "Op1_SL_RR",
+        "count": 110
+      },
+      {
+        "reg": 142,
+        "name": "Op14_SL_RR",
+        "count": 84
+      },
+      {
+        "reg": 120,
+        "name": "Reg_78",
+        "count": 82
+      },
+      {
+        "reg": 104,
+        "name": "Op8_AR_DR",
+        "count": 75
+      },
+      {
+        "reg": 246,
+        "name": "Reg_F6",
+        "count": 74
+      },
+      {
+        "reg": 10,
+        "name": "Reg_0A",
+        "count": 73
+      }
+    ]
+  },
+  "first200Events": [
+    {
+      "offset": "0x01e9a0",
+      "reg": "0x01",
+      "regName": "WaveformSelectEnable",
+      "val": "0x80",
+      "delay": 36777,
+      "delayMs": 65673
+    },
+    {
+      "offset": "0x01e9a4",
+      "reg": "0x78",
+      "regName": "Reg_78",
+      "val": "0xf2",
+      "delay": 19599,
+      "delayMs": 34998
+    },
+    {
+      "offset": "0x01e9a8",
+      "reg": "0xf8",
+      "regName": "Reg_F8",
+      "val": "0xf6",
+      "delay": 2344,
+      "delayMs": 4186
+    },
+    {
+      "offset": "0x01e9ac",
+      "reg": "0x80",
+      "regName": "Op0_SL_RR",
+      "val": "0xf8",
+      "delay": 14349,
+      "delayMs": 25623
+    },
+    {
+      "offset": "0x01e9b0",
+      "reg": "0xef",
+      "regName": "Op15_Waveform",
+      "val": "0x0d",
+      "delay": 45952,
+      "delayMs": 82057
+    },
+    {
+      "offset": "0x01e9b4",
+      "reg": "0x28",
+      "regName": "Op8_AM_VIB_EG",
+      "val": "0x0a",
+      "delay": 51328,
+      "delayMs": 91657
+    },
+    {
+      "offset": "0x01e9b8",
+      "reg": "0x09",
+      "regName": "Reg_09",
+      "val": "0x28",
+      "delay": 36852,
+      "delayMs": 65807
+    },
+    {
+      "offset": "0x01e9bc",
+      "reg": "0x28",
+      "regName": "Op8_AM_VIB_EG",
+      "val": "0xf7",
+      "delay": 27791,
+      "delayMs": 49627
+    },
+    {
+      "offset": "0x01e9c0",
+      "reg": "0x1b",
+      "regName": "Reg_1B",
+      "val": "0x07",
+      "delay": 3848,
+      "delayMs": 6871
+    },
+    {
+      "offset": "0x01e9c4",
+      "reg": "0xd2",
+      "regName": "Reg_D2",
+      "val": "0xe8",
+      "delay": 29193,
+      "delayMs": 52130
+    },
+    {
+      "offset": "0x01e9c8",
+      "reg": "0xf3",
+      "regName": "Op19_Waveform",
+      "val": "0x55",
+      "delay": 19087,
+      "delayMs": 34084
+    },
+    {
+      "offset": "0x01e9cc",
+      "reg": "0x8e",
+      "regName": "Op14_SL_RR",
+      "val": "0x8b",
+      "delay": 11840,
+      "delayMs": 21143
+    },
+    {
+      "offset": "0x01e9d0",
+      "reg": "0x68",
+      "regName": "Op8_AR_DR",
+      "val": "0x09",
+      "delay": 47232,
+      "delayMs": 84343
+    },
+    {
+      "offset": "0x01e9d4",
+      "reg": "0xf7",
+      "regName": "Reg_F7",
+      "val": "0x8f",
+      "delay": 62584,
+      "delayMs": 111757
+    },
+    {
+      "offset": "0x01e9d8",
+      "reg": "0x07",
+      "regName": "Reg_07",
+      "val": "0x19",
+      "delay": 32804,
+      "delayMs": 58579
+    },
+    {
+      "offset": "0x01e9dc",
+      "reg": "0x88",
+      "regName": "Op8_SL_RR",
+      "val": "0xf2",
+      "delay": 22671,
+      "delayMs": 40484
+    },
+    {
+      "offset": "0x01e9e0",
+      "reg": "0xf2",
+      "regName": "Op18_Waveform",
+      "val": "0x8f",
+      "delay": 29789,
+      "delayMs": 53195
+    },
+    {
+      "offset": "0x01e9e4",
+      "reg": "0x68",
+      "regName": "Op8_AR_DR",
+      "val": "0x0b",
+      "delay": 34432,
+      "delayMs": 61486
+    },
+    {
+      "offset": "0x01e9e8",
+      "reg": "0x49",
+      "regName": "Op9_KSL_TL",
+      "val": "0x12",
+      "delay": 48624,
+      "delayMs": 86829
+    },
+    {
+      "offset": "0x01e9ec",
+      "reg": "0xe8",
+      "regName": "Op8_Waveform",
+      "val": "0x0c",
+      "delay": 35727,
+      "delayMs": 63798
+    },
+    {
+      "offset": "0x01e9f0",
+      "reg": "0x8f",
+      "regName": "Op15_SL_RR",
+      "val": "0x18",
+      "delay": 59887,
+      "delayMs": 106941
+    },
+    {
+      "offset": "0x01e9f4",
+      "reg": "0x13",
+      "regName": "Reg_13",
+      "val": "0x58",
+      "delay": 32784,
+      "delayMs": 58543
+    },
+    {
+      "offset": "0x01e9f8",
+      "reg": "0xa8",
+      "regName": "Chan8_FreqLo",
+      "val": "0x0a",
+      "delay": 17677,
+      "delayMs": 31566
+    },
+    {
+      "offset": "0x01e9fc",
+      "reg": "0x2c",
+      "regName": "Op12_AM_VIB_EG",
+      "val": "0x2c",
+      "delay": 63688,
+      "delayMs": 113729
+    },
+    {
+      "offset": "0x01ea00",
+      "reg": "0x8f",
+      "regName": "Op15_SL_RR",
+      "val": "0x18",
+      "delay": 36855,
+      "delayMs": 65813
+    },
+    {
+      "offset": "0x01ea04",
+      "reg": "0x7b",
+      "regName": "Reg_7B",
+      "val": "0x21",
+      "delay": 32994,
+      "delayMs": 58918
+    },
+    {
+      "offset": "0x01ea08",
+      "reg": "0x98",
+      "regName": "Reg_98",
+      "val": "0x0a",
+      "delay": 42368,
+      "delayMs": 75657
+    },
+    {
+      "offset": "0x01ea0c",
+      "reg": "0x14",
+      "regName": "Reg_14",
+      "val": "0x80",
+      "delay": 2200,
+      "delayMs": 3929
+    },
+    {
+      "offset": "0x01ea10",
+      "reg": "0x6d",
+      "regName": "Op13_AR_DR",
+      "val": "0xcd",
+      "delay": 63432,
+      "delayMs": 113271
+    },
+    {
+      "offset": "0x01ea14",
+      "reg": "0x8f",
+      "regName": "Op15_SL_RR",
+      "val": "0x58",
+      "delay": 39660,
+      "delayMs": 70821
+    },
+    {
+      "offset": "0x01ea18",
+      "reg": "0x28",
+      "regName": "Op8_AM_VIB_EG",
+      "val": "0x08",
+      "delay": 2296,
+      "delayMs": 4100
+    },
+    {
+      "offset": "0x01ea1c",
+      "reg": "0x80",
+      "regName": "Op0_SL_RR",
+      "val": "0x98",
+      "delay": 32781,
+      "delayMs": 58538
+    },
+    {
+      "offset": "0x01ea20",
+      "reg": "0x8c",
+      "regName": "Op12_SL_RR",
+      "val": "0xee",
+      "delay": 25175,
+      "delayMs": 44955
+    },
+    {
+      "offset": "0x01ea24",
+      "reg": "0xf3",
+      "regName": "Op19_Waveform",
+      "val": "0xdd",
+      "delay": 14479,
+      "delayMs": 25855
+    },
+    {
+      "offset": "0x01ea28",
+      "reg": "0xf4",
+      "regName": "Op20_Waveform",
+      "val": "0xa8",
+      "delay": 16904,
+      "delayMs": 30186
+    },
+    {
+      "offset": "0x01ea2c",
+      "reg": "0xcf",
+      "regName": "Reg_CF",
+      "val": "0x80",
+      "delay": 4248,
+      "delayMs": 7586
+    },
+    {
+      "offset": "0x01ea30",
+      "reg": "0x25",
+      "regName": "Op5_AM_VIB_EG",
+      "val": "0x4b",
+      "delay": 20238,
+      "delayMs": 36139
+    },
+    {
+      "offset": "0x01ea34",
+      "reg": "0x2e",
+      "regName": "Op14_AM_VIB_EG",
+      "val": "0xe8",
+      "delay": 36855,
+      "delayMs": 65813
+    },
+    {
+      "offset": "0x01ea38",
+      "reg": "0x61",
+      "regName": "Op1_AR_DR",
+      "val": "0x56",
+      "delay": 21281,
+      "delayMs": 38002
+    },
+    {
+      "offset": "0x01ea3c",
+      "reg": "0x4e",
+      "regName": "Op14_KSL_TL",
+      "val": "0xb0",
+      "delay": 10356,
+      "delayMs": 18493
+    },
+    {
+      "offset": "0x01ea40",
+      "reg": "0x08",
+      "regName": "CSM_NoteSel",
+      "val": "0xee",
+      "delay": 63496,
+      "delayMs": 113386
+    },
+    {
+      "offset": "0x01ea44",
+      "reg": "0xd8",
+      "regName": "Reg_D8",
+      "val": "0xf1",
+      "delay": 17039,
+      "delayMs": 30427
+    },
+    {
+      "offset": "0x01ea48",
+      "reg": "0x14",
+      "regName": "Reg_14",
+      "val": "0x77",
+      "delay": 57203,
+      "delayMs": 102148
+    },
+    {
+      "offset": "0x01ea4c",
+      "reg": "0x51",
+      "regName": "Op17_KSL_TL",
+      "val": "0x0c",
+      "delay": 56799,
+      "delayMs": 101427
+    },
+    {
+      "offset": "0x01ea50",
+      "reg": "0xa8",
+      "regName": "Chan8_FreqLo",
+      "val": "0xf6",
+      "delay": 63630,
+      "delayMs": 113625
+    },
+    {
+      "offset": "0x01ea54",
+      "reg": "0xf2",
+      "regName": "Op18_Waveform",
+      "val": "0x96",
+      "delay": 63616,
+      "delayMs": 113600
+    },
+    {
+      "offset": "0x01ea58",
+      "reg": "0x0a",
+      "regName": "Reg_0A",
+      "val": "0x80",
+      "delay": 32930,
+      "delayMs": 58804
+    },
+    {
+      "offset": "0x01ea5c",
+      "reg": "0x88",
+      "regName": "Op8_SL_RR",
+      "val": "0x09",
+      "delay": 36677,
+      "delayMs": 65495
+    },
+    {
+      "offset": "0x01ea60",
+      "reg": "0x78",
+      "regName": "Reg_78",
+      "val": "0xf8",
+      "delay": 59428,
+      "delayMs": 106121
+    },
+    {
+      "offset": "0x01ea64",
+      "reg": "0xf6",
+      "regName": "Reg_F6",
+      "val": "0x8f",
+      "delay": 63352,
+      "delayMs": 113129
+    },
+    {
+      "offset": "0x01ea68",
+      "reg": "0xd8",
+      "regName": "Reg_D8",
+      "val": "0xf6",
+      "delay": 12687,
+      "delayMs": 22655
+    },
+    {
+      "offset": "0x01ea6c",
+      "reg": "0xc6",
+      "regName": "Chan6_FB_Algo",
+      "val": "0x1e",
+      "delay": 47232,
+      "delayMs": 84343
+    },
+    {
+      "offset": "0x01ea70",
+      "reg": "0x09",
+      "regName": "Reg_09",
+      "val": "0x80",
+      "delay": 58503,
+      "delayMs": 104470
+    },
+    {
+      "offset": "0x01ea74",
+      "reg": "0x28",
+      "regName": "Op8_AM_VIB_EG",
+      "val": "0x09",
+      "delay": 36723,
+      "delayMs": 65577
+    },
+    {
+      "offset": "0x01ea78",
+      "reg": "0x88",
+      "regName": "Op8_SL_RR",
+      "val": "0xf7",
+      "delay": 36778,
+      "delayMs": 65675
+    },
+    {
+      "offset": "0x01ea7c",
+      "reg": "0x78",
+      "regName": "Reg_78",
+      "val": "0xf2",
+      "delay": 28559,
+      "delayMs": 50998
+    },
+    {
+      "offset": "0x01ea80",
+      "reg": "0x53",
+      "regName": "Op19_KSL_TL",
+      "val": "0x70",
+      "delay": 59476,
+      "delayMs": 106207
+    },
+    {
+      "offset": "0x01ea84",
+      "reg": "0x09",
+      "regName": "Reg_09",
+      "val": "0x80",
+      "delay": 32909,
+      "delayMs": 58766
+    },
+    {
+      "offset": "0x01ea88",
+      "reg": "0xa1",
+      "regName": "Chan1_FreqLo",
+      "val": "0x27",
+      "delay": 51294,
+      "delayMs": 91596
+    },
+    {
+      "offset": "0x01ea8c",
+      "reg": "0xec",
+      "regName": "Op12_Waveform",
+      "val": "0x8e",
+      "delay": 62360,
+      "delayMs": 111357
+    },
+    {
+      "offset": "0x01ea90",
+      "reg": "0xf4",
+      "regName": "Op20_Waveform",
+      "val": "0x6d",
+      "delay": 2776,
+      "delayMs": 4957
+    },
+    {
+      "offset": "0x01ea94",
+      "reg": "0x18",
+      "regName": "Reg_18",
+      "val": "0x0b",
+      "delay": 24628,
+      "delayMs": 43979
+    },
+    {
+      "offset": "0x01ea98",
+      "reg": "0x28",
+      "regName": "Op8_AM_VIB_EG",
+      "val": "0x09",
+      "delay": 43558,
+      "delayMs": 77782
+    },
+    {
+      "offset": "0x01ea9c",
+      "reg": "0x8f",
+      "regName": "Op15_SL_RR",
+      "val": "0x59",
+      "delay": 19602,
+      "delayMs": 35004
+    },
+    {
+      "offset": "0x01eaa0",
+      "reg": "0x80",
+      "regName": "Op0_SL_RR",
+      "val": "0xa4",
+      "delay": 49476,
+      "delayMs": 88350
+    },
+    {
+      "offset": "0x01eaa4",
+      "reg": "0x2b",
+      "regName": "Op11_AM_VIB_EG",
+      "val": "0x80",
+      "delay": 32903,
+      "delayMs": 58755
+    },
+    {
+      "offset": "0x01eaa8",
+      "reg": "0x8f",
+      "regName": "Op15_SL_RR",
+      "val": "0xe8",
+      "delay": 29176,
+      "delayMs": 52100
+    },
+    {
+      "offset": "0x01eaac",
+      "reg": "0x8f",
+      "regName": "Op15_SL_RR",
+      "val": "0x58",
+      "delay": 36855,
+      "delayMs": 65813
+    },
+    {
+      "offset": "0x01eab0",
+      "reg": "0x61",
+      "regName": "Op1_AR_DR",
+      "val": "0x81",
+      "delay": 2584,
+      "delayMs": 4614
+    },
+    {
+      "offset": "0x01eab4",
+      "reg": "0x45",
+      "regName": "Op5_KSL_TL",
+      "val": "0xa1",
+      "delay": 13936,
+      "delayMs": 24886
+    },
+    {
+      "offset": "0x01eab8",
+      "reg": "0xf8",
+      "regName": "Reg_F8",
+      "val": "0x09",
+      "delay": 52925,
+      "delayMs": 94509
+    },
+    {
+      "offset": "0x01eabc",
+      "reg": "0xb8",
+      "regName": "Chan8_KeyOn_FreqHi",
+      "val": "0xf1",
+      "delay": 65422,
+      "delayMs": 116825
+    },
+    {
+      "offset": "0x01eac0",
+      "reg": "0x80",
+      "regName": "Op0_SL_RR",
+      "val": "0x98",
+      "delay": 28937,
+      "delayMs": 51673
+    },
+    {
+      "offset": "0x01eac4",
+      "reg": "0xb8",
+      "regName": "Chan8_KeyOn_FreqHi",
+      "val": "0x0f",
+      "delay": 54656,
+      "delayMs": 97600
+    },
+    {
+      "offset": "0x01eac8",
+      "reg": "0x58",
+      "regName": "Reg_58",
+      "val": "0xf7",
+      "delay": 19618,
+      "delayMs": 35032
+    },
+    {
+      "offset": "0x01eacc",
+      "reg": "0xc8",
+      "regName": "Chan8_FB_Algo",
+      "val": "0xf1",
+      "delay": 36817,
+      "delayMs": 65745
+    },
+    {
+      "offset": "0x01ead0",
+      "reg": "0x28",
+      "regName": "Op8_AM_VIB_EG",
+      "val": "0xf3",
+      "delay": 63384,
+      "delayMs": 113186
+    },
+    {
+      "offset": "0x01ead4",
+      "reg": "0x7d",
+      "regName": "Reg_7D",
+      "val": "0x18",
+      "delay": 32779,
+      "delayMs": 58534
+    },
+    {
+      "offset": "0x01ead8",
+      "reg": "0xb8",
+      "regName": "Chan8_KeyOn_FreqHi",
+      "val": "0x09",
+      "delay": 2174,
+      "delayMs": 3882
+    },
+    {
+      "offset": "0x01eadc",
+      "reg": "0x0e",
+      "regName": "Reg_0E",
+      "val": "0x55",
+      "delay": 63480,
+      "delayMs": 113357
+    },
+    {
+      "offset": "0x01eae0",
+      "reg": "0xad",
+      "regName": "Reg_AD",
+      "val": "0x98",
+      "delay": 36599,
+      "delayMs": 65355
+    },
+    {
+      "offset": "0x01eae4",
+      "reg": "0xb8",
+      "regName": "Chan8_KeyOn_FreqHi",
+      "val": "0xf7",
+      "delay": 26052,
+      "delayMs": 46521
+    },
+    {
+      "offset": "0x01eae8",
+      "reg": "0x0d",
+      "regName": "Reg_0D",
+      "val": "0x38",
+      "delay": 32776,
+      "delayMs": 58529
+    },
+    {
+      "offset": "0x01eaec",
+      "reg": "0xde",
+      "regName": "Reg_DE",
+      "val": "0x8f",
+      "delay": 14419,
+      "delayMs": 25748
+    },
+    {
+      "offset": "0x01eaf0",
+      "reg": "0x0a",
+      "regName": "Reg_0A",
+      "val": "0x80",
+      "delay": 3994,
+      "delayMs": 7132
+    },
+    {
+      "offset": "0x01eaf4",
+      "reg": "0xa8",
+      "regName": "Chan8_FreqLo",
+      "val": "0xf0",
+      "delay": 14479,
+      "delayMs": 25855
+    },
+    {
+      "offset": "0x01eaf8",
+      "reg": "0xf6",
+      "regName": "Reg_F6",
+      "val": "0x28",
+      "delay": 44811,
+      "delayMs": 80020
+    },
+    {
+      "offset": "0x01eafc",
+      "reg": "0x0e",
+      "regName": "Reg_0E",
+      "val": "0x80",
+      "delay": 3796,
+      "delayMs": 6779
+    },
+    {
+      "offset": "0x01eb00",
+      "reg": "0x28",
+      "regName": "Op8_AM_VIB_EG",
+      "val": "0x0a",
+      "delay": 2177,
+      "delayMs": 3888
+    },
+    {
+      "offset": "0x01eb04",
+      "reg": "0x08",
+      "regName": "CSM_NoteSel",
+      "val": "0x8f",
+      "delay": 40572,
+      "delayMs": 72450
+    },
+    {
+      "offset": "0x01eb08",
+      "reg": "0x28",
+      "regName": "Op8_AM_VIB_EG",
+      "val": "0xf6",
+      "delay": 58025,
+      "delayMs": 103616
+    },
+    {
+      "offset": "0x01eb0c",
+      "reg": "0xe3",
+      "regName": "Op3_Waveform",
+      "val": "0xbf",
+      "delay": 23825,
+      "delayMs": 42545
+    },
+    {
+      "offset": "0x01eb10",
+      "reg": "0x45",
+      "regName": "Op5_KSL_TL",
+      "val": "0x80",
+      "delay": 50593,
+      "delayMs": 90345
+    },
+    {
+      "offset": "0x01eb14",
+      "reg": "0xcb",
+      "regName": "Reg_CB",
+      "val": "0x98",
+      "delay": 63732,
+      "delayMs": 113807
+    },
+    {
+      "offset": "0x01eb18",
+      "reg": "0x0b",
+      "regName": "Reg_0B",
+      "val": "0x6b",
+      "delay": 32849,
+      "delayMs": 58659
+    },
+    {
+      "offset": "0x01eb1c",
+      "reg": "0xa8",
+      "regName": "Chan8_FreqLo",
+      "val": "0x0f",
+      "delay": 50123,
+      "delayMs": 89505
+    },
+    {
+      "offset": "0x01eb20",
+      "reg": "0x80",
+      "regName": "Op0_SL_RR",
+      "val": "0xb8",
+      "delay": 15883,
+      "delayMs": 28363
+    },
+    {
+      "offset": "0x01eb24",
+      "reg": "0xe8",
+      "regName": "Op8_Waveform",
+      "val": "0xf6",
+      "delay": 18575,
+      "delayMs": 33170
+    },
+    {
+      "offset": "0x01eb28",
+      "reg": "0xf0",
+      "regName": "Op16_Waveform",
+      "val": "0x8f",
+      "delay": 2392,
+      "delayMs": 4271
+    },
+    {
+      "offset": "0x01eb2c",
+      "reg": "0x57",
+      "regName": "Reg_57",
+      "val": "0x77",
+      "delay": 46976,
+      "delayMs": 83886
+    },
+    {
+      "offset": "0x01eb30",
+      "reg": "0x80",
+      "regName": "Op0_SL_RR",
+      "val": "0xc3",
+      "delay": 63496,
+      "delayMs": 113386
+    },
+    {
+      "offset": "0x01eb34",
+      "reg": "0xb3",
+      "regName": "Chan3_KeyOn_FreqHi",
+      "val": "0x25",
+      "delay": 30863,
+      "delayMs": 55113
+    },
+    {
+      "offset": "0x01eb38",
+      "reg": "0xf8",
+      "regName": "Reg_F8",
+      "val": "0x4a",
+      "delay": 60376,
+      "delayMs": 107814
+    },
+    {
+      "offset": "0x01eb3c",
+      "reg": "0x8f",
+      "regName": "Op15_SL_RR",
+      "val": "0x51",
+      "delay": 47232,
+      "delayMs": 84343
+    },
+    {
+      "offset": "0x01eb40",
+      "reg": "0x0a",
+      "regName": "Reg_0A",
+      "val": "0x54",
+      "delay": 2600,
+      "delayMs": 4643
+    },
+    {
+      "offset": "0x01eb44",
+      "reg": "0x80",
+      "regName": "Op0_SL_RR",
+      "val": "0x94",
+      "delay": 45184,
+      "delayMs": 80686
+    },
+    {
+      "offset": "0x01eb48",
+      "reg": "0x65",
+      "regName": "Op5_AR_DR",
+      "val": "0xdb",
+      "delay": 62664,
+      "delayMs": 111900
+    },
+    {
+      "offset": "0x01eb4c",
+      "reg": "0x8e",
+      "regName": "Op14_SL_RR",
+      "val": "0x98",
+      "delay": 36850,
+      "delayMs": 65804
+    },
+    {
+      "offset": "0x01eb50",
+      "reg": "0x1e",
+      "regName": "Reg_1E",
+      "val": "0x41",
+      "delay": 63039,
+      "delayMs": 112570
+    },
+    {
+      "offset": "0x01eb54",
+      "reg": "0x38",
+      "regName": "Reg_38",
+      "val": "0x0c",
+      "delay": 45636,
+      "delayMs": 81493
+    },
+    {
+      "offset": "0x01eb58",
+      "reg": "0x68",
+      "regName": "Op8_AR_DR",
+      "val": "0x08",
+      "delay": 62824,
+      "delayMs": 112186
+    },
+    {
+      "offset": "0x01eb5c",
+      "reg": "0x8f",
+      "regName": "Op15_SL_RR",
+      "val": "0x78",
+      "delay": 36855,
+      "delayMs": 65813
+    },
+    {
+      "offset": "0x01eb60",
+      "reg": "0x6a",
+      "regName": "Op10_AR_DR",
+      "val": "0x8f",
+      "delay": 63512,
+      "delayMs": 113414
+    },
+    {
+      "offset": "0x01eb64",
+      "reg": "0x8f",
+      "regName": "Op15_SL_RR",
+      "val": "0x52",
+      "delay": 32851,
+      "delayMs": 58663
+    },
+    {
+      "offset": "0x01eb68",
+      "reg": "0xe1",
+      "regName": "Op1_Waveform",
+      "val": "0x62",
+      "delay": 10227,
+      "delayMs": 18263
+    },
+    {
+      "offset": "0x01eb6c",
+      "reg": "0x1c",
+      "regName": "Reg_1C",
+      "val": "0x7f",
+      "delay": 62744,
+      "delayMs": 112043
+    },
+    {
+      "offset": "0x01eb70",
+      "reg": "0x8f",
+      "regName": "Op15_SL_RR",
+      "val": "0x29",
+      "delay": 8194,
+      "delayMs": 14632
+    },
+    {
+      "offset": "0x01eb74",
+      "reg": "0xc2",
+      "regName": "Chan2_FB_Algo",
+      "val": "0x34",
+      "delay": 47729,
+      "delayMs": 85230
+    },
+    {
+      "offset": "0x01eb78",
+      "reg": "0x03",
+      "regName": "TimerCount2",
+      "val": "0x57",
+      "delay": 36814,
+      "delayMs": 65739
+    },
+    {
+      "offset": "0x01eb7c",
+      "reg": "0x48",
+      "regName": "Op8_KSL_TL",
+      "val": "0xf6",
+      "delay": 20962,
+      "delayMs": 37432
+    },
+    {
+      "offset": "0x01eb80",
+      "reg": "0xdf",
+      "regName": "Reg_DF",
+      "val": "0x16",
+      "delay": 51761,
+      "delayMs": 92430
+    },
+    {
+      "offset": "0x01eb84",
+      "reg": "0x68",
+      "regName": "Op8_AR_DR",
+      "val": "0x09",
+      "delay": 58752,
+      "delayMs": 104914
+    },
+    {
+      "offset": "0x01eb88",
+      "reg": "0xe9",
+      "regName": "Op9_Waveform",
+      "val": "0xcb",
+      "delay": 14479,
+      "delayMs": 25855
+    },
+    {
+      "offset": "0x01eb8c",
+      "reg": "0xf7",
+      "regName": "Reg_F7",
+      "val": "0xd2",
+      "delay": 32887,
+      "delayMs": 58727
+    },
+    {
+      "offset": "0x01eb90",
+      "reg": "0x97",
+      "regName": "Reg_97",
+      "val": "0x71",
+      "delay": 11845,
+      "delayMs": 21152
+    },
+    {
+      "offset": "0x01eb94",
+      "reg": "0xe9",
+      "regName": "Op9_Waveform",
+      "val": "0x31",
+      "delay": 10466,
+      "delayMs": 18689
+    },
+    {
+      "offset": "0x01eb98",
+      "reg": "0xf4",
+      "regName": "Op20_Waveform",
+      "val": "0x8f",
+      "delay": 62808,
+      "delayMs": 112157
+    },
+    {
+      "offset": "0x01eb9c",
+      "reg": "0x8f",
+      "regName": "Op15_SL_RR",
+      "val": "0x73",
+      "delay": 33408,
+      "delayMs": 59657
+    },
+    {
+      "offset": "0x01eba0",
+      "reg": "0x80",
+      "regName": "Op0_SL_RR",
+      "val": "0x88",
+      "delay": 32777,
+      "delayMs": 58530
+    },
+    {
+      "offset": "0x01eba4",
+      "reg": "0x98",
+      "regName": "Reg_98",
+      "val": "0x0e",
+      "delay": 61312,
+      "delayMs": 109486
+    },
+    {
+      "offset": "0x01eba8",
+      "reg": "0x57",
+      "regName": "Reg_57",
+      "val": "0x48",
+      "delay": 64010,
+      "delayMs": 114304
+    },
+    {
+      "offset": "0x01ebac",
+      "reg": "0x8f",
+      "regName": "Op15_SL_RR",
+      "val": "0x38",
+      "delay": 36850,
+      "delayMs": 65804
+    },
+    {
+      "offset": "0x01ebb0",
+      "reg": "0x18",
+      "regName": "Reg_18",
+      "val": "0xf6",
+      "delay": 61167,
+      "delayMs": 109227
+    },
+    {
+      "offset": "0x01ebb4",
+      "reg": "0x18",
+      "regName": "Reg_18",
+      "val": "0x0f",
+      "delay": 43136,
+      "delayMs": 77029
+    },
+    {
+      "offset": "0x01ebb8",
+      "reg": "0x0b",
+      "regName": "Reg_0B",
+      "val": "0x54",
+      "delay": 32796,
+      "delayMs": 58564
+    },
+    {
+      "offset": "0x01ebbc",
+      "reg": "0xa8",
+      "regName": "Chan8_FreqLo",
+      "val": "0x0a",
+      "delay": 37504,
+      "delayMs": 66971
+    },
+    {
+      "offset": "0x01ebc0",
+      "reg": "0x99",
+      "regName": "Reg_99",
+      "val": "0xb8",
+      "delay": 36598,
+      "delayMs": 65354
+    },
+    {
+      "offset": "0x01ebc4",
+      "reg": "0xf8",
+      "regName": "Reg_F8",
+      "val": "0xee",
+      "delay": 26767,
+      "delayMs": 47798
+    },
+    {
+      "offset": "0x01ebc8",
+      "reg": "0xf3",
+      "regName": "Op19_Waveform",
+      "val": "0x4f",
+      "delay": 39040,
+      "delayMs": 69714
+    },
+    {
+      "offset": "0x01ebcc",
+      "reg": "0x0a",
+      "regName": "Reg_0A",
+      "val": "0x10",
+      "delay": 26656,
+      "delayMs": 47600
+    },
+    {
+      "offset": "0x01ebd0",
+      "reg": "0x0a",
+      "regName": "Reg_0A",
+      "val": "0x46",
+      "delay": 12368,
+      "delayMs": 22086
+    },
+    {
+      "offset": "0x01ebd4",
+      "reg": "0x8f",
+      "regName": "Op15_SL_RR",
+      "val": "0x08",
+      "delay": 36595,
+      "delayMs": 65348
+    },
+    {
+      "offset": "0x01ebd8",
+      "reg": "0xe1",
+      "regName": "Op1_Waveform",
+      "val": "0x11",
+      "delay": 35727,
+      "delayMs": 63798
+    },
+    {
+      "offset": "0x01ebdc",
+      "reg": "0xe5",
+      "regName": "Op5_Waveform",
+      "val": "0x80",
+      "delay": 2232,
+      "delayMs": 3986
+    },
+    {
+      "offset": "0x01ebe0",
+      "reg": "0x60",
+      "regName": "Op0_AR_DR",
+      "val": "0x8f",
+      "delay": 17238,
+      "delayMs": 30782
+    },
+    {
+      "offset": "0x01ebe4",
+      "reg": "0x18",
+      "regName": "Reg_18",
+      "val": "0xf8",
+      "delay": 63176,
+      "delayMs": 112814
+    },
+    {
+      "offset": "0x01ebe8",
+      "reg": "0xaa",
+      "regName": "Reg_AA",
+      "val": "0x32",
+      "delay": 59151,
+      "delayMs": 105627
+    },
+    {
+      "offset": "0x01ebec",
+      "reg": "0x6a",
+      "regName": "Op10_AR_DR",
+      "val": "0x08",
+      "delay": 22775,
+      "delayMs": 40670
+    },
+    {
+      "offset": "0x01ebf0",
+      "reg": "0x08",
+      "regName": "CSM_NoteSel",
+      "val": "0x78",
+      "delay": 22798,
+      "delayMs": 40711
+    },
+    {
+      "offset": "0x01ebf4",
+      "reg": "0xaf",
+      "regName": "Reg_AF",
+      "val": "0x8f",
+      "delay": 36748,
+      "delayMs": 65621
+    },
+    {
+      "offset": "0x01ebf8",
+      "reg": "0x8a",
+      "regName": "Op10_SL_RR",
+      "val": "0x3d",
+      "delay": 3080,
+      "delayMs": 5500
+    },
+    {
+      "offset": "0x01ebfc",
+      "reg": "0x56",
+      "regName": "Reg_56",
+      "val": "0x20",
+      "delay": 60356,
+      "delayMs": 107779
+    },
+    {
+      "offset": "0x01ec00",
+      "reg": "0xd8",
+      "regName": "Reg_D8",
+      "val": "0xf8",
+      "delay": 12070,
+      "delayMs": 21554
+    },
+    {
+      "offset": "0x01ec04",
+      "reg": "0x8f",
+      "regName": "Op15_SL_RR",
+      "val": "0x68",
+      "delay": 54259,
+      "delayMs": 96891
+    },
+    {
+      "offset": "0x01ec08",
+      "reg": "0x19",
+      "regName": "Reg_19",
+      "val": "0xd0",
+      "delay": 38528,
+      "delayMs": 68800
+    },
+    {
+      "offset": "0x01ec0c",
+      "reg": "0x80",
+      "regName": "Op0_SL_RR",
+      "val": "0xd8",
+      "delay": 9992,
+      "delayMs": 17843
+    },
+    {
+      "offset": "0x01ec10",
+      "reg": "0x58",
+      "regName": "Reg_58",
+      "val": "0x0c",
+      "delay": 57216,
+      "delayMs": 102171
+    },
+    {
+      "offset": "0x01ec14",
+      "reg": "0xc8",
+      "regName": "Chan8_FB_Algo",
+      "val": "0xf8",
+      "delay": 62904,
+      "delayMs": 112329
+    },
+    {
+      "offset": "0x01ec18",
+      "reg": "0x8f",
+      "regName": "Op15_SL_RR",
+      "val": "0x88",
+      "delay": 54261,
+      "delayMs": 96895
+    },
+    {
+      "offset": "0x01ec1c",
+      "reg": "0x8f",
+      "regName": "Op15_SL_RR",
+      "val": "0x7e",
+      "delay": 2312,
+      "delayMs": 4129
+    },
+    {
+      "offset": "0x01ec20",
+      "reg": "0x80",
+      "regName": "Op0_SL_RR",
+      "val": "0xe7",
+      "delay": 26864,
+      "delayMs": 47971
+    },
+    {
+      "offset": "0x01ec24",
+      "reg": "0x0e",
+      "regName": "Reg_0E",
+      "val": "0x81",
+      "delay": 3928,
+      "delayMs": 7014
+    },
+    {
+      "offset": "0x01ec28",
+      "reg": "0xc1",
+      "regName": "Chan1_FB_Algo",
+      "val": "0xdc",
+      "delay": 60328,
+      "delayMs": 107729
+    },
+    {
+      "offset": "0x01ec2c",
+      "reg": "0x8e",
+      "regName": "Op14_SL_RR",
+      "val": "0xb8",
+      "delay": 58099,
+      "delayMs": 103748
+    },
+    {
+      "offset": "0x01ec30",
+      "reg": "0x36",
+      "regName": "Reg_36",
+      "val": "0x44",
+      "delay": 30659,
+      "delayMs": 54748
+    },
+    {
+      "offset": "0x01ec34",
+      "reg": "0x80",
+      "regName": "Op0_SL_RR",
+      "val": "0x96",
+      "delay": 62848,
+      "delayMs": 112229
+    },
+    {
+      "offset": "0x01ec38",
+      "reg": "0x67",
+      "regName": "Op7_AR_DR",
+      "val": "0x1a",
+      "delay": 63630,
+      "delayMs": 113625
+    },
+    {
+      "offset": "0x01ec3c",
+      "reg": "0xf1",
+      "regName": "Op17_Waveform",
+      "val": "0x8f",
+      "delay": 2378,
+      "delayMs": 4246
+    },
+    {
+      "offset": "0x01ec40",
+      "reg": "0xa8",
+      "regName": "Chan8_FreqLo",
+      "val": "0xf7",
+      "delay": 3688,
+      "delayMs": 6586
+    },
+    {
+      "offset": "0x01ec44",
+      "reg": "0x50",
+      "regName": "Op16_KSL_TL",
+      "val": "0x9f",
+      "delay": 2664,
+      "delayMs": 4757
+    },
+    {
+      "offset": "0x01ec48",
+      "reg": "0x50",
+      "regName": "Op16_KSL_TL",
+      "val": "0xd0",
+      "delay": 36650,
+      "delayMs": 65446
+    },
+    {
+      "offset": "0x01ec4c",
+      "reg": "0x7f",
+      "regName": "Reg_7F",
+      "val": "0x8f",
+      "delay": 63624,
+      "delayMs": 113614
+    },
+    {
+      "offset": "0x01ec50",
+      "reg": "0x8f",
+      "regName": "Op15_SL_RR",
+      "val": "0x8a",
+      "delay": 10854,
+      "delayMs": 19382
+    },
+    {
+      "offset": "0x01ec54",
+      "reg": "0x9b",
+      "regName": "Reg_9B",
+      "val": "0x58",
+      "delay": 32780,
+      "delayMs": 58536
+    },
+    {
+      "offset": "0x01ec58",
+      "reg": "0xe8",
+      "regName": "Op8_Waveform",
+      "val": "0x0a",
+      "delay": 65034,
+      "delayMs": 116132
+    },
+    {
+      "offset": "0x01ec5c",
+      "reg": "0xa8",
+      "regName": "Chan8_FreqLo",
+      "val": "0xf2",
+      "delay": 14479,
+      "delayMs": 25855
+    },
+    {
+      "offset": "0x01ec60",
+      "reg": "0xf8",
+      "regName": "Reg_F8",
+      "val": "0x48",
+      "delay": 32779,
+      "delayMs": 58534
+    },
+    {
+      "offset": "0x01ec64",
+      "reg": "0xb4",
+      "regName": "Chan4_KeyOn_FreqHi",
+      "val": "0x13",
+      "delay": 36734,
+      "delayMs": 65596
+    },
+    {
+      "offset": "0x01ec68",
+      "reg": "0x78",
+      "regName": "Reg_78",
+      "val": "0xf1",
+      "delay": 32996,
+      "delayMs": 58921
+    },
+    {
+      "offset": "0x01ec6c",
+      "reg": "0x96",
+      "regName": "Reg_96",
+      "val": "0x64",
+      "delay": 63208,
+      "delayMs": 112871
+    },
+    {
+      "offset": "0x01ec70",
+      "reg": "0x8f",
+      "regName": "Op15_SL_RR",
+      "val": "0x18",
+      "delay": 49397,
+      "delayMs": 88209
+    },
+    {
+      "offset": "0x01ec74",
+      "reg": "0x7e",
+      "regName": "Reg_7E",
+      "val": "0xa5",
+      "delay": 34944,
+      "delayMs": 62400
+    },
+    {
+      "offset": "0x01ec78",
+      "reg": "0x0a",
+      "regName": "Reg_0A",
+      "val": "0x5f",
+      "delay": 22705,
+      "delayMs": 40545
+    },
+    {
+      "offset": "0x01ec7c",
+      "reg": "0x08",
+      "regName": "CSM_NoteSel",
+      "val": "0x80",
+      "delay": 36779,
+      "delayMs": 65677
+    },
+    {
+      "offset": "0x01ec80",
+      "reg": "0x0a",
+      "regName": "Reg_0A",
+      "val": "0x8f",
+      "delay": 64640,
+      "delayMs": 115429
+    },
+    {
+      "offset": "0x01ec84",
+      "reg": "0x9d",
+      "regName": "Reg_9D",
+      "val": "0x01",
+      "delay": 26097,
+      "delayMs": 46602
+    },
+    {
+      "offset": "0x01ec88",
+      "reg": "0xd4",
+      "regName": "Reg_D4",
+      "val": "0x80",
+      "delay": 3528,
+      "delayMs": 6300
+    },
+    {
+      "offset": "0x01ec8c",
+      "reg": "0x80",
+      "regName": "Op0_SL_RR",
+      "val": "0xf2",
+      "delay": 65052,
+      "delayMs": 116164
+    },
+    {
+      "offset": "0x01ec90",
+      "reg": "0xb8",
+      "regName": "Chan8_KeyOn_FreqHi",
+      "val": "0xf2",
+      "delay": 10895,
+      "delayMs": 19455
+    },
+    {
+      "offset": "0x01ec94",
+      "reg": "0x07",
+      "regName": "Reg_07",
+      "val": "0xeb",
+      "delay": 21691,
+      "delayMs": 38734
+    },
+    {
+      "offset": "0x01ec98",
+      "reg": "0x24",
+      "regName": "Op4_AM_VIB_EG",
+      "val": "0x80",
+      "delay": 3480,
+      "delayMs": 6214
+    },
+    {
+      "offset": "0x01ec9c",
+      "reg": "0x81",
+      "regName": "Op1_SL_RR",
+      "val": "0x38",
+      "delay": 32787,
+      "delayMs": 58548
+    },
+    {
+      "offset": "0x01eca0",
+      "reg": "0xa3",
+      "regName": "Chan3_FreqLo",
+      "val": "0x8f",
+      "delay": 62296,
+      "delayMs": 111243
+    },
+    {
+      "offset": "0x01eca4",
+      "reg": "0xc9",
+      "regName": "Reg_C9",
+      "val": "0x8f",
+      "delay": 36745,
+      "delayMs": 65616
+    },
+    {
+      "offset": "0x01eca8",
+      "reg": "0x7a",
+      "regName": "Reg_7A",
+      "val": "0xf3",
+      "delay": 2872,
+      "delayMs": 5129
+    },
+    {
+      "offset": "0x01ecac",
+      "reg": "0x00",
+      "regName": "Reg_00",
+      "val": "0xd0",
+      "delay": 47232,
+      "delayMs": 84343
+    },
+    {
+      "offset": "0x01ecb0",
+      "reg": "0x0e",
+      "regName": "Reg_0E",
+      "val": "0x80",
+      "delay": 59031,
+      "delayMs": 105413
+    },
+    {
+      "offset": "0x01ecb4",
+      "reg": "0x10",
+      "regName": "Reg_10",
+      "val": "0x8f",
+      "delay": 62856,
+      "delayMs": 112243
+    },
+    {
+      "offset": "0x01ecb8",
+      "reg": "0x8f",
+      "regName": "Op15_SL_RR",
+      "val": "0x6b",
+      "delay": 63288,
+      "delayMs": 113014
+    },
+    {
+      "offset": "0x01ecbc",
+      "reg": "0xd9",
+      "regName": "Reg_D9",
+      "val": "0x8f",
+      "delay": 58480,
+      "delayMs": 104429
+    }
+  ]
+}

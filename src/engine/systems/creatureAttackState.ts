@@ -3,6 +3,7 @@ import type { Champion } from '../../types/champion';
 import type { ChampionEquipment, CreatureInstance, FloorItem } from '../../types/game';
 import type { ActivePotionBoost, ChampionVitals, Projectile } from '../runtimeTypes';
 import type { MonsterAttackResolution } from './monsterAttackResolution';
+import { applyOriginalLuckCheck } from './originalLuck';
 
 type EffectiveStats = {
     dexterity: number;
@@ -13,6 +14,7 @@ type CreatureStealResult = {
     stolenItem: FloorItem | null;
     nextInventory: FloorItem[];
     nextEquipment: ChampionEquipment;
+    nextVitals: ChampionVitals;
     shouldFlee: boolean;
 };
 
@@ -32,6 +34,7 @@ type CreatureAttackStateArgs = {
     targetEquipment: ChampionEquipment;
     levelDifficulty: number;
     nowMs: number;
+    partySleeping?: boolean;
 };
 
 type CreatureAttackStateDeps = {
@@ -53,14 +56,16 @@ type CreatureAttackStateDeps = {
     tryStealChampionItem: (
         inventory: FloorItem[],
         equipment: ChampionEquipment,
+        currentVitals: ChampionVitals,
         dexterity: number,
-        luck: number,
         deps: {
             randomInt: (maxExclusive: number) => number;
-            isLucky: (luck: number, luckNeeded: number) => boolean;
+            applyLuckCheck: (
+                currentVitals: ChampionVitals,
+                luckNeeded: number,
+            ) => { success: boolean; nextVitals: ChampionVitals };
         },
     ) => CreatureStealResult;
-    isCharacterLucky: (luck: number, luckNeeded: number) => boolean;
     resolveMonsterAttackAgainstChampion: (
         args: {
             targetChampion: Champion;
@@ -72,12 +77,13 @@ type CreatureAttackStateDeps = {
             attackMode: 'melee' | 'ranged';
             levelDifficulty: number;
             nowMs: number;
+            partySleeping?: boolean;
         },
     ) => MonsterAttackResolution;
 };
 
 export type CreatureAttackStateResult =
-    | { kind: 'none' }
+    | { kind: 'none'; targetChampionId?: number; nextVitals?: ChampionVitals }
     | { kind: 'projectile'; projectile: Projectile }
     | {
         kind: 'steal';
@@ -85,6 +91,7 @@ export type CreatureAttackStateResult =
         stolenItem: FloorItem;
         nextInventory: FloorItem[];
         nextEquipment: ChampionEquipment;
+        nextVitals: ChampionVitals;
         shouldFlee: boolean;
     }
     | {
@@ -111,6 +118,7 @@ export function resolveCreatureAttackState(
         targetEquipment,
         levelDifficulty,
         nowMs,
+        partySleeping,
     } = args;
 
     if (!targetChampion || !targetVitals || targetVitals.hp <= 0) {
@@ -141,15 +149,20 @@ export function resolveCreatureAttackState(
         const stealResult = deps.tryStealChampionItem(
             targetInventory,
             targetEquipment,
+            targetVitals,
             effective.dexterity,
-            effective.luck,
             {
                 randomInt: deps.randomInt,
-                isLucky: deps.isCharacterLucky,
+                applyLuckCheck: (currentVitals, luckNeeded) =>
+                    applyOriginalLuckCheck(targetChampion, currentVitals, luckNeeded, deps.randomInt),
             },
         );
         if (!stealResult.stolenItem) {
-            return { kind: 'none' };
+            return {
+                kind: 'none',
+                targetChampionId: targetChampion.id,
+                nextVitals: stealResult.nextVitals,
+            };
         }
         return {
             kind: 'steal',
@@ -157,6 +170,7 @@ export function resolveCreatureAttackState(
             stolenItem: stealResult.stolenItem,
             nextInventory: stealResult.nextInventory,
             nextEquipment: stealResult.nextEquipment,
+            nextVitals: stealResult.nextVitals,
             shouldFlee: stealResult.shouldFlee,
         };
     }
@@ -172,10 +186,15 @@ export function resolveCreatureAttackState(
         attackMode,
         levelDifficulty,
         nowMs,
+        partySleeping: partySleeping ?? false,
     });
 
     if (attackResolution.damage <= 0) {
-        return { kind: 'none' };
+        return {
+            kind: 'none',
+            targetChampionId: targetChampion.id,
+            nextVitals: attackResolution.nextVitals,
+        };
     }
 
     return {

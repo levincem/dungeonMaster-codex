@@ -61,7 +61,7 @@ test('resolveSpellTimedBuff returns null when a light spell has no duration', ()
     assert.equal(light, null);
 });
 
-test('resolveSpellTimedBuff builds physical and fire shields from shield profiles', () => {
+test('resolveSpellTimedBuff builds party and fire shields from shield profiles', () => {
     const shield = resolveSpellTimedBuff(
         'shield',
         200,

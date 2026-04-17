@@ -58,8 +58,15 @@ type FirestaffExchangeResult = {
     transformed: boolean;
 };
 
-type FrontWallItemDeps<TState, TSensorState, TAppliedPatch> = {
+type FrontWallItemDeps<TState, TSensorState, TAppliedPatch extends Record<string, unknown>> = {
     buildSensorStateSnapshot: (state: TState) => TSensorState;
+    isAltarWallFace: (level: number, x: number, y: number, face: CardinalDir) => boolean;
+    buildViAltarResurrectionPatch: (
+        state: TState,
+        deadChampionId: number,
+        consumedItemId: string,
+        carriedBy: { championId: number; fromSlot: EquipSlotKey | 'inventory' } | null,
+    ) => TAppliedPatch | null;
     triggerLockSensors: (
         level: number,
         wallX: number,
@@ -122,12 +129,53 @@ function hasSensorChanges(sensorChanges: Record<string, unknown>): boolean {
     return Object.keys(sensorChanges).length > 0;
 }
 
-export function tryUseChampionItemOnFrontWall<TState extends FrontWallStateLike, TSensorState, TAppliedPatch>(
+function tryResolveViAltarResurrectionOnFrontWall<
+    TState extends FrontWallStateLike,
+    TSensorState,
+    TAppliedPatch extends Record<string, unknown>,
+>(
+    state: TState,
+    wallX: number,
+    wallY: number,
+    item: FloorItem | null | undefined,
+    carriedBy: { championId: number; fromSlot: EquipSlotKey | 'inventory' } | null,
+    deps: FrontWallItemDeps<TState, TSensorState, TAppliedPatch>,
+): TAppliedPatch | null {
+    if (!item || item.category !== 'Misc' || item.typeId !== 5 || item.championId === undefined) {
+        return null;
+    }
+    const { face } = resolveFrontWallTarget(state.position, state.direction);
+    if (!deps.isAltarWallFace(state.level, wallX, wallY, face)) {
+        return null;
+    }
+    return deps.buildViAltarResurrectionPatch(state, item.championId, item.id, carriedBy);
+}
+
+export function tryUseChampionItemOnFrontWall<
+    TState extends FrontWallStateLike,
+    TSensorState,
+    TAppliedPatch extends Record<string, unknown>,
+>(
     state: TState,
     selectedItem: SelectedItem,
     deps: FrontWallItemDeps<TState, TSensorState, TAppliedPatch>,
 ): FrontWallInteractionResult<TAppliedPatch> {
     const { wallX, wallY, face } = resolveFrontWallTarget(state.position, state.direction);
+    const carriedItem = selectedItem.fromSlot === 'inventory'
+        ? state.championInventories[selectedItem.championId]?.find((item) => item.id === selectedItem.itemId)
+        : state.championEquipment[selectedItem.championId]?.[selectedItem.fromSlot];
+    const altarPatch = tryResolveViAltarResurrectionOnFrontWall(
+        state,
+        wallX,
+        wallY,
+        carriedItem,
+        { championId: selectedItem.championId, fromSlot: selectedItem.fromSlot },
+        deps,
+    );
+    if (altarPatch) {
+        return { matched: true, patch: altarPatch, shouldPlayPlate: false };
+    }
+
     const ss = deps.buildSensorStateSnapshot(state);
 
     const lockResult = deps.triggerLockSensors(
@@ -234,7 +282,11 @@ export function tryUseChampionItemOnFrontWall<TState extends FrontWallStateLike,
     };
 }
 
-export function tryUseFloorItemOnFrontWall<TState extends FrontWallStateLike, TSensorState, TAppliedPatch>(
+export function tryUseFloorItemOnFrontWall<
+    TState extends FrontWallStateLike,
+    TSensorState,
+    TAppliedPatch extends Record<string, unknown>,
+>(
     state: TState,
     itemId: string,
     championId: number,
@@ -251,6 +303,24 @@ export function tryUseFloorItemOnFrontWall<TState extends FrontWallStateLike, TS
         [championId]: [...inventory, item],
     };
     const { wallX, wallY, face } = resolveFrontWallTarget(state.position, state.direction);
+    const altarPatch = tryResolveViAltarResurrectionOnFrontWall(
+        state,
+        wallX,
+        wallY,
+        item,
+        null,
+        deps,
+    );
+    if (altarPatch) {
+        return {
+            matched: true,
+            patch: {
+                ...altarPatch,
+                activeFloorDrag: state.activeFloorDrag?.itemId === itemId ? null : state.activeFloorDrag,
+            },
+            shouldPlayPlate: false,
+        };
+    }
     const ss = deps.buildSensorStateSnapshot(state);
     const selectedItem: SelectedItem = { championId, itemId, fromSlot: 'inventory' };
 

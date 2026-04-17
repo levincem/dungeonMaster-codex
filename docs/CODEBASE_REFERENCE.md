@@ -1,6 +1,12 @@
 ﻿# DungeonMaster Codex - Reference codebase
 
-Document vivant. Cette version de reference decrit l'etat observe dans le code au `2026-04-13`.
+Document vivant. Cette version de reference decrit l'etat observe dans le code au `2026-04-17`.
+
+Pour l'etat de fidelite et les verrous ouverts, privilegier aussi:
+
+- [docs/PROJECT_STATE_INDEX.md](/D:/DungeonMaster-codex/docs/PROJECT_STATE_INDEX.md)
+- [docs/FIDELITY_100_VERDICT.md](/D:/DungeonMaster-codex/docs/FIDELITY_100_VERDICT.md)
+- [docs/FIDELITY_REMAINING_MATRIX.md](/D:/DungeonMaster-codex/docs/FIDELITY_REMAINING_MATRIX.md)
 
 ## Stack
 

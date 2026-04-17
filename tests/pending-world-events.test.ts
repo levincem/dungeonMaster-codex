@@ -4,11 +4,25 @@ import type { SensorObject } from '../src/types/game.js';
 import {
     processPendingGeneratorSpawns,
     processPendingSensorEvents,
+    queuePendingGeneratorSpawnEvent,
 } from '../src/engine/systems/pendingWorldEvents.js';
 
 type TestSensorState = {
     openDoors: Set<string>;
     creatures: string[];
+};
+
+type PendingGeneratorEvent = {
+    sensorLevel: number;
+    sensorIndex: number;
+    spawnLevel: number;
+    spawnX: number;
+    spawnY: number;
+    typeId: number;
+    hpMultiplier: number;
+    creatureCount: number;
+    groupId: string;
+    remaining: number;
 };
 
 function createSensor(overrides: Partial<SensorObject> = {}): SensorObject {
@@ -103,7 +117,7 @@ test('processPendingGeneratorSpawns retries blocked spawns and appends successfu
         ],
         state,
         {
-            hasApproximateOriginalGeneratorCapacity: (_ss, spawnLevel) => spawnLevel !== 4,
+            canMaterializeReservedGeneratorSpawn: (_ss, spawnLevel) => spawnLevel !== 4,
             isGeneratorSpawnBlocked: () => false,
             createGeneratedCreatureGroupInstances: (spawnLevel, spawnX, spawnY, typeId, _hpMultiplier, creatureCount, groupId) =>
                 Array.from({ length: creatureCount }, (_, index) => `${groupId}:${spawnLevel}:${spawnX}:${spawnY}:${typeId}:${index}`),
@@ -131,4 +145,99 @@ test('processPendingGeneratorSpawns retries blocked spawns and appends successfu
             remaining: 5,
         },
     ]);
+});
+
+test('processPendingGeneratorSpawns lets already reserved spawns resolve even if new spawns would be gated', () => {
+    const state: TestSensorState = {
+        openDoors: new Set<string>(),
+        creatures: ['existing'],
+    };
+
+    const result = processPendingGeneratorSpawns(
+        1,
+        [
+            {
+                sensorLevel: 0,
+                sensorIndex: 7,
+                spawnLevel: 3,
+                spawnX: 5,
+                spawnY: 6,
+                typeId: 12,
+                hpMultiplier: 0,
+                creatureCount: 1,
+                groupId: 'reserved-group',
+                remaining: 0.25,
+            },
+        ],
+        state,
+        {
+            canMaterializeReservedGeneratorSpawn: () => true,
+            isGeneratorSpawnBlocked: () => false,
+            createGeneratedCreatureGroupInstances: (spawnLevel, spawnX, spawnY, typeId, _hpMultiplier, creatureCount, groupId) =>
+                Array.from({ length: creatureCount }, (_, index) => `${groupId}:${spawnLevel}:${spawnX}:${spawnY}:${typeId}:${index}`),
+            retrySeconds: 5,
+            diffSensorState: (_before, after) => ({ creatures: after.creatures }),
+        },
+    );
+
+    assert.deepEqual(result.sensorChanges.creatures, [
+        'existing',
+        'reserved-group:3:5:6:12:0',
+    ]);
+    assert.deepEqual(result.pendingGeneratorSpawns, []);
+});
+
+test('queuePendingGeneratorSpawnEvent deduplicates exact activations but keeps later reservations distinct', () => {
+    const initial = queuePendingGeneratorSpawnEvent(
+        [] as PendingGeneratorEvent[],
+        {
+            sensorLevel: 2,
+            sensorIndex: 81,
+            spawnLevel: 2,
+            spawnX: 9,
+            spawnY: 13,
+            typeId: 2,
+            hpMultiplier: 7,
+            creatureCount: 1,
+            groupId: 'group-a',
+        },
+        5,
+    );
+
+    const duplicate = queuePendingGeneratorSpawnEvent(
+        initial,
+        {
+            sensorLevel: 2,
+            sensorIndex: 81,
+            spawnLevel: 2,
+            spawnX: 9,
+            spawnY: 13,
+            typeId: 2,
+            hpMultiplier: 7,
+            creatureCount: 1,
+            groupId: 'group-a',
+        },
+        5,
+    );
+
+    const laterReservation = queuePendingGeneratorSpawnEvent(
+        duplicate,
+        {
+            sensorLevel: 2,
+            sensorIndex: 81,
+            spawnLevel: 2,
+            spawnX: 9,
+            spawnY: 13,
+            typeId: 2,
+            hpMultiplier: 7,
+            creatureCount: 1,
+            groupId: 'group-b',
+        },
+        5,
+    );
+
+    assert.equal(initial.length, 1);
+    assert.equal(duplicate.length, 1);
+    assert.equal(laterReservation.length, 2);
+    assert.deepEqual(laterReservation.map((event) => event.groupId), ['group-a', 'group-b']);
 });

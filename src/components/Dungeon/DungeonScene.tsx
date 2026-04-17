@@ -3,12 +3,26 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import type { ThreeEvent } from '@react-three/fiber';
 import { PerspectiveCamera, Plane, Html, useTexture, Billboard } from '@react-three/drei';
 import * as THREE from 'three';
-import { useStore, MIRROR_WALL_MAP, MIRROR_FACE_MAP, STAIR_CONNECTIONS, getCreatureFluxcageExpiry, isSelfRevealingWallTile } from '../../engine/store';
+import {
+    useStore,
+    MIRROR_WALL_MAP,
+    MIRROR_FACE_MAP,
+    STAIR_CONNECTIONS,
+    VI_ALTAR_RESURRECTION_MESSAGE,
+    getCreatureFluxcageExpiry,
+    isSelfRevealingWallTile,
+} from '../../engine/store';
 import { DAMAGE_EVENT_LIFETIME_MS, FOOTPRINT_LIFETIME_MS } from '../../engine/time';
 import { getMapMechanisms, getMechanismsAt } from '../../data/mechanisms';
 import { getOriginalWallOverlaysForMap, type OriginalWallOverlayRender } from '../../data/originalWallOverlays';
 import type { Direction, ProjectileEffect, FootprintEntry, SpellVisualEvent } from '../../engine/runtimeTypes';
 import { computeLightLevel } from '../../engine/store';
+import { isAltarWallFace as isAltarWallFaceSystem } from '../../engine/systems/resurrection';
+import {
+    resolveFrontWallTarget,
+    resolveLeftWallTarget,
+    resolveRightWallTarget,
+} from '../../engine/systems/frontWallState';
 import { getGameMap } from '../../data/mapLoader';
 import type { GameMap, GameTile, TeleporterObject, SensorObject, WallTextObject, CardinalDir, DoorObject } from '../../types/game';
 import type { Champion } from '../../data/champions';
@@ -111,6 +125,128 @@ function useWallClock(intervalMs = 200): number {
 
     return nowMs;
 }
+
+const VI_ALTAR_MIRACLE_OVERLAY_LIFETIME_MS = 1700;
+const VI_ALTAR_MIRACLE_SPARKLES = [
+    { left: '16%', top: '22%', size: 16, driftX: -18, driftY: -20, delay: 0.02 },
+    { left: '27%', top: '36%', size: 10, driftX: -10, driftY: -28, delay: 0.14 },
+    { left: '39%', top: '18%', size: 13, driftX: 0, driftY: -24, delay: 0.08 },
+    { left: '51%', top: '32%', size: 18, driftX: 8, driftY: -34, delay: 0.18 },
+    { left: '62%', top: '20%', size: 12, driftX: 12, driftY: -22, delay: 0.04 },
+    { left: '72%', top: '38%', size: 11, driftX: 16, driftY: -26, delay: 0.2 },
+    { left: '82%', top: '24%', size: 15, driftX: 20, driftY: -18, delay: 0.1 },
+];
+
+const ViAltarMiracleOverlay: React.FC = () => {
+    const lastCastResult = useStore(s => s.lastCastResult);
+    const wallClockNow = useWallClock(33);
+    const now = wallClockNow === 0 ? (lastCastResult?.ts ?? 0) : wallClockNow;
+
+    if (!lastCastResult?.success || lastCastResult.message !== VI_ALTAR_RESURRECTION_MESSAGE) {
+        return null;
+    }
+
+    const age = now - lastCastResult.ts;
+    if (age < 0 || age > VI_ALTAR_MIRACLE_OVERLAY_LIFETIME_MS) {
+        return null;
+    }
+
+    const progress = age / VI_ALTAR_MIRACLE_OVERLAY_LIFETIME_MS;
+    const warmOpacity = Math.max(0, 0.85 - progress * 0.82);
+    const glowScale = 0.94 + progress * 0.22;
+
+    return (
+        <div
+            aria-hidden="true"
+            style={{
+                position: 'absolute',
+                inset: 0,
+                pointerEvents: 'none',
+                overflow: 'hidden',
+                zIndex: 130,
+            }}
+        >
+            <div
+                style={{
+                    position: 'absolute',
+                    inset: '-12%',
+                    opacity: warmOpacity,
+                    background: `radial-gradient(circle at 50% 48%, rgba(255,244,190,${0.54 * warmOpacity}) 0%, rgba(255,205,104,${0.42 * warmOpacity}) 22%, rgba(255,138,64,${0.18 * warmOpacity}) 44%, rgba(255,138,64,0) 72%)`,
+                    transform: `scale(${glowScale})`,
+                }}
+            />
+            <div
+                style={{
+                    position: 'absolute',
+                    left: '50%',
+                    top: '46%',
+                    width: '46%',
+                    aspectRatio: '1 / 1',
+                    transform: `translate(-50%, -50%) scale(${1 + progress * 0.16})`,
+                    borderRadius: '50%',
+                    opacity: Math.max(0, 0.5 - progress * 0.42),
+                    background: `radial-gradient(circle, rgba(255,251,226,${0.52 * warmOpacity}) 0%, rgba(255,216,128,${0.32 * warmOpacity}) 36%, rgba(255,216,128,0) 70%)`,
+                    filter: 'blur(10px)',
+                }}
+            />
+            {VI_ALTAR_MIRACLE_SPARKLES.map((sparkle, index) => {
+                const localProgress = Math.max(0, Math.min(1, (progress - sparkle.delay) / (1 - sparkle.delay)));
+                const sparkleOpacity = Math.max(0, (1 - localProgress) * 0.95);
+                const sparkleScale = 0.7 + localProgress * 0.85;
+                return (
+                    <div
+                        key={`vi_miracle_sparkle_${index}`}
+                        style={{
+                            position: 'absolute',
+                            left: sparkle.left,
+                            top: sparkle.top,
+                            width: sparkle.size,
+                            height: sparkle.size,
+                            opacity: sparkleOpacity,
+                            transform: `translate(${sparkle.driftX * localProgress}px, ${sparkle.driftY * localProgress}px) scale(${sparkleScale}) rotate(${localProgress * 22}deg)`,
+                        }}
+                    >
+                        <div
+                            style={{
+                                position: 'absolute',
+                                inset: 0,
+                                borderRadius: '50%',
+                                background: 'radial-gradient(circle, rgba(255,255,246,0.95) 0%, rgba(255,230,150,0.92) 38%, rgba(255,230,150,0) 72%)',
+                                filter: 'blur(0.5px)',
+                            }}
+                        />
+                        <div
+                            style={{
+                                position: 'absolute',
+                                left: '50%',
+                                top: '50%',
+                                width: 2,
+                                height: '160%',
+                                transform: 'translate(-50%, -50%)',
+                                borderRadius: 999,
+                                background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,244,210,0.96) 50%, rgba(255,255,255,0) 100%)',
+                                boxShadow: '0 0 12px rgba(255,223,140,0.6)',
+                            }}
+                        />
+                        <div
+                            style={{
+                                position: 'absolute',
+                                left: '50%',
+                                top: '50%',
+                                width: '160%',
+                                height: 2,
+                                transform: 'translate(-50%, -50%)',
+                                borderRadius: 999,
+                                background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,244,210,0.96) 50%, rgba(255,255,255,0) 100%)',
+                                boxShadow: '0 0 12px rgba(255,223,140,0.6)',
+                            }}
+                        />
+                    </div>
+                );
+            })}
+        </div>
+    );
+};
 
 // ─── Camera smooth follow ─────────────────────────────────────────────────────
 const CameraController = () => {
@@ -783,8 +919,11 @@ export const FrontWallLockDropTarget = ({
     );
 };
 
-const FrontWallMechanismDropTarget = ({ kind, onUseItem, activeFloorDragItemId, selectedChampionId, onUseFloorItem }: {
-    kind: 'wall-lock' | 'alcove' | 'object-exchanger';
+type WallDropPlacement = 'front' | 'left' | 'right';
+
+const WallMechanismDropTarget = ({ kind, placement = 'front', onUseItem, activeFloorDragItemId, selectedChampionId, onUseFloorItem }: {
+    kind: 'wall-lock' | 'alcove' | 'object-exchanger' | 'altar';
+    placement?: WallDropPlacement;
     onUseItem: (championId: number, itemId: string, fromSlot: EquipSlotKey | 'inventory') => boolean;
     activeFloorDragItemId?: string | null;
     selectedChampionId?: number | null;
@@ -794,6 +933,24 @@ const FrontWallMechanismDropTarget = ({ kind, onUseItem, activeFloorDragItemId, 
     const [over, setOver] = useState(false);
     const isLock = kind === 'wall-lock';
     const isAlcove = kind === 'alcove';
+    const isAltar = kind === 'altar';
+    const placementStyle: React.CSSProperties = placement === 'front'
+        ? {
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+        }
+        : placement === 'left'
+            ? {
+                left: '26%',
+                top: '52%',
+                transform: 'translate(-50%, -50%)',
+            }
+            : {
+                left: '74%',
+                top: '52%',
+                transform: 'translate(-50%, -50%)',
+            };
     const apertureStyle: React.CSSProperties = isLock
         ? {
             width: 28,
@@ -812,6 +969,15 @@ const FrontWallMechanismDropTarget = ({ kind, onUseItem, activeFloorDragItemId, 
                 background: 'linear-gradient(180deg, rgba(18,18,18,0.38), rgba(0,0,0,0.94))',
                 boxShadow: over ? '0 0 16px rgba(242, 210, 127, 0.32)' : 'inset 0 0 14px rgba(0,0,0,0.82)',
             }
+            : isAltar
+                ? {
+                    width: 104,
+                    height: 30,
+                    borderRadius: 999,
+                    border: `2px solid ${over ? '#f2d27f' : '#9f7730'}`,
+                    background: 'linear-gradient(180deg, rgba(72,46,18,0.9), rgba(22,14,6,0.98))',
+                    boxShadow: over ? '0 0 16px rgba(242, 210, 127, 0.32)' : 'inset 0 0 14px rgba(0,0,0,0.78)',
+                }
             : {
                 width: 68,
                 height: 16,
@@ -823,7 +989,7 @@ const FrontWallMechanismDropTarget = ({ kind, onUseItem, activeFloorDragItemId, 
 
     return (
         <div
-            data-dm-front-wall-drop="true"
+            data-dm-wall-drop="true"
             onDragEnter={(event) => {
                 event.preventDefault();
                 setOver(true);
@@ -856,12 +1022,9 @@ const FrontWallMechanismDropTarget = ({ kind, onUseItem, activeFloorDragItemId, 
             }}
             style={{
                 position: 'absolute',
-                left: '50%',
-                top: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: isLock ? 96 : isAlcove ? 132 : 124,
-                minHeight: 78,
-                padding: '8px 10px',
+                width: isLock ? 96 : isAlcove ? 132 : isAltar ? 172 : 124,
+                minHeight: isAltar ? 92 : 78,
+                padding: isAltar ? '10px 12px' : '8px 10px',
                 borderRadius: 12,
                 border: `2px solid ${over ? 'rgba(240,207,122,0.88)' : 'rgba(138,106,42,0.28)'}`,
                 background: over ? 'rgba(28,20,8,0.18)' : 'rgba(0,0,0,0.01)',
@@ -874,6 +1037,7 @@ const FrontWallMechanismDropTarget = ({ kind, onUseItem, activeFloorDragItemId, 
                 pointerEvents: 'auto',
                 boxShadow: over ? '0 0 18px rgba(240, 207, 122, 0.22)' : 'none',
                 zIndex: 130,
+                ...placementStyle,
             }}
         >
             <div
@@ -888,7 +1052,7 @@ const FrontWallMechanismDropTarget = ({ kind, onUseItem, activeFloorDragItemId, 
                 <div style={apertureStyle} />
             </div>
             <div style={{ color: over ? '#f4dda1' : '#b8995d', fontSize: 10, fontFamily: '"Courier New", monospace', textAlign: 'center' }}>
-                {isLock ? text.dropKeyHere : isAlcove ? text.placeItemHere : text.offerItemHere}
+                {isLock ? text.dropKeyHere : isAlcove ? text.placeItemHere : isAltar ? text.dropBonesHere : text.offerItemHere}
             </div>
         </div>
     );
@@ -2561,7 +2725,7 @@ const FloorItemsLayer: React.FC = () => {
                                 onUpdateDrag={updateFloorDrag}
                                 onEndDrag={(pointerX, pointerY) => {
                                     const hovered = document.elementFromPoint(pointerX, pointerY) as HTMLElement | null;
-                                    const wallDrop = hovered?.closest('[data-dm-front-wall-drop="true"]');
+                                    const wallDrop = hovered?.closest('[data-dm-wall-drop="true"]');
                                     if (wallDrop && selectedChampionId != null) {
                                         applyFloorItemOnFrontWall(i.id, selectedChampionId);
                                     }
@@ -2708,6 +2872,8 @@ export const DungeonScene = () => {
     const activateWallSensor = useStore(s => s.activateWallSensor);
     const applyItemOnFrontWall = useStore(s => s.useItemOnFrontWall);
     const applyFloorItemOnFrontWall = useStore(s => s.useFloorItemOnFrontWall);
+    const applyItemOnViAltar = useStore(s => s.useItemOnViAltar);
+    const applyFloorItemOnViAltar = useStore(s => s.useFloorItemOnViAltar);
     const dropCarriedItem = useStore(s => s.dropCarriedItem);
     const throwCarriedItem = useStore(s => s.throwCarriedItem);
     const activeSensors  = useStore(s => s.activeSensors);
@@ -2719,6 +2885,8 @@ export const DungeonScene = () => {
     const map = getGameMap(level);
     const recruitedIds = useMemo(() => new Set(party.map(c => c.id)), [party]);
     const selectedChampionId = party[selectedChampionIndex]?.id ?? party[0]?.id ?? null;
+    const partyX = position[1];
+    const partyY = position[0];
     const draggedFloorItem = useMemo(
         () => activeFloorDrag ? floorItems.find((item) => item.id === activeFloorDrag.itemId) ?? null : null,
         [activeFloorDrag, floorItems],
@@ -2748,8 +2916,6 @@ export const DungeonScene = () => {
         const overlayKeys = new Set(
             getOriginalWallOverlaysForMap(map, activeSensors, firedSensors).map((overlay) => `${overlay.tileX}:${overlay.tileY}:${overlay.face}`),
         );
-        const partyX = position[1];
-        const partyY = position[0];
         for (const row of map.tiles) {
             for (const tile of row) {
                 const hiddenWallOpen = tile.type === 'Wall' && isSelfRevealingWallTile(level, tile.x, tile.y) && openWalls.has(`${level},${tile.y},${tile.x}`);
@@ -2781,7 +2947,7 @@ export const DungeonScene = () => {
             face: button.face,
             sensorIndex: button.sensorIndex,
         }));
-    }, [activeSensors, firedSensors, level, map, openDoors, openWalls, position]);
+    }, [activeSensors, firedSensors, level, map, openDoors, openWalls, partyX, partyY]);
 
     const wallDecals = useMemo(() => {
         const stairsEntryFace = (x: number, y: number): CardinalDir => {
@@ -2927,6 +3093,32 @@ export const DungeonScene = () => {
             label: mechanism.trigger === 'alcove' ? dungeonText.alcove : mechanism.trigger === 'object-exchanger' ? dungeonText.receptacle : dungeonText.lock,
         };
     }, [direction, dungeonText.alcove, dungeonText.lock, dungeonText.receptacle, level, map, openWalls, position]);
+    const altarDropTargets = useMemo(() => {
+        const candidates = [
+            { placement: 'front' as const, ...resolveFrontWallTarget(position, direction) },
+            { placement: 'left' as const, ...resolveLeftWallTarget(position, direction) },
+            { placement: 'right' as const, ...resolveRightWallTarget(position, direction) },
+        ];
+
+        return candidates.filter(({ wallX, wallY, face }) => {
+            const tile = map.tiles[wallY]?.[wallX];
+            if (!tile || (tile.type !== 'Wall' && tile.type !== 'TrickWall')) return false;
+            if (isSelfRevealingWallTile(level, wallX, wallY) && openWalls.has(`${level},${wallY},${wallX}`)) {
+                return false;
+            }
+            if (!isWallFaceVisible(map, level, openDoors, openWalls, partyX, partyY, wallX, wallY, face)) {
+                return false;
+            }
+            return isAltarWallFaceSystem(
+                level,
+                wallX,
+                wallY,
+                face,
+                (mapLevel, tileX, tileY) => getGameMap(mapLevel).tiles[tileY]?.[tileX],
+            );
+        });
+    }, [direction, level, map, openDoors, openWalls, partyX, partyY, position]);
+    const frontWallInteractionKind = frontWallItemMechanism?.kind ?? null;
 
     const handleCanvasCreated = useCallback(({ gl }: { gl: THREE.WebGLRenderer }) => {
         const canvas = gl.domElement;
@@ -2982,6 +3174,13 @@ export const DungeonScene = () => {
                 setIsItemDragActive(false);
                 const floorDropThreshold = window.innerHeight * FLOOR_DROP_SCREEN_RATIO;
                 const shouldDropToFloor = event.clientY >= floorDropThreshold;
+                if (!shouldDropToFloor) {
+                    for (const target of altarDropTargets) {
+                        if (applyItemOnViAltar(payload.fromChampionId, payload.itemId, payload.fromSlot, target.wallX, target.wallY, target.face)) {
+                            return;
+                        }
+                    }
+                }
                 if (shouldDropToFloor) {
                     dropCarriedItem(payload.fromChampionId, payload.itemId, payload.fromSlot);
                 } else {
@@ -3066,9 +3265,25 @@ export const DungeonScene = () => {
                 <FloorItemsLayer />
                 <ProjectileRenderer />
             </Canvas>
-            {frontWallItemMechanism && (isItemDragActive || activeFloorDrag) && (
-                <FrontWallMechanismDropTarget
-                    kind={frontWallItemMechanism.kind}
+            <ViAltarMiracleOverlay />
+            {altarDropTargets.length > 0 && (isItemDragActive || activeFloorDrag) && altarDropTargets.map((target) => (
+                <WallMechanismDropTarget
+                    key={`altar_drop_${target.placement}_${target.wallX}_${target.wallY}_${target.face}`}
+                    kind="altar"
+                    placement={target.placement}
+                    onUseItem={(championId, itemId, fromSlot) =>
+                        applyItemOnViAltar(championId, itemId, fromSlot, target.wallX, target.wallY, target.face)
+                    }
+                    activeFloorDragItemId={activeFloorDrag?.itemId ?? null}
+                    selectedChampionId={selectedChampionId}
+                    onUseFloorItem={(itemId, championId) =>
+                        applyFloorItemOnViAltar(itemId, championId, target.wallX, target.wallY, target.face)
+                    }
+                />
+            ))}
+            {frontWallInteractionKind && altarDropTargets.every((target) => target.placement !== 'front') && (isItemDragActive || activeFloorDrag) && (
+                <WallMechanismDropTarget
+                    kind={frontWallInteractionKind}
                     onUseItem={applyItemOnFrontWall}
                     activeFloorDragItemId={activeFloorDrag?.itemId ?? null}
                     selectedChampionId={selectedChampionId}

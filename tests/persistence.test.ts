@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { APP_VERSION } from '../src/appInfo.js';
 import { DEFAULT_GAME_OPTIONS } from '../src/engine/options.js';
 import { createEmptyChampionTemporaryXP, createEmptyChampionXP } from '../src/data/skillProgression.js';
 import type { Champion } from '../src/types/champion.js';
@@ -306,7 +307,7 @@ test('buildPersistedSaveData serializes runtime state in a stable shape', () => 
         const { integrity, ...persistedWithoutIntegrity } = persisted;
 
         assert.equal(persisted.version, 2);
-        assert.equal(persisted.buildVersion, '0.5.0-alpha.1');
+        assert.equal(persisted.buildVersion, APP_VERSION);
         assert.equal(integrity, computePersistedSaveIntegrity(persistedWithoutIntegrity));
         assert.deepEqual(persisted.openDoors, ['0,1,2']);
         assert.deepEqual(persisted.brokenDoors, ['0,1,2']);

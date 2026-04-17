@@ -1,4 +1,5 @@
 import type { SpellDef } from '../../data/runes';
+import { getOriginalSpellPowerLevel } from '../../data/originalSpells';
 import {
     getOriginalSpellProjectileLaunchProfile,
     getProjectileDamage,
@@ -23,15 +24,9 @@ export type SpellProjectileCastResult = {
     projectile: Projectile;
 };
 
-function getSpellPowerLevelApprox(runeIds: readonly string[]): number {
-    const powerRunes = ['lo', 'um', 'on', 'ee', 'pal', 'mon'];
-    const index = powerRunes.indexOf(runeIds[0] ?? '');
-    return index >= 0 ? index + 1 : 1;
-}
-
 function getSpellVisualScale(spell: SpellDef): number {
     if (spell.effect !== 'fireball' && spell.effect !== 'open') return 1;
-    const powerLevel = getSpellPowerLevelApprox(spell.runes);
+    const powerLevel = getOriginalSpellPowerLevel(spell.runes) ?? 1;
     return 0.82 + ((powerLevel - 1) * 0.15);
 }
 

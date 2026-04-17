@@ -182,6 +182,7 @@ export function applyProjectilePartyHit(
     if (targetChampion) {
         const currentVitals = championVitals[targetChampion.id];
         if (currentVitals && currentVitals.hp > 0 && impact.damage > 0) {
+            let targetChampionDropped = false;
             const resolved = deps.resolveChampionIncomingAttack(
                 {
                     championEquipment,
@@ -194,11 +195,13 @@ export function applyProjectilePartyHit(
                 impact.attackType,
                 now,
             );
-            if (resolved.damage > 0) {
+            if (resolved.nextVitals !== currentVitals) {
                 championVitals = {
                     ...championVitals,
                     [targetChampion.id]: resolved.nextVitals,
                 };
+            }
+            if (resolved.damage > 0) {
                 damageEvents = [
                     ...damageEvents,
                     deps.buildChampionDamageEvent(projectileLevel, targetChampion.id, resolved.damage),
@@ -209,6 +212,7 @@ export function applyProjectilePartyHit(
                         impact.poisonAttack,
                     );
                     if ((championVitals[targetChampion.id]?.hp ?? 0) === 0) {
+                        targetChampionDropped = true;
                         const partial = deps.buildDeathDrop(
                             {
                                 level: state.level,
@@ -230,7 +234,7 @@ export function applyProjectilePartyHit(
                         selectedChampionIndex = party.length > 0 ? Math.min(selectedChampionIndex, party.length - 1) : 0;
                     }
                 }
-                if (championVitals[targetChampion.id]?.hp === 0) {
+                if (!targetChampionDropped && championVitals[targetChampion.id]?.hp === 0) {
                     const partial = deps.buildDeathDrop(
                         {
                             level: state.level,

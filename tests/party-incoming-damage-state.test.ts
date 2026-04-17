@@ -135,3 +135,80 @@ test('applyPartyWideIncomingAttackState records damage events and death drops', 
     assert.deepEqual((patch?.party as Champion[]).map((champion) => champion.id), []);
     assert.equal((patch?.damageEvents as Array<{ championId: number; damage: number }>).length, 2);
 });
+
+test('applyPartyWideIncomingAttackState preserves nextVitals even when incoming damage resolves to zero', () => {
+    const patch = applyPartyWideIncomingAttackState(
+        baseState,
+        vitals,
+        10,
+        'Blunt',
+        ['legs'],
+        1000,
+        false,
+        {
+            rollOriginalPartyWideAttack: (damage) => damage,
+            resolveChampionIncomingAttack: (_state, champion, currentVitals) => ({
+                damage: 0,
+                nextVitals: {
+                    ...currentVitals,
+                    currentStats: {
+                        ...currentVitals.currentStats,
+                        luck: currentVitals.currentStats.luck + champion.id,
+                    },
+                },
+            }),
+            buildChampionDamageEvent: () => {
+                throw new Error('damage event should not be emitted for zero damage');
+            },
+            buildDeathDrop: () => {
+                throw new Error('death drop should not happen for zero damage');
+            },
+        },
+    );
+
+    assert.ok(patch);
+    assert.equal((patch?.championVitals as typeof vitals)[1].currentStats.luck, 11);
+    assert.equal((patch?.championVitals as typeof vitals)[2].currentStats.luck, 12);
+    assert.equal(patch?.damageEvents, undefined);
+});
+
+test('applyPartyWideIncomingAttackState rolls spread attack separately for each living champion', () => {
+    const rolled: number[] = [];
+    const patch = applyPartyWideIncomingAttackState(
+        baseState,
+        vitals,
+        10,
+        'Blunt',
+        ['legs'],
+        1000,
+        true,
+        {
+            rollOriginalPartyWideAttack: (damage) => {
+                const next = damage + rolled.length + 1;
+                rolled.push(next);
+                return next;
+            },
+            resolveChampionIncomingAttack: (_state, champion, currentVitals, attack) => ({
+                damage: attack,
+                nextVitals: { ...currentVitals, hp: currentVitals.hp - (champion.id === 1 ? 11 : 12) },
+            }),
+            buildChampionDamageEvent: (level, championId, damage) => ({
+                id: `event-${championId}`,
+                level,
+                target: 'champion',
+                championId,
+                amount: damage,
+                ts: 0,
+            }),
+            buildDeathDrop: () => {
+                throw new Error('death drop should not happen in spread test');
+            },
+        },
+    );
+
+    assert.deepEqual(rolled, [11, 12]);
+    assert.deepEqual(
+        (patch?.damageEvents as Array<{ championId: number; amount: number }>).map((entry) => entry.amount),
+        [11, 12],
+    );
+});

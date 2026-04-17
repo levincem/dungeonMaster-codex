@@ -9,6 +9,8 @@ type PendingSensorEventLike = {
 };
 
 type PendingGeneratorSpawnEventLike = {
+    sensorLevel: number;
+    sensorIndex: number;
     spawnLevel: number;
     spawnX: number;
     spawnY: number;
@@ -18,6 +20,23 @@ type PendingGeneratorSpawnEventLike = {
     groupId: string;
     remaining: number;
 };
+
+export function queuePendingGeneratorSpawnEvent<
+    TPendingGeneratorSpawnEvent extends PendingGeneratorSpawnEventLike,
+>(
+    pendingGeneratorSpawns: TPendingGeneratorSpawnEvent[],
+    event: Omit<TPendingGeneratorSpawnEvent, 'remaining'>,
+    remaining: number,
+): TPendingGeneratorSpawnEvent[] {
+    const alreadyQueued = pendingGeneratorSpawns.some((pending) =>
+        pending.groupId === event.groupId,
+    );
+    if (alreadyQueued) return pendingGeneratorSpawns;
+    return [
+        ...pendingGeneratorSpawns,
+        { ...event, remaining } as TPendingGeneratorSpawnEvent,
+    ];
+}
 
 type PendingSensorStateLike<TCreature> = {
     openDoors: Set<string>;
@@ -34,7 +53,7 @@ type PendingSensorDeps<TSensorState extends PendingSensorStateLike<TCreature>, T
 };
 
 type PendingGeneratorDeps<TSensorState extends PendingSensorStateLike<TCreature>, TCreature> = {
-    hasApproximateOriginalGeneratorCapacity: (ss: TSensorState, spawnLevel: number) => boolean;
+    canMaterializeReservedGeneratorSpawn: (ss: TSensorState, spawnLevel: number) => boolean;
     isGeneratorSpawnBlocked: (ss: TSensorState, spawnLevel: number, spawnX: number, spawnY: number) => boolean;
     createGeneratedCreatureGroupInstances: (
         spawnLevel: number,
@@ -121,7 +140,7 @@ export function processPendingGeneratorSpawns<
             continue;
         }
 
-        if (!deps.hasApproximateOriginalGeneratorCapacity(cur, event.spawnLevel)) {
+        if (!deps.canMaterializeReservedGeneratorSpawn(cur, event.spawnLevel)) {
             remainingEvents.push({ ...event, remaining: deps.retrySeconds });
             continue;
         }

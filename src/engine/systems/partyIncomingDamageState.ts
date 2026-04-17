@@ -260,10 +260,12 @@ export function applyPartyWideIncomingAttackState(
             allowedSlots,
             nowMs,
         );
+        if (resolved.nextVitals !== current) {
+            if (nextVitals === championVitals) nextVitals = { ...championVitals };
+            nextVitals[champion.id] = resolved.nextVitals;
+        }
         if (resolved.damage <= 0) continue;
 
-        if (nextVitals === championVitals) nextVitals = { ...championVitals };
-        nextVitals[champion.id] = resolved.nextVitals;
         damageEvents = [...damageEvents, deps.buildChampionDamageEvent(state.level, champion.id, resolved.damage)];
         if (resolved.nextVitals.hp === 0) newlyDead.push(champion.id);
     }
@@ -275,6 +277,182 @@ export function applyPartyWideIncomingAttackState(
         damageEvents,
         newlyDead,
         nowMs,
+        deps,
+    );
+}
+
+type RuntimeWallBumpState = Pick<
+    PartyDamageState,
+    | 'level'
+    | 'position'
+    | 'party'
+    | 'championInventories'
+    | 'championEquipment'
+    | 'floorItems'
+    | 'deadChampions'
+> & {
+    selectedChampionIndex?: number | null;
+};
+
+type RuntimeIncomingAttackState = Pick<
+    PartyDamageState,
+    | 'level'
+    | 'position'
+    | 'party'
+    | 'championInventories'
+    | 'championEquipment'
+    | 'floorItems'
+    | 'deadChampions'
+    | 'damageEvents'
+    | 'activeShields'
+    | 'activePotionBoosts'
+> & {
+    selectedChampionIndex?: number | null;
+    championCombat?: unknown;
+};
+
+export function applyFrontRowWallBumpDamageRuntimeState(
+    state: RuntimeWallBumpState,
+    championVitals: Record<number, ChampionVitals>,
+    nowMs = Date.now(),
+    deps: PartyDamageDeps & { randomInt: (maxExclusive: number) => number },
+): Record<string, unknown> | null {
+    return applyFrontRowWallBumpDamageState(
+        {
+            ...state,
+            selectedChampionIndex: state.selectedChampionIndex ?? 0,
+            damageEvents: [],
+            activeShields: [],
+            activePotionBoosts: [],
+        },
+        championVitals,
+        nowMs,
+        deps,
+    );
+}
+
+export function applyPartySpellBacklashDamageRuntimeState<DamageClass extends string>(
+    state: Pick<
+        RuntimeIncomingAttackState,
+        | 'level'
+        | 'position'
+        | 'party'
+        | 'championInventories'
+        | 'championEquipment'
+        | 'floorItems'
+        | 'deadChampions'
+        | 'selectedChampionIndex'
+        | 'damageEvents'
+        | 'activeShields'
+        | 'activePotionBoosts'
+    >,
+    championVitals: Record<number, ChampionVitals>,
+    effect: Exclude<ProjectileEffect, 'physical'>,
+    rawDamage: number,
+    nowMs = Date.now(),
+    deps: PartyDamageDeps & {
+        rollOriginalPartyWideAttack: (rawAttack: number) => number;
+        getProjectileDamageClass: (effect: Exclude<ProjectileEffect, 'physical'>) => DamageClass;
+        getChampionAdjustedAttackFromResistance: (
+            champion: Champion,
+            equip: ChampionEquipment,
+            adjustedAttack: number,
+            damageClass: DamageClass,
+            runtimeBonuses: Partial<EquipmentStatBonuses> | undefined,
+        ) => number;
+        getChampionRuntimeBonuses: (
+            champion: Champion,
+            vitals: ChampionVitals,
+            activePotionBoosts: ActivePotionBoost[],
+        ) => Partial<EquipmentStatBonuses> | undefined;
+        getActiveShieldDefense: (
+            activeShields: PartyShield[],
+            nowMs: number,
+            kind: 'fire' | 'magic',
+            championId: number,
+        ) => number;
+    },
+): Record<string, unknown> | null {
+    return applyPartySpellBacklashDamageState(
+        {
+            ...state,
+            selectedChampionIndex: state.selectedChampionIndex ?? 0,
+        },
+        championVitals,
+        effect,
+        rawDamage,
+        nowMs,
+        deps,
+    );
+}
+
+export function applyPartyWideIncomingAttackRuntimeState(
+    state: RuntimeIncomingAttackState,
+    championVitals: Record<number, ChampionVitals>,
+    rawAttack: number,
+    attackType: string,
+    allowedSlots: readonly string[],
+    nowMs = Date.now(),
+    spread: boolean,
+    deps: PartyDamageDeps & {
+        rollOriginalPartyWideAttack: (rawAttack: number) => number;
+        resolveChampionIncomingAttack: (
+            state: RuntimeIncomingAttackState,
+            champion: Champion,
+            currentVitals: ChampionVitals,
+            attack: number,
+            attackType: string,
+            allowedSlots: readonly string[],
+            nowMs: number,
+        ) => { damage: number; nextVitals: ChampionVitals };
+    },
+): Record<string, unknown> | null {
+    return applyPartyWideIncomingAttackState(
+        {
+            ...state,
+            selectedChampionIndex: state.selectedChampionIndex ?? 0,
+        },
+        championVitals,
+        rawAttack,
+        attackType,
+        allowedSlots,
+        nowMs,
+        spread,
+        deps,
+    );
+}
+
+export function applyPartyFallImpactDamageRuntimeState(
+    state: RuntimeIncomingAttackState,
+    championVitals: Record<number, ChampionVitals>,
+    landingLevel: number,
+    landingPosition: [number, number],
+    nowMs = Date.now(),
+    deps: PartyDamageDeps & {
+        rollOriginalPartyWideAttack: (rawAttack: number) => number;
+        resolveChampionIncomingAttack: (
+            state: RuntimeIncomingAttackState,
+            champion: Champion,
+            currentVitals: ChampionVitals,
+            attack: number,
+            attackType: string,
+            allowedSlots: readonly string[],
+            nowMs: number,
+        ) => { damage: number; nextVitals: ChampionVitals };
+    },
+): Record<string, unknown> | null {
+    return applyPartyWideIncomingAttackRuntimeState(
+        {
+            ...state,
+            level: landingLevel,
+            position: landingPosition,
+        },
+        championVitals,
+        20,
+        'Blunt',
+        ['legs', 'feet'],
+        nowMs,
+        false,
         deps,
     );
 }

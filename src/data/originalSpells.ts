@@ -250,12 +250,6 @@ export function getOriginalShieldStrength(runes: readonly string[]): number | nu
     }
 }
 
-export function getOriginalShieldProtectionApprox(runes: readonly string[]): number | null {
-    const rawStrength = getOriginalShieldStrength(runes);
-    if (rawStrength == null) return null;
-    return Math.min(0.6, rawStrength / 64);
-}
-
 export function getOriginalPotionStrengthRange(runes: readonly string[]): { min: number; max: number } | null {
     const descriptor = getOriginalSpellDescriptorForRunes(runes);
     const powerLevel = getOriginalSpellPowerLevel(runes);

@@ -174,9 +174,9 @@ test('resolveCreatureAttackState returns a projectile when ranged attack launch 
                 stolenItem: null,
                 nextInventory: [],
                 nextEquipment: {},
+                nextVitals: targetVitals,
                 shouldFlee: false,
             }),
-            isCharacterLucky: () => false,
             resolveMonsterAttackAgainstChampion: () => ({
                 damage: 0,
                 hitZones: undefined,
@@ -194,6 +194,13 @@ test('resolveCreatureAttackState returns a steal result when a steal attack succ
     const targetVitals = createVitals();
     const stolenItem = createItem('compass');
     const nextEquipment: ChampionEquipment = { torso: undefined };
+    const nextVitals = {
+        ...targetVitals,
+        currentStats: {
+            ...targetVitals.currentStats,
+            luck: 17,
+        },
+    };
 
     const result = resolveCreatureAttackState(
         {
@@ -223,9 +230,9 @@ test('resolveCreatureAttackState returns a steal result when a steal attack succ
                 stolenItem,
                 nextInventory: [],
                 nextEquipment,
+                nextVitals,
                 shouldFlee: true,
             }),
-            isCharacterLucky: () => false,
             resolveMonsterAttackAgainstChampion: () => ({
                 damage: 0,
                 hitZones: undefined,
@@ -241,6 +248,7 @@ test('resolveCreatureAttackState returns a steal result when a steal attack succ
         stolenItem,
         nextInventory: [],
         nextEquipment,
+        nextVitals,
         shouldFlee: true,
     });
 });
@@ -281,9 +289,9 @@ test('resolveCreatureAttackState returns damage when a normal attack lands', () 
                 stolenItem: null,
                 nextInventory: [],
                 nextEquipment: {},
+                nextVitals: targetVitals,
                 shouldFlee: false,
             }),
-            isCharacterLucky: () => false,
             resolveMonsterAttackAgainstChampion: () => ({
                 damage: 6,
                 hitZones: ['torso'],
@@ -298,5 +306,63 @@ test('resolveCreatureAttackState returns damage when a normal attack lands', () 
         targetChampionId: targetChampion.id,
         damage: 6,
         nextVitals,
+    });
+});
+
+test('resolveCreatureAttackState preserves nextVitals when a normal attack deals no damage', () => {
+    const targetChampion = createChampion();
+    const targetVitals = createVitals();
+    const dodgedVitals = {
+        ...targetVitals,
+        currentStats: {
+            ...targetVitals.currentStats,
+            luck: 17,
+        },
+    };
+
+    const result = resolveCreatureAttackState(
+        {
+            state: {
+                position: [6, 6],
+                activePotionBoosts: [],
+            },
+            creature: createCreature(),
+            attackerDef: createDef(),
+            creatureProjectileEffect: null,
+            shouldLaunchProjectile: false,
+            adjacentAfterMove: true,
+            targetChampion,
+            targetVitals,
+            targetInventory: [],
+            targetEquipment: {},
+            levelDifficulty: 4,
+            nowMs: 1000,
+        },
+        {
+            randomInt: () => 0,
+            buildProjectile: () => {
+                throw new Error('buildProjectile should not run for melee damage');
+            },
+            getEffectiveChampionStats: () => ({ dexterity: 20, luck: 15 }),
+            tryStealChampionItem: () => ({
+                stolenItem: null,
+                nextInventory: [],
+                nextEquipment: {},
+                nextVitals: targetVitals,
+                shouldFlee: false,
+            }),
+            resolveMonsterAttackAgainstChampion: () => ({
+                damage: 0,
+                hitZones: ['torso'],
+                damageClass: 'physical',
+                nextVitals: dodgedVitals,
+            }),
+        },
+    );
+
+    assert.deepEqual(result, {
+        kind: 'none',
+        targetChampionId: targetChampion.id,
+        nextVitals: dodgedVitals,
     });
 });

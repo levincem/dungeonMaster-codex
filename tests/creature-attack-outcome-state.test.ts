@@ -116,6 +116,7 @@ test('resolveCreatureAttackOutcomeState applies steal updates to creature and ta
                 stolenItem,
                 nextInventory: [],
                 nextEquipment,
+                nextVitals: createVitals(12),
                 shouldFlee: true,
             },
             creature: createCreature(),
@@ -142,8 +143,43 @@ test('resolveCreatureAttackOutcomeState applies steal updates to creature and ta
         assert.equal(result.creatures[0]?.carriedItems?.[0]?.id, 'compass');
         assert.deepEqual(result.championInventories[2], []);
         assert.deepEqual(result.championEquipment[2], nextEquipment);
+        assert.equal(result.championVitals[2]?.hp, 12);
         assert.equal(result.shouldFlee, true);
     }
+});
+
+test('resolveCreatureAttackOutcomeState preserves champion vitals for none results with runtime updates', () => {
+    const nextVitals = createVitals(12);
+    nextVitals.currentStats.luck = 14;
+
+    const result = resolveCreatureAttackOutcomeState(
+        {
+            attackResult: {
+                kind: 'none',
+                targetChampionId: 2,
+                nextVitals,
+            },
+            creature: createCreature(),
+            creatures: [createCreature()],
+            stateCreatures: [createCreature()],
+            stateProjectiles: [],
+            currentProjectiles: [],
+            championInventories: {},
+            championEquipment: {},
+            baseChampionEquipment: {},
+            championVitals: { 2: createVitals(12) },
+            damageEvents: [],
+            level: 0,
+        },
+        {
+            buildChampionDamageEvent: () => {
+                throw new Error('damage event should not be built for none result');
+            },
+        },
+    );
+
+    assert.equal(result.kind, 'none');
+    assert.equal(result.championVitals?.[2]?.currentStats.luck, 14);
 });
 
 test('resolveCreatureAttackOutcomeState applies damage and returns defeated champion id when hp reaches zero', () => {

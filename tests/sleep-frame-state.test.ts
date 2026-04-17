@@ -91,3 +91,44 @@ test('buildSleepFramePatch merges survival, pending, generator and combat patche
         sleeping: false,
     });
 });
+
+test('buildSleepFramePatch forwards the frame time to timed-effects aging', () => {
+    const state: SleepTestState = {
+        sleeping: true,
+        pendingSensorEvents: [],
+        pendingGeneratorSpawns: [],
+        championVitals: { 1: { hp: 10 } },
+        championTemporaryXP: { 1: { wizard: 1 } },
+    };
+    let capturedNow = -1;
+    buildSleepFramePatch(
+        state,
+        4321,
+        {
+            advanceSurvivalTime: () => ({
+                championVitals: { 1: { hp: 12 } },
+                championTemporaryXP: { 1: { wizard: 0 } },
+                elapsedGameTimeTicks: 5,
+                lastSurvivalEffectGameTick: 4,
+                freezeLifeRemainingTicks: 2,
+                advancedMs: 1000,
+            }),
+            ageTimedEffectsByMs: (_sleepState, _advanceMs, now) => {
+                capturedNow = now;
+                return {};
+            },
+            processPendingSensorEvents: () => ({
+                sensorChanges: {},
+                pendingSensorEvents: [],
+            }),
+            processPendingGeneratorSpawns: () => ({
+                sensorChanges: {},
+                pendingGeneratorSpawns: [],
+            }),
+            applyCombatTick: () => null,
+            isPartyRested: () => true,
+        },
+    );
+
+    assert.equal(capturedNow, 4321);
+});

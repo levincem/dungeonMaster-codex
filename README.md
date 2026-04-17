@@ -4,9 +4,9 @@ Remake / reinterpretation of *Dungeon Master* built with React, TypeScript, Vite
 
 The goal is to rebuild the original game's exploration, champions, creatures, objects, spells, mechanisms, and dungeon data as faithfully as possible inside a modern and maintainable web codebase.
 
-This is a non-commercial amateur project. The visuals are a mix of extracted references and AI-assisted asset production. A significant part of the reverse-engineering and implementation workflow has been developed with LLM assistance, then checked and refined inside the repository. 
+This is a non-commercial amateur project. The visuals are a mix of extracted references and AI-assisted asset production. A significant part of the reverse-engineering and implementation workflow has been developed with LLM assistance, then checked and refined inside the repository.
 
-Improving graphics—including images of items on the ground and in the inventory, as well as monster sprites with more frames—is a potential area for development.
+Improving graphics, including images of items on the ground and in the inventory, as well as monster sprites with more frames, is a potential area for development.
 
 ## Live Version
 
@@ -35,17 +35,24 @@ The project is now well beyond prototype stage and already playable through a su
 - endgame path wired through Firestaff completion, Lord Chaos fusion, Grey Lord transition, and victory screen
 - dedicated `Game Over` screen with manual return to title
 - floor creature generators restored from source-backed runtime data
+- generator configs now come from decoded extracted data, including spawn tile, raw count, randomized count flag, hp multiplier and disable timing
+- generator saturation is now derived from explicit runtime group records (`alive` / `reserved`) instead of only implicit string counting
+- new generator activations and already-reserved generator retries no longer reuse the same capacity gate
+- reserved generator retries can now resolve within the total `60`-group budget instead of being re-blocked by the stricter `55`-group new-spawn margin
+- distinct delayed reservations from the same generator are no longer collapsed into a single pending retry entry
 - creature groups now use true runtime subcells (`frontLeft`, `frontRight`, `backLeft`, `backRight`) instead of a simple `left/right` fallback
+- distinct creature groups no longer merge onto the same tile just because they share the same creature family
+- creatures from the same local runtime group now reuse a shared movement plan during a monster tick instead of drifting apart from independent movement rolls
 - lone creatures are now rendered centered on their tile when they occupy it alone
 - persistent save / resume of the mutable runtime state
 - save integrity checks plus automatic backup fallback
 - in-game options modal with movement key rebinding
-- blocking alpha welcome modal and lightweight help modal available in-game
+- blocking alpha welcome modal and tabbed in-game player guide available in-game
 - simple `i18n` layer present with English as the default locale
 - sleep now runs as a continuous accelerated state instead of a single large fast-forward step
 - GA4 game-session events are instrumented for SPA play tracking (`game_start`, `game_resume`, `game_heartbeat`, `game_end`, `game_victory`)
 
-It is not a finished remake yet. The largest remaining work is no longer data extraction or core runtime cleanup, but long-form play validation, the last fidelity gaps, and targeted optimization.
+It is not a finished remake yet. The largest remaining work is no longer core data recovery, but long-form play validation, the last fidelity gaps, and targeted optimization.
 
 Current save/load behavior:
 
@@ -57,6 +64,10 @@ Current save/load behavior:
 
 Main remaining gaps before calling the runtime "fully aligned":
 
+- `0696.RAW1` is still not semantically decoded at 100%
+- creature generators still have one important structural approximation:
+  - runtime generator parameters are decoded
+  - the remaining uncertainty is now mostly about exact FTL `GROUP/ACTIVE_GROUP` lifecycle semantics, especially the `active / dormant` boundary
 - the full path still needs a targeted long playtest from `Zokathra` through Lord Chaos fusion
 - some rare late-game or edge-case mechanism interactions still need targeted play verification
 - some combat damage and timing edge cases still need targeted confirmation against original references
@@ -99,7 +110,7 @@ npm run dev
 npm run build
 ```
 
-The production build passes as of this update (`2026-04-16`).
+The production build passes as of this update (`2026-04-17`).
 
 ## Project Structure
 
@@ -133,6 +144,10 @@ assets/
     reference_exports/          Archived/reference JSON exports no longer kept in public/
 
 docs/
+  PROJECT_STATE_INDEX.md        Recommended doc entry point for current project state
+  FIDELITY_100_VERDICT.md       Honest summary of what can and cannot be claimed yet
+  FIDELITY_REMAINING_MATRIX.md  Remaining open extraction/runtime/fidelity gaps
+  GENERATOR_ALIGNMENT_NOTES.md  Focused notes on generator decoding vs runtime behavior
   REMAKE_STATUS.md              Global project status and system-by-system audit
   RUNTIME_ALIGNMENT_AUDIT.md    Source-data vs runtime integration notes
   CODEBASE_REFERENCE.md         Codebase map
@@ -170,6 +185,11 @@ That directory contains:
 
 The most useful detailed internal summaries are:
 
+- [docs/PROJECT_STATE_INDEX.md](docs/PROJECT_STATE_INDEX.md)
+- [docs/NEXT_PHASE_PLAN.md](docs/NEXT_PHASE_PLAN.md)
+- [docs/FIDELITY_100_VERDICT.md](docs/FIDELITY_100_VERDICT.md)
+- [docs/FIDELITY_REMAINING_MATRIX.md](docs/FIDELITY_REMAINING_MATRIX.md)
+- [docs/GENERATOR_ALIGNMENT_NOTES.md](docs/GENERATOR_ALIGNMENT_NOTES.md)
 - [docs/REMAKE_STATUS.md](docs/REMAKE_STATUS.md)
 - [docs/RUNTIME_ALIGNMENT_AUDIT.md](docs/RUNTIME_ALIGNMENT_AUDIT.md)
 - [docs/CODEBASE_REFERENCE.md](docs/CODEBASE_REFERENCE.md)
@@ -192,6 +212,7 @@ The most useful detailed internal summaries are:
 - The project should currently be treated as a playable alpha rather than a finished remake.
 - The world-content extraction is now treated as reliable.
 - The central runtime has now been heavily refactored into smaller tested subsystems, so most remaining risk is gameplay validation rather than core maintainability.
+- The largest remaining structural runtime gap is around exact active-group semantics for creature generators, not basic generator-data decoding.
 - Remade project visuals are always preferred when available; extracted original bitmaps are kept only as placeholders / fallback art.
 - `docs/` is used as project memory and audit notes; the README stays intentionally concise.
 

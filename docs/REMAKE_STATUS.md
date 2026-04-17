@@ -1,6 +1,6 @@
 ﻿# Dungeon Master Remake - Etat du projet
 
-Version remise a jour a partir du code observe le `2026-04-15`.
+Version remise a jour a partir du code observe le `2026-04-17`.
 
 ## Resume rapide
 
@@ -12,6 +12,68 @@ Le point important a ce stade:
 - la dette principale n'est plus "trouver les donnees", mais "fermer les derniers ecarts de fidelite, nettoyer l'UX et optimiser"
 - le projet doit maintenant etre traite comme une alpha desktop-first jouable, pas comme un prototype
 - la reference prioritaire pour la fidelite runtime est la branche PC DOS `DM12/DM13`; l'Atari ST sert surtout de recoupement quand les comportements restent tres proches
+
+Docs de reference a privilegier pour l'etat courant:
+
+- [docs/PROJECT_STATE_INDEX.md](/D:/DungeonMaster-codex/docs/PROJECT_STATE_INDEX.md)
+- [docs/FIDELITY_100_VERDICT.md](/D:/DungeonMaster-codex/docs/FIDELITY_100_VERDICT.md)
+- [docs/FIDELITY_REMAINING_MATRIX.md](/D:/DungeonMaster-codex/docs/FIDELITY_REMAINING_MATRIX.md)
+- [docs/RUNTIME_ALIGNMENT_AUDIT.md](/D:/DungeonMaster-codex/docs/RUNTIME_ALIGNMENT_AUDIT.md)
+
+## Session 2026-04-17
+
+Points consolides dans cette passe:
+
+- le coeur gameplay anciennement suffixe `Approx` a ete largement sorti du `store` vers des helpers purs et testes
+- `luck`, `quickness`, `resistances`, `wound defense`, `shield defense`, `projectile impacts`, `XP/level-up`, `survival/regen/sleep` sont maintenant beaucoup mieux recales et mieux documentes
+- une premiere passe de maintenabilite a aussi renomme dans `store.ts` les vieux wrappers gameplay `Approx` qui ne designaient plus de vraie approximation
+- une deuxieme passe de maintenabilite a commence a sortir du `store` l'orchestration runtime des degats de party vers [src/engine/systems/partyIncomingDamageState.ts](/D:/DungeonMaster-codex/src/engine/systems/partyIncomingDamageState.ts)
+- une troisieme passe a commence a sortir du `store` l'orchestration de transport de pas de la party vers [src/engine/systems/partyStepTransport.ts](/D:/DungeonMaster-codex/src/engine/systems/partyStepTransport.ts)
+- une quatrieme passe a commence a sortir du `store` l'orchestration des effets immediats de transport vers [src/engine/systems/partyImmediateTransportEffects.ts](/D:/DungeonMaster-codex/src/engine/systems/partyImmediateTransportEffects.ts)
+- une cinquieme passe a centralise le cablage transport runtime dans [src/engine/systems/transportRuntimeDeps.ts](/D:/DungeonMaster-codex/src/engine/systems/transportRuntimeDeps.ts), ce qui retire au `store` une bonne partie des builders de deps lies aux pits, teleporteurs et capteurs de mouvement
+- une sixieme passe a sorti aussi le cablage `CLIMB DOWN` dans [src/engine/systems/climbDownRuntimeDeps.ts](/D:/DungeonMaster-codex/src/engine/systems/climbDownRuntimeDeps.ts)
+- une septieme passe a centralise le cablage des capteurs et interactions murales dans [src/engine/systems/sensorRuntimeDeps.ts](/D:/DungeonMaster-codex/src/engine/systems/sensorRuntimeDeps.ts), y compris mouvement, evenements differes, push sensors, wall sensors, alcoves et echanges muraux
+- une huitieme passe a commence a sortir le noyau runtime des capteurs dans [src/engine/systems/sensorRuntimeCore.ts](/D:/DungeonMaster-codex/src/engine/systems/sensorRuntimeCore.ts), avec les requetes capteurs, les cibles sonores de portes, la revelation murale et la mise en file / resolution immediate des effets simples
+- une neuvieme passe a sorti le coeur `direct / floor / wall` du declenchement capteurs dans [src/engine/systems/sensorTriggeredEffects.ts](/D:/DungeonMaster-codex/src/engine/systems/sensorTriggeredEffects.ts)
+- une dixieme passe a etendu [src/engine/systems/sensorRuntimeCore.ts](/D:/DungeonMaster-codex/src/engine/systems/sensorRuntimeCore.ts) pour y sortir aussi les helpers d'etat capteurs (`key`, `snapshot`, `runtimeData`, `placement`) et la construction des projectiles de wall launchers, avec une injection explicite des donnees d'objets physiques depuis le `store`
+- une onzieme passe a sorti l'activation runtime des generateurs vers [src/engine/systems/sensorGeneratorRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/sensorGeneratorRuntime.ts), en isolant cooldown, reservation, blocage de case et mise en file des retries
+- une douzieme passe a sorti la composition des groupes de creatures generes vers [src/engine/systems/generatedCreatureGroups.ts](/D:/DungeonMaster-codex/src/engine/systems/generatedCreatureGroups.ts), avec tests sur capacite, sous-cases et creation effective du groupe
+- une treizieme passe a sorti l'etat runtime des sous-cases de creatures vers [src/engine/systems/creatureTileState.ts](/D:/DungeonMaster-codex/src/engine/systems/creatureTileState.ts), avec tests sur capacite locale, attribution des cellules, normalisation par tuile et occupation de cellule
+- une quatorzieme passe a sorti l'orchestration d'attaque d'un monstre vers [src/engine/systems/monsterAttackTurn.ts](/D:/DungeonMaster-codex/src/engine/systems/monsterAttackTurn.ts), avec tests cibles sur l'avance de contact et la resolution d'attaque
+- une quinzieme passe a sorti l'orchestration de mouvement d'un monstre vers [src/engine/systems/monsterMovementTurn.ts](/D:/DungeonMaster-codex/src/engine/systems/monsterMovementTurn.ts), avec tests sur les cas `fluxcage`, `hold` et plan de groupe partage
+- une seizieme passe a sorti la finalisation de destination d'un monstre vers [src/engine/systems/monsterDestinationTurn.ts](/D:/DungeonMaster-codex/src/engine/systems/monsterDestinationTurn.ts), avec tests sur la conservation de tableau quand rien ne change et la normalisation des tuiles source/destination
+- une dix-septieme passe a sorti la preparation d'un tour monstre vers [src/engine/systems/monsterTurnState.ts](/D:/DungeonMaster-codex/src/engine/systems/monsterTurnState.ts), avec tests sur l'initialisation des timers, la detection de la party, la memoire de cible et les flags runtime
+- une dix-huitieme passe a assemble ces briques dans [src/engine/systems/monsterSingleTurn.ts](/D:/DungeonMaster-codex/src/engine/systems/monsterSingleTurn.ts), de sorte que [src/engine/store.ts](/D:/DungeonMaster-codex/src/engine/store.ts) ne garde plus essentiellement que l'application des maps runtime externes et les side-effects audio/UI
+- une dix-neuvieme passe a sorti la boucle complete `tickMonsters` dans [src/engine/systems/monsterTickRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/monsterTickRuntime.ts), ce qui laisse au `store` surtout le cablage des maps runtime externes et les callbacks audio/UI
+- une vingtieme passe a sorti la boucle projectiles / nuages toxiques de `tickSpells` dans [src/engine/systems/spellProjectileTickRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/spellProjectileTickRuntime.ts), avec conservation des impacts party/creatures, de la continuation de projectile et des pulses de poison cloud
+- une vingt-et-unieme passe a sorti l'orchestrateur commun des deplacements party vers [src/engine/systems/partyMoveCommand.ts](/D:/DungeonMaster-codex/src/engine/systems/partyMoveCommand.ts), ce qui retire enfin du `store` la duplication entre `moveForward`, `moveBackward`, `strafeLeft` et `strafeRight`
+- une vingt-deuxieme passe a sorti l'orchestration top-level de `attackFront` vers [src/engine/systems/attackFrontRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/attackFrontRuntime.ts), avec un helper pur qui ne charge plus les tables d'armes au module load et des tests dedies sur les chemins projectile, utilitaire et melee
+- une vingt-troisieme passe a sorti l'orchestration top-level de `castSpell` vers [src/engine/systems/castSpellRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/castSpellRuntime.ts), ce qui laisse au `store` surtout les closures de dependances metier autour de la preparation, des sorts non projectiles et des projectiles
+- une vingt-quatrieme passe a sorti les commandes runtime `pickup / drop` vers [src/engine/systems/floorItemCommandRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/floorItemCommandRuntime.ts), ce qui retire du `store` la duplication `pickupItem / pickupItemToChampion` et la logique directe `dropItem` autour de l'autel, des capteurs de sol et des effets de transport immediats
+- une vingt-cinquieme passe a termine la famille des commandes objet en sortant `useItem`, `fillWater` et les wrappers d'interaction objet sur mur de face vers [src/engine/systems/itemCommandRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/itemCommandRuntime.ts), avec tests dedies sur l'usage, le remplissage a la fontaine et les deux chemins d'interaction murale
+- une vingt-sixieme passe a sorti `throwCarriedItem` et `resurrectChampion` vers [src/engine/systems/itemCarryCommandRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/itemCarryCommandRuntime.ts), puis a extrait l'orchestrateur top-level de `tickSpells` vers [src/engine/systems/tickSpellsRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/tickSpellsRuntime.ts), ce qui laisse au `store` surtout le builder de dependances projectile/poison cloud au lieu du flux complet
+- une vingt-septieme passe a sorti le reliquat des transferts d'inventaire/equipement (`dropCarriedItem`, `equipItem`, `unequipItem`, `giveItem`, `giveEquippedItem`) vers [src/engine/systems/itemTransferCommandRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/itemTransferCommandRuntime.ts), ce qui retire encore au `store` plusieurs wrappers CRUD qui ne faisaient plus que de la validation et de la delegation
+- une vingt-huitieme passe a sorti l'orchestrateur de commande `castSpell` vers [src/engine/systems/castSpellCommandRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/castSpellCommandRuntime.ts), ce qui retire du `store` la grosse fermeture top-level du cast et laisse surtout les deps runtime explicites autour des sorts non projectiles et des projectiles
+- une vingt-neuvieme passe a sorti le builder dense de dependances projectile de `tickSpells` vers [src/engine/systems/tickSpellsProjectileDeps.ts](/D:/DungeonMaster-codex/src/engine/systems/tickSpellsProjectileDeps.ts), en y deplacant aussi les helpers d'impact projectile, d'explosion, de poison cloud lingering et de disruption `nonmaterial`, ce qui laisse au `store` surtout le cablage runtime haut niveau et les deux callbacks encore lies a l'etat courant
+- une trentieme passe a termine l'extraction des builders de dependances `sensor / transport / CLIMB DOWN` hors du `store`, en deplacant leur assemblage vers [src/engine/systems/sensorRuntimeDeps.ts](/D:/DungeonMaster-codex/src/engine/systems/sensorRuntimeDeps.ts), [src/engine/systems/transportRuntimeDeps.ts](/D:/DungeonMaster-codex/src/engine/systems/transportRuntimeDeps.ts) et [src/engine/systems/climbDownRuntimeDeps.ts](/D:/DungeonMaster-codex/src/engine/systems/climbDownRuntimeDeps.ts), ce qui laisse [src/engine/store.ts](/D:/DungeonMaster-codex/src/engine/store.ts) plus proche d'un vrai point de composition Zustand et moins d'un depot de builders locaux
+- une trente-et-unieme passe a sorti le cablage top-level des sorts du `store` vers [src/engine/systems/storeSpellRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeSpellRuntime.ts), qui porte maintenant l'orchestration runtime de `castSpell` et `tickSpells`; le `store` ne garde plus que les callbacks stateful indispensables et les side-effects externes comme le son d'ouverture de porte
+- une trente-deuxieme passe a sorti l'assemblage des dependances runtime de `tickFrame` vers [src/engine/systems/tickFrameRuntimeDeps.ts](/D:/DungeonMaster-codex/src/engine/systems/tickFrameRuntimeDeps.ts), ce qui retire du `store` le gros objet inline de deps exploration/sleep/endgame/pending events et laisse `tickFrame` plus proche d'un vrai point d'orchestration
+- une trente-troisieme passe a sorti l'etat runtime et le paquet de dependances de `tickMonsters` vers [src/engine/systems/storeMonsterRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeMonsterRuntime.ts), ce qui retire du `store` le gros assemblage inline du tick monstre et clarifie enfin le contrat de la boucle IA
+- une trente-quatrieme passe a recentralise dans [src/engine/systems/storeSpellRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeSpellRuntime.ts) une partie de la plomberie stateful de `tickSpells` (`party damage deps`, bindings de teleporter projectile et de resolution d'impact champion), ce qui retire encore du `store` plusieurs closures de cablage autour des sorts
+- une trente-cinquieme passe a sorti les wrappers de deplacement party repetitifs vers [src/engine/systems/storePartyMoveRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storePartyMoveRuntime.ts), ce qui retire du `store` une bonne partie du cablage dupliqué `moveForward / moveBackward / strafeLeft / strafeRight` ainsi que leurs side-effects UI associes
+- une trente-sixieme passe a sorti dans [src/engine/systems/storeMonsterRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeMonsterRuntime.ts) les deux derniers callbacks stateful principaux du tick monstre (`resolveMonsterAttackAgainstChampion` et `resolveCreatureTeleporterTransport`), ce qui laisse au `store` un bloc monstre encore plus proche d'un pur assemblage
+- une trente-septieme passe a sorti le cablage runtime restant des interactions murales vers [src/engine/systems/storeWallInteractionRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeWallInteractionRuntime.ts), ce qui retire du `store` le wiring direct de `activateWallSensor`, des interactions `front wall` et du `Vi Altar`, avec tests dedies sur l'application de patch, la decoration de resurrection et le nettoyage du drag de sol
+- une trente-huitieme passe a sorti les helpers de feedback runtime (`messages`, `damage events`, `death dust`, celebration du `Vi Altar`) vers [src/engine/systems/storeFeedbackRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeFeedbackRuntime.ts), ainsi que le petit bloc portes/combat vers [src/engine/systems/storeDoorRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeDoorRuntime.ts); le `store` ne garde plus ici que le cablage Zustand et les appels aux sous-systemes, avec tests dedies sur les toggles de porte, le tick de porte, le tick combat et la decoration de resurrection
+- une trente-neuvieme passe a sorti l'orchestration runtime locale de `attackFront` vers [src/engine/systems/storeAttackFrontRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeAttackFrontRuntime.ts), ce qui retire du `store` le gros cablage projectile / utilitaire / melee encore colle a la commande d'attaque de face, tout en gardant [src/engine/systems/attackFrontRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/attackFrontRuntime.ts) comme coeur top-level du flux
+- une quarantieme passe a sorti la fabrique des degats runtime de party vers [src/engine/systems/storePartyDamageRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storePartyDamageRuntime.ts), ce qui retire du `store` le builder inline de `wall bump`, `fall impact`, `spell backlash` et `party-wide incoming attack` au profit d'un module dedie reutilise par les flux de mouvement et de sorts
+- une quarante-et-unieme passe a sorti les petits wrappers `regen / sleep / endgame` vers [src/engine/systems/storeTimeRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeTimeRuntime.ts), ce qui retire du `store` trois helpers de plomberie encore purement delegataires et simplifie le cablage de `tickFrame` et `regenTick`
+- une quarante-deuxieme passe a sorti le builder de deps `pickup / drop` au sol vers [src/engine/systems/storeFloorItemRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeFloorItemRuntime.ts), ce qui retire du `store` un autre bloc de plomberie locale autour de `pickupItem`, `pickupItemToChampion` et `dropItem`
+- il ne reste plus de gros bloc gameplay central suivi comme "non prouve" dans la matrice de fidelite
+- les vrais restes ouverts sont maintenant:
+  - `0696.RAW1`
+  - la structure runtime des groupes actifs / generateurs
+  - quelques couches hybrides / fallbacks
+  - la validation en jeu des cas rares et de la fin
 
 ## Passe recente frontend et prod
 
@@ -125,11 +187,13 @@ Etat actuel:
 - portraits, paths d'assets et resolution d'images ont ete securises
 - save button disponible depuis la fiche champion
 - panneau d'options disponible dans le HUD pour les touches de deplacement
+- manuel d'aide en jeu integre depuis `src/i18n/help.en.json`, avec navigation par onglets verticaux
 - HUD de debug plus explicite avec coords globales et locales (`g:` / `l:`) pour eviter les confusions entre lecture de map et position en jeu
 
 Reste a faire:
 
 - elargir les options exposees au joueur
+- ajouter plus tard une aide basique d'onboarding pour les nouveaux joueurs
 - continuer le polish desktop de certaines vues UI
 
 ### Objets, equipement et statuts
@@ -150,6 +214,7 @@ Reste a faire:
 Etat actuel:
 
 - pipeline runtime reel branche autour de `src/data/runes.ts` et `src/engine/store.ts`
+- le cablage projectile de `tickSpells` est maintenant centralise dans `src/engine/systems/tickSpellsProjectileDeps.ts`, ce qui retire du `store` les helpers locaux de resolution d'impact et d'effets de projectile
 - ordre des runes runtime recale sur les `spellID` Atari / `i560`
 - catalogue extrait des sorts recale sur les 25 descripteurs Atari, sans sorts de soin speculatifs dans `game_db`
 - large set de sorts jouables et de projectiles differencies
@@ -285,10 +350,11 @@ Reste a faire:
 
 - plusieurs comportements tres fins restent encore interpretes plutot que reproduits instruction par instruction
 - quelques familles speciales et cas de fin de jeu meritent encore des tests cibles
+- garder pour plus tard une aide basique / onboarding de demarrage pour les nouveaux joueurs
 - raffiner la fidelite des generateurs:
   - cadence exacte
-  - nombre reel de creatures par repop
-  - interpretation exacte de `generatorHealthMultiplier`
+  - saturation exacte des groupes actifs
+  - cas limites de coexistence avec la party et les retries
 
 Verdict:
 

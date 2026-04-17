@@ -1,0 +1,49 @@
+@echo off
+
+set IMFCONV=imf2wav.exe
+set IMFRATE=560
+set HERTZ=44100
+
+%IMFCONV% %1 %1-01.wav %IMFRATE% %HERTZ% 1
+if ERRORLEVEL 1 del %1-01.wav
+
+%IMFCONV% %1 %1-02.wav %IMFRATE% %HERTZ% 2
+if ERRORLEVEL 1 del %1-02.wav
+
+%IMFCONV% %1 %1-03.wav %IMFRATE% %HERTZ% 4
+if ERRORLEVEL 1 del %1-03.wav
+
+%IMFCONV% %1 %1-04.wav %IMFRATE% %HERTZ% 8
+if ERRORLEVEL 1 del %1-04.wav
+
+%IMFCONV% %1 %1-05.wav %IMFRATE% %HERTZ% 16
+if ERRORLEVEL 1 del %1-05.wav
+
+%IMFCONV% %1 %1-06.wav %IMFRATE% %HERTZ% 32
+if ERRORLEVEL 1 del %1-06.wav
+
+%IMFCONV% %1 %1-07.wav %IMFRATE% %HERTZ% 64
+if ERRORLEVEL 1 del %1-07.wav
+
+%IMFCONV% %1 %1-08.wav %IMFRATE% %HERTZ% 128
+if ERRORLEVEL 1 del %1-08.wav
+
+%IMFCONV% %1 %1-09.wav %IMFRATE% %HERTZ% 256
+if ERRORLEVEL 1 del %1-09.wav
+
+%IMFCONV% %1 %1-10.wav %IMFRATE% %HERTZ% 512
+if ERRORLEVEL 1 del %1-10.wav
+
+%IMFCONV% %1 %1-11.wav %IMFRATE% %HERTZ% 1024
+if ERRORLEVEL 1 del %1-11.wav
+
+%IMFCONV% %1 %1-12.wav %IMFRATE% %HERTZ% 2048
+if ERRORLEVEL 1 del %1-12.wav
+
+%IMFCONV% %1 %1-13.wav %IMFRATE% %HERTZ% 4096
+if ERRORLEVEL 1 del %1-13.wav
+
+%IMFCONV% %1 %1-14.wav %IMFRATE% %HERTZ% 8192
+if ERRORLEVEL 1 del %1-14.wav
+
+pause

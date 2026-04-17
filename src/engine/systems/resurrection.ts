@@ -1,5 +1,16 @@
 import type { Champion } from '../../types/champion';
-import type { ChampionEquipment, FloorItem, GameTile, WallTextObject } from '../../types/game';
+import type { CardinalDir, ChampionEquipment, FloorItem, GameTile, WallTextObject } from '../../types/game';
+
+function hasAltarText(entry: unknown): entry is WallTextObject {
+    return Boolean(
+        entry &&
+        typeof entry === 'object' &&
+        'category' in entry &&
+        (entry as WallTextObject).category === 'Text' &&
+        typeof (entry as WallTextObject).text === 'string' &&
+        (entry as WallTextObject).text!.includes('ALTAR'),
+    );
+}
 
 export function createReincarnatedChampion(
     champion: Champion,
@@ -63,12 +74,20 @@ export function isAltarTile(
     getTile: (level: number, x: number, y: number) => GameTile | undefined,
 ): boolean {
     const tile = getTile(level, x, y);
+    return Boolean(tile?.objects.some(hasAltarText));
+}
+
+export function isAltarWallFace(
+    level: number,
+    x: number,
+    y: number,
+    face: CardinalDir,
+    getTile: (level: number, x: number, y: number) => GameTile | undefined,
+): boolean {
+    const tile = getTile(level, x, y);
     if (!tile) return false;
     return tile.objects.some(
-        (entry) =>
-            entry.category === 'Text' &&
-            typeof (entry as WallTextObject).text === 'string' &&
-            (entry as WallTextObject).text!.includes('ALTAR'),
+        (entry) => hasAltarText(entry) && entry.tilePos === face,
     );
 }
 

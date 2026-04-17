@@ -135,3 +135,44 @@ test('resolveChampionIncomingAttack can apply wounds on surviving non-normal hit
     assert.equal(result.nextVitals.hp, 20);
     assert.equal(result.nextVitals.wounds.head, true);
 });
+
+test('resolveChampionIncomingAttack applies physical shields through the wound-defense path', () => {
+    const champion = createChampion(1);
+    const vitals = createVitals();
+    const withoutShield = resolveChampionIncomingAttack(
+        baseState,
+        champion,
+        vitals,
+        10,
+        'Sharp',
+        ['torso'],
+        1000,
+        {
+            ...baseDeps,
+            scaleOriginalAttack: (value: number, shift: number, factor: number) =>
+                Math.floor((value * factor) / (1 << shift)),
+        },
+    );
+
+    const withShield = resolveChampionIncomingAttack(
+        {
+            ...baseState,
+            activeShields: [{ id: 'party-shield', expiresAt: 2000, defense: 40, kind: 'physical' }],
+        },
+        champion,
+        vitals,
+        10,
+        'Sharp',
+        ['torso'],
+        1000,
+        {
+            ...baseDeps,
+            getActiveShieldDefense: (_shields, _nowMs, shieldKind) => shieldKind === 'physical' ? 40 : 0,
+            scaleOriginalAttack: (value: number, shift: number, factor: number) =>
+                Math.floor((value * factor) / (1 << shift)),
+        },
+    );
+
+    assert.equal(withoutShield.damage, 20);
+    assert.equal(withShield.damage, 14);
+});

@@ -2,12 +2,46 @@
 
 Etat du runtime actuel compare aux donnees originales desormais considerees comme fiables.
 
-Version observee dans le code au 2026-04-15.
+Version observee dans le code au 2026-04-17.
+
+Lecture courte apres la derniere relecture code/runtime:
+
+- pas de nouvelle incoherence gameplay centrale trouvee dans le code actif
+- le reste ouvert est surtout structurel (`GROUP/ACTIVE_GROUP`), hybride (glue data / fallbacks), ou a valider en jeu
 
 Reference prioritaire de fidelite gameplay:
 
 - version PC DOS `DM12/DM13` quand une divergence existe entre branches source
 - version Atari ST comme source de recoupement utile sur les donnees et comportements tres proches, pas comme cible prioritaire du remake
+
+## Fermetures recentes - 2026-04-17
+
+Points a considerer comme fortement recales cote gameplay central:
+
+- les formules `luck`, `quickness`, `resistances`, `wound defense`, `shield defense` et une large partie des impacts de projectiles sont maintenant sorties du `store` vers des helpers purs et testes
+- l'XP et le `level-up` des champions deleguent maintenant a un helper dedie source-backed, au lieu de garder une logique locale melangee
+- la couche `survival / regen / sleep` ne constitue plus un bloc fidelity ouvert:
+  - les wrappers historiques deleguent maintenant a des helpers dedies
+  - la frame de sommeil propage aussi le `now` runtime au lieu d'un `Date.now()` implicite
+- les anciens suffixes `Approx` du `store` ne designent plus tous de vraies approximations gameplay:
+  - plusieurs sont maintenant de simples points d'entree historiques vers des helpers testes
+
+Point restant ouvert mais borne:
+
+- la notion exacte de `GROUP/ACTIVE_GROUP` et la saturation exacte des generateurs restent encore emulees, pas strictement reproduites
+- les parametres decodeurs de generateurs eux-memes ne sont plus le coeur du doute:
+  - la randomisation du compte et `generatorHealthMultiplier` sont maintenant lus et rebranches cote runtime
+  - le vrai reste ouvert est surtout structurel, autour du comptage exact des groupes actifs
+  - une derive importante a deja ete reduite: deux groupes runtime distincts ne fusionnent plus sur une meme case simplement parce qu'ils partagent le meme type de creature
+  - une autre derive importante a ete reduite: les creatures d'un meme groupe local reutilisent maintenant un plan de mouvement partage pendant le tick, au lieu de tirer chacune une direction independante
+  - le comptage approximate repose maintenant sur des enregistrements de groupes runtime explicites `alive` / `reserved`, plutot que sur un simple comptage implicite de `Set<string>`
+  - la capacite runtime distingue maintenant mieux un nouveau spawn du retry d'un groupe deja reserve:
+    - la marge stricte de `5` slots reste appliquee aux nouveaux groupes
+    - un groupe deja reserve peut se materialiser tant que le budget total de `60` groupes n'est pas depasse
+  - des reservations differees distinctes d'un meme generateur ne sont plus compressees artificiellement dans une seule entree pending
+  - la capacite des generateurs n'est plus bypassed simplement parce qu'un spawn vise un autre niveau que celui de la party:
+    - le gate runtime s'applique maintenant au `spawnLevel` lui-meme
+    - le vrai reste ouvert n'est donc plus ce bypass, mais la definition exacte de ce qui doit encore compter comme groupe `actif` ou `dormant`
 
 ## Fermetures recentes - 2026-04-15
 
@@ -54,6 +88,7 @@ Points a considerer comme clos sauf regression constatee en jeu:
   - le runtime applique maintenant aussi le garde-fou FTL sur la saturation de la map de la party:
     - FTL bloque les nouveaux groupes quand on approche des `60` groupes actifs et garde `5` slots de marge
     - le remake approxime maintenant cela par des `groupId` runtime partages quand ils existent, avec fallback sur les cases occupees pour les vieux cas sans groupe explicite
+    - les nouveaux groupes et les groupes deja reserves ne reutilisent plus le meme gate de capacite
   - quand une case de spawn est occupee par le groupe ou par d'autres creatures, le runtime ne "remplit" plus artificiellement cette case:
     - un groupe genere est maintenant mis en attente puis retente plus tard
     - le retry suit la cadence FTL des events `move later`, soit `5` ticks source
@@ -65,8 +100,11 @@ Points a considerer comme clos sauf regression constatee en jeu:
   - les groupes generes differes ne reutilisent plus artificiellement le meme `groupId` d'un ancien spawn sur la meme case:
     - chaque activation genere maintenant une identite de groupe distincte
     - le comptage de saturation des groupes actifs est donc moins faussement compresse
+  - la file de retries ne dedupe plus non plus simplement "meme sensor / meme case / meme type":
+    - deux activations distinctes d'un meme generateur peuvent maintenant reserver deux groupes runtime distincts
   - un spawn differe ne contourne plus la limite approximate des groupes actifs:
     - si la map de la party est encore saturee, le retry repart simplement sur son delai `move later`
+    - inversement, un groupe deja reserve n'est plus rebloque par la marge stricte des nouveaux groupes tant que le budget total de `60` slots reste disponible
   - les generateurs de sol locaux `type 6` ne sont plus oublies dans le pipeline `enter floor square`:
     - ils se declenchent maintenant aussi quand la party entre directement sur leur case
     - le runtime n'est donc plus limite aux seuls cas ou un autre sensor cible ensuite le generateur
@@ -123,7 +161,7 @@ Point restant ouvert mais borne:
 - la notion exacte de `groupes actifs` reste encore approximee cote remake.
   - le runtime a maintenant des sous-cases de tile pour les creatures et un `groupId` runtime leger pour les spawns / groupes poses sur une meme case
   - il ne reproduit pas encore toute la structure interne `GROUP/ACTIVE_GROUP` du moteur FTL
-  - la limite de saturation des generateurs est maintenant recalee sur l'esprit FTL, mais pas encore sur une representation interne complete des groupes source
+  - la limite de saturation des generateurs est maintenant recalee sur l'esprit FTL, y compris la distinction entre nouveaux groupes et groupes deja reserves, mais pas encore sur une representation interne complete des groupes source
 - quelques comportements de creatures restent encore partiellement manuels.
   - les projectiles des vrais lanceurs de sorts (`Wizard Eye`, `Vexirk`, `Materializer`, `Demon`, `Red Dragon`, `Lord Chaos`) sont maintenant recales directement sur `GROUP1.C`
   - `Giggler -> steal` ne repose plus sur un simple tirage aleatoire dans le backpack:
@@ -461,8 +499,8 @@ Maintenant:
 
 - raffiner la fidelite fine des generateurs de creatures
   - cadence exacte
-  - randomisation du compte
-  - interpretation exacte de `generatorHealthMultiplier`
+  - saturation exacte des groupes actifs
+  - coexistence party / creatures / retries dans les cas limites
 - finir les derniers cas rares de `pits / teleporters / telefrag`
   - rotation / transport des projectiles
   - rotation / placement de groupes de creatures

@@ -1,3 +1,5 @@
+﻿import helpEn from './help.en.json';
+
 export const fr = {
     titleScreen: {
         enter: 'Entrer Dans Le Donjon',
@@ -18,13 +20,16 @@ export const fr = {
     },
     hud: {
         fist: 'Poing',
+        helpButtonTitle: 'Guide du joueur',
+        helpLabel: 'AIDE',
+        helpContinue: 'Fermer le guide',
         attackUnavailable: 'attaque indisponible',
         fatigue: 'fatigue',
         speed: 'tempo',
         unknownCombination: 'combinaison inconnue',
         selectRunes: 'sélectionner des runes...',
         cast: 'LANCER',
-        optionsPreview: 'Le menu complet arrive ensuite. Les raccourcis seront conservés dans la sauvegarde, et la sauvegarde reste pour l’instant stockée dans le navigateur.',
+        optionsPreview: 'Le menu complet arrive ensuite. Les raccourcis seront conservés dans la sauvegarde, et la sauvegarde reste pour l\'instant stockée dans le navigateur.',
         options: 'Options',
         keybindings: 'Raccourcis',
         clickToReassign: 'Cliquez sur un raccourci pour le réassigner.',
@@ -46,15 +51,18 @@ export const fr = {
             alignment: 'RANG III',
         },
     },
+    manual: helpEn.manual,
     dungeonScene: {
         dropRequiredItemOn: (label: string) => `Déposer l'objet requis sur ${label.toLowerCase()}`,
         dropSpecificItemOn: (requirement: string, label: string) => `Déposer ${requirement} sur ${label.toLowerCase()}`,
         alcove: 'ALCÔVE',
         receptacle: 'RÉCEPTACLE',
+        altar: 'AUTEL',
         lock: 'SERRURE',
         dropKeyHere: 'Déposer la clé ici',
-        placeItemHere: 'Déposer l’objet ici',
-        offerItemHere: 'Offrir l’objet ici',
+        placeItemHere: 'Déposer l\'objet ici',
+        dropBonesHere: 'Déposer les os ici',
+        offerItemHere: 'Offrir l\'objet ici',
     },
     runePanel: {
         familyLabels: {
@@ -115,7 +123,7 @@ export const fr = {
         close: 'Fermer',
         giveTo: (name: string) => `Donner à ${name}`,
         dungeon: 'DONJON',
-        dungeonDropTitle: 'Faites glisser ici pour fermer la fiche et poursuivre le dépôt de l’objet dans la vue du donjon',
+        dungeonDropTitle: 'Faites glisser ici pour fermer la fiche et poursuivre le dépôt de l\'objet dans la vue du donjon',
         backpack: 'Sac à dos',
         equip: 'Équiper',
         read: 'Lire',
@@ -154,10 +162,12 @@ export const fr = {
         fountainTitle: 'Déposer une flasque ou une outre ici pour la remplir',
         alcove: 'ALCÔVE',
         receptacle: 'RÉCEPTACLE',
+        altar: 'AUTEL',
         lock: 'SERRURE',
         alcoveTitle: 'Déposer l\'objet requis dans l\'alcôve murale',
         receptacleTitle: 'Déposer l\'objet requis dans le réceptacle mural',
         lockTitle: 'Déposer une clé ou l\'objet requis sur la serrure murale',
+        altarTitle: 'Déposer les os d\'un champion mort sur l\'autel de Vi',
         eat: 'MANGER',
         eatTitle: 'Déposer nourriture ou potion ici pour consommer',
         quivers: 'CARQUOIS',

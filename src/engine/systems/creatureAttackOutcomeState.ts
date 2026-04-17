@@ -24,6 +24,7 @@ type CreatureAttackOutcomeStateDeps<TDamageEvent> = {
 export type CreatureAttackOutcomeStateResult<TDamageEvent> =
     | {
         kind: 'none';
+        championVitals?: Record<number, ChampionVitals>;
     }
     | {
         kind: 'projectile';
@@ -34,6 +35,7 @@ export type CreatureAttackOutcomeStateResult<TDamageEvent> =
         creatures: CreatureInstance[];
         championInventories: Record<number, FloorItem[]>;
         championEquipment: Record<number, ChampionEquipment>;
+        championVitals: Record<number, ChampionVitals>;
         targetChampionId: number;
         shouldFlee: boolean;
     }
@@ -79,6 +81,10 @@ export function resolveCreatureAttackOutcomeState<TDamageEvent>(
                 ...args.championEquipment,
                 [args.attackResult.targetChampionId]: args.attackResult.nextEquipment,
             },
+            championVitals: {
+                ...args.championVitals,
+                [args.attackResult.targetChampionId]: args.attackResult.nextVitals,
+            },
             targetChampionId: args.attackResult.targetChampionId,
             shouldFlee: args.attackResult.shouldFlee,
         };
@@ -103,6 +109,16 @@ export function resolveCreatureAttackOutcomeState<TDamageEvent>(
                 ),
             ],
             defeatedChampionId,
+        };
+    }
+
+    if (args.attackResult.targetChampionId !== undefined && args.attackResult.nextVitals) {
+        return {
+            kind: 'none',
+            championVitals: {
+                ...args.championVitals,
+                [args.attackResult.targetChampionId]: args.attackResult.nextVitals,
+            },
         };
     }
 

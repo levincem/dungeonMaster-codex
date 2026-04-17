@@ -1,5 +1,6 @@
 import type { ChampionEquipment, FloorItem } from '../../types/game';
 import type { EquipSlotKey } from '../../types/items';
+import type { ChampionVitals } from '../runtimeTypes';
 
 type GigglerStealAttempt =
     | { kind: 'equipment'; slot: EquipSlotKey }
@@ -20,28 +21,39 @@ export type CreatureStealResult = {
     stolenItem: FloorItem | null;
     nextInventory: FloorItem[];
     nextEquipment: ChampionEquipment;
+    nextVitals: ChampionVitals;
     shouldFlee: boolean;
 };
 
 type CreatureStealDeps = {
     randomInt: (max: number) => number;
-    isLucky: (luck: number, luckNeeded: number) => boolean;
+    applyLuckCheck: (
+        currentVitals: ChampionVitals,
+        luckNeeded: number,
+    ) => { success: boolean; nextVitals: ChampionVitals };
 };
 
 export function tryStealChampionItem(
     inventory: FloorItem[],
     equipment: ChampionEquipment,
+    currentVitals: ChampionVitals,
     dexterity: number,
-    luck: number,
     deps: CreatureStealDeps,
 ): CreatureStealResult {
     let percentage = 100 - dexterity;
     let slotCursor = deps.randomInt(GIGGLER_STEAL_ATTEMPTS.length);
     let nextInventory = inventory;
     let nextEquipment = equipment;
+    let nextVitals = currentVitals;
     let stoleObject = false;
 
-    while (percentage > 0 && !deps.isLucky(luck, percentage)) {
+    while (percentage > 0) {
+        const luckCheck = deps.applyLuckCheck(nextVitals, percentage);
+        nextVitals = luckCheck.nextVitals;
+        if (luckCheck.success) {
+            break;
+        }
+
         const attempt = GIGGLER_STEAL_ATTEMPTS[slotCursor]!;
         let stolenItem: FloorItem | null = null;
 
@@ -67,6 +79,7 @@ export function tryStealChampionItem(
                 stolenItem,
                 nextInventory,
                 nextEquipment,
+                nextVitals,
                 shouldFlee: deps.randomInt(8) === 0 || deps.randomInt(2) === 0,
             };
         }
@@ -79,6 +92,7 @@ export function tryStealChampionItem(
         stolenItem: null,
         nextInventory,
         nextEquipment,
+        nextVitals,
         shouldFlee: deps.randomInt(8) === 0 || (stoleObject && deps.randomInt(2) === 0),
     };
 }

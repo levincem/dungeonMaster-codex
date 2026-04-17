@@ -1,3 +1,5 @@
+import helpEn from './help.en.json';
+
 export const en = {
     titleScreen: {
         enter: 'Enter The Dungeon',
@@ -18,6 +20,9 @@ export const en = {
     },
     hud: {
         fist: 'Fist',
+        helpButtonTitle: 'Player guide',
+        helpLabel: 'HELP',
+        helpContinue: 'Close guide',
         attackUnavailable: 'attack unavailable',
         fatigue: 'fatigue',
         speed: 'speed',
@@ -46,14 +51,17 @@ export const en = {
             alignment: 'ROW III',
         },
     },
+    manual: helpEn.manual,
     dungeonScene: {
         dropRequiredItemOn: (label: string) => `Drop the required item onto ${label.toLowerCase()}`,
         dropSpecificItemOn: (requirement: string, label: string) => `Drop ${requirement} onto ${label.toLowerCase()}`,
         alcove: 'ALCOVE',
         receptacle: 'RECEPTACLE',
+        altar: 'ALTAR',
         lock: 'LOCK',
         dropKeyHere: 'Drop key here',
         placeItemHere: 'Place item here',
+        dropBonesHere: 'Drop bones here',
         offerItemHere: 'Offer item here',
     },
     runePanel: {
@@ -154,9 +162,11 @@ export const en = {
         fountainTitle: 'Drop a flask or waterskin here to fill it',
         alcove: 'ALCOVE',
         receptacle: 'RECEPTACLE',
+        altar: 'ALTAR',
         lock: 'LOCK',
         alcoveTitle: 'Drop the required item into the wall alcove',
         receptacleTitle: 'Drop the required item into the wall receptacle',
+        altarTitle: 'Drop a dead champion\'s bones onto the Vi altar',
         lockTitle: 'Drop a key or the required item onto the wall lock',
         eat: 'EAT',
         eatTitle: 'Drop food or a potion here to consume it',

@@ -35,6 +35,8 @@ function createState() {
 function createDeps(overrides: Partial<Parameters<typeof tryUseChampionItemOnFrontWall<typeof createState extends () => infer T ? T : never, unknown, Record<string, unknown>>>[2]> = {}) {
     return {
         buildSensorStateSnapshot: () => ({ snapshot: true }),
+        isAltarWallFace: () => false,
+        buildViAltarResurrectionPatch: () => null,
         triggerLockSensors: () => ({ sensorChanges: {}, newInventories: null, newEquipment: null, matched: false }),
         triggerAnyObjectWallSensor: () => ({ sensorChanges: {}, matched: false }),
         triggerAlcoveDepositSensor: () => ({ sensorChanges: {}, newInventories: null, newEquipment: null, depositedItem: null, matched: false }),

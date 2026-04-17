@@ -43,6 +43,7 @@ type DetermineMeleeDamageDeps = {
         currentStamina: number | undefined,
         wounds: ChampionVitals['wounds'] | undefined,
         runtimeBonuses: RuntimeBonuses,
+        isPartySleeping: boolean,
     ) => number;
     getRuntimeBonuses: (
         champion: Champion,
@@ -96,6 +97,7 @@ export function determineMeleeDamage(
         args.currentStamina,
         args.currentVitals?.wounds,
         runtimeBonuses,
+        false,
     );
     const requiredQuickness = deps.randomInt(32) + (targetDef?.hitProb ?? 40) + args.levelDifficulty - 16;
     const luckyHit = deps.randomInt(4) === 0;

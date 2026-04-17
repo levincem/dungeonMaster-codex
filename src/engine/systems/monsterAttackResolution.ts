@@ -3,6 +3,7 @@ import type { ChampionWoundSlot, EquipmentStatBonuses } from '../../data/equipme
 import type { Champion } from '../../types/champion';
 import type { ChampionEquipment, FloorItem } from '../../types/game';
 import type { ActivePotionBoost, ChampionVitals } from '../runtimeTypes';
+import { applyOriginalLuckCheck } from './originalLuck';
 
 export type MonsterDamageClass = 'physical' | 'fire' | 'magic' | 'mental';
 export type ArmorCoverageZone = 'head' | 'torso' | 'legs' | 'feet' | 'hands';
@@ -38,6 +39,7 @@ type ResolveMonsterAttackAgainstChampionArgs = {
     attackMode: 'melee' | 'ranged';
     levelDifficulty: number;
     nowMs: number;
+    partySleeping?: boolean;
 };
 
 type ResolveMonsterAttackAgainstChampionDeps = {
@@ -49,6 +51,7 @@ type ResolveMonsterAttackAgainstChampionDeps = {
         currentStamina: number | undefined,
         wounds: ChampionVitals['wounds'] | undefined,
         runtimeBonuses: RuntimeBonuses,
+        isPartySleeping: boolean,
     ) => number;
     getRuntimeBonuses: (
         champion: Champion,
@@ -63,7 +66,6 @@ type ResolveMonsterAttackAgainstChampionDeps = {
         currentVitals?: ChampionVitals,
         now?: number,
     ) => EffectiveStats;
-    isCharacterLucky: (luck: number, luckNeeded: number) => boolean;
     chooseChampionWoundSlots: (
         hitZones: readonly ArmorCoverageZone[] | undefined,
     ) => ChampionWoundSlot[];
@@ -133,13 +135,6 @@ export function resolveMonsterAttackAgainstChampion(
         args.activePotionBoosts,
         args.nowMs,
     );
-    const effective = deps.getEffectiveChampionStats(
-        args.targetChampion,
-        args.targetEquipment,
-        args.activePotionBoosts,
-        args.targetVitals,
-        args.nowMs,
-    );
     const resolvedAttackType = resolveMonsterAttackType(args.attackerDef, args.attackMode);
     const damageClass = getMonsterBaseDamageClass(resolvedAttackType);
     const hitZones = chooseMonsterHitZones(damageClass, resolvedAttackType, deps.randomInt);
@@ -150,6 +145,7 @@ export function resolveMonsterAttackAgainstChampion(
         args.targetVitals.stamina,
         args.targetVitals.wounds,
         runtimeBonuses,
+        args.partySleeping ?? false,
     );
     const requiredQuickness = deps.randomInt(32) + args.attackerDef.hitProb + args.levelDifficulty - 16;
 
@@ -157,14 +153,15 @@ export function resolveMonsterAttackAgainstChampion(
         return { damage: 0, hitZones, damageClass, nextVitals: args.targetVitals };
     }
 
-    if (deps.isCharacterLucky(effective.luck, 60)) {
-        return { damage: 0, hitZones, damageClass, nextVitals: args.targetVitals };
+    const luckCheck = applyOriginalLuckCheck(args.targetChampion, args.targetVitals, 60, deps.randomInt);
+    if (luckCheck.success) {
+        return { damage: 0, hitZones, damageClass, nextVitals: luckCheck.nextVitals };
     }
 
     let attackValue = args.levelDifficulty + deps.randomInt(16) + Math.max(1, Math.floor(args.attackerDef.rawAttack / 16));
 
     if (attackValue <= 1) {
-        if (deps.randomInt(2) !== 0) return { damage: 0, hitZones, damageClass, nextVitals: args.targetVitals };
+        if (deps.randomInt(2) !== 0) return { damage: 0, hitZones, damageClass, nextVitals: luckCheck.nextVitals };
         attackValue = deps.randomInt(4) + 2;
     }
 
@@ -183,7 +180,7 @@ export function resolveMonsterAttackAgainstChampion(
     const allowedSlots = deps.chooseChampionWoundSlots(hitZones);
     const resolved = deps.resolveIncomingAttack(
         args.targetChampion,
-        args.targetVitals,
+        luckCheck.nextVitals,
         Math.max(0, attackValue),
         resolvedAttackType,
         allowedSlots,

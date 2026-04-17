@@ -135,7 +135,6 @@ test('resolveMonsterAttackAgainstChampion returns zero when the target dodges th
             computeQuickness: () => 99,
             getRuntimeBonuses: () => ({}),
             getEffectiveChampionStats: () => ({ luck: 12, stamina: 30, vitality: 22 }),
-            isCharacterLucky: () => false,
             chooseChampionWoundSlots: () => ['torso'],
             resolveIncomingAttack: () => {
                 throw new Error('resolveIncomingAttack should not run when the hit is dodged');
@@ -174,11 +173,10 @@ test('resolveMonsterAttackAgainstChampion applies stamina drain and poison after
             nowMs: 1000,
         },
         {
-            randomInt: ((rolls: number[]) => () => rolls.shift() ?? 0)([0, 0, 0, 0, 0, 0, 0, 0, 0, 1]),
+            randomInt: ((rolls: number[]) => () => rolls.shift() ?? 0)([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]),
             computeQuickness: () => -1,
             getRuntimeBonuses: () => ({}),
             getEffectiveChampionStats: () => ({ luck: 12, stamina: 40, vitality: 20 }),
-            isCharacterLucky: () => false,
             chooseChampionWoundSlots: () => ['torso'],
             resolveIncomingAttack: () => ({
                 damage: 6,
@@ -228,7 +226,6 @@ test('resolveMonsterAttackAgainstChampion resolves ranged magical attacks withou
             computeQuickness: () => -1,
             getRuntimeBonuses: () => ({}),
             getEffectiveChampionStats: () => ({ luck: 12, stamina: 30, vitality: 22 }),
-            isCharacterLucky: () => false,
             chooseChampionWoundSlots: (hitZones) => {
                 assert.equal(hitZones, undefined);
                 return ['torso'];
@@ -253,4 +250,83 @@ test('resolveMonsterAttackAgainstChampion resolves ranged magical attacks withou
     assert.equal(resolution.damageClass, 'magic');
     assert.equal(resolution.hitZones, undefined);
     assert.equal(resolution.nextVitals.hp, 26);
+});
+
+test('resolveMonsterAttackAgainstChampion forwards the party sleeping flag into quickness', () => {
+    let capturedSleeping = false;
+
+    resolveMonsterAttackAgainstChampion(
+        {
+            targetChampion,
+            targetVitals: createVitals(),
+            targetEquipment,
+            targetInventory,
+            activePotionBoosts,
+            attackerDef: createCreatureDef(),
+            attackMode: 'melee',
+            levelDifficulty: 0,
+            nowMs: 1000,
+            partySleeping: true,
+        },
+        {
+            randomInt: ((rolls: number[]) => () => rolls.shift() ?? 0)([0, 0, 1]),
+            computeQuickness: (_champion, _equip, _inventory, _currentStamina, _wounds, _runtimeBonuses, isPartySleeping) => {
+                capturedSleeping = isPartySleeping;
+                return 99;
+            },
+            getRuntimeBonuses: () => ({}),
+            getEffectiveChampionStats: () => ({ luck: 12, stamina: 30, vitality: 22 }),
+            chooseChampionWoundSlots: () => ['torso'],
+            resolveIncomingAttack: () => {
+                throw new Error('resolveIncomingAttack should not run when the hit is dodged');
+            },
+            clampVital: (value, max) => Math.max(0, Math.min(max, value)),
+            adjustByAttribute: (value) => value,
+            applyPoison: (vitals) => vitals,
+        },
+    );
+
+    assert.equal(capturedSleeping, true);
+});
+
+test('resolveMonsterAttackAgainstChampion mutates luck before resolving a failed dodge', () => {
+    let capturedLuck = -1;
+
+    const resolution = resolveMonsterAttackAgainstChampion(
+        {
+            targetChampion,
+            targetVitals: createVitals(),
+            targetEquipment,
+            targetInventory,
+            activePotionBoosts,
+            attackerDef: createCreatureDef(),
+            attackMode: 'melee',
+            levelDifficulty: 0,
+            nowMs: 1000,
+        },
+        {
+            randomInt: ((rolls: number[]) => () => rolls.shift() ?? 0)([0, 0, 0, 5, 0, 0, 0, 0, 0]),
+            computeQuickness: () => -1,
+            getRuntimeBonuses: () => ({}),
+            getEffectiveChampionStats: () => ({ luck: 12, stamina: 30, vitality: 22 }),
+            chooseChampionWoundSlots: () => ['torso'],
+            resolveIncomingAttack: (_champion, currentVitals) => {
+                capturedLuck = currentVitals.currentStats.luck ?? -1;
+                return {
+                    damage: 3,
+                    nextVitals: {
+                        ...currentVitals,
+                        hp: currentVitals.hp - 3,
+                    },
+                };
+            },
+            clampVital: (value, max) => Math.max(0, Math.min(max, value)),
+            adjustByAttribute: (value) => value,
+            applyPoison: (vitals) => vitals,
+        },
+    );
+
+    assert.equal(capturedLuck, 14);
+    assert.equal(resolution.nextVitals.currentStats.luck, 14);
+    assert.equal(resolution.nextVitals.hp, 27);
 });

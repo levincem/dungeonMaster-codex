@@ -14,8 +14,8 @@ import { getEquippedItemImage } from '../../data/itemImages';
 import { formatKeybinding, matchesKeybinding, normalizeBindingKey } from '../../engine/options';
 import { RUNES_BY_FAMILY, RUNES_BY_ID, findSpell } from '../../data/runes';
 import type { RuneFamily } from '../../data/runes';
-import { itemsPath, runesPath } from '../../data/assetPaths';
-import { useI18n } from '../../i18n';
+import { itemsPath, miscPath, runesPath } from '../../data/assetPaths';
+import { useI18n, type Translations } from '../../i18n';
 import { getDragPayload, setDragPayload } from './dragPayload';
 import { canEquipItemInSlot } from '../../data/equipment';
 import {
@@ -29,6 +29,13 @@ import { getChampionSkillLevel, mapOriginalSkillNumberToSkillKey } from '../../d
 function getRuneImagePath(runeId: string): string {
     return runesPath(`${runeId}.png`);
 }
+
+type ManualSection = Translations['manual']['sections'][number];
+
+const EMPTY_HAND_IMAGES = {
+    leftHand: miscPath('handLeft.png'),
+    rightHand: miscPath('handRight.png'),
+} as const;
 
 // ─── Combat grid ──────────────────────────────────────────────────────────────
 const CombatGrid: React.FC<{
@@ -315,6 +322,7 @@ const HandSlot: React.FC<{
     const imageSrc = item
         ? getEquippedItemImage(item, torchBurnStart)
         : null;
+    const emptyHandImageSrc = !item ? EMPTY_HAND_IMAGES[slotKey] : null;
 
     return (
         <div
@@ -375,12 +383,35 @@ const HandSlot: React.FC<{
                     }}
                 />
             ) : (
-                <div style={{
-                    width: '68%',
-                    height: '68%',
-                    borderRadius: 3,
-                    border: '1px dashed rgba(212,184,112,0.34)',
-                }} />
+                <>
+                    {emptyHandImageSrc && (
+                        <img
+                            src={emptyHandImageSrc}
+                            alt=""
+                            draggable={false}
+                            style={{
+                                position: 'absolute',
+                                inset: 0,
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'contain',
+                                opacity: 0.18,
+                                imageRendering: 'crisp-edges',
+                                pointerEvents: 'none',
+                                transform: slotKey === 'leftHand' ? 'translateX(-3px)' : 'translateX(3px)',
+                            }}
+                        />
+                    )}
+                    <div style={{
+                        width: '68%',
+                        height: '68%',
+                        borderRadius: 3,
+                        border: '1px dashed rgba(212,184,112,0.34)',
+                        background: 'rgba(255,255,255,0.02)',
+                        position: 'relative',
+                        zIndex: 1,
+                    }} />
+                </>
             )}
         </div>
     );
@@ -709,9 +740,158 @@ function isTextEntryTarget(target: EventTarget | null): boolean {
     return ['INPUT', 'TEXTAREA', 'SELECT'].includes(element.tagName);
 }
 
+const ManualModal: React.FC<{
+    manual: Translations['manual'];
+    text: Translations['hud'];
+    activeSectionId: string | null;
+    onSelectSection: (sectionId: string) => void;
+    onClose: () => void;
+}> = ({ manual, text, activeSectionId, onSelectSection, onClose }) => {
+    const activeSection: ManualSection | null = manual.sections.find((section) => section.id === activeSectionId)
+        ?? manual.sections[0]
+        ?? null;
+
+    return (
+        <div
+            onClick={onClose}
+            style={{
+                position: 'fixed',
+                inset: 0,
+                background: 'rgba(0,0,0,0.72)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 221,
+                padding: 20,
+            }}
+        >
+            <div
+                onClick={(event) => event.stopPropagation()}
+                style={{
+                    width: 'min(980px, 96vw)',
+                    maxHeight: '88vh',
+                    background: 'linear-gradient(180deg, rgba(7,7,7,0.98), rgba(18,15,10,0.98))',
+                    border: '1px solid rgba(212,184,112,0.46)',
+                    borderRadius: 12,
+                    boxShadow: '0 24px 80px rgba(0,0,0,0.62)',
+                    padding: 22,
+                    color: '#ead6a0',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 18,
+                    overflow: 'hidden',
+                }}
+            >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+                    <div>
+                        <div style={{ fontSize: 13, letterSpacing: 3, color: '#c9a85e', marginBottom: 6 }}>{text.helpLabel}</div>
+                        <div style={{ fontSize: 21, fontWeight: 'bold', color: '#f2dfad' }}>{manual.title}</div>
+                    </div>
+                    <button
+                        onClick={onClose}
+                        style={{
+                            background: 'none',
+                            border: '1px solid rgba(212,184,112,0.26)',
+                            color: '#bfa06a',
+                            borderRadius: 999,
+                            width: 32,
+                            height: 32,
+                            fontSize: 20,
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 10px rgba(0,0,0,0.14)',
+                            transition: 'box-shadow 0.12s ease, background 0.12s ease',
+                        }}
+                        title={text.close}
+                    >
+                        ×
+                    </button>
+                </div>
+
+                <div style={{ display: 'flex', gap: 16, minHeight: 0, flex: 1 }}>
+                    <div style={{ width: 236, display: 'flex', flexDirection: 'column', gap: 8, overflowY: 'auto', paddingRight: 4 }}>
+                        {manual.sections.map((section) => {
+                            const active = section.id === activeSection?.id;
+                            return (
+                                <button
+                                    key={section.id}
+                                    onClick={() => onSelectSection(section.id)}
+                                    style={{
+                                        width: '100%',
+                                        textAlign: 'left',
+                                        padding: '11px 12px',
+                                        borderRadius: 8,
+                                        border: `1px solid ${active ? 'rgba(212,184,112,0.72)' : 'rgba(212,184,112,0.18)'}`,
+                                        background: active
+                                            ? 'linear-gradient(180deg, rgba(94,70,30,0.55), rgba(36,26,10,0.88))'
+                                            : 'rgba(18,14,8,0.84)',
+                                        color: active ? '#f2dfad' : 'rgba(232,214,160,0.82)',
+                                        cursor: 'pointer',
+                                        fontSize: 13,
+                                        fontWeight: active ? 'bold' : 500,
+                                        lineHeight: 1.35,
+                                    }}
+                                >
+                                    {section.title}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    <div
+                        style={{
+                            flex: 1,
+                            minWidth: 0,
+                            minHeight: 0,
+                            overflowY: 'auto',
+                            border: '1px solid rgba(212,184,112,0.16)',
+                            borderRadius: 10,
+                            background: 'rgba(10,8,4,0.72)',
+                            padding: 20,
+                        }}
+                    >
+                        {activeSection && (
+                            <>
+                                <div style={{ fontSize: 11, letterSpacing: 3, color: '#c9a85e', marginBottom: 8 }}>{text.helpLabel}</div>
+                                <div style={{ fontSize: 24, fontWeight: 'bold', color: '#f2dfad', marginBottom: 16 }}>{activeSection.title}</div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 15, lineHeight: 1.75, color: 'rgba(232,214,160,0.84)' }}>
+                                    {activeSection.blocks.map((block, index) => (
+                                        <p key={`${activeSection.id}-${index}`} style={{ margin: 0 }}>
+                                            {block}
+                                        </p>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <button
+                        onClick={onClose}
+                        style={{
+                            padding: '8px 16px',
+                            borderRadius: 8,
+                            border: '1px solid rgba(212,184,112,0.4)',
+                            background: 'linear-gradient(180deg, rgba(108,78,32,0.62), rgba(58,40,16,0.72))',
+                            color: '#f2dfad',
+                            fontSize: 14,
+                            cursor: 'pointer',
+                            boxShadow: '0 10px 20px rgba(0,0,0,0.2)',
+                        }}
+                    >
+                        {text.helpContinue}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // ─── HUD ──────────────────────────────────────────────────────────────────────
 export const HUD = () => {
-    const text = useI18n().hud;
+    const translations = useI18n();
+    const text = translations.hud;
+    const manual = translations.manual;
     const {
         party, level, position, direction,
         selectedChampionIndex, selectChampion, openPartyMember, reorderParty,
@@ -755,7 +935,7 @@ export const HUD = () => {
     const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [rebindingTarget, setRebindingTarget] = useState<RebindingTarget | null>(null);
     const [tutorialModalOpen, setTutorialModalOpen] = useState(false);
-    const [tutorialPressedButton, setTutorialPressedButton] = useState<'close' | 'continue' | null>(null);
+    const [activeManualSectionId, setActiveManualSectionId] = useState<string | null>(manual.sections[0]?.id ?? null);
     const handleCloseOptionsModal = useCallback(() => {
         setRebindingTarget(null);
         closeOptionsModal();
@@ -921,8 +1101,11 @@ export const HUD = () => {
             overflow: 'hidden',
         }}>
             <button
-                onClick={() => setTutorialModalOpen(true)}
-                title="Quick guide"
+                onClick={() => {
+                    setActiveManualSectionId((current) => current ?? manual.sections[0]?.id ?? null);
+                    setTutorialModalOpen(true);
+                }}
+                title={text.helpButtonTitle}
                 style={{
                     position: 'absolute',
                     top: 8,
@@ -1443,96 +1626,13 @@ export const HUD = () => {
             )}
 
             {tutorialModalOpen && (
-                <div
-                    onClick={() => setTutorialModalOpen(false)}
-                    style={{
-                        position: 'fixed',
-                        inset: 0,
-                        background: 'rgba(0,0,0,0.72)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        zIndex: 221,
-                        padding: 24,
-                    }}
-                >
-                    <div
-                        onClick={(e) => e.stopPropagation()}
-                        style={{
-                            width: 'min(560px, 92vw)',
-                            background: 'linear-gradient(180deg, rgba(7,7,7,0.98), rgba(18,15,10,0.98))',
-                            border: '1px solid rgba(212,184,112,0.46)',
-                            borderRadius: 12,
-                            boxShadow: '0 24px 80px rgba(0,0,0,0.62)',
-                            padding: 22,
-                            color: '#ead6a0',
-                        }}
-                    >
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                            <div>
-                                <div style={{ fontSize: 13, letterSpacing: 3, color: '#c9a85e', marginBottom: 6 }}>HELP</div>
-                                <div style={{ fontSize: 21, fontWeight: 'bold', color: '#f2dfad' }}>Quick Guide</div>
-                            </div>
-                            <button
-                                onClick={() => setTutorialModalOpen(false)}
-                                onMouseDown={() => setTutorialPressedButton('close')}
-                                onMouseUp={() => setTutorialPressedButton(null)}
-                                onMouseLeave={() => setTutorialPressedButton(null)}
-                                style={{
-                                    background: tutorialPressedButton === 'close' ? 'rgba(70,54,26,0.28)' : 'none',
-                                    border: '1px solid rgba(212,184,112,0.26)',
-                                    color: '#bfa06a',
-                                    borderRadius: 999,
-                                    width: 32,
-                                    height: 32,
-                                    fontSize: 20,
-                                    cursor: 'pointer',
-                                    transform: tutorialPressedButton === 'close' ? 'translateY(1px) scale(0.97)' : 'translateY(0) scale(1)',
-                                    boxShadow: tutorialPressedButton === 'close' ? 'inset 0 2px 6px rgba(0,0,0,0.35)' : '0 4px 10px rgba(0,0,0,0.14)',
-                                    transition: 'transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease',
-                                }}
-                                title={text.close}
-                            >
-                                ×
-                            </button>
-                        </div>
-
-                        <div style={{ fontSize: 14, lineHeight: 1.8, color: 'rgba(232,214,160,0.8)' }}>
-                            <p style={{ margin: '0 0 10px' }}>Choose four champions by clicking their portraits in the Hall of Champions.</p>
-                            <p style={{ margin: '0 0 10px' }}>Enter the dungeon and keep your party alive by managing equipment, food, water, health, and magic.</p>
-                            <p style={{ margin: '0 0 10px' }}>Watch the walls, floors, doors, pits, and alcoves carefully: many mechanisms, traps, and secrets are hidden in plain sight.</p>
-                            <p style={{ margin: '0 0 10px' }}>Save often. Some encounters and puzzles can punish careless exploration.</p>
-                            <p style={{ margin: 0 }}>Your ultimate goal is to descend to the bottom of the dungeon, defeat Lord Chaos, and survive the journey.</p>
-                        </div>
-
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
-                            <button
-                                onClick={() => setTutorialModalOpen(false)}
-                                onMouseDown={() => setTutorialPressedButton('continue')}
-                                onMouseUp={() => setTutorialPressedButton(null)}
-                                onMouseLeave={() => setTutorialPressedButton(null)}
-                                style={{
-                                    padding: '8px 16px',
-                                    borderRadius: 8,
-                                    border: '1px solid rgba(212,184,112,0.4)',
-                                    background: tutorialPressedButton === 'continue'
-                                        ? 'linear-gradient(180deg, rgba(76,56,24,0.78), rgba(44,31,12,0.82))'
-                                        : 'linear-gradient(180deg, rgba(108,78,32,0.62), rgba(58,40,16,0.72))',
-                                    color: '#f2dfad',
-                                    fontSize: 14,
-                                    cursor: 'pointer',
-                                    boxShadow: tutorialPressedButton === 'continue'
-                                        ? '0 4px 10px rgba(0,0,0,0.22), inset 0 2px 6px rgba(0,0,0,0.22)'
-                                        : '0 10px 20px rgba(0,0,0,0.2)',
-                                    transform: tutorialPressedButton === 'continue' ? 'translateY(1px) scale(0.99)' : 'translateY(0) scale(1)',
-                                    transition: 'transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease',
-                                }}
-                            >
-                                Continue
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <ManualModal
+                    manual={manual}
+                    text={text}
+                    activeSectionId={activeManualSectionId}
+                    onSelectSection={setActiveManualSectionId}
+                    onClose={() => setTutorialModalOpen(false)}
+                />
             )}
         </div>
     );
