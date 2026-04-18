@@ -115,10 +115,10 @@ export function buildProjectileSpellStatePatch(
     }
 
     const [partyY, partyX] = args.position;
-    const { startX, startY, visualScale, projectileDamage, launchProfile } = projectileCast;
+    const { frontX, frontY, visualScale, projectileDamage, launchProfile } = projectileCast;
 
     if (args.spell.effect === 'open') {
-        const immediateDoor = deps.getImmediateDoor(args.level, startX, startY);
+        const immediateDoor = deps.getImmediateDoor(args.level, frontX, frontY);
         if (immediateDoor) {
             const doorImpact = buildSpellDoorImpactResult(
                 {
@@ -126,8 +126,8 @@ export function buildProjectileSpellStatePatch(
                     doorKey: immediateDoor.key,
                     doorHasButton: immediateDoor.door.hasButton,
                     level: args.level,
-                    x: startX,
-                    y: startY,
+                    x: frontX,
+                    y: frontY,
                     now: args.now,
                     gridSize: deps.gridSize,
                     visualScale,
@@ -144,13 +144,13 @@ export function buildProjectileSpellStatePatch(
                 patch,
                 shouldPlayDoorMotion: patch.shouldPlayDoorMotion,
                 doorMotionSquare: patch.shouldPlayDoorMotion
-                    ? { level: args.level, x: startX, y: startY }
+                    ? { level: args.level, x: frontX, y: frontY }
                     : undefined,
             };
         }
     }
 
-    if (deps.isImmediatelyBlocked(args.level, startX, startY)) {
+    if (deps.isImmediatelyBlocked(args.level, frontX, frontY)) {
         if (args.spell.effect === 'open') {
             return {
                 patch: buildOpenBlockedSpellPatch({

@@ -25,6 +25,13 @@ Pour l'etat de fidelite et les verrous ouverts, privilegier aussi:
 3. `src/components/UI/LoadingScreen.tsx` ne precharge plus que les visuels du titre et le bootstrap du donjon, pour rendre le tout premier boot beaucoup plus leger.
 4. `src/GameRoot.tsx` lance la boucle `requestAnimationFrame`, monte `TitleScreen` tant que `gamePhase === 'title'`, rechauffe d'abord le voisinage utile du donjon, puis etale en vagues idle les visuels gameplay, les slices `game_db`, les overlays muraux et les modules gameplay coeur (`DungeonScene`, `HUD`, effets de sorts), avant de continuer le warm-up complet en arriere-plan pendant l'exploration.
 5. `src/components/Dungeon/renderHelpers.tsx` porte maintenant les helpers de rendu legers (`useLoadedTexture`, `BillboardGroup`) utilises par la scene et les sprites, ce qui retire les usages actifs de `@react-three/drei` du graphe gameplay.
+6. `src/components/Dungeon/DungeonScene.tsx` garde maintenant son overlay de drag/drop hors du coeur canvas; les previews et drop targets de floor-drag vivent dans un overlay dedie, et le drop plein ecran relit l'etat runtime a la demande plutot que de garder le canvas abonne aux coordonnees de drag.
+7. `src/components/Dungeon/dungeonSceneDerivedState.ts` porte maintenant les derives purs les plus denses de la scene (boutons muraux, decals, pressure plates, trick walls, pits, interactions murales de drop), ce qui rend `DungeonScene.tsx` plus lisible et plus testable.
+8. `src/components/Dungeon/DungeonProjectileLayers.tsx` porte maintenant les couches runtime de projectiles, shields, `Fluxcage` et poison persistant, ce qui coupe un autre bloc dense hors de `DungeonScene.tsx` tout en gardant le preload des effets photons.
+9. `src/components/Dungeon/DungeonSpellImpactLayer.tsx` et `src/components/Dungeon/DungeonMagicVisionLayer.tsx` portent maintenant deux autres familles VFX qui restaient encore inline dans `DungeonScene.tsx`: les impacts de sorts d'un cote, et la couche `magic vision` de l'autre.
+10. `src/components/UI/hudDerivedState.ts` porte maintenant une partie des derives purs du HUD (`CombatGrid`, degats recents, etat du carre de face, selection de runes, etat de cast), ce qui allege `HUD.tsx` sans deplacer les interactions utilisateur.
+11. `src/components/UI/HudMagicPanel.tsx` et `src/components/UI/HudOptionsModal.tsx` decoupent maintenant deux gros blocs UI du HUD (runes/cast et keybindings/options), ce qui rend `HUD.tsx` plus lisible.
+12. `src/components/UI/championSheetDerivedState.ts` porte maintenant les derives purs les plus repetitifs de la fiche champion (bonus de potions, resume de vitaux, charge, contexte de mur frontal, premier slot d'equipement valide), ce qui allege `ChampionSheet.tsx` sans toucher a ses interactions.
 
 ## Source de verite des maps
 
@@ -50,6 +57,9 @@ src/
 |-- components/
 |   |-- Dungeon/
 |   |   |-- DungeonScene.tsx
+|   |   |-- DungeonProjectileLayers.tsx
+|   |   |-- DungeonSpellImpactLayer.tsx
+|   |   |-- DungeonMagicVisionLayer.tsx
 |   |   |-- Cell.tsx
 |   |   |-- InstancedTiles.tsx
 |   |   |-- CreatureSprite.tsx
@@ -62,6 +72,8 @@ src/
 |       |-- LoadingScreen.tsx
 |       |-- TitleScreen.tsx
 |       |-- HUD.tsx
+|       |-- HudMagicPanel.tsx
+|       |-- HudOptionsModal.tsx
 |       |-- ChampionSheet.tsx
 |       |-- MirrorPopup.tsx
 |       |-- RunePanel.tsx
@@ -187,7 +199,7 @@ Contient notamment:
 - detection de clic sur miroirs et interactions de decor
 - cible de drop contextuelle sur le mur en face pour les mecanismes a objet
 - calcul de visibilite pour overlays muraux, boutons de portes et autres interactions frontales
-- couches VFX pour projectiles, shields, `Fluxcage`, impacts et flashes de sorts
+- couches VFX assemblees via `DungeonProjectileLayers.tsx`, `DungeonSpellImpactLayer.tsx`, `DungeonMagicVisionLayer.tsx` et `DamageLayer`
 - affichage du nom du niveau a partir de `getGameMap(level).name`
 
 ### `src/components/Dungeon/Cell.tsx`
@@ -218,6 +230,12 @@ Contient:
 - bouton d'ouverture du panneau d'options
 - bouton d'aide `?`
 - remapping des touches de deplacement
+
+Note de structure:
+
+- `src/components/UI/hudDerivedState.ts` centralise maintenant une partie des derives purs du HUD, pour garder le composant concentre sur le wiring UI et les interactions.
+- `src/components/UI/HudMagicPanel.tsx` et `src/components/UI/HudOptionsModal.tsx` portent maintenant deux gros blocs de rendu stateful du HUD, ce qui retire au composant principal une partie de son JSX le plus dense.
+- Le vieux bloc commente `HUD_DUPE` a ete supprime; `HUD.tsx` ne porte maintenant plus qu'un seul chemin de rendu actif.
 
 ### `src/components/UI/TitleScreen.tsx`
 
@@ -280,6 +298,10 @@ Fonctionnalites:
 - depot explicite sur mecanisme mural quand le contexte le permet
 - sauvegarde persistente via le bouton de la fiche
 - retrait du groupe depuis la fiche
+
+Note de structure:
+
+- `src/components/UI/championSheetDerivedState.ts` centralise maintenant les derives purs de bonus/vitaux/charge/contexte mural et l'auto-selection de slot d'equipement, pour garder la fiche plus lisible et plus testable.
 
 ### `src/components/UI/dragPayload.ts`
 

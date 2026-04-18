@@ -3,6 +3,7 @@ import { CHAMPIONS } from '../../data/champions';
 import type { Champion } from '../../data/champions';
 import { getGameMap } from '../../data/mapLoader';
 import { getMechanismsAt } from '../../data/mechanisms';
+import type { Mechanism } from '../../data/mechanisms';
 import { hasOriginalWallOverlayAt } from '../../data/originalWallOverlays';
 import { getDisplayedItemName } from '../../data/itemDisplay';
 import { isAltarWallFace as isAltarWallFaceSystem } from '../../engine/systems/resurrection';
@@ -21,7 +22,7 @@ import type { Direction } from '../../engine/runtimeTypes';
 import type { EquipSlotKey } from '../../types/items';
 import type { FloorItem, ChampionEquipment } from '../../types/game';
 import { getEquippedItemImage, getInventoryItemImage } from '../../data/itemImages';
-import { canDrinkFromContainer, canFillWaterContainer, isWaterContainer } from '../../data/waterContainers';
+import { canDrinkFromContainer, canFillWaterContainer, getWaterContainerState, isWaterContainer } from '../../data/waterContainers';
 import { miscPath } from '../../data/assetPaths';
 import { playPlate } from '../../engine/sounds';
 import { getDragPayload, setDragPayload, type DragPayload } from './dragPayload';
@@ -31,8 +32,14 @@ import {
     getTotalWeight,
     getChampionMaxLoad,
     getEffectiveChampionStatsWithBonuses,
-    hasAnyChampionWound,
 } from '../../data/equipment';
+import {
+    buildChampionSheetFrontWallContext,
+    buildChampionSheetLoadSummary,
+    buildChampionSheetVitalsSummary,
+    getChampionPotionBonusesForSheet,
+    getFirstEquipTargetSlot,
+} from './championSheetDerivedState';
 
 // ─── Slot highlight animation ─────────────────────────────────────────────────
 const PULSE_STYLE = `
@@ -50,56 +57,6 @@ const SKILL_LEVEL_NAMES: string[] = [
     'Wizard', 'Artist', 'Champion', 'Hero', 'Master',
     'HighMaster', 'LegendMaster', 'ArchMaster', 'GrandMaster', 'TimeStone',
 ];
-
-function getChampionPotionBonusesForSheet(
-    champion: Champion,
-    vitals: { currentStats?: Partial<{
-        luck: number;
-        strength: number;
-        dexterity: number;
-        wisdom: number;
-        vitality: number;
-        antiMagic: number;
-        antiFire: number;
-    }> } | undefined,
-    activePotionBoosts: Array<{
-        championId: number;
-        stat: 'strength' | 'dexterity' | 'wisdom' | 'vitality' | 'antiMagic' | 'antiFire';
-        amount: number;
-        expiresAt: number;
-    }>,
-    championId: number,
-) {
-    const now = Date.now();
-    const timedBonuses = activePotionBoosts.reduce(
-        (sum, boost) => {
-            if (boost.championId !== championId || boost.expiresAt <= now) return sum;
-            return { ...sum, [boost.stat]: sum[boost.stat] + boost.amount };
-        },
-        {
-            mana: 0,
-            strength: 0,
-            dexterity: 0,
-            wisdom: 0,
-            vitality: 0,
-            antiMagic: 0,
-            antiFire: 0,
-            luck: 0,
-        },
-    );
-    const currentStats = vitals?.currentStats;
-    if (!currentStats) return timedBonuses;
-    return {
-        ...timedBonuses,
-        strength: timedBonuses.strength + ((currentStats.strength ?? champion.strength) - champion.strength),
-        dexterity: timedBonuses.dexterity + ((currentStats.dexterity ?? champion.dexterity) - champion.dexterity),
-        wisdom: timedBonuses.wisdom + ((currentStats.wisdom ?? champion.wisdom) - champion.wisdom),
-        vitality: timedBonuses.vitality + ((currentStats.vitality ?? champion.vitality) - champion.vitality),
-        antiMagic: timedBonuses.antiMagic + ((currentStats.antiMagic ?? champion.antiMagic) - champion.antiMagic),
-        antiFire: timedBonuses.antiFire + ((currentStats.antiFire ?? champion.antiFire) - champion.antiFire),
-        luck: timedBonuses.luck + ((currentStats.luck ?? champion.luck) - champion.luck),
-    };
-}
 
 function getSkillLevelName(xp: number): string {
     const lvl = xpToLevel(xp);
@@ -308,17 +265,27 @@ const EquipSlot: React.FC<{
 };
 
 // ─── Scroll reader ─────────────────────────────────────────────────────────────
-const ScrollPopup: React.FC<{
+const InspectPopup: React.FC<{
     item: FloorItem;
     onClose: () => void;
     text: ReturnType<typeof useI18n>['championSheet'];
 }> = ({ item, onClose, text }) => (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 400 }}>
         <div onClick={e => e.stopPropagation()} style={{ width: 340, background: 'linear-gradient(160deg, #1a1408, #241c08)', border: `1px solid ${T.gold}`, borderRadius: 8, padding: 28, fontFamily: '"Courier New", monospace', color: T.cream }}>
-            <div style={{ fontSize: 10, letterSpacing: 4, color: T.goldDim, textAlign: 'center', marginBottom: 14 }}>{text.scroll.toUpperCase()}</div>
+            <div style={{ fontSize: 10, letterSpacing: 4, color: T.goldDim, textAlign: 'center', marginBottom: 14 }}>
+                {(getWaterContainerState(item) ? text.inspect : text.scroll).toUpperCase()}
+            </div>
             <div style={{ fontSize: 15, fontWeight: 'bold', textAlign: 'center', marginBottom: 18, color: T.gold }}>{getItemName(item)}</div>
             <div style={{ fontSize: 12, lineHeight: 1.8, color: T.creamDim, textAlign: 'center', fontStyle: 'italic', whiteSpace: 'pre-line' }}>
-                {item.rawName && !/^[A-Za-z]+_\d+$/.test(item.rawName) ? item.rawName : text.unreadableRunes}
+                {(() => {
+                    const waterState = getWaterContainerState(item);
+                    if (waterState) {
+                        return waterState.charges > 0
+                            ? text.waterRations(waterState.charges, waterState.maxCharges)
+                            : text.waterEmpty;
+                    }
+                    return item.rawName && !/^[A-Za-z]+_\d+$/.test(item.rawName) ? item.rawName : text.unreadableRunes;
+                })()}
             </div>
             <button onClick={onClose} style={{ display: 'block', margin: '20px auto 0', background: 'none', border: `1px solid ${T.goldDim}`, borderRadius: 4, color: T.goldDim, fontSize: 11, letterSpacing: 2, cursor: 'pointer', padding: '6px 20px', fontFamily: '"Courier New", monospace' }}>{text.close.toUpperCase()}</button>
         </div>
@@ -326,16 +293,37 @@ const ScrollPopup: React.FC<{
 );
 
 // ─── Interactive drop zone (eye / mouth) ──────────────────────────────────────
-const DropZone: React.FC<{ icon: React.ReactNode; label: string; title: string; borderColor: string; highlight?: boolean; onDrop: (p: DragPayload) => void }> = ({ icon, label, title, borderColor, highlight = false, onDrop }) => {
+const DropZone: React.FC<{
+    icon: React.ReactNode;
+    label: string;
+    title: string;
+    borderColor: string;
+    highlight?: boolean;
+    canAccept?: (payload: DragPayload) => boolean;
+    onDrop: (p: DragPayload) => void;
+}> = ({ icon, label, title, borderColor, highlight = false, canAccept, onDrop }) => {
     const [over, setOver] = useState(false);
+    const tryAcceptDrag = (event: React.DragEvent, onOver?: () => void) => {
+        const payload = getDragPayload(event);
+        if (!payload) return;
+        if (canAccept && !canAccept(payload)) return;
+        acceptDrag(event, onOver);
+    };
     return (
         <div title={title}
             className={highlight && !over ? 'slot-valid' : undefined}
             style={{ width: 48, height: 48, border: `1px solid ${over ? borderColor : T.slotBorder}`, borderRadius: 3, background: over ? 'rgba(30,15,0,0.9)' : 'rgba(0,0,0,0.58)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, cursor: 'default', transition: over ? undefined : 'border-color 0.1s', position: 'relative', zIndex: 3 }}
-            onDragEnter={e => acceptDrag(e, () => setOver(true))}
-            onDragOver={e => acceptDrag(e, () => setOver(true))}
+            onDragEnter={e => tryAcceptDrag(e, () => setOver(true))}
+            onDragOver={e => tryAcceptDrag(e, () => setOver(true))}
             onDragLeave={() => setOver(false)}
-            onDrop={e => { e.preventDefault(); setOver(false); const p = getDragPayload(e); if (p) onDrop(p); }}
+            onDrop={e => {
+                e.preventDefault();
+                setOver(false);
+                const p = getDragPayload(e);
+                if (!p) return;
+                if (canAccept && !canAccept(p)) return;
+                onDrop(p);
+            }}
         >
             <span style={{ fontSize: 20, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24 }}>{icon}</span>
             <span style={{ fontSize: 7, color: T.goldDim, letterSpacing: 1 }}>{label}</span>
@@ -443,13 +431,13 @@ export const ChampionSheet: React.FC = () => {
     } = useStore();
     const activePotionBoosts = useStore((s) => s.activePotionBoosts);
 
-    const [scrollItem, setScrollItem] = useState<FloorItem | null>(null);
+    const [inspectedItem, setInspectedItem] = useState<FloorItem | null>(null);
     const [draggingItem, setDraggingItem] = useState<FloorItem | null>(null);
     const [saveFlash, setSaveFlash] = useState(false);
     const saveFlashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const validSlots = new Set<EquipSlotKey>(draggingItem ? getEquippableSlots(draggingItem) : []);
-    const highlightEye   = draggingItem?.category === 'Scroll';
+    const highlightEye   = draggingItem?.category === 'Scroll' || (draggingItem ? isWaterContainer(draggingItem) : false);
     const highlightMouth = draggingItem ? isConsumable(draggingItem) : false;
     const highlightFountain = draggingItem ? canFillWaterContainer(draggingItem) : false;
 
@@ -481,47 +469,65 @@ export const ChampionSheet: React.FC = () => {
     const xp         = championXP?.[champion.id];
     const potionBonuses = getChampionPotionBonusesForSheet(champion, vitals, activePotionBoosts, champion.id);
     const effectiveStats = getEffectiveChampionStatsWithBonuses(champion, equip, potionBonuses);
-    const weight     = getTotalWeight(equip, inv);
-    const maxWeight  = getChampionMaxLoad(champion, equip, vitals?.stamina, vitals?.wounds, potionBonuses);
-    const overloaded = weight > maxWeight;
-    const loadWarn   = !overloaded && (weight * 8) > (maxWeight * 5);
-    const loadColor  = overloaded ? T.red : loadWarn ? T.yellow : T.cream;
-    const woundText  = hasAnyChampionWound(vitals?.wounds)
-        ? [
-            vitals?.wounds.legs ? text.injuredLegs : null,
-            vitals?.wounds.feet ? text.injuredFeet : null,
-        ].filter(Boolean).join(' · ')
-        : '';
-
-    const hp      = vitals?.hp      ?? champion.health;
-    const stamina = vitals?.stamina ?? champion.stamina;
-    const mana    = vitals?.mana    ?? effectiveStats.mana;
-    const food    = vitals?.food    ?? MAX_FOOD;
-    const water   = vitals?.water   ?? MAX_WATER;
-    const foodFrame = food <= CRITICAL_FOOD_THRESHOLD ? '#b83a30' : food <= LOW_FOOD_THRESHOLD ? 'rgba(212, 168, 32, 0.7)' : undefined;
-    const waterFrame = water <= CRITICAL_WATER_THRESHOLD ? '#b83a30' : water <= LOW_WATER_THRESHOLD ? 'rgba(212, 168, 32, 0.7)' : undefined;
-    const frontTileY = direction === 'NORTH' ? position[0] - 1 : direction === 'SOUTH' ? position[0] + 1 : position[0];
-    const frontTileX = direction === 'EAST' ? position[1] + 1 : direction === 'WEST' ? position[1] - 1 : position[1];
-    const frontWallFace = direction === 'NORTH' ? 'South' : direction === 'SOUTH' ? 'North' : direction === 'EAST' ? 'West' : 'East';
-    const frontTile = getGameMap(level).tiles[frontTileY]?.[frontTileX];
-    const facingFountain = !!frontTile &&
-        (frontTile.type === 'Wall' || frontTile.type === 'TrickWall') &&
-        hasOriginalWallOverlayAt(level, frontTileX, frontTileY, frontWallFace, 'Fountain');
-    const facingAltar = !!frontTile &&
-        (frontTile.type === 'Wall' || frontTile.type === 'TrickWall') &&
-        isAltarWallFaceSystem(level, frontTileX, frontTileY, frontWallFace, (mapLevel, tileX, tileY) => getGameMap(mapLevel).tiles[tileY]?.[tileX]);
-    const frontWallItemMechanism = !!frontTile &&
-        (frontTile.type === 'Wall' || frontTile.type === 'TrickWall')
-        ? getMechanismsAt(level, frontTileX, frontTileY, frontWallFace).find((mechanism) =>
+    const loadState = buildChampionSheetLoadSummary({
+        weight: getTotalWeight(equip, inv),
+        maxWeight: getChampionMaxLoad(champion, equip, vitals?.stamina, vitals?.wounds, potionBonuses),
+    });
+    const loadColor = loadState.loadSeverity === 'critical' ? T.red : loadState.loadSeverity === 'warning' ? T.yellow : T.cream;
+    const vitalsSummary = buildChampionSheetVitalsSummary({
+        champion,
+        vitals,
+        effectiveMana: effectiveStats.mana,
+        maxFood: MAX_FOOD,
+        maxWater: MAX_WATER,
+        criticalFoodThreshold: CRITICAL_FOOD_THRESHOLD,
+        lowFoodThreshold: LOW_FOOD_THRESHOLD,
+        criticalWaterThreshold: CRITICAL_WATER_THRESHOLD,
+        lowWaterThreshold: LOW_WATER_THRESHOLD,
+        injuredLegsLabel: text.injuredLegs,
+        injuredFeetLabel: text.injuredFeet,
+    });
+    const woundText = vitalsSummary.woundText;
+    const hp = vitalsSummary.hp;
+    const stamina = vitalsSummary.stamina;
+    const mana = vitalsSummary.mana;
+    const food = vitalsSummary.food;
+    const water = vitalsSummary.water;
+    const foodFrame = vitalsSummary.foodSeverity === 'critical' ? '#b83a30' : vitalsSummary.foodSeverity === 'warning' ? 'rgba(212, 168, 32, 0.7)' : undefined;
+    const waterFrame = vitalsSummary.waterSeverity === 'critical' ? '#b83a30' : vitalsSummary.waterSeverity === 'warning' ? 'rgba(212, 168, 32, 0.7)' : undefined;
+    const frontWallContext = buildChampionSheetFrontWallContext<Mechanism>({
+        level,
+        position,
+        direction,
+        firedSensors,
+        getTileAt: (mapLevel, tileX, tileY) => getGameMap(mapLevel).tiles[tileY]?.[tileX],
+        hasOriginalWallOverlayAt,
+        isAltarWallFace: isAltarWallFaceSystem,
+        getMechanismsAtFace: (mapLevel, tileX, tileY, face) => getMechanismsAt(mapLevel, tileX, tileY, face),
+        isFrontWallMechanism: (mechanism) =>
             mechanism.trigger === 'wall-lock' || mechanism.trigger === 'alcove' || mechanism.trigger === 'object-exchanger',
-        ) ?? null
-        : null;
-    const canDismissChampion = level === 0 && !firedSensors.has('0_64');
+    });
+    const facingFountain = frontWallContext.facingFountain;
+    const facingAltar = frontWallContext.facingAltar;
+    const frontWallItemMechanism = frontWallContext.frontWallItemMechanism;
+    const canDismissChampion = frontWallContext.canDismissChampion;
     const getDraggedItem = (payload: DragPayload) => (
         payload.fromSlot === 'inventory'
             ? inv.find((item) => item.id === payload.itemId)
             : equip[payload.fromSlot as EquipSlotKey]
     );
+    const canDropConsumableOnMouth = (payload: DragPayload) => {
+        const item = getDraggedItem(payload);
+        return !!item && isConsumable(item);
+    };
+    const canDropInspectableOnEye = (payload: DragPayload) => {
+        const item = getDraggedItem(payload);
+        return !!item && (item.category === 'Scroll' || isWaterContainer(item));
+    };
+    const canDropContainerOnFountain = (payload: DragPayload) => {
+        const item = getDraggedItem(payload);
+        return !!item && canFillWaterContainer(item);
+    };
 
     const handleDropOnSlot = (payload: DragPayload, targetSlot: EquipSlotKey) => {
         if (payload.fromChampionId !== champion.id) {
@@ -554,8 +560,7 @@ export const ChampionSheet: React.FC = () => {
     };
 
     const handleEquipItem = (item: FloorItem) => {
-        const slots = getEquippableSlots(item);
-        const slot = slots.find(s => !equip[s]) ?? slots[0];
+        const slot = getFirstEquipTargetSlot(item, equip, getEquippableSlots);
         if (slot) equipItem(champion.id, slot, item.id);
     };
 
@@ -566,8 +571,9 @@ export const ChampionSheet: React.FC = () => {
 
     const handleReadScroll = (payload: DragPayload) => {
         const item = getDraggedItem(payload);
-        if (item?.category === 'Scroll') {
-            setScrollItem(item);
+        if (!item) return;
+        if (item.category === 'Scroll' || isWaterContainer(item)) {
+            setInspectedItem(item);
             clearDragState();
         }
     };
@@ -742,7 +748,7 @@ export const ChampionSheet: React.FC = () => {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
                             <span style={{ fontSize: 10, letterSpacing: 3, color: T.gold }}>{text.equipment}</span>
                             <span style={{ fontSize: 11, fontWeight: 'bold', color: loadColor }}>
-                                ⚖ {formatWeight(weight)}<span style={{ fontSize: 10, color: T.creamDim, fontWeight: 'normal' }}>/{formatWeight(maxWeight)} kg</span>{overloaded && <span style={{ color: T.red }}> ⚠</span>}
+                                ⚖ {formatWeight(loadState.weight)}<span style={{ fontSize: 10, color: T.creamDim, fontWeight: 'normal' }}>/{formatWeight(loadState.maxWeight)} kg</span>{loadState.overloaded && <span style={{ color: T.red }}> ⚠</span>}
                             </span>
                         </div>
 
@@ -756,10 +762,11 @@ export const ChampionSheet: React.FC = () => {
                             <div style={{ display: 'flex', justifyContent: 'flex-start', paddingLeft: 18 }}>
                                 <DropZone
                                     icon={<img src={miscPath('eye.png')} alt="" draggable={false} style={{ width: 22, height: 22, objectFit: 'contain', imageRendering: 'crisp-edges' }} />}
-                                    label={text.readDropZone}
-                                    title={text.readDropZoneTitle}
+                                    label={text.inspectDropZone}
+                                    title={text.inspectDropZoneTitle}
                                     borderColor="#d4a840"
                                     highlight={highlightEye}
+                                    canAccept={canDropInspectableOnEye}
                                     onDrop={handleReadScroll}
                                 />
                             </div>
@@ -771,6 +778,7 @@ export const ChampionSheet: React.FC = () => {
                                         title={text.fountainTitle}
                                         borderColor="#3aa0d8"
                                         highlight={highlightFountain}
+                                        canAccept={canDropContainerOnFountain}
                                         onDrop={handleFillAtFountain}
                                     />
                                 ) : facingAltar ? (
@@ -802,6 +810,7 @@ export const ChampionSheet: React.FC = () => {
                                     title={text.eatTitle}
                                     borderColor="#d04040"
                                     highlight={highlightMouth}
+                                    canAccept={canDropConsumableOnMouth}
                                     onDrop={handleConsume}
                                 />
                             </div>
@@ -862,7 +871,7 @@ export const ChampionSheet: React.FC = () => {
                             inv={inv} equip={equip} champion={champion}
                             onEquip={handleEquipItem}
                             onDropToFloor={id => dropItem(id, champion.id)}
-                            onReadScroll={setScrollItem}
+                            onReadScroll={setInspectedItem}
                             onUseItem={id => consumeItem(champion.id, id)}
                             onUnequipToInventory={handleUnequipToInventory}
                             onItemDragStart={p => handleDragBegin(p, equip, inv)}
@@ -929,7 +938,7 @@ export const ChampionSheet: React.FC = () => {
                 )}
             </div>
 
-            {scrollItem && <ScrollPopup item={scrollItem} onClose={() => setScrollItem(null)} text={text} />}
+            {inspectedItem && <InspectPopup item={inspectedItem} onClose={() => setInspectedItem(null)} text={text} />}
         </div>
     );
 };

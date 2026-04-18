@@ -12,7 +12,7 @@ The current public build is available at [dungeon-master.fr](https://dungeon-mas
 
 This is currently a desktop-first alpha. Smartphone play is explicitly blocked in the app.
 
-Current local project version: `v0.6.0-alpha.0`.
+Current local project version: `v0.6.0-alpha.1`.
 
 ## Credits
 
@@ -196,7 +196,7 @@ The most useful project-memory and audit docs are:
 
 - The project should currently be treated as a playable alpha, not a finished remake.
 - The production build passes, and the app boots correctly from the runtime data embedded in `src/assets/runtime/`.
-- Latest local validation recorded on `2026-04-18`: `npm.cmd run build` passes, and `npm.cmd test` passes with `517` tests.
+- Latest local validation recorded on `2026-04-19`: `npm.cmd run build` passes, and `npm.cmd test` passes with `532` tests.
 - The world-content extraction is now considered reliable enough that the remaining uncertainty is mostly about fidelity edge cases, not about missing core dungeon content.
 - The runtime package now ships `bootstrap + maps/level-XX` instead of a single `dungeon.json` blob, and Vite emits separate level chunks accordingly.
 - The runtime package now also ships split `game_db` slices for items, weapon attacks, and creatures, so the app no longer depends on one runtime `game-db-blob`.

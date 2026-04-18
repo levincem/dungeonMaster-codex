@@ -91,6 +91,91 @@ export interface CreatureRuntimeMaps {
     creatureLastSeenPartyPos: Map<string, { x: number; y: number; expiresAt: number }>;
 }
 
+function normalizePersistedItem(item: FloorItem): FloorItem {
+    if (item.category === 'Potion' && item.typeId === 24) {
+        const charges = Math.max(0, Math.min(4, item.waterCharges ?? 4));
+        return {
+            ...item,
+            category: charges > 0 ? 'Potion' : 'Misc',
+            typeId: charges > 0 ? 24 : 1,
+            waterCharges: charges,
+            waterMaxCharges: 4,
+        };
+    }
+    if (item.category === 'Misc' && item.typeId === 1) {
+        const charges = Math.max(0, Math.min(4, item.waterCharges ?? 0));
+        return {
+            ...item,
+            category: charges > 0 ? 'Potion' : 'Misc',
+            typeId: charges > 0 ? 24 : 1,
+            waterCharges: charges,
+            waterMaxCharges: 4,
+        };
+    }
+    if (item.category === 'Potion' && item.typeId === 15) {
+        const charges = Math.max(0, Math.min(1, item.waterCharges ?? 1));
+        return {
+            ...item,
+            category: 'Potion',
+            typeId: charges > 0 ? 15 : 20,
+            waterCharges: charges,
+            waterMaxCharges: 1,
+        };
+    }
+    if (item.category === 'Potion' && item.typeId === 20) {
+        const charges = Math.max(0, Math.min(1, item.waterCharges ?? 0));
+        return {
+            ...item,
+            category: 'Potion',
+            typeId: charges > 0 ? 15 : 20,
+            waterCharges: charges,
+            waterMaxCharges: 1,
+        };
+    }
+    if (item.category === 'Misc' && (item.typeId === 40 || item.typeId === 41)) {
+        const charges = Math.max(0, Math.min(1, item.waterCharges ?? (item.typeId === 41 ? 1 : 0)));
+        return {
+            ...item,
+            category: 'Misc',
+            typeId: charges > 0 ? 41 : 40,
+            waterCharges: charges,
+            waterMaxCharges: 1,
+        };
+    }
+    return item;
+}
+
+function normalizePersistedItems(items: FloorItem[] | undefined): FloorItem[] {
+    return (items ?? []).map(normalizePersistedItem);
+}
+
+function normalizePersistedInventories(
+    inventories: Record<number, FloorItem[]> | undefined,
+): Record<number, FloorItem[]> {
+    return Object.fromEntries(
+        Object.entries(inventories ?? {}).map(([championId, items]) => [
+            championId,
+            normalizePersistedItems(items),
+        ]),
+    );
+}
+
+function normalizePersistedEquipment(
+    equipmentByChampion: Record<number, ChampionEquipment> | undefined,
+): Record<number, ChampionEquipment> {
+    return Object.fromEntries(
+        Object.entries(equipmentByChampion ?? {}).map(([championId, equipment]) => [
+            championId,
+            Object.fromEntries(
+                Object.entries(equipment ?? {}).map(([slotKey, item]) => [
+                    slotKey,
+                    item ? normalizePersistedItem(item) : item,
+                ]),
+            ) as ChampionEquipment,
+        ]),
+    );
+}
+
 function getDungeonBootstrap(): RawDungeonBootstrap {
     return getDungeonBootstrapSync<RawDungeonBootstrap>();
 }
@@ -280,6 +365,9 @@ export function hydratePersistedGameState(
     data: PersistedSaveData,
     now = Date.now(),
 ): PersistableGameState {
+    const normalizedFloorItems = normalizePersistedItems(data.floorItems);
+    const normalizedChampionInventories = normalizePersistedInventories(data.championInventories);
+    const normalizedChampionEquipment = normalizePersistedEquipment(data.championEquipment);
     const championXP = Object.fromEntries(
         data.party.map((champion) => {
             const loaded = normalizeChampionXP(data.championXP?.[champion.id]);
@@ -317,9 +405,9 @@ export function hydratePersistedGameState(
         pendingSensorEvents: data.pendingSensorEvents ?? [],
         pendingGeneratorSpawns: data.pendingGeneratorSpawns ?? [],
         creatures: data.creatures,
-        floorItems: data.floorItems,
-        championInventories: data.championInventories,
-        championEquipment: data.championEquipment,
+        floorItems: normalizedFloorItems,
+        championInventories: normalizedChampionInventories,
+        championEquipment: normalizedChampionEquipment,
         championVitals: Object.fromEntries(
             data.party
                 .map((champion) => {

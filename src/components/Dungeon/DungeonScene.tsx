@@ -1,4 +1,4 @@
-import { Suspense, lazy, useRef, useMemo, memo, useCallback, useEffect, useState } from 'react';
+import { useRef, useMemo, memo, useCallback, useEffect, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import type { ThreeEvent } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -8,22 +8,15 @@ import {
     MIRROR_FACE_MAP,
     STAIR_CONNECTIONS,
     VI_ALTAR_RESURRECTION_MESSAGE,
-    getCreatureFluxcageExpiry,
     isSelfRevealingWallTile,
 } from '../../engine/store';
 import { DAMAGE_EVENT_LIFETIME_MS, FOOTPRINT_LIFETIME_MS } from '../../engine/time';
 import { getMapMechanisms, getMechanismsAt } from '../../data/mechanisms';
 import { getOriginalWallOverlaysForMap, type OriginalWallOverlayRender } from '../../data/originalWallOverlays';
-import type { Direction, ProjectileEffect, FootprintEntry, SpellVisualEvent } from '../../engine/runtimeTypes';
+import type { Direction, FootprintEntry } from '../../engine/runtimeTypes';
 import { computeLightLevel } from '../../engine/store';
-import { isAltarWallFace as isAltarWallFaceSystem } from '../../engine/systems/resurrection';
-import {
-    resolveFrontWallTarget,
-    resolveLeftWallTarget,
-    resolveRightWallTarget,
-} from '../../engine/systems/frontWallState';
 import { getGameMap } from '../../data/mapLoader';
-import type { GameMap, GameTile, TeleporterObject, SensorObject, WallTextObject, CardinalDir, DoorObject } from '../../types/game';
+import type { GameMap, GameTile, TeleporterObject, CardinalDir, DoorObject } from '../../types/game';
 import type { Champion } from '../../data/champions';
 import type { EquipSlotKey } from '../../types/items';
 import { Cell, PressurePlate } from './Cell';
@@ -37,13 +30,33 @@ import { WallDecal } from './WallDecal';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import { getFloorItemImage } from '../../data/itemImages';
 import type { FloorItem } from '../../types/game';
-import type { CreatureInstance } from '../../types/game';
 import { miscPath, texturesPath } from '../../data/assetPaths';
 import { doorBlocksVision } from '../../data/doors';
 import { getDragPayload } from '../UI/dragPayload';
 import { useI18n } from '../../i18n';
 import { getCreatureCellOffsetXZ } from './creatureCellOffsets';
 import { BillboardGroup, useLoadedTexture } from './renderHelpers';
+import {
+    buildDungeonSceneWallButtons,
+    buildDungeonSceneWallDecals,
+    collectDungeonScenePressurePlates,
+    collectDungeonScenePits,
+    collectDungeonSceneTrickWalls,
+    resolveAltarDropTargets,
+    resolveFrontWallInteractionKind,
+} from './dungeonSceneDerivedState';
+import {
+    WallTextPlanes as SceneWallTextPlanes,
+    isDoorTileVisible as isSceneDoorTileVisible,
+} from './WallTextLayer';
+import {
+    FluxcageLayer,
+    PoisonCloudLayer,
+    ProjectileRenderer,
+    ShieldAuraLayer,
+} from './DungeonProjectileLayers';
+import { MagicVisionLayer } from './DungeonMagicVisionLayer';
+import { SpellImpactLayer } from './DungeonSpellImpactLayer';
 
 const HALF = GRID_SIZE / 2;
 const BASE_FOG_NEAR = GRID_SIZE * 2;
@@ -67,29 +80,8 @@ const CAMERA_RIGHT_VECTOR_MAP = {
     SOUTH: new THREE.Vector3(-1, 0, 0),
     WEST: new THREE.Vector3(0, 0, -1),
 };
-type MagicProjectileEffect = Exclude<ProjectileEffect, 'physical'>;
-
 const loadPhotonEffects = () => import('./PhotonsFireball');
 
-const LazyPhotonsFireball = lazy(() =>
-    loadPhotonEffects().then((module) => ({ default: module.PhotonsFireball })),
-);
-
-const LazyPhotonsLightningProjectile = lazy(() =>
-    loadPhotonEffects().then((module) => ({ default: module.PhotonsLightningProjectile })),
-);
-
-const LazyPhotonsOpenDoorProjectile = lazy(() =>
-    loadPhotonEffects().then((module) => ({ default: module.PhotonsOpenDoorProjectile })),
-);
-
-const LazyPhotonsPoisonProjectile = lazy(() =>
-    loadPhotonEffects().then((module) => ({ default: module.PhotonsPoisonProjectile })),
-);
-
-const LazyPhotonsDisruptProjectile = lazy(() =>
-    loadPhotonEffects().then((module) => ({ default: module.PhotonsDisruptProjectile })),
-);
 function cloneTexture<T extends THREE.Texture>(
     texture: T,
     configure?: (next: T) => void,
@@ -98,16 +90,6 @@ function cloneTexture<T extends THREE.Texture>(
     configure?.(next);
     next.needsUpdate = true;
     return next;
-}
-
-function createPulseMaterial(color: string, opacity: number) {
-    return new THREE.MeshBasicMaterial({
-        color,
-        transparent: true,
-        opacity,
-        depthWrite: false,
-        toneMapped: false,
-    });
 }
 
 function useWallClock(intervalMs = 200): number {
@@ -124,6 +106,12 @@ function useWallClock(intervalMs = 200): number {
     }, [intervalMs]);
 
     return nowMs;
+}
+
+function useTemporalFlag(untilTs: number, intervalMs = 150): boolean {
+    const wallClockNow = useWallClock(intervalMs);
+    const now = wallClockNow === 0 ? Date.now() : wallClockNow;
+    return now < untilTs;
 }
 
 const VI_ALTAR_MIRACLE_OVERLAY_LIFETIME_MS = 1700;
@@ -248,7 +236,7 @@ const ViAltarMiracleOverlay: React.FC = () => {
     );
 };
 
-// ─── Camera smooth follow ─────────────────────────────────────────────────────
+// â”€â”€â”€ Camera smooth follow â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const CameraController = () => {
     const level = useStore(s => s.level);
     const position  = useStore(s => s.position);
@@ -336,10 +324,10 @@ const CameraController = () => {
     );
 };
 
-// ─── Boundary wall planes ─────────────────────────────────────────────────────
+// â”€â”€â”€ Boundary wall planes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const BoundaryWalls = memo(({ map }: { map: GameMap }) => {
     const seeThroughWallsUntil = useStore(s => s.seeThroughWallsUntil);
-    const [wallTransparent, setWallTransparent] = useState(false);
+    const wallTransparent = useTemporalFlag(seeThroughWallsUntil, 120);
     const baseWall = useLoadedTexture(`${texturesPath('wall.png')}?v=2`);
     const wall = useMemo(
         () => cloneTexture(baseWall, next => {
@@ -349,10 +337,6 @@ const BoundaryWalls = memo(({ map }: { map: GameMap }) => {
         [baseWall],
     );
     useEffect(() => () => wall.dispose(), [wall]);
-    useFrame(() => {
-        const active = Date.now() < seeThroughWallsUntil;
-        setWallTransparent(prev => (prev === active ? prev : active));
-    });
 
     const planes: React.ReactElement[] = [];
     for (const row of map.tiles) {
@@ -374,7 +358,7 @@ const BoundaryWalls = memo(({ map }: { map: GameMap }) => {
     return <>{planes}</>;
 });
 
-// ─── Tile render-type derivation ──────────────────────────────────────────────
+// â”€â”€â”€ Tile render-type derivation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function getRenderType(tile: GameTile, level: number): CellRenderType {
     switch (tile.type) {
         case 'Wall':
@@ -398,7 +382,7 @@ function getRenderType(tile: GameTile, level: number): CellRenderType {
     }
 }
 
-// ─── Level name overlay ───────────────────────────────────────────────────────
+// â”€â”€â”€ Level name overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const LevelName = ({ level }: { level: number }) => {
     const map = getGameMap(level);
     return (
@@ -413,7 +397,8 @@ const LevelName = ({ level }: { level: number }) => {
     );
 };
 
-// ─── Wall text — carved 3D inscriptions ──────────────────────────────────────
+// â”€â”€â”€ Wall text â€” carved 3D inscriptions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+/*
 const CHAMPION_DATA_RE = /\n{2,}[MF]\n[A-Z]/;
 
 const FACE_POS_TEXT: Record<CardinalDir, [number, number, number]> = {
@@ -425,7 +410,7 @@ const FACE_POS_TEXT: Record<CardinalDir, [number, number, number]> = {
 const FACE_ROT_TEXT: Record<CardinalDir, [number, number, number]> = {
     North: [0, Math.PI,      0],   // player approaches from -Z looking +Z (south)
     South: [0, 0,            0],   // player approaches from +Z looking -Z (north)
-    // East/West are stored on wall tiles — label is from the wall tile's perspective,
+    // East/West are stored on wall tiles â€” label is from the wall tile's perspective,
     // opposite to floor-tile convention, so rotations are swapped vs WallDecal.
     East:  [0,  Math.PI / 2, 0],
     West:  [0, -Math.PI / 2, 0],
@@ -592,11 +577,6 @@ const WALL_TEXT_FACE_VECTORS: Record<CardinalDir, { dx: number; dy: number }> = 
     West: { dx: -1, dy: 0 },
 };
 
-function wallFaceAnchor(tileX: number, tileY: number, face: CardinalDir): { x: number; y: number } {
-    const step = WALL_TEXT_FACE_VECTORS[face];
-    return { x: tileX + step.dx, y: tileY + step.dy };
-}
-
 function blocksWallFaceSight(
     tile: GameTile | undefined,
     level: number,
@@ -618,45 +598,6 @@ function blocksWallFaceSight(
         return doorBlocksVision(door?.doorType);
     }
     return false;
-}
-
-function hasWallFaceLineOfSight(
-    map: GameMap,
-    level: number,
-    openDoors: Set<string>,
-    openWalls: Set<string>,
-    fromX: number,
-    fromY: number,
-    toX: number,
-    toY: number,
-): boolean {
-    const dx = toX - fromX;
-    const dy = toY - fromY;
-    const steps = Math.max(Math.abs(dx), Math.abs(dy));
-    if (steps === 0) return true;
-    for (let i = 1; i < steps; i++) {
-        const x = Math.round(fromX + (dx * i) / steps);
-        const y = Math.round(fromY + (dy * i) / steps);
-        if (blocksWallFaceSight(map.tiles[y]?.[x], level, openDoors, openWalls)) {
-            return false;
-        }
-    }
-    return !blocksWallFaceSight(map.tiles[toY]?.[toX], level, openDoors, openWalls);
-}
-
-function isWallFaceVisible(
-    map: GameMap,
-    level: number,
-    openDoors: Set<string>,
-    openWalls: Set<string>,
-    partyX: number,
-    partyY: number,
-    tileX: number,
-    tileY: number,
-    face: CardinalDir,
-): boolean {
-    const anchor = wallFaceAnchor(tileX, tileY, face);
-    return hasWallFaceLineOfSight(map, level, openDoors, openWalls, partyX, partyY, anchor.x, anchor.y);
 }
 
 function isDoorTileVisible(
@@ -788,6 +729,7 @@ const WallTextPlanes: React.FC<{ map: GameMap }> = memo(({ map }) => {
     );
 });
 
+*/
 const LightController: React.FC = () => {
     const levelIndex = useStore(s => s.level);
     const spellLights      = useStore(s => s.spellLights);
@@ -814,27 +756,122 @@ const LightController: React.FC = () => {
     return <ambientLight ref={lightRef} intensity={0.1} color="#9aa6bd" />;
 };
 
+function getDoorButtonFaceSignForView(
+    partyPosition: [number, number],
+    tileX: number,
+    tileY: number,
+    doorOrientation: GameTile['orientation'],
+): 1 | -1 {
+    const normalPositive = doorOrientation === 'WestEast' || doorOrientation === 'EastWest'
+        ? { dx: 1, dy: 0 }
+        : { dx: 0, dy: 1 };
+    const toParty = {
+        dx: partyPosition[1] - tileX,
+        dy: partyPosition[0] - tileY,
+    };
+    const dot = normalPositive.dx * toParty.dx + normalPositive.dy * toParty.dy;
+    return dot >= 0 ? 1 : -1;
+}
+
+function makeDamageBubbleTexture(amount: number): { texture: THREE.CanvasTexture; aspect: number } {
+    const text = `-${amount}`;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        const fallback = new THREE.CanvasTexture(canvas);
+        return { texture: fallback, aspect: 1.6 };
+    }
+
+    ctx.font = 'bold 76px "Courier New", monospace';
+    const metrics = ctx.measureText(text);
+    const severity = Math.min(1, amount / 48);
+    const width = Math.max(220, Math.ceil(metrics.width + 82 + severity * 28));
+    const height = Math.max(132, Math.ceil(142 + severity * 18));
+    canvas.width = width;
+    canvas.height = height;
+
+    const draw = canvas.getContext('2d');
+    if (!draw) {
+        const fallback = new THREE.CanvasTexture(canvas);
+        return { texture: fallback, aspect: width / height };
+    }
+
+    draw.clearRect(0, 0, width, height);
+    const cx = width / 2;
+    const cy = height / 2;
+    const outerRadiusX = width * (0.46 + severity * 0.03);
+    const outerRadiusY = height * (0.42 + severity * 0.04);
+    const innerRadiusX = outerRadiusX * 0.78;
+    const innerRadiusY = outerRadiusY * 0.73;
+    const spikes = 10;
+
+    draw.beginPath();
+    for (let i = 0; i < spikes * 2; i++) {
+        const angle = (-Math.PI / 2) + (i * Math.PI) / spikes;
+        const radiusX = i % 2 === 0 ? outerRadiusX : innerRadiusX;
+        const radiusY = i % 2 === 0 ? outerRadiusY : innerRadiusY;
+        const px = cx + Math.cos(angle) * radiusX;
+        const py = cy + Math.sin(angle) * radiusY;
+        if (i === 0) draw.moveTo(px, py); else draw.lineTo(px, py);
+    }
+    draw.closePath();
+
+    const fill = draw.createRadialGradient(cx, cy, 8, cx, cy, Math.max(outerRadiusX, outerRadiusY));
+    fill.addColorStop(0, 'rgba(255, 246, 212, 0.98)');
+    fill.addColorStop(0.24, 'rgba(255, 194, 110, 0.96)');
+    fill.addColorStop(0.62, 'rgba(176, 40, 14, 0.96)');
+    fill.addColorStop(1, 'rgba(86, 6, 2, 0.98)');
+    draw.fillStyle = fill;
+    draw.strokeStyle = 'rgba(255, 236, 170, 0.98)';
+    draw.lineWidth = 7;
+    draw.lineJoin = 'round';
+    draw.fill();
+    draw.stroke();
+
+    draw.beginPath();
+    for (let i = 0; i < spikes * 2; i++) {
+        const angle = (-Math.PI / 2) + (i * Math.PI) / spikes;
+        const radiusX = (i % 2 === 0 ? outerRadiusX : innerRadiusX) * 0.79;
+        const radiusY = (i % 2 === 0 ? outerRadiusY : innerRadiusY) * 0.74;
+        const px = cx + Math.cos(angle) * radiusX;
+        const py = cy + Math.sin(angle) * radiusY;
+        if (i === 0) draw.moveTo(px, py); else draw.lineTo(px, py);
+    }
+    draw.closePath();
+    draw.strokeStyle = 'rgba(82, 10, 4, 0.9)';
+    draw.lineWidth = 3.5;
+    draw.stroke();
+
+    draw.fillStyle = '#fff7d2';
+    draw.textAlign = 'center';
+    draw.textBaseline = 'middle';
+    draw.font = 'bold 76px "Courier New", monospace';
+    draw.shadowColor = 'rgba(24, 0, 0, 0.95)';
+    draw.shadowBlur = 12;
+    draw.lineWidth = 5;
+    draw.strokeStyle = 'rgba(64, 8, 0, 0.95)';
+    draw.strokeText(text, cx, cy + 5);
+    draw.fillText(text, cx, cy + 5);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.needsUpdate = true;
+    return { texture, aspect: width / height };
+}
+
 const DarknessOverlay: React.FC = () => {
     const levelIndex = useStore(s => s.level);
     const spellLights = useStore(s => s.spellLights);
     const torchBurnStart = useStore(s => s.torchBurnStart);
     const championEquipment = useStore(s => s.championEquipment);
-    const [opacity, setOpacity] = useState(0);
-
-    useEffect(() => {
-        const update = () => {
-            if (levelIndex === 0) {
-                setOpacity(0);
-                return;
-            }
-            const level = computeLightLevel(spellLights, torchBurnStart, championEquipment);
-            setOpacity(Math.max(0, 0.84 - level * 0.84));
-        };
-
-        update();
-        const intervalId = window.setInterval(update, 250);
-        return () => window.clearInterval(intervalId);
-    }, [levelIndex, spellLights, torchBurnStart, championEquipment]);
+    useWallClock(250);
+    const opacity = useMemo(() => {
+        if (levelIndex === 0) {
+            return 0;
+        }
+        const level = computeLightLevel(spellLights, torchBurnStart, championEquipment);
+        return Math.max(0, 0.84 - level * 0.84);
+    }, [championEquipment, levelIndex, spellLights, torchBurnStart]);
 
     return (
         <div
@@ -849,23 +886,7 @@ const DarknessOverlay: React.FC = () => {
     );
 };
 
-// ─── Projectile renderer ──────────────────────────────────────────────────────
-const PROJ_COLORS: Record<MagicProjectileEffect, string> = {
-    fireball: '#ff6200',
-    lightning: '#aaddff',
-    slime: '#a4d96a',
-    poison_cloud: '#7cff88',
-    poison_bolt: '#44ff66',
-    open: '#8cf1ff',
-    disrupt_nonmaterial: '#c8f6ff',
-};
-
-const FIREBALL_OUTER_COLOR = '#ff6f1a';
-const FIREBALL_INNER_COLOR = '#ffcf5a';
-const FIREBALL_CORE_COLOR = '#fff4d6';
-const LIGHTNING_CORE_COLOR = '#f2fbff';
-const DISRUPT_CORE_COLOR = '#effaff';
-
+// â”€â”€â”€ Projectile renderer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 /*
 export const FrontWallLockDropTarget = ({
     tileX,
@@ -923,7 +944,7 @@ export const FrontWallLockDropTarget = ({
                     userSelect: 'none',
                 }}
             >
-                <div style={{ fontSize: 18, marginBottom: 3 }}>{label === 'ALCOVE' ? '🕳' : label === 'RECEPTACLE' ? '🔥' : '🗝'}</div>
+                <div style={{ fontSize: 18, marginBottom: 3 }}>{label === 'ALCOVE' ? 'ðŸ•³' : label === 'RECEPTACLE' ? 'ðŸ”¥' : 'ðŸ—'}</div>
                 <div>{label}</div>
                 {requirement && <div style={{ marginTop: 4, color: '#d8bf84', fontSize: 10 }}>{requirement}</div>}
             </div>
@@ -1071,1481 +1092,101 @@ const WallMechanismDropTarget = ({ kind, placement = 'front', onUseItem, activeF
     );
 };
 
-const ProjectileRenderer: React.FC = () => {
-    const projectiles = useStore(s => s.projectiles);
-    const level = useStore(s => s.level);
-    const activeProjectiles = useMemo(
-        () => projectiles.filter(p => p.level === level),
-        [projectiles, level],
-    );
-    const sphereShellGeometry = useMemo(() => new THREE.SphereGeometry(0.28, 14, 14), []);
-    const sphereGlowGeometry = useMemo(() => new THREE.SphereGeometry(0.2, 12, 12), []);
-    const sphereCoreGeometry = useMemo(() => new THREE.SphereGeometry(0.14, 10, 10), []);
-    const fireballFlareGeometry = useMemo(() => new THREE.IcosahedronGeometry(0.36, 0), []);
-    const poisonCloudGeometry = useMemo(() => new THREE.SphereGeometry(0.24, 10, 10), []);
-    const lightningBoltGeometry = useMemo(() => new THREE.CylinderGeometry(0.035, 0.08, 0.7, 6, 1), []);
-    const disruptRingGeometry = useMemo(() => new THREE.TorusGeometry(0.19, 0.035, 10, 24), []);
-    const coreMaterials = useMemo<Record<MagicProjectileEffect, THREE.MeshBasicMaterial>>(
-        () => ({
-            fireball: new THREE.MeshBasicMaterial({ color: FIREBALL_CORE_COLOR, toneMapped: false }),
-            lightning: new THREE.MeshBasicMaterial({ color: LIGHTNING_CORE_COLOR, toneMapped: false }),
-            slime: new THREE.MeshBasicMaterial({ color: '#f2ffd4', toneMapped: false }),
-            poison_cloud: new THREE.MeshBasicMaterial({ color: '#dcffd7', toneMapped: false }),
-            poison_bolt: new THREE.MeshBasicMaterial({ color: '#e7ffe7', toneMapped: false }),
-            open: new THREE.MeshBasicMaterial({ color: '#fff5d0', toneMapped: false }),
-            disrupt_nonmaterial: new THREE.MeshBasicMaterial({ color: DISRUPT_CORE_COLOR, toneMapped: false }),
-        }),
-        [],
-    );
-    const glowMaterials = useMemo<Record<MagicProjectileEffect, THREE.MeshBasicMaterial>>(
-        () => ({
-            fireball: createPulseMaterial(FIREBALL_OUTER_COLOR, 0.28),
-            lightning: createPulseMaterial(PROJ_COLORS.lightning, 0.22),
-            slime: createPulseMaterial(PROJ_COLORS.slime, 0.22),
-            poison_cloud: createPulseMaterial(PROJ_COLORS.poison_cloud, 0.22),
-            poison_bolt: createPulseMaterial(PROJ_COLORS.poison_bolt, 0.2),
-            open: createPulseMaterial(PROJ_COLORS.open, 0.18),
-            disrupt_nonmaterial: createPulseMaterial(PROJ_COLORS.disrupt_nonmaterial, 0.2),
-        }),
-        [],
-    );
-    const accentMaterials = useMemo<Record<MagicProjectileEffect, THREE.MeshBasicMaterial>>(
-        () => ({
-            fireball: createPulseMaterial(FIREBALL_INNER_COLOR, 0.36),
-            lightning: createPulseMaterial('#dff2ff', 0.32),
-            slime: createPulseMaterial('#d8f59a', 0.3),
-            poison_cloud: createPulseMaterial('#c8ffb8', 0.24),
-            poison_bolt: createPulseMaterial('#8cff6f', 0.3),
-            open: createPulseMaterial('#baf7ff', 0.26),
-            disrupt_nonmaterial: createPulseMaterial('#9be8ff', 0.26),
-        }),
-        [],
-    );
+const DungeonSceneDragOverlay: React.FC<{
+    level: number;
+    map: GameMap;
+    position: [number, number];
+    direction: Direction;
+    openDoors: Set<string>;
+    openWalls: Set<string>;
+    isItemDragActive: boolean;
+}> = ({ level, map, position, direction, openDoors, openWalls, isItemDragActive }) => {
+    const activeFloorDrag = useStore(s => s.activeFloorDrag);
+    const floorItems = useStore(s => s.floorItems);
+    const selectedChampionIndex = useStore(s => s.selectedChampionIndex);
+    const party = useStore(s => s.party);
+    const applyItemOnFrontWall = useStore(s => s.useItemOnFrontWall);
+    const applyFloorItemOnFrontWall = useStore(s => s.useFloorItemOnFrontWall);
+    const applyItemOnViAltar = useStore(s => s.useItemOnViAltar);
+    const applyFloorItemOnViAltar = useStore(s => s.useFloorItemOnViAltar);
 
-    useEffect(() => () => {
-        sphereShellGeometry.dispose();
-        sphereGlowGeometry.dispose();
-        sphereCoreGeometry.dispose();
-        fireballFlareGeometry.dispose();
-        poisonCloudGeometry.dispose();
-        lightningBoltGeometry.dispose();
-        disruptRingGeometry.dispose();
-        Object.values(coreMaterials).forEach(mat => mat.dispose());
-        Object.values(glowMaterials).forEach(mat => mat.dispose());
-        Object.values(accentMaterials).forEach(mat => mat.dispose());
-    }, [
-        sphereShellGeometry,
-        sphereGlowGeometry,
-        sphereCoreGeometry,
-        fireballFlareGeometry,
-        poisonCloudGeometry,
-        lightningBoltGeometry,
-        disruptRingGeometry,
-        coreMaterials,
-        glowMaterials,
-        accentMaterials,
-    ]);
+    const selectedChampionId = party[selectedChampionIndex]?.id ?? party[0]?.id ?? null;
+    const draggedFloorItem = useMemo(
+        () => activeFloorDrag ? floorItems.find((item) => item.id === activeFloorDrag.itemId) ?? null : null,
+        [activeFloorDrag, floorItems],
+    );
+    const altarDropTargets = useMemo(
+        () => resolveAltarDropTargets({ level, map, position, direction, openDoors, openWalls, isSelfRevealingWallTile, doorBlocksVision }),
+        [direction, level, map, openDoors, openWalls, position],
+    );
+    const frontWallInteractionKind = useMemo(
+        () => resolveFrontWallInteractionKind({
+            level,
+            map,
+            position,
+            direction,
+            openWalls,
+            isSelfRevealingWallTile,
+            getMechanismsAtFace: (targetLevel, tileX, tileY, face) => getMechanismsAt(targetLevel, tileX, tileY, face),
+        }),
+        [direction, level, map, openWalls, position],
+    );
 
     return (
         <>
-            {activeProjectiles.map((p, index) => (
-                p.effect === 'physical' && p.physicalItem ? (
-                    <PhysicalProjectileSprite key={p.id} projectile={{ ...p, physicalItem: p.physicalItem }} />
-                ) : (
-                    <ProjectileOrb
-                        key={p.id}
-                        projectile={p as typeof p & { effect: MagicProjectileEffect }}
-                        index={index}
-                        sphereShellGeometry={sphereShellGeometry}
-                        sphereGlowGeometry={sphereGlowGeometry}
-                        sphereCoreGeometry={sphereCoreGeometry}
-                        poisonCloudGeometry={poisonCloudGeometry}
-                        lightningBoltGeometry={lightningBoltGeometry}
-                        disruptRingGeometry={disruptRingGeometry}
-                        coreMaterial={coreMaterials[p.effect as MagicProjectileEffect]}
-                        glowMaterial={glowMaterials[p.effect as MagicProjectileEffect]}
-                        accentMaterial={accentMaterials[p.effect as MagicProjectileEffect]}
+            {activeFloorDrag && draggedFloorItem && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        left: activeFloorDrag.pointerX,
+                        top: activeFloorDrag.pointerY,
+                        transform: 'translate(-50%, -50%)',
+                        pointerEvents: 'none',
+                        zIndex: 180,
+                        filter: 'drop-shadow(0 8px 14px rgba(0,0,0,0.48))',
+                    }}
+                >
+                    <img
+                        src={getFloorItemImage(draggedFloorItem)}
+                        alt=""
+                        style={{
+                            width: 54,
+                            height: 54,
+                            objectFit: 'contain',
+                            imageRendering: 'crisp-edges',
+                            opacity: 0.94,
+                        }}
                     />
-                )
+                </div>
+            )}
+            {altarDropTargets.length > 0 && (isItemDragActive || activeFloorDrag) && altarDropTargets.map((target) => (
+                <WallMechanismDropTarget
+                    key={`altar_drop_${target.placement}_${target.wallX}_${target.wallY}_${target.face}`}
+                    kind="altar"
+                    placement={target.placement}
+                    onUseItem={(championId, itemId, fromSlot) =>
+                        applyItemOnViAltar(championId, itemId, fromSlot, target.wallX, target.wallY, target.face)
+                    }
+                    activeFloorDragItemId={activeFloorDrag?.itemId ?? null}
+                    selectedChampionId={selectedChampionId}
+                    onUseFloorItem={(itemId, championId) =>
+                        applyFloorItemOnViAltar(itemId, championId, target.wallX, target.wallY, target.face)
+                    }
+                />
             ))}
-        </>
-    );
-};
-
-const ProjectileOrb: React.FC<{
-    projectile: { x: number; y: number; effect: MagicProjectileEffect; direction?: Direction; visualScale?: number };
-    index: number;
-    sphereShellGeometry: THREE.SphereGeometry;
-    sphereGlowGeometry: THREE.SphereGeometry;
-    sphereCoreGeometry: THREE.SphereGeometry;
-    poisonCloudGeometry: THREE.SphereGeometry;
-    lightningBoltGeometry: THREE.CylinderGeometry;
-    disruptRingGeometry: THREE.TorusGeometry;
-    coreMaterial: THREE.MeshBasicMaterial;
-    glowMaterial: THREE.MeshBasicMaterial;
-    accentMaterial: THREE.MeshBasicMaterial;
-}> = ({
-    projectile,
-    index,
-    sphereShellGeometry,
-    sphereGlowGeometry,
-    sphereCoreGeometry,
-    poisonCloudGeometry,
-    lightningBoltGeometry,
-    disruptRingGeometry,
-    coreMaterial,
-    glowMaterial,
-    accentMaterial,
-}) => {
-    const directionRotation: Record<Direction, number> = {
-        NORTH: 0,
-        SOUTH: Math.PI,
-        EAST: -Math.PI / 2,
-        WEST: Math.PI / 2,
-    };
-    const visualScale = projectile.visualScale ?? 1;
-
-    return (
-        <group position={[projectile.x * GRID_SIZE, 0, projectile.y * GRID_SIZE]}>
-            {projectile.effect === 'fireball' ? (
-                <Suspense fallback={null}>
-                    <LazyPhotonsFireball scale={visualScale} />
-                </Suspense>
-            ) : projectile.effect === 'lightning' ? (
-                <LightningProjectileVisual
-                    seed={index}
-                    visualScale={visualScale}
-                    directionRotation={directionRotation[projectile.direction ?? 'NORTH']}
-                    sphereGlowGeometry={sphereGlowGeometry}
-                    sphereCoreGeometry={sphereCoreGeometry}
-                    lightningBoltGeometry={lightningBoltGeometry}
-                    coreMaterial={coreMaterial}
-                    glowMaterial={glowMaterial}
-                    accentMaterial={accentMaterial}
-                />
-            ) : projectile.effect === 'open' ? (
-                <OpenDoorProjectileVisual visualScale={visualScale} />
-            ) : projectile.effect === 'poison_cloud' || projectile.effect === 'poison_bolt' || projectile.effect === 'slime' ? (
-                <PoisonProjectileVisual
-                    seed={index}
-                    effect={projectile.effect}
-                    visualScale={visualScale}
-                    sphereShellGeometry={sphereShellGeometry}
-                    sphereCoreGeometry={sphereCoreGeometry}
-                    poisonCloudGeometry={poisonCloudGeometry}
-                    coreMaterial={coreMaterial}
-                    glowMaterial={glowMaterial}
-                    accentMaterial={accentMaterial}
-                />
-            ) : (
-                <DisruptProjectileVisual
-                    seed={index}
-                    visualScale={visualScale}
-                    sphereShellGeometry={sphereShellGeometry}
-                    sphereGlowGeometry={sphereGlowGeometry}
-                    sphereCoreGeometry={sphereCoreGeometry}
-                    disruptRingGeometry={disruptRingGeometry}
-                    coreMaterial={coreMaterial}
-                    glowMaterial={glowMaterial}
-                    accentMaterial={accentMaterial}
+            {frontWallInteractionKind && altarDropTargets.every((target) => target.placement !== 'front') && (isItemDragActive || activeFloorDrag) && (
+                <WallMechanismDropTarget
+                    kind={frontWallInteractionKind}
+                    onUseItem={applyItemOnFrontWall}
+                    activeFloorDragItemId={activeFloorDrag?.itemId ?? null}
+                    selectedChampionId={selectedChampionId}
+                    onUseFloorItem={applyFloorItemOnFrontWall}
                 />
             )}
-        </group>
-    );
-};
-
-const OpenDoorProjectileVisual: React.FC<{ visualScale: number }> = ({ visualScale }) => {
-    return (
-        <Suspense fallback={null}>
-            <LazyPhotonsOpenDoorProjectile scale={visualScale} />
-        </Suspense>
-    );
-};
-
-const LightningProjectileVisual: React.FC<{
-    seed: number;
-    visualScale: number;
-    directionRotation: number;
-    sphereGlowGeometry: THREE.SphereGeometry;
-    sphereCoreGeometry: THREE.SphereGeometry;
-    lightningBoltGeometry: THREE.CylinderGeometry;
-    coreMaterial: THREE.MeshBasicMaterial;
-    glowMaterial: THREE.MeshBasicMaterial;
-    accentMaterial: THREE.MeshBasicMaterial;
-}> = ({ visualScale, directionRotation }) => {
-    return (
-        <Suspense fallback={null}>
-            <LazyPhotonsLightningProjectile scale={visualScale} directionRotation={directionRotation} />
-        </Suspense>
-    );
-};
-
-const PoisonProjectileVisual: React.FC<{
-    seed: number;
-    effect: 'poison_cloud' | 'poison_bolt' | 'slime';
-    visualScale: number;
-    sphereShellGeometry: THREE.SphereGeometry;
-    sphereCoreGeometry: THREE.SphereGeometry;
-    poisonCloudGeometry: THREE.SphereGeometry;
-    coreMaterial: THREE.MeshBasicMaterial;
-    glowMaterial: THREE.MeshBasicMaterial;
-    accentMaterial: THREE.MeshBasicMaterial;
-}> = ({ effect, visualScale }) => {
-    return (
-        <Suspense fallback={null}>
-            <LazyPhotonsPoisonProjectile effect={effect} scale={visualScale} />
-        </Suspense>
-    );
-};
-
-const DisruptProjectileVisual: React.FC<{
-    seed: number;
-    visualScale: number;
-    sphereShellGeometry: THREE.SphereGeometry;
-    sphereGlowGeometry: THREE.SphereGeometry;
-    sphereCoreGeometry: THREE.SphereGeometry;
-    disruptRingGeometry: THREE.TorusGeometry;
-    coreMaterial: THREE.MeshBasicMaterial;
-    glowMaterial: THREE.MeshBasicMaterial;
-    accentMaterial: THREE.MeshBasicMaterial;
-}> = ({ visualScale }) => {
-    return (
-        <Suspense fallback={null}>
-            <LazyPhotonsDisruptProjectile scale={visualScale} />
-        </Suspense>
-    );
-};
-
-const PhysicalProjectileSprite: React.FC<{
-    projectile: { x: number; y: number; physicalItem: FloorItem };
-}> = ({ projectile }) => {
-    const imagePath = getFloorItemImage(projectile.physicalItem);
-    const baseTex = useLoadedTexture(imagePath);
-    const tex = useMemo(() => {
-        const next = baseTex.clone();
-        next.colorSpace = THREE.SRGBColorSpace;
-        next.needsUpdate = true;
-        return next;
-    }, [baseTex]);
-
-    useEffect(() => () => tex.dispose(), [tex]);
-
-    const image = tex.image as { width: number; height: number } | undefined;
-    const aspect = image ? image.width / image.height : 1;
-    const width = GRID_SIZE * 0.34;
-    const height = width / aspect;
-
-    return (
-        <BillboardGroup
-            position={[projectile.x * GRID_SIZE, GRID_SIZE * 0.05, projectile.y * GRID_SIZE]}
-            follow
-            lockX={false}
-            lockY={false}
-            lockZ={false}
-        >
-            <mesh>
-                <planeGeometry args={[width, height]} />
-                <meshBasicMaterial
-                    map={tex}
-                    transparent
-                    alphaTest={0.05}
-                    side={THREE.DoubleSide}
-                    depthWrite={false}
-                />
-            </mesh>
-        </BillboardGroup>
-    );
-};
-
-const ShieldAuraLayer: React.FC = () => {
-    const activeShields = useStore(s => s.activeShields);
-    const position = useStore(s => s.position);
-    const ringRef = useRef<THREE.Mesh>(null);
-    const fireRef = useRef<THREE.Mesh>(null);
-    const shellRef = useRef<THREE.Mesh>(null);
-    const ringGeometry = useMemo(() => new THREE.TorusGeometry(GRID_SIZE * 0.42, 0.04, 12, 48), []);
-    const shellGeometry = useMemo(() => new THREE.SphereGeometry(GRID_SIZE * 0.42, 18, 18), []);
-    const magicMaterial = useMemo(() => createPulseMaterial('#7dc8ff', 0.24), []);
-    const fireMaterial = useMemo(() => createPulseMaterial('#ff8a3d', 0.22), []);
-    const shellMaterial = useMemo(() => createPulseMaterial('#f5f1da', 0.08), []);
-
-    useEffect(() => () => {
-        ringGeometry.dispose();
-        shellGeometry.dispose();
-        magicMaterial.dispose();
-        fireMaterial.dispose();
-        shellMaterial.dispose();
-    }, [ringGeometry, shellGeometry, magicMaterial, fireMaterial, shellMaterial]);
-
-    const magicActive = activeShields.some((shield) => (shield.kind ?? (shield.fireOnly ? 'fire' : 'physical')) === 'magic');
-    const fireActive = activeShields.some((shield) => (shield.kind ?? (shield.fireOnly ? 'fire' : 'physical')) === 'fire');
-    if (!magicActive && !fireActive) return null;
-
-    return (
-        <ShieldAuraVisual
-            position={[position[1] * GRID_SIZE, 0, position[0] * GRID_SIZE]}
-            magicActive={magicActive}
-            fireActive={fireActive}
-            ringGeometry={ringGeometry}
-            shellGeometry={shellGeometry}
-            magicMaterial={magicMaterial}
-            fireMaterial={fireMaterial}
-            shellMaterial={shellMaterial}
-            ringRef={ringRef}
-            fireRef={fireRef}
-            shellRef={shellRef}
-        />
-    );
-};
-
-const ShieldAuraVisual: React.FC<{
-    position: [number, number, number];
-    magicActive: boolean;
-    fireActive: boolean;
-    ringGeometry: THREE.TorusGeometry;
-    shellGeometry: THREE.SphereGeometry;
-    magicMaterial: THREE.MeshBasicMaterial;
-    fireMaterial: THREE.MeshBasicMaterial;
-    shellMaterial: THREE.MeshBasicMaterial;
-    ringRef: React.RefObject<THREE.Mesh | null>;
-    fireRef: React.RefObject<THREE.Mesh | null>;
-    shellRef: React.RefObject<THREE.Mesh | null>;
-}> = ({ position, magicActive, fireActive, ringGeometry, shellGeometry, magicMaterial, fireMaterial, shellMaterial, ringRef, fireRef, shellRef }) => {
-    const phaseRef = useRef(0);
-    useFrame((_, delta) => {
-        phaseRef.current += delta * 2.2;
-        const phase = phaseRef.current;
-        if (ringRef.current) {
-            ringRef.current.rotation.x = Math.PI / 2 + Math.sin(phase) * 0.08;
-            ringRef.current.rotation.z += delta * 0.9;
-            ringRef.current.scale.setScalar(1 + Math.sin(phase * 1.5) * 0.04);
-        }
-        if (fireRef.current) {
-            fireRef.current.rotation.x = Math.PI / 2 - Math.sin(phase * 1.2) * 0.12;
-            fireRef.current.rotation.z -= delta * 1.2;
-            fireRef.current.scale.setScalar(1 + Math.cos(phase * 1.7) * 0.05);
-        }
-        if (shellRef.current) {
-            shellRef.current.scale.setScalar(1 + Math.sin(phase * 0.9) * 0.03);
-        }
-    });
-
-    return (
-        <group position={position}>
-            <mesh ref={shellRef} geometry={shellGeometry} material={shellMaterial} />
-            {magicActive && <mesh ref={ringRef} geometry={ringGeometry} material={magicMaterial} rotation={[Math.PI / 2, 0, 0]} />}
-            {fireActive && <mesh ref={fireRef} geometry={ringGeometry} material={fireMaterial} rotation={[Math.PI / 2, 0, 0]} scale={1.12} />}
-        </group>
-    );
-};
-
-const FluxcageLayer: React.FC = () => {
-    const creatures = useStore(s => s.creatures);
-    const level = useStore(s => s.level);
-    const gamePhase = useStore(s => s.gamePhase);
-    const endgameSequence = useStore(s => s.endgameSequence);
-    const nowMs = useWallClock();
-    const hideFluxcages = gamePhase === 'endgame' && Boolean(endgameSequence?.hideFluxcages);
-    const activeCreatures = useMemo(
-        () => hideFluxcages
-            ? []
-            : creatures.filter((creature) => creature.alive && creature.mapIndex === level && getCreatureFluxcageExpiry(creature.id) > nowMs),
-        [creatures, level, nowMs, hideFluxcages],
-    );
-    const ringGeometry = useMemo(() => new THREE.TorusGeometry(0.28, 0.02, 8, 24), []);
-    const barGeometry = useMemo(() => new THREE.CylinderGeometry(0.012, 0.012, 0.8, 6), []);
-    const ringMaterial = useMemo(() => createPulseMaterial('#62e7ff', 0.32), []);
-    const barMaterial = useMemo(() => createPulseMaterial('#c8fbff', 0.24), []);
-
-    useEffect(() => () => {
-        ringGeometry.dispose();
-        barGeometry.dispose();
-        ringMaterial.dispose();
-        barMaterial.dispose();
-    }, [ringGeometry, barGeometry, ringMaterial, barMaterial]);
-
-    return (
-        <>
-            {activeCreatures.map((creature) => (
-                <FluxcageVisual
-                    key={`flux_${creature.id}`}
-                    creature={creature}
-                    ringGeometry={ringGeometry}
-                    barGeometry={barGeometry}
-                    ringMaterial={ringMaterial}
-                    barMaterial={barMaterial}
-                />
-            ))}
         </>
     );
 };
 
-const FluxcageVisual: React.FC<{
-    creature: CreatureInstance;
-    ringGeometry: THREE.TorusGeometry;
-    barGeometry: THREE.CylinderGeometry;
-    ringMaterial: THREE.MeshBasicMaterial;
-    barMaterial: THREE.MeshBasicMaterial;
-}> = ({ creature, ringGeometry, barGeometry, ringMaterial, barMaterial }) => {
-    const groupRef = useRef<THREE.Group>(null);
-    useFrame((_, delta) => {
-        if (!groupRef.current) return;
-        groupRef.current.rotation.y += delta * 1.35;
-        const pulse = 1 + Math.sin(Date.now() / 140) * 0.04;
-        groupRef.current.scale.setScalar(pulse);
-    });
-
-    return (
-        <group ref={groupRef} position={[creature.x * GRID_SIZE, 0, creature.y * GRID_SIZE]}>
-            <mesh geometry={ringGeometry} material={ringMaterial} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.05, 0]} />
-            <mesh geometry={ringGeometry} material={ringMaterial} rotation={[Math.PI / 2, 0, 0]} position={[0, -0.18, 0]} scale={0.82} />
-            <mesh geometry={barGeometry} material={barMaterial} position={[0.22, 0, 0.22]} />
-            <mesh geometry={barGeometry} material={barMaterial} position={[-0.22, 0, 0.22]} />
-            <mesh geometry={barGeometry} material={barMaterial} position={[0.22, 0, -0.22]} />
-            <mesh geometry={barGeometry} material={barMaterial} position={[-0.22, 0, -0.22]} />
-        </group>
-    );
-};
-
-const PoisonCloudLayer: React.FC = () => {
-    const activePoisonClouds = useStore((state) => state.activePoisonClouds);
-    const level = useStore((state) => state.level);
-    const clouds = useMemo(
-        () => activePoisonClouds.filter((cloud) => cloud.level === level),
-        [activePoisonClouds, level],
-    );
-
-    return (
-        <>
-            {clouds.map((cloud) => (
-                <PersistentPoisonCloudVisual key={cloud.id} cloud={cloud} />
-            ))}
-        </>
-    );
-};
-
-const PersistentPoisonCloudVisual: React.FC<{
-    cloud: { x: number; y: number; visualScale?: number };
-}> = ({ cloud }) => {
-    const groupRef = useRef<THREE.Group>(null);
-    const lightRef = useRef<THREE.PointLight>(null);
-
-    useFrame((_, delta) => {
-        if (!groupRef.current) return;
-        groupRef.current.rotation.y += delta * 0.18;
-        const pulse = 1 + Math.sin(Date.now() / 180) * 0.05;
-        groupRef.current.scale.setScalar(pulse);
-        if (lightRef.current) {
-            lightRef.current.intensity = 0.32 + ((Math.sin(Date.now() / 220) + 1) * 0.08);
-        }
-    });
-
-    return (
-            <group position={[cloud.x * GRID_SIZE, GRID_SIZE * 0.02, cloud.y * GRID_SIZE]}>
-            <group ref={groupRef}>
-                <Suspense fallback={null}>
-                    <LazyPhotonsPoisonProjectile effect="poison_cloud" scale={(cloud.visualScale ?? 1) * 1.16} />
-                </Suspense>
-            </group>
-            <pointLight
-                ref={lightRef}
-                color="#8cff8b"
-                intensity={0.36}
-                distance={GRID_SIZE * 1.4}
-                decay={2}
-                position={[0, GRID_SIZE * 0.16, 0]}
-            />
-        </group>
-    );
-};
-
-const SpellImpactLayer: React.FC = () => {
-    const spellVisualEvents = useStore(s => s.spellVisualEvents);
-    const level = useStore(s => s.level);
-    const impacts = useMemo(
-        () => spellVisualEvents.filter((event) => event.level === level),
-        [spellVisualEvents, level],
-    );
-    const ringGeometry = useMemo(() => new THREE.RingGeometry(0.1, 0.26, 24), []);
-    const fireMaterial = useMemo(() => createPulseMaterial('#ff8a3d', 0.42), []);
-    const fireCoreMaterial = useMemo(() => createPulseMaterial('#ffd97a', 0.7), []);
-    const fireFlameMaterial = useMemo(() => createPulseMaterial('#ffbe55', 0.58), []);
-    const lightningMaterial = useMemo(() => createPulseMaterial('#d7f7ff', 0.34), []);
-    const lightningCoreMaterial = useMemo(() => createPulseMaterial('#ffffff', 0.8), []);
-    const lightningArcMaterial = useMemo(() => createPulseMaterial('#8fdfff', 0.48), []);
-    const poisonMaterial = useMemo(() => createPulseMaterial('#8cff8b', 0.32), []);
-    const poisonCoreMaterial = useMemo(() => createPulseMaterial('#d6ff9f', 0.56), []);
-    const poisonMistMaterial = useMemo(() => createPulseMaterial('#6fdb75', 0.28), []);
-    const openMaterial = useMemo(() => createPulseMaterial('#8cf1ff', 0.28), []);
-    const openCoreMaterial = useMemo(() => createPulseMaterial('#fff6c8', 0.5), []);
-    const openSparkMaterial = useMemo(() => createPulseMaterial('#b9ffff', 0.34), []);
-    const disruptMaterial = useMemo(() => createPulseMaterial('#aeefff', 0.3), []);
-    const disruptCoreMaterial = useMemo(() => createPulseMaterial('#f3ffff', 0.52), []);
-    const disruptShardMaterial = useMemo(() => createPulseMaterial('#8dd8ff', 0.34), []);
-    const dustMaterial = useMemo(() => createPulseMaterial('#c9a56c', 0.38), []);
-
-    useEffect(() => () => {
-        ringGeometry.dispose();
-        fireMaterial.dispose();
-        fireCoreMaterial.dispose();
-        fireFlameMaterial.dispose();
-        lightningMaterial.dispose();
-        lightningCoreMaterial.dispose();
-        lightningArcMaterial.dispose();
-        poisonMaterial.dispose();
-        poisonCoreMaterial.dispose();
-        poisonMistMaterial.dispose();
-        openMaterial.dispose();
-        openCoreMaterial.dispose();
-        openSparkMaterial.dispose();
-        disruptMaterial.dispose();
-        disruptCoreMaterial.dispose();
-        disruptShardMaterial.dispose();
-        dustMaterial.dispose();
-    }, [
-        ringGeometry,
-        fireMaterial,
-        fireCoreMaterial,
-        fireFlameMaterial,
-        lightningMaterial,
-        lightningCoreMaterial,
-        lightningArcMaterial,
-        poisonMaterial,
-        poisonCoreMaterial,
-        poisonMistMaterial,
-        openMaterial,
-        openCoreMaterial,
-        openSparkMaterial,
-        disruptMaterial,
-        disruptCoreMaterial,
-        disruptShardMaterial,
-        dustMaterial,
-    ]);
-
-    const materialByEffect: Record<SpellVisualEvent['effect'], THREE.MeshBasicMaterial> = {
-        fireball: fireMaterial,
-        lightning: lightningMaterial,
-        slime: poisonMaterial,
-        poison_cloud: poisonMaterial,
-        poison_bolt: poisonMaterial,
-        open: openMaterial,
-        disrupt_nonmaterial: disruptMaterial,
-    };
-
-    return (
-        <>
-            {impacts.map((event) => event.kind === 'death' ? (
-                <DeathDustBurst key={`impact_${event.id}`} event={event} material={dustMaterial} />
-            ) : event.effect === 'fireball' ? (
-                <FireballImpactBurst
-                    key={`impact_${event.id}`}
-                    event={event}
-                    ringGeometry={ringGeometry}
-                    material={fireMaterial}
-                    coreMaterial={fireCoreMaterial}
-                    flameMaterial={fireFlameMaterial}
-                />
-            ) : event.effect === 'lightning' ? (
-                <LightningImpactBurst
-                    key={`impact_${event.id}`}
-                    event={event}
-                    ringGeometry={ringGeometry}
-                    material={lightningMaterial}
-                    coreMaterial={lightningCoreMaterial}
-                    arcMaterial={lightningArcMaterial}
-                />
-            ) : event.effect === 'poison_bolt' || event.effect === 'poison_cloud' || event.effect === 'slime' ? (
-                <PoisonImpactBurst
-                    key={`impact_${event.id}`}
-                    event={event}
-                    ringGeometry={ringGeometry}
-                    material={poisonMaterial}
-                    coreMaterial={poisonCoreMaterial}
-                    mistMaterial={poisonMistMaterial}
-                />
-            ) : event.effect === 'open' ? (
-                <OpenDoorImpactBurst
-                    key={`impact_${event.id}`}
-                    event={event}
-                    ringGeometry={ringGeometry}
-                    material={openMaterial}
-                    coreMaterial={openCoreMaterial}
-                    sparkMaterial={openSparkMaterial}
-                />
-            ) : event.effect === 'disrupt_nonmaterial' ? (
-                <DisruptImpactBurst
-                    key={`impact_${event.id}`}
-                    event={event}
-                    ringGeometry={ringGeometry}
-                    material={disruptMaterial}
-                    coreMaterial={disruptCoreMaterial}
-                    shardMaterial={disruptShardMaterial}
-                />
-            ) : (
-                <SpellImpactPulse
-                    key={`impact_${event.id}`}
-                    event={event}
-                    geometry={ringGeometry}
-                    material={materialByEffect[event.effect]}
-                />
-            ))}
-        </>
-    );
-};
-
-const PoisonImpactBurst: React.FC<{
-    event: SpellVisualEvent;
-    ringGeometry: THREE.RingGeometry;
-    material: THREE.MeshBasicMaterial;
-    coreMaterial: THREE.MeshBasicMaterial;
-    mistMaterial: THREE.MeshBasicMaterial;
-}> = ({ event, ringGeometry, material, coreMaterial, mistMaterial }) => {
-    const ringRef = useRef<THREE.Mesh>(null);
-    const coreRef = useRef<THREE.Mesh>(null);
-    const lightRef = useRef<THREE.PointLight>(null);
-    const mistNodes = useMemo(
-        () => Array.from({ length: event.effect === 'poison_cloud' ? 9 : event.effect === 'slime' ? 7 : 6 }, (_, index) => {
-            const count = event.effect === 'poison_cloud' ? 9 : event.effect === 'slime' ? 7 : 6;
-            const angle = (index / count) * Math.PI * 2;
-            const spread = 0.08 + (index % 3) * 0.04;
-            const drift = 0.09 + (index % 4) * 0.035;
-            const rise = 0.08 + (index % 3) * 0.03;
-            return { x: Math.cos(angle) * spread, z: Math.sin(angle) * spread, drift, rise, phase: index * 0.65 };
-        }),
-        [event.effect],
-    );
-
-    useFrame(() => {
-        const duration = event.effect === 'poison_cloud' ? 760 : event.effect === 'slime' ? 620 : 580;
-        const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / duration));
-        const spellScale = (event.visualScale ?? 1) * (event.effect === 'poison_cloud' ? 1.22 : event.effect === 'slime' ? 1.02 : 0.95);
-
-        if (ringRef.current) {
-            ringRef.current.scale.setScalar((0.64 + t * 1.65) * spellScale);
-            (ringRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.34;
-            ringRef.current.visible = t < 1;
-        }
-
-        if (coreRef.current) {
-            coreRef.current.scale.setScalar((0.28 + Math.sin(Math.PI * t) * 0.54) * spellScale);
-            (coreRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.44;
-            coreRef.current.visible = t < 1;
-        }
-
-        if (lightRef.current) {
-            lightRef.current.intensity = Math.max(0, (1 - t) * (event.effect === 'poison_cloud' ? 1.1 : event.effect === 'slime' ? 0.9 : 0.8) * Math.max(1, spellScale * 0.85));
-            lightRef.current.distance = GRID_SIZE * (event.effect === 'poison_cloud' ? 1.65 : event.effect === 'slime' ? 1.42 : 1.3) * Math.max(1, spellScale * 0.85);
-        }
-    });
-
-    return (
-        <group
-            position={[
-                event.x * GRID_SIZE + (event.offsetX ?? 0),
-                event.height ?? GRID_SIZE * 0.06,
-                event.y * GRID_SIZE + (event.offsetZ ?? 0),
-            ]}
-        >
-            <mesh
-                ref={ringRef}
-                rotation={[-Math.PI / 2, 0, 0]}
-                geometry={ringGeometry}
-                material={material}
-                frustumCulled={false}
-            />
-            <mesh ref={coreRef} material={coreMaterial} frustumCulled={false}>
-                <sphereGeometry args={[0.16, 10, 10]} />
-            </mesh>
-            {mistNodes.map((mist, index) => (
-                <PoisonImpactWisp
-                    key={`poison_wisp_${index}`}
-                    event={event}
-                    material={mistMaterial}
-                    offset={mist}
-                />
-            ))}
-            <pointLight
-                ref={lightRef}
-                color="#95ff7d"
-                intensity={0}
-                distance={GRID_SIZE * 1.35}
-                decay={2}
-                position={[0, GRID_SIZE * 0.16, 0]}
-            />
-        </group>
-    );
-};
-
-const PoisonImpactWisp: React.FC<{
-    event: SpellVisualEvent;
-    material: THREE.MeshBasicMaterial;
-    offset: { x: number; z: number; drift: number; rise: number; phase: number };
-}> = ({ event, material, offset }) => {
-    const wispRef = useRef<THREE.Mesh>(null);
-    useFrame(() => {
-        if (!wispRef.current) return;
-        const duration = event.effect === 'poison_cloud' ? 760 : 580;
-        const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / duration));
-        const spellScale = (event.visualScale ?? 1) * (event.effect === 'poison_cloud' ? 1.18 : 0.92);
-        wispRef.current.position.x = offset.x * (0.55 + t * 1.9) * spellScale;
-        wispRef.current.position.z = offset.z * (0.55 + t * 1.9) * spellScale;
-        wispRef.current.position.y = (offset.rise * Math.sin(Math.PI * t) + Math.sin(offset.phase + t * Math.PI * 2) * 0.03) * spellScale;
-        wispRef.current.scale.set(
-            (0.22 + (1 - t) * 0.08) * spellScale,
-            (0.18 + Math.sin(Math.PI * t) * offset.drift) * spellScale,
-            (0.22 + (1 - t) * 0.08) * spellScale,
-        );
-        (wispRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * (event.effect === 'poison_cloud' ? 0.3 : 0.38);
-        wispRef.current.visible = t < 1;
-    });
-
-    return (
-        <mesh ref={wispRef} material={material} frustumCulled={false}>
-            <sphereGeometry args={[0.1, 8, 8]} />
-        </mesh>
-    );
-};
-
-const LightningImpactBurst: React.FC<{
-    event: SpellVisualEvent;
-    ringGeometry: THREE.RingGeometry;
-    material: THREE.MeshBasicMaterial;
-    coreMaterial: THREE.MeshBasicMaterial;
-    arcMaterial: THREE.MeshBasicMaterial;
-}> = ({ event, ringGeometry, material, coreMaterial, arcMaterial }) => {
-    const ringRef = useRef<THREE.Mesh>(null);
-    const flashRef = useRef<THREE.Mesh>(null);
-    const lightRef = useRef<THREE.PointLight>(null);
-    const arcs = useMemo(
-        () => Array.from({ length: 6 }, (_, index) => ({
-            angle: (index / 6) * Math.PI * 2,
-            tilt: index % 2 === 0 ? 0.32 : -0.32,
-            reach: 0.34 + (index % 3) * 0.05,
-            rise: 0.03 + (index % 2) * 0.035,
-        })),
-        [],
-    );
-
-    useFrame(() => {
-        const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / 300));
-        const visualScale = event.visualScale ?? 1;
-
-        if (ringRef.current) {
-            ringRef.current.scale.setScalar((0.58 + t * 1.25) * visualScale);
-            (ringRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.42;
-            ringRef.current.visible = t < 1;
-        }
-
-        if (flashRef.current) {
-            flashRef.current.scale.setScalar((0.26 + Math.sin(Math.PI * t) * 0.72) * visualScale);
-            (flashRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.68;
-            flashRef.current.visible = t < 1;
-        }
-
-        if (lightRef.current) {
-            lightRef.current.intensity = Math.max(0, (1 - t) * 2.35 * Math.max(1, visualScale));
-            lightRef.current.distance = GRID_SIZE * (1.85 + visualScale * 0.55);
-        }
-    });
-
-    return (
-        <group
-            position={[
-                event.x * GRID_SIZE + (event.offsetX ?? 0),
-                event.height ?? GRID_SIZE * 0.05,
-                event.y * GRID_SIZE + (event.offsetZ ?? 0),
-            ]}
-        >
-            <mesh
-                ref={ringRef}
-                rotation={[-Math.PI / 2, 0, 0]}
-                geometry={ringGeometry}
-                material={material}
-                frustumCulled={false}
-            />
-            <mesh ref={flashRef} material={coreMaterial} frustumCulled={false}>
-                <sphereGeometry args={[0.12, 10, 10]} />
-            </mesh>
-            {arcs.map((arc, index) => (
-                <LightningImpactArc
-                    key={`lightning_arc_${index}`}
-                    event={event}
-                    material={arcMaterial}
-                    arc={arc}
-                />
-            ))}
-            <pointLight
-                ref={lightRef}
-                color="#c7f1ff"
-                intensity={0}
-                distance={GRID_SIZE * 1.7}
-                decay={2}
-                position={[0, GRID_SIZE * 0.16, 0]}
-            />
-        </group>
-    );
-};
-
-const LightningImpactArc: React.FC<{
-    event: SpellVisualEvent;
-    material: THREE.MeshBasicMaterial;
-    arc: { angle: number; tilt: number; reach: number; rise: number };
-}> = ({ event, material, arc }) => {
-    const arcRef = useRef<THREE.Mesh>(null);
-    useFrame(() => {
-        if (!arcRef.current) return;
-        const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / 300));
-        const visualScale = event.visualScale ?? 1;
-        arcRef.current.position.x = Math.cos(arc.angle) * arc.reach * (0.3 + t * 0.95) * visualScale;
-        arcRef.current.position.z = Math.sin(arc.angle) * arc.reach * (0.3 + t * 0.95) * visualScale;
-        arcRef.current.position.y = arc.rise * Math.sin(Math.PI * t) * visualScale;
-        arcRef.current.rotation.y = arc.angle;
-        arcRef.current.rotation.z = arc.tilt + Math.sin((arc.angle * 2) + t * Math.PI * 3) * 0.18;
-        arcRef.current.scale.set(
-            (0.06 + (1 - t) * 0.03) * visualScale,
-            (0.45 + Math.sin(Math.PI * t) * 0.28) * visualScale,
-            (0.06 + (1 - t) * 0.03) * visualScale,
-        );
-        (arcRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.6;
-        arcRef.current.visible = t < 1;
-    });
-
-    return (
-        <mesh ref={arcRef} material={material} frustumCulled={false}>
-            <boxGeometry args={[0.08, 0.5, 0.08]} />
-        </mesh>
-    );
-};
-
-const OpenDoorImpactBurst: React.FC<{
-    event: SpellVisualEvent;
-    ringGeometry: THREE.RingGeometry;
-    material: THREE.MeshBasicMaterial;
-    coreMaterial: THREE.MeshBasicMaterial;
-    sparkMaterial: THREE.MeshBasicMaterial;
-}> = ({ event, ringGeometry, material, coreMaterial, sparkMaterial }) => {
-    const ringRef = useRef<THREE.Mesh>(null);
-    const coreRef = useRef<THREE.Mesh>(null);
-    const lightRef = useRef<THREE.PointLight>(null);
-    const sparks = useMemo(
-        () => Array.from({ length: 6 }, (_, index) => ({
-            angle: (index / 6) * Math.PI * 2,
-            radius: 0.18 + (index % 2) * 0.05,
-            rise: 0.06 + (index % 3) * 0.025,
-        })),
-        [],
-    );
-
-    useFrame(() => {
-        const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / 520));
-        const visualScale = event.visualScale ?? 1;
-
-        if (ringRef.current) {
-            ringRef.current.scale.setScalar((0.55 + t * 1.25) * visualScale);
-            ringRef.current.rotation.z = t * Math.PI * 0.9;
-            (ringRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.34;
-            ringRef.current.visible = t < 1;
-        }
-
-        if (coreRef.current) {
-            coreRef.current.scale.setScalar((0.18 + Math.sin(Math.PI * t) * 0.5) * visualScale);
-            coreRef.current.rotation.y = t * Math.PI * 1.4;
-            (coreRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.46;
-            coreRef.current.visible = t < 1;
-        }
-
-        if (lightRef.current) {
-            lightRef.current.intensity = Math.max(0, (1 - t) * 1.1 * Math.max(1, visualScale * 0.85));
-            lightRef.current.distance = GRID_SIZE * (1.25 + visualScale * 0.4);
-        }
-    });
-
-    return (
-        <group
-            position={[
-                event.x * GRID_SIZE + (event.offsetX ?? 0),
-                event.height ?? GRID_SIZE * 0.07,
-                event.y * GRID_SIZE + (event.offsetZ ?? 0),
-            ]}
-        >
-            <mesh
-                ref={ringRef}
-                rotation={[-Math.PI / 2, 0, 0]}
-                geometry={ringGeometry}
-                material={material}
-                frustumCulled={false}
-            />
-            <mesh ref={coreRef} material={coreMaterial} frustumCulled={false}>
-                <torusGeometry args={[0.18, 0.03, 8, 24]} />
-            </mesh>
-            {sparks.map((spark, index) => (
-                <OpenDoorImpactSpark
-                    key={`open_spark_${index}`}
-                    event={event}
-                    material={sparkMaterial}
-                    spark={spark}
-                />
-            ))}
-            <pointLight
-                ref={lightRef}
-                color="#a8f8ff"
-                intensity={0}
-                distance={GRID_SIZE * 1.25}
-                decay={2}
-                position={[0, GRID_SIZE * 0.12, 0]}
-            />
-        </group>
-    );
-};
-
-const OpenDoorImpactSpark: React.FC<{
-    event: SpellVisualEvent;
-    material: THREE.MeshBasicMaterial;
-    spark: { angle: number; radius: number; rise: number };
-}> = ({ event, material, spark }) => {
-    const sparkRef = useRef<THREE.Mesh>(null);
-    useFrame(() => {
-        if (!sparkRef.current) return;
-        const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / 520));
-        const visualScale = event.visualScale ?? 1;
-        sparkRef.current.position.x = Math.cos(spark.angle) * spark.radius * (0.45 + t * 0.95) * visualScale;
-        sparkRef.current.position.z = Math.sin(spark.angle) * spark.radius * (0.45 + t * 0.95) * visualScale;
-        sparkRef.current.position.y = spark.rise * Math.sin(Math.PI * t) * visualScale;
-        sparkRef.current.rotation.y = spark.angle;
-        sparkRef.current.rotation.z = Math.PI / 4 + t * Math.PI * 0.5;
-        sparkRef.current.scale.set(
-            (0.06 + (1 - t) * 0.02) * visualScale,
-            (0.22 + Math.sin(Math.PI * t) * 0.12) * visualScale,
-            (0.06 + (1 - t) * 0.02) * visualScale,
-        );
-        (sparkRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.42;
-        sparkRef.current.visible = t < 1;
-    });
-
-    return (
-        <mesh ref={sparkRef} material={material} frustumCulled={false}>
-            <boxGeometry args={[0.08, 0.24, 0.08]} />
-        </mesh>
-    );
-};
-
-const DisruptImpactBurst: React.FC<{
-    event: SpellVisualEvent;
-    ringGeometry: THREE.RingGeometry;
-    material: THREE.MeshBasicMaterial;
-    coreMaterial: THREE.MeshBasicMaterial;
-    shardMaterial: THREE.MeshBasicMaterial;
-}> = ({ event, ringGeometry, material, coreMaterial, shardMaterial }) => {
-    const ringRef = useRef<THREE.Mesh>(null);
-    const shellRef = useRef<THREE.Mesh>(null);
-    const lightRef = useRef<THREE.PointLight>(null);
-    const shards = useMemo(
-        () => Array.from({ length: 8 }, (_, index) => {
-            const angle = (index / 8) * Math.PI * 2;
-            const radius = 0.12 + (index % 2) * 0.05;
-            const rise = 0.04 + (index % 3) * 0.025;
-            return { angle, radius, rise, spin: index % 2 === 0 ? 1 : -1 };
-        }),
-        [],
-    );
-
-    useFrame(() => {
-        const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / 520));
-        const visualScale = event.visualScale ?? 1;
-
-        if (ringRef.current) {
-            ringRef.current.scale.setScalar((0.7 + t * 1.55) * visualScale);
-            ringRef.current.rotation.z = t * Math.PI * 0.85;
-            (ringRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.38;
-            ringRef.current.visible = t < 1;
-        }
-
-        if (shellRef.current) {
-            shellRef.current.scale.setScalar((0.2 + Math.sin(Math.PI * t) * 0.62) * visualScale);
-            (shellRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.34;
-            shellRef.current.visible = t < 1;
-        }
-
-        if (lightRef.current) {
-            lightRef.current.intensity = Math.max(0, (1 - t) * 1.4 * Math.max(1, visualScale * 0.85));
-            lightRef.current.distance = GRID_SIZE * (1.45 + visualScale * 0.45);
-        }
-    });
-
-    return (
-        <group
-            position={[
-                event.x * GRID_SIZE + (event.offsetX ?? 0),
-                event.height ?? GRID_SIZE * 0.06,
-                event.y * GRID_SIZE + (event.offsetZ ?? 0),
-            ]}
-        >
-            <mesh
-                ref={ringRef}
-                rotation={[-Math.PI / 2, 0, 0]}
-                geometry={ringGeometry}
-                material={material}
-                frustumCulled={false}
-            />
-            <mesh ref={shellRef} material={coreMaterial} frustumCulled={false}>
-                <sphereGeometry args={[0.13, 10, 10]} />
-            </mesh>
-            {shards.map((shard, index) => (
-                <DisruptImpactShard
-                    key={`disrupt_shard_${index}`}
-                    event={event}
-                    material={shardMaterial}
-                    shard={shard}
-                />
-            ))}
-            <pointLight
-                ref={lightRef}
-                color="#b7ecff"
-                intensity={0}
-                distance={GRID_SIZE * 1.45}
-                decay={2}
-                position={[0, GRID_SIZE * 0.14, 0]}
-            />
-        </group>
-    );
-};
-
-const DisruptImpactShard: React.FC<{
-    event: SpellVisualEvent;
-    material: THREE.MeshBasicMaterial;
-    shard: { angle: number; radius: number; rise: number; spin: number };
-}> = ({ event, material, shard }) => {
-    const shardRef = useRef<THREE.Mesh>(null);
-    useFrame(() => {
-        if (!shardRef.current) return;
-        const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / 520));
-        const visualScale = event.visualScale ?? 1;
-        const orbit = shard.angle + (t * Math.PI * 1.4 * shard.spin);
-        shardRef.current.position.x = Math.cos(orbit) * shard.radius * (0.55 + t * 0.95) * visualScale;
-        shardRef.current.position.z = Math.sin(orbit) * shard.radius * (0.55 + t * 0.95) * visualScale;
-        shardRef.current.position.y = shard.rise * Math.sin(Math.PI * t) * visualScale;
-        shardRef.current.rotation.y = orbit;
-        shardRef.current.rotation.z = t * Math.PI * shard.spin;
-        shardRef.current.scale.set(
-            (0.08 + (1 - t) * 0.03) * visualScale,
-            (0.28 + Math.sin(Math.PI * t) * 0.16) * visualScale,
-            (0.08 + (1 - t) * 0.03) * visualScale,
-        );
-        (shardRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.46;
-        shardRef.current.visible = t < 1;
-    });
-
-    return (
-        <mesh ref={shardRef} material={material} frustumCulled={false}>
-            <octahedronGeometry args={[0.12, 0]} />
-        </mesh>
-    );
-};
-
-const SpellImpactPulse: React.FC<{
-    event: SpellVisualEvent;
-    geometry: THREE.RingGeometry;
-    material: THREE.MeshBasicMaterial;
-}> = ({ event, geometry, material }) => {
-    const meshRef = useRef<THREE.Mesh>(null);
-    const lightRef = useRef<THREE.PointLight>(null);
-    useFrame(() => {
-        if (!meshRef.current) return;
-        const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / DAMAGE_EVENT_LIFETIME_MS));
-        const visualScale = event.visualScale ?? 1;
-        const scale = event.kind === 'death'
-            ? (0.85 + t * 1.85) * visualScale
-            : event.kind === 'wall'
-                ? (0.58 + t * 1.55) * visualScale
-                : (0.72 + t * 1.3) * visualScale;
-        meshRef.current.scale.setScalar(scale);
-        (meshRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.45;
-        meshRef.current.visible = t < 1;
-        if (lightRef.current) {
-            const baseIntensity =
-                event.kind === 'death' ? 0.65 :
-                    event.effect === 'fireball' ? 1.8 :
-                        event.effect === 'lightning' ? 1.55 :
-                            event.effect === 'poison_cloud' || event.effect === 'poison_bolt' ? 0.8 : 1.0;
-            lightRef.current.intensity = Math.max(0, (1 - t) * baseIntensity * Math.max(1, visualScale * 0.85));
-            lightRef.current.distance =
-                (event.effect === 'fireball' ? GRID_SIZE * 1.7 :
-                    event.effect === 'lightning' ? GRID_SIZE * 1.45 : GRID_SIZE * 1.1) * Math.max(1, visualScale * 0.9);
-        }
-    });
-
-    const lightColor =
-        event.kind === 'death' ? '#c9a56c'
-            : event.effect === 'fireball' ? '#ff8a3d'
-                : event.effect === 'lightning' ? '#b7e8ff'
-                    : event.effect === 'poison_cloud' || event.effect === 'poison_bolt' ? '#8cff8b'
-                        : '#aeefff';
-
-    return (
-        <group
-            position={[
-                event.x * GRID_SIZE + (event.offsetX ?? 0),
-                event.height ?? (event.kind === 'death' ? GRID_SIZE * 0.14 : GRID_SIZE * 0.06),
-                event.y * GRID_SIZE + (event.offsetZ ?? 0),
-            ]}
-        >
-            <mesh
-                ref={meshRef}
-                rotation={[-Math.PI / 2, 0, 0]}
-                geometry={geometry}
-                material={material}
-                frustumCulled={false}
-            />
-            <pointLight
-                ref={lightRef}
-                color={lightColor}
-                intensity={0}
-                distance={GRID_SIZE * 1.4}
-                decay={2}
-                position={[0, GRID_SIZE * 0.18, 0]}
-            />
-        </group>
-    );
-};
-
-const FireballImpactBurst: React.FC<{
-    event: SpellVisualEvent;
-    ringGeometry: THREE.RingGeometry;
-    material: THREE.MeshBasicMaterial;
-    coreMaterial: THREE.MeshBasicMaterial;
-    flameMaterial: THREE.MeshBasicMaterial;
-}> = ({ event, ringGeometry, material, coreMaterial, flameMaterial }) => {
-    const ringRef = useRef<THREE.Mesh>(null);
-    const flashRef = useRef<THREE.Mesh>(null);
-    const lightRef = useRef<THREE.PointLight>(null);
-    const shards = useMemo(
-        () => Array.from({ length: 10 }, (_, index) => {
-            const angle = (index / 10) * Math.PI * 2;
-            const spread = 0.16 + (index % 3) * 0.05;
-            const rise = 0.04 + (index % 4) * 0.02;
-            return { x: Math.cos(angle) * spread, z: Math.sin(angle) * spread, rise };
-        }),
-        [],
-    );
-    const flames = useMemo(
-        () => Array.from({ length: 6 }, (_, index) => {
-            const angle = (index / 6) * Math.PI * 2;
-            const spread = 0.07 + (index % 2) * 0.035;
-            const lift = 0.18 + (index % 3) * 0.04;
-            return { x: Math.cos(angle) * spread, z: Math.sin(angle) * spread, lift, rotation: angle };
-        }),
-        [],
-    );
-
-    useFrame(() => {
-        const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / 520));
-        const visualScale = event.visualScale ?? 1;
-
-        if (ringRef.current) {
-            ringRef.current.scale.setScalar((0.9 + t * 2.1) * visualScale);
-            (ringRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.62;
-            ringRef.current.visible = t < 1;
-        }
-
-        if (flashRef.current) {
-            flashRef.current.scale.setScalar((0.42 + Math.sin(Math.PI * t) * 1.05) * visualScale);
-            (flashRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.55;
-            flashRef.current.visible = t < 1;
-        }
-
-        if (lightRef.current) {
-            lightRef.current.intensity = Math.max(0, (1 - t) * 2.9 * Math.max(1, visualScale));
-            lightRef.current.distance = GRID_SIZE * (2 + visualScale * 0.75);
-        }
-    });
-
-    return (
-        <group
-            position={[
-                event.x * GRID_SIZE + (event.offsetX ?? 0),
-                event.height ?? GRID_SIZE * 0.08,
-                event.y * GRID_SIZE + (event.offsetZ ?? 0),
-            ]}
-        >
-            <mesh
-                ref={ringRef}
-                rotation={[-Math.PI / 2, 0, 0]}
-                geometry={ringGeometry}
-                material={material}
-                frustumCulled={false}
-            />
-            <mesh ref={flashRef} material={coreMaterial} frustumCulled={false}>
-                <sphereGeometry args={[0.18, 12, 12]} />
-            </mesh>
-            {flames.map((flame, index) => (
-                <FireballImpactFlame
-                    key={`flame_${index}`}
-                    event={event}
-                    material={flameMaterial}
-                    offset={flame}
-                />
-            ))}
-            {shards.map((shard, index) => (
-                <FireballImpactShard
-                    key={index}
-                    event={event}
-                    material={material}
-                    offset={shard}
-                />
-            ))}
-            <pointLight
-                ref={lightRef}
-                color="#ff9a43"
-                intensity={0}
-                distance={GRID_SIZE * 1.8}
-                decay={2}
-                position={[0, GRID_SIZE * 0.2, 0]}
-            />
-        </group>
-    );
-};
-
-const FireballImpactFlame: React.FC<{
-    event: SpellVisualEvent;
-    material: THREE.MeshBasicMaterial;
-    offset: { x: number; z: number; lift: number; rotation: number };
-}> = ({ event, material, offset }) => {
-    const flameRef = useRef<THREE.Mesh>(null);
-    useFrame(() => {
-        if (!flameRef.current) return;
-        const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / 520));
-        const visualScale = event.visualScale ?? 1;
-        flameRef.current.position.x = offset.x * (0.6 + t * 1.8) * visualScale;
-        flameRef.current.position.z = offset.z * (0.6 + t * 1.8) * visualScale;
-        flameRef.current.position.y = offset.lift * Math.sin(Math.PI * t) * visualScale;
-        flameRef.current.rotation.y = offset.rotation;
-        flameRef.current.rotation.z = 0.18 + Math.sin((offset.rotation * 2) + (t * Math.PI)) * 0.22;
-        flameRef.current.scale.set(
-            (0.22 + (1 - t) * 0.1) * visualScale,
-            (0.55 + Math.sin(Math.PI * t) * 0.9) * visualScale,
-            (0.22 + (1 - t) * 0.1) * visualScale,
-        );
-        (flameRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.5;
-        flameRef.current.visible = t < 1;
-    });
-
-    return (
-        <mesh ref={flameRef} material={material} frustumCulled={false}>
-            <sphereGeometry args={[0.12, 8, 8]} />
-        </mesh>
-    );
-};
-
-const FireballImpactShard: React.FC<{
-    event: SpellVisualEvent;
-    material: THREE.MeshBasicMaterial;
-    offset: { x: number; z: number; rise: number };
-}> = ({ event, material, offset }) => {
-    const shardRef = useRef<THREE.Mesh>(null);
-    useFrame(() => {
-        if (!shardRef.current) return;
-        const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / 520));
-        const visualScale = event.visualScale ?? 1;
-        shardRef.current.position.x = offset.x * t * visualScale;
-        shardRef.current.position.z = offset.z * t * visualScale;
-        shardRef.current.position.y = offset.rise * Math.sin(Math.PI * t) * visualScale;
-        shardRef.current.scale.setScalar((1 - t) * (0.22 + visualScale * 0.08));
-        (shardRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.46;
-        shardRef.current.visible = t < 1;
-    });
-
-    return (
-        <mesh ref={shardRef} material={material} frustumCulled={false}>
-            <sphereGeometry args={[0.09, 6, 6]} />
-        </mesh>
-    );
-};
-
-const DeathDustBurst: React.FC<{
-    event: SpellVisualEvent;
-    material: THREE.MeshBasicMaterial;
-}> = ({ event, material }) => {
-    const groupRef = useRef<THREE.Group>(null);
-    const seed = useMemo(
-        () => Array.from({ length: 12 }, (_, index) => {
-            const angle = (index / 12) * Math.PI * 2;
-            const radius = 0.08 + (index % 4) * 0.045;
-            const rise = 0.08 + (index % 3) * 0.04;
-            return { x: Math.cos(angle) * radius, z: Math.sin(angle) * radius, rise };
-        }),
-        [],
-    );
-
-    useFrame(() => {
-        if (!groupRef.current) return;
-        const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / 850));
-        groupRef.current.children.forEach((child, index) => {
-            const particle = child as THREE.Mesh;
-            const cfg = seed[index];
-            particle.position.x = cfg.x * (0.35 + t * 1.25);
-            particle.position.z = cfg.z * (0.35 + t * 1.25);
-            particle.position.y = cfg.rise * Math.sin(Math.PI * t) - t * 0.08;
-            particle.scale.setScalar((1 - t) * (0.55 + (index % 3) * 0.18));
-            (particle.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.42;
-            particle.visible = t < 1;
-        });
-    });
-
-    return (
-        <group ref={groupRef} position={[event.x * GRID_SIZE, GRID_SIZE * 0.05, event.y * GRID_SIZE]}>
-            {seed.map((_, index) => (
-                <mesh key={index} material={material} frustumCulled={false}>
-                    <sphereGeometry args={[0.08, 6, 6]} />
-                </mesh>
-            ))}
-        </group>
-    );
-};
-
-// ─── Magic vision — red halos around hidden sensors + pressure plates ─────────
-const MagicVisionLayer: React.FC<{
-    wallButtons: { tileX: number; tileY: number; face: CardinalDir }[];
-    pressurePlates: { tileX: number; tileY: number }[];
-    trickWalls: { tileX: number; tileY: number }[];
-    pits: { tileX: number; tileY: number }[];
-}> = ({ wallButtons, pressurePlates, trickWalls, pits }) => {
-    const magicVisionUntil = useStore(s => s.magicVisionUntil);
-    const groupRef = useRef<THREE.Group>(null);
-    const buttonGeometry = useMemo(() => new THREE.SphereGeometry(0.22, 10, 10), []);
-    const plateGeometry = useMemo(() => new THREE.RingGeometry(GRID_SIZE * 0.18, GRID_SIZE * 0.38, 24), []);
-    const buttonMaterial = useMemo(() => createPulseMaterial('#ff3f2f', 0.55), []);
-    const plateMaterial = useMemo(() => createPulseMaterial('#ff5544', 0.34), []);
-    const trickWallMaterial = useMemo(() => createPulseMaterial('#ffd166', 0.28), []);
-    const pitMaterial = useMemo(() => createPulseMaterial('#62e0ff', 0.3), []);
-
-    useFrame(() => {
-        if (groupRef.current) groupRef.current.visible = Date.now() < magicVisionUntil;
-    });
-
-    useEffect(() => () => {
-        buttonGeometry.dispose();
-        plateGeometry.dispose();
-        buttonMaterial.dispose();
-        plateMaterial.dispose();
-        trickWallMaterial.dispose();
-        pitMaterial.dispose();
-    }, [buttonGeometry, plateGeometry, buttonMaterial, plateMaterial, trickWallMaterial, pitMaterial]);
-
-    const FACE_OFFSET: Record<CardinalDir, [number, number]> = {
-        North: [0, -HALF], South: [0, HALF], East: [HALF, 0], West: [-HALF, 0],
-    };
-
-    return (
-        <group ref={groupRef} visible={false}>
-            {wallButtons.map(({ tileX, tileY, face }) => {
-                const [ox, oz] = FACE_OFFSET[face];
-                return (
-                    <MagicVisionButton
-                        key={`mv_btn_${tileX}_${tileY}_${face}`}
-                        position={[tileX * GRID_SIZE + ox, 0, tileY * GRID_SIZE + oz]}
-                        geometry={buttonGeometry}
-                        material={buttonMaterial}
-                        seed={tileX * 0.8 + tileY * 0.35}
-                    />
-                );
-            })}
-            {pressurePlates.map(({ tileX, tileY }) => (
-                <MagicVisionPlate key={`mv_plate_${tileX}_${tileY}`}
-                    position={[tileX * GRID_SIZE, -WALL_HEIGHT / 2 + 0.02, tileY * GRID_SIZE]}
-                    geometry={plateGeometry}
-                    material={plateMaterial}
-                    seed={tileX * 0.5 + tileY * 0.4}
-                />
-            ))}
-            {trickWalls.map(({ tileX, tileY }) => (
-                <MagicVisionButton
-                    key={`mv_trickwall_${tileX}_${tileY}`}
-                    position={[tileX * GRID_SIZE, 0, tileY * GRID_SIZE]}
-                    geometry={buttonGeometry}
-                    material={trickWallMaterial}
-                    seed={tileX * 0.33 + tileY * 0.67}
-                />
-            ))}
-            {pits.map(({ tileX, tileY }) => (
-                <MagicVisionPlate
-                    key={`mv_pit_${tileX}_${tileY}`}
-                    position={[tileX * GRID_SIZE, -WALL_HEIGHT / 2 + 0.03, tileY * GRID_SIZE]}
-                    geometry={plateGeometry}
-                    material={pitMaterial}
-                    seed={tileX * 0.71 + tileY * 0.19}
-                />
-            ))}
-        </group>
-    );
-};
-
-const MagicVisionButton: React.FC<{
-    position: [number, number, number];
-    geometry: THREE.SphereGeometry;
-    material: THREE.MeshBasicMaterial;
-    seed: number;
-}> = ({ position, geometry, material, seed }) => {
-    const meshRef = useRef<THREE.Mesh>(null);
-    const pulseRef = useRef(seed);
-
-    useFrame(() => {
-        pulseRef.current += 0.04;
-        const pulse = 0.92 + ((Math.sin(pulseRef.current) + 1) * 0.08);
-        if (meshRef.current) meshRef.current.scale.setScalar(pulse);
-    });
-
-    return (
-        <mesh
-            ref={meshRef}
-            position={position}
-            geometry={geometry}
-            material={material}
-            frustumCulled={false}
-        />
-    );
-};
-
-const MagicVisionPlate: React.FC<{
-    position: [number, number, number];
-    geometry: THREE.RingGeometry;
-    material: THREE.MeshBasicMaterial;
-    seed: number;
-}> = ({ position, geometry, material, seed }) => {
-    const meshRef = useRef<THREE.Mesh>(null);
-    const pulseRef = useRef(seed);
-
-    useFrame(() => {
-        pulseRef.current += 0.04;
-        const scale = 1 + Math.sin(pulseRef.current * 0.8) * 0.06;
-        if (meshRef.current) meshRef.current.scale.setScalar(scale);
-    });
-
-    return (
-        <mesh
-            ref={meshRef}
-            position={position}
-            rotation={[-Math.PI / 2, 0, 0]}
-            geometry={geometry}
-            material={material}
-            frustumCulled={false}
-        />
-    );
-};
-
-// ─── Footprint trail — fading floor planes ────────────────────────────────────
 const FootprintLayer: React.FC = () => {
     const footprintHistory = useStore(s => s.footprintHistory);
     const level = useStore(s => s.level);
@@ -2601,7 +1242,7 @@ const FootprintLayer: React.FC = () => {
     );
 };
 
-// ─── Creatures layer (isolated — re-renders only when creatures change) ───────
+// â”€â”€â”€ Creatures layer (isolated â€” re-renders only when creatures change) â”€â”€â”€â”€â”€â”€â”€
 const CreaturesLayer: React.FC = () => {
     const creatures = useStore(s => s.creatures);
     const level     = useStore(s => s.level);
@@ -2615,18 +1256,14 @@ const CreaturesLayer: React.FC = () => {
     );
 };
 
-// ─── Damage events layer ──────────────────────────────────────────────────────
+// â”€â”€â”€ Damage events layer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const DamageLayer: React.FC = () => {
     const damageEvents = useStore(s => s.damageEvents);
     const level = useStore(s => s.level);
     const creatures = useStore(s => s.creatures);
     const direction = useStore(s => s.direction);
-    const [now, setNow] = useState(() => Date.now());
-
-    useEffect(() => {
-        const timer = window.setInterval(() => setNow(Date.now()), 33);
-        return () => window.clearInterval(timer);
-    }, []);
+    const wallClockNow = useWallClock(33);
+    const now = wallClockNow === 0 ? Date.now() : wallClockNow;
 
     return (
         <>
@@ -2698,7 +1335,7 @@ const DamageNumberBillboard: React.FC<{
     );
 };
 
-// ─── Floor items layer ────────────────────────────────────────────────────────
+// â”€â”€â”€ Floor items layer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const FloorItemsLayer: React.FC = () => {
     const floorItems = useStore(s => s.floorItems);
     const level      = useStore(s => s.level);
@@ -2753,7 +1390,7 @@ const FloorItemsLayer: React.FC = () => {
     );
 };
 
-// ─── Static tile grid (re-renders only when level or doors change) ────────────
+// â”€â”€â”€ Static tile grid (re-renders only when level or doors change) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const TileGrid: React.FC<{
     map: GameMap;
     level: number;
@@ -2777,14 +1414,14 @@ const TileGrid: React.FC<{
             {/* One draw call each for floor, ceiling, and walls */}
             <InstancedTiles key={level} map={map} openWalls={openWalls} />
 
-            {/* Pressure plates — floor-level objects */}
+            {/* Pressure plates â€” floor-level objects */}
             {pressurePlates.map(({ tileX, tileY }) => (
                 <group key={`plate_${tileX}_${tileY}`} position={[tileX * GRID_SIZE, 0, tileY * GRID_SIZE]}>
                     <PressurePlate tileX={tileX} tileY={tileY} level={level} />
                 </group>
             ))}
 
-            {/* Only Door and Mirror tiles need a Cell — everything else is instanced */}
+            {/* Only Door and Mirror tiles need a Cell â€” everything else is instanced */}
             {map.tiles.map((row, y) =>
                 row.map((tile, x) => {
                     const renderType = getRenderType(tile, level);
@@ -2808,7 +1445,7 @@ const TileGrid: React.FC<{
                     const isFrontDoor = x === frontTileX && y === frontTileY;
                     const doorButtonVisible = renderType === 'Door'
                         ? ((doorHasButton ?? false) &&
-                            (isFrontDoor || isDoorTileVisible(map, level, openDoors, openWalls, partyPosition[1], partyPosition[0], x, y)))
+                            (isFrontDoor || isSceneDoorTileVisible(map, level, openDoors, openWalls, partyPosition[1], partyPosition[0], x, y)))
                         : undefined;
                     const doorButtonSideSign = renderType === 'Door' && doorHasButton
                         ? 1
@@ -2867,16 +1504,14 @@ const TileGrid: React.FC<{
     );
 });
 
-// ─── Scene ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Scene â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export const DungeonScene = () => {
-    const dungeonText = useI18n().dungeonScene;
     const canvasHostRef = useRef<HTMLDivElement>(null);
     const [isItemDragActive, setIsItemDragActive] = useState(false);
     // Only subscribe to stable/slow-changing state here
     const level          = useStore(s => s.level);
     const position       = useStore(s => s.position);
     const direction      = useStore(s => s.direction);
-    const selectedChampionIndex = useStore(s => s.selectedChampionIndex);
     const openDoors      = useStore(s => s.openDoors);
     const brokenDoors    = useStore(s => s.brokenDoors);
     const crushingDoors  = useStore(s => s.crushingDoors);
@@ -2884,27 +1519,12 @@ export const DungeonScene = () => {
     const openMirror     = useStore(s => s.openMirror);
     const toggleDoor     = useStore(s => s.toggleDoor);
     const activateWallSensor = useStore(s => s.activateWallSensor);
-    const applyItemOnFrontWall = useStore(s => s.useItemOnFrontWall);
-    const applyFloorItemOnFrontWall = useStore(s => s.useFloorItemOnFrontWall);
-    const applyItemOnViAltar = useStore(s => s.useItemOnViAltar);
-    const applyFloorItemOnViAltar = useStore(s => s.useFloorItemOnViAltar);
-    const dropCarriedItem = useStore(s => s.dropCarriedItem);
-    const throwCarriedItem = useStore(s => s.throwCarriedItem);
     const activeSensors  = useStore(s => s.activeSensors);
     const firedSensors   = useStore(s => s.firedSensors);
-    const activeFloorDrag = useStore(s => s.activeFloorDrag);
-    const floorItems      = useStore(s => s.floorItems);
     const party          = useStore(s => s.party);
 
     const map = getGameMap(level);
     const recruitedIds = useMemo(() => new Set(party.map(c => c.id)), [party]);
-    const selectedChampionId = party[selectedChampionIndex]?.id ?? party[0]?.id ?? null;
-    const partyX = position[1];
-    const partyY = position[0];
-    const draggedFloorItem = useMemo(
-        () => activeFloorDrag ? floorItems.find((item) => item.id === activeFloorDrag.itemId) ?? null : null,
-        [activeFloorDrag, floorItems],
-    );
 
     useEffect(() => {
         void loadPhotonEffects();
@@ -2925,139 +1545,55 @@ export const DungeonScene = () => {
         };
     }, []);
 
-    const wallButtons = useMemo(() => {
-        const buttonsByFace = new Map<string, { tileX: number; tileY: number; face: CardinalDir; sensorIndex: number; isLocal: boolean }>();
-        const overlayKeys = new Set(
-            getOriginalWallOverlaysForMap(map, activeSensors, firedSensors).map((overlay) => `${overlay.tileX}:${overlay.tileY}:${overlay.face}`),
-        );
-        for (const row of map.tiles) {
-            for (const tile of row) {
-                const hiddenWallOpen = tile.type === 'Wall' && isSelfRevealingWallTile(level, tile.x, tile.y) && openWalls.has(`${level},${tile.y},${tile.x}`);
-                for (const obj of tile.objects) {
-                    if (obj.category !== 'Sensor') continue;
-                    const s = obj as SensorObject;
-                    if (s.type !== 1 && s.type !== 2) continue;
-                    if (hiddenWallOpen) continue;
-                    const hasExplicitOverlay = overlayKeys.has(`${tile.x}:${tile.y}:${s.tilePos}`);
-                    if (hasExplicitOverlay) continue;
-                    if (!isWallFaceVisible(map, level, openDoors, openWalls, partyX, partyY, tile.x, tile.y, s.tilePos)) continue;
-                    const key = `${tile.x}:${tile.y}:${s.tilePos}`;
-                    const current = buttonsByFace.get(key);
-                    if (!current || (current.isLocal && !s.isLocal)) {
-                        buttonsByFace.set(key, {
-                            tileX: tile.x,
-                            tileY: tile.y,
-                            face: s.tilePos,
-                            sensorIndex: s.index,
-                            isLocal: s.isLocal,
-                        });
-                    }
-                }
-            }
-        }
-        return [...buttonsByFace.values()].map((button) => ({
-            tileX: button.tileX,
-            tileY: button.tileY,
-            face: button.face,
-            sensorIndex: button.sensorIndex,
-        }));
-    }, [activeSensors, firedSensors, level, map, openDoors, openWalls, partyX, partyY]);
+    const originalWallOverlays = useMemo(
+        () => getOriginalWallOverlaysForMap(map, activeSensors, firedSensors),
+        [activeSensors, firedSensors, map],
+    );
 
-    const wallDecals = useMemo(() => {
-        const stairsEntryFace = (x: number, y: number): CardinalDir => {
-            const neighbours: Array<{ dx: number; dy: number; dir: CardinalDir }> = [
-                { dx:  0, dy: -1, dir: 'North' },
-                { dx:  0, dy:  1, dir: 'South' },
-                { dx:  1, dy:  0, dir: 'East'  },
-                { dx: -1, dy:  0, dir: 'West'  },
-            ];
-            for (const { dx, dy, dir } of neighbours) {
-                const row = map.tiles[y + dy];
-                const neighbour = row?.[x + dx];
-                if (neighbour && neighbour.type !== 'Wall') return dir;
-            }
-            return 'South';
-        };
+    const wallButtons = useMemo(
+        () => buildDungeonSceneWallButtons({
+            level,
+            map,
+            openDoors,
+            openWalls,
+            partyPosition: position,
+            originalWallOverlays,
+            isSelfRevealingWallTile,
+            doorBlocksVision,
+        }),
+        [activeSensors, firedSensors, level, map, openDoors, openWalls, originalWallOverlays, position],
+    );
 
-        const decals: OriginalWallOverlayRender[] = [];
-        const seen = new Set<string>();
-        const partyX = position[1];
-        const partyY = position[0];
-        const add = (overlay: OriginalWallOverlayRender) => {
-            const visualKey = overlay.image ?? overlay.label ?? 'overlay';
-            const key = `${overlay.tileX}_${overlay.tileY}_${overlay.face}_${visualKey}`;
-            if (seen.has(key)) return;
-            if (!isWallFaceVisible(map, level, openDoors, openWalls, partyX, partyY, overlay.tileX, overlay.tileY, overlay.face)) return;
-            seen.add(key);
-            decals.push(overlay);
-        };
+    const wallDecals = useMemo(
+        () => buildDungeonSceneWallDecals({
+            level,
+            map,
+            openDoors,
+            openWalls,
+            partyPosition: position,
+            originalWallOverlays,
+            miscImagePathBuilder: miscPath,
+            stairConnections: STAIR_CONNECTIONS,
+            isSelfRevealingWallTile,
+            doorBlocksVision,
+        }),
+        [activeSensors, firedSensors, level, map, openDoors, openWalls, originalWallOverlays, position],
+    );
 
-        for (const row of map.tiles) {
-            for (const tile of row) {
-                if (tile.type !== 'Stairs') continue;
-                const link = STAIR_CONNECTIONS.find(
-                    stair => stair.fromLevel === level && stair.fromY === tile.y && stair.fromX === tile.x,
-                );
-                if (!link) continue;
-                add({
-                    tileX: tile.x,
-                    tileY: tile.y,
-                    face: stairsEntryFace(tile.x, tile.y),
-                    image: link.toLevel > level ? miscPath('stairs_down.png') : miscPath('stairs_up.png'),
-                });
-            }
-        }
+    const pressurePlates = useMemo(
+        () => collectDungeonScenePressurePlates({ level, map, mechanisms: getMapMechanisms(level) }),
+        [level, map],
+    );
 
-        for (const overlay of getOriginalWallOverlaysForMap(map, activeSensors, firedSensors)) {
-            if (
-                isSelfRevealingWallTile(level, overlay.tileX, overlay.tileY) &&
-                openWalls.has(`${level},${overlay.tileY},${overlay.tileX}`)
-            ) {
-                continue;
-            }
-            add(overlay);
-        }
+    const trickWalls = useMemo(
+        () => collectDungeonSceneTrickWalls({ level, map, openWalls }),
+        [level, map, openWalls],
+    );
 
-        return decals;
-    }, [activeSensors, firedSensors, level, map, openDoors, openWalls, position]);
-
-    const pressurePlates = useMemo(() => {
-        const seen = new Set<string>();
-        const plates: { tileX: number; tileY: number }[] = [];
-        for (const mech of getMapMechanisms(level)) {
-            if (mech.support !== 'Floor' || !mech.kind.startsWith('Dalle de pression')) continue;
-            const tile = map.tiles[mech.y]?.[mech.x];
-            if (!tile || tile.type === 'Wall' || tile.type === 'Door' || tile.type === 'Teleporter') continue;
-            const key = `${mech.x},${mech.y}`;
-            if (seen.has(key)) continue;
-            seen.add(key);
-            plates.push({ tileX: mech.x, tileY: mech.y });
-        }
-        return plates;
-    }, [map, level]);
-
-    const trickWalls = useMemo(() => {
-        const walls: { tileX: number; tileY: number }[] = [];
-        for (const row of map.tiles) {
-            for (const tile of row) {
-                if (tile.type !== 'TrickWall') continue;
-                if (openWalls.has(`${level},${tile.y},${tile.x}`)) continue;
-                walls.push({ tileX: tile.x, tileY: tile.y });
-            }
-        }
-        return walls;
-    }, [map, level, openWalls]);
-
-    const pits = useMemo(() => {
-        const out: { tileX: number; tileY: number }[] = [];
-        for (const row of map.tiles) {
-            for (const tile of row) {
-                if (tile.type !== 'Pit') continue;
-                out.push({ tileX: tile.x, tileY: tile.y });
-            }
-        }
-        return out;
-    }, [map]);
+    const pits = useMemo(
+        () => collectDungeonScenePits({ map }),
+        [map],
+    );
 
     const handleCellClick = useCallback((
         e: ThreeEvent<MouseEvent>, renderType: CellRenderType, x: number, y: number,
@@ -3075,64 +1611,6 @@ export const DungeonScene = () => {
             toggleDoor(x, y);
         }
     }, [direction, level, openMirror, position, toggleDoor]);
-
-    const frontWallItemMechanism = useMemo(() => {
-        const frontTileY = direction === 'NORTH' ? position[0] - 1 : direction === 'SOUTH' ? position[0] + 1 : position[0];
-        const frontTileX = direction === 'EAST' ? position[1] + 1 : direction === 'WEST' ? position[1] - 1 : position[1];
-        const frontFace: CardinalDir =
-            direction === 'NORTH' ? 'South'
-                : direction === 'SOUTH' ? 'North'
-                    : direction === 'EAST' ? 'West'
-                        : 'East';
-        const tile = map.tiles[frontTileY]?.[frontTileX];
-        if (!tile || (tile.type !== 'Wall' && tile.type !== 'TrickWall')) return null;
-        if (isSelfRevealingWallTile(level, frontTileX, frontTileY) && openWalls.has(`${level},${frontTileY},${frontTileX}`)) {
-            return null;
-        }
-        const mechanism = getMechanismsAt(level, frontTileX, frontTileY, frontFace).find((entry) =>
-            entry.trigger === 'wall-lock' || entry.trigger === 'alcove' || entry.trigger === 'object-exchanger',
-        );
-        if (!mechanism) return null;
-        const kind: 'wall-lock' | 'alcove' | 'object-exchanger' = mechanism.trigger === 'alcove'
-            ? 'alcove'
-            : mechanism.trigger === 'object-exchanger'
-                ? 'object-exchanger'
-                : 'wall-lock';
-        return {
-            tileX: frontTileX,
-            tileY: frontTileY,
-            face: frontFace,
-            kind,
-            requirement: mechanism.requires,
-            label: mechanism.trigger === 'alcove' ? dungeonText.alcove : mechanism.trigger === 'object-exchanger' ? dungeonText.receptacle : dungeonText.lock,
-        };
-    }, [direction, dungeonText.alcove, dungeonText.lock, dungeonText.receptacle, level, map, openWalls, position]);
-    const altarDropTargets = useMemo(() => {
-        const candidates = [
-            { placement: 'front' as const, ...resolveFrontWallTarget(position, direction) },
-            { placement: 'left' as const, ...resolveLeftWallTarget(position, direction) },
-            { placement: 'right' as const, ...resolveRightWallTarget(position, direction) },
-        ];
-
-        return candidates.filter(({ wallX, wallY, face }) => {
-            const tile = map.tiles[wallY]?.[wallX];
-            if (!tile || (tile.type !== 'Wall' && tile.type !== 'TrickWall')) return false;
-            if (isSelfRevealingWallTile(level, wallX, wallY) && openWalls.has(`${level},${wallY},${wallX}`)) {
-                return false;
-            }
-            if (!isWallFaceVisible(map, level, openDoors, openWalls, partyX, partyY, wallX, wallY, face)) {
-                return false;
-            }
-            return isAltarWallFaceSystem(
-                level,
-                wallX,
-                wallY,
-                face,
-                (mapLevel, tileX, tileY) => getGameMap(mapLevel).tiles[tileY]?.[tileX],
-            );
-        });
-    }, [direction, level, map, openDoors, openWalls, partyX, partyY, position]);
-    const frontWallInteractionKind = frontWallItemMechanism?.kind ?? null;
 
     const handleCanvasCreated = useCallback(({ gl }: { gl: THREE.WebGLRenderer }) => {
         const canvas = gl.domElement;
@@ -3172,6 +1650,43 @@ export const DungeonScene = () => {
         }
     }, []);
 
+    const handleRootDrop = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+        const payload = getDragPayload(event);
+        if (!payload) return;
+        event.preventDefault();
+        event.stopPropagation();
+        setIsItemDragActive(false);
+
+        const state = useStore.getState();
+        const currentMap = getGameMap(state.level);
+        const altarDropTargets = resolveAltarDropTargets({
+            level: state.level,
+            map: currentMap,
+            position: state.position,
+            direction: state.direction,
+            openDoors: state.openDoors,
+            openWalls: state.openWalls,
+            isSelfRevealingWallTile,
+            doorBlocksVision,
+        });
+        const floorDropThreshold = window.innerHeight * FLOOR_DROP_SCREEN_RATIO;
+        const shouldDropToFloor = event.clientY >= floorDropThreshold;
+
+        if (!shouldDropToFloor) {
+            for (const target of altarDropTargets) {
+                if (state.useItemOnViAltar(payload.fromChampionId, payload.itemId, payload.fromSlot, target.wallX, target.wallY, target.face)) {
+                    return;
+                }
+            }
+        }
+
+        if (shouldDropToFloor) {
+            state.dropCarriedItem(payload.fromChampionId, payload.itemId, payload.fromSlot);
+        } else {
+            state.throwCarriedItem(payload.fromChampionId, payload.itemId, payload.fromSlot);
+        }
+    }, []);
+
     return (
         <div
             ref={canvasHostRef}
@@ -3181,55 +1696,12 @@ export const DungeonScene = () => {
                 event.dataTransfer.dropEffect = 'move';
             }}
             onDrop={(event) => {
-                const payload = getDragPayload(event);
-                if (!payload) return;
-                event.preventDefault();
-                event.stopPropagation();
-                setIsItemDragActive(false);
-                const floorDropThreshold = window.innerHeight * FLOOR_DROP_SCREEN_RATIO;
-                const shouldDropToFloor = event.clientY >= floorDropThreshold;
-                if (!shouldDropToFloor) {
-                    for (const target of altarDropTargets) {
-                        if (applyItemOnViAltar(payload.fromChampionId, payload.itemId, payload.fromSlot, target.wallX, target.wallY, target.face)) {
-                            return;
-                        }
-                    }
-                }
-                if (shouldDropToFloor) {
-                    dropCarriedItem(payload.fromChampionId, payload.itemId, payload.fromSlot);
-                } else {
-                    throwCarriedItem(payload.fromChampionId, payload.itemId, payload.fromSlot);
-                }
+                handleRootDrop(event);
             }}
             style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', background: '#000', overflow: 'hidden' }}
         >
             <LevelName key={level} level={level} />
             <DarknessOverlay />
-            {activeFloorDrag && draggedFloorItem && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        left: activeFloorDrag.pointerX,
-                        top: activeFloorDrag.pointerY,
-                        transform: 'translate(-50%, -50%)',
-                        pointerEvents: 'none',
-                        zIndex: 180,
-                        filter: 'drop-shadow(0 8px 14px rgba(0,0,0,0.48))',
-                    }}
-                >
-                    <img
-                        src={getFloorItemImage(draggedFloorItem)}
-                        alt=""
-                        style={{
-                            width: 54,
-                            height: 54,
-                            objectFit: 'contain',
-                            imageRendering: 'crisp-edges',
-                            opacity: 0.94,
-                        }}
-                    />
-                </div>
-            )}
 
             <Canvas
                 dpr={1}
@@ -3246,7 +1718,7 @@ export const DungeonScene = () => {
                 <CameraController />
                 <ShieldAuraLayer />
                 <BoundaryWalls map={map} />
-                <WallTextPlanes map={map} />
+                <SceneWallTextPlanes map={map} />
                 <TileGrid
                     map={map}
                     level={level}
@@ -3280,30 +1752,15 @@ export const DungeonScene = () => {
                 <ProjectileRenderer />
             </Canvas>
             <ViAltarMiracleOverlay />
-            {altarDropTargets.length > 0 && (isItemDragActive || activeFloorDrag) && altarDropTargets.map((target) => (
-                <WallMechanismDropTarget
-                    key={`altar_drop_${target.placement}_${target.wallX}_${target.wallY}_${target.face}`}
-                    kind="altar"
-                    placement={target.placement}
-                    onUseItem={(championId, itemId, fromSlot) =>
-                        applyItemOnViAltar(championId, itemId, fromSlot, target.wallX, target.wallY, target.face)
-                    }
-                    activeFloorDragItemId={activeFloorDrag?.itemId ?? null}
-                    selectedChampionId={selectedChampionId}
-                    onUseFloorItem={(itemId, championId) =>
-                        applyFloorItemOnViAltar(itemId, championId, target.wallX, target.wallY, target.face)
-                    }
-                />
-            ))}
-            {frontWallInteractionKind && altarDropTargets.every((target) => target.placement !== 'front') && (isItemDragActive || activeFloorDrag) && (
-                <WallMechanismDropTarget
-                    kind={frontWallInteractionKind}
-                    onUseItem={applyItemOnFrontWall}
-                    activeFloorDragItemId={activeFloorDrag?.itemId ?? null}
-                    selectedChampionId={selectedChampionId}
-                    onUseFloorItem={applyFloorItemOnFrontWall}
-                />
-            )}
+            <DungeonSceneDragOverlay
+                level={level}
+                map={map}
+                position={position}
+                direction={direction}
+                openDoors={openDoors}
+                openWalls={openWalls}
+                isItemDragActive={isItemDragActive}
+            />
         </div>
     );
 };

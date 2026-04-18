@@ -18,6 +18,8 @@ type SpellProjectileCastingDeps = {
 export type SpellProjectileCastResult = {
     startX: number;
     startY: number;
+    frontX: number;
+    frontY: number;
     visualScale: number;
     projectileDamage: SpellProjectileDamage;
     launchProfile: SpellProjectileLaunchProfile | null;
@@ -36,6 +38,11 @@ function getFrontPosition(position: [number, number], direction: Direction): { x
     if (direction === 'SOUTH') return { x, y: y + 1 };
     if (direction === 'EAST') return { x: x + 1, y };
     return { x: x - 1, y };
+}
+
+function getPartyPosition(position: [number, number]): { x: number; y: number } {
+    const [y, x] = position;
+    return { x, y };
 }
 
 function buildProjectileId(now: number, deps: SpellProjectileCastingDeps): string {
@@ -60,7 +67,8 @@ export function buildSpellProjectileCast(
         : getProjectileDamage(spell);
     if (!projectileDamage) return null;
 
-    const { x: startX, y: startY } = getFrontPosition(position, direction);
+    const { x: startX, y: startY } = getPartyPosition(position);
+    const { x: frontX, y: frontY } = getFrontPosition(position, direction);
     const visualScale = getSpellVisualScale(spell);
 
     const projectile: Projectile = {
@@ -82,6 +90,8 @@ export function buildSpellProjectileCast(
     return {
         startX,
         startY,
+        frontX,
+        frontY,
         visualScale,
         projectileDamage,
         launchProfile,

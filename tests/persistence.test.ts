@@ -439,3 +439,75 @@ test('persisted saves round-trip back into the same dungeon state', () => {
         Date.now = originalNow;
     }
 });
+
+test('hydratePersistedGameState normalizes persisted water containers in inventory and equipment', () => {
+    const now = 40_000;
+    const originalNow = Date.now;
+    Date.now = () => now;
+
+    try {
+        const state = createState(now);
+        const runtime = createRuntimeMaps(now);
+        const persisted = buildPersistedSaveData(state, runtime);
+
+        persisted.floorItems = [
+            {
+                id: 'floor-waterskin',
+                category: 'Misc',
+                typeId: 1,
+                rawName: 'Waterskin',
+                waterCharges: 3,
+                mapIndex: 0,
+                x: 4,
+                y: 4,
+                tilePos: 'North',
+            },
+        ];
+        persisted.championInventories = {
+            1: [
+                {
+                    id: 'inventory-waterskin',
+                    category: 'Misc',
+                    typeId: 1,
+                    rawName: 'Waterskin',
+                    waterCharges: 2,
+                    mapIndex: 0,
+                    x: 1,
+                    y: 1,
+                    tilePos: 'North',
+                },
+            ],
+        };
+        persisted.championEquipment = {
+            1: {
+                rightHand: {
+                    id: 'equipped-waterskin',
+                    category: 'Misc',
+                    typeId: 1,
+                    rawName: 'Waterskin',
+                    waterCharges: 1,
+                    mapIndex: 0,
+                    x: 1,
+                    y: 1,
+                    tilePos: 'North',
+                },
+            },
+        };
+
+        const hydrated = hydratePersistedGameState(persisted, now);
+
+        assert.equal(hydrated.floorItems[0]?.category, 'Potion');
+        assert.equal(hydrated.floorItems[0]?.typeId, 24);
+        assert.equal(hydrated.floorItems[0]?.waterCharges, 3);
+
+        assert.equal(hydrated.championInventories[1]?.[0]?.category, 'Potion');
+        assert.equal(hydrated.championInventories[1]?.[0]?.typeId, 24);
+        assert.equal(hydrated.championInventories[1]?.[0]?.waterCharges, 2);
+
+        assert.equal(hydrated.championEquipment[1]?.rightHand?.category, 'Potion');
+        assert.equal(hydrated.championEquipment[1]?.rightHand?.typeId, 24);
+        assert.equal(hydrated.championEquipment[1]?.rightHand?.waterCharges, 1);
+    } finally {
+        Date.now = originalNow;
+    }
+});

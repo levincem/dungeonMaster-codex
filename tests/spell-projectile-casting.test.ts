@@ -14,7 +14,7 @@ function createSpell(effect: 'fireball' | 'open' | 'disrupt_nonmaterial' | 'heal
     };
 }
 
-test('buildSpellProjectileCast creates a fireball projectile with front position, launch profile and scaled visuals', () => {
+test('buildSpellProjectileCast creates a fireball projectile from the party square and keeps the front square for immediate checks', () => {
     const result = buildSpellProjectileCast(
         createSpell('fireball', ['on', 'ful', 'ir'], 10),
         3,
@@ -31,8 +31,10 @@ test('buildSpellProjectileCast creates a fireball projectile with front position
     );
 
     assert.ok(result);
-    assert.equal(result.startX, 9);
+    assert.equal(result.startX, 8);
     assert.equal(result.startY, 5);
+    assert.equal(result.frontX, 9);
+    assert.equal(result.frontY, 5);
     assert.ok(Math.abs(result.visualScale - 1.12) < 1e-9);
     assert.deepEqual(result.projectileDamage, { min: 30, max: 50 });
     assert.ok(result.launchProfile);
@@ -40,6 +42,7 @@ test('buildSpellProjectileCast creates a fireball projectile with front position
     assert.equal(result.projectile.nextMoveAt, 240);
     assert.equal(result.projectile.remainingAttack, 90);
     assert.equal(result.projectile.effect, 'fireball');
+    assert.deepEqual([result.projectile.x, result.projectile.y], [8, 5]);
 });
 
 test('buildSpellProjectileCast creates an open projectile with zero damage and no attack payload', () => {
@@ -62,7 +65,8 @@ test('buildSpellProjectileCast creates an open projectile with zero damage and n
     assert.deepEqual(result.projectileDamage, { min: 0, max: 0 });
     assert.equal(result.projectile.remainingAttack, 0);
     assert.equal(result.projectile.visualScale, 0.82);
-    assert.deepEqual([result.startX, result.startY], [4, 6]);
+    assert.deepEqual([result.startX, result.startY], [4, 7]);
+    assert.deepEqual([result.frontX, result.frontY], [4, 6]);
 });
 
 test('buildSpellProjectileCast returns null for non-projectile-compatible spell effects', () => {

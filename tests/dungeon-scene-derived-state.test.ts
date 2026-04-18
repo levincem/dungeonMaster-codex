@@ -1,0 +1,123 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import {
+    buildDungeonSceneWallButtons,
+    collectDungeonScenePits,
+    collectDungeonScenePressurePlates,
+    collectDungeonSceneTrickWalls,
+    resolveAltarDropTargets,
+} from '../src/components/Dungeon/dungeonSceneDerivedState.js';
+import type { CardinalDir, GameMap, GameTile, SensorObject } from '../src/types/game.js';
+
+function createTile(x: number, y: number, type: GameTile['type'], objects: GameTile['objects'] = []): GameTile {
+    return { x, y, type, objects };
+}
+
+function createMap(width: number, height: number, fill: GameTile['type'] = 'Floor'): GameMap {
+    return {
+        index: 0,
+        name: 'test',
+        level: 0,
+        width,
+        height,
+        difficulty: 0,
+        tiles: Array.from({ length: height }, (_, y) =>
+            Array.from({ length: width }, (_, x) => createTile(x, y, fill))),
+    };
+}
+
+function createSensor(index: number, tilePos: CardinalDir, isLocal: boolean): SensorObject {
+    return {
+        category: 'Sensor',
+        index,
+        tilePos,
+        type: 1,
+        data: 0,
+        graphic: 0,
+        isLocal,
+        delay: 0,
+        sound: false,
+        revert: false,
+        action: 'Set',
+        onceOnly: false,
+        targetY: 0,
+        targetX: 0,
+        targetDir: 'North',
+    };
+}
+
+test('buildDungeonSceneWallButtons keeps the non-local sensor and ignores faces already covered by overlays', () => {
+    const map = createMap(4, 3);
+    map.tiles[1][2] = createTile(2, 1, 'Wall', [
+        createSensor(3, 'West', true),
+        createSensor(7, 'West', false),
+    ]);
+
+    const visibleButtons = buildDungeonSceneWallButtons({
+        level: 0,
+        map,
+        openDoors: new Set(),
+        openWalls: new Set(),
+        partyPosition: [1, 1],
+        originalWallOverlays: [],
+    });
+
+    assert.deepEqual(visibleButtons, [{ tileX: 2, tileY: 1, face: 'West', sensorIndex: 7 }]);
+
+    const hiddenByOverlay = buildDungeonSceneWallButtons({
+        level: 0,
+        map,
+        openDoors: new Set(),
+        openWalls: new Set(),
+        partyPosition: [1, 1],
+        originalWallOverlays: [{ tileX: 2, tileY: 1, face: 'West' }],
+    });
+
+    assert.deepEqual(hiddenByOverlay, []);
+});
+
+test('resolveAltarDropTargets keeps only visible altar faces that match the injected altar rule', () => {
+    const map = createMap(4, 3);
+    map.tiles[1][2] = createTile(2, 1, 'Wall');
+
+    const targets = resolveAltarDropTargets({
+        level: 0,
+        map,
+        position: [1, 1],
+        direction: 'EAST',
+        openDoors: new Set(),
+        openWalls: new Set(),
+        isAltarWallFace: (level, tileX, tileY, face) =>
+            level === 0 && tileX === 2 && tileY === 1 && face === 'West',
+        mapTileLookup: (_level, tileX, tileY) => map.tiles[tileY]?.[tileX],
+    });
+
+    assert.deepEqual(targets, [{ placement: 'front', wallX: 2, wallY: 1, face: 'West' }]);
+});
+
+test('collectDungeonScene helpers keep only actionable plates, closed trick walls, and pits', () => {
+    const map = createMap(4, 3);
+    map.tiles[0][0] = createTile(0, 0, 'Pit');
+    map.tiles[0][1] = createTile(1, 0, 'TrickWall');
+    map.tiles[1][1] = createTile(1, 1, 'Floor');
+    map.tiles[1][2] = createTile(2, 1, 'Door');
+
+    const pressurePlates = collectDungeonScenePressurePlates({
+        level: 0,
+        map,
+        mechanisms: [
+            { support: 'Floor', kind: 'Dalle de pression locale', x: 1, y: 1 } as never,
+            { support: 'Floor', kind: 'Dalle de pression locale', x: 1, y: 1 } as never,
+            { support: 'Floor', kind: 'Dalle de pression locale', x: 2, y: 1 } as never,
+            { support: 'Wall', kind: 'Dalle de pression locale', x: 0, y: 0 } as never,
+        ],
+    });
+
+    assert.deepEqual(pressurePlates, [{ tileX: 1, tileY: 1 }]);
+    assert.deepEqual(collectDungeonSceneTrickWalls({ level: 0, map, openWalls: new Set() }), [{ tileX: 1, tileY: 0 }]);
+    assert.deepEqual(
+        collectDungeonSceneTrickWalls({ level: 0, map, openWalls: new Set(['0,0,1']) }),
+        [],
+    );
+    assert.deepEqual(collectDungeonScenePits({ map }), [{ tileX: 0, tileY: 0 }]);
+});

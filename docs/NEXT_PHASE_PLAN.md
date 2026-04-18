@@ -2,6 +2,122 @@
 
 Etat pose le `2026-04-18`.
 
+## Plan autonome - reprise 2026-04-20
+
+Ordre d'attaque a suivre sans revalidation utilisateur sauf regression sensible:
+
+1. `DungeonScene`
+2. `HUD`
+3. `ChampionSheet`
+4. modules runtime hybrides (`sensorRuntimeDeps`, `transportRuntimeDeps`, `storeAttackFrontRuntime`, `storeSpellRuntime`, `persistence`)
+5. seulement ensuite une nouvelle passe i18n/labels si le chantier precedent reste stable
+
+### Phase 1 - DungeonScene
+
+Objectif:
+
+- continuer a degonfler `src/components/Dungeon/DungeonScene.tsx`
+- sortir les derives ou couches encore coherents sans eparpiller le wiring R3F
+- viser la lisibilite et la reduction des rerenders avant un nouveau travail bundle
+
+Sous-cibles:
+
+- identifier les derniers blocs encore purement derives ou fortement presentationnels
+- preferer des modules `derived-state` ou `layer` dedies a des micro-composants sans responsabilite claire
+- conserver dans `DungeonScene.tsx` uniquement:
+  - composition du canvas
+  - branchement store/runtime
+  - coordination des couches
+
+Definition de fini locale:
+
+- fichier sensiblement plus lisible
+- aucune regression camera / drag-drop / spell impacts / magic vision
+- tests verts
+- build verte
+
+### Phase 2 - HUD
+
+Objectif:
+
+- continuer a reduire `src/components/UI/HUD.tsx` maintenant que les premiers gros blocs sont sortis
+
+Sous-cibles:
+
+- isoler les derives presentation encore denses
+- separer les gros blocs stateful encore lisibles comme responsabilites propres
+- surveiller de pres les glyphes, labels et encodages pendant toute passe
+
+Regle speciale:
+
+- si un caractere se casse dans le HUD, corriger dans la meme passe avant toute autre continuation
+
+Definition de fini locale:
+
+- pas de mojibake
+- pas de regression de drag/drop, combat grid, runes, options ou raccourcis
+- tests/build verts
+
+### Phase 3 - ChampionSheet
+
+Objectif:
+
+- finir le nettoyage structurel de `src/components/UI/ChampionSheet.tsx`
+
+Sous-cibles:
+
+- continuer a sortir les derives purs ou panneaux d'inspection coherents
+- garder en place le wiring drag/drop et les actions store
+- ne pas casser les cas deja sensibles:
+  - drag/drop nourriture
+  - gourde bouche
+  - gourde oeil
+  - interactions fontaine / autel / mur frontal
+  - reprise de save
+
+Definition de fini locale:
+
+- le composant reste dense mais clairement compose
+- les cas de drag/drop critiques restent jouables
+- tests/build verts
+
+### Phase 4 - Runtime hybride
+
+Objectif:
+
+- nettoyer les modules encore lourds sans relancer un chantier `store`
+
+Priorite:
+
+1. `src/engine/systems/sensorRuntimeDeps.ts`
+2. `src/engine/systems/transportRuntimeDeps.ts`
+3. `src/engine/systems/storeAttackFrontRuntime.ts`
+4. `src/engine/systems/storeSpellRuntime.ts`
+5. `src/engine/systems/persistence.ts`
+
+Attentes:
+
+- clarifier les contrats de deps
+- couper les objets de deps trop larges quand une vraie frontiere existe
+- eviter les extractions "pour faire baisser les lignes"
+
+### Ce qu'il ne faut pas faire
+
+- ne pas recommencer a micro-extraire le `store` pour gagner quelques lignes
+- ne pas deplacer du simple wiring local dans dix fichiers de plus
+- ne pas toucher a l'i18n globale tant que les gros blocs UI ne sont pas stabilises
+- ne pas laisser une passe UI sans verifier encodage, drag/drop et build
+
+### Discipline de fin de passe
+
+Pour chaque passe substantielle:
+
+- ajouter ou etendre un test cible quand la logique se prete au test
+- lancer `npm.cmd test`
+- lancer `npm.cmd run build`
+- mettre a jour `docs/REMAKE_STATUS.md` et ce plan si l'etat reel a change
+- noter honnetement les regressions evitees, les compromis et le prochain meilleur levier
+
 Ce document decrit la suite logique maintenant que:
 
 - l'extraction principale est tres solide
@@ -125,6 +241,7 @@ Actions:
 - considerer aussi comme entamee la meme approche sur `saveGame / loadGame / pickupItem / pickupItemToChampion / dropItem`, afin de faire disparaitre encore un peu de plomberie repetitive avant de viser les derniers blocs plus structurels
 - conserver les helpers purs comme points de verite
 - supprimer les reliquats morts ou trompeurs quand ils n'ont plus d'appelants
+- poursuivre la meme approche sur les gros composants UI restants en privilegiant des modules derives purs et testes (`ChampionSheet`, puis `DungeonScene`) plutot que de nouvelles micro-extractions de wiring
 
 ### Provenance plus explicite
 
@@ -161,7 +278,7 @@ Actions:
 - basculer ensuite prioritairement vers:
   - optimisation et reduction des gros chargements
   - playtests/fidelite sur les cas rares et la fin de jeu
-  - simplification des gros composants UI (`HUD`, `DungeonScene`, `ChampionSheet`) plutot qu'un acharnement sur les derniers petits reliquats Zustand
+- simplification des gros composants UI restants (`DungeonScene`, `ChampionSheet`) plutot qu'un acharnement sur les derniers petits reliquats Zustand
 
 ## 4. Optimisation
 
@@ -201,6 +318,7 @@ Lecture utile:
 - le warm-up titre a maintenant aussi ete etalé en vagues idle dans `GameRoot`, et le preload de fond des niveaux cede la main entre chaque niveau; le prochain gain devra donc venir surtout du contenu charge et du rendu, plus d'un simple deplacement du preload
 - les overlays muraux passent maintenant par un loader asynchrone par map; le gros gain data cote overlays a donc deja ete obtenu
 - la scene gameplay n'importe plus activement `@react-three/drei`; le gain facile sur la pile R3F a donc deja ete capte, et la suite demandera plutot du profilage sur `DungeonScene` / `three-core`
+- `DungeonScene` est maintenant deja decoupe en plusieurs couches VFX dediees (`DungeonProjectileLayers`, `DungeonSpellImpactLayer`, `DungeonMagicVisionLayer`); la suite utile n'est donc plus de sortir des micro-blocs, mais de profiler ce qui reste dans `three-core` / `dungeon-render`
 - le prochain gain ne viendra donc pas d'un simple `manualChunks`, deja present, mais plutot de:
   - reduire la taille des datasets embarques
   - verifier si certains preloads visuels actuellement bloques au boot doivent rester au titre ou peuvent passer par un sas de transition entre niveaux sans nuire au ressenti
@@ -218,6 +336,7 @@ Actions:
 - profiler DungeonScene, HUD et ChampionSheet en situation reelle
 - verifier les rerenders evitables autour du store
 - surveiller les listes d'effets visuels, projectiles et decals muraux
+- ajouter pendant le polish HUD un feedback visuel discret de level-up sur le portrait du champion, assez visible pour attirer l'oeil sans devenir envahissant
 
 ## 5. Organisation du projet
 

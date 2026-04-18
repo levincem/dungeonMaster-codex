@@ -78,6 +78,10 @@ test('buildProjectileSpellStatePatch appends a launched projectile when the path
     assert.equal(result.patch.championVitals[1]?.mana, 12);
     assert.equal(result.patch.projectiles?.length, 1);
     assert.equal(result.patch.projectiles?.[0]?.effect, 'fireball');
+    assert.deepEqual(
+        [result.patch.projectiles?.[0]?.x, result.patch.projectiles?.[0]?.y],
+        [5, 5],
+    );
     assert.equal(result.shouldPlayDoorMotion, undefined);
 });
 

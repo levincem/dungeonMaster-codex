@@ -22,6 +22,31 @@ Docs de reference a privilegier pour l'etat courant:
 
 ## Session 2026-04-18
 
+Note de reprise preparee pour la prochaine session autonome:
+
+- ne plus considerer `store.ts` comme chantier prioritaire; il est maintenant essentiellement sain dans son role de composition
+- reprendre d'abord par les gros blocs UI encore les plus denses:
+  - [src/components/Dungeon/DungeonScene.tsx](/D:/DungeonMaster-codex/src/components/Dungeon/DungeonScene.tsx)
+  - [src/components/UI/HUD.tsx](/D:/DungeonMaster-codex/src/components/UI/HUD.tsx)
+  - [src/components/UI/ChampionSheet.tsx](/D:/DungeonMaster-codex/src/components/UI/ChampionSheet.tsx)
+- traiter ensuite les modules runtime hybrides encore denses:
+  - [src/engine/systems/sensorRuntimeDeps.ts](/D:/DungeonMaster-codex/src/engine/systems/sensorRuntimeDeps.ts)
+  - [src/engine/systems/transportRuntimeDeps.ts](/D:/DungeonMaster-codex/src/engine/systems/transportRuntimeDeps.ts)
+  - [src/engine/systems/storeAttackFrontRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeAttackFrontRuntime.ts)
+  - [src/engine/systems/storeSpellRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeSpellRuntime.ts)
+  - [src/engine/systems/persistence.ts](/D:/DungeonMaster-codex/src/engine/systems/persistence.ts)
+- garder l'i18n generale comme passe ulterieure dediee; pour l'instant, quand du texte est ajoute il doit passer par les fichiers de langue, mais les noms d'objets runtime peuvent rester en anglais tant que la passe i18n globale n'est pas engagee
+- surveiller en priorite pendant les prochaines passes:
+  - encodage/mojibake HUD
+  - regressions camera et rendu `DungeonScene`
+  - drag/drop sensible de `ChampionSheet` (nourriture, waterskin bouche, waterskin oeil, fontaine, reprise de save)
+- definition pratique d'une bonne prochaine passe:
+  - un bloc majeur simplifie
+  - tests verts
+  - build verte
+  - docs remises a jour
+  - aucun nouveau chantier parasite ouvert "pour baisser le nombre de lignes"
+
 Points consolides dans cette passe:
 
 - le degonflage de [src/engine/store.ts](/D:/DungeonMaster-codex/src/engine/store.ts) a continue jusqu'a sortir l'essentiel des wrappers d'orchestration Zustand encore repetitifs ou stateful
@@ -75,9 +100,20 @@ Points consolides dans cette passe:
 - [vite.config.ts](/D:/DungeonMaster-codex/vite.config.ts) sort maintenant aussi des chunks UI explicites `hud-ui`, `champion-sheet`, `mirror-popup` et `victory-screen`, ce qui rend la pile de rendu plus lisible au build et plus facile a profiler ensuite
 - [src/components/Dungeon/renderHelpers.tsx](/D:/DungeonMaster-codex/src/components/Dungeon/renderHelpers.tsx) centralise maintenant les helpers de rendu legers (`useLoadedTexture`, `BillboardGroup`) et la scene gameplay n'importe plus activement `@react-three/drei`
 - [src/components/Dungeon/DungeonScene.tsx](/D:/DungeonMaster-codex/src/components/Dungeon/DungeonScene.tsx) utilise maintenant une `perspectiveCamera` R3F native au lieu de `PerspectiveCamera`, ce qui retire un dernier morceau de dependance a `drei` dans le chemin de rendu actif
+- [src/components/Dungeon/DungeonScene.tsx](/D:/DungeonMaster-codex/src/components/Dungeon/DungeonScene.tsx) a aussi perdu plusieurs petits rerenders temporels inutiles: les murs `see-through`, le voile d'obscurite, les highlights `magic vision` et la couche de nombres de degats passent maintenant par un polling leger/shared clock au lieu d'un melange `useFrame + setState` ou d'intervalles locaux disparates
+- la couche `drag/drop` de [src/components/Dungeon/DungeonScene.tsx](/D:/DungeonMaster-codex/src/components/Dungeon/DungeonScene.tsx) a aussi ete isolee dans un overlay dedie, et le drop plein ecran lit maintenant l'etat courant via `useStore.getState()`; cela evite que le canvas principal se rerende a chaque mise a jour de pointeur pendant un `floor drag`
+- les calculs derives les plus denses de [src/components/Dungeon/DungeonScene.tsx](/D:/DungeonMaster-codex/src/components/Dungeon/DungeonScene.tsx) vivent maintenant dans [src/components/Dungeon/dungeonSceneDerivedState.ts](/D:/DungeonMaster-codex/src/components/Dungeon/dungeonSceneDerivedState.ts), qui centralise les boutons muraux, decals, pressure plates, trick walls, pits et la resolution des interactions murales de drop
+- le bloc projectile / shield / `Fluxcage` / poison persistant a maintenant ete coupe hors de [src/components/Dungeon/DungeonScene.tsx](/D:/DungeonMaster-codex/src/components/Dungeon/DungeonScene.tsx) vers [src/components/Dungeon/DungeonProjectileLayers.tsx](/D:/DungeonMaster-codex/src/components/Dungeon/DungeonProjectileLayers.tsx), ce qui retire a la scene un autre paquet dense de couches VFX runtime tout en gardant le preload `PhotonsFireball` au montage
+- les impacts de sorts sont maintenant eux aussi isoles hors de [src/components/Dungeon/DungeonScene.tsx](/D:/DungeonMaster-codex/src/components/Dungeon/DungeonScene.tsx) dans [src/components/Dungeon/DungeonSpellImpactLayer.tsx](/D:/DungeonMaster-codex/src/components/Dungeon/DungeonSpellImpactLayer.tsx), ce qui sort de la scene un autre bloc VFX dense sans changer le comportement runtime
+- la couche `magic vision` ne vit plus inline dans la scene non plus: [src/components/Dungeon/DungeonMagicVisionLayer.tsx](/D:/DungeonMaster-codex/src/components/Dungeon/DungeonMagicVisionLayer.tsx) porte maintenant ses helpers d'animation et laisse [src/components/Dungeon/DungeonScene.tsx](/D:/DungeonMaster-codex/src/components/Dungeon/DungeonScene.tsx) surtout dans son role d'assemblage
+- les derives les plus repetitifs du HUD vivent maintenant aussi dans [src/components/UI/hudDerivedState.ts](/D:/DungeonMaster-codex/src/components/UI/hudDerivedState.ts), qui centralise l'etat de debug du carre de face, les degats recents par champion, l'etat derive des cases du `CombatGrid`, ainsi que la selection de runes et l'etat derive du cast
+- le HUD est maintenant aussi coupe par gros blocs stateful: [src/components/UI/HudMagicPanel.tsx](/D:/DungeonMaster-codex/src/components/UI/HudMagicPanel.tsx) porte l'interface runes/cast, et [src/components/UI/HudOptionsModal.tsx](/D:/DungeonMaster-codex/src/components/UI/HudOptionsModal.tsx) porte le modal de keybindings/options, ce qui allege [src/components/UI/HUD.tsx](/D:/DungeonMaster-codex/src/components/UI/HUD.tsx) sans deplacer la logique clavier/runtime qui doit encore rester composee au meme endroit
+- le vieux bloc historique `HUD_DUPE` a ete retire de [src/components/UI/HUD.tsx](/D:/DungeonMaster-codex/src/components/UI/HUD.tsx), ce qui laisse le fichier sur son seul chemin actif et ferme proprement la derniere dette de duplication evidente cote HUD
+- les derives presentation/runtime de [src/components/UI/ChampionSheet.tsx](/D:/DungeonMaster-codex/src/components/UI/ChampionSheet.tsx) vivent maintenant aussi dans [src/components/UI/championSheetDerivedState.ts](/D:/DungeonMaster-codex/src/components/UI/championSheetDerivedState.ts), qui centralise bonus de potions, resume de vitaux, charge, contexte de mur frontal et resolution du premier slot d'equipement valable
+- les projectiles de sort demarrent maintenant bien depuis la case du groupe, tout en gardant les checks immediats sur la case frontale, ce qui corrige le ressenti de decalage d'une case sans casser les impacts `Open` ou les blocages immediats
 - a ce stade, [src/engine/store.ts](/D:/DungeonMaster-codex/src/engine/store.ts) est tombe a `2369` lignes et se comporte beaucoup plus comme un point de composition/wiring que comme un depot de logique d'action
 - la part encore dense du `store` n'est plus principalement le tableau d'actions Zustand: ce sont surtout des helpers historiques plus bas niveau, de l'assemblage local de dependances et quelques utilitaires runtime restes sur place
-- la validation locale de cette passe est verte au `2026-04-18`: `node .\\assets\\OriginalDataExtraction\\parse_full.cjs`, `npm.cmd run build` et `npm.cmd test` passent; la suite de tests est maintenant a `517` tests verts
+- la validation locale de cette passe est verte au `2026-04-18`: `node .\\assets\\OriginalDataExtraction\\parse_full.cjs`, `npm.cmd run build` et `npm.cmd test` passent; la suite de tests est maintenant a `530` tests verts
 
 Impact de maintenance:
 
@@ -91,6 +127,10 @@ Impact de maintenance:
 - cote data runtime, les overlays muraux ne vivent plus eux non plus dans un gros chunk de positions unique: le vieux `overlay-data` a ete remplace par un petit loader et des chunks `wall_overlays/map-XX`, ce qui retire un gros poids du boot tout en gardant les visuels critiques precharges
 - cote preload runtime, l'entree en jeu n'attend plus seulement la data: elle prechauffe maintenant aussi la coque `GameRoot` puis les modules gameplay coeur (`DungeonScene`, `HUD`, effets de sorts), avec un sas visible si le warm-up n'est pas fini au clic
 - cote rendu, la pile gameplay est maintenant mieux scindee au build (`GameRoot`, `hud-ui`, `champion-sheet`, `mirror-popup`, `victory-screen`, `dungeon-render`), la scene n'importe plus activement `@react-three/drei`, et le chunk `three-r3f` est retombe a environ `161.6 kB`; le vrai prochain hotspot reste maintenant surtout `three-core` puis `dungeon-render`
+- cote rendu, [src/components/Dungeon/dungeonSceneDerivedState.ts](/D:/DungeonMaster-codex/src/components/Dungeon/dungeonSceneDerivedState.ts) sert maintenant aussi de point de verite pur et testable pour les derives muraux/sol de la scene, ce qui decongestionne [src/components/Dungeon/DungeonScene.tsx](/D:/DungeonMaster-codex/src/components/Dungeon/DungeonScene.tsx) sans retoucher le comportement du canvas
+- cote HUD, [src/components/UI/hudDerivedState.ts](/D:/DungeonMaster-codex/src/components/UI/hudDerivedState.ts) sert maintenant aussi de point de verite pur et testable pour plusieurs derives presentation/runtime, ce qui retire du bruit metier a [src/components/UI/HUD.tsx](/D:/DungeonMaster-codex/src/components/UI/HUD.tsx) sans toucher aux interactions
+- cote HUD, le reliquat commente duplique n'existe plus non plus dans [src/components/UI/HUD.tsx](/D:/DungeonMaster-codex/src/components/UI/HUD.tsx); le composant reste dense mais sa structure actuelle est maintenant explicite et unique
+- cote fiche champion, [src/components/UI/championSheetDerivedState.ts](/D:/DungeonMaster-codex/src/components/UI/championSheetDerivedState.ts) sert maintenant aussi de point de verite pur et testable pour les derives de vitaux, charge, mur frontal et auto-equipement, ce qui retire un nouveau bloc de logique inline a [src/components/UI/ChampionSheet.tsx](/D:/DungeonMaster-codex/src/components/UI/ChampionSheet.tsx) sans toucher au drag and drop ni aux actions de la fiche
 - la suite logique n'est plus de sortir a tout prix chaque petite closure restante, mais plutot:
   - documenter l'etat reel obtenu
   - garder les tests cibles sur les modules runtime extraits
@@ -278,6 +318,7 @@ Reste a faire:
 - elargir les options exposees au joueur
 - ajouter plus tard une aide basique d'onboarding pour les nouveaux joueurs
 - continuer le polish desktop de certaines vues UI
+- ajouter un petit feedback visuel de gain de niveau sur le portrait HUD du champion, discret mais assez valorisant pour etre remarque en jeu
 
 ### Objets, equipement et statuts
 

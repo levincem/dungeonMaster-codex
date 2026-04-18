@@ -1,0 +1,212 @@
+import type {
+    ChampionCombat,
+    DamageEvent,
+    Direction,
+} from '../../engine/runtimeTypes';
+import type { GameMap } from '../../types/game';
+import type { ChampionEquipment } from '../../types/game';
+import type { WeaponAttackOption } from '../../data/weaponAttacks';
+
+export type HudChampionLike = {
+    id: number;
+    name?: string;
+    class?: string;
+    mana?: number;
+};
+
+export type HudFrontStateSummary = {
+    frontLocalX: number;
+    frontLocalY: number;
+    frontGlobalX: number;
+    frontGlobalY: number;
+    frontState: string;
+};
+
+export type CombatGridSlotState = {
+    champion: HudChampionLike | undefined;
+    cooldownRatio: number;
+    ready: boolean;
+    weaponImage: string;
+    weaponName: string;
+    allAttacks: WeaponAttackOption[];
+    usableAttacks: WeaponAttackOption[];
+};
+
+export type HudCastState<TSpell> = {
+    currentFamilyIdx: number;
+    canCast: boolean;
+    selectedChampion: HudChampionLike | undefined;
+    selectedChampionMana: number | undefined;
+    selectedChampionCooldown: number | undefined;
+    spell: TSpell | undefined;
+};
+
+export function buildHudFrontStateSummary(args: {
+    currentMap: GameMap;
+    level: number;
+    position: [number, number];
+    direction: Direction;
+    openDoors: Set<string>;
+    openWalls: Set<string>;
+    openPits: Set<string>;
+}): HudFrontStateSummary {
+    const { currentMap, direction, level, openDoors, openPits, openWalls, position } = args;
+    const frontLocalX = direction === 'EAST' ? position[1] + 1 : direction === 'WEST' ? position[1] - 1 : position[1];
+    const frontLocalY = direction === 'NORTH' ? position[0] - 1 : direction === 'SOUTH' ? position[0] + 1 : position[0];
+    const frontGlobalX = (currentMap.mapOffset?.x ?? 0) + frontLocalX;
+    const frontGlobalY = (currentMap.mapOffset?.y ?? 0) + frontLocalY;
+    const frontTile = currentMap.tiles[frontLocalY]?.[frontLocalX];
+    const tileKey = `${level},${frontLocalY},${frontLocalX}`;
+    const frontState =
+        !frontTile
+            ? 'void blocked'
+            : frontTile.type === 'Wall'
+                ? 'Wall blocked'
+                : frontTile.type === 'TrickWall'
+                    ? `TrickWall ${openWalls.has(tileKey) ? 'open walk' : 'closed blocked'}`
+                    : frontTile.type === 'Door'
+                        ? `Door ${openDoors.has(tileKey) ? 'open walk' : 'closed blocked'}`
+                        : frontTile.type === 'Pit'
+                            ? `Pit ${openPits.has(tileKey) ? 'open blocked' : 'closed walk'}`
+                            : `${frontTile.type} walk`;
+
+    return {
+        frontLocalX,
+        frontLocalY,
+        frontGlobalX,
+        frontGlobalY,
+        frontState,
+    };
+}
+
+export function buildChampionRecentDamageMap(args: {
+    party: HudChampionLike[];
+    damageEvents: DamageEvent[];
+    maxEntries?: number;
+}): Record<number, number[]> {
+    const { damageEvents, party } = args;
+    const maxEntries = args.maxEntries ?? 2;
+    const championIds = new Set(party.map((champion) => champion.id));
+    const byChampionId: Record<number, number[]> = {};
+
+    for (const event of damageEvents) {
+        if (event.target !== 'champion' || event.championId === undefined) continue;
+        if (!championIds.has(event.championId)) continue;
+        const current = byChampionId[event.championId] ?? [];
+        current.push(event.amount);
+        if (current.length > maxEntries) {
+            current.splice(0, current.length - maxEntries);
+        }
+        byChampionId[event.championId] = current;
+    }
+
+    return byChampionId;
+}
+
+export function buildCombatGridSlotState<C extends HudChampionLike>(args: {
+    champion: C | undefined;
+    championCombat: Record<number, ChampionCombat>;
+    championEquipment: Record<number, ChampionEquipment>;
+    emptyWeaponImage: string;
+    fistLabel: string;
+    resolveWeaponImage: (championId: number, equipment: ChampionEquipment) => string;
+    resolveWeaponName: (championId: number, equipment: ChampionEquipment, direction: Direction) => string;
+    getAllAttacks: (championId: number, equipment: ChampionEquipment) => WeaponAttackOption[];
+    getAttackMasteryLevel: (championId: number, attack: WeaponAttackOption) => number;
+    direction: Direction;
+}): CombatGridSlotState {
+    const {
+        champion,
+        championCombat,
+        championEquipment,
+        direction,
+        emptyWeaponImage,
+        fistLabel,
+        getAllAttacks,
+        getAttackMasteryLevel,
+        resolveWeaponImage,
+        resolveWeaponName,
+    } = args;
+
+    if (!champion) {
+        return {
+            champion,
+            cooldownRatio: 0,
+            ready: false,
+            weaponImage: emptyWeaponImage,
+            weaponName: fistLabel,
+            allAttacks: [],
+            usableAttacks: [],
+        };
+    }
+
+    const combatState = championCombat[champion.id] ?? { cooldown: 0, cooldownMax: 1, defenseModifier: 0 };
+    const cooldownRatio = combatState.cooldownMax > 0 ? Math.min(1, combatState.cooldown / combatState.cooldownMax) : 0;
+    const ready = combatState.cooldown <= 0;
+    const equipment = championEquipment[champion.id] ?? {};
+    const allAttacks = getAllAttacks(champion.id, equipment);
+    const usableAttacks = allAttacks.filter((attack) =>
+        attack.masteryThreshold <= getAttackMasteryLevel(champion.id, attack),
+    );
+
+    return {
+        champion,
+        cooldownRatio,
+        ready,
+        weaponImage: resolveWeaponImage(champion.id, equipment),
+        weaponName: resolveWeaponName(champion.id, equipment, direction),
+        allAttacks,
+        usableAttacks,
+    };
+}
+
+export function selectHudRunes(currentRunes: string[], runeId: string): string[] {
+    const existingIndex = currentRunes.indexOf(runeId);
+    if (existingIndex !== -1) {
+        return currentRunes.slice(0, existingIndex);
+    }
+    if (currentRunes.length >= 4) {
+        return currentRunes;
+    }
+    return [...currentRunes, runeId];
+}
+
+export function buildHudCastState<
+    C extends HudChampionLike,
+    TSpell extends { manaCost: number; name?: string },
+>(args: {
+    selectedRunes: string[];
+    selectedChampionIndex: number;
+    party: C[];
+    championVitals: Record<number, { mana: number } | undefined>;
+    championCombat: Record<number, { cooldown: number } | undefined>;
+    findSpell: (runes: string[]) => TSpell | null | undefined;
+    runeFamilyCount: number;
+}): HudCastState<TSpell> {
+    const {
+        championCombat,
+        championVitals,
+        findSpell,
+        party,
+        runeFamilyCount,
+        selectedChampionIndex,
+        selectedRunes,
+    } = args;
+    const selectedChampion = party[selectedChampionIndex];
+    const selectedChampionMana = selectedChampion ? championVitals[selectedChampion.id]?.mana : undefined;
+    const selectedChampionCooldown = selectedChampion ? championCombat[selectedChampion.id]?.cooldown : undefined;
+    const spell = findSpell(selectedRunes) ?? undefined;
+    const canCast = selectedRunes.length >= 2 &&
+        !!selectedChampion &&
+        (selectedChampionCooldown ?? 0) <= 0 &&
+        (spell ? (selectedChampionMana ?? 0) >= spell.manaCost : true);
+
+    return {
+        currentFamilyIdx: Math.min(selectedRunes.length, Math.max(0, runeFamilyCount - 1)),
+        canCast,
+        selectedChampion,
+        selectedChampionMana,
+        selectedChampionCooldown,
+        spell,
+    };
+}
