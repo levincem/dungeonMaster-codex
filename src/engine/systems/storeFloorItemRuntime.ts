@@ -106,3 +106,28 @@ export function createStoreFloorItemCommandDeps<
         ) => params.applyImmediateTransportSquareEffects(state, patch),
     };
 }
+
+type SelectedChampionPickupStateLike<TMessage, TSensorPatch extends object> =
+    FloorItemPickupStateLike<TMessage, TSensorPatch> & {
+        selectedChampionIndex: number;
+    };
+
+export function buildStoreSelectedChampionPickupPatch<
+    TMessage,
+    TSensorPatch extends object,
+    TState extends SelectedChampionPickupStateLike<TMessage, TSensorPatch>,
+>(
+    state: TState,
+    itemId: string,
+    deps: {
+        buildPickupPatch: (
+            state: TState,
+            itemId: string,
+            championId: number,
+        ) => (Partial<TState> & TSensorPatch) | null;
+    },
+) {
+    const activeChampion = state.party[state.selectedChampionIndex];
+    if (!activeChampion) return null;
+    return deps.buildPickupPatch(state, itemId, activeChampion.id);
+}

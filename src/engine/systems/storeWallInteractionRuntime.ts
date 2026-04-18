@@ -79,6 +79,16 @@ type ViAltarInteractionPatchDeps<
     ) => TPatch | null;
 };
 
+type StoreViAltarPatchBuilderDeps<
+    TState extends ViAltarInteractionStateLike,
+    TPatch extends Record<string, unknown>,
+> = {
+    getTile: (level: number, x: number, y: number) => GameTile | undefined;
+    isAltarWallFaceSystem: ViAltarInteractionPatchDeps<TState, TPatch>['isAltarWallFaceSystem'];
+    buildBaseResurrectionPatch: ViAltarInteractionPatchDeps<TState, TPatch>['buildBaseResurrectionPatch'];
+    decorateResurrectionPatch: ViAltarInteractionPatchDeps<TState, TPatch>['decorateResurrectionPatch'];
+};
+
 type ApplyFrontWallInteractionDeps<TPatch extends Record<string, unknown>> = {
     applyPatch: (patch: TPatch) => void;
     playPlate: () => void;
@@ -170,6 +180,29 @@ export function runStoreWallSensorActivation<
     );
 }
 
+export function runStoreWallSensorActivationAction<
+    TState extends WallSensorActivationStateLike<TPendingSensorEvent>,
+    TSensorState extends SensorStateLike,
+    TPendingSensorEvent,
+    TAppliedPatch,
+>(
+    state: TState,
+    mapIndex: number,
+    x: number,
+    y: number,
+    sensorIndex: number,
+    buildDeps: () => WallSensorActivationRuntimeDeps<TState, TSensorState, TPendingSensorEvent, TAppliedPatch>,
+) {
+    return runStoreWallSensorActivation(
+        state,
+        mapIndex,
+        x,
+        y,
+        sensorIndex,
+        buildDeps,
+    );
+}
+
 export function runStoreChampionItemOnFrontWall<
     TState extends FrontWallRuntimeStateLike,
     TSensorState,
@@ -190,6 +223,24 @@ export function runStoreChampionItemOnFrontWall<
     );
 }
 
+export function runStoreChampionItemOnFrontWallAction<
+    TState extends FrontWallRuntimeStateLike,
+    TSensorState,
+    TPatch extends Record<string, unknown>,
+>(
+    state: TState,
+    championId: number,
+    itemId: string,
+    fromSlot: EquipSlotKey | 'inventory',
+    buildDeps: () => ChampionFrontWallRuntimeDeps<TState, TSensorState, TPatch>,
+    deps: ApplyFrontWallInteractionDeps<TPatch>,
+): boolean {
+    return applyStoreFrontWallInteractionResult(
+        runStoreChampionItemOnFrontWall(state, championId, itemId, fromSlot, buildDeps),
+        deps,
+    );
+}
+
 export function runStoreFloorItemOnFrontWall<
     TState extends FrontWallRuntimeStateLike,
     TSensorState,
@@ -205,6 +256,23 @@ export function runStoreFloorItemOnFrontWall<
         itemId,
         championId,
         buildDeps(),
+    );
+}
+
+export function runStoreFloorItemOnFrontWallAction<
+    TState extends FrontWallRuntimeStateLike,
+    TSensorState,
+    TPatch extends Record<string, unknown>,
+>(
+    state: TState,
+    itemId: string,
+    championId: number,
+    buildDeps: () => FloorFrontWallRuntimeDeps<TState, TSensorState, TPatch>,
+    deps: ApplyFrontWallInteractionDeps<TPatch>,
+): boolean {
+    return applyStoreFrontWallInteractionResult(
+        runStoreFloorItemOnFrontWall(state, itemId, championId, buildDeps),
+        deps,
     );
 }
 
@@ -231,6 +299,20 @@ export function buildStoreChampionItemOnViAltarPatch<
         altarFace,
         createStoreViAltarInteractionDeps(altarX, altarY, altarFace, deps),
     );
+}
+
+export function createStoreViAltarInteractionPatchDeps<
+    TState extends ViAltarInteractionStateLike,
+    TPatch extends Record<string, unknown>,
+>(
+    deps: StoreViAltarPatchBuilderDeps<TState, TPatch>,
+): ViAltarInteractionPatchDeps<TState, TPatch> {
+    return {
+        getTile: deps.getTile,
+        isAltarWallFaceSystem: deps.isAltarWallFaceSystem,
+        buildBaseResurrectionPatch: deps.buildBaseResurrectionPatch,
+        decorateResurrectionPatch: deps.decorateResurrectionPatch,
+    };
 }
 
 export function buildStoreFloorItemOnViAltarPatch<

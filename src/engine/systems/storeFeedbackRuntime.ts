@@ -72,6 +72,30 @@ export function scheduleStoreTransientMessage<TState>(
     }, durationMs);
 }
 
+export function showStoreLastCastResultMessage<
+    TState,
+    TResult,
+>(
+    message: string,
+    success: boolean,
+    durationMs: number,
+    deps: {
+        buildResult: (message: string, success: boolean) => TResult;
+        applyPatch: (patch: Partial<TState>) => void;
+        getCurrentResult: () => TResult | null | undefined;
+        clearLastCastResult: () => void;
+        readTimestamp: (value: TResult | null | undefined) => number | null;
+    },
+) {
+    scheduleStoreTransientMessage<TState>(message, success, durationMs, {
+        buildResult: deps.buildResult as (message: string, success: boolean) => TState[keyof TState],
+        applyPatch: deps.applyPatch,
+        getCurrentResult: deps.getCurrentResult as () => TState[keyof TState] | null | undefined,
+        clearMessage: deps.clearLastCastResult,
+        readTimestamp: deps.readTimestamp as (value: TState[keyof TState] | null | undefined) => number | null,
+    });
+}
+
 export function buildCreatureDamageEvent(
     level: number,
     x: number,

@@ -6,6 +6,7 @@ import {
     buildDropInventoryItemRuntimePatch,
     buildPickupItemToChampionRuntimePatch,
 } from '../src/engine/systems/floorItemCommandRuntime.js';
+import { buildStoreSelectedChampionPickupPatch } from '../src/engine/systems/storeFloorItemRuntime.js';
 
 type PendingSensorEvent = {
     level: number;
@@ -81,6 +82,37 @@ test('buildPickupItemToChampionRuntimePatch delegates to the pickup transfer hel
 
     assert.deepEqual(patch, {
         championInventories: { 1: [createItem('sword')] },
+    });
+});
+
+test('buildStoreSelectedChampionPickupPatch picks up with the currently selected champion', () => {
+    const state = {
+        floorItems: [createItem('sword')],
+        party: [createChampion(1), createChampion(2)],
+        selectedChampionIndex: 1,
+        championInventories: { 1: [] as FloorItem[], 2: [] as FloorItem[] },
+        activeFloorDrag: null,
+        lastCastResult: null,
+    };
+
+    const patch = buildStoreSelectedChampionPickupPatch(
+        state,
+        'sword',
+        {
+            buildPickupPatch: (_state, itemId, championId) => ({
+                championInventories: {
+                    ...state.championInventories,
+                    [championId]: [createItem(itemId)],
+                },
+            }),
+        },
+    );
+
+    assert.deepEqual(patch, {
+        championInventories: {
+            1: [],
+            2: [createItem('sword')],
+        },
     });
 });
 

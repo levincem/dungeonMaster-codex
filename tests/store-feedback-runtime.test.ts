@@ -8,6 +8,7 @@ import {
     buildRuntimeCastResult,
     buildViAltarCelebrationEvents,
     decorateViAltarResurrectionPatch,
+    showStoreLastCastResultMessage,
 } from '../src/engine/systems/storeFeedbackRuntime.js';
 
 test('buildRuntimeCastResult stamps a transient message payload', () => {
@@ -15,6 +16,30 @@ test('buildRuntimeCastResult stamps a transient message payload', () => {
     assert.equal(result.message, 'Bonjour');
     assert.equal(result.success, true);
     assert.equal(typeof result.ts, 'number');
+});
+
+test('showStoreLastCastResultMessage applies the specialized lastCastResult patch', () => {
+    let appliedPatch: Partial<{
+        lastCastResult: { message: string; success: boolean; ts: number } | null;
+    }> | null = null;
+
+    showStoreLastCastResultMessage('Salut', true, 1000, {
+        buildResult: buildRuntimeCastResult,
+        applyPatch: (patch) => {
+            appliedPatch = patch;
+        },
+        getCurrentResult: () => null,
+        clearLastCastResult: () => {},
+        readTimestamp: (value) => value?.ts ?? null,
+    });
+
+    assert.ok(appliedPatch);
+    const patchedState = appliedPatch as {
+        lastCastResult: { message: string; success: boolean; ts: number } | null;
+    };
+    assert.equal(patchedState.lastCastResult?.message, 'Salut');
+    assert.equal(patchedState.lastCastResult?.success, true);
+    assert.equal(typeof patchedState.lastCastResult?.ts, 'number');
 });
 
 test('damage and death visual builders return the expected runtime targets', () => {

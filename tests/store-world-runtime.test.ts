@@ -1,0 +1,252 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { createStoreWorldRuntime } from '../src/engine/systems/storeWorldRuntime.js';
+import type { ChampionEquipment, CreatureInstance, GameMap } from '../src/types/game.js';
+
+function createMap(index: number, difficulty: number, tiles: GameMap['tiles']): GameMap {
+    return {
+        index,
+        name: `Map ${index}`,
+        level: index,
+        width: tiles[0]?.length ?? 0,
+        height: tiles.length,
+        difficulty,
+        tiles,
+    };
+}
+
+function createRuntime(maps: GameMap[], overrides: Partial<Parameters<typeof createStoreWorldRuntime<any>>[0]> = {}) {
+    const registeredTimers = new Map<string, { mt: number; at: number }>();
+    const reservationCalls: Array<{
+        level: number;
+        creatures: CreatureInstance[];
+        pendingGeneratorSpawns: unknown[];
+    }> = [];
+
+    const runtime = createStoreWorldRuntime({
+        getGameMaps: () => maps,
+        getMapDifficulty: (level) => maps.find((map) => map.index === level)?.difficulty ?? 1,
+        creatureTypes: {
+            7: { baseHP: 30, moveSpd: 12, atkSpd: 18, sizeOnTile: 0 },
+            9: { baseHP: 10, moveSpd: 12, atkSpd: 18, sizeOnTile: 2 },
+        },
+        buildRuntimeCreatureGroupId: (kind, level, x, y, typeId) => `${kind}:${level}:${x}:${y}:${typeId}`,
+        registerCreatureTimers: (id, timers) => {
+            registeredTimers.set(id, timers);
+        },
+        normalizeCreatureCells: (creatures) => creatures.map((creature, index) => ({
+            ...creature,
+            cell: index === 0 ? 'frontLeft' : creature.cell,
+        })),
+        resolveItemName: (category, typeId, rawName) => `${category}:${typeId}:${rawName ?? ''}`,
+        normalizeScrollText: (text) => `normalized:${text ?? ''}`,
+        parseItemCharges: (rawName) => rawName ? { charges: 2, maxCharges: 4 } : {},
+        normaliseWaterContainer: (item) => item.category === 'Container'
+            ? { ...item, waterCharges: 1, waterMaxCharges: 1 }
+            : item,
+        buildChampionStarterLoadout: (championId) => ({
+            equipment: {
+                rightHand: {
+                    id: `starter-equip-${championId}`,
+                    category: 'Container',
+                    typeId: 1,
+                    mapIndex: 0,
+                    x: 0,
+                    y: 0,
+                    tilePos: 'North',
+                },
+            } satisfies ChampionEquipment,
+            inventory: [
+                {
+                    id: `starter-inv-${championId}`,
+                    category: 'Container',
+                    typeId: 2,
+                    mapIndex: 0,
+                    x: 0,
+                    y: 0,
+                    tilePos: 'North',
+                },
+            ],
+        }),
+        canMaterializeReservedGeneratorSpawnOnLevel: (level, creatures, pendingGeneratorSpawns) => {
+            reservationCalls.push({ level, creatures, pendingGeneratorSpawns });
+            return creatures.length === 0 && pendingGeneratorSpawns.length === 0;
+        },
+        isGeneratorSpawnBlocked: (state, level, x, y) =>
+            state.creatures.some((creature) => creature.mapIndex === level && creature.x === x && creature.y === y),
+        randomInt: () => 0,
+        randomFraction: () => 0.5,
+        now: () => 99,
+        ...overrides,
+    });
+
+    return { runtime, registeredTimers, reservationCalls };
+}
+
+test('store world runtime builds initial creatures with timer registration and normalized cells', () => {
+    const maps = [
+        createMap(0, 2, [[{
+            x: 3,
+            y: 4,
+            type: 'Floor',
+            objects: [{
+                category: 'Creature',
+                index: 2,
+                tilePos: 'North',
+                type: 7,
+                hp: 0,
+            }],
+        }]]),
+    ];
+    const { runtime, registeredTimers } = createRuntime(maps);
+
+    const creatures = runtime.buildCreatureInstances();
+
+    assert.equal(creatures.length, 1);
+    assert.deepEqual(creatures[0], {
+        id: '0_3_4_2',
+        groupId: 'init:0:3:4:7',
+        typeId: 7,
+        mapIndex: 0,
+        x: 3,
+        y: 4,
+        currentHP: 30,
+        alive: true,
+        cell: 'frontLeft',
+        carriedItems: [],
+    });
+    assert.deepEqual(registeredTimers.get('0_3_4_2'), {
+        mt: 1,
+        at: 1.5,
+    });
+});
+
+test('store world runtime builds floor items while skipping the hall champion tile', () => {
+    const maps = [
+        createMap(0, 1, [[
+            {
+                x: 0,
+                y: 0,
+                type: 'Floor',
+                objects: [
+                    {
+                        category: 'Sensor',
+                        index: 0,
+                        tilePos: 'North',
+                        type: 0,
+                        data: 0,
+                        graphic: 0,
+                        isLocal: false,
+                        delay: 0,
+                        sound: false,
+                        revert: false,
+                        action: 'Set',
+                        onceOnly: false,
+                        targetY: 0,
+                        targetX: 0,
+                        targetDir: 'North',
+                        championGraphic: 1,
+                    } as any,
+                    {
+                        category: 'Weapon',
+                        index: 1,
+                        tilePos: 'North',
+                        type: 4,
+                    },
+                ],
+            },
+            {
+                x: 1,
+                y: 0,
+                type: 'Floor',
+                objects: [
+                    {
+                        category: 'Scroll',
+                        index: 2,
+                        tilePos: 'East',
+                        type: 5,
+                        text: 'FUL BRO KU',
+                    } as any,
+                    {
+                        category: 'Container',
+                        index: 3,
+                        tilePos: 'South',
+                        type: 6,
+                        name: 'Waterskin',
+                    } as any,
+                ],
+            },
+        ]]),
+    ];
+    const { runtime } = createRuntime(maps);
+
+    const items = runtime.buildFloorItems();
+
+    assert.equal(items.length, 2);
+    assert.equal(items[0]?.id, '0_1_0_Scroll_2');
+    assert.equal(items[0]?.rawName, 'Scroll:5:normalized:FUL BRO KU');
+    assert.equal(items[0]?.actionCharges, 2);
+    assert.equal(items[0]?.actionMaxCharges, 4);
+    assert.equal(items[1]?.id, '0_1_0_Container_3');
+    assert.equal(items[1]?.waterCharges, 1);
+    assert.equal(items[1]?.waterMaxCharges, 1);
+});
+
+test('store world runtime forwards generator reservation checks and difficulty-based creature spawning', () => {
+    const maps = [createMap(2, 4, [[{ x: 0, y: 0, type: 'Floor', objects: [] }]])];
+    const { runtime, registeredTimers, reservationCalls } = createRuntime(maps);
+
+    const canSpawn = runtime.canApproximateOriginalReservedGeneratorSpawn({
+        creatures: [],
+        pendingGeneratorSpawns: [],
+    }, 2);
+    const creatures = runtime.createGeneratedCreatureGroupInstances(2, 3, 4, 9, 0, 1, 'group-1');
+
+    assert.equal(canSpawn, true);
+    assert.deepEqual(reservationCalls, [{
+        level: 2,
+        creatures: [],
+        pendingGeneratorSpawns: [],
+    }]);
+    assert.equal(creatures.length, 1);
+    assert.equal(creatures[0]?.groupId, 'group-1');
+    assert.equal(creatures[0]?.currentHP, 40);
+    assert.equal(creatures[0]?.alive, true);
+    assert.match(creatures[0]?.id ?? '', /^gen_2_3_4_9_99_0_/);
+    assert.equal(registeredTimers.size, 1);
+});
+
+test('store world runtime normalizes starter loadouts and discovers open world markers', () => {
+    const maps = [
+        createMap(1, 1, [[{
+            x: 2,
+            y: 5,
+            type: 'Teleporter',
+            open: true,
+            objects: [
+                {
+                    category: 'Text',
+                    index: 7,
+                    tilePos: 'West',
+                    visible: true,
+                },
+            ],
+        }]]),
+        createMap(2, 1, [[{
+            x: 1,
+            y: 4,
+            type: 'Pit',
+            open: true,
+            objects: [],
+        }]]),
+    ];
+    const { runtime } = createRuntime(maps);
+
+    const loadout = runtime.getChampionStarterLoadout(12);
+
+    assert.equal(loadout.equipment.rightHand?.waterCharges, 1);
+    assert.equal(loadout.inventory[0]?.waterCharges, 1);
+    assert.deepEqual([...runtime.buildOpenTeleporters()], ['1,5,2']);
+    assert.deepEqual([...runtime.buildVisibleTexts()], ['1_2_5_7']);
+    assert.deepEqual([...runtime.buildOpenPits()], ['2,4,1']);
+});

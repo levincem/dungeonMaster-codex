@@ -40,6 +40,13 @@ type PartyMoveSideEffectDeps = {
     showTransientMessage: (message: string) => void;
 };
 
+type StoreMovementActionDeps<TState extends PartyMoveState> = {
+    applyState: (updater: (state: TState) => TState | Partial<TState>) => void;
+    buildDeps: () => PartyMoveCommandDeps<TState>;
+    now: number;
+    command: PartyMoveCommand;
+} & PartyMoveSideEffectDeps;
+
 export function createStorePartyMoveRuntimeDeps<
     TState extends PartyMoveState,
     TWallPushDeps,
@@ -90,4 +97,26 @@ export function applyStorePartyMoveSideEffects(
 ) {
     if (result.shouldPlayWallBump) deps.playWallBump();
     if (result.blockedMessage) deps.showTransientMessage(result.blockedMessage);
+}
+
+export function runStoreMovementAction<TState extends PartyMoveState>(
+    deps: StoreMovementActionDeps<TState>,
+) {
+    let moveResult: PartyMoveCommandResult<TState> | null = null;
+    deps.applyState((state) => {
+        moveResult = runStorePartyMoveCommand(
+            state,
+            deps.command,
+            deps.now,
+            deps.buildDeps(),
+        );
+        return moveResult.patch as TState | Partial<TState>;
+    });
+
+    if (moveResult) {
+        applyStorePartyMoveSideEffects(moveResult, {
+            playWallBump: deps.playWallBump,
+            showTransientMessage: deps.showTransientMessage,
+        });
+    }
 }

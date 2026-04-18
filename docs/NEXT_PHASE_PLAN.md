@@ -1,6 +1,6 @@
 # Next Phase Plan
 
-Etat pose le `2026-04-17`.
+Etat pose le `2026-04-18`.
 
 Ce document decrit la suite logique maintenant que:
 
@@ -103,6 +103,22 @@ Actions:
 - considerer aussi comme entamee la sortie de la fabrique des degats runtime de party vers `src/engine/systems/storePartyDamageRuntime.ts`, ce qui retire du `store` le builder inline de `wall bump`, `fall impact`, `spell backlash` et `party-wide incoming attack`
 - considerer aussi comme entamee la sortie des wrappers `regen / sleep / endgame` vers `src/engine/systems/storeTimeRuntime.ts`, ce qui retire du `store` trois helpers de plomberie delegataires et clarifie le cablage de `tickFrame` et `regenTick`
 - considerer aussi comme entamee la sortie du builder de deps `pickup / drop` au sol vers `src/engine/systems/storeFloorItemRuntime.ts`, ce qui retire du `store` un autre objet inline de plomberie autour des commandes d'objets au sol
+- considerer aussi comme bien avancee la sortie de la persistence locale du `store` vers `src/engine/systems/storePersistenceRuntime.ts`, qui centralise maintenant payload de sauvegarde, hydratation et wrappers `save/load/returnToTitle`
+- considerer aussi comme bien avancee la sortie des transitions UI/runtime courtes du `store` vers `src/engine/systems/storeUiRuntime.ts`, qui couvre maintenant miroir, panneaux, drag de sol, gate, changement de niveau, rotations et selection/reorder de champions
+- considerer aussi comme bien avancee la factorisation des patches optionnels et du roster de party vers `src/engine/systems/storePatchRuntime.ts` et `src/engine/systems/storePartyRosterRuntime.ts`
+- considerer aussi comme bien avancee la sortie des derniers wrappers d'etat et d'objets du `store` vers `src/engine/systems/storeStateRuntime.ts` et `src/engine/systems/storeItemRuntime.ts`
+- considerer aussi comme bien avancee la sortie du wiring top-level de `tickFrame / regenTick / tickMovement` vers `src/engine/systems/storeFrameRuntime.ts`, qui retire du `store` une partie supplementaire du cablage temporel Zustand
+- considerer aussi comme bien avancee la sortie des wrappers top-level `attackFront / castSpell / tickSpells / tickMonsters` vers `src/engine/systems/storeGameplayRuntime.ts`, ce qui laisse le `store` encore plus proche d'un simple point de composition
+- considerer aussi comme bien avancee la sortie des helpers capteurs restants vers `src/engine/systems/storeSensorRuntime.ts`, qui centralise maintenant le noyau `snapshot / diff / queue / generator / wall sensor` encore local au `store`
+- considerer aussi comme bien avancee la sortie de l'etat mutable externe des creatures vers `src/engine/systems/storeCreatureRuntime.ts`, ce qui retire du `store` un nouveau bloc de maps/listeners runtime
+- considerer aussi comme bien avancee la sortie des wrappers `party / survival / fatigue / party damage deps` vers `src/engine/systems/storePartyRuntime.ts`, ce qui retire du `store` un nouveau bloc historique autour de la survie, du repos, du cooldown de mouvement et des degats de groupe
+- considerer aussi comme bien avancee la sortie des wrappers `transport / immediate effects / party move deps` vers `src/engine/systems/storeMovementRuntime.ts`, ce qui retire du `store` le reliquat de cablage direct autour des transports de pas et des effets immediats de case
+- considerer aussi comme bien avancee la sortie du bootstrap monde et des wrappers de generation reserves vers `src/engine/systems/storeWorldRuntime.ts`, ce qui retire du `store` les boucles d'initialisation creatures/items/open sets et un nouveau bloc de plomberie generateur
+- considerer aussi comme bien avancee la sortie des helpers champion purs vers `src/engine/systems/storeChampionRuntime.ts`, ce qui retire du `store` un nouveau bloc de `vitals / clamps / skill modifiers / stat relax / item fallback`
+- considerer aussi comme bien avancee la sortie d'un noyau historique `champion/combat state` vers `src/engine/systems/storeChampionStateRuntime.ts`, ce qui retire du `store` les helpers locaux de blessures, poison, overflow d'endurance, criteres temporels, gain d'XP de competence et resolution d'attaque entrante
+- considerer aussi comme bien avancee la sortie d'un paquet utilitaire `combat / projectile / item runtime` vers `src/engine/systems/storeCombatRuntime.ts`, ce qui retire du `store` les helpers locaux de checks de cast, de projectile immediat, de charges d'objets, de drops et de lancer d'objet transporte
+- considerer aussi comme bien avancee la sortie d'un noyau `creature spatial / occupancy / LOS` vers `src/engine/systems/storeCreatureSpatialRuntime.ts`, ce qui retire du `store` les helpers locaux de `groupId` runtime, capacite de tuile, normalisation des cellules, partage de tuiles et ligne de vue
+- considerer aussi comme bien avancee la sortie du bootstrap d'etat initial vers `src/engine/systems/storeBootstrapRuntime.ts` et du petit noyau `endgame` vers `src/engine/systems/storeEndgameRuntime.ts`, ce qui retire du `store` ses deux derniers blocs coherents qui valaient encore une extraction dediee
 - considerer aussi comme entamee la factorisation du cablage repetitif des deplacements party directement dans `src/engine/store.ts`, ainsi que la suppression des wrappers morts les plus simples; les reliquats encore "faciles" sont maintenant surtout de petits builders ou callbacks stateful, plus des blocs de duplication massifs
 - considerer aussi comme entamee la sortie des gros pavés inline restants de `castSpell`, `tickSpells`, `tickFrame` et `regenTick` vers des helpers locaux du `store`, afin de laisser les actions Zustand plus proches d'un pur role d'orchestration avant d'attaquer les extractions plus structurelles
 - considerer aussi comme entamee la meme approche sur `tickMonsters` et sur le petit bloc `front wall / Vi altar`, ce qui laisse surtout dans le `store` des utilitaires d'assemblage plus fins et quelques actions encore modestement denses
@@ -134,13 +150,18 @@ Objectif:
 
 Actions:
 
-- sortir les wrappers d'orchestration encore residuels vers des modules systeme dedies
+- considerer comme largement faite la sortie des wrappers d'orchestration Zustand residuels vers des modules systeme dedies
 - limiter `store.ts` a la composition Zustand et au cablage des sous-systemes
 - garder la logique pure testable hors store
-- prochaine cible naturelle apres monstres / projectiles / deplacements / attaque / cast / objets / interactions murales:
-  - finir les derniers flux UI/runtime residuels encore colles au `store.ts`
-  - prendre ensuite les utilitaires locaux encore disperses autour des interactions champion/combat et des derniers side-effects inline
-  - terminer enfin le menage des reliquats inline mineurs qui ne sont plus que du cablage Zustand
+- traiter maintenant comme reste principal:
+  - les helpers historiques plus bas niveau encore presents dans `store.ts`
+  - les assemblages locaux de deps/runtime qui ne meritent pas tous une extraction supplementaire
+  - la clarification documentaire de ce qui reste volontairement dans le `store`
+- noter qu'apres la sortie de `storeFrameRuntime.ts`, `storeGameplayRuntime.ts`, `storeSensorRuntime.ts`, `storeCreatureRuntime.ts`, `storePartyRuntime.ts`, `storeMovementRuntime.ts`, `storeWorldRuntime.ts`, `storeChampionRuntime.ts`, `storeChampionStateRuntime.ts`, `storeCombatRuntime.ts`, `storeCreatureSpatialRuntime.ts`, `storeBootstrapRuntime.ts` et `storeEndgameRuntime.ts`, le reste du chantier store ne justifie plus prioritairement de nouvelles micro-extractions; le meilleur rendement se deplace maintenant vers l'UI, l'optimisation et la validation fidelity
+- basculer ensuite prioritairement vers:
+  - optimisation et reduction des gros chargements
+  - playtests/fidelite sur les cas rares et la fin de jeu
+  - simplification des gros composants UI (`HUD`, `DungeonScene`, `ChampionSheet`) plutot qu'un acharnement sur les derniers petits reliquats Zustand
 
 ## 4. Optimisation
 

@@ -1,6 +1,6 @@
 ﻿# Dungeon Master Remake - Etat du projet
 
-Version remise a jour a partir du code observe le `2026-04-17`.
+Version remise a jour a partir du code observe le `2026-04-18`.
 
 ## Resume rapide
 
@@ -19,6 +19,49 @@ Docs de reference a privilegier pour l'etat courant:
 - [docs/FIDELITY_100_VERDICT.md](/D:/DungeonMaster-codex/docs/FIDELITY_100_VERDICT.md)
 - [docs/FIDELITY_REMAINING_MATRIX.md](/D:/DungeonMaster-codex/docs/FIDELITY_REMAINING_MATRIX.md)
 - [docs/RUNTIME_ALIGNMENT_AUDIT.md](/D:/DungeonMaster-codex/docs/RUNTIME_ALIGNMENT_AUDIT.md)
+
+## Session 2026-04-18
+
+Points consolides dans cette passe:
+
+- le degonflage de [src/engine/store.ts](/D:/DungeonMaster-codex/src/engine/store.ts) a continue jusqu'a sortir l'essentiel des wrappers d'orchestration Zustand encore repetitifs ou stateful
+- la persistence locale du `store` vit maintenant dans [src/engine/systems/storePersistenceRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storePersistenceRuntime.ts), qui centralise le payload de sauvegarde, l'hydratation, `saveGame`, `loadGame` et `returnToTitle`
+- les transitions UI/runtime courtes du `store` vivent maintenant dans [src/engine/systems/storeUiRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeUiRuntime.ts), y compris `mirror`, `party member`, `options`, `floor drag`, `goToLevel`, `tryOpenGate`, `turnLeft`, `turnRight`, `selectChampion` et `reorderParty`
+- les actions a patch optionnel sont maintenant factorisees dans [src/engine/systems/storePatchRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storePatchRuntime.ts), ce qui retire du `store` une nouvelle couche de plomberie repetitive
+- les entrees `addToParty` et `removeFromParty` sont maintenant sorties vers [src/engine/systems/storePartyRosterRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storePartyRosterRuntime.ts)
+- les derniers wrappers d'etat du `store` ont ete sortis vers [src/engine/systems/storeStateRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeStateRuntime.ts), qui porte maintenant notamment `killCreature`, `killChampion`, `setGameOptions`, `sleep` et `wakeUp`
+- les wrappers item/restauration restants ont ete sortis vers [src/engine/systems/storeItemRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeItemRuntime.ts), qui porte maintenant `useItem`, `fillWaterContainer` et `resurrectChampion`
+- la boucle temporelle top-level du `store` passe maintenant aussi par [src/engine/systems/storeFrameRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeFrameRuntime.ts), qui centralise le wiring de `tickFrame`, `regenTick` et `tickMovement` au-dessus de `tickFrameState`, `storeTimeRuntime` et `timeStateTicks`
+- les derniers wrappers top-level de gameplay `attackFront`, `castSpell`, `tickSpells` et `tickMonsters` passent maintenant aussi par [src/engine/systems/storeGameplayRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeGameplayRuntime.ts), ce qui retire du `store` un nouveau bloc d'orchestration dense autour du combat, des sorts et de la boucle monstre
+- l'extraction des helpers capteurs restants du `store` a continue dans [src/engine/systems/storeSensorRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeSensorRuntime.ts), qui centralise maintenant le noyau `snapshot / diff / queue / generator / wall sensor` encore local au wiring Zustand
+- [src/engine/systems/storeCreatureRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeCreatureRuntime.ts) porte maintenant aussi l'etat mutable externe des creatures (`timers`, `attack windows`, `confused/fluxcage/frightened`, `last seen`) et les listeners runtime associes
+- [src/engine/systems/storePartyRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storePartyRuntime.ts) centralise maintenant les wrappers party/survie/degats encore restants du `store`, y compris `advanceSurvivalTime`, `isPartyRested`, `buildCombatTickPatch`, `computeMovementCooldown`, `buildPartyDamageDeps`, `applyPartyLoadBasedFatigue` et `applyPartyMoveFatigue`
+- [src/engine/systems/storeMovementRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeMovementRuntime.ts) centralise maintenant les wrappers de transport/deplacement encore locaux au `store`, en couvrant `applyImmediateTransportSquareEffects`, `resolvePartyStepTransport` et le builder `buildPartyMoveDeps`
+- [src/engine/systems/storeWorldRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeWorldRuntime.ts) centralise maintenant le bootstrap monde/generateurs encore local au `store`, en couvrant creatures initiales, items de sol, pits/teleporteurs/textes ouverts, loadouts de depart et wrappers de generation reserves
+- [src/engine/systems/storeChampionRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeChampionRuntime.ts) centralise maintenant les helpers champion purs encore restants du `store`, en couvrant `vitals`, clamps faim/soif, bonus de maitrise, relax des stats et conversion d'objets comme la fiole vide
+- [src/engine/systems/storeChampionStateRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeChampionStateRuntime.ts) centralise maintenant un autre noyau historique `champion/combat state` encore local au `store`, en couvrant blessures, poison, overflow d'endurance, criteres temporels originaux, gain d'XP de competence et wrapper de resolution d'attaque entrante
+- [src/engine/systems/storeCombatRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeCombatRuntime.ts) centralise maintenant le paquet utilitaire `combat / projectile / item runtime` encore disperse dans le `store`, en couvrant notamment les stats d'arme en main, les checks de cast originaux, les helpers de projectile/porte immediate, les charges d'objet, les drops et le lancer d'objet transporte
+- [src/engine/systems/storeCreatureSpatialRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeCreatureSpatialRuntime.ts) centralise maintenant le noyau spatial historique `group ids / capacite de tuile / cellules de creature / partage de tuile / line of sight` qui restait encore local au `store`
+- [src/engine/systems/storeBootstrapRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeBootstrapRuntime.ts) centralise maintenant le bootstrap d'etat initial du `store`, en couvrant l'etat frais du donjon, les valeurs par defaut et l'initialisation des grandes collections runtime
+- [src/engine/systems/storeEndgameRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeEndgameRuntime.ts) centralise maintenant le petit noyau `endgame` encore local au `store`, en couvrant les evenements visuels de fusion, les poison clouds generes, les messages de fin et les constantes d'orchestration associees
+- [src/engine/systems/storeWallInteractionRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeWallInteractionRuntime.ts) couvre maintenant aussi les runners stateful des interactions `front wall`, de `activateWallSensor` et le builder de deps `Vi Altar`
+- a ce stade, [src/engine/store.ts](/D:/DungeonMaster-codex/src/engine/store.ts) est tombe a `2369` lignes et se comporte beaucoup plus comme un point de composition/wiring que comme un depot de logique d'action
+- la part encore dense du `store` n'est plus principalement le tableau d'actions Zustand: ce sont surtout des helpers historiques plus bas niveau, de l'assemblage local de dependances et quelques utilitaires runtime restes sur place
+- la validation locale de cette passe est verte au `2026-04-18`: `npm.cmd run build` passe et `npm.cmd test` passe avec `515` tests
+
+Impact de maintenance:
+
+- le chantier "terminer le store" est maintenant largement ferme au niveau des wrappers d'action et de la plomberie d'orchestration
+- les familles `sensor / generator / wall runtime helpers`, puis `party / survival / movement transport`, puis `world bootstrap / generator wrappers`, puis `champion helper runtime`, ne sont plus majoritairement inline dans le `store`; elles ont maintenant des points de verite dedies et testes
+- la famille `champion state / incoming attack / poison / skill XP` a maintenant elle aussi un point de verite dedie et teste, au lieu d'un bloc historique encore local au `store`
+- la famille `combat / projectile / item utility runtime` a maintenant elle aussi un point de verite dedie hors `store`, ce qui retire encore un bloc melangeant checks de cast, outils de lancer, helpers de portes immediates et plomberie d'objets
+- la famille `creature spatial / occupancy / LOS` a maintenant elle aussi un point de verite dedie hors `store`, ce qui retire encore un bloc historique melangeant ids de groupe runtime, normalisation des sous-cases, partage de tuiles et ligne de vue
+- le bootstrap d'etat initial et le petit noyau `endgame` ont maintenant eux aussi des points de verite dedies hors `store`, ce qui permet raisonnablement de considerer le `store` comme assaini dans son role de couche de composition
+- la suite logique n'est plus de sortir a tout prix chaque petite closure restante, mais plutot:
+  - documenter l'etat reel obtenu
+  - garder les tests cibles sur les modules runtime extraits
+  - finir les derniers helpers historiques par familles metier coherentes
+  - puis choisir entre optimisation, playtests de fidelite et gros composants UI encore volumineux
 
 ## Session 2026-04-17
 

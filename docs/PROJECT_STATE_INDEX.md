@@ -1,6 +1,6 @@
 # Project State Index
 
-Etat pose le `2026-04-17`.
+Etat pose le `2026-04-18`.
 
 Ce document sert d'index court vers les documents a consulter selon la question qu'on se pose sur le projet.
 
@@ -39,5 +39,6 @@ Si on ne doit lire qu'un seul trio pour se recaler vite:
 - extraction: tres solide, mais `0696.RAW1` n'est pas ferme semantiquement a `100%`
 - moteur: largement source-backed sur le gameplay central
 - reste runtime majeur: structure des groupes actifs / generateurs
+- store central: la grosse extraction des wrappers d'action/orchestration est largement faite, y compris boucle temps, wrappers gameplay top-level, helpers capteurs, etat runtime externe des creatures, runtime party/survie, runtime movement/transport, bootstrap monde/generateurs, bootstrap d'etat initial, helpers champion purs, noyau `champion/combat state`, paquet utilitaire `combat/projectile/item`, noyau spatial `creature occupancy / LOS` et petit noyau `endgame`; le `store` peut maintenant etre considere comme sain dans son role de composition
 - autres restes: couches hybrides localisees, fallbacks de presentation, validation en jeu des cas rares et de fin
 - dernier audit code/runtime: pas de nouvelle incoherence gameplay centrale trouvee; le reste est surtout structurel, hybride ou de validation

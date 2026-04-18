@@ -55,7 +55,14 @@ On the fidelity side, the project is now in a much stronger place than before:
 
 - world content extraction is treated as reliable for the core dungeon content
 - runtime data for champions, creatures, items, doors, spells, projectiles, and maps is primarily sourced from extracted original data
-- most central gameplay logic that used to live as large local approximations in the store has been moved into smaller tested subsystems
+- most central gameplay logic that used to live as large local approximations in the store has been moved into smaller tested subsystems, and the Zustand store is now much closer to a composition/wiring layer than to a monolithic gameplay file
+- the remaining party survival, fatigue, damage-deps, and step-transport wiring has also been pulled into dedicated store runtime modules, so the store is now mostly historical low-level helpers and local dependency assembly rather than action plumbing
+- the world bootstrap and reserved-generator wrappers have also been pulled into a dedicated store runtime module, so initial creatures, floor items, open-map markers, and generator-spawn helpers are no longer initialized inline in the store
+- the remaining pure champion helpers have also been split out into a dedicated runtime helper module, so vitals creation, clamps, mastery bonuses, stat relaxation, and related item fallback helpers no longer live inline in the store
+- another historical `champion/combat state` cluster has also been moved into its own runtime helper module, so wounds, poison, stamina overflow, skill XP growth, and incoming-attack resolution wrappers no longer live inline in the store
+- another `combat / projectile / item runtime` utility cluster has also been moved into its own runtime helper module, so cast checks, immediate projectile blockers, item charges, carried-item throws, and drop helpers no longer live inline in the store
+- another `creature spatial / occupancy / line-of-sight` helper cluster has also been moved into its own runtime helper module, so runtime group ids, tile-capacity normalization, creature-cell sharing, and LOS checks no longer live inline in the store
+- the remaining fresh-state bootstrap and small endgame helper cluster have also been moved into dedicated runtime modules, so the store can now be treated as a sane composition layer rather than an active cleanup hotspot
 - generator data is decoded and integrated, with the main remaining uncertainty now concentrated on exact `GROUP/ACTIVE_GROUP` lifecycle semantics rather than raw generator parameters
 - the runtime has been heavily cleaned up, so the main remaining risk is now gameplay validation and edge-case fidelity, not core maintainability
 
@@ -172,6 +179,7 @@ The most useful project-memory and audit docs are:
 
 - The project should currently be treated as a playable alpha, not a finished remake.
 - The production build passes, and the app boots correctly from the runtime data embedded in `src/assets/data/`.
+- Latest local validation recorded on `2026-04-18`: `npm.cmd run build` passes, and `npm.cmd test` passes with `515` tests.
 - The world-content extraction is now considered reliable enough that the remaining uncertainty is mostly about fidelity edge cases, not about missing core dungeon content.
 - The central runtime has been heavily refactored into smaller tested subsystems, so code clarity and maintainability are in a much better place than earlier alpha builds.
 - The main heavy runtime payloads are still the compact dungeon snapshot, wall overlay data, and the core Three.js stack.
