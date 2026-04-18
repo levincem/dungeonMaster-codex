@@ -75,6 +75,28 @@ function getSortedDungeonPreloadQueue(currentLevel: number): number[] {
     });
 }
 
+function waitForTimeout(delayMs: number): Promise<void> {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, delayMs);
+  });
+}
+
+function waitForNextPaint(): Promise<void> {
+  return new Promise((resolve) => {
+    window.requestAnimationFrame(() => resolve());
+  });
+}
+
+function scheduleIdleWarmup(task: () => void, timeoutMs = 1_500): () => void {
+  if (typeof window.requestIdleCallback === 'function') {
+    const idleId = window.requestIdleCallback(task, { timeout: timeoutMs });
+    return () => window.cancelIdleCallback(idleId);
+  }
+
+  const timeoutId = window.setTimeout(task, 180);
+  return () => window.clearTimeout(timeoutId);
+}
+
 async function preloadGameplayLevelNeighborhood(level: number): Promise<void> {
   await Promise.all([
     preloadDungeonMapNeighborhoodData(level, 1),
@@ -94,6 +116,7 @@ async function preloadRemainingGameplayLevels(
       preloadDungeonMapData(mapIndex),
       preloadOriginalWallOverlayMapData(mapIndex),
     ]);
+    await waitForNextPaint();
   }
 }
 
@@ -204,13 +227,48 @@ function GameRoot() {
 
   useEffect(() => {
     if (gamePhase !== 'title') return;
+
+    let cancelled = false;
+
     void preloadDungeonBootstrapData()
       .then(() => preloadGameplayLevelNeighborhood(0))
       .catch(() => {});
-    void preloadGameDbData().catch(() => {});
-    void preloadGameplayVisualAssets().catch(() => {});
-    void preloadOriginalWallOverlayData().catch(() => {});
-    void preloadGameplayRenderCoreModules().catch(() => {});
+
+    const cancelVisualWarmup = scheduleIdleWarmup(() => {
+      if (cancelled) return;
+      void preloadGameplayVisualAssets().catch(() => {});
+    }, 600);
+
+    const cancelDataWarmup = scheduleIdleWarmup(() => {
+      if (cancelled) return;
+      void Promise.all([
+        preloadGameDbData(),
+        preloadOriginalWallOverlayData(),
+      ]).catch(() => {});
+    }, 1_200);
+
+    const cancelRenderWarmup = scheduleIdleWarmup(() => {
+      if (cancelled) return;
+      void preloadGameplayRenderCoreModules().catch(() => {});
+    }, 2_000);
+
+    const delayedFullWarmup = window.setTimeout(() => {
+      if (cancelled) return;
+      void Promise.all([
+        preloadGameplayVisualAssets(),
+        preloadGameDbData(),
+        preloadOriginalWallOverlayData(),
+        preloadGameplayRenderCoreModules(),
+      ]).catch(() => {});
+    }, 3_200);
+
+    return () => {
+      cancelled = true;
+      cancelVisualWarmup();
+      cancelDataWarmup();
+      cancelRenderWarmup();
+      window.clearTimeout(delayedFullWarmup);
+    };
   }, [gamePhase]);
 
   useEffect(() => {
@@ -222,6 +280,7 @@ function GameRoot() {
     void preloadGameplayRenderModules().catch(() => {});
     void (async () => {
       try {
+        await waitForTimeout(60);
         await preloadDungeonBootstrapData();
         await preloadRemainingGameplayLevels(level, () => !cancelled);
       } catch {

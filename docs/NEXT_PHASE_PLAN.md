@@ -198,6 +198,7 @@ Lecture utile:
 - le runtime dungeon est maintenant charge via `bootstrap.json` puis `maps/level-XX.json` dans `dungeonData.ts`
 - `gameDbData.ts` precharge maintenant des slices dediees `items / weapon attacks / creatures`, tout en gardant `preloadGameDbData()` comme facade de transition
 - le tout premier boot a ete allégé: `LoadingScreen` ne chauffe plus que les visuels du titre et le bootstrap du donjon, puis le warm-up lourd bascule vers la phase titre et les sas explicites `Preparing Title Screen` / `Enter` / `Resume`
+- le warm-up titre a maintenant aussi ete etalé en vagues idle dans `GameRoot`, et le preload de fond des niveaux cede la main entre chaque niveau; le prochain gain devra donc venir surtout du contenu charge et du rendu, plus d'un simple deplacement du preload
 - les overlays muraux passent maintenant par un loader asynchrone par map; le gros gain data cote overlays a donc deja ete obtenu
 - la scene gameplay n'importe plus activement `@react-three/drei`; le gain facile sur la pile R3F a donc deja ete capte, et la suite demandera plutot du profilage sur `DungeonScene` / `three-core`
 - le prochain gain ne viendra donc pas d'un simple `manualChunks`, deja present, mais plutot de:

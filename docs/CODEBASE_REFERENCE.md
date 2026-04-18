@@ -23,7 +23,7 @@ Pour l'etat de fidelite et les verrous ouverts, privilegier aussi:
 1. `src/main.tsx` monte l'application React et charge `src/index.css`.
 2. `src/App.tsx` affiche `LoadingScreen`, detecte les smartphones, puis prechauffe `GameRoot` pendant l'ecran de bienvenue avant de le lazy-load; si ce warm-up n'est pas termine quand l'utilisateur continue, un sas visuel "Preparing Title Screen" prend le relais.
 3. `src/components/UI/LoadingScreen.tsx` ne precharge plus que les visuels du titre et le bootstrap du donjon, pour rendre le tout premier boot beaucoup plus leger.
-4. `src/GameRoot.tsx` lance la boucle `requestAnimationFrame`, monte `TitleScreen` tant que `gamePhase === 'title'`, prechauffe aussi les modules gameplay coeur (`DungeonScene`, `HUD`, effets de sorts), les slices `game_db`, les visuels gameplay et le voisinage du niveau utile (`niveau courant +/- 1`) a la fois pour les maps et pour les overlays muraux, puis rechauffe le reste des maps et overlays en arriere-plan avant d'afficher `DungeonScene`, `HUD`, `MirrorPopup` et `ChampionSheet` en exploration.
+4. `src/GameRoot.tsx` lance la boucle `requestAnimationFrame`, monte `TitleScreen` tant que `gamePhase === 'title'`, rechauffe d'abord le voisinage utile du donjon, puis etale en vagues idle les visuels gameplay, les slices `game_db`, les overlays muraux et les modules gameplay coeur (`DungeonScene`, `HUD`, effets de sorts), avant de continuer le warm-up complet en arriere-plan pendant l'exploration.
 5. `src/components/Dungeon/renderHelpers.tsx` porte maintenant les helpers de rendu legers (`useLoadedTexture`, `BillboardGroup`) utilises par la scene et les sprites, ce qui retire les usages actifs de `@react-three/drei` du graphe gameplay.
 
 ## Source de verite des maps
