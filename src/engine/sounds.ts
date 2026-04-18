@@ -56,14 +56,6 @@ type RawGameDb = {
     };
 };
 
-const gameDb = JSON.parse(getGameDbCreaturesRawSync()) as RawGameDb;
-const ORIGINAL_CREATURE_ATTACK_ORDINALS = new Map<number, number>(
-    (gameDb.originalAtari?.i559?.creatures ?? []).map((creature) => [
-        creature.index,
-        creature.attackSoundOrdinal ?? 0,
-    ]),
-);
-
 // Derived from the extracted Atari sound table:
 // - 1 => Attack (Pain Rat - Red Dragon)
 // - 2 => Attack (Mummy - Ghost)
@@ -244,16 +236,47 @@ const CREATURE_MOVE_SOUNDS: Record<number, string | null> = {
     26: null,                     // Grey Lord
 };
 
-const CREATURE_SOUNDS: Record<number, { move: string | null; attack: string }> = Object.fromEntries(
-    Object.entries(CREATURE_MOVE_SOUNDS).map(([id, move]) => {
-        const typeId = Number(id);
-        const attackOrdinal = ORIGINAL_CREATURE_ATTACK_ORDINALS.get(typeId) ?? 0;
-        return [typeId, {
-            move,
-            attack: ATTACK_SOUND_BY_ORDINAL[attackOrdinal] ?? 'attack_whoosh',
-        }];
-    }),
-);
+type CreatureSoundDef = {
+    move: string | null;
+    attack: string;
+};
+
+let creatureSoundsCache: Record<number, CreatureSoundDef> | null = null;
+
+function buildCreatureSounds(): Record<number, CreatureSoundDef> {
+    const gameDb = JSON.parse(getGameDbCreaturesRawSync()) as RawGameDb;
+    const attackOrdinals = new Map<number, number>(
+        (gameDb.originalAtari?.i559?.creatures ?? []).map((creature) => [
+            creature.index,
+            creature.attackSoundOrdinal ?? 0,
+        ]),
+    );
+
+    return Object.fromEntries(
+        Object.entries(CREATURE_MOVE_SOUNDS).map(([id, move]) => {
+            const typeId = Number(id);
+            const attackOrdinal = attackOrdinals.get(typeId) ?? 0;
+            return [typeId, {
+                move,
+                attack: ATTACK_SOUND_BY_ORDINAL[attackOrdinal] ?? 'attack_whoosh',
+            }];
+        }),
+    );
+}
+
+function getCreatureSound(typeId: number): CreatureSoundDef | null {
+    if (!creatureSoundsCache) {
+        try {
+            creatureSoundsCache = buildCreatureSounds();
+        } catch {
+            return {
+                move: CREATURE_MOVE_SOUNDS[typeId] ?? null,
+                attack: 'attack_whoosh',
+            };
+        }
+    }
+    return creatureSoundsCache[typeId] ?? null;
+}
 
 const ATTACK_SOUND_OVERRIDES: Partial<Record<number, string>> = {
     7: 'attack_rockpile', // Local asset is closer to the original rockpile impact.
@@ -268,12 +291,12 @@ const CHAMPION_WOUNDED_SOUNDS = [
 ] as const;
 
 export function playCreatureMove(typeId: number): void {
-    const s = CREATURE_SOUNDS[typeId];
+    const s = getCreatureSound(typeId);
     if (s?.move) play(s.move, 0.55);
 }
 
 export function playCreatureAttack(typeId: number): void {
-    const s = CREATURE_SOUNDS[typeId];
+    const s = getCreatureSound(typeId);
     if (!s) return;
     play(ATTACK_SOUND_OVERRIDES[typeId] ?? s.attack, 0.70);
 }

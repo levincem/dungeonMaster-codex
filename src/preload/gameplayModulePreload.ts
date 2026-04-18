@@ -17,13 +17,15 @@ export function preloadGameRootModule(): Promise<GameRootModule> {
 
 export function preloadGameplayRenderCoreModules(): Promise<void> {
     if (!gameplayRenderCorePromise) {
-        gameplayRenderCorePromise = Promise.all([
-            import('../components/Dungeon/DungeonScene'),
-            import('../components/UI/HUD'),
-            import('../components/Dungeon/PhotonsFireball'),
-        ]).then(() => {
-            gameplayRenderCoreReady = true;
-        });
+        gameplayRenderCorePromise = preloadGameDbData()
+            .then(() => Promise.all([
+                import('../components/Dungeon/DungeonScene'),
+                import('../components/UI/HUD'),
+                import('../components/Dungeon/PhotonsFireball'),
+            ]))
+            .then(() => {
+                gameplayRenderCoreReady = true;
+            });
     }
 
     return gameplayRenderCorePromise;

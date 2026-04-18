@@ -77,27 +77,111 @@ type RawGameDb = {
     };
 };
 
-const gameDb = JSON.parse(getGameDbItemsRawSync()) as RawGameDb;
-const originalI559 = gameDb.originalAtari?.i559;
+type RawItemTypeNames = NonNullable<RawGameDb['itemTypeNames']>;
 
-const I559_WEAPONS_BY_INDEX = new Map<number, RawI559Weapon>(
-    (originalI559?.weapons ?? []).map((entry) => [entry.index, entry]),
-);
+type ItemsDerivedData = {
+    i559WeaponsByIndex: Map<number, RawI559Weapon>;
+    i559ClothsByIndex: Map<number, RawI559Cloth>;
+    i559ObjectInfo: RawObjectInfo[];
+    i559MiscWeights: number[];
+    i559FoodValues: number[];
+    i562WoundDefenseFactorsRaw: number[];
+    itemTypeNames: RawItemTypeNames;
+    weaponAllowedSlotMaskByIndex: Map<number, number>;
+    weaponEntries: WeaponDef[];
+    armorEntries: ArmorDef[];
+    potionEntries: PotionDef[];
+    miscEntries: MiscDef[];
+    weaponTypes: Record<number, WeaponDef>;
+    armorTypes: Record<number, ArmorDef>;
+    potionTypes: Record<number, PotionDef>;
+    miscTypes: Record<number, MiscDef>;
+    armorNameLookup: Record<string, ArmorDef>;
+};
 
-const I559_CLOTHS_BY_INDEX = new Map<number, RawI559Cloth>(
-    (originalI559?.cloths ?? []).map((entry) => [entry.index, entry]),
-);
+const EMPTY_ITEM_TYPE_NAMES: RawItemTypeNames = {};
+const FALLBACK_WOUND_DEFENSE_FACTORS = [16, 32, 48, 64, 80, 96];
 
-const I559_OBJECT_INFO = originalI559?.objectInfo ?? [];
+let itemsDerivedDataCache: ItemsDerivedData | null = null;
+let itemsSourceDataHydrated = false;
 
-const I559_MISC_WEIGHTS = originalI559?.miscWeightsKg ?? [];
-const I559_FOOD_VALUES = originalI559?.foodValues ?? [];
-const I562_WOUND_DEFENSE_FACTORS_RAW = gameDb.originalAtari?.i562?.woundDefenseFactors ?? [];
-const WEAPON_ATTACK_REFERENCE = gameDb.originalAtari?.weaponAttackReference ?? gameDb.weaponAttackReference ?? [];
-const ITEM_TYPE_NAMES = gameDb.itemTypeNames ?? {};
-const WEAPON_ALLOWED_SLOT_MASK_BY_INDEX = new Map<number, number>(
-    WEAPON_ATTACK_REFERENCE.map((entry) => [entry.weaponIndex, entry.allowedSlotsMask]),
-);
+const weaponTypesTarget: Record<number, WeaponDef> = {};
+const armorTypesTarget: Record<number, ArmorDef> = {};
+const potionTypesTarget: Record<number, PotionDef> = {};
+const miscTypesTarget: Record<number, MiscDef> = {};
+const woundDefenseFactorsTarget: number[] = [...FALLBACK_WOUND_DEFENSE_FACTORS];
+
+function replaceNumberRecord<T>(target: Record<number, T>, source: Record<number, T>): void {
+    for (const key of Object.keys(target)) {
+        delete target[Number(key)];
+    }
+    Object.assign(target, source);
+}
+
+function replaceArray(target: number[], source: number[]): void {
+    target.splice(0, target.length, ...source);
+}
+
+function syncExportedItemTargets(derived: ItemsDerivedData): void {
+    replaceNumberRecord(weaponTypesTarget, derived.weaponTypes);
+    replaceNumberRecord(armorTypesTarget, derived.armorTypes);
+    replaceNumberRecord(potionTypesTarget, derived.potionTypes);
+    replaceNumberRecord(miscTypesTarget, derived.miscTypes);
+    replaceArray(
+        woundDefenseFactorsTarget,
+        Array.from({ length: 6 }, (_, index) => derived.i562WoundDefenseFactorsRaw[index] ?? FALLBACK_WOUND_DEFENSE_FACTORS[index] ?? 0),
+    );
+}
+
+function createHydratingRecordProxy<T extends Record<number, unknown>>(target: T): T {
+    return new Proxy(target, {
+        get(currentTarget, prop, receiver) {
+            getItemsDerivedData();
+            return Reflect.get(currentTarget, prop, receiver);
+        },
+        has(currentTarget, prop) {
+            getItemsDerivedData();
+            return Reflect.has(currentTarget, prop);
+        },
+        ownKeys(currentTarget) {
+            getItemsDerivedData();
+            return Reflect.ownKeys(currentTarget);
+        },
+        getOwnPropertyDescriptor(currentTarget, prop) {
+            getItemsDerivedData();
+            return Reflect.getOwnPropertyDescriptor(currentTarget, prop);
+        },
+    });
+}
+
+function createHydratingArrayProxy(target: number[]): number[] {
+    return new Proxy(target, {
+        get(currentTarget, prop, receiver) {
+            getItemsDerivedData();
+            return Reflect.get(currentTarget, prop, receiver);
+        },
+        has(currentTarget, prop) {
+            getItemsDerivedData();
+            return Reflect.has(currentTarget, prop);
+        },
+        ownKeys(currentTarget) {
+            getItemsDerivedData();
+            return Reflect.ownKeys(currentTarget);
+        },
+        getOwnPropertyDescriptor(currentTarget, prop) {
+            getItemsDerivedData();
+            return Reflect.getOwnPropertyDescriptor(currentTarget, prop);
+        },
+    });
+}
+
+function tryReadGameDbItems(): RawGameDb | null {
+    try {
+        return JSON.parse(getGameDbItemsRawSync()) as RawGameDb;
+    } catch {
+        return null;
+    }
+}
 
 const SOURCE_ITEM_OBJECT_INDEX_OFFSETS = {
     Scroll: 0,
@@ -561,16 +645,20 @@ function byId<T extends { id: number }>(entries: T[]): Record<number, T> {
     return Object.fromEntries(entries.map((entry) => [entry.id, entry]));
 }
 
-function getCanonicalName(category: 'Weapon' | 'Armor' | 'Potion' | 'Misc', typeId: number): string | undefined {
+function getCanonicalNameFromDerived(
+    derived: Pick<ItemsDerivedData, 'itemTypeNames'>,
+    category: 'Weapon' | 'Armor' | 'Potion' | 'Misc',
+    typeId: number,
+): string | undefined {
     switch (category) {
         case 'Weapon':
-            return getExtractedItemName(ITEM_TYPE_NAMES.weapons, typeId) ?? CANONICAL_WEAPON_NAMES[typeId];
+            return getExtractedItemName(derived.itemTypeNames.weapons, typeId) ?? CANONICAL_WEAPON_NAMES[typeId];
         case 'Armor':
-            return getExtractedItemName(ITEM_TYPE_NAMES.armor, typeId) ?? CANONICAL_ARMOR_NAMES[typeId];
+            return getExtractedItemName(derived.itemTypeNames.armor, typeId) ?? CANONICAL_ARMOR_NAMES[typeId];
         case 'Potion':
-            return CANONICAL_POTION_NAMES[typeId] ?? getExtractedItemName(ITEM_TYPE_NAMES.potions, typeId);
+            return CANONICAL_POTION_NAMES[typeId] ?? getExtractedItemName(derived.itemTypeNames.potions, typeId);
         case 'Misc':
-            return getExtractedItemName(ITEM_TYPE_NAMES.misc, typeId) ?? CANONICAL_MISC_NAMES[typeId];
+            return getExtractedItemName(derived.itemTypeNames.misc, typeId) ?? CANONICAL_MISC_NAMES[typeId];
         default: return undefined;
     }
 }
@@ -580,10 +668,20 @@ export function resolveItemName(
     typeId: number,
     rawName?: string,
 ): string {
+    const derived = getItemsDerivedData();
+    return resolveItemNameFromDerived(derived, category, typeId, rawName);
+}
+
+function resolveItemNameFromDerived(
+    derived: Pick<ItemsDerivedData, 'itemTypeNames'>,
+    category: 'Weapon' | 'Armor' | 'Potion' | 'Misc' | 'Scroll' | 'Container',
+    typeId: number,
+    rawName?: string,
+): string {
     if (category === 'Scroll') return rawName && !PLACEHOLDER_NAME_RE.test(rawName) ? rawName : 'Scroll';
     if (category === 'Container') {
         return (
-            getExtractedItemName(ITEM_TYPE_NAMES.containers, typeId)
+            getExtractedItemName(derived.itemTypeNames.containers, typeId)
             ?? (rawName && !PLACEHOLDER_NAME_RE.test(rawName) ? rawName : 'Chest')
         );
     }
@@ -591,7 +689,7 @@ export function resolveItemName(
         return rawName;
     }
 
-    const canonical = getCanonicalName(category, typeId);
+    const canonical = getCanonicalNameFromDerived(derived, category, typeId);
     if (canonical) return canonical;
     if (rawName && !PLACEHOLDER_NAME_RE.test(rawName)) return rawName;
     return `${category} #${typeId}`;
@@ -628,72 +726,122 @@ export function normalizeScrollText(rawText?: string): string | undefined {
     return SCROLL_TEXT_FIXUPS[rawText] ?? rawText;
 }
 
-function normalizeWeaponEntries(): WeaponDef[] {
-    return Object.values(OFFICIAL_WEAPON_TYPES)
+function buildItemsDerivedData(gameDb: RawGameDb): ItemsDerivedData {
+    const originalI559 = gameDb.originalAtari?.i559;
+    const weaponAttackReference = gameDb.originalAtari?.weaponAttackReference ?? gameDb.weaponAttackReference ?? [];
+    const itemTypeNames = gameDb.itemTypeNames ?? EMPTY_ITEM_TYPE_NAMES;
+    const i559WeaponsByIndex = new Map<number, RawI559Weapon>(
+        (originalI559?.weapons ?? []).map((entry) => [entry.index, entry]),
+    );
+    const i559ClothsByIndex = new Map<number, RawI559Cloth>(
+        (originalI559?.cloths ?? []).map((entry) => [entry.index, entry]),
+    );
+
+    const derivedBase = {
+        itemTypeNames,
+        i559WeaponsByIndex,
+        i559ClothsByIndex,
+        i559ObjectInfo: originalI559?.objectInfo ?? [],
+        i559MiscWeights: originalI559?.miscWeightsKg ?? [],
+        i559FoodValues: originalI559?.foodValues ?? [],
+        i562WoundDefenseFactorsRaw: gameDb.originalAtari?.i562?.woundDefenseFactors ?? [],
+        weaponAllowedSlotMaskByIndex: new Map<number, number>(
+            weaponAttackReference.map((entry) => [entry.weaponIndex, entry.allowedSlotsMask]),
+        ),
+    };
+
+    const resolveFromBase = (
+        category: 'Weapon' | 'Armor' | 'Potion' | 'Misc' | 'Scroll' | 'Container',
+        typeId: number,
+        rawName?: string,
+    ) => resolveItemNameFromDerived(derivedBase, category, typeId, rawName);
+
+    const weaponEntries = Object.values(OFFICIAL_WEAPON_TYPES)
         .sort((a, b) => a.id - b.id)
         .map((entry) => ({
             ...entry,
-            weight: I559_WEAPONS_BY_INDEX.get(entry.id)?.weightKg ?? entry.weight,
+            weight: i559WeaponsByIndex.get(entry.id)?.weightKg ?? entry.weight,
             damage: (() => {
-                const raw = I559_WEAPONS_BY_INDEX.get(entry.id);
+                const raw = i559WeaponsByIndex.get(entry.id);
                 return raw ? [raw.damage, raw.damage] as [number, number] : entry.damage;
             })(),
-            name: resolveItemName('Weapon', entry.id, entry.name),
+            name: resolveFromBase('Weapon', entry.id, entry.name),
         }));
-}
 
-function normalizeArmorEntries(): ArmorDef[] {
-    return Object.values(OFFICIAL_ARMOR_TYPES).map((entry) => ({
+    const armorEntries = Object.values(OFFICIAL_ARMOR_TYPES).map((entry) => ({
         ...entry,
-        weight: I559_CLOTHS_BY_INDEX.get(entry.id)?.weightKg ?? entry.weight,
-        armor: I559_CLOTHS_BY_INDEX.get(entry.id)?.protection ?? entry.armor,
-        sharpDefense: I559_CLOTHS_BY_INDEX.get(entry.id)?.sharpDefense ?? entry.sharpDefense ?? 0,
-        isShield: I559_CLOTHS_BY_INDEX.get(entry.id)?.isShield ?? entry.isShield ?? false,
-        name: resolveItemName('Armor', entry.id, entry.name),
+        weight: i559ClothsByIndex.get(entry.id)?.weightKg ?? entry.weight,
+        armor: i559ClothsByIndex.get(entry.id)?.protection ?? entry.armor,
+        sharpDefense: i559ClothsByIndex.get(entry.id)?.sharpDefense ?? entry.sharpDefense ?? 0,
+        isShield: i559ClothsByIndex.get(entry.id)?.isShield ?? entry.isShield ?? false,
+        name: resolveFromBase('Armor', entry.id, entry.name),
     }));
-}
 
-function normalizePotionEntries(): PotionDef[] {
-    return Object.values(OFFICIAL_POTION_TYPES).map((entry) => ({
+    const potionEntries = Object.values(OFFICIAL_POTION_TYPES).map((entry) => ({
         ...entry,
-        name: resolveItemName('Potion', entry.id, entry.name),
+        name: resolveFromBase('Potion', entry.id, entry.name),
     }));
-}
 
-function normalizeMiscEntries(): MiscDef[] {
-    return Object.values(OFFICIAL_MISC_TYPES).map((entry) => ({
+    const miscEntries = Object.values(OFFICIAL_MISC_TYPES).map((entry) => ({
         ...entry,
-        weight: I559_MISC_WEIGHTS[entry.id] ?? entry.weight,
+        weight: derivedBase.i559MiscWeights[entry.id] ?? entry.weight,
         nutrition: (() => {
             if (!entry.food) return entry.nutrition;
             switch (entry.id) {
-                case 29: return I559_FOOD_VALUES[0] ?? entry.nutrition;
-                case 30: return I559_FOOD_VALUES[1] ?? entry.nutrition;
-                case 31: return I559_FOOD_VALUES[2] ?? entry.nutrition;
-                case 32: return I559_FOOD_VALUES[3] ?? entry.nutrition;
-                case 33: return I559_FOOD_VALUES[4] ?? entry.nutrition;
-                case 34: return I559_FOOD_VALUES[5] ?? entry.nutrition;
-                case 35: return I559_FOOD_VALUES[6] ?? entry.nutrition;
-                case 36: return I559_FOOD_VALUES[7] ?? entry.nutrition;
+                case 29: return derivedBase.i559FoodValues[0] ?? entry.nutrition;
+                case 30: return derivedBase.i559FoodValues[1] ?? entry.nutrition;
+                case 31: return derivedBase.i559FoodValues[2] ?? entry.nutrition;
+                case 32: return derivedBase.i559FoodValues[3] ?? entry.nutrition;
+                case 33: return derivedBase.i559FoodValues[4] ?? entry.nutrition;
+                case 34: return derivedBase.i559FoodValues[5] ?? entry.nutrition;
+                case 35: return derivedBase.i559FoodValues[6] ?? entry.nutrition;
+                case 36: return derivedBase.i559FoodValues[7] ?? entry.nutrition;
                 default: return entry.nutrition;
             }
         })(),
-        name: resolveItemName('Misc', entry.id, entry.name),
+        name: resolveFromBase('Misc', entry.id, entry.name),
     }));
+
+    return {
+        ...derivedBase,
+        weaponEntries,
+        armorEntries,
+        potionEntries,
+        miscEntries,
+        weaponTypes: byId(weaponEntries),
+        armorTypes: byId(armorEntries),
+        potionTypes: byId(potionEntries),
+        miscTypes: byId(miscEntries),
+        armorNameLookup: Object.fromEntries(
+            armorEntries.map((entry) => [entry.name.trim().toLowerCase(), entry]),
+        ),
+    };
 }
 
-const weaponEntries = normalizeWeaponEntries();
-const armorEntries = normalizeArmorEntries();
-const potionEntries = normalizePotionEntries();
-const miscEntries = normalizeMiscEntries();
+function getItemsDerivedData(): ItemsDerivedData {
+    if (!itemsSourceDataHydrated) {
+        const loaded = tryReadGameDbItems();
+        if (loaded) {
+            itemsDerivedDataCache = buildItemsDerivedData(loaded);
+            itemsSourceDataHydrated = true;
+            syncExportedItemTargets(itemsDerivedDataCache);
+            return itemsDerivedDataCache;
+        }
+    }
 
-export const WEAPON_TYPES: Record<number, WeaponDef> = byId(weaponEntries);
-export const ARMOR_TYPES: Record<number, ArmorDef> = byId(armorEntries);
-export const POTION_TYPES: Record<number, PotionDef> = byId(potionEntries);
-export const MISC_TYPES: Record<number, MiscDef> = byId(miscEntries);
-export const I562_WOUND_DEFENSE_FACTORS = Array.from({ length: 6 }, (_, index) =>
-    I562_WOUND_DEFENSE_FACTORS_RAW[index] ?? 0,
-);
+    if (!itemsDerivedDataCache) {
+        itemsDerivedDataCache = buildItemsDerivedData({});
+        syncExportedItemTargets(itemsDerivedDataCache);
+    }
+
+    return itemsDerivedDataCache;
+}
+
+export const WEAPON_TYPES: Record<number, WeaponDef> = createHydratingRecordProxy(weaponTypesTarget);
+export const ARMOR_TYPES: Record<number, ArmorDef> = createHydratingRecordProxy(armorTypesTarget);
+export const POTION_TYPES: Record<number, PotionDef> = createHydratingRecordProxy(potionTypesTarget);
+export const MISC_TYPES: Record<number, MiscDef> = createHydratingRecordProxy(miscTypesTarget);
+export const I562_WOUND_DEFENSE_FACTORS = createHydratingArrayProxy(woundDefenseFactorsTarget);
 
 const POTION_NAME_TO_RUNTIME_TYPE_ID: Record<string, number> = {
     'ven potion': 3,
@@ -730,22 +878,23 @@ export function getItemTypeIdByName(
     category: 'Weapon' | 'Armor' | 'Potion' | 'Misc',
     rawName: string | undefined,
 ): number | undefined {
+    const derived = getItemsDerivedData();
     const normalizedName = normalizeLookupName(rawName);
     if (!normalizedName) return undefined;
 
     switch (category) {
         case 'Weapon':
-            return weaponEntries.find((entry) => normalizeLookupName(entry.name) === normalizedName)?.id;
+            return derived.weaponEntries.find((entry) => normalizeLookupName(entry.name) === normalizedName)?.id;
         case 'Armor':
-            return armorEntries.find((entry) => normalizeLookupName(entry.name) === normalizedName)?.id
+            return derived.armorEntries.find((entry) => normalizeLookupName(entry.name) === normalizedName)?.id
                 ?? STARTER_ARMOR_NAME_OVERRIDES[normalizedName]?.id;
         case 'Potion': {
             const runtimeTypeId = POTION_NAME_TO_RUNTIME_TYPE_ID[normalizedName];
             if (runtimeTypeId !== undefined) return runtimeTypeId;
-            return potionEntries.find((entry) => normalizeLookupName(entry.name) === normalizedName)?.id;
+            return derived.potionEntries.find((entry) => normalizeLookupName(entry.name) === normalizedName)?.id;
         }
         case 'Misc':
-            return miscEntries.find((entry) => normalizeLookupName(entry.name) === normalizedName)?.id;
+            return derived.miscEntries.find((entry) => normalizeLookupName(entry.name) === normalizedName)?.id;
         default:
             return undefined;
     }
@@ -758,7 +907,7 @@ export function getPotionDef(typeId: number, rawName?: string): PotionDef | unde
 }
 
 export function getWeaponAllowedSlotsMask(typeId: number): number | undefined {
-    return WEAPON_ALLOWED_SLOT_MASK_BY_INDEX.get(typeId);
+    return getItemsDerivedData().weaponAllowedSlotMaskByIndex.get(typeId);
 }
 
 export function getSourceItemAllowedSlotsMask(
@@ -766,7 +915,7 @@ export function getSourceItemAllowedSlotsMask(
     typeId: number,
 ): number | undefined {
     const offset = SOURCE_ITEM_OBJECT_INDEX_OFFSETS[category];
-    return I559_OBJECT_INFO[offset + typeId]?.allowedSlotsMask;
+    return getItemsDerivedData().i559ObjectInfo[offset + typeId]?.allowedSlotsMask;
 }
 
 export function getSourceItemAttackClass(
@@ -774,17 +923,14 @@ export function getSourceItemAttackClass(
     typeId: number,
 ): number | undefined {
     const offset = SOURCE_ITEM_OBJECT_INDEX_OFFSETS[category];
-    return I559_OBJECT_INFO[offset + typeId]?.attackClass;
+    return getItemsDerivedData().i559ObjectInfo[offset + typeId]?.attackClass;
 }
 
-const ARMOR_NAME_LOOKUP: Record<string, ArmorDef> = Object.fromEntries(
-    armorEntries.map((entry) => [entry.name.trim().toLowerCase(), entry]),
-);
-
 export function getArmorDef(typeId: number, rawName?: string): ArmorDef | undefined {
+    const derived = getItemsDerivedData();
     const normalizedName = normalizeLookupName(rawName);
     if (normalizedName) {
-        const exact = ARMOR_NAME_LOOKUP[normalizedName];
+        const exact = derived.armorNameLookup[normalizedName];
         if (exact) return exact;
         const starter = STARTER_ARMOR_NAME_OVERRIDES[normalizedName];
         if (starter) return starter;

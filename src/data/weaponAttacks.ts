@@ -4,8 +4,6 @@ import type { CastSkill } from './runes';
 import { getGameDbWeaponAttacksRawSync } from './gameDbData';
 import { getParentBasicSkill, mapOriginalSkillNumberToSkillKey } from './skillProgression';
 
-const gameDb = JSON.parse(getGameDbWeaponAttacksRawSync()) as unknown;
-
 type RawAttack = {
     index: number;
     enumName: string;
@@ -75,27 +73,15 @@ export type WeaponProjectileDescriptor = {
     throwGraphic: number;
 };
 
-const originalAtari = (gameDb as unknown as {
-    originalAtari?: {
-        i560?: {
-            attacks?: RawAttack[];
-            legalAttackClasses?: RawLegalAttackClass[];
-        };
-        weaponAttackReference?: RawWeaponAttackReference[];
-    };
-}).originalAtari;
+type WeaponAttackDerivedData = {
+    attacksByIndex: Map<number, RawAttack>;
+    legalAttacksByIndex: Map<number, RawLegalAttackClass>;
+    displayNameToEntry: Map<string, RawWeaponAttackReference>;
+    symbolNameToEntry: Map<string, RawWeaponAttackReference>;
+};
 
-const ATTACKS_BY_INDEX = new Map<number, RawAttack>(
-    (originalAtari?.i560?.attacks ?? []).map((attack) => [attack.index, attack]),
-);
-
-const REFERENCE_ENTRIES = originalAtari?.weaponAttackReference ?? [];
-const LEGAL_ATTACKS_BY_INDEX = new Map<number, RawLegalAttackClass>(
-    (originalAtari?.i560?.legalAttackClasses ?? []).map((attackClass) => [attackClass.index, attackClass]),
-);
-
-const DISPLAY_NAME_TO_ENTRY = new Map<string, RawWeaponAttackReference>();
-const SYMBOL_NAME_TO_ENTRY = new Map<string, RawWeaponAttackReference>();
+let weaponAttackDerivedDataCache: WeaponAttackDerivedData | null = null;
+let weaponAttackSourceDataHydrated = false;
 
 function normalizeName(value: string | undefined): string {
     return String(value ?? '')
@@ -105,22 +91,74 @@ function normalizeName(value: string | undefined): string {
         .replace(/[^a-z0-9]+/g, '');
 }
 
-function registerReferenceEntry(entry: RawWeaponAttackReference): void {
+function registerReferenceEntry(
+    entry: RawWeaponAttackReference,
+    displayNameToEntry: Map<string, RawWeaponAttackReference>,
+    symbolNameToEntry: Map<string, RawWeaponAttackReference>,
+): void {
     const displayKey = normalizeName(entry.displayName);
-    if (!DISPLAY_NAME_TO_ENTRY.has(displayKey) || entry.weaponIndex < (DISPLAY_NAME_TO_ENTRY.get(displayKey)?.weaponIndex ?? Number.MAX_SAFE_INTEGER)) {
-        DISPLAY_NAME_TO_ENTRY.set(displayKey, entry);
+    if (!displayNameToEntry.has(displayKey) || entry.weaponIndex < (displayNameToEntry.get(displayKey)?.weaponIndex ?? Number.MAX_SAFE_INTEGER)) {
+        displayNameToEntry.set(displayKey, entry);
     }
 
     const symbolKey = normalizeName(entry.symbol);
-    if (symbolKey) SYMBOL_NAME_TO_ENTRY.set(symbolKey, entry);
+    if (symbolKey) symbolNameToEntry.set(symbolKey, entry);
 }
 
-for (const entry of REFERENCE_ENTRIES) {
-    registerReferenceEntry(entry);
+function buildWeaponAttackDerivedData(rawGameDb: unknown): WeaponAttackDerivedData {
+    const originalAtari = (rawGameDb as {
+        originalAtari?: {
+            i560?: {
+                attacks?: RawAttack[];
+                legalAttackClasses?: RawLegalAttackClass[];
+            };
+            weaponAttackReference?: RawWeaponAttackReference[];
+        };
+    }).originalAtari;
+
+    const displayNameToEntry = new Map<string, RawWeaponAttackReference>();
+    const symbolNameToEntry = new Map<string, RawWeaponAttackReference>();
+    const referenceEntries = originalAtari?.weaponAttackReference ?? [];
+
+    for (const entry of referenceEntries) {
+        registerReferenceEntry(entry, displayNameToEntry, symbolNameToEntry);
+    }
+
+    return {
+        attacksByIndex: new Map<number, RawAttack>(
+            (originalAtari?.i560?.attacks ?? []).map((attack) => [attack.index, attack]),
+        ),
+        legalAttacksByIndex: new Map<number, RawLegalAttackClass>(
+            (originalAtari?.i560?.legalAttackClasses ?? []).map((attackClass) => [attackClass.index, attackClass]),
+        ),
+        displayNameToEntry,
+        symbolNameToEntry,
+    };
+}
+
+function getWeaponAttackDerivedData(): WeaponAttackDerivedData {
+    if (!weaponAttackSourceDataHydrated) {
+        try {
+            weaponAttackDerivedDataCache = buildWeaponAttackDerivedData(
+                JSON.parse(getGameDbWeaponAttacksRawSync()) as unknown,
+            );
+            weaponAttackSourceDataHydrated = true;
+            return weaponAttackDerivedDataCache;
+        } catch {
+            // Fall through to the fallback cache until preload completes.
+        }
+    }
+
+    if (!weaponAttackDerivedDataCache) {
+        weaponAttackDerivedDataCache = buildWeaponAttackDerivedData({});
+    }
+
+    return weaponAttackDerivedDataCache;
 }
 
 function getReferenceEntry(item: FloorItem | undefined): RawWeaponAttackReference | null {
     if (!item || item.category !== 'Weapon') return null;
+    const derived = getWeaponAttackDerivedData();
 
     const weaponName = WEAPON_TYPES[item.typeId]?.name;
     const rawName = item.rawName;
@@ -138,10 +176,10 @@ function getReferenceEntry(item: FloorItem | undefined): RawWeaponAttackReferenc
 
     for (const candidate of candidates) {
         const normalized = normalizeName(candidate);
-        const byDisplay = DISPLAY_NAME_TO_ENTRY.get(normalized);
+        const byDisplay = derived.displayNameToEntry.get(normalized);
         if (byDisplay) return byDisplay;
 
-        const bySymbol = SYMBOL_NAME_TO_ENTRY.get(normalized);
+        const bySymbol = derived.symbolNameToEntry.get(normalized);
         if (bySymbol) return bySymbol;
     }
 
@@ -166,6 +204,7 @@ export function getOriginalWeaponReference(item: FloorItem | undefined): WeaponP
 
 function getItemAttackClassEntry(item: FloorItem | undefined): RawLegalAttackClass | null {
     if (!item) return null;
+    const derived = getWeaponAttackDerivedData();
     if (item.category === 'Weapon') {
         const entry = getReferenceEntry(item);
         return entry?.legalAttacks ? {
@@ -177,17 +216,18 @@ function getItemAttackClassEntry(item: FloorItem | undefined): RawLegalAttackCla
 
     const attackClass = getSourceItemAttackClass(item.category, item.typeId);
     if (!attackClass || attackClass <= 0) return null;
-    return LEGAL_ATTACKS_BY_INDEX.get(attackClass) ?? null;
+    return derived.legalAttacksByIndex.get(attackClass) ?? null;
 }
 
 export function getWeaponAttackOptions(item: FloorItem | undefined): WeaponAttackOption[] {
+    const derived = getWeaponAttackDerivedData();
     const entry = getItemAttackClassEntry(item);
     if (!entry?.primaryAttack) return [];
 
     const options: WeaponAttackOption[] = [];
     const pushOption = (raw: RawLegalAttack | undefined, source: 'primary' | 'optional') => {
         if (!raw) return;
-        const attack = ATTACKS_BY_INDEX.get(raw.attackType);
+        const attack = derived.attacksByIndex.get(raw.attackType);
         if (!attack) return;
         options.push({
             attackType: raw.attackType,
