@@ -1,5 +1,4 @@
 import React, { useMemo, useRef, useEffect, Suspense, useState } from 'react';
-import { Box, Plane, useTexture } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { PhotonsRaDoorCurtain } from './PhotonsFireball';
@@ -10,6 +9,7 @@ import type { Champion } from '../../data/champions';
 import type { CardinalDir } from '../../types/game';
 import { getDoorTexturePath } from '../../data/doors';
 import { miscPath, texturesPath } from '../../data/assetPaths';
+import { useLoadedTexture } from './renderHelpers';
 
 // ─── Tile render type ─────────────────────────────────────────────────────────
 
@@ -196,9 +196,10 @@ const PortraitFrame: React.FC<{ wallFace: CardinalDir }> = ({ wallFace }) => {
     ];
     const framePos: [number,number,number] = [pos[0] + fwdVec[0], pos[1] + fwdVec[1], pos[2] + fwdVec[2]];
     return (
-        <Plane args={[FRAME_W, FRAME_H]} position={framePos} rotation={rot}>
+        <mesh position={framePos} rotation={rot}>
+            <planeGeometry args={[FRAME_W, FRAME_H]} />
             <meshBasicMaterial map={FRAME_TEX} transparent alphaTest={0.01} side={THREE.DoubleSide} />
-        </Plane>
+        </mesh>
     );
 };
 
@@ -213,14 +214,15 @@ const FrameEmpty: React.FC<{ wallFace: CardinalDir }> = ({ wallFace }) => {
     ];
     const innerPos: [number,number,number] = [pos[0] + fwdVec[0], pos[1] + fwdVec[1], pos[2] + fwdVec[2]];
     return (
-        <Plane args={[PORTRAIT_W, PORTRAIT_H]} position={innerPos} rotation={rot}>
+        <mesh position={innerPos} rotation={rot}>
+            <planeGeometry args={[PORTRAIT_W, PORTRAIT_H]} />
             <meshBasicMaterial color="#e8e4dc" side={THREE.DoubleSide} />
-        </Plane>
+        </mesh>
     );
 };
 
 const MirrorPortrait: React.FC<{ champion: Champion; wallFace: CardinalDir }> = ({ champion, wallFace }) => {
-    const baseTex = useTexture(champion.portrait);
+    const baseTex = useLoadedTexture(champion.portrait);
     const tex = useMemo(
         () => cloneTexture(baseTex, next => { next.colorSpace = THREE.SRGBColorSpace; }),
         [baseTex],
@@ -237,9 +239,10 @@ const MirrorPortrait: React.FC<{ champion: Champion; wallFace: CardinalDir }> = 
     const imgPos: [number,number,number] = [pos[0] + fwdVec[0], pos[1] + fwdVec[1], pos[2] + fwdVec[2]];
 
     return (
-        <Plane args={[PORTRAIT_W, PORTRAIT_H]} position={imgPos} rotation={rot}>
+        <mesh position={imgPos} rotation={rot}>
+            <planeGeometry args={[PORTRAIT_W, PORTRAIT_H]} />
             <meshBasicMaterial map={tex} transparent alphaTest={0.05} side={THREE.DoubleSide} />
-        </Plane>
+        </mesh>
     );
 };
 
@@ -254,9 +257,10 @@ const ProceduralPortrait: React.FC<{ champion: Champion; wallFace: CardinalDir }
     const imgPos: [number,number,number] = [pos[0] + fwdVec[0], pos[1] + fwdVec[1], pos[2] + fwdVec[2]];
     const color = new THREE.Color(CLASS_COLORS[champion.class] ?? '#555');
     return (
-        <Plane args={[PORTRAIT_W, PORTRAIT_H]} position={imgPos} rotation={rot}>
+        <mesh position={imgPos} rotation={rot}>
+            <planeGeometry args={[PORTRAIT_W, PORTRAIT_H]} />
             <meshBasicMaterial color={color} side={THREE.DoubleSide} />
-        </Plane>
+        </mesh>
     );
 };
 
@@ -359,8 +363,8 @@ const DoorMeshInner: React.FC<{
     doorType?: number;
     onButtonClick?: (e: ThreeEvent<MouseEvent>) => void;
 }> = ({ open, broken, crushPhase, hasButton, showButton, buttonSideSign = 1, buttonFaceSign = 1, doorType, onButtonClick }) => {
-    const baseDoorTex = useTexture(getDoorTexturePath(doorType));
-    const baseWallTex = useTexture(`${texturesPath('wall.png')}?v=2`);
+    const baseDoorTex = useLoadedTexture(getDoorTexturePath(doorType));
+    const baseWallTex = useLoadedTexture(`${texturesPath('wall.png')}?v=2`);
     const doorLift = useMemo(() => getDoorLift(doorType), [doorType]);
     const effectiveOpen = open || broken;
     const buttonTexturePath = effectiveOpen
@@ -462,14 +466,15 @@ const DoorMeshInner: React.FC<{
         <>
             {/* ── Animated door panel ── */}
             {broken ? (
-                <Plane args={[doorW, BROKEN_DOOR_HEIGHT]} position={[doorOff, BROKEN_DOOR_Y, 0]}>
+                <mesh position={[doorOff, BROKEN_DOOR_Y, 0]}>
+                    <planeGeometry args={[doorW, BROKEN_DOOR_HEIGHT]} />
                     <meshBasicMaterial
                         map={brokenDoorTex ?? tex}
                         transparent
                         alphaTest={0.05}
                         side={THREE.DoubleSide}
                     />
-                </Plane>
+                </mesh>
             ) : (
                 <group ref={groupRef}>
                     {doorType === 3 && (
@@ -477,25 +482,25 @@ const DoorMeshInner: React.FC<{
                             <PhotonsRaDoorCurtain scaleX={doorW * 0.96} scaleY={WALL_HEIGHT * 0.58} />
                         </group>
                     )}
-                    <Plane args={[doorW, WALL_HEIGHT]} position={[doorOff, 0, 0]}>
+                    <mesh position={[doorOff, 0, 0]}>
+                        <planeGeometry args={[doorW, WALL_HEIGHT]} />
                         <meshBasicMaterial ref={matRef1} map={tex} transparent alphaTest={0.05} side={THREE.DoubleSide} />
-                    </Plane>
+                    </mesh>
                 </group>
             )}
 
             {/* ── Static button strip on the door jamb ── */}
             {renderButtonStrip && (
                 <>
-                    <Plane args={[buttonStripWidth, WALL_HEIGHT]} position={[BTN_CX * buttonSideSign, 0, 0]}>
+                    <mesh position={[BTN_CX * buttonSideSign, 0, 0]}>
+                        <planeGeometry args={[buttonStripWidth, WALL_HEIGHT]} />
                         <meshBasicMaterial map={wallTex} side={THREE.DoubleSide} />
-                    </Plane>
+                    </mesh>
                     {renderButtons && (
                         buttonTex && (
                             <group position={[BTN_CX * buttonSideSign, -WALL_HEIGHT * 0.05, BTN_OVERLAY_Z * buttonFaceSign]}>
-                                <Plane
-                                    args={[buttonSize, buttonSize]}
-                                    onClick={handleBtnClick}
-                                >
+                                <mesh onClick={handleBtnClick}>
+                                    <planeGeometry args={[buttonSize, buttonSize]} />
                                     <meshBasicMaterial
                                         map={buttonTex}
                                         side={THREE.DoubleSide}
@@ -507,7 +512,7 @@ const DoorMeshInner: React.FC<{
                                         polygonOffsetFactor={-4}
                                         polygonOffsetUnits={-4}
                                     />
-                                </Plane>
+                                </mesh>
                             </group>
                         )
                     )}
@@ -632,22 +637,27 @@ export const PressurePlate: React.FC<{ tileX: number; tileY: number; level: numb
     return (
         <group ref={groupRef} position={[0, FLOOR_Y + PLATE_H, 0]}>
             {/* Top face */}
-            <Plane args={[PLATE_W, PLATE_D]} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
+                <planeGeometry args={[PLATE_W, PLATE_D]} />
                 <meshBasicMaterial map={PLATE_TOP_TEX} />
-            </Plane>
+            </mesh>
             {/* Side faces — N/S/E/W thin strips for depth illusion */}
-            <Plane args={[PLATE_W, PLATE_H * 2]} position={[0, -PLATE_H, -PLATE_D / 2]} rotation={[0, 0, 0]}>
+            <mesh position={[0, -PLATE_H, -PLATE_D / 2]} rotation={[0, 0, 0]}>
+                <planeGeometry args={[PLATE_W, PLATE_H * 2]} />
                 <meshBasicMaterial color={sideColor} />
-            </Plane>
-            <Plane args={[PLATE_W, PLATE_H * 2]} position={[0, -PLATE_H,  PLATE_D / 2]} rotation={[0, Math.PI, 0]}>
+            </mesh>
+            <mesh position={[0, -PLATE_H,  PLATE_D / 2]} rotation={[0, Math.PI, 0]}>
+                <planeGeometry args={[PLATE_W, PLATE_H * 2]} />
                 <meshBasicMaterial color={sideColor} />
-            </Plane>
-            <Plane args={[PLATE_D, PLATE_H * 2]} position={[-PLATE_W / 2, -PLATE_H, 0]} rotation={[0,  Math.PI / 2, 0]}>
+            </mesh>
+            <mesh position={[-PLATE_W / 2, -PLATE_H, 0]} rotation={[0,  Math.PI / 2, 0]}>
+                <planeGeometry args={[PLATE_D, PLATE_H * 2]} />
                 <meshBasicMaterial color={sideColor} />
-            </Plane>
-            <Plane args={[PLATE_D, PLATE_H * 2]} position={[ PLATE_W / 2, -PLATE_H, 0]} rotation={[0, -Math.PI / 2, 0]}>
+            </mesh>
+            <mesh position={[ PLATE_W / 2, -PLATE_H, 0]} rotation={[0, -Math.PI / 2, 0]}>
+                <planeGeometry args={[PLATE_D, PLATE_H * 2]} />
                 <meshBasicMaterial color={sideColor} />
-            </Plane>
+            </mesh>
         </group>
     );
 };
@@ -673,7 +683,7 @@ interface CellProps {
 }
 
 export const Cell: React.FC<CellProps> = ({ type, position, wallFace, champion, frameChampion, doorOpen, doorBroken, doorCrushPhase, doorOrientation, doorHasButton, doorButtonVisible, doorButtonSideSign, doorButtonFaceSign, doorType, onClick }) => {
-    const baseWallTex = useTexture(`${texturesPath('wall.png')}?v=2`);
+    const baseWallTex = useLoadedTexture(`${texturesPath('wall.png')}?v=2`);
     const wallTex = useMemo(
         () => cloneTexture(baseWallTex, next => {
             next.wrapS = THREE.RepeatWrapping;
@@ -690,7 +700,10 @@ export const Cell: React.FC<CellProps> = ({ type, position, wallFace, champion, 
         const face = wallFace ?? 'South';
         return (
             <group position={position} onClick={onClick}>
-                <Box args={[GRID_SIZE, WALL_HEIGHT, GRID_SIZE]}><meshBasicMaterial map={wallTex} /></Box>
+                <mesh>
+                    <boxGeometry args={[GRID_SIZE, WALL_HEIGHT, GRID_SIZE]} />
+                    <meshBasicMaterial map={wallTex} />
+                </mesh>
                 {frameChampion && <PortraitFrame wallFace={face} />}
                 {frameChampion && <FrameEmpty wallFace={face} />}
                 {champion && wallFace && (

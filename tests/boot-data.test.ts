@@ -1,8 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { getDungeonDataSync } from '../src/data/dungeonData.js';
-import { getGameDbRawSync } from '../src/data/gameDbData.js';
-import { getOriginalWallOverlayDataSync } from '../src/data/originalWallOverlayData.js';
+import {
+    getGameDbCreaturesRawSync,
+    getGameDbItemsRawSync,
+    getGameDbWeaponAttacksRawSync,
+} from '../src/data/gameDbData.js';
+import { getOriginalWallOverlayMapDataSync } from '../src/data/originalWallOverlayData.js';
 
 test('dungeon data access fails before preload completes', () => {
     assert.throws(
@@ -11,16 +15,24 @@ test('dungeon data access fails before preload completes', () => {
     );
 });
 
-test('game_db access fails before preload completes', () => {
+test('game_db slice access fails before preload completes', () => {
     assert.throws(
-        () => getGameDbRawSync(),
-        /game_db data accessed before preload completed\./,
+        () => getGameDbItemsRawSync(),
+        /game_db items data accessed before preload completed\./,
+    );
+    assert.throws(
+        () => getGameDbWeaponAttacksRawSync(),
+        /game_db weapon attacks data accessed before preload completed\./,
+    );
+    assert.throws(
+        () => getGameDbCreaturesRawSync(),
+        /game_db creatures data accessed before preload completed\./,
     );
 });
 
 test('wall overlay access fails before preload completes', () => {
     assert.throws(
-        () => getOriginalWallOverlayDataSync<unknown>(),
-        /Original wall overlay data accessed before preload completed\./,
+        () => getOriginalWallOverlayMapDataSync<unknown>(0),
+        /Original wall overlay data for map 0 accessed before preload completed\./,
     );
 });

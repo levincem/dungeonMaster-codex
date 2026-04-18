@@ -1,6 +1,7 @@
 // --- DM1 Rune system ----------------------------------------------------------
 // 4 panel rows x 6 runes = 24 runes total.
-// Source of truth: canonical runtime data derived from `src/assets/data/game_db.json`
+// Source of truth: canonical runtime data derived from
+// `src/assets/runtime/db/game_db.json`
 //
 // Important:
 // - the rune ordinals must match the original Atari spell IDs

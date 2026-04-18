@@ -1,0 +1,2609 @@
+{
+  "index": 13,
+  "name": "Lord Chaos's Lair",
+  "level": 13,
+  "width": 26,
+  "height": 13,
+  "difficulty": 6,
+  "mapOffset": {
+    "x": 25,
+    "y": 32
+  },
+  "tiles": [
+    {
+      "x": 0,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 9,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 9,
+      "type": "TrickWall",
+      "open": false,
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 8,
+      "type": "Stairs",
+      "orientation": "NorthSouth",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 10,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 9,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 116,
+          "tilePos": "West",
+          "type": 4,
+          "sound": true,
+          "data": 185,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": true,
+          "targetY": 9,
+          "targetX": 2,
+          "targetDir": "East",
+          "requiredObjectName": "Winged Key"
+        }
+      ]
+    },
+    {
+      "x": 4,
+      "y": 10,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 9,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 9,
+      "type": "Stairs",
+      "orientation": "WestEast",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 10,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 9,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 10,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 11,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 10,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 137,
+          "tilePos": "West",
+          "type": 6,
+          "name": "Copper Coin"
+        }
+      ]
+    },
+    {
+      "x": 9,
+      "y": 11,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 7,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 130,
+          "tilePos": "South",
+          "type": 7,
+          "name": "Silver Coin"
+        }
+      ]
+    },
+    {
+      "x": 10,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 10,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 11,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 205,
+          "tilePos": "North",
+          "type": 7,
+          "name": "Silver Coin"
+        }
+      ]
+    },
+    {
+      "x": 10,
+      "y": 12,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 10,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 11,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 12,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 1,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 644,
+          "tilePos": "East",
+          "type": 0,
+          "sound": false,
+          "data": 0,
+          "isLocal": true,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "multipleValue": 0,
+          "targetY": 0,
+          "targetX": 0,
+          "targetDir": "North"
+        }
+      ]
+    },
+    {
+      "x": 12,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 6,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 206,
+          "tilePos": "North",
+          "type": 6,
+          "name": "Copper Coin"
+        }
+      ]
+    },
+    {
+      "x": 12,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 9,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 10,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 63,
+          "tilePos": "North",
+          "type": 25,
+          "name": "Boulder"
+        }
+      ]
+    },
+    {
+      "x": 12,
+      "y": 11,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 12,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 186,
+          "tilePos": "South",
+          "type": 6,
+          "name": "Copper Coin"
+        }
+      ]
+    },
+    {
+      "x": 13,
+      "y": 0,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 1,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 2,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 9,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 85,
+          "tilePos": "North",
+          "type": 7,
+          "name": "Silver Coin"
+        },
+        {
+          "category": "Misc",
+          "index": 86,
+          "tilePos": "North",
+          "type": 25,
+          "name": "Boulder"
+        }
+      ]
+    },
+    {
+      "x": 13,
+      "y": 10,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 11,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 0,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 2,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 8,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 88,
+          "tilePos": "South",
+          "type": 4,
+          "name": "Ashes"
+        }
+      ]
+    },
+    {
+      "x": 14,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 10,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 11,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 0,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 2,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 7,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 87,
+          "tilePos": "East",
+          "type": 25,
+          "name": "Boulder"
+        }
+      ]
+    },
+    {
+      "x": 15,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 10,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 187,
+          "tilePos": "North",
+          "type": 6,
+          "name": "Copper Coin"
+        }
+      ]
+    },
+    {
+      "x": 15,
+      "y": 11,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 0,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 2,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 9,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 89,
+          "tilePos": "East",
+          "type": 4,
+          "name": "Ashes"
+        }
+      ]
+    },
+    {
+      "x": 16,
+      "y": 10,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 11,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 0,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 1,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 2,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 6,
+      "type": "TrickWall",
+      "open": false,
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 10,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 177,
+          "tilePos": "West",
+          "type": 4,
+          "name": "Ashes"
+        }
+      ]
+    },
+    {
+      "x": 17,
+      "y": 11,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 0,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 2,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 5,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 179,
+          "tilePos": "West",
+          "type": 1,
+          "sound": true,
+          "data": 0,
+          "isLocal": true,
+          "delay": 1,
+          "revert": false,
+          "action": "Toggle",
+          "onceOnly": false,
+          "multipleValue": 1,
+          "targetY": 0,
+          "targetX": 0,
+          "targetDir": "East"
+        },
+        {
+          "category": "Sensor",
+          "index": 272,
+          "tilePos": "West",
+          "type": 1,
+          "sound": true,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Toggle",
+          "onceOnly": false,
+          "targetY": 6,
+          "targetX": 17,
+          "targetDir": "East"
+        }
+      ]
+    },
+    {
+      "x": 18,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 8,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 94,
+          "tilePos": "North",
+          "type": 12,
+          "name": "Square Key"
+        },
+        {
+          "category": "Misc",
+          "index": 90,
+          "tilePos": "North",
+          "type": 4,
+          "name": "Ashes"
+        }
+      ]
+    },
+    {
+      "x": 18,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 10,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 11,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 91,
+          "tilePos": "East",
+          "type": 25,
+          "name": "Boulder"
+        }
+      ]
+    },
+    {
+      "x": 18,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 0,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 2,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 7,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 92,
+          "tilePos": "West",
+          "type": 25,
+          "name": "Boulder"
+        }
+      ]
+    },
+    {
+      "x": 19,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 10,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 93,
+          "tilePos": "North",
+          "type": 4,
+          "name": "Ashes"
+        }
+      ]
+    },
+    {
+      "x": 19,
+      "y": 11,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 96,
+          "tilePos": "East",
+          "type": 4,
+          "name": "Ashes"
+        }
+      ]
+    },
+    {
+      "x": 19,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 0,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 2,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 8,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 95,
+          "tilePos": "East",
+          "type": 4,
+          "name": "Ashes"
+        }
+      ]
+    },
+    {
+      "x": 20,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 10,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 11,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 0,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 1,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 2,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 3,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 5,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 645,
+          "tilePos": "North",
+          "type": 2,
+          "sound": false,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 5,
+          "targetX": 22,
+          "targetDir": "North",
+          "requiredObjectName": "COMPASS"
+        }
+      ]
+    },
+    {
+      "x": 21,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 10,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 11,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 22,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 22,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 22,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 22,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 22,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 22,
+      "y": 5,
+      "type": "Door",
+      "orientation": "WestEast",
+      "objects": [
+        {
+          "category": "Door",
+          "index": 167,
+          "tilePos": "North",
+          "destructChop": false,
+          "destructFire": false,
+          "hasButton": false,
+          "doorType": 0
+        }
+      ]
+    },
+    {
+      "x": 22,
+      "y": 6,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 533,
+          "tilePos": "East",
+          "type": 4,
+          "sound": true,
+          "data": 127,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 5,
+          "targetX": 22,
+          "targetDir": "North",
+          "requiredObjectName": "Gold Coin"
+        },
+        {
+          "category": "Sensor",
+          "index": 531,
+          "tilePos": "East",
+          "type": 4,
+          "sound": true,
+          "data": 126,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 5,
+          "targetX": 22,
+          "targetDir": "North",
+          "requiredObjectName": "Silver Coin"
+        },
+        {
+          "category": "Sensor",
+          "index": 414,
+          "tilePos": "East",
+          "type": 4,
+          "sound": true,
+          "data": 125,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 5,
+          "targetX": 22,
+          "targetDir": "North",
+          "requiredObjectName": "Copper Coin"
+        }
+      ]
+    },
+    {
+      "x": 22,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 22,
+      "y": 8,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 98,
+          "tilePos": "East",
+          "type": 6,
+          "name": "Copper Coin"
+        },
+        {
+          "category": "Misc",
+          "index": 99,
+          "tilePos": "North",
+          "type": 6,
+          "name": "Copper Coin"
+        },
+        {
+          "category": "Misc",
+          "index": 100,
+          "tilePos": "East",
+          "type": 6,
+          "name": "Copper Coin"
+        },
+        {
+          "category": "Misc",
+          "index": 182,
+          "tilePos": "South",
+          "type": 8,
+          "name": "Gold Coin"
+        },
+        {
+          "category": "Armor",
+          "index": 99,
+          "tilePos": "South",
+          "type": 23,
+          "name": "Calista"
+        }
+      ]
+    },
+    {
+      "x": 22,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 22,
+      "y": 10,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 102,
+          "tilePos": "West",
+          "type": 26,
+          "name": "Blue Gem"
+        },
+        {
+          "category": "Misc",
+          "index": 103,
+          "tilePos": "South",
+          "type": 28,
+          "name": "Green Gem"
+        },
+        {
+          "category": "Misc",
+          "index": 183,
+          "tilePos": "East",
+          "type": 28,
+          "name": "Green Gem"
+        },
+        {
+          "category": "Weapon",
+          "index": 0,
+          "tilePos": "South",
+          "type": 0,
+          "name": "Eye Of Time"
+        }
+      ]
+    },
+    {
+      "x": 22,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 22,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 23,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 23,
+      "y": 1,
+      "type": "Teleporter",
+      "open": false,
+      "visible": false,
+      "objects": [
+        {
+          "category": "Teleporter",
+          "index": 80,
+          "tilePos": "North",
+          "sound": false,
+          "destX": 5,
+          "destY": 9,
+          "destMap": 12
+        },
+        {
+          "category": "Misc",
+          "index": 176,
+          "tilePos": "North",
+          "type": 6,
+          "name": "Copper Coin"
+        }
+      ]
+    },
+    {
+      "x": 23,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 23,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 23,
+      "y": 4,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 534,
+          "tilePos": "East",
+          "type": 0,
+          "sound": false,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 4,
+          "targetX": 23,
+          "targetDir": "East"
+        },
+        {
+          "category": "Scroll",
+          "index": 31,
+          "tilePos": "East",
+          "text": "Only the touch of the proper spell will free the gem and only the Firestaff can possess it."
+        }
+      ]
+    },
+    {
+      "x": 23,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 23,
+      "y": 6,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 276,
+          "tilePos": "West",
+          "type": 7,
+          "name": "Silver Coin"
+        }
+      ]
+    },
+    {
+      "x": 23,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 23,
+      "y": 8,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 287,
+          "tilePos": "South",
+          "type": 4,
+          "sound": true,
+          "data": 179,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": true,
+          "targetY": 8,
+          "targetX": 24,
+          "targetDir": "North",
+          "requiredObjectName": "Square Key"
+        }
+      ]
+    },
+    {
+      "x": 23,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 23,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 23,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 23,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 24,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 24,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 24,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 24,
+      "y": 3,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 147,
+          "tilePos": "South",
+          "type": 0,
+          "sound": false,
+          "data": 0,
+          "isLocal": true,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": true,
+          "multipleValue": 0,
+          "targetY": 0,
+          "targetX": 0,
+          "targetDir": "North"
+        },
+        {
+          "category": "Sensor",
+          "index": 146,
+          "tilePos": "South",
+          "type": 16,
+          "sound": false,
+          "data": 27,
+          "isLocal": true,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": true,
+          "multipleValue": 1,
+          "targetY": 0,
+          "targetX": 0,
+          "targetDir": "East",
+          "requiredObjectName": "THE FIRESTAFF"
+        },
+        {
+          "category": "Sensor",
+          "index": 535,
+          "tilePos": "South",
+          "type": 17,
+          "sound": false,
+          "data": 197,
+          "isLocal": true,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "multipleValue": 0,
+          "targetY": 0,
+          "targetX": 0,
+          "targetDir": "North",
+          "requiredObjectName": "ZOKATHRA SPELL"
+        },
+        {
+          "category": "Weapon",
+          "index": 80,
+          "tilePos": "South",
+          "type": 45,
+          "name": "The Firestaff (Complete)"
+        }
+      ]
+    },
+    {
+      "x": 24,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 24,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 24,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 24,
+      "y": 7,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 200,
+          "tilePos": "North",
+          "type": 3,
+          "sound": false,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Clear",
+          "onceOnly": false,
+          "targetY": 5,
+          "targetX": 22,
+          "targetDir": "North",
+          "requiredObjectName": "COMPASS"
+        },
+        {
+          "category": "Sensor",
+          "index": 539,
+          "tilePos": "North",
+          "type": 8,
+          "sound": true,
+          "data": 28,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": true,
+          "multipleValue": 220,
+          "kineticEnergy": 220,
+          "stepEnergy": 0,
+          "targetY": 1,
+          "targetX": 23,
+          "targetDir": "North",
+          "requiredObjectName": "THE FIRESTAFF"
+        }
+      ]
+    },
+    {
+      "x": 24,
+      "y": 8,
+      "type": "Door",
+      "orientation": "NorthSouth",
+      "objects": [
+        {
+          "category": "Door",
+          "index": 88,
+          "tilePos": "North",
+          "destructChop": false,
+          "destructFire": false,
+          "hasButton": false,
+          "doorType": 0
+        }
+      ]
+    },
+    {
+      "x": 24,
+      "y": 9,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Creature",
+          "index": 97,
+          "tilePos": "North",
+          "type": 24,
+          "name": "Red Dragon",
+          "hp": [
+            2700
+          ]
+        }
+      ]
+    },
+    {
+      "x": 24,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 24,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 24,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 25,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 25,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 25,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 25,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 25,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 25,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 25,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 25,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 25,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 25,
+      "y": 9,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 25,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 25,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 25,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    }
+  ]
+}

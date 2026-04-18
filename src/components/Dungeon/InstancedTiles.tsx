@@ -1,6 +1,5 @@
 import { useRef, useEffect, useMemo } from 'react';
-import { useTexture } from '@react-three/drei';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import { MIRROR_WALL_MAP, getSelfRevealingWallFace, isSelfRevealingWallTile, useStore } from '../../engine/store';
@@ -41,11 +40,11 @@ const PIT_WALL_Y = -HALF - (PIT_SHAFT_DEPTH / 2) - 0.12;
 export const InstancedTiles = ({ map, openWalls }: Props) => {
     const seeThroughWallsUntil = useStore(s => s.seeThroughWallsUntil);
     const openPits = useStore(s => s.openPits);
-    const { floor, ceiling, wall } = useTexture({
-        floor: `${texturesPath('floor.png')}?v=2`,
-        ceiling: `${texturesPath('ceiling.png')}?v=2`,
-        wall: `${texturesPath('wall.png')}?v=2`,
-    });
+    const [floor, ceiling, wall] = useLoader(THREE.TextureLoader, [
+        `${texturesPath('floor.png')}?v=2`,
+        `${texturesPath('ceiling.png')}?v=2`,
+        `${texturesPath('wall.png')}?v=2`,
+    ]);
     const wallMaterialRef = useRef<THREE.MeshBasicMaterial>(null);
     [floor, ceiling, wall].forEach(t => {
         t.wrapS = t.wrapT = THREE.RepeatWrapping;

@@ -4,6 +4,7 @@ import type { DamageEvent, SpellVisualEvent } from '../runtimeTypes';
 type TerrainCreatureState = {
     level: number;
     position: [number, number];
+    hydratedLevels: Set<number>;
     creatures: CreatureInstance[];
     floorItems: FloorItem[];
     damageEvents: DamageEvent[];
@@ -61,6 +62,10 @@ type TerrainEffectsDeps = {
         direction: 'NORTH' | 'EAST' | 'SOUTH' | 'WEST',
         cell: CreatureInstance['cell'],
     ) => { level: number; x: number; y: number; direction: 'NORTH' | 'EAST' | 'SOUTH' | 'WEST'; cell: CreatureInstance['cell'] };
+    buildLevelHydrationPatch: (
+        state: Pick<TerrainCreatureState, 'hydratedLevels' | 'creatures' | 'floorItems'>,
+        level: number,
+    ) => Partial<Pick<TerrainCreatureState, 'creatures' | 'floorItems'>> | null;
 };
 
 export function applyPartyTelefragAtSquare(
@@ -107,7 +112,7 @@ export function applyPartyTelefragAtSquare(
 }
 
 export function applyCreaturesStandingOnOpenPit(
-    state: Pick<TerrainCreatureState, 'level' | 'position' | 'creatures' | 'floorItems' | 'damageEvents' | 'spellVisualEvents' | 'openDoors' | 'openWalls' | 'openPits'>,
+    state: Pick<TerrainCreatureState, 'level' | 'position' | 'hydratedLevels' | 'creatures' | 'floorItems' | 'damageEvents' | 'spellVisualEvents' | 'openDoors' | 'openWalls' | 'openPits'>,
     level: number,
     x: number,
     y: number,
@@ -120,6 +125,7 @@ export function applyCreaturesStandingOnOpenPit(
         | 'buildDeathDustEvent'
         | 'buildCreatureDamageEvent'
         | 'normalizeCreatureCellsOnTile'
+        | 'buildLevelHydrationPatch'
     >,
 ): Pick<TerrainCreatureState, 'creatures' | 'floorItems' | 'damageEvents' | 'spellVisualEvents'> | null {
     const fallers = state.creatures.filter((creature) =>
@@ -150,6 +156,19 @@ export function applyCreaturesStandingOnOpenPit(
             state.openPits,
         );
         if (!landing) continue;
+
+        const hydrationPatch = deps.buildLevelHydrationPatch(
+            {
+                hydratedLevels: state.hydratedLevels,
+                creatures,
+                floorItems,
+            },
+            landing.level,
+        );
+        if (hydrationPatch) {
+            creatures = hydrationPatch.creatures ?? creatures;
+            floorItems = hydrationPatch.floorItems ?? floorItems;
+        }
 
         const fallDamage = 20;
         const nextHP = Math.max(0, creature.currentHP - fallDamage);
@@ -202,7 +221,7 @@ export function applyCreaturesStandingOnOpenPit(
 }
 
 export function applyCreaturesStandingOnOpenTeleporter(
-    state: Pick<TerrainCreatureState, 'level' | 'position' | 'creatures' | 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters'>,
+    state: Pick<TerrainCreatureState, 'level' | 'position' | 'hydratedLevels' | 'creatures' | 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters'>,
     level: number,
     x: number,
     y: number,
@@ -214,6 +233,7 @@ export function applyCreaturesStandingOnOpenTeleporter(
         | 'isWalkable'
         | 'canCreatureShareTile'
         | 'normalizeCreatureCellsOnTile'
+        | 'buildLevelHydrationPatch'
     >,
 ): Pick<TerrainCreatureState, 'creatures'> | null {
     const tile = deps.getTile(level, x, y);
@@ -249,6 +269,17 @@ export function applyCreaturesStandingOnOpenTeleporter(
             'NORTH',
             creature.cell,
         );
+        const hydrationPatch = deps.buildLevelHydrationPatch(
+            {
+                hydratedLevels: state.hydratedLevels,
+                creatures,
+                floorItems: [],
+            },
+            resolvedTransport.level,
+        );
+        if (hydrationPatch?.creatures) {
+            creatures = hydrationPatch.creatures;
+        }
         const destinationBlockedByPartyAtFinalSquare =
             state.level === resolvedTransport.level &&
             state.position[0] === resolvedTransport.y &&

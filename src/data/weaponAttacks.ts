@@ -1,10 +1,10 @@
 import { WEAPON_TYPES, getSourceItemAttackClass } from './items';
 import type { FloorItem } from '../types/game';
 import type { CastSkill } from './runes';
-import { getGameDbRawSync } from './gameDbData';
+import { getGameDbWeaponAttacksRawSync } from './gameDbData';
 import { getParentBasicSkill, mapOriginalSkillNumberToSkillKey } from './skillProgression';
 
-const gameDb = JSON.parse(getGameDbRawSync()) as unknown;
+const gameDb = JSON.parse(getGameDbWeaponAttacksRawSync()) as unknown;
 
 type RawAttack = {
     index: number;
@@ -79,7 +79,7 @@ const originalAtari = (gameDb as unknown as {
     originalAtari?: {
         i560?: {
             attacks?: RawAttack[];
-            legalAttacks?: RawLegalAttackClass[];
+            legalAttackClasses?: RawLegalAttackClass[];
         };
         weaponAttackReference?: RawWeaponAttackReference[];
     };
@@ -91,7 +91,7 @@ const ATTACKS_BY_INDEX = new Map<number, RawAttack>(
 
 const REFERENCE_ENTRIES = originalAtari?.weaponAttackReference ?? [];
 const LEGAL_ATTACKS_BY_INDEX = new Map<number, RawLegalAttackClass>(
-    (originalAtari?.i560?.legalAttacks ?? []).map((attackClass) => [attackClass.index, attackClass]),
+    (originalAtari?.i560?.legalAttackClasses ?? []).map((attackClass) => [attackClass.index, attackClass]),
 );
 
 const DISPLAY_NAME_TO_ENTRY = new Map<string, RawWeaponAttackReference>();

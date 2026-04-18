@@ -68,6 +68,7 @@ function createState(overrides: Partial<Parameters<typeof applyOpenedPitEffects>
     return {
         level: 0,
         position: [4, 5] as [number, number],
+        hydratedLevels: new Set<number>([0]),
         party: [createChampion(1)],
         selectedChampionIndex: 0,
         creatures: [] as CreatureInstance[],
@@ -120,6 +121,7 @@ test('applyOpenedPitEffects moves the party through newly opened pits and applie
                 floorItems: [{ id: 'loot-1', category: 'Misc', typeId: 1, mapIndex: 1, x: 7, y: 8, tilePos: 'North' }],
                 spellVisualEvents: [{ id: 'fx-1', level: 1, x: 7, y: 8, effect: 'fireball', ts: 0, kind: 'death' }],
             }),
+            buildLevelHydrationPatch: () => null,
             applyPartyFallImpactDamage: (_state, _vitals, landingLevel, landingPosition) => ({
                 championVitals: {
                     1: {
@@ -168,6 +170,7 @@ test('applyOpenedPitEffects also applies creature falls on newly opened pit squa
         {
             resolvePitLanding: () => null,
             applyPartyTelefragAtSquare: () => null,
+            buildLevelHydrationPatch: () => null,
             applyPartyFallImpactDamage: () => null,
             applyCreaturesStandingOnOpenPit: () => ({
                 creatures: [createCreature('c2', { mapIndex: 3, x: 6, y: 7, currentHP: 30 })],

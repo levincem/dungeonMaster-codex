@@ -2,7 +2,7 @@
 // plus the minimal local metadata still needed by the remake.
 
 import type { WeaponDef, ArmorDef, PotionDef, MiscDef, ArmorSlot } from '../types/items';
-import { getGameDbRawSync } from './gameDbData';
+import { getGameDbItemsRawSync } from './gameDbData';
 
 const PLACEHOLDER_NAME_RE = /^([A-Za-z]+_\d+|\(W\d+\))$/;
 
@@ -77,7 +77,7 @@ type RawGameDb = {
     };
 };
 
-const gameDb = JSON.parse(getGameDbRawSync()) as RawGameDb;
+const gameDb = JSON.parse(getGameDbItemsRawSync()) as RawGameDb;
 const originalI559 = gameDb.originalAtari?.i559;
 
 const I559_WEAPONS_BY_INDEX = new Map<number, RawI559Weapon>(

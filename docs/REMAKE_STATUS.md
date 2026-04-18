@@ -45,9 +45,37 @@ Points consolides dans cette passe:
 - [src/engine/systems/storeBootstrapRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeBootstrapRuntime.ts) centralise maintenant le bootstrap d'etat initial du `store`, en couvrant l'etat frais du donjon, les valeurs par defaut et l'initialisation des grandes collections runtime
 - [src/engine/systems/storeEndgameRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeEndgameRuntime.ts) centralise maintenant le petit noyau `endgame` encore local au `store`, en couvrant les evenements visuels de fusion, les poison clouds generes, les messages de fin et les constantes d'orchestration associees
 - [src/engine/systems/storeWallInteractionRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeWallInteractionRuntime.ts) couvre maintenant aussi les runners stateful des interactions `front wall`, de `activateWallSensor` et le builder de deps `Vi Altar`
+- le packaging runtime des donnees a ete rebase de `src/assets/data/` vers [src/assets/runtime](/D:/DungeonMaster-codex/src/assets/runtime), avec un split `bootstrap + maps/level-XX + db/reference/support`
+- [src/data/dungeonData.ts](/D:/DungeonMaster-codex/src/data/dungeonData.ts) lit maintenant un bootstrap compacte puis des maps par niveau, tout en gardant un preload complet compatible avec le runtime actuel
+- [vite.config.ts](/D:/DungeonMaster-codex/vite.config.ts) preserve maintenant les chunks `level-XX` au lieu de re-fusionner les maps du donjon dans un blob unique
+- `original_teleporters_runtime.json` fait maintenant officiellement partie du package runtime genere et du manifeste, au lieu de rester un fichier isole dans l'ancien layout
+- [src/engine/systems/storeBootstrapRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeBootstrapRuntime.ts) garde maintenant l'etat `title` leger, sans hydrater tout le monde runtime au chargement du module
+- le bootstrap runtime genere par [assets/OriginalDataExtraction/parse_full.cjs](/D:/DungeonMaster-codex/assets/OriginalDataExtraction/parse_full.cjs) inclut maintenant aussi `defaultOpenPits`, `defaultOpenTeleporters` et `defaultVisibleTexts`, ce qui permet de reconstituer les marqueurs monde "cheap" sans recharger toutes les maps
+- la persistence porte maintenant `hydratedLevels`, ce qui permet de sauver/restaurer quels niveaux ont deja materialise leurs creatures et items au lieu de supposer un monde complet toujours hydrate
+- [src/engine/systems/storeWorldRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeWorldRuntime.ts) sait maintenant construire creatures et items par niveau, et les transitions inter-niveaux hydratent explicitement le niveau cible avant telefrag / capteurs / effets immediats
+- [src/components/UI/LoadingScreen.tsx](/D:/DungeonMaster-codex/src/components/UI/LoadingScreen.tsx) ne precharge plus que le bootstrap du donjon au boot; [src/GameRoot.tsx](/D:/DungeonMaster-codex/src/GameRoot.tsx) ne precharge ensuite plus que `level-00` pour une nouvelle partie ou le niveau du save pour `Resume`, au lieu de forcer tout le donjon
+- le packaging runtime `game_db` est maintenant lui aussi decoupe: [assets/OriginalDataExtraction/parse_full.cjs](/D:/DungeonMaster-codex/assets/OriginalDataExtraction/parse_full.cjs) genere toujours [src/assets/runtime/db/game_db.json](/D:/DungeonMaster-codex/src/assets/runtime/db/game_db.json) pour les audits et la transition, mais aussi [game_db_items.json](/D:/DungeonMaster-codex/src/assets/runtime/db/game_db_items.json), [game_db_weapon_attacks.json](/D:/DungeonMaster-codex/src/assets/runtime/db/game_db_weapon_attacks.json) et [game_db_creatures.json](/D:/DungeonMaster-codex/src/assets/runtime/db/game_db_creatures.json) pour le runtime reel
+- [src/data/gameDbData.ts](/D:/DungeonMaster-codex/src/data/gameDbData.ts) precharge maintenant ces slices dediees au lieu d'un seul blob, et les consommateurs majeurs (`items`, `weaponAttacks`, `creatures`, `sounds`) ont ete realignes sur ce split
+- [src/components/UI/LoadingScreen.tsx](/D:/DungeonMaster-codex/src/components/UI/LoadingScreen.tsx) attend maintenant aussi explicitement les overlays muraux, le module d'effets de sorts et le catalogue complet d'images d'items au lieu de les laisser partir en preload "best effort"
+- [src/GameRoot.tsx](/D:/DungeonMaster-codex/src/GameRoot.tsx) precharge maintenant le voisinage du niveau utile (`niveau courant +/- 1`) avant `Enter` / `Resume`, puis rechauffe le reste des maps en arriere-plan pendant la partie, ce qui reduit fortement le risque de transition casse entre deux niveaux sans revenir a un preload monolithique au titre
+- le packaging runtime des overlays muraux est maintenant lui aussi decoupe: [assets/OriginalDataExtraction/parse_full.cjs](/D:/DungeonMaster-codex/assets/OriginalDataExtraction/parse_full.cjs) genere toujours [src/assets/runtime/support/original_wall_overlay_positions.json](/D:/DungeonMaster-codex/src/assets/runtime/support/original_wall_overlay_positions.json) comme snapshot compact canonique, mais aussi [src/assets/runtime/support/wall_overlays](/D:/DungeonMaster-codex/src/assets/runtime/support/wall_overlays) avec un fichier `map-XX.json` par niveau pour le runtime reel
+- [src/data/originalWallOverlayData.ts](/D:/DungeonMaster-codex/src/data/originalWallOverlayData.ts) charge maintenant ces overlays par map, expose un preload de voisinage et garde un warm-up complet seulement en arriere-plan depuis l'ecran titre
+- [src/data/originalWallOverlays.ts](/D:/DungeonMaster-codex/src/data/originalWallOverlays.ts) indexe maintenant les positions d'overlay par map et expose aussi le catalogue complet des images d'overlay a precharger
+- [src/components/UI/LoadingScreen.tsx](/D:/DungeonMaster-codex/src/components/UI/LoadingScreen.tsx) precharge maintenant explicitement le voisinage `overlay map 0 +/- 1` ainsi que toutes les images d'overlay mural, pour garder les visuels critiques chauds sans recharger un blob monolithique
+- [src/GameRoot.tsx](/D:/DungeonMaster-codex/src/GameRoot.tsx) precharge maintenant le voisinage utile des overlays en meme temps que le voisinage utile des maps, puis rechauffe le reste des overlays en arriere-plan tant que l'on est sur le titre
+- [src/preload/gameplayModulePreload.ts](/D:/DungeonMaster-codex/src/preload/gameplayModulePreload.ts) centralise maintenant aussi le prechauffage modulaire de `GameRoot`, `DungeonScene`, `HUD`, `MirrorPopup`, `ChampionSheet`, `VictoryScreen` et des effets de sorts, au lieu de laisser ces chunks gameplay arriver uniquement a la demande
+- [src/preload/gameplayModulePreload.ts](/D:/DungeonMaster-codex/src/preload/gameplayModulePreload.ts) attend maintenant aussi le preload `game_db` avant d'importer `GameRoot`, ce qui evite les acces sync trop precoces aux slices runtime pendant un boot a froid
+- [src/preload/gameplayVisualPreload.ts](/D:/DungeonMaster-codex/src/preload/gameplayVisualPreload.ts) distingue maintenant les visuels du titre et les visuels gameplay lourds, avec un cache de preload dedie
+- [src/App.tsx](/D:/DungeonMaster-codex/src/App.tsx) prechauffe maintenant `GameRoot` pendant l'ecran de bienvenue, ce qui retire encore un petit palier de chargement juste avant l'arrivee au titre interactif
+- [src/App.tsx](/D:/DungeonMaster-codex/src/App.tsx) affiche maintenant aussi un sas explicite `Preparing Title Screen` si l'utilisateur continue avant la fin du warm-up du runtime titre
+- [src/GameRoot.tsx](/D:/DungeonMaster-codex/src/GameRoot.tsx) affiche maintenant aussi un sas de preload explicite pour `Enter` / `Resume`, le temps de finir le preload gameplay coeur (`niveau utile`, overlays utiles, slices `game_db`, `DungeonScene`, `HUD`, effets de sorts)
+- [src/components/UI/LoadingScreen.tsx](/D:/DungeonMaster-codex/src/components/UI/LoadingScreen.tsx) a ete allégé: il ne precharge plus que les visuels du titre et le bootstrap du donjon, au lieu de bloquer le tout premier boot sur les gros assets gameplay
+- [vite.config.ts](/D:/DungeonMaster-codex/vite.config.ts) sort maintenant aussi des chunks UI explicites `hud-ui`, `champion-sheet`, `mirror-popup` et `victory-screen`, ce qui rend la pile de rendu plus lisible au build et plus facile a profiler ensuite
+- [src/components/Dungeon/renderHelpers.tsx](/D:/DungeonMaster-codex/src/components/Dungeon/renderHelpers.tsx) centralise maintenant les helpers de rendu legers (`useLoadedTexture`, `BillboardGroup`) et la scene gameplay n'importe plus activement `@react-three/drei`
+- [src/components/Dungeon/DungeonScene.tsx](/D:/DungeonMaster-codex/src/components/Dungeon/DungeonScene.tsx) utilise maintenant une `perspectiveCamera` R3F native au lieu de `PerspectiveCamera`, ce qui retire un dernier morceau de dependance a `drei` dans le chemin de rendu actif
 - a ce stade, [src/engine/store.ts](/D:/DungeonMaster-codex/src/engine/store.ts) est tombe a `2369` lignes et se comporte beaucoup plus comme un point de composition/wiring que comme un depot de logique d'action
 - la part encore dense du `store` n'est plus principalement le tableau d'actions Zustand: ce sont surtout des helpers historiques plus bas niveau, de l'assemblage local de dependances et quelques utilitaires runtime restes sur place
-- la validation locale de cette passe est verte au `2026-04-18`: `npm.cmd run build` passe et `npm.cmd test` passe avec `515` tests
+- la validation locale de cette passe est verte au `2026-04-18`: `node .\\assets\\OriginalDataExtraction\\parse_full.cjs`, `npm.cmd run build` et `npm.cmd test` passent; la suite de tests est maintenant a `517` tests verts
 
 Impact de maintenance:
 
@@ -57,6 +85,10 @@ Impact de maintenance:
 - la famille `combat / projectile / item utility runtime` a maintenant elle aussi un point de verite dedie hors `store`, ce qui retire encore un bloc melangeant checks de cast, outils de lancer, helpers de portes immediates et plomberie d'objets
 - la famille `creature spatial / occupancy / LOS` a maintenant elle aussi un point de verite dedie hors `store`, ce qui retire encore un bloc historique melangeant ids de groupe runtime, normalisation des sous-cases, partage de tuiles et ligne de vue
 - le bootstrap d'etat initial et le petit noyau `endgame` ont maintenant eux aussi des points de verite dedies hors `store`, ce qui permet raisonnablement de considerer le `store` comme assaini dans son role de couche de composition
+- cote data runtime, le donjon n'est plus le seul gros blob a avoir ete casse: le `game_db` runtime n'alimente plus un chunk unique, ce qui clarifie la frontiere `items / attacks / creatures` et prepare les prochaines optimisations de preload
+- cote data runtime, les overlays muraux ne vivent plus eux non plus dans un gros chunk de positions unique: le vieux `overlay-data` a ete remplace par un petit loader et des chunks `wall_overlays/map-XX`, ce qui retire un gros poids du boot tout en gardant les visuels critiques precharges
+- cote preload runtime, l'entree en jeu n'attend plus seulement la data: elle prechauffe maintenant aussi la coque `GameRoot` puis les modules gameplay coeur (`DungeonScene`, `HUD`, effets de sorts), avec un sas visible si le warm-up n'est pas fini au clic
+- cote rendu, la pile gameplay est maintenant mieux scindee au build (`GameRoot`, `hud-ui`, `champion-sheet`, `mirror-popup`, `victory-screen`, `dungeon-render`), la scene n'importe plus activement `@react-three/drei`, et le chunk `three-r3f` est retombe a environ `161.6 kB`; le vrai prochain hotspot reste maintenant surtout `three-core` puis `dungeon-render`
 - la suite logique n'est plus de sortir a tout prix chaque petite closure restante, mais plutot:
   - documenter l'etat reel obtenu
   - garder les tests cibles sur les modules runtime extraits
@@ -132,7 +164,7 @@ Points recales:
 
 - build production validee
 - reorganisation des assets runtime sous `public/game/images` et `public/game/sounds`
-- embarquement des JSON critiques sous `src/assets/data` pour fiabiliser le boot
+- embarquement des JSON critiques sous `src/assets/runtime` pour fiabiliser le boot, avec `bootstrap + maps/level-XX`
 - ecran titre avec `Enter The Dungeon` et `Resume`
 - modale de bienvenue alpha bloquante au demarrage, plus aide rapide accessible depuis le HUD
 - couche `i18n` simple avec anglais par defaut
@@ -213,7 +245,7 @@ Reste a faire:
 
 Etat actuel:
 
-- source de verite runtime: `src/assets/data/dungeon.json`
+- source de verite runtime: `src/assets/runtime/dungeon/bootstrap.json` + `src/assets/runtime/dungeon/maps/level-XX.json`
 - parsing central via `src/data/dungeonData.ts` et `src/data/mapLoader.ts`
 - portes, teleporteurs, trick walls, pits et eau sont presents dans les maps runtime
 - overlays muraux originaux sont positions depuis les donnees extraites

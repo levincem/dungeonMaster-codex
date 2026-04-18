@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const current = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '..', '..', 'src', 'assets', 'data', 'dungeon.json'), 'utf8'),
+  fs.readFileSync(path.join(__dirname, 'output', 'dungeon.json'), 'utf8'),
 );
 const canonical = JSON.parse(
   fs.readFileSync(path.join(__dirname, 'output', 'original_level_content.json'), 'utf8'),

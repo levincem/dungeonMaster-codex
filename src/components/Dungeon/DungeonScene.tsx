@@ -1,7 +1,6 @@
 import { Suspense, lazy, useRef, useMemo, memo, useCallback, useEffect, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import type { ThreeEvent } from '@react-three/fiber';
-import { PerspectiveCamera, Plane, Html, useTexture, Billboard } from '@react-three/drei';
 import * as THREE from 'three';
 import {
     useStore,
@@ -44,6 +43,7 @@ import { doorBlocksVision } from '../../data/doors';
 import { getDragPayload } from '../UI/dragPayload';
 import { useI18n } from '../../i18n';
 import { getCreatureCellOffsetXZ } from './creatureCellOffsets';
+import { BillboardGroup, useLoadedTexture } from './renderHelpers';
 
 const HALF = GRID_SIZE / 2;
 const BASE_FOG_NEAR = GRID_SIZE * 2;
@@ -254,6 +254,9 @@ const CameraController = () => {
     const position  = useStore(s => s.position);
     const direction = useStore(s => s.direction);
     const cameraRef = useRef<THREE.PerspectiveCamera>(null);
+    const previousCamera = useThree(s => s.camera);
+    const setThreeState = useThree(s => s.set);
+    const size = useThree(s => s.size);
     const initializedRef = useRef(false);
     const prevLevelRef = useRef(level);
     const prevPositionRef = useRef<[number, number]>(position);
@@ -270,6 +273,23 @@ const CameraController = () => {
     const targetRot = CAMERA_ROTATION_MAP[direction as keyof typeof CAMERA_ROTATION_MAP];
     const [initialCameraPosition] = useState<[number, number, number]>(() => [targetPos.x, targetPos.y, targetPos.z]);
     const [initialCameraRotation] = useState<[number, number, number]>(() => [0, targetRot, 0]);
+
+    useEffect(() => {
+        if (!cameraRef.current) return;
+        const nextCamera = cameraRef.current;
+        setThreeState({ camera: nextCamera });
+        return () => {
+            setThreeState({ camera: previousCamera });
+        };
+    }, [previousCamera, setThreeState]);
+
+    useEffect(() => {
+        const camera = cameraRef.current;
+        if (!camera) return;
+
+        camera.aspect = Math.max(1, size.width) / Math.max(1, size.height);
+        camera.updateProjectionMatrix();
+    }, [size.height, size.width]);
 
     useEffect(() => {
         const camera = cameraRef.current;
@@ -307,9 +327,8 @@ const CameraController = () => {
     });
 
     return (
-        <PerspectiveCamera
+        <perspectiveCamera
             ref={cameraRef}
-            makeDefault
             position={initialCameraPosition}
             rotation={initialCameraRotation}
             fov={75}
@@ -321,7 +340,7 @@ const CameraController = () => {
 const BoundaryWalls = memo(({ map }: { map: GameMap }) => {
     const seeThroughWallsUntil = useStore(s => s.seeThroughWallsUntil);
     const [wallTransparent, setWallTransparent] = useState(false);
-    const { wall: baseWall } = useTexture({ wall: `${texturesPath('wall.png')}?v=2` });
+    const baseWall = useLoadedTexture(`${texturesPath('wall.png')}?v=2`);
     const wall = useMemo(
         () => cloneTexture(baseWall, next => {
             next.wrapS = THREE.RepeatWrapping;
@@ -343,13 +362,13 @@ const BoundaryWalls = memo(({ map }: { map: GameMap }) => {
             const wz = tile.y * GRID_SIZE;
             const mat = <meshBasicMaterial map={wall} side={THREE.DoubleSide} transparent={wallTransparent} opacity={wallTransparent ? 0.34 : 1} depthWrite={!wallTransparent} />;
             if (tile.y === 0)
-                planes.push(<Plane key={`N-${tile.x}-${tile.y}`} args={[GRID_SIZE, WALL_HEIGHT]} position={[wx, 0, wz - HALF]} rotation={[0, Math.PI, 0]}>{mat}</Plane>);
+                planes.push(<mesh key={`N-${tile.x}-${tile.y}`} position={[wx, 0, wz - HALF]} rotation={[0, Math.PI, 0]}><planeGeometry args={[GRID_SIZE, WALL_HEIGHT]} />{mat}</mesh>);
             if (tile.y === map.height - 1)
-                planes.push(<Plane key={`S-${tile.x}-${tile.y}`} args={[GRID_SIZE, WALL_HEIGHT]} position={[wx, 0, wz + HALF]}>{mat}</Plane>);
+                planes.push(<mesh key={`S-${tile.x}-${tile.y}`} position={[wx, 0, wz + HALF]}><planeGeometry args={[GRID_SIZE, WALL_HEIGHT]} />{mat}</mesh>);
             if (tile.x === 0)
-                planes.push(<Plane key={`W-${tile.x}-${tile.y}`} args={[GRID_SIZE, WALL_HEIGHT]} position={[wx - HALF, 0, wz]} rotation={[0, -Math.PI / 2, 0]}>{mat}</Plane>);
+                planes.push(<mesh key={`W-${tile.x}-${tile.y}`} position={[wx - HALF, 0, wz]} rotation={[0, -Math.PI / 2, 0]}><planeGeometry args={[GRID_SIZE, WALL_HEIGHT]} />{mat}</mesh>);
             if (tile.x === map.width - 1)
-                planes.push(<Plane key={`E-${tile.x}-${tile.y}`} args={[GRID_SIZE, WALL_HEIGHT]} position={[wx + HALF, 0, wz]} rotation={[0, Math.PI / 2, 0]}>{mat}</Plane>);
+                planes.push(<mesh key={`E-${tile.x}-${tile.y}`} position={[wx + HALF, 0, wz]} rotation={[0, Math.PI / 2, 0]}><planeGeometry args={[GRID_SIZE, WALL_HEIGHT]} />{mat}</mesh>);
         }
     }
     return <>{planes}</>;
@@ -847,14 +866,7 @@ const FIREBALL_CORE_COLOR = '#fff4d6';
 const LIGHTNING_CORE_COLOR = '#f2fbff';
 const DISRUPT_CORE_COLOR = '#effaff';
 
-const WALL_DROP_OFFSET = GRID_SIZE / 2 + 0.06;
-const WALL_DROP_POS: Record<CardinalDir, [number, number, number]> = {
-    North: [0, -WALL_HEIGHT * 0.04, -WALL_DROP_OFFSET],
-    South: [0, -WALL_HEIGHT * 0.04, WALL_DROP_OFFSET],
-    East: [WALL_DROP_OFFSET, -WALL_HEIGHT * 0.04, 0],
-    West: [-WALL_DROP_OFFSET, -WALL_HEIGHT * 0.04, 0],
-};
-
+/*
 export const FrontWallLockDropTarget = ({
     tileX,
     tileY,
@@ -918,6 +930,7 @@ export const FrontWallLockDropTarget = ({
         </Html>
     );
 };
+*/
 
 type WallDropPlacement = 'front' | 'left' | 'right';
 
@@ -1307,7 +1320,7 @@ const PhysicalProjectileSprite: React.FC<{
     projectile: { x: number; y: number; physicalItem: FloorItem };
 }> = ({ projectile }) => {
     const imagePath = getFloorItemImage(projectile.physicalItem);
-    const baseTex = useTexture(imagePath);
+    const baseTex = useLoadedTexture(imagePath);
     const tex = useMemo(() => {
         const next = baseTex.clone();
         next.colorSpace = THREE.SRGBColorSpace;
@@ -1323,14 +1336,15 @@ const PhysicalProjectileSprite: React.FC<{
     const height = width / aspect;
 
     return (
-        <Billboard
+        <BillboardGroup
             position={[projectile.x * GRID_SIZE, GRID_SIZE * 0.05, projectile.y * GRID_SIZE]}
             follow
             lockX={false}
             lockY={false}
             lockZ={false}
         >
-            <Plane args={[width, height]}>
+            <mesh>
+                <planeGeometry args={[width, height]} />
                 <meshBasicMaterial
                     map={tex}
                     transparent
@@ -1338,8 +1352,8 @@ const PhysicalProjectileSprite: React.FC<{
                     side={THREE.DoubleSide}
                     depthWrite={false}
                 />
-            </Plane>
-        </Billboard>
+            </mesh>
+        </BillboardGroup>
     );
 };
 
@@ -2661,7 +2675,7 @@ const DamageNumberBillboard: React.FC<{
     const burstY = GRID_SIZE * 0.36 + progress * verticalRise;
 
     return (
-        <Billboard
+        <BillboardGroup
             position={[x * GRID_SIZE + offsetX, burstY, y * GRID_SIZE + offsetZ]}
             follow
             lockX={false}
@@ -2680,7 +2694,7 @@ const DamageNumberBillboard: React.FC<{
                     toneMapped={false}
                 />
             </mesh>
-        </Billboard>
+        </BillboardGroup>
     );
 };
 

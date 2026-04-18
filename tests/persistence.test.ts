@@ -179,6 +179,7 @@ function createState(now: number): PersistableGameState {
         direction: 'NORTH',
         party: [champion],
         gateOpen: false,
+        hydratedLevels: new Set([0, 1]),
         openDoors: new Set(['0,1,2']),
         brokenDoors: new Set(['0,1,2']),
         openPits: new Set(['0,4,5']),
@@ -309,6 +310,7 @@ test('buildPersistedSaveData serializes runtime state in a stable shape', () => 
         assert.equal(persisted.version, 2);
         assert.equal(persisted.buildVersion, APP_VERSION);
         assert.equal(integrity, computePersistedSaveIntegrity(persistedWithoutIntegrity));
+        assert.deepEqual(persisted.hydratedLevels, [0, 1]);
         assert.deepEqual(persisted.openDoors, ['0,1,2']);
         assert.deepEqual(persisted.brokenDoors, ['0,1,2']);
         assert.deepEqual(persisted.spellLights, [{ id: 'light-1', lightContrib: 0.5, remainingMs: 4000 }]);
@@ -431,6 +433,7 @@ test('persisted saves round-trip back into the same dungeon state', () => {
         restoreExternalCreatureRuntimeFromSave(persisted, restoredRuntime);
         const roundTripped = buildPersistedSaveData(hydrated, restoredRuntime);
 
+        assert.deepEqual([...hydrated.hydratedLevels], [0, 1]);
         assert.deepEqual(roundTripped, persisted);
     } finally {
         Date.now = originalNow;

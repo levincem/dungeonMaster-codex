@@ -1,39 +1,7 @@
 import { useEffect, useState } from 'react';
-import { preloadDungeonData } from '../../data/dungeonData';
-import { preloadGameDbData } from '../../data/gameDbData';
-import { preloadOriginalWallOverlayData } from '../../data/originalWallOverlayData';
-import { miscPath, runesPath, spritesPath, texturesPath } from '../../data/assetPaths';
-
-const RUNE_IDS = [
-    'bro', 'dain', 'des', 'ee', 'ew', 'ful', 'gor',
-    'ir', 'kath', 'ku', 'lo', 'mon', 'neta', 'oh', 'on',
-    'pal', 'ra', 'ros', 'sar', 'um', 'ven', 'vi', 'ya', 'zo',
-];
-
-const CREATURE_IDS = Array.from({ length: 27 }, (_, i) => i);
-
-const IMAGE_ASSETS: string[] = [
-    ...RUNE_IDS.map(id => runesPath(`${id}.png`)),
-    ...CREATURE_IDS.map(id => spritesPath(`creatures/creature_${id}.png`)),
-    miscPath('Dm_logo.png'),
-    miscPath('cadre_entree.png'),
-    miscPath('porte_entree_droite.png'),
-    miscPath('porte_entree_gauche.png'),
-    miscPath('wall_switch_green_out.png'),
-    miscPath('wall_switch_red_out.png'),
-    texturesPath('wall.png'),
-    texturesPath('floor.png'),
-    texturesPath('ceiling.png'),
-    texturesPath('door.png'),
-];
-
-function preloadImage(src: string): Promise<void> {
-    return new Promise(resolve => {
-        const img = new Image();
-        img.onload = img.onerror = () => resolve();
-        img.src = src;
-    });
-}
+import { preloadDungeonBootstrapData } from '../../data/dungeonData';
+import { miscPath } from '../../data/assetPaths';
+import { preloadTitleVisualAssets } from '../../preload/gameplayVisualPreload';
 
 interface Props {
     onDone?: () => void | Promise<void>;
@@ -41,7 +9,7 @@ interface Props {
 }
 
 export const LoadingScreen = ({ onDone, autoStart = true }: Props) => {
-    const totalAssets = IMAGE_ASSETS.length + 2;
+    const totalAssets = 2;
     const [loaded, setLoaded] = useState(autoStart ? 0 : totalAssets);
     const [fadeOut, setFadeOut] = useState(false);
     const pct = totalAssets > 0 ? Math.round((loaded / totalAssets) * 100) : 0;
@@ -65,25 +33,17 @@ export const LoadingScreen = ({ onDone, autoStart = true }: Props) => {
             }
         };
 
-        for (const src of IMAGE_ASSETS) {
-            preloadImage(src).then(() => {
-                void finishOne();
-            });
-        }
-
-        preloadDungeonData().then(() => {
+        preloadTitleVisualAssets().then(() => {
             void finishOne();
         }).catch(() => {
             void finishOne();
         });
 
-        preloadGameDbData().then(() => {
+        preloadDungeonBootstrapData().then(() => {
             void finishOne();
         }).catch(() => {
             void finishOne();
         });
-
-        void preloadOriginalWallOverlayData().catch(() => {});
 
         return () => {
             active = false;

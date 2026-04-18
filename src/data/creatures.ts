@@ -1,8 +1,8 @@
-import originalCreaturesRaw from '../assets/data/original_creatures_runtime.json?raw';
-import { getGameDbRawSync } from './gameDbData';
+import originalCreaturesRaw from '../assets/runtime/reference/original_creatures_runtime.json?raw';
+import { getGameDbCreaturesRawSync } from './gameDbData';
 import { resolveItemName } from './items';
 
-const gameDb = JSON.parse(getGameDbRawSync()) as unknown;
+const gameDb = JSON.parse(getGameDbCreaturesRawSync()) as unknown;
 const originalCreatures = JSON.parse(originalCreaturesRaw) as unknown;
 
 export type AttackType =

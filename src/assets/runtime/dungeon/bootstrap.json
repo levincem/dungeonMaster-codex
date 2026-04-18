@@ -1,0 +1,1508 @@
+{
+  "startPosition": {
+    "map": 0,
+    "x": 1,
+    "y": 3,
+    "direction": "South"
+  },
+  "champions": [
+    {
+      "portraitId": 23,
+      "name": "DAROOU",
+      "title": "",
+      "gender": "M",
+      "health": 100,
+      "stamina": 65,
+      "mana": 6,
+      "luck": 35,
+      "strength": 50,
+      "dexterity": 30,
+      "wisdom": 35,
+      "vitality": 45,
+      "antiMagic": 30,
+      "antiFire": 45,
+      "skills": {
+        "fighter": [
+          3,
+          0,
+          3,
+          0
+        ],
+        "ninja": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "priest": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "wizard": [
+          0,
+          0,
+          1,
+          1
+        ]
+      },
+      "x": 5,
+      "y": 13,
+      "wallFace": "East",
+      "map": 0
+    },
+    {
+      "portraitId": 1,
+      "name": "HALK",
+      "title": "THE BARBARIAN",
+      "gender": "M",
+      "health": 90,
+      "stamina": 75,
+      "mana": 0,
+      "luck": 40,
+      "strength": 55,
+      "dexterity": 43,
+      "wisdom": 30,
+      "vitality": 46,
+      "antiMagic": 38,
+      "antiFire": 48,
+      "skills": {
+        "fighter": [
+          4,
+          0,
+          4,
+          0
+        ],
+        "ninja": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "priest": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "wizard": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "x": 7,
+      "y": 8,
+      "wallFace": "South",
+      "map": 0
+    },
+    {
+      "portraitId": 10,
+      "name": "WU TSE",
+      "title": "SON OF HEAVEN",
+      "gender": "F",
+      "health": 45,
+      "stamina": 47,
+      "mana": 20,
+      "luck": 40,
+      "strength": 38,
+      "dexterity": 35,
+      "wisdom": 53,
+      "vitality": 45,
+      "antiMagic": 47,
+      "antiFire": 40,
+      "skills": {
+        "fighter": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "ninja": [
+          1,
+          2,
+          0,
+          3
+        ],
+        "priest": [
+          2,
+          1,
+          4,
+          3
+        ],
+        "wizard": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "x": 7,
+      "y": 14,
+      "wallFace": "North",
+      "map": 0
+    },
+    {
+      "portraitId": 13,
+      "name": "AZIZI",
+      "title": "JOHARI",
+      "gender": "F",
+      "health": 61,
+      "stamina": 77,
+      "mana": 7,
+      "luck": 47,
+      "strength": 47,
+      "dexterity": 48,
+      "wisdom": 42,
+      "vitality": 45,
+      "antiMagic": 30,
+      "antiFire": 35,
+      "skills": {
+        "fighter": [
+          2,
+          1,
+          3,
+          0
+        ],
+        "ninja": [
+          2,
+          2,
+          3,
+          3
+        ],
+        "priest": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "wizard": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "x": 7,
+      "y": 17,
+      "wallFace": "North",
+      "map": 0
+    },
+    {
+      "portraitId": 0,
+      "name": "ELIJA",
+      "title": "LION OF YAITOPYA",
+      "gender": "M",
+      "health": 60,
+      "stamina": 58,
+      "mana": 22,
+      "luck": 50,
+      "strength": 42,
+      "dexterity": 40,
+      "wisdom": 42,
+      "vitality": 36,
+      "antiMagic": 53,
+      "antiFire": 40,
+      "skills": {
+        "fighter": [
+          1,
+          1,
+          2,
+          0
+        ],
+        "ninja": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "priest": [
+          2,
+          1,
+          4,
+          2
+        ],
+        "wizard": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "x": 8,
+      "y": 7,
+      "wallFace": "East",
+      "map": 0
+    },
+    {
+      "portraitId": 9,
+      "name": "LEIF",
+      "title": "THE VALIANT",
+      "gender": "M",
+      "health": 75,
+      "stamina": 70,
+      "mana": 7,
+      "luck": 35,
+      "strength": 46,
+      "dexterity": 40,
+      "wisdom": 39,
+      "vitality": 50,
+      "antiMagic": 45,
+      "antiFire": 45,
+      "skills": {
+        "fighter": [
+          3,
+          2,
+          2,
+          0
+        ],
+        "ninja": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "priest": [
+          0,
+          2,
+          1,
+          1
+        ],
+        "wizard": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "x": 8,
+      "y": 14,
+      "wallFace": "South",
+      "map": 0
+    },
+    {
+      "portraitId": 2,
+      "name": "SYRA",
+      "title": "CHILD OF NATURE",
+      "gender": "F",
+      "health": 53,
+      "stamina": 72,
+      "mana": 15,
+      "luck": 55,
+      "strength": 38,
+      "dexterity": 35,
+      "wisdom": 43,
+      "vitality": 45,
+      "antiMagic": 42,
+      "antiFire": 40,
+      "skills": {
+        "fighter": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "ninja": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "priest": [
+          0,
+          3,
+          1,
+          1
+        ],
+        "wizard": [
+          0,
+          2,
+          3,
+          3
+        ]
+      },
+      "x": 9,
+      "y": 10,
+      "wallFace": "North",
+      "map": 0
+    },
+    {
+      "portraitId": 14,
+      "name": "IAIDO",
+      "title": "RUYITO CHIBURI",
+      "gender": "M",
+      "health": 48,
+      "stamina": 65,
+      "mana": 11,
+      "luck": 40,
+      "strength": 43,
+      "dexterity": 55,
+      "wisdom": 40,
+      "vitality": 35,
+      "antiMagic": 45,
+      "antiFire": 50,
+      "skills": {
+        "fighter": [
+          2,
+          3,
+          0,
+          2
+        ],
+        "ninja": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "priest": [
+          1,
+          1,
+          1,
+          2
+        ],
+        "wizard": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "x": 10,
+      "y": 3,
+      "wallFace": "South",
+      "map": 0
+    },
+    {
+      "portraitId": 4,
+      "name": "ZED",
+      "title": "DUKE OF BANVILLE",
+      "gender": "M",
+      "health": 60,
+      "stamina": 60,
+      "mana": 10,
+      "luck": 58,
+      "strength": 40,
+      "dexterity": 40,
+      "wisdom": 40,
+      "vitality": 50,
+      "antiMagic": 40,
+      "antiFire": 40,
+      "skills": {
+        "fighter": [
+          2,
+          1,
+          1,
+          2
+        ],
+        "ninja": [
+          2,
+          1,
+          2,
+          1
+        ],
+        "priest": [
+          1,
+          2,
+          1,
+          1
+        ],
+        "wizard": [
+          1,
+          2,
+          1,
+          1
+        ]
+      },
+      "x": 10,
+      "y": 6,
+      "wallFace": "North",
+      "map": 0
+    },
+    {
+      "portraitId": 18,
+      "name": "TIGGY",
+      "title": "TAMAL",
+      "gender": "F",
+      "health": 25,
+      "stamina": 45,
+      "mana": 35,
+      "luck": 45,
+      "strength": 30,
+      "dexterity": 45,
+      "wisdom": 50,
+      "vitality": 35,
+      "antiMagic": 59,
+      "antiFire": 40,
+      "skills": {
+        "fighter": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "ninja": [
+          1,
+          3,
+          1,
+          1
+        ],
+        "priest": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "wizard": [
+          2,
+          3,
+          3,
+          2
+        ]
+      },
+      "x": 10,
+      "y": 13,
+      "wallFace": "West",
+      "map": 0
+    },
+    {
+      "portraitId": 15,
+      "name": "GANDO",
+      "title": "THURFOOT",
+      "gender": "M",
+      "health": 39,
+      "stamina": 63,
+      "mana": 26,
+      "luck": 50,
+      "strength": 39,
+      "dexterity": 45,
+      "wisdom": 47,
+      "vitality": 33,
+      "antiMagic": 48,
+      "antiFire": 43,
+      "skills": {
+        "fighter": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "ninja": [
+          3,
+          0,
+          2,
+          3
+        ],
+        "priest": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "wizard": [
+          1,
+          2,
+          1,
+          2
+        ]
+      },
+      "x": 11,
+      "y": 11,
+      "wallFace": "North",
+      "map": 0
+    },
+    {
+      "portraitId": 22,
+      "name": "WUUF",
+      "title": "THE BIKA",
+      "gender": "F",
+      "health": 40,
+      "stamina": 50,
+      "mana": 30,
+      "luck": 60,
+      "strength": 33,
+      "dexterity": 57,
+      "wisdom": 45,
+      "vitality": 40,
+      "antiMagic": 35,
+      "antiFire": 40,
+      "skills": {
+        "fighter": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "ninja": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "priest": [
+          0,
+          3,
+          2,
+          1
+        ],
+        "wizard": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "x": 11,
+      "y": 13,
+      "wallFace": "East",
+      "map": 0
+    },
+    {
+      "portraitId": 16,
+      "name": "STAMM",
+      "title": "BLADECASTER",
+      "gender": "M",
+      "health": 75,
+      "stamina": 80,
+      "mana": 0,
+      "luck": 35,
+      "strength": 52,
+      "dexterity": 43,
+      "wisdom": 35,
+      "vitality": 50,
+      "antiMagic": 35,
+      "antiFire": 55,
+      "skills": {
+        "fighter": [
+          3,
+          4,
+          2,
+          2
+        ],
+        "ninja": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "priest": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "wizard": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "x": 11,
+      "y": 16,
+      "wallFace": "North",
+      "map": 0
+    },
+    {
+      "portraitId": 12,
+      "name": "LINFLAS",
+      "title": "",
+      "gender": "M",
+      "health": 65,
+      "stamina": 50,
+      "mana": 12,
+      "luck": 45,
+      "strength": 45,
+      "dexterity": 45,
+      "wisdom": 47,
+      "vitality": 35,
+      "antiMagic": 50,
+      "antiFire": 35,
+      "skills": {
+        "fighter": [
+          0,
+          1,
+          2,
+          4
+        ],
+        "ninja": [
+          0,
+          0,
+          1,
+          0
+        ],
+        "priest": [
+          0,
+          1,
+          0,
+          0
+        ],
+        "wizard": [
+          0,
+          1,
+          2,
+          2
+        ]
+      },
+      "x": 12,
+      "y": 8,
+      "wallFace": "South",
+      "map": 0
+    },
+    {
+      "portraitId": 17,
+      "name": "LEYLA",
+      "title": "SHADOWSEEK",
+      "gender": "F",
+      "health": 48,
+      "stamina": 60,
+      "mana": 3,
+      "luck": 50,
+      "strength": 40,
+      "dexterity": 53,
+      "wisdom": 45,
+      "vitality": 47,
+      "antiMagic": 45,
+      "antiFire": 35,
+      "skills": {
+        "fighter": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "ninja": [
+          3,
+          3,
+          3,
+          4
+        ],
+        "priest": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "wizard": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "x": 13,
+      "y": 11,
+      "wallFace": "South",
+      "map": 0
+    },
+    {
+      "portraitId": 5,
+      "name": "CHANI",
+      "title": "SAYYADINA SIHAYA",
+      "gender": "F",
+      "health": 47,
+      "stamina": 67,
+      "mana": 17,
+      "luck": 57,
+      "strength": 37,
+      "dexterity": 47,
+      "wisdom": 57,
+      "vitality": 37,
+      "antiMagic": 47,
+      "antiFire": 37,
+      "skills": {
+        "fighter": [
+          1,
+          3,
+          0,
+          2
+        ],
+        "ninja": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "priest": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "wizard": [
+          3,
+          2,
+          3,
+          1
+        ]
+      },
+      "x": 14,
+      "y": 2,
+      "wallFace": "South",
+      "map": 0
+    },
+    {
+      "portraitId": 7,
+      "name": "BORIS",
+      "title": "WIZARD OF BALDOR",
+      "gender": "M",
+      "health": 35,
+      "stamina": 65,
+      "mana": 28,
+      "luck": 25,
+      "strength": 35,
+      "dexterity": 45,
+      "wisdom": 55,
+      "vitality": 40,
+      "antiMagic": 45,
+      "antiFire": 40,
+      "skills": {
+        "fighter": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "ninja": [
+          3,
+          2,
+          1,
+          0
+        ],
+        "priest": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "wizard": [
+          2,
+          3,
+          3,
+          3
+        ]
+      },
+      "x": 14,
+      "y": 7,
+      "wallFace": "North",
+      "map": 0
+    },
+    {
+      "portraitId": 8,
+      "name": "MOPHUS",
+      "title": "THE HEALER",
+      "gender": "M",
+      "health": 55,
+      "stamina": 55,
+      "mana": 19,
+      "luck": 40,
+      "strength": 42,
+      "dexterity": 35,
+      "wisdom": 40,
+      "vitality": 48,
+      "antiMagic": 40,
+      "antiFire": 45,
+      "skills": {
+        "fighter": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "ninja": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "priest": [
+          2,
+          4,
+          3,
+          2
+        ],
+        "wizard": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "x": 14,
+      "y": 14,
+      "wallFace": "West",
+      "map": 0
+    },
+    {
+      "portraitId": 19,
+      "name": "SONJA",
+      "title": "SHE DEVIL",
+      "gender": "F",
+      "health": 65,
+      "stamina": 70,
+      "mana": 2,
+      "luck": 40,
+      "strength": 54,
+      "dexterity": 45,
+      "wisdom": 39,
+      "vitality": 49,
+      "antiMagic": 40,
+      "antiFire": 40,
+      "skills": {
+        "fighter": [
+          3,
+          4,
+          2,
+          3
+        ],
+        "ninja": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "priest": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "wizard": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "x": 15,
+      "y": 12,
+      "wallFace": "West",
+      "map": 0
+    },
+    {
+      "portraitId": 6,
+      "name": "HAWK",
+      "title": "THE FEARLESS",
+      "gender": "M",
+      "health": 70,
+      "stamina": 85,
+      "mana": 10,
+      "luck": 40,
+      "strength": 45,
+      "dexterity": 35,
+      "wisdom": 38,
+      "vitality": 55,
+      "antiMagic": 35,
+      "antiFire": 35,
+      "skills": {
+        "fighter": [
+          2,
+          0,
+          0,
+          2
+        ],
+        "ninja": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "priest": [
+          0,
+          3,
+          0,
+          3
+        ],
+        "wizard": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "x": 16,
+      "y": 4,
+      "wallFace": "West",
+      "map": 0
+    },
+    {
+      "portraitId": 11,
+      "name": "ALEX",
+      "title": "ANDER",
+      "gender": "M",
+      "health": 50,
+      "stamina": 57,
+      "mana": 13,
+      "luck": 47,
+      "strength": 44,
+      "dexterity": 55,
+      "wisdom": 45,
+      "vitality": 40,
+      "antiMagic": 35,
+      "antiFire": 40,
+      "skills": {
+        "fighter": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "ninja": [
+          3,
+          2,
+          3,
+          2
+        ],
+        "priest": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "wizard": [
+          2,
+          2,
+          1,
+          2
+        ]
+      },
+      "x": 16,
+      "y": 7,
+      "wallFace": "South",
+      "map": 0
+    },
+    {
+      "portraitId": 3,
+      "name": "HISSSSA",
+      "title": "LIZAR OF MAKAN",
+      "gender": "M",
+      "health": 80,
+      "stamina": 61,
+      "mana": 5,
+      "luck": 40,
+      "strength": 58,
+      "dexterity": 48,
+      "wisdom": 35,
+      "vitality": 35,
+      "antiMagic": 43,
+      "antiFire": 55,
+      "skills": {
+        "fighter": [
+          4,
+          3,
+          0,
+          0
+        ],
+        "ninja": [
+          0,
+          3,
+          1,
+          0
+        ],
+        "priest": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "wizard": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "x": 16,
+      "y": 15,
+      "wallFace": "North",
+      "map": 0
+    },
+    {
+      "portraitId": 21,
+      "name": "GOTHMOG",
+      "title": "",
+      "gender": "M",
+      "health": 60,
+      "stamina": 55,
+      "mana": 18,
+      "luck": 30,
+      "strength": 40,
+      "dexterity": 35,
+      "wisdom": 48,
+      "vitality": 34,
+      "antiMagic": 50,
+      "antiFire": 59,
+      "skills": {
+        "fighter": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "ninja": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "priest": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "wizard": [
+          4,
+          3,
+          2,
+          2
+        ]
+      },
+      "x": 16,
+      "y": 16,
+      "wallFace": "South",
+      "map": 0
+    },
+    {
+      "portraitId": 20,
+      "name": "NABI",
+      "title": "THE PROPHET",
+      "gender": "M",
+      "health": 55,
+      "stamina": 65,
+      "mana": 13,
+      "luck": 40,
+      "strength": 41,
+      "dexterity": 36,
+      "wisdom": 45,
+      "vitality": 45,
+      "antiMagic": 55,
+      "antiFire": 55,
+      "skills": {
+        "fighter": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "ninja": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "priest": [
+          1,
+          1,
+          4,
+          2
+        ],
+        "wizard": [
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      "x": 17,
+      "y": 10,
+      "wallFace": "North",
+      "map": 0
+    }
+  ],
+  "defaultOpenPits": [
+    "1,8,7",
+    "1,15,13",
+    "1,5,24",
+    "2,16,6",
+    "2,3,15",
+    "2,5,16",
+    "2,13,20",
+    "3,13,6",
+    "3,4,7",
+    "4,25,8",
+    "5,27,15",
+    "5,27,17",
+    "7,1,1",
+    "7,17,8",
+    "7,13,12",
+    "7,13,14",
+    "7,24,17",
+    "7,15,18",
+    "7,16,19",
+    "7,23,19",
+    "8,6,9",
+    "8,20,18",
+    "11,11,15",
+    "11,12,15",
+    "11,11,16",
+    "11,12,16",
+    "12,14,12",
+    "12,11,15",
+    "12,10,16",
+    "12,9,19",
+    "12,13,19"
+  ],
+  "defaultOpenTeleporters": [
+    "1,16,13",
+    "1,21,18",
+    "1,4,20",
+    "1,29,26",
+    "1,3,30",
+    "1,1,31",
+    "1,20,31",
+    "2,11,2",
+    "2,4,3",
+    "2,6,3",
+    "2,8,3",
+    "2,28,4",
+    "2,0,5",
+    "2,4,5",
+    "2,6,5",
+    "2,19,8",
+    "2,20,8",
+    "2,8,19",
+    "3,26,11",
+    "3,26,12",
+    "3,16,21",
+    "3,24,25",
+    "4,3,2",
+    "4,14,3",
+    "4,16,3",
+    "4,17,3",
+    "4,19,3",
+    "4,15,4",
+    "4,17,4",
+    "4,18,4",
+    "4,19,4",
+    "4,14,5",
+    "4,16,5",
+    "4,18,5",
+    "4,0,6",
+    "4,14,6",
+    "4,15,6",
+    "4,17,6",
+    "4,19,6",
+    "4,15,7",
+    "4,16,7",
+    "4,17,7",
+    "4,18,7",
+    "4,14,8",
+    "4,16,8",
+    "4,18,8",
+    "4,19,8",
+    "4,0,11",
+    "4,5,18",
+    "4,14,24",
+    "4,15,24",
+    "4,16,24",
+    "4,17,24",
+    "4,18,24",
+    "4,19,24",
+    "4,20,24",
+    "4,20,28",
+    "5,2,4",
+    "5,24,6",
+    "5,11,10",
+    "5,12,10",
+    "5,5,15",
+    "5,23,15",
+    "6,17,12",
+    "6,26,15",
+    "6,17,16",
+    "7,30,3",
+    "7,6,6",
+    "7,12,6",
+    "7,2,9",
+    "7,17,9",
+    "7,0,14",
+    "7,22,14",
+    "7,22,17",
+    "7,26,17",
+    "7,0,18",
+    "7,12,18",
+    "7,26,22",
+    "7,6,27",
+    "7,17,27",
+    "8,30,2",
+    "8,5,12",
+    "8,1,21",
+    "8,6,21",
+    "8,21,23",
+    "9,23,1",
+    "9,24,1",
+    "9,29,1",
+    "9,28,2",
+    "9,28,3",
+    "9,25,4",
+    "9,26,4",
+    "9,27,4",
+    "9,24,5",
+    "9,9,8",
+    "9,11,8",
+    "9,13,8",
+    "9,12,10",
+    "9,14,10",
+    "9,9,12",
+    "9,11,12",
+    "9,13,12",
+    "9,14,20",
+    "9,16,25",
+    "10,14,19",
+    "11,7,6",
+    "11,1,18",
+    "11,26,24",
+    "12,11,1",
+    "12,2,9",
+    "12,11,10",
+    "12,13,10",
+    "12,11,11",
+    "12,13,11"
+  ],
+  "defaultVisibleTexts": [
+    "0_5_17_107",
+    "0_8_5_4",
+    "0_9_1_118",
+    "1_14_16_30",
+    "1_18_27_34",
+    "1_21_8_27",
+    "1_28_28_13",
+    "1_30_2_28",
+    "2_7_17_43",
+    "2_9_15_42",
+    "2_11_15_75",
+    "2_11_17_91",
+    "2_12_12_40",
+    "2_13_18_37",
+    "2_14_12_45",
+    "2_16_8_47",
+    "2_17_13_67",
+    "2_17_15_61",
+    "2_20_15_81",
+    "2_28_29_48",
+    "3_8_4_57",
+    "3_22_31_52",
+    "3_29_8_29",
+    "3_30_29_51",
+    "4_7_27_68",
+    "4_13_12_60",
+    "5_7_21_69",
+    "5_8_17_72",
+    "5_8_23_70",
+    "5_11_17_73",
+    "5_11_23_71",
+    "5_14_5_82",
+    "5_17_9_12",
+    "5_17_20_79",
+    "5_20_11_86",
+    "5_20_15_87",
+    "5_20_17_77",
+    "5_20_18_78",
+    "5_21_13_84",
+    "5_24_28_117",
+    "6_3_3_54",
+    "6_4_0_89",
+    "6_5_4_53",
+    "6_6_3_55",
+    "6_10_2_113",
+    "6_14_2_114",
+    "6_18_2_115",
+    "6_22_2_116",
+    "6_25_23_88",
+    "8_7_30_101",
+    "8_17_5_103",
+    "8_23_14_105",
+    "9_2_12_74",
+    "9_14_11_108",
+    "9_23_13_110",
+    "10_0_4_32",
+    "10_10_0_94",
+    "10_21_25_122",
+    "11_25_10_123"
+  ],
+  "maps": [
+    {
+      "index": 0,
+      "name": "Hall of Champions",
+      "level": 0,
+      "width": 18,
+      "height": 19,
+      "difficulty": 0,
+      "mapOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "file": "maps/level-00.json"
+    },
+    {
+      "index": 1,
+      "name": "Level 1",
+      "level": 1,
+      "width": 32,
+      "height": 32,
+      "difficulty": 1,
+      "mapOffset": {
+        "x": 0,
+        "y": 14
+      },
+      "file": "maps/level-01.json"
+    },
+    {
+      "index": 2,
+      "name": "Level 2",
+      "level": 2,
+      "width": 32,
+      "height": 32,
+      "difficulty": 1,
+      "mapOffset": {
+        "x": 5,
+        "y": 10
+      },
+      "file": "maps/level-02.json"
+    },
+    {
+      "index": 3,
+      "name": "Level 3",
+      "level": 3,
+      "width": 32,
+      "height": 32,
+      "difficulty": 2,
+      "mapOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "file": "maps/level-03.json"
+    },
+    {
+      "index": 4,
+      "name": "Level 4",
+      "level": 4,
+      "width": 30,
+      "height": 31,
+      "difficulty": 2,
+      "mapOffset": {
+        "x": 5,
+        "y": 0
+      },
+      "file": "maps/level-04.json"
+    },
+    {
+      "index": 5,
+      "name": "Level 5",
+      "level": 5,
+      "width": 31,
+      "height": 32,
+      "difficulty": 2,
+      "mapOffset": {
+        "x": 5,
+        "y": 5
+      },
+      "file": "maps/level-05.json"
+    },
+    {
+      "index": 6,
+      "name": "Level 6",
+      "level": 6,
+      "width": 30,
+      "height": 31,
+      "difficulty": 3,
+      "mapOffset": {
+        "x": 5,
+        "y": 5
+      },
+      "file": "maps/level-06.json"
+    },
+    {
+      "index": 7,
+      "name": "Level 7",
+      "level": 7,
+      "width": 32,
+      "height": 32,
+      "difficulty": 3,
+      "mapOffset": {
+        "x": 20,
+        "y": 11
+      },
+      "file": "maps/level-07.json"
+    },
+    {
+      "index": 8,
+      "name": "Level 8",
+      "level": 8,
+      "width": 31,
+      "height": 32,
+      "difficulty": 3,
+      "mapOffset": {
+        "x": 12,
+        "y": 5
+      },
+      "file": "maps/level-08.json"
+    },
+    {
+      "index": 9,
+      "name": "Level 9",
+      "level": 9,
+      "width": 31,
+      "height": 32,
+      "difficulty": 4,
+      "mapOffset": {
+        "x": 10,
+        "y": 10
+      },
+      "file": "maps/level-09.json"
+    },
+    {
+      "index": 10,
+      "name": "Level 10",
+      "level": 10,
+      "width": 30,
+      "height": 32,
+      "difficulty": 5,
+      "mapOffset": {
+        "x": 10,
+        "y": 10
+      },
+      "file": "maps/level-10.json"
+    },
+    {
+      "index": 11,
+      "name": "Level 11",
+      "level": 11,
+      "width": 32,
+      "height": 31,
+      "difficulty": 5,
+      "mapOffset": {
+        "x": 20,
+        "y": 20
+      },
+      "file": "maps/level-11.json"
+    },
+    {
+      "index": 12,
+      "name": "Level 12",
+      "level": 12,
+      "width": 22,
+      "height": 20,
+      "difficulty": 6,
+      "mapOffset": {
+        "x": 25,
+        "y": 30
+      },
+      "file": "maps/level-12.json"
+    },
+    {
+      "index": 13,
+      "name": "Lord Chaos's Lair",
+      "level": 13,
+      "width": 26,
+      "height": 13,
+      "difficulty": 6,
+      "mapOffset": {
+        "x": 25,
+        "y": 32
+      },
+      "file": "maps/level-13.json"
+    }
+  ]
+}

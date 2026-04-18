@@ -47,6 +47,7 @@ test('applyOpenedTeleporterEffects moves the party through newly opened teleport
             level: 0,
             position: [4, 5],
             direction: 'NORTH',
+            hydratedLevels: new Set<number>([0]),
             creatures: [createCreature('c1')],
             floorItems,
             spellVisualEvents,
@@ -65,6 +66,7 @@ test('applyOpenedTeleporterEffects moves the party through newly opened teleport
                 floorItems: [{ id: 'loot-1', category: 'Misc', typeId: 1, mapIndex: 1, x: 7, y: 8, tilePos: 'North' }],
                 spellVisualEvents: [{ id: 'fx-1', level: 1, x: 7, y: 8, effect: 'fireball', ts: 0, kind: 'death' }],
             }),
+            buildLevelHydrationPatch: () => null,
             applyCreaturesStandingOnOpenTeleporter: () => null,
         },
     );
@@ -83,6 +85,7 @@ test('applyOpenedTeleporterEffects also applies creature teleports on opened squ
             level: 0,
             position: [0, 0],
             direction: 'NORTH',
+            hydratedLevels: new Set<number>([0]),
             creatures: [createCreature('c2', { mapIndex: 0, x: 2, y: 3 })],
             floorItems: [],
             spellVisualEvents: [],
@@ -97,6 +100,7 @@ test('applyOpenedTeleporterEffects also applies creature teleports on opened squ
             getTeleporter: (tile) => tile.objects[0]?.category === 'Teleporter' ? tile.objects[0] : undefined,
             resolveProjectileTeleporterTransport: () => ({ level: 0, x: 2, y: 3, direction: 'NORTH' }),
             applyPartyTelefragAtSquare: () => null,
+            buildLevelHydrationPatch: () => null,
             applyCreaturesStandingOnOpenTeleporter: () => ({
                 creatures: [createCreature('c2', { mapIndex: 0, x: 4, y: 5 })],
             }),

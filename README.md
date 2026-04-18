@@ -89,7 +89,6 @@ So the project is close to a strong public alpha state, but not yet at a point w
 - Vite
 - Three.js
 - `@react-three/fiber`
-- `@react-three/drei`
 - Zustand
 
 ## Project Structure
@@ -111,11 +110,21 @@ public/
   favicon.png
   vite.svg
 
-src/assets/data/
-  dungeon.json                  Canonical compact runtime dungeon snapshot used at boot
-  game_db.json                  Canonical runtime reference data used by modules
-  original_creatures_runtime.json
-  original_doors_runtime.json
+src/assets/runtime/
+  dungeon/
+    bootstrap.json              Canonical runtime bootstrap payload used at boot
+    maps/level-XX.json          Canonical runtime maps split one file per level
+  db/
+    game_db.json                Canonical monolithic reference export kept for audits / transition safety
+    game_db_items.json          Runtime item-facing slice consumed by `items.ts`
+    game_db_weapon_attacks.json Runtime attack-facing slice consumed by `weaponAttacks.ts`
+    game_db_creatures.json      Runtime creature-facing slice consumed by `creatures.ts` / `sounds.ts`
+  reference/
+    original_creatures_runtime.json
+    original_doors_runtime.json
+    original_teleporters_runtime.json
+  support/original_wall_overlay_positions.json
+  support/wall_overlays/map-XX.json
   runtime_data_manifest.json    Runtime package manifest emitted by parse_full
 
 assets/
@@ -136,21 +145,29 @@ docs/
 
 ## Data Sources
 
-The runtime now relies primarily on reconstructed data mirrored into `src/assets/data/` for critical boot-time modules.
+The runtime now relies primarily on reconstructed data mirrored into `src/assets/runtime/` for critical boot-time modules.
 
-For the main extracted runtime datasets, `src/assets/data/` is the canonical runtime location, while `assets/OriginalDataExtraction/output/` remains the extraction and audit output area.
+For the main extracted runtime datasets, `src/assets/runtime/` is the canonical runtime location, while `assets/OriginalDataExtraction/output/` remains the extraction and audit output area.
 
-For `dungeon.json`:
+For dungeon data:
 
 - `assets/OriginalDataExtraction/output/dungeon.json` is the full extraction / audit dump
 - `assets/OriginalDataExtraction/output/runtime_dungeon.json` is the compact runtime snapshot generated from it
-- `src/assets/data/dungeon.json` is the canonical runtime copy consumed by the app
+- `src/assets/runtime/dungeon/bootstrap.json` is the canonical runtime bootstrap copy consumed by the app
+- `src/assets/runtime/dungeon/maps/level-XX.json` are the canonical runtime level chunks consumed by the app
+
+For `game_db` runtime data:
+
+- `assets/OriginalDataExtraction/output/game_db.json` remains the full extraction / audit export
+- `src/assets/runtime/db/game_db.json` remains the canonical monolithic runtime copy kept for compatibility and audits
+- `src/assets/runtime/db/game_db_items.json`, `game_db_weapon_attacks.json` and `game_db_creatures.json` are now the smaller runtime slices actually consumed by the app
 
 For wall overlays:
 
 - `public/original_wall_overlay_positions.json` remains the full extracted / reference export
 - `assets/OriginalDataExtraction/output/runtime_wall_overlay_positions.json` is the compact runtime snapshot used for the app
-- `src/assets/original_wall_overlay_positions.json` is the canonical runtime copy consumed by the app
+- `src/assets/runtime/support/original_wall_overlay_positions.json` remains the canonical compact runtime copy kept for audits / transition safety
+- `src/assets/runtime/support/wall_overlays/map-XX.json` are the runtime overlay slices actually consumed by the app per map
 
 The reverse-engineering and provenance work lives under:
 
@@ -178,11 +195,16 @@ The most useful project-memory and audit docs are:
 ## Notes
 
 - The project should currently be treated as a playable alpha, not a finished remake.
-- The production build passes, and the app boots correctly from the runtime data embedded in `src/assets/data/`.
-- Latest local validation recorded on `2026-04-18`: `npm.cmd run build` passes, and `npm.cmd test` passes with `515` tests.
+- The production build passes, and the app boots correctly from the runtime data embedded in `src/assets/runtime/`.
+- Latest local validation recorded on `2026-04-18`: `npm.cmd run build` passes, and `npm.cmd test` passes with `517` tests.
 - The world-content extraction is now considered reliable enough that the remaining uncertainty is mostly about fidelity edge cases, not about missing core dungeon content.
+- The runtime package now ships `bootstrap + maps/level-XX` instead of a single `dungeon.json` blob, and Vite emits separate level chunks accordingly.
+- The runtime package now also ships split `game_db` slices for items, weapon attacks, and creatures, so the app no longer depends on one runtime `game-db-blob`.
+- The runtime bootstrap now also carries default open pits, teleporters, and visible texts, so the game can restore cheap world markers without forcing a full dungeon materialization.
+- The initial boot screen is lighter now: it only warms title-facing visuals plus the dungeon bootstrap, so the app reaches the welcome/title flow faster on cold starts and in `vite` dev mode.
+- The welcome/title flow now prewarms `GameRoot` behind the scenes, shows an explicit preload screen if that warm-up is still running when you continue, and `Enter` / `Resume` still keep their own gameplay preload gate while the last required data, render modules, and gameplay visuals finish warming.
 - The central runtime has been heavily refactored into smaller tested subsystems, so code clarity and maintainability are in a much better place than earlier alpha builds.
-- The main heavy runtime payloads are still the compact dungeon snapshot, wall overlay data, and the core Three.js stack.
+- The old monolithic `overlay-data` chunk has now been collapsed into tiny loader glue plus per-map overlay chunks; the render stack is also split more cleanly now (`GameRoot`, `hud-ui`, `champion-sheet`, `mirror-popup`, `victory-screen`, `dungeon-render`), and the active gameplay scene no longer imports `@react-three/drei`, but the main remaining heavy runtime payloads are still mostly `three-core`, `dungeon-render`, `react-vendor`, `three-r3f`, and a few medium `game_db` slices.
 - The next major phase is a mix of long-form playtesting, targeted fidelity verification, and optimization.
 - Remade visuals are preferred when available; extracted original bitmaps remain as placeholders or fallback art where necessary.
 - `docs/` acts as the project's memory and audit trail; the README is intentionally the shorter public-facing overview.

@@ -1,6 +1,6 @@
 ﻿# DungeonMaster Codex - Reference codebase
 
-Document vivant. Cette version de reference decrit l'etat observe dans le code au `2026-04-17`.
+Document vivant. Cette version de reference decrit l'etat observe dans le code au `2026-04-18`.
 
 Pour l'etat de fidelite et les verrous ouverts, privilegier aussi:
 
@@ -16,26 +16,27 @@ Pour l'etat de fidelite et les verrous ouverts, privilegier aussi:
 | Vite | Build et dev server |
 | Three.js + React Three Fiber | Rendu 3D du donjon |
 | Zustand | Etat global du jeu |
-| `@react-three/drei` | Camera, textures et helpers R3F |
+| Helpers maison `renderHelpers.tsx` | Billboard/textures simples et utilitaires de rendu legers |
 
 ## Flux d'entree
 
 1. `src/main.tsx` monte l'application React et charge `src/index.css`.
-2. `src/App.tsx` affiche `LoadingScreen`, detecte les smartphones, puis lazy-load `GameRoot`.
-3. `src/components/UI/LoadingScreen.tsx` precharge une selection d'images et appelle `preloadDungeonData()`.
-4. `src/GameRoot.tsx` lance la boucle `requestAnimationFrame`, monte `TitleScreen` tant que `gamePhase === 'title'`, `VictoryScreen` pour `gamePhase === 'victory'`, puis `DungeonScene`, `HUD`, `MirrorPopup` et `ChampionSheet` en exploration.
+2. `src/App.tsx` affiche `LoadingScreen`, detecte les smartphones, puis prechauffe `GameRoot` pendant l'ecran de bienvenue avant de le lazy-load; si ce warm-up n'est pas termine quand l'utilisateur continue, un sas visuel "Preparing Title Screen" prend le relais.
+3. `src/components/UI/LoadingScreen.tsx` ne precharge plus que les visuels du titre et le bootstrap du donjon, pour rendre le tout premier boot beaucoup plus leger.
+4. `src/GameRoot.tsx` lance la boucle `requestAnimationFrame`, monte `TitleScreen` tant que `gamePhase === 'title'`, prechauffe aussi les modules gameplay coeur (`DungeonScene`, `HUD`, effets de sorts), les slices `game_db`, les visuels gameplay et le voisinage du niveau utile (`niveau courant +/- 1`) a la fois pour les maps et pour les overlays muraux, puis rechauffe le reste des maps et overlays en arriere-plan avant d'afficher `DungeonScene`, `HUD`, `MirrorPopup` et `ChampionSheet` en exploration.
+5. `src/components/Dungeon/renderHelpers.tsx` porte maintenant les helpers de rendu legers (`useLoadedTexture`, `BillboardGroup`) utilises par la scene et les sprites, ce qui retire les usages actifs de `@react-three/drei` du graphe gameplay.
 
 ## Source de verite des maps
 
-La source de verite runtime utilisee au boot est maintenant `src/assets/data/dungeon.json`, exposee par `src/data/dungeonData.ts` puis parsee par `src/data/mapLoader.ts`.
+La source de verite runtime utilisee au boot est maintenant `src/assets/runtime/dungeon/bootstrap.json`, exposee par `src/data/dungeonData.ts` puis parsee par `src/data/mapLoader.ts`.
 
 Points importants:
 
-- `getGameMaps()` et `getGameMap()` sont derives du JSON runtime embarque.
+- `getGameMaps()` et `getGameMap()` sont derives du package runtime embarque `bootstrap + maps/level-XX`.
 - Les tiles sont remappees en grille 2D `tiles[y][x]`.
-- `getChampionStartPositions()` vient aussi du JSON runtime embarque.
+- `getChampionStartPositions()` vient aussi du bootstrap runtime embarque.
 - Les anciens snapshots `src/data/level0.ts` et `src/data/level1.ts` ont ete supprimes.
-- Le runtime ne depend plus que des maps parsees depuis le JSON compact embarque.
+- Le runtime ne depend plus que des maps parsees depuis les fichiers runtime generes par niveau.
 
 ## Arborescence utile
 
@@ -94,13 +95,23 @@ src/
 |   |-- fr.ts
 |   `-- index.ts
 |-- assets/
-|   |-- data/
-|   |   |-- dungeon.json
-|   |   |-- game_db.json
-|   |   |-- original_creatures_runtime.json
-|   |   |-- original_doors_runtime.json
-|   |   `-- runtime_data_manifest.json
-|   `-- original_wall_overlay_positions.json
+|   `-- runtime/
+|       |-- dungeon/
+|       |   |-- bootstrap.json
+|       |   `-- maps/
+|       |-- db/
+|       |   |-- game_db.json
+|       |   |-- game_db_items.json
+|       |   |-- game_db_weapon_attacks.json
+|       |   `-- game_db_creatures.json
+|       |-- reference/
+|       |   |-- original_creatures_runtime.json
+|       |   |-- original_doors_runtime.json
+|       |   `-- original_teleporters_runtime.json
+|       |-- support/
+|       |   |-- original_wall_overlay_positions.json
+|       |   `-- wall_overlays/
+|       `-- runtime_data_manifest.json
 `-- types/
     |-- game.ts
     |-- items.ts
@@ -111,7 +122,7 @@ src/
 
 ### `src/engine/store.ts`
 
-Fichier coeur du projet.
+Fichier coeur du projet, mais maintenant beaucoup plus recentre sur la composition runtime que sur la logique inline.
 
 Responsabilites principales:
 
@@ -123,6 +134,11 @@ Responsabilites principales:
 - cast de sorts, shields, `Fluxcage`, evenements visuels et effets temporels
 - boucle de regen, combat, monstres, portes et sorts
 - options de jeu runtime et etat du panneau d'options
+
+Note d'architecture:
+
+- la grosse passe de nettoyage est terminee: la majorite des wrappers d'action, boucles top-level et familles de helpers historiques ont ete sortis vers `src/engine/systems/*`
+- `store.ts` doit maintenant etre lu comme une couche de composition Zustand / runtime, pas comme le hotspot principal de dette structurelle
 
 Champs structurants de `GameState`:
 
@@ -273,7 +289,7 @@ Petit module partage pour normaliser le payload de drag and drop entre la fiche 
 
 Catalogue objets hybride:
 
-- s'appuie surtout sur `src/assets/data/game_db.json` pour les types, noms et tables runtime
+- s'appuie surtout sur `src/assets/runtime/db/game_db_items.json` pour les types, noms et tables runtime
 - centralise les helpers de nommage et de lookup
 - garde des fallback legacy integres la ou le runtime a encore besoin de compatibilite
 - expose `WEAPON_TYPES`, `ARMOR_TYPES`, `POTION_TYPES`, `MISC_TYPES`
@@ -348,6 +364,7 @@ Inclut notamment:
 
 ## Notes recentes
 
-- Les JSON critiques de runtime ont ete copies sous `src/assets/data/` pour fiabiliser `npm run dev` et `npm run build`.
-- Le codebase est decoupe en chunks plus fins qu'avant, mais plusieurs gros bundles restent encore a optimiser.
+- Les JSON critiques de runtime vivent maintenant sous `src/assets/runtime/`, avec un split `bootstrap + maps/level-XX + db/reference/support`.
+- Les overlays muraux runtime sont eux aussi charges par map depuis `src/assets/runtime/support/wall_overlays/map-XX.json`, au lieu d'un gros chunk de positions unique.
+- Le codebase est decoupe en chunks plus fins qu'avant; `GameRoot`, `HUD`, `ChampionSheet`, `MirrorPopup` et `VictoryScreen` ont maintenant aussi des chunks explicites, mais les plus gros restes sont toujours surtout la pile Three.js / rendu, plus quelques slices `game_db`.
 - La couche `i18n` existe, mais la selection de langue n'est pas encore exposee.

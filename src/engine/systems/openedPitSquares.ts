@@ -12,6 +12,7 @@ import type {
 type OpenedPitLoopState = {
     level: number;
     position: [number, number];
+    hydratedLevels: Set<number>;
     party: Champion[];
     selectedChampionIndex: number;
     creatures: CreatureInstance[];
@@ -77,11 +78,16 @@ type OpenedPitLoopDeps = {
             | 'selectedChampionIndex'
         >
     > | null;
+    buildLevelHydrationPatch: (
+        state: Pick<OpenedPitLoopState, 'hydratedLevels' | 'creatures' | 'floorItems'>,
+        level: number,
+    ) => Partial<Pick<OpenedPitLoopState, 'creatures' | 'floorItems'>> | null;
     applyCreaturesStandingOnOpenPit: (
         state: Pick<
             OpenedPitLoopState,
             | 'level'
             | 'position'
+            | 'hydratedLevels'
             | 'creatures'
             | 'floorItems'
             | 'damageEvents'
@@ -148,6 +154,18 @@ export function applyOpenedPitEffects(
                 state.openPits,
             );
             if (landing) {
+                const hydrationPatch = deps.buildLevelHydrationPatch(
+                    {
+                        hydratedLevels: state.hydratedLevels,
+                        creatures,
+                        floorItems,
+                    },
+                    landing.level,
+                );
+                if (hydrationPatch) {
+                    creatures = hydrationPatch.creatures ?? creatures;
+                    floorItems = hydrationPatch.floorItems ?? floorItems;
+                }
                 const telefrag = deps.applyPartyTelefragAtSquare(
                     { creatures, floorItems, spellVisualEvents },
                     landing.level,
@@ -200,6 +218,7 @@ export function applyOpenedPitEffects(
             {
                 level,
                 position,
+                hydratedLevels: state.hydratedLevels,
                 creatures,
                 floorItems,
                 damageEvents,

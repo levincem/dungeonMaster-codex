@@ -8,6 +8,7 @@ import type { FloorItem } from '../types/game';
 import { normalizeLookupName, resolveItemName } from './items';
 import { getWaterContainerState } from './waterContainers';
 import { itemsPath } from './assetPaths';
+import { AVAILABLE_ITEM_IMAGE_FILENAMES } from './itemImageCatalog';
 
 const ITEM_BASE = itemsPath('');
 
@@ -27,49 +28,7 @@ export function isTorchItem(item: FloorItem | undefined): boolean {
     return normalizedName === 'torch' || (item.category === 'Weapon' && item.typeId === 2);
 }
 
-const AVAILABLE_ITEM_IMAGES = new Set<string>([
-    'anti_fire_potion.png', 'apple.png', 'armet.png', 'arrow.png', 'ashes.png', 'axe.png',
-    'barbarian_doublet.png', 'barbarian_hide.png', 'basinet.png', 'belt.png', 'bezerker_helm.png',
-    'blue_gem.png', 'blue_pants.png', 'bolt_blade_empty.png', 'bolt_blade_full.png', 'bones.png',
-    'boots_of_speed.png', 'boulder.png', 'bow.png', 'bread.png', 'bro_potion_antivenin.png',
-    'buckler.png', 'calista.png', 'cape.png', 'casque_n_coif.png', 'chain_mail_aketon.png',
-    'champion_bones.png', 'cheese.png', 'chest_closed.png', 'chest_opened.png', 'choker.png',
-    'cloak_of_night.png', 'club.png', 'compass.png', 'copper_coin.png', 'corbamite.png', 'corn.png',
-    'crossbow.png', 'cross_key.png', 'crown_of_nerra.png', 'dagger.png', 'dagger_of_fear.png',
-    'dane_potion.png', 'dee_potion.png', 'delta.png', 'dexhelm.png', 'diamond_edge.png',
-    'dragon_spit.png', 'dragon_steak.png', 'drumstick.png', 'ee_potion_mana.png', 'ekkhard_cross.png',
-    'elven_boots.png', 'elven_doublet.png', 'elven_huke.png', 'emerald_key.png', 'empty_flask.png',
-    'etoile.png', 'eye_of_time_empty.png', 'eye_of_time_full.png', 'falchion.png', 'fine_robe_body.png',
-    'fine_robe_legs.png', 'flamebain.png', 'flamitt_empty.png', 'flamitt_full.png', 'foot_plate.png',
-    'ful_bomb.png', 'ful_potion.png', 'fury_empty.png', 'fury_full.png', 'gauntlets.png',
-    'gem_of_ages.png', 'ghi.png', 'ghi_trousers.png', 'gloves.png', 'gold_coin.png',
-    'greave_of_darc.png', 'greave_of_lyte.png', 'green_gem.png', 'gunna.png', 'halter.png',
-    'hardcleave.png', 'helmet.png', 'helm_of_darc.png', 'helm_of_lyte.png', 'hide_shield.png',
-    'horn_of_fear.png', 'hosen.png', 'illumulet_lit.png', 'illumulet_unlit.png', 'iron_key.png',
-    'jewel_symal_equipped.png', 'jewel_symal_unequipped.png', 'key_of_b.png', 'kirtle.png',
-    'ku_potion.png', 'large_shield.png', 'leather_boots.png', 'leather_jerkin.png', 'leather_pants.png',
-    'leg_mail.png', 'leg_plate.png', 'lock_picks.png', 'long_bow.png', 'mace.png', 'mace_of_order.png',
-    'magical_box_blue.png', 'magical_box_green.png', 'magnifier.png', 'mail_aketon.png', 'master_key.png',
-    'ma_potion_stamina.png', 'mirror_of_dawn.png', 'mithral_aketon.png', 'mithral_mail.png',
-    'mon_potion.png', 'moonstone.png', 'morningstar.png', 'neck_plate.png', 'neta_potion.png',
-    'onyx_key.png', 'orange_gem.png', 'pendant_feral.png', 'plate_mail.png', 'plate_of_darc.png',
-    'plate_of_lyte.png', 'poison_dart.png', 'poleyn_of_darc.png', 'poleyn_of_lyte.png', 'powertowers.png',
-    'rabbits_foot.png', 'rapier.png', 'ra_key.png', 'robe_body.png', 'robe_legs.png',
-    'robe_of_the_kite_lord.png', 'rock.png', 'rocket.png', 'rope.png', 'ros_potion.png', 'ruby_key.png',
-    'sabre.png', 'samurai_sword.png', 'sandals.png', 'sapphire_key.png', 'sceptre_of_lyf.png',
-    'screamer_slice.png', 'scroll.png', 'shield_of_darc.png', 'shield_of_lyte.png', 'silk_shirt.png',
-    'silver_coin.png', 'skeleton_key.png', 'slayer.png', 'sling.png', 'small_shield.png', 'snake_staff.png',
-    'solid_key.png', 'speedbow.png', 'square_key.png', 'staff.png', 'staff_of_claws_empty.png',
-    'staff_of_claws_full.png', 'staff_of_manar.png', 'stick.png', 'stone_club.png', 'stormring_empty.png',
-    'stormring_full.png', 'suede_boots.png', 'suede_doublet.png', 'sword.png', 'tabard.png',
-    'teowand.png', 'the_conduit.png', 'the_firestaff.png', 'the_firestaff_complete.png', 'the_hellion.png',
-    'the_inquisitor.png', 'throwing_star.png', 'topaz_key.png', 'torch_lit.png', 'torch_unlit.png',
-    'torch_used_1.png', 'torch_used_2.png', 'torso_plate.png', 'tourquoise_key.png', 'tunic.png',
-    'um_potion.png', 'ven_potion.png', 'vilmains_hat.png', 'vi_potion.png', 'vorpal_blade.png',
-    'wand.png', 'water.png', 'waterskin_empty.png', 'water_flask.png', 'water_waterskin_full.png',
-    'winged_key.png', 'wooden_shield.png', 'worm_round.png', 'ya_potion.png', 'yew_staff.png',
-    'zokathra_spell.png', 'zo_potion.png',
-]);
+const AVAILABLE_ITEM_IMAGES = new Set<string>(AVAILABLE_ITEM_IMAGE_FILENAMES);
 
 const NAME_IMG_ALIASES: Record<string, string> = {
     'torch': 'torch_unlit.png',

@@ -1,6 +1,9 @@
 import type { Champion } from '../../types/champion';
 import { APP_VERSION, CURRENT_SAVE_SCHEMA_VERSION } from '../../appInfo';
-import { getGameMaps } from '../../data/mapLoader';
+import {
+    getDungeonBootstrapSync,
+    type RawDungeonBootstrap,
+} from '../../data/dungeonData';
 import {
     normalizeChampionTemporaryXP,
     normalizeChampionXP,
@@ -35,6 +38,7 @@ export interface PersistableGameState {
     direction: Direction;
     party: Champion[];
     gateOpen: boolean;
+    hydratedLevels: Set<number>;
     openDoors: Set<string>;
     brokenDoors: Set<string>;
     openPits: Set<string>;
@@ -87,18 +91,24 @@ export interface CreatureRuntimeMaps {
     creatureLastSeenPartyPos: Map<string, { x: number; y: number; expiresAt: number }>;
 }
 
+function getDungeonBootstrap(): RawDungeonBootstrap {
+    return getDungeonBootstrapSync<RawDungeonBootstrap>();
+}
+
 function buildDefaultOpenPits(): Set<string> {
-    const open = new Set<string>();
-    for (const map of getGameMaps()) {
-        for (const row of map.tiles) {
-            for (const tile of row) {
-                if (tile.type === 'Pit' && tile.open) {
-                    open.add(`${map.index},${tile.y},${tile.x}`);
-                }
-            }
-        }
-    }
-    return open;
+    return new Set<string>(getDungeonBootstrap().defaultOpenPits ?? []);
+}
+
+function buildDefaultOpenTeleporters(): Set<string> {
+    return new Set<string>(getDungeonBootstrap().defaultOpenTeleporters ?? []);
+}
+
+function buildDefaultVisibleTexts(): Set<string> {
+    return new Set<string>(getDungeonBootstrap().defaultVisibleTexts ?? []);
+}
+
+function buildDefaultHydratedLevels(): Set<number> {
+    return new Set<number>((getDungeonBootstrap().maps ?? []).map((map) => map.index));
 }
 
 export type PersistedSaveInspection =
@@ -167,6 +177,7 @@ export function buildPersistedSaveData(
         direction: state.direction,
         party: state.party,
         gateOpen: state.gateOpen,
+        hydratedLevels: [...state.hydratedLevels].sort((left, right) => left - right),
         openDoors: [...state.openDoors],
         brokenDoors: [...state.brokenDoors],
         openPits: [...state.openPits],
@@ -292,16 +303,17 @@ export function hydratePersistedGameState(
         direction: data.direction,
         party: data.party,
         gateOpen: data.gateOpen,
+        hydratedLevels: new Set<number>(data.hydratedLevels ?? [...buildDefaultHydratedLevels()]),
         openDoors: new Set<string>(data.openDoors),
         brokenDoors: new Set<string>(data.brokenDoors ?? []),
         openPits: new Set<string>(data.openPits ?? [...buildDefaultOpenPits()]),
-        openTeleporters: new Set<string>(data.openTeleporters),
+        openTeleporters: new Set<string>(data.openTeleporters ?? [...buildDefaultOpenTeleporters()]),
         openWalls: new Set<string>(data.openWalls),
         activeSensors: new Set<string>(data.activeSensors),
         firedSensors: new Set<string>(data.firedSensors),
         sensorRuntimeData: data.sensorRuntimeData ?? {},
         sensorRotationOffsets: data.sensorRotationOffsets ?? {},
-        visibleTexts: new Set<string>(data.visibleTexts),
+        visibleTexts: new Set<string>(data.visibleTexts ?? [...buildDefaultVisibleTexts()]),
         pendingSensorEvents: data.pendingSensorEvents ?? [],
         pendingGeneratorSpawns: data.pendingGeneratorSpawns ?? [],
         creatures: data.creatures,

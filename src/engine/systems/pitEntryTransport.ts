@@ -105,6 +105,7 @@ type PitEntryTransportDeps<
             | 'selectedChampionIndex'
         >
     > | null;
+    buildLevelHydrationPatch: (state: TState, level: number) => Partial<TState> | null;
     applyImmediateTransportSquareEffects: (state: TState, basePatch: TPatch) => TPatch;
     computeMovementCooldown: (state: TState) => number;
 };
@@ -133,16 +134,21 @@ export function resolveOpenPitEntryTransport<
     );
     if (!landing) return null;
 
-    const ss = deps.buildSensorStateSnapshot(state);
+    const hydrationPatch = deps.buildLevelHydrationPatch(state, landing.level);
+    const hydratedState = hydrationPatch
+        ? { ...state, ...hydrationPatch } as TState
+        : state;
+
+    const ss = deps.buildSensorStateSnapshot(hydratedState);
     const leave = deps.triggerFloorSensors(
-        state.level,
+        hydratedState.level,
         x,
         y,
         ss,
-        state.championInventories,
-        state.championEquipment,
-        state.floorItems,
-        state.pendingSensorEvents,
+        hydratedState.championInventories,
+        hydratedState.championEquipment,
+        hydratedState.floorItems,
+        hydratedState.pendingSensorEvents,
         'leave',
     );
     const afterLeave = { ...ss, ...leave.sensorChanges } as TSensorState;
@@ -151,9 +157,9 @@ export function resolveOpenPitEntryTransport<
         landing.x,
         landing.y,
         afterLeave,
-        state.championInventories,
-        state.championEquipment,
-        state.floorItems,
+        hydratedState.championInventories,
+        hydratedState.championEquipment,
+        hydratedState.floorItems,
         leave.pendingSensorEvents,
         'enter',
     );
@@ -162,16 +168,16 @@ export function resolveOpenPitEntryTransport<
     const postFallVitals = movedVitals ?? state.championVitals;
     const telefragPatch = deps.applyPartyTelefragAtSquare(
         {
-            creatures: state.creatures,
-            floorItems: state.floorItems,
-            spellVisualEvents: state.spellVisualEvents,
+            creatures: hydratedState.creatures,
+            floorItems: hydratedState.floorItems,
+            spellVisualEvents: hydratedState.spellVisualEvents,
         },
         landing.level,
         landing.x,
         landing.y,
     );
     const fallDamageChanges = deps.applyPartyFallImpactDamage(
-        state,
+        hydratedState,
         postFallVitals,
         landing.level,
         landingPosition,
@@ -179,11 +185,12 @@ export function resolveOpenPitEntryTransport<
 
     return {
         fellThroughPit: true,
-        patch: deps.applyImmediateTransportSquareEffects(state, {
+        patch: deps.applyImmediateTransportSquareEffects(hydratedState, {
+            ...(hydrationPatch ?? {}),
             level: landing.level,
             position: landingPosition,
-            lastPartyMoveGameTick: state.elapsedGameTimeTicks,
-            movementCooldown: deps.computeMovementCooldown(state),
+            lastPartyMoveGameTick: hydratedState.elapsedGameTimeTicks,
+            movementCooldown: deps.computeMovementCooldown(hydratedState),
             ...(movedVitals ? { championVitals: movedVitals } : {}),
             ...leave.sensorChanges,
             ...enter.sensorChanges,

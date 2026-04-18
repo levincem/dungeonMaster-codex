@@ -1,4 +1,4 @@
-import rawDoorsText from '../assets/data/original_doors_runtime.json?raw';
+import rawDoorsText from '../assets/runtime/reference/original_doors_runtime.json?raw';
 import type { FloorItem } from '../types/game';
 import { miscPath, texturesPath } from './assetPaths';
 import { getSourceItemAllowedSlotsMask, MISC_TYPES, WEAPON_TYPES } from './items';

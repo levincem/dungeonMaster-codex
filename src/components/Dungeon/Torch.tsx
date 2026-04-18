@@ -1,6 +1,5 @@
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Sphere } from '@react-three/drei';
 import * as THREE from 'three';
 
 interface TorchProps {
@@ -30,7 +29,8 @@ export const Torch: React.FC<TorchProps> = ({ position, rotation }) => {
             </mesh>
 
             {/* Flame / Glow Effect (Visual only, no pointLight) */}
-            <Sphere ref={glowRef} position={[0, 0.15, 0.1]} args={[0.08, 16, 16]}>
+            <mesh ref={glowRef} position={[0, 0.15, 0.1]}>
+                <sphereGeometry args={[0.08, 16, 16]} />
                 <meshStandardMaterial
                     emissive="#ff6600"
                     emissiveIntensity={4}
@@ -38,7 +38,7 @@ export const Torch: React.FC<TorchProps> = ({ position, rotation }) => {
                     transparent
                     opacity={0.8}
                 />
-            </Sphere>
+            </mesh>
         </group>
     );
 };

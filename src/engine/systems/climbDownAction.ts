@@ -52,6 +52,7 @@ type ClimbDownDeps<
         sensorChanges: Partial<TSensorState>;
         pendingSensorEvents: TPendingSensorEvent[];
     };
+    buildLevelHydrationPatch: (state: TState, level: number) => Partial<TState> | null;
     computeMovementCooldown: (state: TState) => number;
 };
 
@@ -83,17 +84,22 @@ export function resolveClimbDownAction<
         return { errorMessage: 'Impossible de descendre ici.' };
     }
 
-    const climbDownVitals = deps.applyPartyLoadBasedFatigue(state, 25);
-    const sensorsBeforeMove = deps.buildSensorStateSnapshot(state);
+    const hydrationPatch = deps.buildLevelHydrationPatch(state, landing.level);
+    const hydratedState = hydrationPatch
+        ? { ...state, ...hydrationPatch } as TState
+        : state;
+
+    const climbDownVitals = deps.applyPartyLoadBasedFatigue(hydratedState, 25);
+    const sensorsBeforeMove = deps.buildSensorStateSnapshot(hydratedState);
     const leave = deps.triggerFloorSensors(
-        state.level,
-        state.position[1],
-        state.position[0],
+        hydratedState.level,
+        hydratedState.position[1],
+        hydratedState.position[0],
         sensorsBeforeMove,
-        state.championInventories,
-        state.championEquipment,
-        state.floorItems,
-        state.pendingSensorEvents,
+        hydratedState.championInventories,
+        hydratedState.championEquipment,
+        hydratedState.floorItems,
+        hydratedState.pendingSensorEvents,
         'leave',
     );
     const afterLeave = { ...sensorsBeforeMove, ...leave.sensorChanges } as TSensorState;
@@ -102,20 +108,21 @@ export function resolveClimbDownAction<
         landing.x,
         landing.y,
         afterLeave,
-        state.championInventories,
-        state.championEquipment,
-        state.floorItems,
+        hydratedState.championInventories,
+        hydratedState.championEquipment,
+        hydratedState.floorItems,
         leave.pendingSensorEvents,
         'enter',
     );
 
     return {
         patch: {
+            ...(hydrationPatch ?? {}),
             ...basePatch,
             level: landing.level,
             position: [landing.y, landing.x],
-            lastPartyMoveGameTick: state.elapsedGameTimeTicks,
-            movementCooldown: deps.computeMovementCooldown(state),
+            lastPartyMoveGameTick: hydratedState.elapsedGameTimeTicks,
+            movementCooldown: deps.computeMovementCooldown(hydratedState),
             ...(climbDownVitals ? { championVitals: climbDownVitals } : {}),
             ...leave.sensorChanges,
             ...enter.sensorChanges,

@@ -22,6 +22,7 @@ type SensorStateLike = {
 
 type StoreWorldRuntimeParams<TSensorState extends SensorStateLike> = {
     getGameMaps: () => GameMap[];
+    getGameMap: (level: number) => GameMap;
     getMapDifficulty: (level: number) => number;
     creatureTypes: Record<number, CreatureDefinitionLike | undefined>;
     buildRuntimeCreatureGroupId: (
@@ -75,49 +76,53 @@ export function createStoreWorldRuntime<TSensorState extends SensorStateLike>(
     const randomFraction = params.randomFraction ?? Math.random;
     const now = params.now ?? Date.now;
 
-    const buildCreatureInstances = (): CreatureInstance[] => {
+    const buildCreatureInstancesForMap = (map: GameMap): CreatureInstance[] => {
         const instances: CreatureInstance[] = [];
 
-        for (const map of params.getGameMaps()) {
-            for (const row of map.tiles) {
-                for (const tile of row) {
-                    for (const obj of tile.objects) {
-                        if (obj.category !== 'Creature') continue;
-                        const definition = params.creatureTypes[obj.type];
-                        if (!definition) continue;
-                        const moveSec = definition.moveSpd / 6;
-                        const atkSec = definition.atkSpd / 6;
-                        const id = `${map.index}_${tile.x}_${tile.y}_${obj.index}`;
-                        const groupId = params.buildRuntimeCreatureGroupId(
-                            'init',
-                            map.index,
-                            tile.x,
-                            tile.y,
-                            obj.type,
-                        );
-                        params.registerCreatureTimers(id, {
-                            mt: randomFraction() * moveSec,
-                            at: randomFraction() * atkSec,
-                        });
-                        instances.push({
-                            id,
-                            groupId,
-                            typeId: obj.type,
-                            mapIndex: map.index,
-                            x: tile.x,
-                            y: tile.y,
-                            currentHP: obj.hp > 0 ? obj.hp : definition.baseHP,
-                            alive: true,
-                            cell: 'center',
-                            carriedItems: [],
-                        });
-                    }
+        for (const row of map.tiles) {
+            for (const tile of row) {
+                for (const obj of tile.objects) {
+                    if (obj.category !== 'Creature') continue;
+                    const definition = params.creatureTypes[obj.type];
+                    if (!definition) continue;
+                    const moveSec = definition.moveSpd / 6;
+                    const atkSec = definition.atkSpd / 6;
+                    const id = `${map.index}_${tile.x}_${tile.y}_${obj.index}`;
+                    const groupId = params.buildRuntimeCreatureGroupId(
+                        'init',
+                        map.index,
+                        tile.x,
+                        tile.y,
+                        obj.type,
+                    );
+                    params.registerCreatureTimers(id, {
+                        mt: randomFraction() * moveSec,
+                        at: randomFraction() * atkSec,
+                    });
+                    instances.push({
+                        id,
+                        groupId,
+                        typeId: obj.type,
+                        mapIndex: map.index,
+                        x: tile.x,
+                        y: tile.y,
+                        currentHP: obj.hp > 0 ? obj.hp : definition.baseHP,
+                        alive: true,
+                        cell: 'center',
+                        carriedItems: [],
+                    });
                 }
             }
         }
 
         return params.normalizeCreatureCells(instances);
     };
+
+    const buildCreatureInstances = (): CreatureInstance[] =>
+        params.getGameMaps().flatMap((map) => buildCreatureInstancesForMap(map));
+
+    const buildCreatureInstancesForLevel = (level: number): CreatureInstance[] =>
+        buildCreatureInstancesForMap(params.getGameMap(level));
 
     const canApproximateOriginalReservedGeneratorSpawn = (
         state: TSensorState,
@@ -181,55 +186,59 @@ export function createStoreWorldRuntime<TSensorState extends SensorStateLike>(
         },
     );
 
-    const buildFloorItems = (): FloorItem[] => {
+    const buildFloorItemsForMap = (map: GameMap): FloorItem[] => {
         const items: FloorItem[] = [];
 
-        for (const map of params.getGameMaps()) {
-            for (const row of map.tiles) {
-                for (const tile of row) {
-                    const isHallChampionTile =
-                        map.index === 0 &&
-                        tile.objects.some((obj) =>
-                            obj.category === 'Sensor' &&
-                            (obj as SensorObject & { championGraphic?: number }).championGraphic !== undefined,
-                        );
-                    for (const obj of tile.objects) {
-                        if (!ITEM_CATEGORIES.has(obj.category as FloorItem['category'])) continue;
-                        if (isHallChampionTile) continue;
-                        const rawObj = obj as unknown as {
-                            type: number;
-                            power?: number;
-                            name?: string;
-                            text?: string;
-                        };
-                        const rawText = rawObj.text ?? rawObj.name;
-                        const parsedCharges = params.parseItemCharges(rawText);
-                        items.push(params.normaliseWaterContainer({
-                            id: `${map.index}_${tile.x}_${tile.y}_${obj.category}_${obj.index}`,
-                            category: obj.category as FloorItem['category'],
-                            typeId: rawObj.type ?? 0,
-                            rawName: params.resolveItemName(
-                                obj.category as FloorItem['category'],
-                                rawObj.type ?? 0,
-                                obj.category === 'Scroll'
-                                    ? params.normalizeScrollText(rawText)
-                                    : rawText,
-                            ),
-                            mapIndex: map.index,
-                            x: tile.x,
-                            y: tile.y,
-                            tilePos: obj.tilePos,
-                            actionCharges: parsedCharges.charges,
-                            actionMaxCharges: parsedCharges.maxCharges,
-                            potionPower: obj.category === 'Potion' ? rawObj.power : undefined,
-                        }));
-                    }
+        for (const row of map.tiles) {
+            for (const tile of row) {
+                const isHallChampionTile =
+                    map.index === 0 &&
+                    tile.objects.some((obj) =>
+                        obj.category === 'Sensor' &&
+                        (obj as SensorObject & { championGraphic?: number }).championGraphic !== undefined,
+                    );
+                for (const obj of tile.objects) {
+                    if (!ITEM_CATEGORIES.has(obj.category as FloorItem['category'])) continue;
+                    if (isHallChampionTile) continue;
+                    const rawObj = obj as unknown as {
+                        type: number;
+                        power?: number;
+                        name?: string;
+                        text?: string;
+                    };
+                    const rawText = rawObj.text ?? rawObj.name;
+                    const parsedCharges = params.parseItemCharges(rawText);
+                    items.push(params.normaliseWaterContainer({
+                        id: `${map.index}_${tile.x}_${tile.y}_${obj.category}_${obj.index}`,
+                        category: obj.category as FloorItem['category'],
+                        typeId: rawObj.type ?? 0,
+                        rawName: params.resolveItemName(
+                            obj.category as FloorItem['category'],
+                            rawObj.type ?? 0,
+                            obj.category === 'Scroll'
+                                ? params.normalizeScrollText(rawText)
+                                : rawText,
+                        ),
+                        mapIndex: map.index,
+                        x: tile.x,
+                        y: tile.y,
+                        tilePos: obj.tilePos,
+                        actionCharges: parsedCharges.charges,
+                        actionMaxCharges: parsedCharges.maxCharges,
+                        potionPower: obj.category === 'Potion' ? rawObj.power : undefined,
+                    }));
                 }
             }
         }
 
         return items;
     };
+
+    const buildFloorItems = (): FloorItem[] =>
+        params.getGameMaps().flatMap((map) => buildFloorItemsForMap(map));
+
+    const buildFloorItemsForLevel = (level: number): FloorItem[] =>
+        buildFloorItemsForMap(params.getGameMap(level));
 
     const getChampionStarterLoadout = (championId: number): {
         equipment: ChampionEquipment;
@@ -295,7 +304,9 @@ export function createStoreWorldRuntime<TSensorState extends SensorStateLike>(
 
     return {
         buildCreatureInstances,
+        buildCreatureInstancesForLevel,
         buildFloorItems,
+        buildFloorItemsForLevel,
         buildOpenPits,
         buildOpenTeleporters,
         buildVisibleTexts,

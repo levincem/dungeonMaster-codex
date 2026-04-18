@@ -25,6 +25,7 @@ function createRuntime(maps: GameMap[], overrides: Partial<Parameters<typeof cre
 
     const runtime = createStoreWorldRuntime({
         getGameMaps: () => maps,
+        getGameMap: (level) => maps.find((map) => map.index === level) ?? maps[0]!,
         getMapDifficulty: (level) => maps.find((map) => map.index === level)?.difficulty ?? 1,
         creatureTypes: {
             7: { baseHP: 30, moveSpd: 12, atkSpd: 18, sizeOnTile: 0 },
@@ -119,6 +120,32 @@ test('store world runtime builds initial creatures with timer registration and n
         mt: 1,
         at: 1.5,
     });
+});
+
+test('store world runtime can build creatures and floor items for a single level only', () => {
+    const maps = [
+        createMap(0, 1, [[{
+            x: 0,
+            y: 0,
+            type: 'Floor',
+            objects: [{ category: 'Creature', index: 0, tilePos: 'North', type: 7, hp: 10 }],
+        }]]),
+        createMap(1, 1, [[{
+            x: 1,
+            y: 1,
+            type: 'Floor',
+            objects: [{ category: 'Weapon', index: 1, tilePos: 'South', type: 4 }],
+        }]]),
+    ];
+    const { runtime } = createRuntime(maps);
+
+    const levelZeroCreatures = runtime.buildCreatureInstancesForLevel(0);
+    const levelOneItems = runtime.buildFloorItemsForLevel(1);
+
+    assert.equal(levelZeroCreatures.length, 1);
+    assert.equal(levelZeroCreatures[0]?.mapIndex, 0);
+    assert.equal(levelOneItems.length, 1);
+    assert.equal(levelOneItems[0]?.mapIndex, 1);
 });
 
 test('store world runtime builds floor items while skipping the hall champion tile', () => {

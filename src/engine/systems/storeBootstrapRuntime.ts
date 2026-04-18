@@ -40,6 +40,7 @@ export type StoreBootstrapState = {
     activeMirrorChampionId: number | null;
     activePartyMemberId: number | null;
     gateOpen: boolean;
+    hydratedLevels: Set<number>;
     openDoors: Set<string>;
     brokenDoors: Set<string>;
     openPits: Set<string>;
@@ -92,20 +93,26 @@ export type StoreBootstrapState = {
 type StoreBootstrapRuntimeParams = {
     hallStart: [number, number];
     hallStartDirection: StoreBootstrapDirection;
-    buildOpenPits: () => Set<string>;
-    buildOpenTeleporters: () => Set<string>;
-    buildVisibleTexts: () => Set<string>;
-    buildCreatureInstances: () => CreatureInstance[];
-    buildFloorItems: () => FloorItem[];
+    buildDefaultOpenPits: () => Set<string>;
+    buildDefaultOpenTeleporters: () => Set<string>;
+    buildDefaultVisibleTexts: () => Set<string>;
+    buildCreatureInstancesForLevel: (level: number) => CreatureInstance[];
+    buildFloorItemsForLevel: (level: number) => FloorItem[];
 };
 
 export function createStoreBootstrapRuntime(
     params: StoreBootstrapRuntimeParams,
 ) {
+    const createEmptyStringSet = () => new Set<string>();
+
     const buildFreshDungeonState = (
         gameOptions: GameOptions,
         gamePhase: StoreBootstrapGamePhase,
-    ): StoreBootstrapState => ({
+    ): StoreBootstrapState => {
+        const shouldHydrateWorld = gamePhase !== 'title';
+        const hydratedLevels = shouldHydrateWorld ? new Set<number>([0]) : new Set<number>();
+
+        return {
         level: 0,
         position: params.hallStart,
         direction: params.hallStartDirection,
@@ -117,20 +124,21 @@ export function createStoreBootstrapRuntime(
         activeMirrorChampionId: null,
         activePartyMemberId: null,
         gateOpen: false,
-        openDoors: new Set<string>(),
-        brokenDoors: new Set<string>(),
-        openPits: params.buildOpenPits(),
-        openTeleporters: params.buildOpenTeleporters(),
-        openWalls: new Set<string>(),
-        activeSensors: new Set<string>(),
-        firedSensors: new Set<string>(),
+        hydratedLevels,
+        openDoors: createEmptyStringSet(),
+        brokenDoors: createEmptyStringSet(),
+        openPits: shouldHydrateWorld ? params.buildDefaultOpenPits() : createEmptyStringSet(),
+        openTeleporters: shouldHydrateWorld ? params.buildDefaultOpenTeleporters() : createEmptyStringSet(),
+        openWalls: createEmptyStringSet(),
+        activeSensors: createEmptyStringSet(),
+        firedSensors: createEmptyStringSet(),
         sensorRuntimeData: {},
         sensorRotationOffsets: {},
-        visibleTexts: params.buildVisibleTexts(),
+        visibleTexts: shouldHydrateWorld ? params.buildDefaultVisibleTexts() : createEmptyStringSet(),
         pendingSensorEvents: [],
         pendingGeneratorSpawns: [],
-        creatures: params.buildCreatureInstances(),
-        floorItems: params.buildFloorItems(),
+        creatures: shouldHydrateWorld ? params.buildCreatureInstancesForLevel(0) : [],
+        floorItems: shouldHydrateWorld ? params.buildFloorItemsForLevel(0) : [],
         championInventories: {},
         championEquipment: {},
         championVitals: {},
@@ -164,7 +172,8 @@ export function createStoreBootstrapRuntime(
         deadChampions: {},
         activeFloorDrag: null,
         lastCreatureAttackGameTick: 0,
-    });
+    };
+    };
 
     return {
         buildFreshDungeonState,

@@ -1,4 +1,4 @@
-import rawTeleporters from '../assets/data/original_teleporters_runtime.json';
+import rawTeleporters from '../assets/runtime/reference/original_teleporters_runtime.json';
 import type { CardinalDir } from '../types/game';
 
 type RawTeleporterRuntime = {

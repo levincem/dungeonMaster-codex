@@ -1,5 +1,4 @@
 import { Suspense, useRef, useEffect, useMemo } from 'react';
-import { Billboard, Plane, useTexture } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
@@ -7,6 +6,7 @@ import { useStore, onCreatureAction } from '../../engine/store';
 import type { CreatureInstance } from '../../types/game';
 import { spritesPath } from '../../data/assetPaths';
 import { getCreatureCellOffsetXZ } from './creatureCellOffsets';
+import { BillboardGroup, useLoadedTexture } from './renderHelpers';
 
 // Default sprite size
 const DEFAULT_W = GRID_SIZE   * 0.65;
@@ -35,7 +35,7 @@ interface SpriteInnerProps {
 }
 
 const SpriteInner = ({ typeId, frameRef, frameTimerRef }: SpriteInnerProps) => {
-    const baseTex = useTexture(spritesPath(`creatures/creature_${typeId}.png`));
+    const baseTex = useLoadedTexture(spritesPath(`creatures/creature_${typeId}.png`));
 
     const single = SINGLE_FRAME_IDS.has(typeId);
     const nFrames = single ? 1 : 3;
@@ -68,7 +68,8 @@ const SpriteInner = ({ typeId, frameRef, frameTimerRef }: SpriteInnerProps) => {
     const offsetY = spriteY - (floorY + DEFAULT_H / 2);
 
     return (
-        <Plane args={[w, h]} position={[0, offsetY, 0]}>
+        <mesh position={[0, offsetY, 0]}>
+            <planeGeometry args={[w, h]} />
             <meshBasicMaterial
                 map={animTex}
                 transparent
@@ -77,7 +78,7 @@ const SpriteInner = ({ typeId, frameRef, frameTimerRef }: SpriteInnerProps) => {
                 depthWrite
                 depthTest
             />
-        </Plane>
+        </mesh>
     );
 };
 
@@ -104,7 +105,7 @@ export const CreatureSprite = ({ creature }: { creature: CreatureInstance }) => 
     const [offX, offZ] = getCreatureCellOffsetXZ(direction, cell);
 
     return (
-        <Billboard
+        <BillboardGroup
             position={[x * GRID_SIZE + offX, billboardY, y * GRID_SIZE + offZ]}
             follow={true}
             lockX={true}
@@ -118,6 +119,6 @@ export const CreatureSprite = ({ creature }: { creature: CreatureInstance }) => 
                     frameTimerRef={frameTimerRef}
                 />
             </Suspense>
-        </Billboard>
+        </BillboardGroup>
     );
 };

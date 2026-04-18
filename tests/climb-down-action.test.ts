@@ -58,6 +58,7 @@ test('resolveClimbDownAction returns an error when there is no open pit ahead', 
             applyPartyLoadBasedFatigue: () => null,
             buildSensorStateSnapshot: () => ({ openDoors: new Set<string>() }),
             triggerFloorSensors: () => ({ sensorChanges: {}, pendingSensorEvents: [] }),
+            buildLevelHydrationPatch: () => null,
             computeMovementCooldown: () => 1,
         },
     );
@@ -76,6 +77,7 @@ test('resolveClimbDownAction returns an error when the landing is invalid', () =
             applyPartyLoadBasedFatigue: () => null,
             buildSensorStateSnapshot: () => ({ openDoors: new Set<string>() }),
             triggerFloorSensors: () => ({ sensorChanges: {}, pendingSensorEvents: [] }),
+            buildLevelHydrationPatch: () => null,
             computeMovementCooldown: () => 1,
         },
     );
@@ -108,6 +110,7 @@ test('resolveClimbDownAction returns the movement patch on success', () => {
                     pendingSensorEvents: [{ level: 1, sensorIndex: 3, remaining: 2 }],
                 };
             },
+            buildLevelHydrationPatch: () => null,
             computeMovementCooldown: () => 1.5,
         },
     );

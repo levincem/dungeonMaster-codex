@@ -2,7 +2,7 @@
 // Pool-based audio: 2 instances per sound to allow fast overlapping triggers.
 
 import { soundsPath } from '../data/assetPaths';
-import { getGameDbRawSync } from '../data/gameDbData';
+import { getGameDbCreaturesRawSync } from '../data/gameDbData';
 
 // ─── Sound registry ───────────────────────────────────────────────────────────
 const FILES: Record<string, string> = {
@@ -56,7 +56,7 @@ type RawGameDb = {
     };
 };
 
-const gameDb = JSON.parse(getGameDbRawSync()) as RawGameDb;
+const gameDb = JSON.parse(getGameDbCreaturesRawSync()) as RawGameDb;
 const ORIGINAL_CREATURE_ATTACK_ORDINALS = new Map<number, number>(
     (gameDb.originalAtari?.i559?.creatures ?? []).map((creature) => [
         creature.index,

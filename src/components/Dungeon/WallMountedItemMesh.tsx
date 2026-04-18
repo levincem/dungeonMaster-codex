@@ -1,11 +1,11 @@
 import { Suspense, useEffect, useMemo } from 'react';
-import { Plane, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import type { FloorItem, CardinalDir } from '../../types/game';
 import { getFloorItemImage } from '../../data/itemImages';
 import { hasOriginalWallOverlayAt } from '../../data/originalWallOverlays';
 import { useStore } from '../../engine/store';
+import { useLoadedTexture } from './renderHelpers';
 
 const FACE_OFFSET = GRID_SIZE / 2 + 0.04;
 const FACE_POS: Record<CardinalDir, [number, number, number]> = {
@@ -36,7 +36,7 @@ const WallItemSprite = ({
     onClick: () => void;
     scale?: number;
 }) => {
-    const baseTex = useTexture(imagePath);
+    const baseTex = useLoadedTexture(imagePath);
     const tex = useMemo(() => {
         const next = baseTex.clone();
         next.colorSpace = THREE.SRGBColorSpace;
@@ -51,12 +51,12 @@ const WallItemSprite = ({
     const height = (aspect >= 1 ? ITEM_MAX_W / aspect : ITEM_MAX_H) * scale;
 
     return (
-        <Plane
-            args={[width, height]}
+        <mesh
             onClick={(event) => { event.stopPropagation(); onClick(); }}
             frustumCulled={false}
             renderOrder={16}
         >
+            <planeGeometry args={[width, height]} />
             <meshBasicMaterial
                 map={tex}
                 transparent
@@ -69,7 +69,7 @@ const WallItemSprite = ({
                 polygonOffsetUnits={-6}
                 toneMapped={false}
             />
-        </Plane>
+        </mesh>
     );
 };
 

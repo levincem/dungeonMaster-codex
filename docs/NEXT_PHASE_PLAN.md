@@ -182,18 +182,29 @@ Actions:
 
 Priorites concretes apres le dernier build:
 
-- `dungeon-blob` ~ `798 kB`
 - `three-core` ~ `728 kB`
-- `overlay-data` ~ `670 kB`
+- `dungeon-render` ~ `358 kB`
+- `react-vendor` ~ `193 kB`
+- `three-r3f` ~ `162 kB`
+- `game-db-items` ~ `120 kB`
+- `game-db-weapon-attacks` ~ `108 kB`
+- `game-db-creatures` ~ `42 kB`
+- `hud-ui` ~ `32 kB`
+- `champion-sheet` ~ `27 kB`
+- les maps du donjon sont maintenant deja separees en chunks `level-XX`, le `game_db` runtime a lui aussi ete casse en slices, et l'ancien blob `overlay-data` a ete remplace par des chunks `wall_overlays/map-XX`; le prochain gain viendra donc surtout du preload plus fin de ces slices et de la pile de rendu Three.js
 
 Lecture utile:
 
-- `dungeon.json` et `game_db.json` sont deja charges par `import()` dans `dungeonData.ts` et `gameDbData.ts`
-- les overlays muraux passent deja par un loader asynchrone, mais leur chunk reste lourd
+- le runtime dungeon est maintenant charge via `bootstrap.json` puis `maps/level-XX.json` dans `dungeonData.ts`
+- `gameDbData.ts` precharge maintenant des slices dediees `items / weapon attacks / creatures`, tout en gardant `preloadGameDbData()` comme facade de transition
+- le tout premier boot a ete allégé: `LoadingScreen` ne chauffe plus que les visuels du titre et le bootstrap du donjon, puis le warm-up lourd bascule vers la phase titre et les sas explicites `Preparing Title Screen` / `Enter` / `Resume`
+- les overlays muraux passent maintenant par un loader asynchrone par map; le gros gain data cote overlays a donc deja ete obtenu
+- la scene gameplay n'importe plus activement `@react-three/drei`; le gain facile sur la pile R3F a donc deja ete capte, et la suite demandera plutot du profilage sur `DungeonScene` / `three-core`
 - le prochain gain ne viendra donc pas d'un simple `manualChunks`, deja present, mais plutot de:
   - reduire la taille des datasets embarques
-  - retarder davantage certains chargements non critiques
-  - verifier si certains consommateurs forcent encore un preload trop tot
+  - verifier si certains preloads visuels actuellement bloques au boot doivent rester au titre ou peuvent passer par un sas de transition entre niveaux sans nuire au ressenti
+  - profiler plus finement `DungeonScene` et sa dependance a `three-core` / `three-r3f`, qui restent la vraie masse du rendu
+  - verifier si certains consommateurs forcent encore un preload complet trop tot alors que le format est maintenant compatible avec un preload par niveau, un preload de voisinage et une hydratation monde progressive
 
 ### Rendu runtime
 

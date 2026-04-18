@@ -1,4 +1,8 @@
-import { getDungeonDataSync } from './dungeonData';
+import {
+    getDungeonBootstrapSync,
+    getDungeonMapDataSync,
+    type RawDungeonBootstrap,
+} from './dungeonData';
 import { normalizeLookupName, resolveItemName } from './items';
 import type {
     CardinalDir,
@@ -55,10 +59,6 @@ type RawMap = Pick<GameMap, 'index' | 'name'> & {
     tiles: RawTile[];
 };
 
-type RawDungeon = {
-    maps: RawMap[];
-};
-
 const WALL_SENSOR_LABELS: Record<number, string> = {
     1: 'Levier / bouton mural',
     2: 'Bouton (objet quelconque requis)',
@@ -92,7 +92,7 @@ const FLOOR_SENSOR_LABELS: Record<number, string> = {
     9: 'Verificateur de version',
 };
 
-const dungeon = getDungeonDataSync<RawDungeon>();
+const mapMechanismsCache = new Map<number, Mechanism[]>();
 
 function getMechanismLabel(tileType: TileType, sensorType: number): string {
     const isWall = tileType === 'Wall' || tileType === 'TrickWall';
@@ -157,10 +157,17 @@ function buildMechanismMap(map: RawMap): Mechanism[] {
     return mechanisms;
 }
 
-const MAP_MECHANISMS = dungeon.maps.map((map) => buildMechanismMap(map));
-
 export function getMapMechanisms(level: number): Mechanism[] {
-    return MAP_MECHANISMS[level] ?? [];
+    const cachedMechanisms = mapMechanismsCache.get(level);
+    if (cachedMechanisms) return cachedMechanisms;
+
+    const bootstrap = getDungeonBootstrapSync<RawDungeonBootstrap>();
+    const mapSummary = bootstrap.maps.find((map) => map.index === level);
+    if (!mapSummary) return [];
+
+    const mechanisms = buildMechanismMap(getDungeonMapDataSync<RawMap>(level));
+    mapMechanismsCache.set(level, mechanisms);
+    return mechanisms;
 }
 
 export function getMechanismsAt(level: number, x: number, y: number, face: CardinalDir): Mechanism[] {

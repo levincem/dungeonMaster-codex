@@ -1,11 +1,12 @@
 const fs = require("fs");
 const path = require("path");
+const { RUNTIME_GAME_DB_FILE } = require("./runtime_paths.cjs");
 
 const ROOT = __dirname;
 const ATARI_STATS = path.join(ROOT, "output", "atari_i559_stats.json");
 const ATARI_SPELLS = path.join(ROOT, "output", "atari_i560_stats.json");
 const STATS_REF = path.join(ROOT, "output", "stats_reference.json");
-const GAME_DB = path.join(ROOT, "..", "..", "src", "assets", "data", "game_db.json");
+const GAME_DB = RUNTIME_GAME_DB_FILE;
 const OUT_JSON = path.join(ROOT, "output", "atari_game_db_comparison.json");
 
 const FOOD_NAMES = [

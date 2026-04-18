@@ -40,5 +40,7 @@ Si on ne doit lire qu'un seul trio pour se recaler vite:
 - moteur: largement source-backed sur le gameplay central
 - reste runtime majeur: structure des groupes actifs / generateurs
 - store central: la grosse extraction des wrappers d'action/orchestration est largement faite, y compris boucle temps, wrappers gameplay top-level, helpers capteurs, etat runtime externe des creatures, runtime party/survie, runtime movement/transport, bootstrap monde/generateurs, bootstrap d'etat initial, helpers champion purs, noyau `champion/combat state`, paquet utilitaire `combat/projectile/item`, noyau spatial `creature occupancy / LOS` et petit noyau `endgame`; le `store` peut maintenant etre considere comme sain dans son role de composition
+- packaging runtime: la source canonique n'est plus `src/assets/data/`; le runtime vit maintenant sous `src/assets/runtime/` avec un split `bootstrap + maps/level-XX + db/reference/support`, et les overlays muraux runtime sont eux aussi splittes par map sous `support/wall_overlays/`, compatible avec un preload par niveau
+- chargement monde: le bootstrap porte maintenant les marqueurs monde peu couteux, la persistence suit `hydratedLevels`, et creatures/items ne s'hydratent plus globalement mais au niveau visite ou cible
 - autres restes: couches hybrides localisees, fallbacks de presentation, validation en jeu des cas rares et de fin
 - dernier audit code/runtime: pas de nouvelle incoherence gameplay centrale trouvee; le reste est surtout structurel, hybride ou de validation

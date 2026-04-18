@@ -1,6 +1,6 @@
 import type { CardinalDir, GameMap } from '../types/game';
 import { miscPath } from './assetPaths';
-import { getOriginalWallOverlayDataSync } from './originalWallOverlayData';
+import { getOriginalWallOverlayMapDataSync } from './originalWallOverlayData';
 
 type OverlayClassification = 'interactive' | 'stateful' | 'hazard' | 'decorative' | 'unclear';
 
@@ -31,6 +31,7 @@ type FixedFace = {
 };
 
 type OverlayPositionsData = {
+    mapIndex?: number;
     fixedFaces: FixedFace[];
 };
 
@@ -59,34 +60,30 @@ type OverlayRuntimeState = {
     firedSensors?: Set<string>;
 };
 
-let fixedFacesByMap: Map<number, FixedFace[]> | null = null;
-let fixedFaceNameKeys: Set<string> | null = null;
-
-function ensureOverlayIndexes(): {
-    fixedFacesByMap: Map<number, FixedFace[]>;
+type OverlayMapIndex = {
+    fixedFaces: FixedFace[];
     fixedFaceNameKeys: Set<string>;
-} {
-    if (fixedFacesByMap && fixedFaceNameKeys) {
-        return { fixedFacesByMap, fixedFaceNameKeys };
-    }
+};
 
-    const data = getOriginalWallOverlayDataSync<OverlayPositionsData>();
-    const nextFixedFacesByMap = new Map<number, FixedFace[]>();
-    const nextFixedFaceNameKeys = new Set<string>();
+const overlayMapIndexes = new Map<number, OverlayMapIndex>();
 
-    for (const face of data.fixedFaces) {
-        const list = nextFixedFacesByMap.get(face.mapIndex) ?? [];
-        list.push(face);
-        nextFixedFacesByMap.set(face.mapIndex, list);
+function ensureOverlayMapIndex(mapIndex: number): OverlayMapIndex {
+    const cached = overlayMapIndexes.get(mapIndex);
+    if (cached) return cached;
+
+    const data = getOriginalWallOverlayMapDataSync<OverlayPositionsData>(mapIndex);
+    const fixedFaces = data.fixedFaces ?? [];
+    const fixedFaceNameKeys = new Set<string>();
+
+    for (const face of fixedFaces) {
         for (const variant of face.variants) {
-            nextFixedFaceNameKeys.add(`${face.mapIndex}:${face.x}:${face.y}:${face.face}:${variant.overlayName}`);
+            fixedFaceNameKeys.add(`${face.mapIndex}:${face.x}:${face.y}:${face.face}:${variant.overlayName}`);
         }
     }
 
-    fixedFacesByMap = nextFixedFacesByMap;
-    fixedFaceNameKeys = nextFixedFaceNameKeys;
-
-    return { fixedFacesByMap, fixedFaceNameKeys };
+    const index = { fixedFaces, fixedFaceNameKeys };
+    overlayMapIndexes.set(mapIndex, index);
+    return index;
 }
 
 const OMITTED_OVERLAYS = new Set([
@@ -149,6 +146,14 @@ const VISUALS_BY_NAME: Record<string, OverlayVisual> = {
     'Manacles': { image: miscPath('wall_manacles.png'), accent: '#9c9aa4', width: 0.56, height: 0.66 },
     'Lord Order (Outside)': { image: miscPath('wall_lord_order_outside.png'), accent: '#bf8b54', width: 0.78, height: 1.0 },
 };
+
+export const ALL_WALL_OVERLAY_IMAGE_PATHS = Array.from(
+    new Set(
+        Object.values(VISUALS_BY_NAME)
+            .map((visual) => visual.image)
+            .filter((image): image is string => Boolean(image)),
+    ),
+).sort();
 
 function getPreferredStateVariants(face: FixedFace): FixedVariant[] {
     const sensorVariants = face.variants.filter(
@@ -253,8 +258,8 @@ export function getOriginalWallOverlaysForMap(
     activeSensors: Set<string>,
     firedSensors?: Set<string>,
 ): OriginalWallOverlayRender[] {
-    const { fixedFacesByMap } = ensureOverlayIndexes();
-    const faces = fixedFacesByMap.get(map.index) ?? [];
+    const { fixedFaces } = ensureOverlayMapIndex(map.index);
+    const faces = fixedFaces;
     const renders: OriginalWallOverlayRender[] = [];
     const runtimeState: OverlayRuntimeState = { activeSensors, firedSensors };
 
@@ -289,6 +294,6 @@ export function hasOriginalWallOverlayAt(
     face: CardinalDir,
     overlayName: string,
 ): boolean {
-    const { fixedFaceNameKeys } = ensureOverlayIndexes();
+    const { fixedFaceNameKeys } = ensureOverlayMapIndex(mapIndex);
     return fixedFaceNameKeys.has(`${mapIndex}:${x}:${y}:${face}:${overlayName}`);
 }

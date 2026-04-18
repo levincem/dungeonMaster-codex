@@ -14,6 +14,7 @@ type ClimbDownRuntimeState<TPendingSensorEvent extends PendingSensorEventLike> =
     openDoors: Set<string>;
     openWalls: Set<string>;
     openPits: Set<string>;
+    hydratedLevels: Set<number>;
     championInventories: Record<number, FloorItem[]>;
     championEquipment: Record<number, ChampionEquipment>;
     floorItems: FloorItem[];
@@ -110,6 +111,7 @@ type ClimbDownRuntimeDepsParams<
         pendingSensorEvents: TPendingSensorEvent[];
     };
     buildMovementSensorDeps: () => MovementSensorDepsLike<TSensorState, TPendingSensorEvent>;
+    buildLevelHydrationPatch: (state: TState, level: number) => Partial<TState> | null;
     computeMovementCooldown: (state: TState) => number;
 };
 
@@ -163,6 +165,7 @@ export function createClimbDownRuntimeDeps<
             params.buildMovementSensorDeps(),
             mode,
         ),
+        buildLevelHydrationPatch: params.buildLevelHydrationPatch,
         computeMovementCooldown: params.computeMovementCooldown,
     };
 }

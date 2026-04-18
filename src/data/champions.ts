@@ -1,5 +1,5 @@
 import { portraitsPath } from './assetPaths';
-import { getDungeonDataSync } from './dungeonData';
+import { getDungeonBootstrapSync } from './dungeonData';
 import type { Champion, ChampionClass, ChampionSkills } from '../types/champion';
 
 export type { Champion, ChampionClass, ChampionSkills } from '../types/champion';
@@ -86,7 +86,7 @@ function deriveChampionClass(skills: ChampionSkills): ChampionClass {
     return totals[0]?.[0] ?? 'Fighter';
 }
 
-const rawChampions = getDungeonDataSync<RawDungeon>().champions ?? [];
+const rawChampions = getDungeonBootstrapSync<RawDungeon>().champions ?? [];
 const ORIGINAL_STAMINA_SCALE = 10;
 
 export const CHAMPIONS: Champion[] = rawChampions

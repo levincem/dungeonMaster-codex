@@ -1,0 +1,3700 @@
+{
+  "index": 0,
+  "name": "Hall of Champions",
+  "level": 0,
+  "width": 18,
+  "height": 19,
+  "difficulty": 0,
+  "mapOffset": {
+    "x": 0,
+    "y": 0
+  },
+  "tiles": [
+    {
+      "x": 0,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 9,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 13,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 14,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 15,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 16,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 242,
+          "tilePos": "West",
+          "type": 30,
+          "name": "Corn"
+        }
+      ]
+    },
+    {
+      "x": 0,
+      "y": 17,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 18,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 1,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 551,
+          "tilePos": "South",
+          "type": 0,
+          "sound": false,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 1,
+          "targetX": 1,
+          "targetDir": "South"
+        }
+      ]
+    },
+    {
+      "x": 1,
+      "y": 2,
+      "type": "Door",
+      "orientation": "NorthSouth",
+      "objects": [
+        {
+          "category": "Door",
+          "index": 107,
+          "tilePos": "North",
+          "destructChop": false,
+          "destructFire": false,
+          "hasButton": false,
+          "doorType": 0
+        }
+      ]
+    },
+    {
+      "x": 1,
+      "y": 3,
+      "type": "Teleporter",
+      "open": false,
+      "visible": false,
+      "objects": [
+        {
+          "category": "Teleporter",
+          "index": 65,
+          "tilePos": "North",
+          "sound": false,
+          "destX": 9,
+          "destY": 1,
+          "destMap": 0
+        },
+        {
+          "category": "Sensor",
+          "index": 532,
+          "tilePos": "North",
+          "type": 8,
+          "sound": false,
+          "data": 27,
+          "isLocal": false,
+          "delay": 8,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": true,
+          "multipleValue": 388,
+          "kineticEnergy": 132,
+          "stepEnergy": 1,
+          "targetY": 3,
+          "targetX": 1,
+          "targetDir": "North",
+          "requiredObjectName": "THE FIRESTAFF"
+        },
+        {
+          "category": "Sensor",
+          "index": 530,
+          "tilePos": "North",
+          "type": 8,
+          "sound": false,
+          "data": 27,
+          "isLocal": false,
+          "delay": 2,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": true,
+          "multipleValue": 260,
+          "kineticEnergy": 4,
+          "stepEnergy": 1,
+          "targetY": 2,
+          "targetX": 1,
+          "targetDir": "North",
+          "requiredObjectName": "THE FIRESTAFF"
+        }
+      ]
+    },
+    {
+      "x": 1,
+      "y": 4,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 64,
+          "tilePos": "North",
+          "type": 8,
+          "sound": false,
+          "data": 27,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": true,
+          "multipleValue": 516,
+          "kineticEnergy": 4,
+          "stepEnergy": 2,
+          "targetY": 4,
+          "targetX": 1,
+          "targetDir": "North",
+          "requiredObjectName": "THE FIRESTAFF"
+        },
+        {
+          "category": "Text",
+          "index": 31,
+          "tilePos": "North",
+          "text": "WELCOME BACK\nBRAVE\nADVENTURERS.",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 1,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 9,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 11,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 12,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 13,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 14,
+      "type": "Door",
+      "orientation": "NorthSouth",
+      "objects": [
+        {
+          "category": "Door",
+          "index": 166,
+          "tilePos": "North",
+          "destructChop": false,
+          "destructFire": false,
+          "hasButton": true,
+          "doorType": 1
+        }
+      ]
+    },
+    {
+      "x": 1,
+      "y": 15,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 16,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 17,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 18,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 9,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 11,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 146,
+          "tilePos": "East",
+          "type": 29,
+          "name": "Apple"
+        }
+      ]
+    },
+    {
+      "x": 2,
+      "y": 12,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 249,
+          "tilePos": "East",
+          "type": 32,
+          "name": "Cheese"
+        }
+      ]
+    },
+    {
+      "x": 2,
+      "y": 13,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 248,
+          "tilePos": "South",
+          "type": 31,
+          "name": "Bread"
+        }
+      ]
+    },
+    {
+      "x": 2,
+      "y": 14,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 15,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 16,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 17,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 18,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 9,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 63,
+          "tilePos": "East",
+          "type": 0,
+          "sound": false,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 9,
+          "targetX": 3,
+          "targetDir": "East"
+        }
+      ]
+    },
+    {
+      "x": 3,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 13,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 14,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 152,
+          "tilePos": "East",
+          "type": 0,
+          "sound": false,
+          "data": 0,
+          "isLocal": true,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "multipleValue": 0,
+          "targetY": 0,
+          "targetX": 0,
+          "targetDir": "North"
+        },
+        {
+          "category": "Sensor",
+          "index": 7,
+          "tilePos": "East",
+          "type": 13,
+          "sound": false,
+          "data": 4,
+          "isLocal": true,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "multipleValue": 1,
+          "targetY": 0,
+          "targetX": 0,
+          "targetDir": "East",
+          "requiredObjectName": "TORCH"
+        },
+        {
+          "category": "Weapon",
+          "index": 99,
+          "tilePos": "East",
+          "type": 2,
+          "name": "Torch"
+        }
+      ]
+    },
+    {
+      "x": 3,
+      "y": 15,
+      "type": "Stairs",
+      "orientation": "WestEast",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 16,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 17,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 18,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 2,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 3,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 9,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 148,
+          "tilePos": "North",
+          "type": 29,
+          "name": "Apple"
+        }
+      ]
+    },
+    {
+      "x": 4,
+      "y": 10,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 11,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 12,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 13,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 14,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 15,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 11,
+          "tilePos": "North",
+          "type": 1,
+          "name": "Waterskin"
+        },
+        {
+          "category": "Scroll",
+          "index": 0,
+          "tilePos": "East",
+          "text": "Invoke Ful\nfor a magic torch"
+        }
+      ]
+    },
+    {
+      "x": 4,
+      "y": 16,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 17,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 18,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 620,
+          "tilePos": "North",
+          "type": 0,
+          "sound": false,
+          "data": 0,
+          "isLocal": true,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "multipleValue": 0,
+          "targetY": 0,
+          "targetX": 0,
+          "targetDir": "North"
+        },
+        {
+          "category": "Scroll",
+          "index": 32,
+          "tilePos": "North",
+          "text": "New lives for old bones"
+        }
+      ]
+    },
+    {
+      "x": 5,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 2,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 9,
+      "type": "Door",
+      "orientation": "WestEast",
+      "objects": [
+        {
+          "category": "Door",
+          "index": 153,
+          "tilePos": "North",
+          "destructChop": false,
+          "destructFire": false,
+          "hasButton": false,
+          "doorType": 0
+        }
+      ]
+    },
+    {
+      "x": 5,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 11,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Misc",
+          "index": 150,
+          "tilePos": "East",
+          "type": 31,
+          "name": "Bread"
+        }
+      ]
+    },
+    {
+      "x": 5,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 13,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 14,
+          "tilePos": "East",
+          "type": 127,
+          "sound": false,
+          "data": 23,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 13,
+          "targetX": 5,
+          "targetDir": "East"
+        }
+      ]
+    },
+    {
+      "x": 5,
+      "y": 14,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 15,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 16,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 17,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 107,
+          "tilePos": "West",
+          "text": "VI\nALTAR OF\nREBIRTH",
+          "visible": true
+        }
+      ]
+    },
+    {
+      "x": 5,
+      "y": 18,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 1,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 2,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 3,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 9,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 151,
+          "tilePos": "North",
+          "type": 3,
+          "sound": true,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 9,
+          "targetX": 5,
+          "targetDir": "North",
+          "requiredObjectName": "COMPASS"
+        }
+      ]
+    },
+    {
+      "x": 6,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 12,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 13,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 0,
+          "tilePos": "North",
+          "text": "DAROOU\n\n\nM\nAAGEACIKAAAG\nCDDCBOCDCNBOCN\nDADAAAAAAAAAAABB",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 6,
+      "y": 14,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 15,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 16,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 17,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 18,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 3,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 8,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 15,
+          "tilePos": "South",
+          "type": 127,
+          "sound": false,
+          "data": 1,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 8,
+          "targetX": 7,
+          "targetDir": "South"
+        },
+        {
+          "category": "Armor",
+          "index": 0,
+          "tilePos": "South",
+          "type": 3,
+          "name": "Leather Jerkin"
+        },
+        {
+          "category": "Armor",
+          "index": 1,
+          "tilePos": "South",
+          "type": 2,
+          "name": "Elven Doublet"
+        },
+        {
+          "category": "Weapon",
+          "index": 88,
+          "tilePos": "South",
+          "type": 23,
+          "name": "Club"
+        },
+        {
+          "category": "Armor",
+          "index": 115,
+          "tilePos": "South",
+          "type": 25,
+          "name": "Bezerker Helm"
+        }
+      ]
+    },
+    {
+      "x": 7,
+      "y": 9,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 1,
+          "tilePos": "North",
+          "text": "HALK\nTHE BARBARIAN\n\nM\nAAFKACOOAAAA\nCIDHCLBOCOCGDA\nEAEAAAAAAAAAAAAA",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 7,
+      "y": 10,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 11,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 12,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 13,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 2,
+          "tilePos": "North",
+          "text": "WU TSE\nSON OF HEAVEN\n\nF\nAACNABNGAABE\nCICGCDDFCNCPCI\nAAAABCADCBEDAAAA",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 7,
+      "y": 14,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 16,
+          "tilePos": "North",
+          "type": 127,
+          "sound": false,
+          "data": 10,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 14,
+          "targetX": 7,
+          "targetDir": "North"
+        },
+        {
+          "category": "Armor",
+          "index": 2,
+          "tilePos": "North",
+          "type": 10,
+          "name": "Tunic"
+        },
+        {
+          "category": "Armor",
+          "index": 3,
+          "tilePos": "North",
+          "type": 11,
+          "name": "Silk Shirt"
+        },
+        {
+          "category": "Armor",
+          "index": 4,
+          "tilePos": "North",
+          "type": 3,
+          "name": "Leather Jerkin"
+        },
+        {
+          "category": "Weapon",
+          "index": 1,
+          "tilePos": "North",
+          "type": 32,
+          "name": "Throwing Star"
+        },
+        {
+          "category": "Weapon",
+          "index": 2,
+          "tilePos": "North",
+          "type": 32,
+          "name": "Throwing Star"
+        },
+        {
+          "category": "Weapon",
+          "index": 3,
+          "tilePos": "North",
+          "type": 32,
+          "name": "Throwing Star"
+        }
+      ]
+    },
+    {
+      "x": 7,
+      "y": 15,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 16,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 3,
+          "tilePos": "North",
+          "text": "AZIZI\nJOHARI\n\nF\nAADNADACAAAH\nCPCPDACKCNBOCD\nCBDACCDDAAAAAAAA",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 7,
+      "y": 17,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 17,
+          "tilePos": "North",
+          "type": 127,
+          "sound": false,
+          "data": 13,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 17,
+          "targetX": 7,
+          "targetDir": "North"
+        },
+        {
+          "category": "Armor",
+          "index": 5,
+          "tilePos": "North",
+          "type": 2,
+          "name": "Elven Doublet"
+        },
+        {
+          "category": "Armor",
+          "index": 6,
+          "tilePos": "North",
+          "type": 29,
+          "name": "Barbarian Hide"
+        },
+        {
+          "category": "Weapon",
+          "index": 4,
+          "tilePos": "North",
+          "type": 8,
+          "name": "Dagger"
+        },
+        {
+          "category": "Weapon",
+          "index": 5,
+          "tilePos": "North",
+          "type": 8,
+          "name": "Dagger"
+        },
+        {
+          "category": "Armor",
+          "index": 106,
+          "tilePos": "North",
+          "type": 57,
+          "name": "Halter"
+        }
+      ]
+    },
+    {
+      "x": 7,
+      "y": 18,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 3,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 5,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 4,
+          "tilePos": "North",
+          "text": "HALL OF\nCHAMPIONS",
+          "visible": true
+        }
+      ]
+    },
+    {
+      "x": 8,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 7,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 18,
+          "tilePos": "East",
+          "type": 127,
+          "sound": false,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 7,
+          "targetX": 8,
+          "targetDir": "East"
+        },
+        {
+          "category": "Armor",
+          "index": 7,
+          "tilePos": "East",
+          "type": 3,
+          "name": "Leather Jerkin"
+        },
+        {
+          "category": "Misc",
+          "index": 0,
+          "tilePos": "East",
+          "type": 42,
+          "name": "Magical Box (Blue)"
+        },
+        {
+          "category": "Armor",
+          "index": 8,
+          "tilePos": "East",
+          "type": 5,
+          "name": "Robe of the Kite Lord"
+        },
+        {
+          "category": "Armor",
+          "index": 9,
+          "tilePos": "East",
+          "type": 6,
+          "name": "Robe"
+        }
+      ]
+    },
+    {
+      "x": 8,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 12,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 13,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 14,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 19,
+          "tilePos": "South",
+          "type": 127,
+          "sound": false,
+          "data": 9,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 14,
+          "targetX": 8,
+          "targetDir": "South"
+        },
+        {
+          "category": "Armor",
+          "index": 10,
+          "tilePos": "South",
+          "type": 16,
+          "name": "Leather Jerkin"
+        },
+        {
+          "category": "Armor",
+          "index": 11,
+          "tilePos": "South",
+          "type": 17,
+          "name": "Leather Pants"
+        },
+        {
+          "category": "Armor",
+          "index": 12,
+          "tilePos": "South",
+          "type": 4,
+          "name": "Leather Boots"
+        }
+      ]
+    },
+    {
+      "x": 8,
+      "y": 15,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 5,
+          "tilePos": "North",
+          "text": "LEIF\nTHE VALIANT\n\nM\nAAELACLMAAAH\nCDCOCICHDCCNCN\nDCCAAAAAACBBAAAA",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 8,
+      "y": 16,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 17,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 18,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 0,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 553,
+          "tilePos": "South",
+          "type": 10,
+          "sound": false,
+          "data": 0,
+          "isLocal": true,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "multipleValue": 120,
+          "kineticEnergy": 120,
+          "stepEnergy": 0,
+          "targetY": 0,
+          "targetX": 30,
+          "targetDir": "North"
+        }
+      ]
+    },
+    {
+      "x": 9,
+      "y": 1,
+      "type": "Teleporter",
+      "open": false,
+      "visible": false,
+      "objects": [
+        {
+          "category": "Teleporter",
+          "index": 66,
+          "tilePos": "North",
+          "sound": false,
+          "destX": 9,
+          "destY": 1,
+          "destMap": 0
+        },
+        {
+          "category": "Text",
+          "index": 118,
+          "tilePos": "North",
+          "text": "IT IS TOO BAD YOU\nDID NOT DISCOVER\nTHE TRUE SECRET\nOF THE FIRESTAFF.\nNOW THAT I HAVE\nIT I HAVE NO\nFURTHER NEED FOR\nYOU!",
+          "visible": true
+        },
+        {
+          "category": "Sensor",
+          "index": 653,
+          "tilePos": "North",
+          "type": 3,
+          "sound": false,
+          "data": 1,
+          "isLocal": false,
+          "delay": 0,
+          "revert": true,
+          "action": "Hold",
+          "onceOnly": false,
+          "targetY": 1,
+          "targetX": 9,
+          "targetDir": "South",
+          "requiredObjectName": "COMPASS"
+        },
+        {
+          "category": "Sensor",
+          "index": 650,
+          "tilePos": "North",
+          "type": 1,
+          "sound": false,
+          "data": 0,
+          "isLocal": false,
+          "delay": 15,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 1,
+          "targetX": 10,
+          "targetDir": "North"
+        }
+      ]
+    },
+    {
+      "x": 9,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 7,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 6,
+          "tilePos": "North",
+          "text": "ELIJA\nLION OF YAITOPYA\n\nM\nAADMACEEAABG\nDCCKCICKCEDFCI\nBBCAAAAACBECAAAA",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 9,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 9,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 7,
+          "tilePos": "North",
+          "text": "SYRA\nCHILD OF NATURE\n\nF\nAADFACNAAAAP\nDHCGCDCLCNCKCI\nAAAAAAAAADBBACDD",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 9,
+      "y": 10,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 20,
+          "tilePos": "North",
+          "type": 127,
+          "sound": false,
+          "data": 2,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 10,
+          "targetX": 9,
+          "targetDir": "North"
+        },
+        {
+          "category": "Misc",
+          "index": 180,
+          "tilePos": "North",
+          "type": 29,
+          "name": "Apple"
+        },
+        {
+          "category": "Armor",
+          "index": 14,
+          "tilePos": "North",
+          "type": 13,
+          "name": "Elven Doublet"
+        },
+        {
+          "category": "Armor",
+          "index": 15,
+          "tilePos": "North",
+          "type": 11,
+          "name": "Silk Shirt"
+        }
+      ]
+    },
+    {
+      "x": 9,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 12,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 13,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 8,
+          "tilePos": "North",
+          "text": "TIGGY\nTAMAL\n\nF\nAABJABMCAACD\nCNBOCNDCCDDLCI\nAAAABDBBBAAACDDC",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 9,
+      "y": 14,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 15,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 16,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 17,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 18,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 1,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 652,
+          "tilePos": "North",
+          "type": 5,
+          "sound": false,
+          "data": 17,
+          "isLocal": false,
+          "delay": 15,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 0,
+          "targetX": 9,
+          "targetDir": "South"
+        },
+        {
+          "category": "Sensor",
+          "index": 651,
+          "tilePos": "North",
+          "type": 5,
+          "sound": false,
+          "data": 17,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 1,
+          "targetX": 10,
+          "targetDir": "North"
+        }
+      ]
+    },
+    {
+      "x": 10,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 3,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 21,
+          "tilePos": "South",
+          "type": 127,
+          "sound": false,
+          "data": 14,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 3,
+          "targetX": 10,
+          "targetDir": "South"
+        },
+        {
+          "category": "Armor",
+          "index": 16,
+          "tilePos": "South",
+          "type": 21,
+          "name": "Ghi"
+        },
+        {
+          "category": "Armor",
+          "index": 17,
+          "tilePos": "South",
+          "type": 22,
+          "name": "Ghi Trousers"
+        },
+        {
+          "category": "Weapon",
+          "index": 6,
+          "tilePos": "South",
+          "type": 13,
+          "name": "Samurai Sword"
+        }
+      ]
+    },
+    {
+      "x": 10,
+      "y": 4,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 9,
+          "tilePos": "North",
+          "text": "IAIDO\nRUYITO CHIBURI\n\nM\nAADAACIKAAAL\nCICLDHCICDCNDC\nCDACAAAABBBCAAAA",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 10,
+      "y": 5,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 10,
+          "tilePos": "North",
+          "text": "ZED\nDUKE OF BANVILLE\n\nM\nAADMACFIAAAK\nDKCICICIDCCICI\nCBBCCBCBBCBBBCBB",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 10,
+      "y": 6,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 22,
+          "tilePos": "North",
+          "type": 127,
+          "sound": false,
+          "data": 4,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 6,
+          "targetX": 10,
+          "targetDir": "North"
+        },
+        {
+          "category": "Armor",
+          "index": 18,
+          "tilePos": "North",
+          "type": 32,
+          "name": "Mail Aketon"
+        },
+        {
+          "category": "Armor",
+          "index": 19,
+          "tilePos": "North",
+          "type": 19,
+          "name": "Chain Mail Aketon"
+        },
+        {
+          "category": "Weapon",
+          "index": 89,
+          "tilePos": "North",
+          "type": 2,
+          "name": "Torch"
+        },
+        {
+          "category": "Armor",
+          "index": 116,
+          "tilePos": "North",
+          "type": 37,
+          "name": "Hosen"
+        }
+      ]
+    },
+    {
+      "x": 10,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 10,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 13,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 23,
+          "tilePos": "West",
+          "type": 127,
+          "sound": false,
+          "data": 18,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 13,
+          "targetX": 10,
+          "targetDir": "West"
+        },
+        {
+          "category": "Armor",
+          "index": 22,
+          "tilePos": "West",
+          "type": 9,
+          "name": "Plate Mail"
+        },
+        {
+          "category": "Armor",
+          "index": 23,
+          "tilePos": "West",
+          "type": 3,
+          "name": "Leather Jerkin"
+        },
+        {
+          "category": "Weapon",
+          "index": 7,
+          "tilePos": "West",
+          "type": 35,
+          "name": "Wand"
+        },
+        {
+          "category": "Armor",
+          "index": 13,
+          "tilePos": "West",
+          "type": 12,
+          "name": "Gunna"
+        }
+      ]
+    },
+    {
+      "x": 10,
+      "y": 14,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 15,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 16,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 17,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 18,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 10,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 11,
+          "tilePos": "North",
+          "text": "GANDO\nTHURFOOT\n\nM\nAACHACHGAABK\nDCCHCNCPCBDACL\nAAAADACDAAAABCBC",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 11,
+      "y": 11,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 24,
+          "tilePos": "North",
+          "type": 127,
+          "sound": false,
+          "data": 15,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 11,
+          "targetX": 11,
+          "targetDir": "North"
+        },
+        {
+          "category": "Armor",
+          "index": 25,
+          "tilePos": "North",
+          "type": 16,
+          "name": "Leather Jerkin"
+        },
+        {
+          "category": "Armor",
+          "index": 26,
+          "tilePos": "North",
+          "type": 19,
+          "name": "Chain Mail Aketon"
+        },
+        {
+          "category": "Armor",
+          "index": 27,
+          "tilePos": "North",
+          "type": 4,
+          "name": "Leather Boots"
+        },
+        {
+          "category": "Weapon",
+          "index": 8,
+          "tilePos": "North",
+          "type": 31,
+          "name": "Poison Dart"
+        },
+        {
+          "category": "Weapon",
+          "index": 9,
+          "tilePos": "North",
+          "type": 31,
+          "name": "Poison Dart"
+        }
+      ]
+    },
+    {
+      "x": 11,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 13,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 25,
+          "tilePos": "East",
+          "type": 127,
+          "sound": false,
+          "data": 22,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 13,
+          "targetX": 11,
+          "targetDir": "East"
+        },
+        {
+          "category": "Armor",
+          "index": 28,
+          "tilePos": "East",
+          "type": 16,
+          "name": "Leather Jerkin"
+        },
+        {
+          "category": "Potion",
+          "index": 21,
+          "tilePos": "East",
+          "type": 20,
+          "power": 0,
+          "name": "Empty Flask"
+        }
+      ]
+    },
+    {
+      "x": 11,
+      "y": 14,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 15,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 14,
+          "tilePos": "North",
+          "text": "STAMM\nBLADECASTER\n\nM\nAAELADCAAAAA\nCDDECLCDDCCDDH\nDECCAAAAAAAAAAAA",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 11,
+      "y": 16,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 26,
+          "tilePos": "North",
+          "type": 127,
+          "sound": false,
+          "data": 16,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 16,
+          "targetX": 11,
+          "targetDir": "North"
+        },
+        {
+          "category": "Weapon",
+          "index": 10,
+          "tilePos": "North",
+          "type": 18,
+          "name": "Axe"
+        },
+        {
+          "category": "Armor",
+          "index": 29,
+          "tilePos": "North",
+          "type": 20,
+          "name": "Tunic"
+        },
+        {
+          "category": "Armor",
+          "index": 30,
+          "tilePos": "North",
+          "type": 17,
+          "name": "Leather Pants"
+        },
+        {
+          "category": "Armor",
+          "index": 31,
+          "tilePos": "North",
+          "type": 18,
+          "name": "Suede Boots"
+        }
+      ]
+    },
+    {
+      "x": 11,
+      "y": 17,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 18,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 8,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 27,
+          "tilePos": "South",
+          "type": 127,
+          "sound": false,
+          "data": 12,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 8,
+          "targetX": 12,
+          "targetDir": "South"
+        },
+        {
+          "category": "Armor",
+          "index": 32,
+          "tilePos": "South",
+          "type": 13,
+          "name": "Elven Doublet"
+        },
+        {
+          "category": "Armor",
+          "index": 33,
+          "tilePos": "South",
+          "type": 14,
+          "name": "Elven Huke"
+        },
+        {
+          "category": "Armor",
+          "index": 34,
+          "tilePos": "South",
+          "type": 15,
+          "name": "Elven Boots"
+        },
+        {
+          "category": "Weapon",
+          "index": 11,
+          "tilePos": "South",
+          "type": 25,
+          "name": "Bow"
+        }
+      ]
+    },
+    {
+      "x": 12,
+      "y": 9,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 15,
+          "tilePos": "North",
+          "text": "LINFLAS\n\n\nM\nAAEBABPEAAAM\nCNCNCNCPCDDCCD\nABCEAABAABAAABCC",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 12,
+      "y": 10,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 13,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 16,
+          "tilePos": "North",
+          "text": "WUUF\nTHE BIKA\n\nF\nAACIABPEAABO\nDMCBDJCNCICDCI\nAAAABCDEADCBAAAA",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 12,
+      "y": 14,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 15,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 16,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 17,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 18,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 3,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 11,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 28,
+          "tilePos": "South",
+          "type": 127,
+          "sound": false,
+          "data": 17,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 11,
+          "targetX": 13,
+          "targetDir": "South"
+        },
+        {
+          "category": "Armor",
+          "index": 35,
+          "tilePos": "South",
+          "type": 17,
+          "name": "Leather Pants"
+        },
+        {
+          "category": "Armor",
+          "index": 36,
+          "tilePos": "South",
+          "type": 10,
+          "name": "Tunic"
+        },
+        {
+          "category": "Armor",
+          "index": 37,
+          "tilePos": "South",
+          "type": 4,
+          "name": "Leather Boots"
+        },
+        {
+          "category": "Misc",
+          "index": 1,
+          "tilePos": "South",
+          "type": 45,
+          "name": "Rope"
+        }
+      ]
+    },
+    {
+      "x": 13,
+      "y": 12,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 17,
+          "tilePos": "North",
+          "text": "LEYLA\nSHADOWSEEK\n\nF\nAADAACFIAAAD\nDCCIDFCNCPCNCD\nAAAADDDEAAAAAAAA",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 13,
+      "y": 13,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 14,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 18,
+          "tilePos": "North",
+          "text": "MOPHUS\nTHE HEALER\n\nM\nAADHACCGAABD\nCICKCDCIDACICN\nAAAAAAAACEDCAAAA",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 13,
+      "y": 15,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 16,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 17,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 18,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 2,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 29,
+          "tilePos": "South",
+          "type": 127,
+          "sound": false,
+          "data": 5,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 2,
+          "targetX": 14,
+          "targetDir": "South"
+        },
+        {
+          "category": "Armor",
+          "index": 38,
+          "tilePos": "South",
+          "type": 12,
+          "name": "Gunna"
+        },
+        {
+          "category": "Armor",
+          "index": 39,
+          "tilePos": "South",
+          "type": 10,
+          "name": "Tunic"
+        },
+        {
+          "category": "Misc",
+          "index": 2,
+          "tilePos": "South",
+          "type": 39,
+          "name": "Moonstone"
+        },
+        {
+          "category": "Armor",
+          "index": 40,
+          "tilePos": "South",
+          "type": 3,
+          "name": "Leather Jerkin"
+        }
+      ]
+    },
+    {
+      "x": 14,
+      "y": 3,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 19,
+          "tilePos": "North",
+          "text": "CHANI\nSAYYADINA SIHAYA\n\nF\nAACPACJOAABB\nDJCFCPDJCFCPCF\nBDACAAAAAAAADCDB",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 14,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 6,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 20,
+          "tilePos": "North",
+          "text": "BORIS\nWIZARD OF BALDOR\n\nM\nAACDACIKAABM\nBJCDCNDHCICNCI\nAAAADCBAAAAACDDD",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 14,
+      "y": 7,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 30,
+          "tilePos": "North",
+          "type": 127,
+          "sound": false,
+          "data": 7,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 7,
+          "targetX": 14,
+          "targetDir": "North"
+        },
+        {
+          "category": "Armor",
+          "index": 41,
+          "tilePos": "North",
+          "type": 20,
+          "name": "Tunic"
+        },
+        {
+          "category": "Armor",
+          "index": 42,
+          "tilePos": "North",
+          "type": 17,
+          "name": "Leather Pants"
+        },
+        {
+          "category": "Armor",
+          "index": 43,
+          "tilePos": "North",
+          "type": 4,
+          "name": "Leather Boots"
+        },
+        {
+          "category": "Misc",
+          "index": 3,
+          "tilePos": "North",
+          "type": 46,
+          "name": "Rabbit's Foot"
+        }
+      ]
+    },
+    {
+      "x": 14,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 10,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 11,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 12,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 21,
+          "tilePos": "North",
+          "text": "SONJA\nSHE DEVIL\n\nF\nAAEBACLMAAAC\nCIDGCNCHDBCICI\nDECDAAAAAAAAAAAA",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 14,
+      "y": 13,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 14,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 58,
+          "tilePos": "West",
+          "type": 127,
+          "sound": false,
+          "data": 8,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 14,
+          "targetX": 14,
+          "targetDir": "West"
+        },
+        {
+          "category": "Armor",
+          "index": 44,
+          "tilePos": "West",
+          "type": 5,
+          "name": "Robe of the Kite Lord"
+        },
+        {
+          "category": "Armor",
+          "index": 45,
+          "tilePos": "West",
+          "type": 6,
+          "name": "Robe"
+        },
+        {
+          "category": "Misc",
+          "index": 4,
+          "tilePos": "West",
+          "type": 31,
+          "name": "Bread"
+        },
+        {
+          "category": "Misc",
+          "index": 5,
+          "tilePos": "West",
+          "type": 32,
+          "name": "Cheese"
+        },
+        {
+          "category": "Armor",
+          "index": 46,
+          "tilePos": "West",
+          "type": 3,
+          "name": "Leather Jerkin"
+        },
+        {
+          "category": "Misc",
+          "index": 6,
+          "tilePos": "West",
+          "type": 29,
+          "name": "Apple"
+        }
+      ]
+    },
+    {
+      "x": 14,
+      "y": 15,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 16,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 17,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 18,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 3,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 4,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 22,
+          "tilePos": "North",
+          "text": "HAWK\nTHE FEARLESS\n\nM\nAAEGADFCAAAK\nCICNCDCGDHCDCD\nCAACAAAAADADAAAA",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 15,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 12,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 59,
+          "tilePos": "West",
+          "type": 127,
+          "sound": false,
+          "data": 19,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 12,
+          "targetX": 15,
+          "targetDir": "West"
+        },
+        {
+          "category": "Armor",
+          "index": 47,
+          "tilePos": "West",
+          "type": 12,
+          "name": "Gunna"
+        },
+        {
+          "category": "Misc",
+          "index": 7,
+          "tilePos": "West",
+          "type": 48,
+          "name": "Choker"
+        },
+        {
+          "category": "Armor",
+          "index": 48,
+          "tilePos": "West",
+          "type": 3,
+          "name": "Leather Jerkin"
+        },
+        {
+          "category": "Weapon",
+          "index": 12,
+          "tilePos": "West",
+          "type": 10,
+          "name": "Sword"
+        },
+        {
+          "category": "Armor",
+          "index": 105,
+          "tilePos": "West",
+          "type": 57,
+          "name": "Halter"
+        }
+      ]
+    },
+    {
+      "x": 15,
+      "y": 13,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 14,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 15,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 16,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 17,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 18,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 4,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 60,
+          "tilePos": "West",
+          "type": 127,
+          "sound": false,
+          "data": 6,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 4,
+          "targetX": 16,
+          "targetDir": "West"
+        },
+        {
+          "category": "Armor",
+          "index": 49,
+          "tilePos": "West",
+          "type": 17,
+          "name": "Leather Pants"
+        },
+        {
+          "category": "Armor",
+          "index": 50,
+          "tilePos": "West",
+          "type": 18,
+          "name": "Suede Boots"
+        },
+        {
+          "category": "Armor",
+          "index": 51,
+          "tilePos": "West",
+          "type": 16,
+          "name": "Leather Jerkin"
+        },
+        {
+          "category": "Weapon",
+          "index": 13,
+          "tilePos": "West",
+          "type": 27,
+          "name": "Arrow"
+        },
+        {
+          "category": "Weapon",
+          "index": 14,
+          "tilePos": "West",
+          "type": 27,
+          "name": "Arrow"
+        }
+      ]
+    },
+    {
+      "x": 16,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 7,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 61,
+          "tilePos": "South",
+          "type": 127,
+          "sound": false,
+          "data": 11,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 7,
+          "targetX": 16,
+          "targetDir": "South"
+        },
+        {
+          "category": "Armor",
+          "index": 52,
+          "tilePos": "South",
+          "type": 16,
+          "name": "Leather Jerkin"
+        },
+        {
+          "category": "Armor",
+          "index": 53,
+          "tilePos": "South",
+          "type": 18,
+          "name": "Suede Boots"
+        },
+        {
+          "category": "Armor",
+          "index": 20,
+          "tilePos": "South",
+          "type": 17,
+          "name": "Leather Pants"
+        },
+        {
+          "category": "Weapon",
+          "index": 54,
+          "tilePos": "South",
+          "type": 29,
+          "name": "Sling"
+        }
+      ]
+    },
+    {
+      "x": 16,
+      "y": 8,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 23,
+          "tilePos": "North",
+          "text": "ALEX\nANDER\n\nM\nAADCACDKAAAN\nCPCMDHCNCICDCI\nAAAADCDCAAAACCBC",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 16,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 10,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 11,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 12,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 13,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 14,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 95,
+          "tilePos": "North",
+          "text": "HISSSSA\nLIZAR OF MAKAN\n\nM\nAAFAACGCAAAF\nCIDKDACDCDCLDH\nEDAAADBAAAAAAAAA",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 16,
+      "y": 15,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 380,
+          "tilePos": "North",
+          "type": 127,
+          "sound": false,
+          "data": 3,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 15,
+          "targetX": 16,
+          "targetDir": "North"
+        }
+      ]
+    },
+    {
+      "x": 16,
+      "y": 16,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 529,
+          "tilePos": "South",
+          "type": 127,
+          "sound": false,
+          "data": 21,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 16,
+          "targetX": 16,
+          "targetDir": "South"
+        },
+        {
+          "category": "Armor",
+          "index": 118,
+          "tilePos": "South",
+          "type": 1,
+          "name": "Cloak of Night"
+        }
+      ]
+    },
+    {
+      "x": 16,
+      "y": 17,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 96,
+          "tilePos": "North",
+          "text": "GOTHMOG\n\n\nM\nAADMACCGAABC\nBOCICDDACCDCDL\nAAAAAAAAAAAAEDCC",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 16,
+      "y": 18,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 9,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 99,
+          "tilePos": "North",
+          "text": "NABI\nTHE PROPHET\n\nM\nAADHACIKAAAN\nCICJCECNCNDHDH\nAAAAAAAABBECBBBB",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 17,
+      "y": 10,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 286,
+          "tilePos": "North",
+          "type": 127,
+          "sound": false,
+          "data": 20,
+          "isLocal": true,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "multipleValue": 0,
+          "targetY": 0,
+          "targetX": 0,
+          "targetDir": "North"
+        },
+        {
+          "category": "Weapon",
+          "index": 51,
+          "tilePos": "North",
+          "type": 34,
+          "name": "Staff"
+        },
+        {
+          "category": "Armor",
+          "index": 70,
+          "tilePos": "North",
+          "type": 20,
+          "name": "Tunic"
+        },
+        {
+          "category": "Armor",
+          "index": 119,
+          "tilePos": "North",
+          "type": 19,
+          "name": "Chain Mail Aketon"
+        },
+        {
+          "category": "Armor",
+          "index": 120,
+          "tilePos": "North",
+          "type": 3,
+          "name": "Leather Jerkin"
+        }
+      ]
+    },
+    {
+      "x": 17,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 13,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 14,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 15,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 16,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 17,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 18,
+      "type": "Wall",
+      "objects": []
+    }
+  ]
+}

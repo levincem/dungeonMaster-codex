@@ -40,6 +40,7 @@ type TransportRuntimeState<TPendingSensorEvent extends PendingSensorEventLike> =
     openWalls: Set<string>;
     openPits: Set<string>;
     openTeleporters: Set<string>;
+    hydratedLevels: Set<number>;
     creatures: CreatureInstance[];
     floorItems: FloorItem[];
     championInventories: Record<number, FloorItem[]>;
@@ -170,7 +171,7 @@ type TransportRuntimeDepsParams<
         },
     ) => Pick<TGameState, 'creatures' | 'floorItems' | 'spellVisualEvents'> | null;
     applyCreaturesStandingOnOpenPit: (
-        state: Pick<TGameState, 'level' | 'position' | 'creatures' | 'floorItems' | 'damageEvents' | 'spellVisualEvents' | 'openDoors' | 'openWalls' | 'openPits'>,
+        state: Pick<TGameState, 'level' | 'position' | 'hydratedLevels' | 'creatures' | 'floorItems' | 'damageEvents' | 'spellVisualEvents' | 'openDoors' | 'openWalls' | 'openPits'>,
         level: number,
         x: number,
         y: number,
@@ -213,7 +214,7 @@ type TransportRuntimeDepsParams<
         },
     ) => Pick<TGameState, 'creatures' | 'floorItems' | 'damageEvents' | 'spellVisualEvents'> | null;
     applyCreaturesStandingOnOpenTeleporter: (
-        state: Pick<TGameState, 'level' | 'position' | 'creatures' | 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters'>,
+        state: Pick<TGameState, 'level' | 'position' | 'hydratedLevels' | 'creatures' | 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters'>,
         level: number,
         x: number,
         y: number,
@@ -270,6 +271,10 @@ type TransportRuntimeDepsParams<
         y: number,
         creatures: CreatureInstance[],
     ) => boolean;
+    buildLevelHydrationPatch: (
+        state: Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems'>,
+        level: number,
+    ) => Partial<TGameState> | null;
     buildSensorStateSnapshot: (state: TGameState) => TSensorState;
     triggerFloorSensors: (
         level: number,
@@ -395,6 +400,10 @@ export function createTransportRuntimeDeps<
             cell,
             buildTerrainTransportDeps(),
         ),
+        buildLevelHydrationPatch: (
+            state: Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems'>,
+            level: number,
+        ) => params.buildLevelHydrationPatch(state, level),
     });
 
     const buildOpenedTeleporterEffectsDeps = () => {
@@ -423,8 +432,12 @@ export function createTransportRuntimeDeps<
                 x: number,
                 y: number,
             ) => params.applyPartyTelefragAtSquare(state, level, x, y, terrainEffectsDeps),
+            buildLevelHydrationPatch: (
+                state: Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems'>,
+                level: number,
+            ) => params.buildLevelHydrationPatch(state, level),
             applyCreaturesStandingOnOpenTeleporter: (
-                state: Pick<TGameState, 'level' | 'position' | 'creatures' | 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters'>,
+                state: Pick<TGameState, 'level' | 'position' | 'hydratedLevels' | 'creatures' | 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters'>,
                 level: number,
                 x: number,
                 y: number,
@@ -458,8 +471,12 @@ export function createTransportRuntimeDeps<
                 y: number,
             ) => params.applyPartyTelefragAtSquare(state, level, x, y, terrainEffectsDeps),
             applyPartyFallImpactDamage: params.applyPartyFallImpactDamage,
+            buildLevelHydrationPatch: (
+                state: Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems'>,
+                level: number,
+            ) => params.buildLevelHydrationPatch(state, level),
             applyCreaturesStandingOnOpenPit: (
-                state: Pick<TGameState, 'level' | 'position' | 'creatures' | 'floorItems' | 'damageEvents' | 'spellVisualEvents' | 'openDoors' | 'openWalls' | 'openPits'>,
+                state: Pick<TGameState, 'level' | 'position' | 'hydratedLevels' | 'creatures' | 'floorItems' | 'damageEvents' | 'spellVisualEvents' | 'openDoors' | 'openWalls' | 'openPits'>,
                 level: number,
                 x: number,
                 y: number,
@@ -517,6 +534,7 @@ export function createTransportRuntimeDeps<
                 y: number,
             ) => params.applyPartyTelefragAtSquare(state, level, x, y, terrainEffectsDeps),
             applyPartyFallImpactDamage: params.applyPartyFallImpactDamage,
+            buildLevelHydrationPatch: params.buildLevelHydrationPatch,
             applyImmediateTransportSquareEffects: params.applyImmediateTransportSquareEffects,
             computeMovementCooldown: params.computeMovementCooldown,
         };
@@ -574,6 +592,7 @@ export function createTransportRuntimeDeps<
                 x: number,
                 y: number,
             ) => params.applyPartyTelefragAtSquare(state, level, x, y, terrainEffectsDeps),
+            buildLevelHydrationPatch: params.buildLevelHydrationPatch,
             applyImmediateTransportSquareEffects: params.applyImmediateTransportSquareEffects,
             computeMovementCooldown: params.computeMovementCooldown,
             playTeleport: params.playTeleport,
@@ -582,6 +601,7 @@ export function createTransportRuntimeDeps<
 
     const buildStairStepTransportDeps = () => ({
         computeMovementCooldown: params.computeMovementCooldown,
+        buildLevelHydrationPatch: params.buildLevelHydrationPatch,
     });
 
     const buildStandardStepTransportDeps = () => {

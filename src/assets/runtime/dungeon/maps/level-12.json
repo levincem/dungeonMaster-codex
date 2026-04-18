@@ -1,0 +1,3420 @@
+{
+  "index": 12,
+  "name": "Level 12",
+  "level": 12,
+  "width": 22,
+  "height": 20,
+  "difficulty": 6,
+  "mapOffset": {
+    "x": 25,
+    "y": 30
+  },
+  "tiles": [
+    {
+      "x": 0,
+      "y": 0,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Text",
+          "index": 119,
+          "tilePos": "North",
+          "text": "DYOUR NAMES WILL\nBE RECORDED IN\nTHE GREAT HALL\nAND REMEMBERED BY\nTHE FUTURE\nGENERATIONS YOU\nHAVE MADE\nPOSSIBLE.",
+          "visible": false
+        },
+        {
+          "category": "Text",
+          "index": 93,
+          "tilePos": "North",
+          "text": "CBY YOUR BRAVE\nDEEDS I AM MADE\nWHOLE AGAIN AND\nHARMONY IS\nRESTORED TO THE\nWORLD.",
+          "visible": false
+        },
+        {
+          "category": "Text",
+          "index": 104,
+          "tilePos": "North",
+          "text": "BONLY BY LEARNING\nTHE TRUTH AND\nSEEKING THE PATH\nOF BALANCE\nDID YOU GUESS THE\nTRUE NATURE OF\nTHE FIRESTAFF.",
+          "visible": false
+        },
+        {
+          "category": "Text",
+          "index": 102,
+          "tilePos": "North",
+          "text": "ATHANK YOU MY\nFRIENDS.  YOU\nHAVE BANISHED\nCHAOS AND\nREJECTED THE\nFALSE PATH OF\nUNCOMPROMISING\nORDER.",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "x": 0,
+      "y": 1,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 2,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 3,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 12,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 13,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 14,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 15,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 16,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 17,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 18,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 0,
+      "y": 19,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 0,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 3,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 8,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 185,
+          "tilePos": "West",
+          "type": 4,
+          "sound": true,
+          "data": 183,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": true,
+          "targetY": 9,
+          "targetX": 1,
+          "targetDir": "North",
+          "requiredObjectName": "Skeleton Key"
+        }
+      ]
+    },
+    {
+      "x": 1,
+      "y": 9,
+      "type": "TrickWall",
+      "open": false,
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 11,
+      "type": "Teleporter",
+      "open": true,
+      "visible": true,
+      "objects": [
+        {
+          "category": "Teleporter",
+          "index": 145,
+          "tilePos": "North",
+          "sound": true,
+          "destX": 12,
+          "destY": 27,
+          "destMap": 11
+        }
+      ]
+    },
+    {
+      "x": 1,
+      "y": 12,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 13,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 14,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 15,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 16,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 17,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 18,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 1,
+      "y": 19,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 0,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 3,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 12,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 13,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 14,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 15,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 16,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 17,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 2,
+      "y": 18,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 465,
+          "tilePos": "North",
+          "type": 6,
+          "sound": false,
+          "data": 11,
+          "isLocal": true,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "multipleValue": 2195,
+          "targetY": 17,
+          "targetX": 4,
+          "targetDir": "West"
+        }
+      ]
+    },
+    {
+      "x": 2,
+      "y": 19,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 0,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 3,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 8,
+      "type": "Stairs",
+      "orientation": "NorthSouth",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 9,
+      "type": "TrickWall",
+      "open": true,
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 10,
+      "type": "Stairs",
+      "orientation": "NorthSouth",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 13,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 14,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 15,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 16,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 17,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 3,
+      "y": 18,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 491,
+          "tilePos": "North",
+          "type": 3,
+          "sound": false,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 18,
+          "targetX": 2,
+          "targetDir": "North",
+          "requiredObjectName": "COMPASS"
+        }
+      ]
+    },
+    {
+      "x": 3,
+      "y": 19,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 0,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 3,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 9,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 13,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 14,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 15,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 16,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 17,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 18,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 4,
+      "y": 19,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 0,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 2,
+      "type": "Stairs",
+      "orientation": "NorthSouth",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 3,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 9,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 433,
+          "tilePos": "North",
+          "type": 1,
+          "sound": false,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Clear",
+          "onceOnly": true,
+          "targetY": 9,
+          "targetX": 3,
+          "targetDir": "North"
+        },
+        {
+          "category": "Sensor",
+          "index": 432,
+          "tilePos": "North",
+          "type": 1,
+          "sound": true,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Clear",
+          "onceOnly": true,
+          "targetY": 8,
+          "targetX": 8,
+          "targetDir": "North"
+        }
+      ]
+    },
+    {
+      "x": 5,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 11,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 12,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 13,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 14,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 15,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 16,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 17,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 18,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 5,
+      "y": 19,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 0,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 4,
+      "type": "TrickWall",
+      "open": false,
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 9,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 11,
+      "type": "Stairs",
+      "orientation": "WestEast",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 13,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 14,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 15,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 16,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 17,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 18,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 6,
+      "y": 19,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 0,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 1,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 308,
+          "tilePos": "North",
+          "type": 6,
+          "sound": false,
+          "data": 11,
+          "isLocal": true,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "multipleValue": 2725,
+          "targetY": 21,
+          "targetX": 9,
+          "targetDir": "East"
+        }
+      ]
+    },
+    {
+      "x": 7,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 3,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 5,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 618,
+          "tilePos": "North",
+          "type": 1,
+          "sound": false,
+          "data": 0,
+          "isLocal": true,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "multipleValue": 1,
+          "targetY": 0,
+          "targetX": 0,
+          "targetDir": "East"
+        },
+        {
+          "category": "Sensor",
+          "index": 597,
+          "tilePos": "North",
+          "type": 1,
+          "sound": true,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Toggle",
+          "onceOnly": false,
+          "targetY": 4,
+          "targetX": 6,
+          "targetDir": "East"
+        }
+      ]
+    },
+    {
+      "x": 7,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 9,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 13,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 14,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 15,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 16,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 17,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 18,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 7,
+      "y": 19,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 1,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 598,
+          "tilePos": "North",
+          "type": 3,
+          "sound": false,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 1,
+          "targetX": 7,
+          "targetDir": "North",
+          "requiredObjectName": "COMPASS"
+        }
+      ]
+    },
+    {
+      "x": 8,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 8,
+      "type": "TrickWall",
+      "open": true,
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 9,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 13,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 14,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 15,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 16,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 17,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 18,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 8,
+      "y": 19,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 1,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 2,
+      "type": "Teleporter",
+      "open": true,
+      "visible": true,
+      "objects": [
+        {
+          "category": "Teleporter",
+          "index": 132,
+          "tilePos": "North",
+          "sound": true,
+          "destX": 18,
+          "destY": 12,
+          "destMap": 11
+        }
+      ]
+    },
+    {
+      "x": 9,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 10,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 11,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 13,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 14,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 15,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 16,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 17,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 18,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 9,
+      "y": 19,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 1,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 2,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 6,
+      "type": "Stairs",
+      "orientation": "WestEast",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 9,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 11,
+      "type": "Teleporter",
+      "open": true,
+      "visible": false,
+      "objects": [
+        {
+          "category": "Teleporter",
+          "index": 37,
+          "tilePos": "North",
+          "sound": false,
+          "destX": 13,
+          "destY": 12,
+          "destMap": 12
+        }
+      ]
+    },
+    {
+      "x": 10,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 13,
+      "type": "Teleporter",
+      "open": true,
+      "visible": false,
+      "objects": [
+        {
+          "category": "Teleporter",
+          "index": 147,
+          "tilePos": "North",
+          "sound": false,
+          "destX": 13,
+          "destY": 12,
+          "destMap": 12
+        }
+      ]
+    },
+    {
+      "x": 10,
+      "y": 14,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 15,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 16,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 17,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 18,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 10,
+      "y": 19,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 1,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 2,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 9,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 11,
+      "type": "Teleporter",
+      "open": true,
+      "visible": false,
+      "objects": [
+        {
+          "category": "Teleporter",
+          "index": 128,
+          "tilePos": "North",
+          "sound": false,
+          "destX": 12,
+          "destY": 11,
+          "destMap": 12
+        },
+        {
+          "category": "Sensor",
+          "index": 461,
+          "tilePos": "North",
+          "type": 3,
+          "sound": false,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 12,
+          "targetX": 13,
+          "targetDir": "North",
+          "requiredObjectName": "COMPASS"
+        },
+        {
+          "category": "Sensor",
+          "index": 460,
+          "tilePos": "North",
+          "type": 3,
+          "sound": false,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 10,
+          "targetX": 13,
+          "targetDir": "North",
+          "requiredObjectName": "COMPASS"
+        },
+        {
+          "category": "Sensor",
+          "index": 350,
+          "tilePos": "North",
+          "type": 3,
+          "sound": false,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 12,
+          "targetX": 12,
+          "targetDir": "North",
+          "requiredObjectName": "COMPASS"
+        },
+        {
+          "category": "Sensor",
+          "index": 348,
+          "tilePos": "North",
+          "type": 3,
+          "sound": false,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 4,
+          "targetX": 19,
+          "targetDir": "North",
+          "requiredObjectName": "COMPASS"
+        },
+        {
+          "category": "Sensor",
+          "index": 346,
+          "tilePos": "North",
+          "type": 3,
+          "sound": false,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 10,
+          "targetX": 14,
+          "targetDir": "North",
+          "requiredObjectName": "COMPASS"
+        }
+      ]
+    },
+    {
+      "x": 11,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 13,
+      "type": "Teleporter",
+      "open": true,
+      "visible": false,
+      "objects": [
+        {
+          "category": "Teleporter",
+          "index": 146,
+          "tilePos": "North",
+          "sound": false,
+          "destX": 12,
+          "destY": 13,
+          "destMap": 12
+        }
+      ]
+    },
+    {
+      "x": 11,
+      "y": 14,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 15,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 16,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 17,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 18,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 11,
+      "y": 19,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 10,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 347,
+          "tilePos": "North",
+          "type": 6,
+          "sound": false,
+          "data": 11,
+          "isLocal": true,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "multipleValue": 2320,
+          "targetY": 18,
+          "targetX": 4,
+          "targetDir": "North"
+        },
+        {
+          "category": "Creature",
+          "index": 128,
+          "tilePos": "North",
+          "type": 11,
+          "name": "Black Flame",
+          "hp": [
+            404
+          ]
+        }
+      ]
+    },
+    {
+      "x": 12,
+      "y": 11,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 462,
+          "tilePos": "North",
+          "type": 3,
+          "sound": false,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 10,
+          "targetX": 14,
+          "targetDir": "North",
+          "requiredObjectName": "COMPASS"
+        }
+      ]
+    },
+    {
+      "x": 12,
+      "y": 12,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 457,
+          "tilePos": "North",
+          "type": 6,
+          "sound": false,
+          "data": 11,
+          "isLocal": true,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "multipleValue": 2320,
+          "targetY": 18,
+          "targetX": 4,
+          "targetDir": "North"
+        }
+      ]
+    },
+    {
+      "x": 12,
+      "y": 13,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 14,
+      "type": "Pit",
+      "open": true,
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 15,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 16,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 17,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 18,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 12,
+      "y": 19,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 3,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 10,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 458,
+          "tilePos": "North",
+          "type": 6,
+          "sound": false,
+          "data": 11,
+          "isLocal": true,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "multipleValue": 2320,
+          "targetY": 18,
+          "targetX": 4,
+          "targetDir": "North"
+        }
+      ]
+    },
+    {
+      "x": 13,
+      "y": 11,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 12,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 459,
+          "tilePos": "North",
+          "type": 6,
+          "sound": false,
+          "data": 11,
+          "isLocal": true,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "multipleValue": 2320,
+          "targetY": 18,
+          "targetX": 4,
+          "targetDir": "North"
+        }
+      ]
+    },
+    {
+      "x": 13,
+      "y": 13,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 14,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 15,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 16,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 17,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Creature",
+          "index": 93,
+          "tilePos": "North",
+          "type": 22,
+          "name": "Demon",
+          "hp": [
+            450
+          ]
+        }
+      ]
+    },
+    {
+      "x": 13,
+      "y": 18,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 13,
+      "y": 19,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 1,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 2,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 3,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 464,
+          "tilePos": "North",
+          "type": 3,
+          "sound": false,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 3,
+          "targetX": 14,
+          "targetDir": "North",
+          "requiredObjectName": "COMPASS"
+        },
+        {
+          "category": "Creature",
+          "index": 129,
+          "tilePos": "North",
+          "type": 11,
+          "name": "Black Flame",
+          "hp": [
+            225
+          ]
+        }
+      ]
+    },
+    {
+      "x": 14,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 10,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 345,
+          "tilePos": "North",
+          "type": 6,
+          "sound": false,
+          "data": 11,
+          "isLocal": true,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "multipleValue": 2320,
+          "targetY": 18,
+          "targetX": 4,
+          "targetDir": "North"
+        }
+      ]
+    },
+    {
+      "x": 14,
+      "y": 11,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 12,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 13,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 14,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 15,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 16,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 17,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 18,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 14,
+      "y": 19,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 0,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Creature",
+          "index": 95,
+          "tilePos": "North",
+          "type": 23,
+          "name": "Lord Chaos",
+          "hp": [
+            10000
+          ]
+        }
+      ]
+    },
+    {
+      "x": 15,
+      "y": 1,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 2,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 3,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 10,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 11,
+      "type": "Pit",
+      "open": true,
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 12,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 13,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 14,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 15,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 16,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 17,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 18,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 15,
+      "y": 19,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 0,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 1,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 2,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 3,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 10,
+      "type": "Pit",
+      "open": true,
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 12,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 13,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 14,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 15,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 16,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 17,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 18,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 16,
+      "y": 19,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 0,
+      "type": "Door",
+      "orientation": "WestEast",
+      "objects": [
+        {
+          "category": "Door",
+          "index": 89,
+          "tilePos": "North",
+          "destructChop": false,
+          "destructFire": false,
+          "hasButton": true,
+          "doorType": 0
+        }
+      ]
+    },
+    {
+      "x": 17,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 2,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 9,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Creature",
+          "index": 91,
+          "tilePos": "North",
+          "type": 22,
+          "name": "Demon",
+          "hp": [
+            761,
+            762
+          ]
+        }
+      ]
+    },
+    {
+      "x": 17,
+      "y": 10,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 11,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 13,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 14,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 15,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 16,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 17,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 18,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 17,
+      "y": 19,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 0,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 1,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 2,
+      "type": "Wall",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 313,
+          "tilePos": "North",
+          "type": 0,
+          "sound": false,
+          "data": 0,
+          "isLocal": true,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "multipleValue": 0,
+          "targetY": 0,
+          "targetX": 0,
+          "targetDir": "North"
+        },
+        {
+          "category": "Misc",
+          "index": 115,
+          "tilePos": "North",
+          "type": 40,
+          "name": "The Hellion"
+        },
+        {
+          "category": "Weapon",
+          "index": 86,
+          "tilePos": "North",
+          "type": 3,
+          "name": "Flamitt"
+        }
+      ]
+    },
+    {
+      "x": 18,
+      "y": 3,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 4,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 9,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 10,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 11,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 504,
+          "tilePos": "North",
+          "type": 6,
+          "sound": false,
+          "data": 11,
+          "isLocal": true,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "multipleValue": 2144,
+          "targetY": 16,
+          "targetX": 24,
+          "targetDir": "North"
+        }
+      ]
+    },
+    {
+      "x": 18,
+      "y": 12,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 13,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 510,
+          "tilePos": "North",
+          "type": 3,
+          "sound": false,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 9,
+          "targetX": 20,
+          "targetDir": "North",
+          "requiredObjectName": "COMPASS"
+        },
+        {
+          "category": "Sensor",
+          "index": 509,
+          "tilePos": "North",
+          "type": 3,
+          "sound": false,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 10,
+          "targetX": 19,
+          "targetDir": "North",
+          "requiredObjectName": "COMPASS"
+        },
+        {
+          "category": "Sensor",
+          "index": 508,
+          "tilePos": "North",
+          "type": 3,
+          "sound": false,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 11,
+          "targetX": 18,
+          "targetDir": "North",
+          "requiredObjectName": "COMPASS"
+        }
+      ]
+    },
+    {
+      "x": 18,
+      "y": 14,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 15,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 16,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 463,
+          "tilePos": "North",
+          "type": 3,
+          "sound": false,
+          "data": 0,
+          "isLocal": false,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "targetY": 16,
+          "targetX": 18,
+          "targetDir": "North",
+          "requiredObjectName": "COMPASS"
+        },
+        {
+          "category": "Creature",
+          "index": 130,
+          "tilePos": "North",
+          "type": 11,
+          "name": "Black Flame",
+          "hp": [
+            263
+          ]
+        }
+      ]
+    },
+    {
+      "x": 18,
+      "y": 17,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 18,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 18,
+      "y": 19,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 0,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Creature",
+          "index": 176,
+          "tilePos": "North",
+          "type": 22,
+          "name": "Demon",
+          "hp": [
+            935
+          ]
+        }
+      ]
+    },
+    {
+      "x": 19,
+      "y": 1,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 2,
+      "type": "Door",
+      "orientation": "NorthSouth",
+      "objects": [
+        {
+          "category": "Door",
+          "index": 106,
+          "tilePos": "North",
+          "destructChop": false,
+          "destructFire": false,
+          "hasButton": true,
+          "doorType": 0
+        }
+      ]
+    },
+    {
+      "x": 19,
+      "y": 3,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 4,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 349,
+          "tilePos": "North",
+          "type": 6,
+          "sound": false,
+          "data": 11,
+          "isLocal": true,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "multipleValue": 2320,
+          "targetY": 18,
+          "targetX": 4,
+          "targetDir": "North"
+        }
+      ]
+    },
+    {
+      "x": 19,
+      "y": 5,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Creature",
+          "index": 92,
+          "tilePos": "North",
+          "type": 22,
+          "name": "Demon",
+          "hp": [
+            774,
+            754
+          ]
+        }
+      ]
+    },
+    {
+      "x": 19,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 9,
+      "type": "Pit",
+      "open": true,
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 10,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 506,
+          "tilePos": "North",
+          "type": 6,
+          "sound": false,
+          "data": 11,
+          "isLocal": true,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "multipleValue": 2144,
+          "targetY": 16,
+          "targetX": 24,
+          "targetDir": "North"
+        }
+      ]
+    },
+    {
+      "x": 19,
+      "y": 11,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 12,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 13,
+      "type": "Pit",
+      "open": true,
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 14,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 15,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 16,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 17,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 18,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 19,
+      "y": 19,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 5,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 6,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 7,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 8,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 9,
+      "type": "Floor",
+      "objects": [
+        {
+          "category": "Sensor",
+          "index": 507,
+          "tilePos": "North",
+          "type": 6,
+          "sound": false,
+          "data": 11,
+          "isLocal": true,
+          "delay": 1,
+          "revert": false,
+          "action": "Set",
+          "onceOnly": false,
+          "multipleValue": 2144,
+          "targetY": 16,
+          "targetX": 24,
+          "targetDir": "North"
+        }
+      ]
+    },
+    {
+      "x": 20,
+      "y": 10,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 11,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 12,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 13,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 14,
+      "type": "Floor",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 15,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 16,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 17,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 18,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 20,
+      "y": 19,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 0,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 1,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 2,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 3,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 4,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 5,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 6,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 7,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 8,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 9,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 10,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 11,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 12,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 13,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 14,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 15,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 16,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 17,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 18,
+      "type": "Wall",
+      "objects": []
+    },
+    {
+      "x": 21,
+      "y": 19,
+      "type": "Wall",
+      "objects": []
+    }
+  ]
+}

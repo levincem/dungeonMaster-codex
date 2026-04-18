@@ -1,11 +1,10 @@
 import { Suspense, useEffect, useMemo, useRef } from 'react';
-import { Billboard, Plane } from '@react-three/drei';
 import type { ThreeEvent } from '@react-three/fiber';
-import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { GRID_SIZE } from '../../engine/constants';
 import type { FloorItem } from '../../types/game';
 import { getFloorItemImage } from '../../data/itemImages';
+import { BillboardGroup, useLoadedTexture } from './renderHelpers';
 
 // ─── Layout ───────────────────────────────────────────────────────────────────
 
@@ -36,7 +35,7 @@ const ItemSprite = ({
     onUpdateDrag: (pointerX: number, pointerY: number) => void;
     onEndDrag: (pointerX: number, pointerY: number) => void;
 }) => {
-    const baseTex = useTexture(imagePath);
+    const baseTex = useLoadedTexture(imagePath);
     const timerRef = useRef<number | null>(null);
     const draggingRef = useRef(false);
     const tex = useMemo(() => {
@@ -95,10 +94,8 @@ const ItemSprite = ({
     };
 
     return (
-        <Plane
-            args={[w, h]}
-            onPointerDown={handlePointerDown}
-        >
+        <mesh onPointerDown={handlePointerDown}>
+            <planeGeometry args={[w, h]} />
             <meshBasicMaterial
                 map={tex}
                 transparent
@@ -106,7 +103,7 @@ const ItemSprite = ({
                 side={THREE.DoubleSide}
                 depthWrite
             />
-        </Plane>
+        </mesh>
     );
 };
 
@@ -118,9 +115,10 @@ const ItemFallback = ({ category }: { category: string }) => {
         Scroll: '#f0e8c8', Container: '#5C3A1E', Misc: '#d4af37',
     };
     return (
-        <Plane args={[ITEM_SIZE * 0.7, ITEM_SIZE * 0.7]}>
+        <mesh>
+            <planeGeometry args={[ITEM_SIZE * 0.7, ITEM_SIZE * 0.7]} />
             <meshBasicMaterial color={colors[category] ?? '#d4af37'} side={THREE.DoubleSide} />
-        </Plane>
+        </mesh>
     );
 };
 
@@ -145,7 +143,7 @@ export const FloorItemMesh = ({ item, onPickup, onStartDrag, onUpdateDrag, onEnd
     const imagePath = getFloorItemImage(item);
 
     return (
-        <Billboard
+        <BillboardGroup
             position={worldPos}
             follow={true}
             lockX={true}
@@ -161,6 +159,6 @@ export const FloorItemMesh = ({ item, onPickup, onStartDrag, onUpdateDrag, onEnd
                     onEndDrag={onEndDrag}
                 />
             </Suspense>
-        </Billboard>
+        </BillboardGroup>
     );
 };

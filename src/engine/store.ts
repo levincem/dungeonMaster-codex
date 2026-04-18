@@ -1,5 +1,6 @@
 ﻿import { create } from 'zustand';
 import type { StateCreator } from 'zustand';
+import { getDungeonBootstrapSync, type RawDungeonBootstrap } from '../data/dungeonData';
 import { getGameMap, getGameMaps, getChampionStartPositions } from '../data/mapLoader';
 import {
     getMapMechanisms,
@@ -773,17 +774,15 @@ export { getCreatureFluxcageExpiry };
 
 const ORIGINAL_MOVE_GROUP_RETRY_SECONDS = originalTimerTicksToSeconds(5);
 const {
-    buildCreatureInstances,
-    buildFloorItems,
-    buildOpenPits,
-    buildOpenTeleporters,
-    buildVisibleTexts,
+    buildCreatureInstancesForLevel,
+    buildFloorItemsForLevel,
     canApproximateOriginalReservedGeneratorSpawn,
     createGeneratedCreatureGroupInstances,
     getChampionStarterLoadout,
     isGeneratorSpawnBlocked,
 } = createStoreWorldRuntime<SensorState>({
     getGameMaps,
+    getGameMap,
     getMapDifficulty: (level) => getGameMap(level).difficulty,
     creatureTypes: CREATURE_TYPES,
     buildRuntimeCreatureGroupId,
@@ -800,19 +799,32 @@ const {
     isGeneratorSpawnBlocked: isGeneratorSpawnBlockedSystem,
     randomInt,
 });
+const getDungeonBootstrap = (): RawDungeonBootstrap => getDungeonBootstrapSync<RawDungeonBootstrap>();
 const { buildFreshDungeonState } = createStoreBootstrapRuntime({
     hallStart: [3, 1],
     hallStartDirection: 'SOUTH',
-    buildOpenPits,
-    buildOpenTeleporters,
-    buildVisibleTexts,
-    buildCreatureInstances,
-    buildFloorItems,
+    buildDefaultOpenPits: () => new Set<string>(getDungeonBootstrap().defaultOpenPits ?? []),
+    buildDefaultOpenTeleporters: () => new Set<string>(getDungeonBootstrap().defaultOpenTeleporters ?? []),
+    buildDefaultVisibleTexts: () => new Set<string>(getDungeonBootstrap().defaultVisibleTexts ?? []),
+    buildCreatureInstancesForLevel,
+    buildFloorItemsForLevel,
 });
 
 // ─── Map helpers ──────────────────────────────────────────────────────────────
 
 const getMap = (level: number): GameMap => getGameMap(level);
+function buildStoreLevelHydrationPatch(
+    state: Pick<GameState, 'hydratedLevels' | 'creatures' | 'floorItems'>,
+    level: number,
+): Partial<GameState> | null {
+    if (state.hydratedLevels.has(level)) return null;
+    return {
+        hydratedLevels: new Set<number>([...state.hydratedLevels, level]),
+        creatures: [...state.creatures, ...buildCreatureInstancesForLevel(level)],
+        floorItems: [...state.floorItems, ...buildFloorItemsForLevel(level)],
+    };
+}
+
 const {
     buildActivePoisonCloud,
     buildEndgameSpellEvent,
@@ -1231,13 +1243,36 @@ const {
     resolveProjectileTeleporterTransport: resolveProjectileTeleporterTransportSystem,
     resolveCreatureTeleporterTransport: resolveCreatureTeleporterTransportSystem,
     applyPartyTelefragAtSquare: applyPartyTelefragAtSquareSystem,
-    applyCreaturesStandingOnOpenPit: applyCreaturesStandingOnOpenPitSystem,
-    applyCreaturesStandingOnOpenTeleporter: applyCreaturesStandingOnOpenTeleporterSystem,
+    applyCreaturesStandingOnOpenPit: (state, level, x, y, deps) =>
+        applyCreaturesStandingOnOpenPitSystem(
+            state,
+            level,
+            x,
+            y,
+            {
+                ...deps,
+                buildLevelHydrationPatch: (hydrationState, hydrationLevel) =>
+                    buildStoreLevelHydrationPatch(hydrationState as Pick<GameState, 'hydratedLevels' | 'creatures' | 'floorItems'>, hydrationLevel),
+            },
+        ),
+    applyCreaturesStandingOnOpenTeleporter: (state, level, x, y, deps) =>
+        applyCreaturesStandingOnOpenTeleporterSystem(
+            state,
+            level,
+            x,
+            y,
+            {
+                ...deps,
+                buildLevelHydrationPatch: (hydrationState, hydrationLevel) =>
+                    buildStoreLevelHydrationPatch(hydrationState as Pick<GameState, 'hydratedLevels' | 'creatures' | 'floorItems'>, hydrationLevel),
+            },
+        ),
     dropCreatureCarriedItems,
     buildDeathDustEvent,
     buildCreatureDamageEvent,
     normalizeCreatureCellsOnTile,
     canCreatureShareTile,
+    buildLevelHydrationPatch: (state, level) => buildStoreLevelHydrationPatch(state, level),
     buildSensorStateSnapshot,
     triggerFloorSensors: triggerFloorSensorsSystem,
     transitionFloorSensors: transitionFloorSensorsSystem,
@@ -1263,6 +1298,7 @@ const buildClimbDownActionDeps = () => createStoreClimbDownRuntimeDeps<GameState
     buildSensorStateSnapshot,
     triggerFloorSensors: triggerFloorSensorsSystem,
     buildMovementSensorDeps,
+    buildLevelHydrationPatch: (state, level) => buildStoreLevelHydrationPatch(state, level),
     computeMovementCooldown: computePartyMovementCooldownSecondsRuntime,
 });
 
@@ -1424,6 +1460,7 @@ interface GameState {
     activeMirrorChampionId: number | null;
     activePartyMemberId: number | null;
     gateOpen: boolean;
+    hydratedLevels: Set<number>;
     openDoors: Set<string>;
     brokenDoors: Set<string>;
     openPits: Set<string>;
@@ -2223,7 +2260,10 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         });
     },
 
-      goToLevel: (level, pos, dir) => set(buildGoToLevelPatch(level, pos, dir)),
+      goToLevel: (level, pos, dir) => set((state) => ({
+        ...(buildStoreLevelHydrationPatch(state, level) ?? {}),
+        ...buildGoToLevelPatch(level, pos, dir),
+      })),
 
     toggleDoor: (x, y) => set((state) =>
         buildStoreToggleDoorPatch(state, x, y, {

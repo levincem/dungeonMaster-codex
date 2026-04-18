@@ -77,6 +77,7 @@ test('resolveTeleporterStepTransport returns null when the teleporter is not ope
             buildSensorStateSnapshot: () => ({ openDoors: new Set<string>() }),
             transitionFloorSensors: () => ({ sensorChanges: {}, pendingSensorEvents: [] }),
             applyPartyTelefragAtSquare: () => null,
+            buildLevelHydrationPatch: () => null,
             applyImmediateTransportSquareEffects: (_state, basePatch) => basePatch,
             computeMovementCooldown: () => 0.5,
             playTeleport: () => undefined,
@@ -104,6 +105,7 @@ test('resolveTeleporterStepTransport handles cross-level teleports before immedi
                 floorItems: [{ id: 'loot-1', category: 'Misc', typeId: 1, mapIndex: 1, x: 7, y: 8, tilePos: 'North' }],
                 spellVisualEvents: [{ id: 'fx-1', level: 1, x: 7, y: 8, effect: 'fireball', ts: 0, kind: 'death' }],
             }),
+            buildLevelHydrationPatch: () => null,
             applyImmediateTransportSquareEffects: (_state, basePatch) => {
                 capturedPatch = basePatch;
                 return basePatch;
@@ -152,6 +154,7 @@ test('resolveTeleporterStepTransport handles same-level teleports with floor sen
             applyPartyTelefragAtSquare: () => ({
                 creatures: [{ id: 'c1', typeId: 1, mapIndex: 0, x: 6, y: 7, currentHP: 0, alive: false, cell: 'center' }],
             }),
+            buildLevelHydrationPatch: () => null,
             applyImmediateTransportSquareEffects: (_state, basePatch) => {
                 capturedPatch = basePatch;
                 return basePatch;

@@ -32,7 +32,7 @@ const path = require('path');
 // ---------------------------------------------------------------------------
 // Paths
 // ---------------------------------------------------------------------------
-const DUNGEON_JSON = path.join(__dirname, '../../src/assets/data/dungeon.json');
+const DUNGEON_JSON = path.join(__dirname, 'output', 'dungeon.json');
 const OUTPUT_DIR   = path.join(__dirname, 'output');
 const OUTPUT_FILE  = path.join(OUTPUT_DIR, 'resolved_armor_names.json');
 

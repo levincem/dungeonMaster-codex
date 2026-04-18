@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { RUNTIME_GAME_DB_FILE } = require("./runtime_paths.cjs");
 
 const ROOT = __dirname;
 const OBJECTS_H = path.join(
@@ -11,7 +12,7 @@ const OBJECTS_H = path.join(
   "src",
   "Objects.h"
 );
-const GAME_DB = path.join(ROOT, "..", "..", "src", "assets", "data", "game_db.json");
+const GAME_DB = RUNTIME_GAME_DB_FILE;
 const OUTPUT = path.join(ROOT, "output", "stats_reference.json");
 
 const ENUM_RANGES = {

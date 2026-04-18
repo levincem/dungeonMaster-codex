@@ -1,4 +1,4 @@
-import { Suspense, lazy, useCallback, useEffect, useRef } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import {
   endTrackedGameSession,
   maybeTrackGameplayHeartbeat,
@@ -11,6 +11,25 @@ import { GameOverScreen } from './components/UI/GameOverScreen';
 import { useStore } from './engine/store';
 import { preloadAllSounds } from './engine/sounds';
 import { clampFrameDeltaSeconds } from './engine/time';
+import {
+  getDungeonMapIndicesSync,
+  preloadDungeonBootstrapData,
+  preloadDungeonMapData,
+  preloadDungeonMapNeighborhoodData,
+} from './data/dungeonData';
+import { preloadGameDbData } from './data/gameDbData';
+import {
+  preloadOriginalWallOverlayData,
+  preloadOriginalWallOverlayMapData,
+  preloadOriginalWallOverlayMapNeighborhoodData,
+} from './data/originalWallOverlayData';
+import { readBestPersistedSave } from './engine/saveGame';
+import { inspectPersistedSaveData } from './engine/systems/persistence';
+import {
+  preloadGameplayRenderCoreModules,
+  preloadGameplayRenderModules,
+} from './preload/gameplayModulePreload';
+import { preloadGameplayVisualAssets } from './preload/gameplayVisualPreload';
 import './App.css';
 
 const DungeonScene = lazy(() =>
@@ -47,29 +66,91 @@ function isGameplayPhase(phase: GameAnalyticsSnapshot['phase']): boolean {
   return phase === 'exploration' || phase === 'mirror_open' || phase === 'endgame';
 }
 
+function getSortedDungeonPreloadQueue(currentLevel: number): number[] {
+  return getDungeonMapIndicesSync()
+    .sort((a, b) => {
+      const distanceDelta = Math.abs(a - currentLevel) - Math.abs(b - currentLevel);
+      if (distanceDelta !== 0) return distanceDelta;
+      return a - b;
+    });
+}
+
+async function preloadGameplayLevelNeighborhood(level: number): Promise<void> {
+  await Promise.all([
+    preloadDungeonMapNeighborhoodData(level, 1),
+    preloadOriginalWallOverlayMapNeighborhoodData(level, 1),
+  ]);
+}
+
+async function preloadRemainingGameplayLevels(
+  level: number,
+  shouldContinue?: () => boolean,
+): Promise<void> {
+  for (const mapIndex of getSortedDungeonPreloadQueue(level)) {
+    if (shouldContinue && !shouldContinue()) {
+      return;
+    }
+    await Promise.all([
+      preloadDungeonMapData(mapIndex),
+      preloadOriginalWallOverlayMapData(mapIndex),
+    ]);
+  }
+}
+
 function GameRoot() {
   const gamePhase = useStore((state) => state.gamePhase);
+  const level = useStore((state) => state.level);
   const activePartyMemberId = useStore((state) => state.activePartyMemberId);
   const enterDungeon = useStore((state) => state.enterDungeon);
   const loadGame = useStore((state) => state.loadGame);
   const closeMirror = useStore((state) => state.closeMirror);
   const closePartyMember = useStore((state) => state.closePartyMember);
   const wakeUp = useStore((state) => state.wakeUp);
+  const [titleTransitionMessage, setTitleTransitionMessage] = useState<string | null>(null);
 
   const lastTimeRef = useRef<number | null>(null);
   const tickInFlightRef = useRef(false);
   const previousPhaseRef = useRef(gamePhase);
 
   const handleEnterDungeon = useCallback(() => {
-    enterDungeon();
-    startTrackedGameSession('new_game', getAnalyticsSnapshot());
-  }, [enterDungeon]);
+    if (titleTransitionMessage !== null) return;
+
+    setTitleTransitionMessage('Preparing the dungeon...');
+    void Promise.all([
+      preloadGameplayLevelNeighborhood(0),
+      preloadGameDbData(),
+      preloadGameplayVisualAssets(),
+      preloadGameplayRenderCoreModules(),
+    ]).then(() => {
+      enterDungeon();
+      startTrackedGameSession('new_game', getAnalyticsSnapshot());
+    }).finally(() => {
+      setTitleTransitionMessage(null);
+    });
+  }, [enterDungeon, titleTransitionMessage]);
 
   const handleLoadGame = useCallback(() => {
-    const loaded = loadGame();
-    if (!loaded) return;
-    startTrackedGameSession('resume', getAnalyticsSnapshot());
-  }, [loadGame]);
+    if (titleTransitionMessage !== null) return;
+
+    const inspection = inspectPersistedSaveData(readBestPersistedSave());
+    setTitleTransitionMessage('Preparing your saved game...');
+    const preload = Promise.all([
+      inspection.status === 'compatible'
+        ? preloadGameplayLevelNeighborhood(inspection.data.level)
+        : preloadDungeonBootstrapData(),
+      preloadGameDbData(),
+      preloadGameplayVisualAssets(),
+      preloadGameplayRenderCoreModules(),
+    ]);
+
+    void preload.then(() => {
+      const loaded = loadGame();
+      if (!loaded) return;
+      startTrackedGameSession('resume', getAnalyticsSnapshot());
+    }).finally(() => {
+      setTitleTransitionMessage(null);
+    });
+  }, [loadGame, titleTransitionMessage]);
 
   useEffect(() => {
     let rafId: number;
@@ -120,6 +201,38 @@ function GameRoot() {
   }, []);
 
   useEffect(() => { preloadAllSounds(); }, []);
+
+  useEffect(() => {
+    if (gamePhase !== 'title') return;
+    void preloadDungeonBootstrapData()
+      .then(() => preloadGameplayLevelNeighborhood(0))
+      .catch(() => {});
+    void preloadGameDbData().catch(() => {});
+    void preloadGameplayVisualAssets().catch(() => {});
+    void preloadOriginalWallOverlayData().catch(() => {});
+    void preloadGameplayRenderCoreModules().catch(() => {});
+  }, [gamePhase]);
+
+  useEffect(() => {
+    if (!isGameplayPhase(gamePhase)) return;
+
+    let cancelled = false;
+
+    void preloadGameplayLevelNeighborhood(level).catch(() => {});
+    void preloadGameplayRenderModules().catch(() => {});
+    void (async () => {
+      try {
+        await preloadDungeonBootstrapData();
+        await preloadRemainingGameplayLevels(level, () => !cancelled);
+      } catch {
+        // Keep gameplay responsive even if a background warm-up fails.
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [gamePhase, level]);
 
   useEffect(() => {
     const heartbeatTimer = window.setInterval(() => {
@@ -187,7 +300,46 @@ function GameRoot() {
   return (
     <div className="app">
       {gamePhase === 'title' ? (
-        <TitleScreen onEnter={handleEnterDungeon} onResume={handleLoadGame} />
+        <>
+          <TitleScreen onEnter={handleEnterDungeon} onResume={handleLoadGame} />
+          {titleTransitionMessage && (
+            <div
+              style={{
+                position: 'fixed',
+                inset: 0,
+                background: 'rgba(5, 5, 8, 0.84)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 240,
+                pointerEvents: 'all',
+              }}
+            >
+              <div
+                style={{
+                  minWidth: 320,
+                  maxWidth: 'min(88vw, 420px)',
+                  padding: '18px 22px',
+                  borderRadius: 10,
+                  background: 'linear-gradient(180deg, rgba(24,18,8,0.96), rgba(10,8,5,0.98))',
+                  border: '1px solid rgba(212,184,112,0.46)',
+                  color: '#ecd9a8',
+                  boxShadow: '0 24px 64px rgba(0,0,0,0.42)',
+                  textAlign: 'center',
+                  fontFamily: '"Courier New", monospace',
+                  letterSpacing: 1,
+                }}
+              >
+                <div style={{ fontSize: 11, color: 'rgba(212,184,112,0.72)', marginBottom: 8 }}>
+                  PRELOAD
+                </div>
+                <div style={{ fontSize: 15, color: '#f0d060' }}>
+                  {titleTransitionMessage}
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       ) : gamePhase === 'game_over' ? (
         <GameOverScreen />
       ) : gamePhase === 'victory' ? (

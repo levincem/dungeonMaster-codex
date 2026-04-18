@@ -15,6 +15,7 @@ type StairStepTransportState = {
 
 type StairStepTransportDeps<TState extends StairStepTransportState> = {
     computeMovementCooldown: (state: TState) => number;
+    buildLevelHydrationPatch: (state: TState, level: number) => Partial<TState> | null;
 };
 
 const DIR_STEP: Record<Direction, [number, number]> = {
@@ -34,8 +35,10 @@ export function resolveStairStepTransport<TState extends StairStepTransportState
     if (link.requireGate && !state.gateOpen) return null;
 
     const [dy, dx] = DIR_STEP[link.dir];
+    const hydrationPatch = deps.buildLevelHydrationPatch(state, link.toLevel);
     return {
         patch: {
+            ...(hydrationPatch ?? {}),
             level: link.toLevel,
             position: [link.toY + dy, link.toX + dx] as [number, number],
             direction: link.dir,

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { ComponentType } from 'react';
 import { LoadingScreen } from './components/UI/LoadingScreen';
+import { preloadGameRootModule } from './preload/gameplayModulePreload';
 
 const welcomeBackdropStyle = {
   position: 'fixed' as const,
@@ -46,6 +47,7 @@ function App() {
   const [bootError, setBootError] = useState<string | null>(null);
   const [isSmartphone, setIsSmartphone] = useState(false);
   const [showWelcomeNotice, setShowWelcomeNotice] = useState(false);
+  const [isPreparingTitle, setIsPreparingTitle] = useState(false);
   const [welcomePressedButton, setWelcomePressedButton] = useState<'close' | 'continue' | null>(null);
 
   useEffect(() => {
@@ -64,17 +66,21 @@ function App() {
 
   const handleReady = useCallback(async () => {
     setShowWelcomeNotice(true);
+    void preloadGameRootModule().catch(() => {});
   }, []);
 
   const handleWelcomeContinue = useCallback(async () => {
+    setShowWelcomeNotice(false);
+    setIsPreparingTitle(true);
     try {
-      const module = await import('./GameRoot');
+      const module = await preloadGameRootModule();
       setGameRootComponent(() => module.default);
       setBootError(null);
-      setShowWelcomeNotice(false);
     } catch (error) {
       console.error('Failed to load GameRoot', error);
       setBootError(error instanceof Error ? error.message : 'Unknown boot error');
+    } finally {
+      setIsPreparingTitle(false);
     }
   }, []);
 
@@ -117,6 +123,56 @@ function App() {
   }
 
   if (!GameRootComponent) {
+    if (isPreparingTitle) {
+      return (
+        <div style={welcomeBackdropStyle}>
+          <div style={{
+            ...welcomePanelStyle,
+            width: 'min(520px, 100%)',
+            maxHeight: 'none',
+            overflowY: 'visible',
+            textAlign: 'center',
+          }}>
+            <div style={{ fontSize: 24, letterSpacing: 0.8, marginBottom: 18, color: '#f1d9a1' }}>
+              Preparing Title Screen
+            </div>
+            <div style={{
+              fontSize: 15,
+              lineHeight: 1.6,
+              color: '#dcc48b',
+              marginBottom: 18,
+            }}>
+              The gameplay runtime is still warming up. This is expected in development mode and on a cold start.
+            </div>
+            <div style={{
+              width: '100%',
+              height: 4,
+              background: 'rgba(255,255,255,0.08)',
+              borderRadius: 999,
+              overflow: 'hidden',
+            }}>
+              <div style={{
+                width: '38%',
+                height: '100%',
+                borderRadius: 999,
+                background: 'linear-gradient(90deg, #7a4a10, #d4a030)',
+                boxShadow: '0 0 10px rgba(200,140,30,0.55)',
+                animation: 'dmTitlePreloadPulse 1.15s ease-in-out infinite',
+                transformOrigin: 'left center',
+              }} />
+            </div>
+            <style>{`
+              @keyframes dmTitlePreloadPulse {
+                0% { transform: translateX(-12%) scaleX(0.82); opacity: 0.72; }
+                50% { transform: translateX(96%) scaleX(1.08); opacity: 1; }
+                100% { transform: translateX(220%) scaleX(0.82); opacity: 0.72; }
+              }
+            `}</style>
+          </div>
+        </div>
+      );
+    }
+
     if (showWelcomeNotice) {
       return (
         <div style={welcomeBackdropStyle}>

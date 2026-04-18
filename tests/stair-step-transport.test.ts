@@ -15,7 +15,7 @@ test('resolveStairStepTransport returns null when no stair link exists', () => {
         { gateOpen: true, elapsedGameTimeTicks: 10 },
         undefined,
         null,
-        { computeMovementCooldown: () => 0.5 },
+        { computeMovementCooldown: () => 0.5, buildLevelHydrationPatch: () => null },
     );
 
     assert.equal(result, null);
@@ -26,7 +26,7 @@ test('resolveStairStepTransport blocks gated stairs when the gate is closed', ()
         { gateOpen: false, elapsedGameTimeTicks: 10 },
         { toLevel: 1, toY: 4, toX: 5, dir: 'NORTH' as Direction, requireGate: true },
         null,
-        { computeMovementCooldown: () => 0.5 },
+        { computeMovementCooldown: () => 0.5, buildLevelHydrationPatch: () => null },
     );
 
     assert.equal(result, null);
@@ -37,7 +37,7 @@ test('resolveStairStepTransport applies the stair destination, direction and coo
         { gateOpen: true, elapsedGameTimeTicks: 42 },
         { toLevel: 3, toY: 10, toX: 12, dir: 'WEST' as Direction, requireGate: false },
         { championVitals: { 1: { hp: 25 } } },
-        { computeMovementCooldown: () => 1.75 },
+        { computeMovementCooldown: () => 1.75, buildLevelHydrationPatch: () => null },
     );
 
     assert.ok(result);

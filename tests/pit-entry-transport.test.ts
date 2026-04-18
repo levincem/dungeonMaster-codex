@@ -124,6 +124,7 @@ test('resolveOpenPitEntryTransport returns null when the pit has no valid landin
             triggerFloorSensors: () => ({ sensorChanges: {}, pendingSensorEvents: [] }),
             applyPartyTelefragAtSquare: () => null,
             applyPartyFallImpactDamage: () => null,
+            buildLevelHydrationPatch: () => null,
             applyImmediateTransportSquareEffects: (_state, basePatch) => basePatch,
             computeMovementCooldown: () => 0.5,
         },
@@ -170,6 +171,7 @@ test('resolveOpenPitEntryTransport applies sensor transitions, telefrag and fall
                 championVitals: { 1: createVitals(22) },
                 damageEvents: [{ id: 'fall-1', level: 1, target: 'champion', championId: 1, amount: 8, ts: 0 }],
             }),
+            buildLevelHydrationPatch: () => null,
             applyImmediateTransportSquareEffects: (_state, basePatch) => {
                 capturedPatch = basePatch as Record<string, unknown>;
                 return basePatch;

@@ -73,6 +73,7 @@ test('applyCreaturesStandingOnOpenPit moves surviving creatures to the landing t
     const state = {
         level: 0,
         position: [0, 0] as [number, number],
+        hydratedLevels: new Set<number>([2]),
         creatures: [createCreature('c2', { mapIndex: 2, x: 4, y: 5, currentHP: 50 })],
         floorItems: [] as FloorItem[],
         damageEvents: [] as DamageEvent[],
@@ -90,6 +91,7 @@ test('applyCreaturesStandingOnOpenPit moves surviving creatures to the landing t
         buildDeathDustEvent: () => createDeathEvent('c2'),
         buildCreatureDamageEvent: (_level, _x, _y, amount, creatureId) => createDamageEvent(creatureId, amount),
         normalizeCreatureCellsOnTile: (creatures) => creatures,
+        buildLevelHydrationPatch: () => null,
     });
 
     assert.ok(result);
@@ -128,6 +130,7 @@ test('applyCreaturesStandingOnOpenTeleporter teleports creatures when the destin
     const state = {
         level: 0,
         position: [0, 0] as [number, number],
+        hydratedLevels: new Set<number>([0]),
         creatures: [createCreature('c3', { mapIndex: 0, x: 2, y: 3, cell: 'frontLeft' })],
         openDoors: new Set<string>(),
         openWalls: new Set<string>(),
@@ -142,6 +145,7 @@ test('applyCreaturesStandingOnOpenTeleporter teleports creatures when the destin
         isWalkable: () => true,
         canCreatureShareTile: () => true,
         normalizeCreatureCellsOnTile: (creatures) => creatures,
+        buildLevelHydrationPatch: () => null,
     });
 
     assert.ok(result);

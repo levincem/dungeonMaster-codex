@@ -5,6 +5,7 @@ type TeleporterLoopState = {
     level: number;
     position: [number, number];
     direction: Direction;
+    hydratedLevels: Set<number>;
     creatures: CreatureInstance[];
     floorItems: FloorItem[];
     spellVisualEvents: SpellVisualEvent[];
@@ -30,8 +31,12 @@ type TeleporterLoopDeps = {
         x: number,
         y: number,
     ) => Pick<TeleporterLoopState, 'creatures' | 'floorItems' | 'spellVisualEvents'> | null;
+    buildLevelHydrationPatch: (
+        state: Pick<TeleporterLoopState, 'hydratedLevels' | 'creatures' | 'floorItems'>,
+        level: number,
+    ) => Partial<Pick<TeleporterLoopState, 'creatures' | 'floorItems'>> | null;
     applyCreaturesStandingOnOpenTeleporter: (
-        state: Pick<TeleporterLoopState, 'level' | 'position' | 'creatures' | 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters'>,
+        state: Pick<TeleporterLoopState, 'level' | 'position' | 'hydratedLevels' | 'creatures' | 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters'>,
         level: number,
         x: number,
         y: number,
@@ -76,6 +81,18 @@ export function applyOpenedTeleporterEffects(
                 direction,
             );
             direction = resolvedTransport.direction;
+            const hydrationPatch = deps.buildLevelHydrationPatch(
+                {
+                    hydratedLevels: state.hydratedLevels,
+                    creatures,
+                    floorItems,
+                },
+                resolvedTransport.level,
+            );
+            if (hydrationPatch) {
+                creatures = hydrationPatch.creatures ?? creatures;
+                floorItems = hydrationPatch.floorItems ?? floorItems;
+            }
             const telefrag = deps.applyPartyTelefragAtSquare(
                 { creatures, floorItems, spellVisualEvents },
                 resolvedTransport.level,
@@ -96,6 +113,7 @@ export function applyOpenedTeleporterEffects(
             {
                 level,
                 position,
+                hydratedLevels: state.hydratedLevels,
                 creatures,
                 openDoors: state.openDoors,
                 openWalls: state.openWalls,

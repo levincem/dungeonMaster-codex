@@ -63,6 +63,7 @@ type TeleporterStepTransportDeps<
         x: number,
         y: number,
     ) => Partial<Pick<TState, 'creatures' | 'floorItems' | 'spellVisualEvents'>> | null;
+    buildLevelHydrationPatch: (state: TState, level: number) => Partial<TState> | null;
     applyImmediateTransportSquareEffects: (state: TState, basePatch: TPatch) => TPatch;
     computeMovementCooldown: (state: TState) => number;
     playTeleport: () => void;
@@ -94,18 +95,23 @@ export function resolveTeleporterStepTransport<
     deps.playTeleport();
 
     if (resolvedTransport.level !== state.level) {
+        const hydrationPatch = deps.buildLevelHydrationPatch(state, resolvedTransport.level);
+        const hydratedState = hydrationPatch
+            ? { ...state, ...hydrationPatch } as TState
+            : state;
         const telefragPatch = deps.applyPartyTelefragAtSquare(
             {
-                creatures: state.creatures,
-                floorItems: state.floorItems,
-                spellVisualEvents: state.spellVisualEvents,
+                creatures: hydratedState.creatures,
+                floorItems: hydratedState.floorItems,
+                spellVisualEvents: hydratedState.spellVisualEvents,
             },
             resolvedTransport.level,
             resolvedTransport.x,
             resolvedTransport.y,
         );
         return {
-            patch: deps.applyImmediateTransportSquareEffects(state, {
+            patch: deps.applyImmediateTransportSquareEffects(hydratedState, {
+                ...(hydrationPatch ?? {}),
                 level: resolvedTransport.level,
                 position: [resolvedTransport.y, resolvedTransport.x],
                 direction: resolvedTransport.direction,

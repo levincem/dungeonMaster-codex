@@ -168,6 +168,7 @@ export interface PersistedSaveData {
     direction: Direction;
     party: Champion[];
     gateOpen: boolean;
+    hydratedLevels?: number[];
     openDoors: string[];
     brokenDoors?: string[];
     openPits: string[];
