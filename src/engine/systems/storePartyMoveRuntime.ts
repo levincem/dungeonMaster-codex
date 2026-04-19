@@ -56,6 +56,7 @@ export function createStorePartyMoveRuntimeDeps<
 ): PartyMoveCommandDeps<TState> {
     return {
         applyPartyMoveFatigue: params.applyPartyMoveFatigue,
+        isPartyStepBlockedByCreature: params.isPartyStepBlockedByCreature,
         getTile: params.getTile,
         isWalkable: params.isWalkable,
         buildSensorStateSnapshot: params.buildSensorStateSnapshot,

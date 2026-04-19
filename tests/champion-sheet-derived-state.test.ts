@@ -4,6 +4,7 @@ import {
     buildChampionSheetFrontWallContext,
     buildChampionSheetLoadSummary,
     buildChampionSheetVitalsSummary,
+    findActivePartyChampion,
     getChampionPotionBonusesForSheet,
     getFirstEquipTargetSlot,
 } from '../src/components/UI/championSheetDerivedState.js';
@@ -94,6 +95,20 @@ test('getChampionPotionBonusesForSheet merges timed boosts with current stat del
         antiFire: 0,
         luck: 5,
     });
+});
+
+test('findActivePartyChampion returns the live party instance for reincarnated champions', () => {
+    const reincarnated = {
+        ...createChampion(),
+        id: 1,
+        health: 60,
+        stamina: 45,
+        strength: 29,
+    };
+
+    assert.equal(findActivePartyChampion([reincarnated], 1), reincarnated);
+    assert.equal(findActivePartyChampion([reincarnated], 99), null);
+    assert.equal(findActivePartyChampion([reincarnated], null), null);
 });
 
 test('buildChampionSheetVitalsSummary derives severities and wound text from vitals', () => {

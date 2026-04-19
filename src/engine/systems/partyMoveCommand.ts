@@ -26,6 +26,7 @@ type ForwardBlockedResolution = {
 
 export type PartyMoveCommandDeps<TState extends PartyMoveState> = {
     applyPartyMoveFatigue: (state: TState) => Record<number, ChampionVitals> | null;
+    isPartyStepBlockedByCreature: (state: TState, level: number, x: number, y: number) => boolean;
     getTile: (level: number, x: number, y: number) => { type: string } | undefined;
     isWalkable: (
         level: number,
@@ -117,6 +118,12 @@ export function resolvePartyMoveCommand<TState extends PartyMoveState>(
 
     const movedVitals = deps.applyPartyMoveFatigue(state);
     const target = resolvePartyMoveTarget(state.position, state.direction, command);
+    if (deps.isPartyStepBlockedByCreature(state, state.level, target.x, target.y)) {
+        return {
+            patch: movedVitals ? { championVitals: movedVitals } : state,
+            shouldPlayWallBump: false,
+        };
+    }
 
     if (command === 'forward') {
         const targetTile = deps.getTile(state.level, target.x, target.y);

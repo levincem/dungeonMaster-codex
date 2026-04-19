@@ -32,6 +32,8 @@ import {
 import { preloadGameplayVisualAssets } from './preload/gameplayVisualPreload';
 import './App.css';
 
+const IS_DEV = import.meta.env.DEV;
+
 const DungeonScene = lazy(() =>
   import('./components/Dungeon/DungeonScene').then((module) => ({ default: module.DungeonScene })),
 );
@@ -139,10 +141,10 @@ function GameRoot() {
     if (titleTransitionMessage !== null) return;
 
     setTitleTransitionMessage('Preparing the dungeon...');
+    void preloadGameplayVisualAssets().catch(() => {});
     void Promise.all([
       preloadGameplayLevelNeighborhood(0),
       preloadGameDbData(),
-      preloadGameplayVisualAssets(),
       preloadGameplayRenderCoreModules(),
     ]).then(() => {
       enterDungeon();
@@ -157,12 +159,12 @@ function GameRoot() {
 
     const inspection = inspectPersistedSaveData(readBestPersistedSave());
     setTitleTransitionMessage('Preparing your saved game...');
+    void preloadGameplayVisualAssets().catch(() => {});
     const preload = Promise.all([
       inspection.status === 'compatible'
         ? preloadGameplayLevelNeighborhood(inspection.data.level)
         : preloadDungeonBootstrapData(),
       preloadGameDbData(),
-      preloadGameplayVisualAssets(),
       preloadGameplayRenderCoreModules(),
     ]);
 
@@ -223,36 +225,36 @@ function GameRoot() {
     };
   }, []);
 
-  useEffect(() => { preloadAllSounds(); }, []);
-
   useEffect(() => {
     if (gamePhase !== 'title') return;
 
     let cancelled = false;
 
     void preloadDungeonBootstrapData()
-      .then(() => preloadGameplayLevelNeighborhood(0))
       .catch(() => {});
 
     const cancelVisualWarmup = scheduleIdleWarmup(() => {
       if (cancelled) return;
       void preloadGameplayVisualAssets().catch(() => {});
-    }, 600);
+    }, IS_DEV ? 1_400 : 600);
 
     const cancelDataWarmup = scheduleIdleWarmup(() => {
       if (cancelled) return;
-      void Promise.all([
-        preloadGameDbData(),
-        preloadOriginalWallOverlayData(),
-      ]).catch(() => {});
-    }, 1_200);
+      const dataWarmup = IS_DEV
+        ? preloadGameDbData()
+        : Promise.all([
+            preloadGameDbData(),
+            preloadOriginalWallOverlayData(),
+          ]).then(() => {});
+      void dataWarmup.catch(() => {});
+    }, IS_DEV ? 2_400 : 1_200);
 
     const cancelRenderWarmup = scheduleIdleWarmup(() => {
       if (cancelled) return;
       void preloadGameplayRenderCoreModules().catch(() => {});
-    }, 2_000);
+    }, IS_DEV ? 3_000 : 2_000);
 
-    const delayedFullWarmup = window.setTimeout(() => {
+    const delayedFullWarmup = IS_DEV ? null : window.setTimeout(() => {
       if (cancelled) return;
       void Promise.all([
         preloadGameplayVisualAssets(),
@@ -267,7 +269,9 @@ function GameRoot() {
       cancelVisualWarmup();
       cancelDataWarmup();
       cancelRenderWarmup();
-      window.clearTimeout(delayedFullWarmup);
+      if (delayedFullWarmup !== null) {
+        window.clearTimeout(delayedFullWarmup);
+      }
     };
   }, [gamePhase]);
 
@@ -275,6 +279,10 @@ function GameRoot() {
     if (!isGameplayPhase(gamePhase)) return;
 
     let cancelled = false;
+    const cancelSoundWarmup = scheduleIdleWarmup(() => {
+      if (cancelled) return;
+      preloadAllSounds();
+    }, 1_000);
 
     void preloadGameplayLevelNeighborhood(level).catch(() => {});
     void preloadGameplayRenderModules().catch(() => {});
@@ -290,6 +298,7 @@ function GameRoot() {
 
     return () => {
       cancelled = true;
+      cancelSoundWarmup();
     };
   }, [gamePhase, level]);
 

@@ -117,10 +117,13 @@ test('buildKillCreaturePatch marks the creature dead and returns dropped items',
     };
 
     const patch = buildKillCreaturePatch(state, 'creature-1', {
-        dropCreatureCarriedItems: (creatures, _floorItems) => ({
-            creatures,
-            floorItems: [{ id: 'loot', category: 'Weapon', typeId: 1, mapIndex: 0, x: 0, y: 0, tilePos: 'North' }],
-        }),
+        dropCreatureCarriedItems: (creatures, floorItems) => {
+            void floorItems;
+            return {
+                creatures,
+                floorItems: [{ id: 'loot', category: 'Weapon', typeId: 1, mapIndex: 0, x: 0, y: 0, tilePos: 'North' }],
+            };
+        },
     });
 
     assert.equal(patch.creatures[0]?.alive, false);

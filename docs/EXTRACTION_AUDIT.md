@@ -238,7 +238,7 @@ Ces données existent dans les fichiers JSON mais ne sont pas encore utilisées 
 - `compare_atari_stats_to_game_db.cjs` audite maintenant aussi la copie `i560` packagee dans `game_db.json` et la presence des 25 signatures de sorts canoniques dans le catalogue runtime, pour eviter un nouveau decalage de runes ou de sorts lors d'une regeneration.
 - Ce qui reste encore partiellement interprete plutot que reproduit instruction par instruction:
   - mitigation et blessures de combat au sens large, car le runtime n'emule pas volontairement certains bugs compilateur du binaire original (`BUG0_41`, `BUG0_45`)
-- `src/data/spells.ts` reste une table legacy de reference.
+- `src/data/reference/spellsReference.ts` reste une table de reference uniquement, hors pipeline runtime actif.
 - Certains fichiers sous `assets/OriginalDataExtraction/reference_exports/` peuvent conserver des signatures plus anciennes tant qu'ils n'ont pas ete regeneres explicitement. Pour les audits de runes, preferer `atari_i560_stats.json` et le `game_db.json` regenere par `parse_full`.
 
 L'extraction est dans un très bon état. La totalité des fichiers source originaux accessibles sont lus. Les tables Atari ST (i559/i560/i561/i562) sont proprement décodées et constituent une base fiable.

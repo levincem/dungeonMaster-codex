@@ -171,6 +171,20 @@ export function selectHudRunes(currentRunes: string[], runeId: string): string[]
     return [...currentRunes, runeId];
 }
 
+export function didPartyTakeSingleStep(args: {
+    previousLevel: number | null;
+    nextLevel: number;
+    previousPosition: [number, number] | null;
+    nextPosition: [number, number];
+}): boolean {
+    const { previousLevel, nextLevel, previousPosition, nextPosition } = args;
+    if (previousLevel === null || previousLevel !== nextLevel || !previousPosition) return false;
+
+    const dy = Math.abs(nextPosition[0] - previousPosition[0]);
+    const dx = Math.abs(nextPosition[1] - previousPosition[1]);
+    return dx + dy === 1;
+}
+
 export function buildHudCastState<
     C extends HudChampionLike,
     TSpell extends { manaCost: number; name?: string },

@@ -96,7 +96,7 @@ So the project is close to a strong public alpha state, but not yet at a point w
 ```text
 src/
   components/   Dungeon rendering and UI
-  data/         Runtime data loaders, definitions and compatibility layers
+  data/         Runtime data loaders, definitions, helpers, and reference-only archives
   engine/       Store, rules, combat, interactions, persistence, options, sounds
   i18n/         Translation dictionaries and lightweight locale access
   types/        Shared types
@@ -126,6 +126,10 @@ src/assets/runtime/
   support/original_wall_overlay_positions.json
   support/wall_overlays/map-XX.json
   runtime_data_manifest.json    Runtime package manifest emitted by parse_full
+
+Compatibility bridges still intentionally kept in the live runtime:
+  src/data/itemRuntimeCompatibility.ts  Starter-item / potion-name glue still used by gameplay
+  src/data/itemImageCompatibility.ts    Asset-name / legacy image fallback glue still used by UI
 
 assets/
   OriginalDataExtraction/       Reverse-engineering base, scripts, source references, audits
@@ -180,6 +184,13 @@ That directory contains:
 - generated comparison outputs
 - notes explaining what is proven, derived, or still interpretive
 
+For spells specifically:
+
+- `src/data/runes.ts` is the live spell catalog used by gameplay
+- `src/data/originalSpells.ts` holds extracted original spell descriptors and formulas
+- `src/data/spellRuntime.ts` contains the runtime spell helpers used by the engine
+- `src/data/reference/spellsReference.ts` is kept only as a reference snapshot for audits and cross-checks
+
 The most useful project-memory and audit docs are:
 
 - [docs/PROJECT_STATE_INDEX.md](docs/PROJECT_STATE_INDEX.md)
@@ -196,7 +207,7 @@ The most useful project-memory and audit docs are:
 
 - The project should currently be treated as a playable alpha, not a finished remake.
 - The production build passes, and the app boots correctly from the runtime data embedded in `src/assets/runtime/`.
-- Latest local validation recorded on `2026-04-19`: `npm.cmd run build` passes, and `npm.cmd test` passes with `532` tests.
+- Latest local validation recorded on `2026-04-19`: `npm.cmd run lint`, `npm.cmd run build`, and `npm.cmd test` all pass, with `546` tests.
 - The world-content extraction is now considered reliable enough that the remaining uncertainty is mostly about fidelity edge cases, not about missing core dungeon content.
 - The runtime package now ships `bootstrap + maps/level-XX` instead of a single `dungeon.json` blob, and Vite emits separate level chunks accordingly.
 - The runtime package now also ships split `game_db` slices for items, weapon attacks, and creatures, so the app no longer depends on one runtime `game-db-blob`.

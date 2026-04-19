@@ -69,6 +69,23 @@ test('unequipChampionItem moves the equipped item back into inventory', async ()
     assert.deepEqual(patch?.championInventories?.[1]?.map((item) => item.id), ['torch', 'sword']);
 });
 
+test('unequipChampionItem returns null when the backpack is already full', async () => {
+    const { MAX_CHAMPION_INVENTORY_ITEMS, unequipChampionItem } = await loadInventoryStateModule();
+    const equippedItem = createWeapon('equipped', 4);
+    const fullInventory = Array.from({ length: MAX_CHAMPION_INVENTORY_ITEMS }, (_, index) => createWeapon(`item-${index}`, index + 10));
+
+    const patch = unequipChampionItem(
+        {
+            championInventories: { 1: fullInventory },
+            championEquipment: { 1: { rightHand: equippedItem } },
+        },
+        1,
+        'rightHand',
+    );
+
+    assert.equal(patch, null);
+});
+
 test('giveChampionInventoryItem transfers an inventory item between champions', async () => {
     const { giveChampionInventoryItem } = await loadInventoryStateModule();
     const { sword, dagger, state } = createState();
@@ -77,6 +94,27 @@ test('giveChampionInventoryItem transfers an inventory item between champions', 
     assert.ok(patch);
     assert.deepEqual(patch?.championInventories?.[1]?.map((item) => item.id), ['torch']);
     assert.deepEqual(patch?.championInventories?.[2]?.map((item) => item.id), [dagger.id, sword.id]);
+});
+
+test('giveChampionInventoryItem returns null when the target backpack is full', async () => {
+    const { MAX_CHAMPION_INVENTORY_ITEMS, giveChampionInventoryItem } = await loadInventoryStateModule();
+    const { sword, state } = createState();
+    const fullInventory = Array.from({ length: MAX_CHAMPION_INVENTORY_ITEMS }, (_, index) => createWeapon(`item-${index}`, index + 20));
+
+    const patch = giveChampionInventoryItem(
+        {
+            ...state,
+            championInventories: {
+                ...state.championInventories,
+                2: fullInventory,
+            },
+        },
+        1,
+        2,
+        sword.id,
+    );
+
+    assert.equal(patch, null);
 });
 
 test('giveChampionEquippedItem transfers an equipped item into the target inventory', async () => {
@@ -92,6 +130,28 @@ test('giveChampionEquippedItem transfers an equipped item into the target invent
     assert.ok(patch);
     assert.equal(patch?.championEquipment?.[1]?.leftHand, undefined);
     assert.deepEqual(patch?.championInventories?.[2]?.map((item) => item.id), [dagger.id, sword.id]);
+});
+
+test('giveChampionEquippedItem returns null when the target backpack is full', async () => {
+    const { MAX_CHAMPION_INVENTORY_ITEMS, giveChampionEquippedItem } = await loadInventoryStateModule();
+    const { sword, state } = createState();
+    const fullInventory = Array.from({ length: MAX_CHAMPION_INVENTORY_ITEMS }, (_, index) => createWeapon(`item-${index}`, index + 30));
+
+    const patch = giveChampionEquippedItem(
+        {
+            ...state,
+            championInventories: {
+                ...state.championInventories,
+                2: fullInventory,
+            },
+            championEquipment: { ...state.championEquipment, 1: { leftHand: sword } },
+        },
+        1,
+        'leftHand',
+        2,
+    );
+
+    assert.equal(patch, null);
 });
 
 test('seedTorchBurnStartFromEquipment only seeds missing lit torches in hand slots', async () => {

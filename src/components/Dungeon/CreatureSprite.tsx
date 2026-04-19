@@ -6,7 +6,8 @@ import { useStore, onCreatureAction } from '../../engine/store';
 import type { CreatureInstance } from '../../types/game';
 import { spritesPath } from '../../data/assetPaths';
 import { getCreatureCellOffsetXZ } from './creatureCellOffsets';
-import { BillboardGroup, useLoadedTexture } from './renderHelpers';
+import { BillboardGroup } from './renderHelpers';
+import { useLoadedTexture } from './useLoadedTexture';
 
 // Default sprite size
 const DEFAULT_W = GRID_SIZE   * 0.65;

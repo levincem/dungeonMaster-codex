@@ -3,6 +3,9 @@ import type { ChampionEquipment, FloorItem, GameTile } from '../../types/game';
 import { transferFloorItemToChampionState as transferFloorItemToChampionStateSystem } from './floorItemState';
 
 type FloorItemPickupStateLike<TMessage, TSensorPatch extends object> = {
+    level: number;
+    position: [number, number];
+    direction: 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
     floorItems: FloorItem[];
     party: Champion[];
     championInventories: Record<number, FloorItem[]>;

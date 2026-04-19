@@ -53,7 +53,7 @@ type CastCheck = {
 type ProjectileSpellPatchDeps = Parameters<typeof buildProjectileSpellStatePatch>[1];
 type ProjectileSpellEffect = Parameters<ProjectileSpellPatchDeps['applyBacklash']>[0];
 
-type CastSpellStoreRuntimeDeps = {
+type CastSpellPreparationDeps = {
     buildUnknownCombinationPatch: (now: number) => CastSpellStorePatch;
     getChampionMasteryLevel: (championId: number, champion: Champion, skill: SkillKey) => number;
     rollCastCheck: (
@@ -68,6 +68,9 @@ type CastSpellStoreRuntimeDeps = {
     originalTimerTicksToSeconds: (ticks: number) => number;
     createChampionCombatState: (cooldownMax: number) => ChampionCombat;
     randomInt: (maxExclusive: number) => number;
+};
+
+type ProjectileSpellRuntimeDeps = {
     quantizeDurationMs: (milliseconds: number) => number;
     buildDroppedItem: (
         item: FloorItem,
@@ -102,6 +105,9 @@ type CastSpellStoreRuntimeDeps = {
         rolledDamage: number,
         now: number,
     ) => ReturnType<ProjectileSpellPatchDeps['applyBacklash']>;
+};
+
+type CastSpellStoreRuntimeDeps = CastSpellPreparationDeps & ProjectileSpellRuntimeDeps & {
     mergeBasePatch: (basePatch: CastSpellStorePatch, nextPatch: CastSpellStorePatch) => CastSpellStorePatch;
 };
 
@@ -178,6 +184,121 @@ export function buildStoreCastSpellRuntimeResult(
     now: number,
     deps: CastSpellStoreRuntimeDeps,
 ) {
+    const prepareCast = (
+        currentState: CastSpellStoreRuntimeState,
+        targetChampionId: number,
+        spell: SpellDef,
+        champion: Champion,
+        vitals: ChampionVitals,
+        currentNow: number,
+    ) => {
+        const castEquip = currentState.championEquipment[targetChampionId] ?? {};
+        return prepareSpellCast(
+            {
+                championId: targetChampionId,
+                spell,
+                vitals,
+                currentChampionCombat: currentState.championCombat,
+                now: currentNow,
+            },
+            {
+                getSkillLevel: (skill) =>
+                    deps.getChampionMasteryLevel(targetChampionId, champion, skill),
+                rollCastCheck: (skillLevel) =>
+                    deps.rollCastCheck(
+                        champion,
+                        castEquip,
+                        currentState.activePotionBoosts,
+                        vitals,
+                        spell,
+                        skillLevel,
+                    ),
+                applySkillXp: (skill, amount) =>
+                    deps.buildChampionSkillExperiencePatch(targetChampionId, skill, amount),
+                originalTimerTicksToSeconds: deps.originalTimerTicksToSeconds,
+                createChampionCombatState: deps.createChampionCombatState,
+                randomInt: deps.randomInt,
+            },
+        );
+    };
+
+    const buildProjectilePatch = (
+        currentState: CastSpellStoreRuntimeState,
+        targetChampionId: number,
+        spell: SpellDef,
+        nextVitals: ChampionVitals,
+        skillLevel: number,
+        champion: Champion,
+        currentNow: number,
+    ) => {
+        switch (spell.effect) {
+            case 'fireball':
+            case 'lightning':
+            case 'poison_cloud':
+            case 'poison_bolt':
+            case 'open':
+            case 'disrupt_nonmaterial': {
+                const equip = currentState.championEquipment[targetChampionId] ?? {};
+                const effective = deps.getEffectiveChampionStats(
+                    champion,
+                    equip,
+                    currentState.activePotionBoosts,
+                    nextVitals,
+                );
+                return buildProjectileSpellStatePatch(
+                    {
+                        spell,
+                        championId: targetChampionId,
+                        level: currentState.level,
+                        position: currentState.position,
+                        direction: currentState.direction,
+                        now: currentNow,
+                        skillLevel,
+                        maxMana: effective.mana,
+                        elapsedGameTimeTicks: currentState.elapsedGameTimeTicks,
+                        nextVitals,
+                        currentChampionVitals: currentState.championVitals,
+                        currentSpellVisualEvents: currentState.spellVisualEvents,
+                        currentOpenDoors: currentState.openDoors,
+                        currentProjectiles: currentState.projectiles,
+                        currentActivePoisonClouds: currentState.activePoisonClouds,
+                    },
+                    {
+                        projectileAttack: 90,
+                        projectileStepMs: PROJECTILE_STEP_MS,
+                        gridSize: GRID_SIZE,
+                        getImmediateDoor: (level, x, y) => deps.getImmediateDoor(currentState, level, x, y),
+                        isImmediatelyBlocked: (level, x, y) =>
+                            deps.isImmediatelyBlocked(currentState, level, x, y),
+                        buildBlockedPoisonCloud: deps.buildBlockedPoisonCloud,
+                        rollSourceBackedImpactDamage: (initialRange) => {
+                            const impact = rollOriginalSpellProjectileImpact(
+                                spell,
+                                initialRange,
+                                0,
+                                deps.randomInt,
+                            );
+                            return impact?.damage ?? null;
+                        },
+                        rollRandomDamage: (min, max) =>
+                            min + Math.floor(Math.random() * (max - min + 1)),
+                        applyBacklash: (effect, rolledDamage) =>
+                            deps.applyPartySpellBacklashDamage(
+                                currentState,
+                                targetChampionId,
+                                nextVitals,
+                                effect,
+                                rolledDamage,
+                                currentNow,
+                            ),
+                    },
+                );
+            }
+            default:
+                return null;
+        }
+    };
+
     return buildCastSpellCommandRuntimeResult<CastSpellStorePatch>(
         state,
         championId,
@@ -186,36 +307,7 @@ export function buildStoreCastSpellRuntimeResult(
         {
             findSpell,
             buildUnknownCombinationPatch: deps.buildUnknownCombinationPatch,
-            prepareCast: (currentState, targetChampionId, spell, champion, vitals, currentNow) => {
-                const castEquip = currentState.championEquipment[targetChampionId] ?? {};
-                return prepareSpellCast(
-                    {
-                        championId: targetChampionId,
-                        spell,
-                        vitals,
-                        currentChampionCombat: currentState.championCombat,
-                        now: currentNow,
-                    },
-                    {
-                        getSkillLevel: (skill) =>
-                            deps.getChampionMasteryLevel(targetChampionId, champion, skill),
-                        rollCastCheck: (skillLevel) =>
-                            deps.rollCastCheck(
-                                champion,
-                                castEquip,
-                                currentState.activePotionBoosts,
-                                vitals,
-                                spell,
-                                skillLevel,
-                            ),
-                        applySkillXp: (skill, amount) =>
-                            deps.buildChampionSkillExperiencePatch(targetChampionId, skill, amount),
-                        originalTimerTicksToSeconds: deps.originalTimerTicksToSeconds,
-                        createChampionCombatState: deps.createChampionCombatState,
-                        randomInt: deps.randomInt,
-                    },
-                );
-            },
+            prepareCast,
             buildFailedCastPatch: (currentState, targetChampionId, basePatch, nextVitals) => ({
                 ...basePatch,
                 championVitals: { ...currentState.championVitals, [targetChampionId]: nextVitals },
@@ -250,74 +342,7 @@ export function buildStoreCastSpellRuntimeResult(
                         currentState.position[0],
                     ),
                 }),
-            buildProjectilePatch: (currentState, targetChampionId, spell, nextVitals, skillLevel, champion, currentNow) => {
-                switch (spell.effect) {
-                    case 'fireball':
-                    case 'lightning':
-                    case 'poison_cloud':
-                    case 'poison_bolt':
-                    case 'open':
-                    case 'disrupt_nonmaterial': {
-                        const equip = currentState.championEquipment[targetChampionId] ?? {};
-                        const effective = deps.getEffectiveChampionStats(
-                            champion,
-                            equip,
-                            currentState.activePotionBoosts,
-                            nextVitals,
-                        );
-                        return buildProjectileSpellStatePatch(
-                            {
-                                spell,
-                                championId: targetChampionId,
-                                level: currentState.level,
-                                position: currentState.position,
-                                direction: currentState.direction,
-                                now: currentNow,
-                                skillLevel,
-                                maxMana: effective.mana,
-                                elapsedGameTimeTicks: currentState.elapsedGameTimeTicks,
-                                nextVitals,
-                                currentChampionVitals: currentState.championVitals,
-                                currentSpellVisualEvents: currentState.spellVisualEvents,
-                                currentOpenDoors: currentState.openDoors,
-                                currentProjectiles: currentState.projectiles,
-                                currentActivePoisonClouds: currentState.activePoisonClouds,
-                            },
-                            {
-                                projectileAttack: 90,
-                                projectileStepMs: PROJECTILE_STEP_MS,
-                                gridSize: GRID_SIZE,
-                                getImmediateDoor: (level, x, y) => deps.getImmediateDoor(currentState, level, x, y),
-                                isImmediatelyBlocked: (level, x, y) =>
-                                    deps.isImmediatelyBlocked(currentState, level, x, y),
-                                buildBlockedPoisonCloud: deps.buildBlockedPoisonCloud,
-                                rollSourceBackedImpactDamage: (initialRange) => {
-                                    const impact = rollOriginalSpellProjectileImpact(
-                                        spell,
-                                        initialRange,
-                                        0,
-                                        deps.randomInt,
-                                    );
-                                    return impact?.damage ?? null;
-                                },
-                                rollRandomDamage: (min, max) =>
-                                    min + Math.floor(Math.random() * (max - min + 1)),
-                            applyBacklash: (effect, rolledDamage) =>
-                                deps.applyPartySpellBacklashDamage(
-                                    currentState,
-                                    targetChampionId,
-                                        nextVitals,
-                                        effect,
-                                        rolledDamage,
-                                        currentNow,
-                                    ),
-                            },
-                        );
-                    }
-                    default:
-                        return null;
-                }
-            },
+            buildProjectilePatch,
             mergeBasePatch: deps.mergeBasePatch,
         },
     );

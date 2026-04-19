@@ -1,7 +1,16 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createStoreMovementRuntime } from '../src/engine/systems/storeMovementRuntime.js';
-import type { ChampionVitals } from '../src/engine/runtimeTypes.js';
+import type { Champion } from '../src/types/champion.js';
+import type { ChampionEquipment, CreatureInstance, FloorItem } from '../src/types/game.js';
+import type {
+    ActivePotionBoost,
+    ChampionCombat,
+    ChampionVitals,
+    DamageEvent,
+    PartyShield,
+    SpellVisualEvent,
+} from '../src/engine/runtimeTypes.js';
 
 type TestState = {
     gamePhase: 'exploration';
@@ -9,25 +18,55 @@ type TestState = {
     level: number;
     position: [number, number];
     direction: 'NORTH';
-    party: Array<{ id: number }>;
+    party: Champion[];
     selectedChampionIndex: number;
+    hydratedLevels: Set<number>;
     openDoors: Set<string>;
     openPits: Set<string>;
     openTeleporters: Set<string>;
     openWalls: Set<string>;
-    creatures: unknown[];
-    floorItems: unknown[];
-    championInventories: Record<number, unknown[]>;
-    championEquipment: Record<number, unknown>;
+    creatures: CreatureInstance[];
+    floorItems: FloorItem[];
+    championInventories: Record<number, FloorItem[]>;
+    championEquipment: Record<number, ChampionEquipment>;
     championVitals: Record<number, ChampionVitals>;
-    damageEvents: unknown[];
-    spellVisualEvents: unknown[];
-    deadChampions: Record<number, unknown>;
-    activeShields: unknown[];
-    activePotionBoosts: unknown[];
-    championCombat: Record<number, unknown>;
+    damageEvents: DamageEvent[];
+    spellVisualEvents: SpellVisualEvent[];
+    deadChampions: Record<number, Champion>;
+    activeShields: PartyShield[];
+    activePotionBoosts: ActivePotionBoost[];
+    championCombat: Record<number, ChampionCombat>;
     pendingSensorEvents: Array<{ level: number; sensorIndex: number; remaining: number }>;
 };
+
+function createChampion(id: number): Champion {
+    return {
+        id,
+        name: `Champion ${id}`,
+        title: 'Tester',
+        gender: 'M',
+        class: 'Fighter',
+        health: 100,
+        stamina: 80,
+        mana: 20,
+        luck: 10,
+        strength: 10,
+        dexterity: 10,
+        wisdom: 10,
+        vitality: 10,
+        antiMagic: 0,
+        antiFire: 0,
+        skills: {
+            fighter: [0, 0, 0, 0],
+            ninja: [0, 0, 0, 0],
+            priest: [0, 0, 0, 0],
+            wizard: [0, 0, 0, 0],
+        },
+        color: '#fff',
+        equipment: [],
+        portrait: '',
+    };
+}
 
 function createState(): TestState {
     return {
@@ -36,8 +75,9 @@ function createState(): TestState {
         level: 1,
         position: [4, 5],
         direction: 'NORTH',
-        party: [{ id: 1 }],
+        party: [createChampion(1)],
         selectedChampionIndex: 0,
+        hydratedLevels: new Set<number>([1]),
         openDoors: new Set<string>(),
         openPits: new Set<string>(),
         openTeleporters: new Set<string>(),
@@ -60,6 +100,7 @@ function createState(): TestState {
 function createRuntime() {
     return createStoreMovementRuntime<TestState, { snapshot: true }, { kind: 'wall-push' }, { id: string }>({
         applyPartyMoveFatigue: () => null,
+        isPartyStepBlockedByCreature: () => false,
         getTile: (_level, x, y) => ({ type: (x === 8 && y === 3) ? 'Floor' : 'Teleporter' }),
         isWalkable: () => true,
         buildSensorStateSnapshot: () => ({ snapshot: true }),

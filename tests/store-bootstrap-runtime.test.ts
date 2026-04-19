@@ -1,19 +1,53 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createStoreBootstrapRuntime } from '../src/engine/systems/storeBootstrapRuntime.js';
+import type { GameOptions } from '../src/engine/runtimeTypes.js';
+import type { CreatureInstance, FloorItem } from '../src/types/game.js';
+
+const TEST_OPTIONS: GameOptions = {
+    keybindings: {
+        moveForward: ['w'],
+        moveBackward: ['s'],
+        turnLeft: ['a'],
+        turnRight: ['d'],
+        strafeLeft: ['q'],
+        strafeRight: ['e'],
+    },
+};
 
 test('store bootstrap runtime builds a fresh exploration-ready dungeon state', () => {
+    const creature: CreatureInstance = {
+        id: 'creature-1',
+        groupId: 'group-1',
+        typeId: 7,
+        mapIndex: 0,
+        x: 0,
+        y: 0,
+        currentHP: 12,
+        alive: true,
+        cell: 'center',
+        carriedItems: [],
+    };
+    const floorItem: FloorItem = {
+        id: 'item-1',
+        category: 'Weapon',
+        typeId: 1,
+        mapIndex: 0,
+        x: 0,
+        y: 0,
+        tilePos: 'North',
+    };
     const { buildFreshDungeonState } = createStoreBootstrapRuntime({
         hallStart: [3, 1],
         hallStartDirection: 'SOUTH',
         buildDefaultOpenPits: () => new Set<string>(['1,2,3']),
         buildDefaultOpenTeleporters: () => new Set<string>(['4,5,6']),
         buildDefaultVisibleTexts: () => new Set<string>(['txt']),
-        buildCreatureInstancesForLevel: () => [{ id: 'creature-1' }] as any,
-        buildFloorItemsForLevel: () => [{ id: 'item-1' }] as any,
+        buildCreatureInstancesForLevel: () => [creature],
+        buildFloorItemsForLevel: () => [floorItem],
     });
 
-    const state = buildFreshDungeonState({ locale: 'fr' } as any, 'exploration');
+    const state = buildFreshDungeonState(TEST_OPTIONS, 'exploration');
 
     assert.equal(state.level, 0);
     assert.deepEqual(state.position, [3, 1]);
@@ -23,8 +57,8 @@ test('store bootstrap runtime builds a fresh exploration-ready dungeon state', (
     assert.deepEqual([...state.openPits], ['1,2,3']);
     assert.deepEqual([...state.openTeleporters], ['4,5,6']);
     assert.deepEqual([...state.visibleTexts], ['txt']);
-    assert.deepEqual(state.creatures, [{ id: 'creature-1' }]);
-    assert.deepEqual(state.floorItems, [{ id: 'item-1' }]);
+    assert.deepEqual(state.creatures, [creature]);
+    assert.deepEqual(state.floorItems, [floorItem]);
     assert.equal(state.party.length, 0);
     assert.equal(state.pendingSensorEvents.length, 0);
     assert.equal(state.pendingGeneratorSpawns.length, 0);
@@ -57,15 +91,15 @@ test('store bootstrap runtime keeps title boot lightweight until world hydration
         },
         buildCreatureInstancesForLevel: () => {
             creaturesCalls += 1;
-            return [{ id: 'creature-1' }] as any;
+            return [];
         },
         buildFloorItemsForLevel: () => {
             floorItemsCalls += 1;
-            return [{ id: 'item-1' }] as any;
+            return [];
         },
     });
 
-    const state = buildFreshDungeonState({ locale: 'fr' } as any, 'title');
+    const state = buildFreshDungeonState(TEST_OPTIONS, 'title');
 
     assert.equal(state.gamePhase, 'title');
     assert.deepEqual([...state.hydratedLevels], []);

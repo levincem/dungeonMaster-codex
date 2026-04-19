@@ -1,7 +1,11 @@
 import type { Champion } from '../../types/champion';
 import type { FloorItem, SensorObject, GameTile } from '../../types/game';
+import { canChampionInventoryAcceptItem } from './inventoryState';
 
 type FloorPickupState = {
+    level: number;
+    position: [number, number];
+    direction: 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
     floorItems: FloorItem[];
     party: Champion[];
     championInventories: Record<number, FloorItem[]>;
@@ -23,6 +27,30 @@ export function hasHiddenFirestaffPickupRestriction(item: FloorItem, tile: GameT
             (object as SensorObject).requiredObjectName === 'ZOKATHRA SPELL'
         ),
     );
+}
+
+function resolveFrontTilePosition(
+    position: [number, number],
+    direction: FloorPickupState['direction'],
+): { x: number; y: number } {
+    const [y, x] = position;
+    if (direction === 'NORTH') return { x, y: y - 1 };
+    if (direction === 'SOUTH') return { x, y: y + 1 };
+    if (direction === 'EAST') return { x: x + 1, y };
+    return { x: x - 1, y };
+}
+
+export function canPartyReachFloorItem(
+    state: Pick<FloorPickupState, 'level' | 'position' | 'direction'>,
+    item: FloorItem,
+): boolean {
+    if (item.mapIndex !== state.level) return false;
+
+    const [partyY, partyX] = state.position;
+    if (item.x === partyX && item.y === partyY) return true;
+
+    const frontTile = resolveFrontTilePosition(state.position, state.direction);
+    return item.x === frontTile.x && item.y === frontTile.y;
 }
 
 export function buildFloorItemPickupPatch<TSensorPatch extends object>(
@@ -75,6 +103,8 @@ export function transferFloorItemToChampionState<
 
     const champion = state.party.find((entry) => entry.id === championId);
     if (!champion) return null;
+    if (!canPartyReachFloorItem(state, item)) return null;
+    if (!canChampionInventoryAcceptItem(state.championInventories[championId] ?? [])) return null;
 
     const tile = deps.getTile(item.mapIndex, item.y, item.x);
     if (hasHiddenFirestaffPickupRestriction(item, tile)) {

@@ -1,9 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useStore } from '../../engine/store';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import type { CardinalDir } from '../../types/game';
+import { useTemporalFlag } from './useWallClock';
 
 function createPulseMaterial(color: string, opacity: number) {
     return new THREE.MeshBasicMaterial({
@@ -13,28 +14,6 @@ function createPulseMaterial(color: string, opacity: number) {
         depthWrite: false,
         toneMapped: false,
     });
-}
-
-function useWallClock(intervalMs = 150): number {
-    const [nowMs, setNowMs] = useState(0);
-
-    useEffect(() => {
-        const intervalId = window.setInterval(() => {
-            setNowMs(Date.now());
-        }, intervalMs);
-
-        return () => {
-            window.clearInterval(intervalId);
-        };
-    }, [intervalMs]);
-
-    return nowMs;
-}
-
-function useTemporalFlag(untilTs: number, intervalMs = 150): boolean {
-    const wallClockNow = useWallClock(intervalMs);
-    const now = wallClockNow === 0 ? Date.now() : wallClockNow;
-    return now < untilTs;
 }
 
 export const MagicVisionLayer: React.FC<{

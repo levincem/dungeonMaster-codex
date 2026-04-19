@@ -146,6 +146,7 @@ export const fr = {
         saveGame: 'Sauvegarder',
         health: 'SANTÉ',
         stamina: 'ENDURANCE',
+        mana: 'MANA',
         hunger: 'FAIM',
         thirst: 'SOIF',
         attributes: 'CARACTÉRISTIQUES',

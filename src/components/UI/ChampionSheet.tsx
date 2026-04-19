@@ -1,5 +1,4 @@
-import React, { useRef, useState } from 'react';
-import { CHAMPIONS } from '../../data/champions';
+﻿import React, { useRef, useState } from 'react';
 import type { Champion } from '../../data/champions';
 import { getGameMap } from '../../data/mapLoader';
 import { getMechanismsAt } from '../../data/mechanisms';
@@ -25,6 +24,7 @@ import { getEquippedItemImage, getInventoryItemImage } from '../../data/itemImag
 import { canDrinkFromContainer, canFillWaterContainer, getWaterContainerState, isWaterContainer } from '../../data/waterContainers';
 import { miscPath } from '../../data/assetPaths';
 import { playPlate } from '../../engine/sounds';
+import { MAX_CHAMPION_INVENTORY_ITEMS } from '../../engine/systems/inventoryState';
 import { getDragPayload, setDragPayload, type DragPayload } from './dragPayload';
 import { useI18n } from '../../i18n';
 import {
@@ -37,11 +37,13 @@ import {
     buildChampionSheetFrontWallContext,
     buildChampionSheetLoadSummary,
     buildChampionSheetVitalsSummary,
+    findActivePartyChampion,
     getChampionPotionBonusesForSheet,
     getFirstEquipTargetSlot,
 } from './championSheetDerivedState';
+import { ChampionSheetOverviewPanel } from './ChampionSheetOverviewPanel';
 
-// ─── Slot highlight animation ─────────────────────────────────────────────────
+// Slot highlight animation
 const PULSE_STYLE = `
 @keyframes slot-pulse {
   0%,100% { box-shadow: 0 0 0 2px #e0c050, 0 0 6px 1px #e0a83066; }
@@ -50,7 +52,7 @@ const PULSE_STYLE = `
 .slot-valid { animation: slot-pulse 1s ease-in-out infinite; border-color: #e0c050 !important; }
 `;
 
-// ─── Skill level names (DM1 original) ─────────────────────────────────────────
+// Skill level names (DM1 original)
 const SKILL_LEVEL_NAMES: string[] = [
     'None', 'Novice', 'Apprentice', 'Neophyte', 'Journeyman',
     'Craftsman', 'Artisan', 'Adept', 'Expert', 'LoreKeeper',
@@ -71,7 +73,7 @@ function formatDisplayedStamina(value: number): string {
     return `${Math.max(0, Math.floor(value / 10))}`;
 }
 
-// ─── Theme ────────────────────────────────────────────────────────────────────
+// Theme
 const T = {
     parchment:   '#d4b87a',   // background parchment
     parchmentDk: '#b8963e',
@@ -103,7 +105,31 @@ const SKILL_COLORS: Record<string, string> = {
     wizard:  '#8060c0',
 };
 
-// ─── Item helpers ─────────────────────────────────────────────────────────────
+const SleepIcon: React.FC = () => (
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <rect x="3" y="11" width="18" height="6" rx="1.5" fill="currentColor" />
+        <rect x="5" y="9" width="7" height="3" rx="1" fill="currentColor" />
+        <rect x="4" y="17" width="2" height="3" fill="currentColor" />
+        <rect x="18" y="17" width="2" height="3" fill="currentColor" />
+    </svg>
+);
+
+const SaveIcon: React.FC = () => (
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <path
+            d="M5 3h11l3 3v15H5z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinejoin="round"
+        />
+        <rect x="8" y="4.5" width="7" height="5" fill="currentColor" />
+        <rect x="8" y="14" width="8" height="5" fill="none" stroke="currentColor" strokeWidth="2" />
+        <rect x="10" y="15.5" width="4" height="2" fill="currentColor" />
+    </svg>
+);
+
+// Item helpers
 function getItemName(item: FloorItem, direction?: Direction): string {
     return getDisplayedItemName(
         resolveItemName(item.category, item.typeId, item.rawName),
@@ -120,8 +146,8 @@ function isConsumable(item: FloorItem): boolean {
     return false;
 }
 
-// ─── Drag/drop ────────────────────────────────────────────────────────────────
-// ─── Item thumbnail ───────────────────────────────────────────────────────────
+// Drag/drop
+// Item thumbnail
 const ItemThumb: React.FC<{ item: FloorItem; size?: number; equipped?: boolean }> = ({ item, size = 32, equipped = false }) => {
     const torchBurnStart = useStore(s => s.torchBurnStart);
     const src = equipped
@@ -148,47 +174,9 @@ const ItemThumb: React.FC<{ item: FloorItem; size?: number; equipped?: boolean }
     );
 };
 
-// ─── Vital bar ────────────────────────────────────────────────────────────────
-const VitalBar: React.FC<{
-    icon: string;
-    label: string;
-    value: number;
-    max: number;
-    color: string;
-    frameColor?: string;
-    displayValue?: string;
-    displayMax?: string;
-}> = ({ icon, label, value, max, color, frameColor, displayValue, displayMax }) => {
-    const safeMax = Math.max(0, max);
-    const fillPercent = safeMax > 0
-        ? Math.max(0, Math.min(100, (value / safeMax) * 100))
-        : 0;
+// Vital bar
 
-    return (
-    <div style={{ marginBottom: 7 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3 }}>
-            <span style={{ fontSize: 15, lineHeight: 1, width: 18, textAlign: 'center' }}>{icon}</span>
-            <span style={{ fontSize: 14, color: T.creamDim, letterSpacing: 1, flex: 1 }}>{label}</span>
-            <span style={{ fontSize: 15, fontWeight: 'bold', color: '#ffffff', fontVariantNumeric: 'tabular-nums' }}>
-                {displayValue ?? Math.ceil(value)}
-                <span style={{ fontSize: 12, color: T.creamDim, fontWeight: 'normal' }}>/{displayMax ?? safeMax}</span>
-            </span>
-        </div>
-        <div style={{
-            height: 9,
-            background: 'rgba(0,0,0,0.5)',
-            borderRadius: 4,
-            border: `1px solid ${frameColor ?? T.slotBorder}`,
-            overflow: 'hidden',
-            boxShadow: frameColor ? `0 0 0 1px ${frameColor}22` : undefined,
-        }}>
-            <div style={{ height: '100%', width: `${fillPercent}%`, background: `linear-gradient(90deg, ${color}88, ${color})`, borderRadius: 4, transition: 'width 0.3s ease', boxShadow: `0 0 5px ${color}55` }} />
-        </div>
-    </div>
-    );
-};
-
-// ─── Equipment slot ───────────────────────────────────────────────────────────
+// Equipment slot
 const EquipSlot: React.FC<{
     slotKey: EquipSlotKey; item?: FloorItem; championId: number;
     size?: number; highlight?: boolean; wounded?: boolean;
@@ -264,7 +252,7 @@ const EquipSlot: React.FC<{
     );
 };
 
-// ─── Scroll reader ─────────────────────────────────────────────────────────────
+// Scroll reader
 const InspectPopup: React.FC<{
     item: FloorItem;
     onClose: () => void;
@@ -292,7 +280,7 @@ const InspectPopup: React.FC<{
     </div>
 );
 
-// ─── Interactive drop zone (eye / mouth) ──────────────────────────────────────
+// Interactive drop zone (eye / mouth)
 const DropZone: React.FC<{
     icon: React.ReactNode;
     label: string;
@@ -362,8 +350,7 @@ const PartyMemberDropTarget: React.FC<{
     );
 };
 
-// ─── Backpack (17 slots, 5 cols) ──────────────────────────────────────────────
-const BACKPACK_SLOTS = 17;
+// Backpack (17 slots, 5 cols)
 const BackpackGrid: React.FC<{
     inv: FloorItem[]; equip: ChampionEquipment; champion: Champion;
     onEquip: (item: FloorItem) => void; onDropToFloor: (id: string) => void;
@@ -378,10 +365,10 @@ const BackpackGrid: React.FC<{
     >
         <div style={{ fontSize: 10, letterSpacing: 3, color: T.gold, marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>
             <span>{text.backpack.toUpperCase()}</span>
-            <span style={{ color: inv.length >= BACKPACK_SLOTS ? T.red : T.creamDim, fontSize: 10 }}>{inv.length}/{BACKPACK_SLOTS}</span>
+            <span style={{ color: inv.length >= MAX_CHAMPION_INVENTORY_ITEMS ? T.red : T.creamDim, fontSize: 10 }}>{inv.length}/{MAX_CHAMPION_INVENTORY_ITEMS}</span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4 }}>
-            {Array.from({ length: BACKPACK_SLOTS }).map((_, i) => {
+            {Array.from({ length: MAX_CHAMPION_INVENTORY_ITEMS }).map((_, i) => {
                 const item = inv[i];
                 if (!item) return <div key={i} style={{ aspectRatio: '1', border: `1px dashed ${T.slotBorder}`, borderRadius: 3, background: T.slotBg, opacity: 0.72 }} />;
                 return (
@@ -406,10 +393,10 @@ const BackpackGrid: React.FC<{
                                 {getItemName(item, direction).substring(0, 12)}
                             </div>
                             <div style={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-                                {getEquippableSlots(item).length > 0 && <button onClick={() => onEquip(item)} title={text.equip} style={{ background: T.goldDim, border: 'none', borderRadius: 2, color: '#000', fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>↑</button>}
-                                {item.category === 'Scroll' && <button onClick={() => onReadScroll(item)} title={text.read} style={{ background: '#4a3010', border: 'none', borderRadius: 2, color: T.cream, fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>📜</button>}
-                                {isConsumable(item) && <button onClick={() => onUseItem(item.id)} title={text.use} style={{ background: '#103010', border: 'none', borderRadius: 2, color: '#60d060', fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>✓</button>}
-                                <button onClick={() => onDropToFloor(item.id)} title={text.drop} style={{ background: '#180808', border: 'none', borderRadius: 2, color: T.red, fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>↓</button>
+                                {getEquippableSlots(item).length > 0 && <button onClick={() => onEquip(item)} title={text.equip} style={{ background: T.goldDim, border: 'none', borderRadius: 2, color: '#000', fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>EQ</button>}
+                                {item.category === 'Scroll' && <button onClick={() => onReadScroll(item)} title={text.read} style={{ background: '#4a3010', border: 'none', borderRadius: 2, color: T.cream, fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>RD</button>}
+                                {isConsumable(item) && <button onClick={() => onUseItem(item.id)} title={text.use} style={{ background: '#103010', border: 'none', borderRadius: 2, color: '#60d060', fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>USE</button>}
+                                <button onClick={() => onDropToFloor(item.id)} title={text.drop} style={{ background: '#180808', border: 'none', borderRadius: 2, color: T.red, fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>DR</button>
                             </div>
                         </div>
                     </div>
@@ -419,7 +406,7 @@ const BackpackGrid: React.FC<{
     </div>
 );
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
+// Main
 export const ChampionSheet: React.FC = () => {
     const text = useI18n().championSheet;
     const {
@@ -459,8 +446,7 @@ export const ChampionSheet: React.FC = () => {
         }, 180);
     };
 
-    if (activePartyMemberId === null) return null;
-    const champion = CHAMPIONS.find(c => c.id === activePartyMemberId);
+    const champion = findActivePartyChampion(party, activePartyMemberId);
     if (!champion) return null;
 
     const inv        = championInventories[champion.id] ?? [];
@@ -597,7 +583,7 @@ export const ChampionSheet: React.FC = () => {
     ] as const;
     const slotLabels = text.slotLabels;
 
-    // Equipment layout — 7 body slots only (no 'hands', no 'belt')
+    // Equipment layout - 7 body slots only (no 'hands', no 'belt')
     const BODY_SLOTS: EquipSlotKey[] = ['head','neck','torso','rightHand','leftHand','legs','feet'];
     const QUIVER_SLOTS: EquipSlotKey[] = ['quiver1','quiver2','quiver3','quiver4'];
     const POCKET_SLOTS: EquipSlotKey[] = ['pocket1','pocket2'];
@@ -629,7 +615,7 @@ export const ChampionSheet: React.FC = () => {
                 color: T.text,
                 position: 'relative',
             }}>
-                {/* ── Header bar ── */}
+                {/* Header bar */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, paddingBottom: 8, borderBottom: `1px solid ${T.goldDim}` }}>
                     <div style={{ fontSize: 24, fontWeight: 'bold', color: '#1a0800', letterSpacing: 3, textShadow: '1px 1px 0 rgba(255,200,80,0.4)' }}>
                         {champion.name.toUpperCase()}
@@ -655,7 +641,7 @@ export const ChampionSheet: React.FC = () => {
                                 boxShadow: sleeping ? '0 0 14px rgba(180,140,255,0.35)' : 'none',
                             }}
                         >
-                            🛏
+                            <SleepIcon />
                         </button>
                         <button
                             onClick={() => {
@@ -681,74 +667,41 @@ export const ChampionSheet: React.FC = () => {
                                 transition: 'background 0.08s, border-color 0.08s, color 0.08s, box-shadow 0.08s, transform 0.08s',
                             }}
                         >
-                            💾
+                            <SaveIcon />
                         </button>
-                        <button onClick={closePartyMember} style={{ width: 36, height: 36, background: 'none', border: 'none', color: T.goldDim, fontSize: 28, cursor: 'pointer', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+                        <button onClick={closePartyMember} style={{ width: 36, height: 36, background: 'none', border: 'none', color: T.goldDim, fontSize: 28, cursor: 'pointer', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>X</button>
                     </div>
                 </div>
 
-                {/* ── 3-column ── */}
+                {/* 3-column layout */}
                 <div style={{ display: 'grid', gridTemplateColumns: '190px 1fr 500px', gap: 12, alignItems: 'start' }}>
 
-                    {/* ── COL 1: Portrait + Vitals + Stats ── */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignSelf: 'stretch' }}>
+                    <ChampionSheetOverviewPanel
+                        champion={champion}
+                        text={text}
+                        hp={hp}
+                        stamina={stamina}
+                        mana={mana}
+                        food={food}
+                        water={water}
+                        effectiveMana={effectiveStats.mana}
+                        displayStaminaValue={formatDisplayedStamina(stamina)}
+                        displayStaminaMax={formatDisplayedStamina(champion.stamina)}
+                        foodFrame={foodFrame}
+                        waterFrame={waterFrame}
+                        effectiveStats={effectiveStats}
+                    />
 
-                        {/* Portrait — fills available space */}
-                        <div style={{ background: '#ffffff', border: `1px solid ${T.panelBorder}`, borderRadius: 5, overflow: 'hidden', minHeight: 198, height: 198, flex: '0 0 auto' }}>
-                            <img src={champion.portrait} alt={champion.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center', display: 'block' }} />
-                        </div>
-
-                        {/* Vitals */}
-                        <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 5, padding: '10px 12px' }}>
-                            <VitalBar icon="❤" label={text.health} value={hp} max={champion.health} color={T.red} />
-                            <VitalBar
-                                icon="⚡"
-                                label={text.stamina}
-                                value={stamina}
-                                max={champion.stamina}
-                                color={T.yellow}
-                                displayValue={formatDisplayedStamina(stamina)}
-                                displayMax={formatDisplayedStamina(champion.stamina)}
-                            />
-                            <VitalBar icon="🍗" label={text.hunger} value={food} max={MAX_FOOD} color="#d88b2d" frameColor={foodFrame} />
-                            <VitalBar icon="💧" label={text.thirst} value={water} max={MAX_WATER} color="#3aa0d8" frameColor={waterFrame} />
-                            <VitalBar icon="🔮" label="MANA" value={mana} max={effectiveStats.mana} color={T.blue} />
-                        </div>
-
-                        {/* Base stats */}
-                        <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 5, padding: '10px 12px' }}>
-                            <div style={{ fontSize: 10, letterSpacing: 3, color: T.gold, marginBottom: 8 }}>{text.attributes}</div>
-                            {[
-                                { label: text.statLabels.strength, val: effectiveStats.strength,  color: T.red    },
-                                { label: text.statLabels.dexterity, val: effectiveStats.dexterity, color: T.green  },
-                                { label: text.statLabels.wisdom, val: effectiveStats.wisdom, color: T.blue   },
-                                { label: text.statLabels.vitality, val: effectiveStats.vitality, color: T.yellow },
-                                { label: text.statLabels.luck, val: effectiveStats.luck, color: T.gold   },
-                                { label: text.statLabels.antiMagic, val: effectiveStats.antiMagic, color: '#60c0a0'},
-                                { label: text.statLabels.antiFire, val: effectiveStats.antiFire, color: '#d08030'},
-                            ].map(s => (
-                                <div key={s.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                                    <span style={{ fontSize: 12, color: T.creamDim }}>{s.label}</span>
-                                    <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
-                                        <div style={{ width: 50, height: 3, background: 'rgba(0,0,0,0.4)', borderRadius: 2, overflow: 'hidden' }}>
-                                        <div style={{ height: '100%', width: `${Math.max(0, Math.min(100, s.val))}%`, background: s.color, borderRadius: 2 }} />
-                                        </div>
-                                        <span style={{ fontSize: 13, fontWeight: 'bold', color: s.color, minWidth: 24, textAlign: 'right' }}>{s.val}</span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                    </div>
-
-                    {/* ── COL 2: Equipment silhouette ── */}
+                    {/* COL 2: Equipment silhouette */}
                     <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 5, padding: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
 
                         {/* Header: title + weight on same line */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
                             <span style={{ fontSize: 10, letterSpacing: 3, color: T.gold }}>{text.equipment}</span>
                             <span style={{ fontSize: 11, fontWeight: 'bold', color: loadColor }}>
-                                ⚖ {formatWeight(loadState.weight)}<span style={{ fontSize: 10, color: T.creamDim, fontWeight: 'normal' }}>/{formatWeight(loadState.maxWeight)} kg</span>{loadState.overloaded && <span style={{ color: T.red }}> ⚠</span>}
+                                WT {formatWeight(loadState.weight)}
+                                <span style={{ fontSize: 10, color: T.creamDim, fontWeight: 'normal' }}>/{formatWeight(loadState.maxWeight)} kg</span>
+                                {loadState.overloaded && <span style={{ color: T.red }}> !</span>}
                             </span>
                         </div>
 
@@ -773,7 +726,7 @@ export const ChampionSheet: React.FC = () => {
                             <div style={{ display: 'flex', justifyContent: 'center', minHeight: 48 }}>
                                 {facingFountain ? (
                                     <DropZone
-                                        icon="??"
+                                        icon="H2O"
                                         label={text.fountain}
                                         title={text.fountainTitle}
                                         borderColor="#3aa0d8"
@@ -791,7 +744,7 @@ export const ChampionSheet: React.FC = () => {
                                     />
                                 ) : frontWallItemMechanism ? (
                                     <DropZone
-                                        icon={frontWallItemMechanism.trigger === 'alcove' ? '??' : frontWallItemMechanism.trigger === 'object-exchanger' ? '??' : '??'}
+                                        icon={frontWallItemMechanism.trigger === 'alcove' ? 'AL' : frontWallItemMechanism.trigger === 'object-exchanger' ? 'RC' : 'LK'}
                                         label={frontWallItemMechanism.trigger === 'alcove' ? text.alcove : frontWallItemMechanism.trigger === 'object-exchanger' ? text.receptacle : text.lock}
                                         title={frontWallItemMechanism.trigger === 'alcove'
                                             ? text.alcoveTitle
@@ -821,7 +774,7 @@ export const ChampionSheet: React.FC = () => {
                         <div style={{ position: 'relative', marginTop: -36 }}>
                             {/* Silhouette */}
 
-                            {/* Slots grid — quivers under rhand, pockets under lhand */}
+                            {/* Slots grid - quivers under rhand, pockets under lhand */}
                             <div style={{ position: 'relative', zIndex: 1, display: 'grid', gridTemplateAreas: `
                                 ". head ."
                                 ". neck ."
@@ -839,7 +792,7 @@ export const ChampionSheet: React.FC = () => {
                                     </div>
                                 ))}
 
-                                {/* Quivers: 2×2 under right hand */}
+                                {/* Quivers: 2x2 under right hand */}
                                 <div style={{ gridArea: 'quivers', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                                     <div style={{ fontSize: 8, color: T.goldDim, letterSpacing: 2 }}>{text.quivers}</div>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
@@ -849,7 +802,7 @@ export const ChampionSheet: React.FC = () => {
                                     </div>
                                 </div>
 
-                                {/* Pockets: 1×2 under left hand */}
+                                {/* Pockets: 1x2 under left hand */}
                                 <div style={{ gridArea: 'pockets', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                                     <div style={{ fontSize: 8, color: T.goldDim, letterSpacing: 2 }}>{text.pouches}</div>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
@@ -861,11 +814,11 @@ export const ChampionSheet: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Skills block — below equipment silhouette */}
+                        {/* Skills block - below equipment silhouette */}
                     </div>
 
 
-                    {/* ── COL 3: Backpack + Team portraits ── */}
+                    {/* COL 3: Backpack + Team portraits */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                         <BackpackGrid
                             inv={inv} equip={equip} champion={champion}

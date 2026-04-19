@@ -76,10 +76,16 @@ export function triggerFloorSensors<
     for (const obj of tile.objects) {
         const sensor = deps.asSensor(obj);
         if (!sensor || sensor.type === 127) continue;
+        const isSpecificObjectFloorSensor = deps.isSpecificObjectFloorSensor(sensor);
+        const isObjectOnlyFloorSensor = isSpecificObjectFloorSensor && sensor.type === 4;
 
         if (mode === 'leave') {
             if (sensor.action !== 'Hold') continue;
-            if (deps.isCreatureOnlyFloorSensor(sensor) || deps.isGeneratorSensor(sensor) || deps.isSpecificObjectFloorSensor(sensor)) continue;
+            if (isSpecificObjectFloorSensor) {
+                const hasRequiredItem = deps.tileHasRequiredFloorItem(level, x, y, deps.getRequiredSensorItemName(sensor), floorItems);
+                if (hasRequiredItem) continue;
+            }
+            if (deps.isCreatureOnlyFloorSensor(sensor) || deps.isGeneratorSensor(sensor) || isObjectOnlyFloorSensor) continue;
             const effect = deps.computeSensorEffect({ ...sensor, action: sensor.revert ? 'Set' : 'Clear' }, level, cur);
             if (Object.keys(effect).length > 0) {
                 cur = { ...cur, ...effect } as TSensorState;
@@ -107,10 +113,10 @@ export function triggerFloorSensors<
             const shouldTrigger = sensor.revert ? !hasRequiredItem : hasRequiredItem;
             if (!shouldTrigger) continue;
         }
-        if (deps.isSpecificObjectFloorSensor(sensor)) {
+        if (isSpecificObjectFloorSensor) {
             const hasRequiredItem = deps.tileHasRequiredFloorItem(level, x, y, deps.getRequiredSensorItemName(sensor), floorItems);
             const shouldTrigger = sensor.revert ? !hasRequiredItem : hasRequiredItem;
-            if (!shouldTrigger) continue;
+            if (isObjectOnlyFloorSensor && !shouldTrigger) continue;
         }
 
         const queued = deps.queueOrComputeSensorEffect(

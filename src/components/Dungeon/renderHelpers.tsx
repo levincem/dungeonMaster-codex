@@ -1,11 +1,7 @@
-import { useFrame, useLoader, useThree } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import type { ReactNode } from 'react';
-import { useMemo, useRef } from 'react';
+import { useRef } from 'react';
 import * as THREE from 'three';
-
-export function useLoadedTexture(url: string): THREE.Texture {
-    return useLoader(THREE.TextureLoader, url);
-}
 
 export function BillboardGroup({
     children,
@@ -24,17 +20,17 @@ export function BillboardGroup({
 }) {
     const groupRef = useRef<THREE.Group>(null);
     const { camera } = useThree();
-    const rotation = useMemo(() => new THREE.Euler(), []);
 
     useFrame(() => {
         if (!follow || !groupRef.current) return;
 
         groupRef.current.quaternion.copy(camera.quaternion);
-        rotation.setFromQuaternion(groupRef.current.quaternion, 'YXZ');
-        if (lockX) rotation.x = 0;
-        if (lockY) rotation.y = 0;
-        if (lockZ) rotation.z = 0;
-        groupRef.current.rotation.copy(rotation);
+        const rotation = new THREE.Euler().setFromQuaternion(groupRef.current.quaternion, 'YXZ');
+        groupRef.current.rotation.set(
+            lockX ? 0 : rotation.x,
+            lockY ? 0 : rotation.y,
+            lockZ ? 0 : rotation.z,
+        );
     });
 
     return (

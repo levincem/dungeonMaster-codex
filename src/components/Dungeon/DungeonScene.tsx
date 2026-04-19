@@ -10,10 +10,9 @@ import {
     VI_ALTAR_RESURRECTION_MESSAGE,
     isSelfRevealingWallTile,
 } from '../../engine/store';
-import { DAMAGE_EVENT_LIFETIME_MS, FOOTPRINT_LIFETIME_MS } from '../../engine/time';
 import { getMapMechanisms, getMechanismsAt } from '../../data/mechanisms';
 import { getOriginalWallOverlaysForMap, type OriginalWallOverlayRender } from '../../data/originalWallOverlays';
-import type { Direction, FootprintEntry } from '../../engine/runtimeTypes';
+import type { Direction } from '../../engine/runtimeTypes';
 import { computeLightLevel } from '../../engine/store';
 import { getGameMap } from '../../data/mapLoader';
 import type { GameMap, GameTile, TeleporterObject, CardinalDir, DoorObject } from '../../types/game';
@@ -22,20 +21,15 @@ import type { EquipSlotKey } from '../../types/items';
 import { Cell, PressurePlate } from './Cell';
 import type { CellRenderType } from './Cell';
 import { InstancedTiles } from './InstancedTiles';
-import { CreatureSprite } from './CreatureSprite';
-import { FloorItemMesh } from './FloorItemMesh';
-import { WallMountedItemMesh } from './WallMountedItemMesh';
 import { WallSensor } from './WallSensor';
 import { WallDecal } from './WallDecal';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import { getFloorItemImage } from '../../data/itemImages';
-import type { FloorItem } from '../../types/game';
 import { miscPath, texturesPath } from '../../data/assetPaths';
 import { doorBlocksVision } from '../../data/doors';
 import { getDragPayload } from '../UI/dragPayload';
 import { useI18n } from '../../i18n';
-import { getCreatureCellOffsetXZ } from './creatureCellOffsets';
-import { BillboardGroup, useLoadedTexture } from './renderHelpers';
+import { useLoadedTexture } from './useLoadedTexture';
 import {
     buildDungeonSceneWallButtons,
     buildDungeonSceneWallDecals,
@@ -47,8 +41,8 @@ import {
 } from './dungeonSceneDerivedState';
 import {
     WallTextPlanes as SceneWallTextPlanes,
-    isDoorTileVisible as isSceneDoorTileVisible,
 } from './WallTextLayer';
+import { isDoorTileVisible as isSceneDoorTileVisible } from './wallTextHelpers';
 import {
     FluxcageLayer,
     PoisonCloudLayer,
@@ -56,7 +50,14 @@ import {
     ShieldAuraLayer,
 } from './DungeonProjectileLayers';
 import { MagicVisionLayer } from './DungeonMagicVisionLayer';
+import {
+    CreaturesLayer,
+    DamageLayer,
+    FloorItemsLayer,
+    FootprintLayer,
+} from './DungeonSceneRuntimeLayers';
 import { SpellImpactLayer } from './DungeonSpellImpactLayer';
+import { useTemporalFlag, useWallClock } from './useWallClock';
 
 const HALF = GRID_SIZE / 2;
 const BASE_FOG_NEAR = GRID_SIZE * 2;
@@ -90,28 +91,6 @@ function cloneTexture<T extends THREE.Texture>(
     configure?.(next);
     next.needsUpdate = true;
     return next;
-}
-
-function useWallClock(intervalMs = 200): number {
-    const [nowMs, setNowMs] = useState(0);
-
-    useEffect(() => {
-        const intervalId = window.setInterval(() => {
-            setNowMs(Date.now());
-        }, intervalMs);
-
-        return () => {
-            window.clearInterval(intervalId);
-        };
-    }, [intervalMs]);
-
-    return nowMs;
-}
-
-function useTemporalFlag(untilTs: number, intervalMs = 150): boolean {
-    const wallClockNow = useWallClock(intervalMs);
-    const now = wallClockNow === 0 ? Date.now() : wallClockNow;
-    return now < untilTs;
 }
 
 const VI_ALTAR_MIRACLE_OVERLAY_LIFETIME_MS = 1700;
@@ -236,7 +215,7 @@ const ViAltarMiracleOverlay: React.FC = () => {
     );
 };
 
-// â”€â”€â”€ Camera smooth follow â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Camera smooth follow
 const CameraController = () => {
     const level = useStore(s => s.level);
     const position  = useStore(s => s.position);
@@ -324,7 +303,7 @@ const CameraController = () => {
     );
 };
 
-// â”€â”€â”€ Boundary wall planes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Boundary wall planes
 const BoundaryWalls = memo(({ map }: { map: GameMap }) => {
     const seeThroughWallsUntil = useStore(s => s.seeThroughWallsUntil);
     const wallTransparent = useTemporalFlag(seeThroughWallsUntil, 120);
@@ -358,7 +337,7 @@ const BoundaryWalls = memo(({ map }: { map: GameMap }) => {
     return <>{planes}</>;
 });
 
-// â”€â”€â”€ Tile render-type derivation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Tile render-type derivation
 function getRenderType(tile: GameTile, level: number): CellRenderType {
     switch (tile.type) {
         case 'Wall':
@@ -382,7 +361,7 @@ function getRenderType(tile: GameTile, level: number): CellRenderType {
     }
 }
 
-// â”€â”€â”€ Level name overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Level name overlay
 const LevelName = ({ level }: { level: number }) => {
     const map = getGameMap(level);
     return (
@@ -397,339 +376,6 @@ const LevelName = ({ level }: { level: number }) => {
     );
 };
 
-// â”€â”€â”€ Wall text â€” carved 3D inscriptions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-/*
-const CHAMPION_DATA_RE = /\n{2,}[MF]\n[A-Z]/;
-
-const FACE_POS_TEXT: Record<CardinalDir, [number, number, number]> = {
-    North: [0, 0, -(GRID_SIZE / 2 + 0.035)],
-    South: [0, 0,  (GRID_SIZE / 2 + 0.035)],
-    East:  [ (GRID_SIZE / 2 + 0.035), 0, 0],
-    West:  [-(GRID_SIZE / 2 + 0.035), 0, 0],
-};
-const FACE_ROT_TEXT: Record<CardinalDir, [number, number, number]> = {
-    North: [0, Math.PI,      0],   // player approaches from -Z looking +Z (south)
-    South: [0, 0,            0],   // player approaches from +Z looking -Z (north)
-    // East/West are stored on wall tiles â€” label is from the wall tile's perspective,
-    // opposite to floor-tile convention, so rotations are swapped vs WallDecal.
-    East:  [0,  Math.PI / 2, 0],
-    West:  [0, -Math.PI / 2, 0],
-};
-
-function makeEngravedTexture(text: string): THREE.CanvasTexture {
-    const W = 512, H = 512;
-    const canvas = document.createElement('canvas');
-    canvas.width = W; canvas.height = H;
-    const ctx = canvas.getContext('2d')!;
-    ctx.clearRect(0, 0, W, H);
-
-    const lines = text.split('\n').filter(l => l.trim() !== '');
-    const fontSize = Math.max(28, Math.min(48, Math.floor(H * 0.12 / Math.max(lines.length, 1) * 1.4)));
-    ctx.font = `bold ${fontSize}px "Courier New", Courier, monospace`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    const lineH = fontSize * 1.35;
-    const totalH = lines.length * lineH;
-    const startY = H / 2 - totalH / 2 + lineH / 2;
-
-    lines.forEach((line, i) => {
-        const y = startY + i * lineH;
-        // Dark shadow (depth)
-        ctx.fillStyle = 'rgba(0,0,0,0.7)';
-        ctx.fillText(line, W / 2 + 2, y + 2);
-        // Inner light (highlight of carved ridge)
-        ctx.fillStyle = 'rgba(255,220,120,0.25)';
-        ctx.fillText(line, W / 2 - 1, y - 1);
-        // Subtle dark contour to keep the engraving readable on bright stone.
-        ctx.lineJoin = 'round';
-        ctx.miterLimit = 2;
-        ctx.lineWidth = Math.max(1.25, fontSize * 0.055);
-        ctx.strokeStyle = 'rgba(0,0,0,0.42)';
-        ctx.strokeText(line, W / 2, y);
-        // Main engraved text
-        ctx.fillStyle = '#c8a040';
-        ctx.fillText(line, W / 2, y);
-    });
-
-    const tex = new THREE.CanvasTexture(canvas);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    return tex;
-}
-
-function makeDamageBubbleTexture(amount: number): { texture: THREE.CanvasTexture; aspect: number } {
-    const text = `-${amount}`;
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-        const fallback = new THREE.CanvasTexture(canvas);
-        return { texture: fallback, aspect: 1.6 };
-    }
-
-    ctx.font = 'bold 76px "Courier New", monospace';
-    const metrics = ctx.measureText(text);
-    const severity = Math.min(1, amount / 48);
-    const width = Math.max(220, Math.ceil(metrics.width + 82 + severity * 28));
-    const height = Math.max(132, Math.ceil(142 + severity * 18));
-    canvas.width = width;
-    canvas.height = height;
-
-    const draw = canvas.getContext('2d');
-    if (!draw) {
-        const fallback = new THREE.CanvasTexture(canvas);
-        return { texture: fallback, aspect: width / height };
-    }
-
-    draw.clearRect(0, 0, width, height);
-    const cx = width / 2;
-    const cy = height / 2;
-    const outerRadiusX = width * (0.46 + severity * 0.03);
-    const outerRadiusY = height * (0.42 + severity * 0.04);
-    const innerRadiusX = outerRadiusX * 0.78;
-    const innerRadiusY = outerRadiusY * 0.73;
-    const spikes = 10;
-
-    draw.beginPath();
-    for (let i = 0; i < spikes * 2; i++) {
-        const angle = (-Math.PI / 2) + (i * Math.PI) / spikes;
-        const radiusX = i % 2 === 0 ? outerRadiusX : innerRadiusX;
-        const radiusY = i % 2 === 0 ? outerRadiusY : innerRadiusY;
-        const px = cx + Math.cos(angle) * radiusX;
-        const py = cy + Math.sin(angle) * radiusY;
-        if (i === 0) draw.moveTo(px, py); else draw.lineTo(px, py);
-    }
-    draw.closePath();
-
-    const fill = draw.createRadialGradient(cx, cy, 8, cx, cy, Math.max(outerRadiusX, outerRadiusY));
-    fill.addColorStop(0, 'rgba(255, 246, 212, 0.98)');
-    fill.addColorStop(0.24, 'rgba(255, 194, 110, 0.96)');
-    fill.addColorStop(0.62, 'rgba(176, 40, 14, 0.96)');
-    fill.addColorStop(1, 'rgba(86, 6, 2, 0.98)');
-    draw.fillStyle = fill;
-    draw.strokeStyle = 'rgba(255, 236, 170, 0.98)';
-    draw.lineWidth = 7;
-    draw.lineJoin = 'round';
-    draw.fill();
-    draw.stroke();
-
-    draw.beginPath();
-    for (let i = 0; i < spikes * 2; i++) {
-        const angle = (-Math.PI / 2) + (i * Math.PI) / spikes;
-        const radiusX = (i % 2 === 0 ? outerRadiusX : innerRadiusX) * 0.79;
-        const radiusY = (i % 2 === 0 ? outerRadiusY : innerRadiusY) * 0.74;
-        const px = cx + Math.cos(angle) * radiusX;
-        const py = cy + Math.sin(angle) * radiusY;
-        if (i === 0) draw.moveTo(px, py); else draw.lineTo(px, py);
-    }
-    draw.closePath();
-    draw.strokeStyle = 'rgba(82, 10, 4, 0.9)';
-    draw.lineWidth = 3.5;
-    draw.stroke();
-
-    draw.fillStyle = '#fff7d2';
-    draw.textAlign = 'center';
-    draw.textBaseline = 'middle';
-    draw.font = 'bold 76px "Courier New", monospace';
-    draw.shadowColor = 'rgba(24, 0, 0, 0.95)';
-    draw.shadowBlur = 12;
-    draw.lineWidth = 5;
-    draw.strokeStyle = 'rgba(64, 8, 0, 0.95)';
-    draw.strokeText(text, cx, cy + 5);
-    draw.fillText(text, cx, cy + 5);
-
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.colorSpace = THREE.SRGBColorSpace;
-    texture.needsUpdate = true;
-    return { texture, aspect: width / height };
-}
-
-const WallTextEntry: React.FC<{ tileX: number; tileY: number; face: CardinalDir; text: string }> = ({ tileX, tileY, face, text }) => {
-    const tex = useMemo(() => makeEngravedTexture(text), [text]);
-    const [ox, , oz] = FACE_POS_TEXT[face];
-    const [rx, ry, rz] = FACE_ROT_TEXT[face];
-    return (
-        <mesh
-            position={[tileX * GRID_SIZE + ox, 0, tileY * GRID_SIZE + oz]}
-            rotation={[rx, ry, rz]}
-            frustumCulled={false}
-            renderOrder={6}
-        >
-            <planeGeometry args={[GRID_SIZE * 0.78, WALL_HEIGHT * 0.55]} />
-            <meshBasicMaterial
-                map={tex}
-                transparent
-                depthWrite={false}
-                depthTest={true}
-                polygonOffset
-                polygonOffsetFactor={-4}
-                polygonOffsetUnits={-4}
-                side={THREE.DoubleSide}
-                toneMapped={false}
-            />
-        </mesh>
-    );
-};
-
-const WALL_TEXT_FACE_VECTORS: Record<CardinalDir, { dx: number; dy: number }> = {
-    North: { dx: 0, dy: -1 },
-    South: { dx: 0, dy: 1 },
-    East: { dx: 1, dy: 0 },
-    West: { dx: -1, dy: 0 },
-};
-
-function blocksWallFaceSight(
-    tile: GameTile | undefined,
-    level: number,
-    openDoors: Set<string>,
-    openWalls: Set<string>,
-): boolean {
-    if (!tile) return true;
-    if (tile.type === 'Wall') {
-        const selfRevealingOpen = isSelfRevealingWallTile(level, tile.x, tile.y) &&
-            openWalls.has(`${level},${tile.y},${tile.x}`);
-        return !selfRevealingOpen;
-    }
-    if (tile.type === 'TrickWall') {
-        return !openWalls.has(`${level},${tile.y},${tile.x}`);
-    }
-    if (tile.type === 'Door') {
-        if (openDoors.has(`${level},${tile.y},${tile.x}`)) return false;
-        const door = tile.objects.find((obj): obj is DoorObject => obj.category === 'Door');
-        return doorBlocksVision(door?.doorType);
-    }
-    return false;
-}
-
-function isDoorTileVisible(
-    map: GameMap,
-    level: number,
-    openDoors: Set<string>,
-    openWalls: Set<string>,
-    partyX: number,
-    partyY: number,
-    tileX: number,
-    tileY: number,
-): boolean {
-    const dx = tileX - partyX;
-    const dy = tileY - partyY;
-    const steps = Math.max(Math.abs(dx), Math.abs(dy));
-    if (steps === 0) return true;
-    for (let i = 1; i < steps; i++) {
-        const x = Math.round(partyX + (dx * i) / steps);
-        const y = Math.round(partyY + (dy * i) / steps);
-        if (blocksWallFaceSight(map.tiles[y]?.[x], level, openDoors, openWalls)) {
-            return false;
-        }
-    }
-    const target = map.tiles[tileY]?.[tileX];
-    if (!target) return false;
-    if (target.type === 'Wall') return false;
-    if (target.type === 'TrickWall') return openWalls.has(`${level},${tileY},${tileX}`);
-    return true;
-}
-
-function getDoorButtonFaceSignForView(
-    partyPosition: [number, number],
-    tileX: number,
-    tileY: number,
-    doorOrientation: GameTile['orientation'],
-): 1 | -1 {
-    const normalPositive = doorOrientation === 'WestEast' || doorOrientation === 'EastWest'
-        ? { dx: 1, dy: 0 }
-        : { dx: 0, dy: 1 };
-    const toParty = {
-        dx: partyPosition[1] - tileX,
-        dy: partyPosition[0] - tileY,
-    };
-    const dot = normalPositive.dx * toParty.dx + normalPositive.dy * toParty.dy;
-    return dot >= 0 ? 1 : -1;
-}
-
-const LEFT_FACE_BY_FACE: Record<CardinalDir, CardinalDir> = {
-    North: 'West',
-    South: 'East',
-    East: 'North',
-    West: 'South',
-};
-
-const RIGHT_FACE_BY_FACE: Record<CardinalDir, CardinalDir> = {
-    North: 'East',
-    South: 'West',
-    East: 'South',
-    West: 'North',
-};
-
-function isWallTextAnchorTile(tile: GameTile | undefined): boolean {
-    return tile?.type === 'Wall' || tile?.type === 'TrickWall' || tile?.type === 'Door';
-}
-
-function resolveWallTextFace(map: GameMap, tile: GameTile, face: CardinalDir, text: string): CardinalDir {
-    if (text === 'WELCOME\nBRAVE\nADVENTURERS.') {
-        return 'West';
-    }
-
-    if (isWallTextAnchorTile(tile)) {
-        return face;
-    }
-
-    const forward = WALL_TEXT_FACE_VECTORS[face];
-    const forwardTile = map.tiles[tile.y + forward.dy]?.[tile.x + forward.dx];
-    if (isWallTextAnchorTile(forwardTile)) {
-        return face;
-    }
-
-    const leftFace = LEFT_FACE_BY_FACE[face];
-    const leftStep = WALL_TEXT_FACE_VECTORS[leftFace];
-    const leftTile = map.tiles[tile.y + leftStep.dy]?.[tile.x + leftStep.dx];
-    if (isWallTextAnchorTile(leftTile)) {
-        return leftFace;
-    }
-
-    const rightFace = RIGHT_FACE_BY_FACE[face];
-    const rightStep = WALL_TEXT_FACE_VECTORS[rightFace];
-    const rightTile = map.tiles[tile.y + rightStep.dy]?.[tile.x + rightStep.dx];
-    if (isWallTextAnchorTile(rightTile)) {
-        return rightFace;
-    }
-
-    return face;
-}
-
-const WallTextPlanes: React.FC<{ map: GameMap }> = memo(({ map }) => {
-    const level = useStore(s => s.level);
-    const visibleTexts = useStore(s => s.visibleTexts);
-    const entries = useMemo(() => {
-        const result: { tileX: number; tileY: number; face: CardinalDir; text: string }[] = [];
-        for (const row of map.tiles) {
-            for (const tile of row) {
-                for (const obj of tile.objects) {
-                    if (obj.category !== 'Text') continue;
-                    const t = obj as WallTextObject;
-                    if (!t.text || CHAMPION_DATA_RE.test(t.text)) continue;
-                    const visibilityKey = `${level}_${tile.x}_${tile.y}_${t.index}`;
-                    if (!visibleTexts.has(visibilityKey)) continue;
-                    result.push({
-                        tileX: tile.x,
-                        tileY: tile.y,
-                        face: resolveWallTextFace(map, tile, t.tilePos as CardinalDir, t.text),
-                        text: t.text,
-                    });
-                }
-            }
-        }
-        return result;
-    }, [level, map, visibleTexts]);
-
-    return (
-        <>
-            {entries.map(({ tileX, tileY, face, text }, i) => (
-                <WallTextEntry key={i} tileX={tileX} tileY={tileY} face={face} text={text} />
-            ))}
-        </>
-    );
-});
-
-*/
 const LightController: React.FC = () => {
     const levelIndex = useStore(s => s.level);
     const spellLights      = useStore(s => s.spellLights);
@@ -773,92 +419,6 @@ function getDoorButtonFaceSignForView(
     return dot >= 0 ? 1 : -1;
 }
 
-function makeDamageBubbleTexture(amount: number): { texture: THREE.CanvasTexture; aspect: number } {
-    const text = `-${amount}`;
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-        const fallback = new THREE.CanvasTexture(canvas);
-        return { texture: fallback, aspect: 1.6 };
-    }
-
-    ctx.font = 'bold 76px "Courier New", monospace';
-    const metrics = ctx.measureText(text);
-    const severity = Math.min(1, amount / 48);
-    const width = Math.max(220, Math.ceil(metrics.width + 82 + severity * 28));
-    const height = Math.max(132, Math.ceil(142 + severity * 18));
-    canvas.width = width;
-    canvas.height = height;
-
-    const draw = canvas.getContext('2d');
-    if (!draw) {
-        const fallback = new THREE.CanvasTexture(canvas);
-        return { texture: fallback, aspect: width / height };
-    }
-
-    draw.clearRect(0, 0, width, height);
-    const cx = width / 2;
-    const cy = height / 2;
-    const outerRadiusX = width * (0.46 + severity * 0.03);
-    const outerRadiusY = height * (0.42 + severity * 0.04);
-    const innerRadiusX = outerRadiusX * 0.78;
-    const innerRadiusY = outerRadiusY * 0.73;
-    const spikes = 10;
-
-    draw.beginPath();
-    for (let i = 0; i < spikes * 2; i++) {
-        const angle = (-Math.PI / 2) + (i * Math.PI) / spikes;
-        const radiusX = i % 2 === 0 ? outerRadiusX : innerRadiusX;
-        const radiusY = i % 2 === 0 ? outerRadiusY : innerRadiusY;
-        const px = cx + Math.cos(angle) * radiusX;
-        const py = cy + Math.sin(angle) * radiusY;
-        if (i === 0) draw.moveTo(px, py); else draw.lineTo(px, py);
-    }
-    draw.closePath();
-
-    const fill = draw.createRadialGradient(cx, cy, 8, cx, cy, Math.max(outerRadiusX, outerRadiusY));
-    fill.addColorStop(0, 'rgba(255, 246, 212, 0.98)');
-    fill.addColorStop(0.24, 'rgba(255, 194, 110, 0.96)');
-    fill.addColorStop(0.62, 'rgba(176, 40, 14, 0.96)');
-    fill.addColorStop(1, 'rgba(86, 6, 2, 0.98)');
-    draw.fillStyle = fill;
-    draw.strokeStyle = 'rgba(255, 236, 170, 0.98)';
-    draw.lineWidth = 7;
-    draw.lineJoin = 'round';
-    draw.fill();
-    draw.stroke();
-
-    draw.beginPath();
-    for (let i = 0; i < spikes * 2; i++) {
-        const angle = (-Math.PI / 2) + (i * Math.PI) / spikes;
-        const radiusX = (i % 2 === 0 ? outerRadiusX : innerRadiusX) * 0.79;
-        const radiusY = (i % 2 === 0 ? outerRadiusY : innerRadiusY) * 0.74;
-        const px = cx + Math.cos(angle) * radiusX;
-        const py = cy + Math.sin(angle) * radiusY;
-        if (i === 0) draw.moveTo(px, py); else draw.lineTo(px, py);
-    }
-    draw.closePath();
-    draw.strokeStyle = 'rgba(82, 10, 4, 0.9)';
-    draw.lineWidth = 3.5;
-    draw.stroke();
-
-    draw.fillStyle = '#fff7d2';
-    draw.textAlign = 'center';
-    draw.textBaseline = 'middle';
-    draw.font = 'bold 76px "Courier New", monospace';
-    draw.shadowColor = 'rgba(24, 0, 0, 0.95)';
-    draw.shadowBlur = 12;
-    draw.lineWidth = 5;
-    draw.strokeStyle = 'rgba(64, 8, 0, 0.95)';
-    draw.strokeText(text, cx, cy + 5);
-    draw.fillText(text, cx, cy + 5);
-
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.colorSpace = THREE.SRGBColorSpace;
-    texture.needsUpdate = true;
-    return { texture, aspect: width / height };
-}
-
 const DarknessOverlay: React.FC = () => {
     const levelIndex = useStore(s => s.level);
     const spellLights = useStore(s => s.spellLights);
@@ -886,72 +446,7 @@ const DarknessOverlay: React.FC = () => {
     );
 };
 
-// â”€â”€â”€ Projectile renderer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-/*
-export const FrontWallLockDropTarget = ({
-    tileX,
-    tileY,
-    face,
-    label,
-    requirement,
-    onUseItem,
-}: {
-    tileX: number;
-    tileY: number;
-    face: CardinalDir;
-    label: string;
-    requirement?: string;
-    onUseItem: (championId: number, itemId: string, fromSlot: EquipSlotKey | 'inventory') => boolean;
-}) => {
-    const text = useI18n().dungeonScene;
-    const [over, setOver] = useState(false);
-    const [ox, oy, oz] = WALL_DROP_POS[face];
-
-    return (
-        <Html
-            position={[tileX * GRID_SIZE + ox, oy, tileY * GRID_SIZE + oz]}
-            center
-            transform
-            distanceFactor={6}
-            style={{ pointerEvents: 'auto' }}
-        >
-            <div
-                title={requirement ? text.dropSpecificItemOn(requirement, label) : text.dropRequiredItemOn(label)}
-                onDragOver={(event) => {
-                    event.preventDefault();
-                    setOver(true);
-                }}
-                onDragLeave={() => setOver(false)}
-                onDrop={(event) => {
-                    event.preventDefault();
-                    setOver(false);
-                    const payload = getDragPayload(event);
-                    if (!payload) return;
-                    onUseItem(payload.fromChampionId, payload.itemId, payload.fromSlot);
-                }}
-                style={{
-                    minWidth: 112,
-                    padding: '8px 10px',
-                    borderRadius: 8,
-                    border: `2px solid ${over ? '#f0cf7a' : '#8a6a2a'}`,
-                    background: over ? 'rgba(35, 24, 5, 0.95)' : 'rgba(12, 10, 8, 0.9)',
-                    color: '#f0dfb0',
-                    fontFamily: '"Courier New", monospace',
-                    fontSize: 12,
-                    lineHeight: 1.2,
-                    textAlign: 'center',
-                    boxShadow: over ? '0 0 18px rgba(240, 207, 122, 0.45)' : '0 0 10px rgba(0, 0, 0, 0.4)',
-                    userSelect: 'none',
-                }}
-            >
-                <div style={{ fontSize: 18, marginBottom: 3 }}>{label === 'ALCOVE' ? 'ðŸ•³' : label === 'RECEPTACLE' ? 'ðŸ”¥' : 'ðŸ—'}</div>
-                <div>{label}</div>
-                {requirement && <div style={{ marginTop: 4, color: '#d8bf84', fontSize: 10 }}>{requirement}</div>}
-            </div>
-        </Html>
-    );
-};
-*/
+// Projectile renderer
 
 type WallDropPlacement = 'front' | 'left' | 'right';
 
@@ -1100,7 +595,8 @@ const DungeonSceneDragOverlay: React.FC<{
     openDoors: Set<string>;
     openWalls: Set<string>;
     isItemDragActive: boolean;
-}> = ({ level, map, position, direction, openDoors, openWalls, isItemDragActive }) => {
+    activePartyMemberId: number | null;
+}> = ({ level, map, position, direction, openDoors, openWalls, isItemDragActive, activePartyMemberId }) => {
     const activeFloorDrag = useStore(s => s.activeFloorDrag);
     const floorItems = useStore(s => s.floorItems);
     const selectedChampionIndex = useStore(s => s.selectedChampionIndex);
@@ -1131,6 +627,10 @@ const DungeonSceneDragOverlay: React.FC<{
         }),
         [direction, level, map, openWalls, position],
     );
+
+    if (activePartyMemberId !== null) {
+        return null;
+    }
 
     return (
         <>
@@ -1187,210 +687,8 @@ const DungeonSceneDragOverlay: React.FC<{
     );
 };
 
-const FootprintLayer: React.FC = () => {
-    const footprintHistory = useStore(s => s.footprintHistory);
-    const level = useStore(s => s.level);
-    const meshRefs = useRef<Map<string, THREE.Mesh>>(new Map());
-    const footprintGeometry = useMemo(() => new THREE.PlaneGeometry(GRID_SIZE * 0.6, GRID_SIZE * 0.6), []);
 
-    useEffect(() => () => {
-        footprintGeometry.dispose();
-    }, [footprintGeometry]);
-
-    useFrame(() => {
-        const now = Date.now();
-        for (const [key, mesh] of meshRefs.current) {
-            if (!mesh) continue;
-            const parts = key.split(',');
-            const ts = parseInt(parts[2]);
-            const age = now - ts;
-            const opacity = Math.max(0, (FOOTPRINT_LIFETIME_MS - age) / FOOTPRINT_LIFETIME_MS);
-            (mesh.material as THREE.MeshBasicMaterial).opacity = opacity * 0.45;
-            mesh.visible = opacity > 0.01;
-        }
-    });
-
-    const currentFootprints = footprintHistory.filter(e => e.level === level);
-
-    return (
-        <>
-            {currentFootprints.map((e: FootprintEntry) => {
-                const key = `${e.x},${e.y},${e.ts}`;
-                return (
-                    <mesh
-                        key={key}
-                        ref={(m) => {
-                            if (m) meshRefs.current.set(key, m);
-                            else meshRefs.current.delete(key);
-                        }}
-                        position={[e.x * GRID_SIZE, -WALL_HEIGHT / 2 + 0.03, e.y * GRID_SIZE]}
-                        rotation={[-Math.PI / 2, 0, 0]}
-                        geometry={footprintGeometry}
-                        frustumCulled={false}
-                    >
-                        <meshBasicMaterial
-                            color="#66ccff"
-                            transparent
-                            opacity={0.45}
-                            depthWrite={false}
-                            toneMapped={false}
-                        />
-                    </mesh>
-                );
-            })}
-        </>
-    );
-};
-
-// â”€â”€â”€ Creatures layer (isolated â€” re-renders only when creatures change) â”€â”€â”€â”€â”€â”€â”€
-const CreaturesLayer: React.FC = () => {
-    const creatures = useStore(s => s.creatures);
-    const level     = useStore(s => s.level);
-    return (
-        <>
-            {creatures
-                .filter(c => c.alive && c.mapIndex === level)
-                .map(c => <CreatureSprite key={c.id} creature={c} />)
-            }
-        </>
-    );
-};
-
-// â”€â”€â”€ Damage events layer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-const DamageLayer: React.FC = () => {
-    const damageEvents = useStore(s => s.damageEvents);
-    const level = useStore(s => s.level);
-    const creatures = useStore(s => s.creatures);
-    const direction = useStore(s => s.direction);
-    const wallClockNow = useWallClock(33);
-    const now = wallClockNow === 0 ? Date.now() : wallClockNow;
-
-    return (
-        <>
-            {damageEvents
-                .filter((evt) => evt.target === 'creature' && evt.level === level && evt.x !== undefined && evt.y !== undefined)
-                .map(evt => {
-                    const age = Math.max(0, now - evt.ts);
-                    const progress = Math.min(1, age / DAMAGE_EVENT_LIFETIME_MS);
-                    const creature = evt.creatureId
-                        ? creatures.find((entry) => entry.alive && entry.mapIndex === level && entry.id === evt.creatureId)
-                        : undefined;
-                    const [offsetX, offsetZ] = creature
-                        ? getCreatureCellOffsetXZ(direction, creature.cell)
-                        : [0, 0];
-                    return (
-                        <DamageNumberBillboard
-                            key={evt.id}
-                            x={evt.x!}
-                            y={evt.y!}
-                            amount={evt.amount}
-                            progress={progress}
-                            offsetX={offsetX}
-                            offsetZ={offsetZ}
-                        />
-                    );
-                })}
-        </>
-    );
-};
-
-const DamageNumberBillboard: React.FC<{
-    x: number;
-    y: number;
-    amount: number;
-    progress: number;
-    offsetX?: number;
-    offsetZ?: number;
-}> = ({ x, y, amount, progress, offsetX = 0, offsetZ = 0 }) => {
-    const { texture, aspect } = useMemo(() => makeDamageBubbleTexture(amount), [amount]);
-    useEffect(() => () => texture.dispose(), [texture]);
-    const baseHeight = GRID_SIZE * (0.28 + Math.min(0.18, amount / 180));
-    const width = baseHeight * aspect;
-    const height = baseHeight;
-    const scale = Math.max(0.94, Math.min(2.15, 0.96 + (amount / 30)) - progress * 0.1);
-    const verticalRise = GRID_SIZE * 0.12;
-    const burstY = GRID_SIZE * 0.36 + progress * verticalRise;
-
-    return (
-        <BillboardGroup
-            position={[x * GRID_SIZE + offsetX, burstY, y * GRID_SIZE + offsetZ]}
-            follow
-            lockX={false}
-            lockY={false}
-            lockZ={false}
-        >
-            <mesh scale={[scale, scale, scale]} frustumCulled={false} renderOrder={30}>
-                <planeGeometry args={[width, height]} />
-                <meshBasicMaterial
-                    map={texture}
-                    transparent
-                    alphaTest={0.05}
-                    depthWrite={false}
-                    depthTest={false}
-                    opacity={1 - progress * 0.3}
-                    toneMapped={false}
-                />
-            </mesh>
-        </BillboardGroup>
-    );
-};
-
-// â”€â”€â”€ Floor items layer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-const FloorItemsLayer: React.FC = () => {
-    const floorItems = useStore(s => s.floorItems);
-    const level      = useStore(s => s.level);
-    const openWalls  = useStore(s => s.openWalls);
-    const pickupItem = useStore(s => s.pickupItem);
-    const beginFloorDrag = useStore(s => s.beginFloorDrag);
-    const updateFloorDrag = useStore(s => s.updateFloorDrag);
-    const endFloorDrag = useStore(s => s.endFloorDrag);
-    const applyFloorItemOnFrontWall = useStore(s => s.useFloorItemOnFrontWall);
-    const selectedChampionIndex = useStore(s => s.selectedChampionIndex);
-    const party = useStore(s => s.party);
-    const selectedChampionId = party[selectedChampionIndex]?.id ?? party[0]?.id ?? null;
-    const map = getGameMap(level);
-    const isMirrorTile = (item: FloorItem) => MIRROR_WALL_MAP.has(`${level},${item.x},${item.y}`);
-    const isWallMounted = (item: FloorItem) => {
-        const tile = map.tiles[item.y]?.[item.x];
-        return tile && (tile.type === 'Wall' || tile.type === 'TrickWall');
-    };
-    return (
-        <>
-            {floorItems
-                .filter(i => i.mapIndex === level)
-                .filter(i => !isMirrorTile(i))
-                .filter((item) => {
-                    if (!isWallMounted(item)) return true;
-                    if (!isSelfRevealingWallTile(level, item.x, item.y)) return true;
-                    return openWalls.has(`${level},${item.y},${item.x}`);
-                })
-                .map(i => (
-                    isWallMounted(i)
-                        ? <WallMountedItemMesh key={i.id} item={i} onPickup={() => pickupItem(i.id)} />
-                        : (
-                            <FloorItemMesh
-                                key={i.id}
-                                item={i}
-                                onPickup={() => pickupItem(i.id)}
-                                onStartDrag={(item, _imagePath, pointerX, pointerY) => beginFloorDrag(item.id, pointerX, pointerY)}
-                                onUpdateDrag={updateFloorDrag}
-                                onEndDrag={(pointerX, pointerY) => {
-                                    const hovered = document.elementFromPoint(pointerX, pointerY) as HTMLElement | null;
-                                    const wallDrop = hovered?.closest('[data-dm-wall-drop="true"]');
-                                    if (wallDrop && selectedChampionId != null) {
-                                        applyFloorItemOnFrontWall(i.id, selectedChampionId);
-                                    }
-                                    endFloorDrag();
-                                }}
-                            />
-                        )
-                ))
-            }
-        </>
-    );
-};
-
-// â”€â”€â”€ Static tile grid (re-renders only when level or doors change) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Static tile grid (re-renders only when level or doors change)
 const TileGrid: React.FC<{
     map: GameMap;
     level: number;
@@ -1413,15 +711,13 @@ const TileGrid: React.FC<{
         <group>
             {/* One draw call each for floor, ceiling, and walls */}
             <InstancedTiles key={level} map={map} openWalls={openWalls} />
-
-            {/* Pressure plates â€” floor-level objects */}
+            {/* Pressure plates - floor-level objects */}
             {pressurePlates.map(({ tileX, tileY }) => (
                 <group key={`plate_${tileX}_${tileY}`} position={[tileX * GRID_SIZE, 0, tileY * GRID_SIZE]}>
                     <PressurePlate tileX={tileX} tileY={tileY} level={level} />
                 </group>
             ))}
-
-            {/* Only Door and Mirror tiles need a Cell â€” everything else is instanced */}
+            {/* Only Door and Mirror tiles need a Cell - everything else is instanced */}
             {map.tiles.map((row, y) =>
                 row.map((tile, x) => {
                     const renderType = getRenderType(tile, level);
@@ -1504,7 +800,7 @@ const TileGrid: React.FC<{
     );
 });
 
-// â”€â”€â”€ Scene â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Scene
 export const DungeonScene = () => {
     const canvasHostRef = useRef<HTMLDivElement>(null);
     const [isItemDragActive, setIsItemDragActive] = useState(false);
@@ -1522,6 +818,7 @@ export const DungeonScene = () => {
     const activeSensors  = useStore(s => s.activeSensors);
     const firedSensors   = useStore(s => s.firedSensors);
     const party          = useStore(s => s.party);
+    const activePartyMemberId = useStore(s => s.activePartyMemberId);
 
     const map = getGameMap(level);
     const recruitedIds = useMemo(() => new Set(party.map(c => c.id)), [party]);
@@ -1561,7 +858,7 @@ export const DungeonScene = () => {
             isSelfRevealingWallTile,
             doorBlocksVision,
         }),
-        [activeSensors, firedSensors, level, map, openDoors, openWalls, originalWallOverlays, position],
+        [level, map, openDoors, openWalls, originalWallOverlays, position],
     );
 
     const wallDecals = useMemo(
@@ -1577,7 +874,7 @@ export const DungeonScene = () => {
             isSelfRevealingWallTile,
             doorBlocksVision,
         }),
-        [activeSensors, firedSensors, level, map, openDoors, openWalls, originalWallOverlays, position],
+        [level, map, openDoors, openWalls, originalWallOverlays, position],
     );
 
     const pressurePlates = useMemo(
@@ -1760,6 +1057,7 @@ export const DungeonScene = () => {
                 openDoors={openDoors}
                 openWalls={openWalls}
                 isItemDragActive={isItemDragActive}
+                activePartyMemberId={activePartyMemberId}
             />
         </div>
     );

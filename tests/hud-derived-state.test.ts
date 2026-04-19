@@ -5,6 +5,7 @@ import {
     buildHudCastState,
     buildCombatGridSlotState,
     buildHudFrontStateSummary,
+    didPartyTakeSingleStep,
     selectHudRunes,
 } from '../src/components/UI/hudDerivedState.js';
 import type { ChampionCombat, DamageEvent } from '../src/engine/runtimeTypes.js';
@@ -161,6 +162,27 @@ test('selectHudRunes truncates at an existing rune and refuses to exceed four ru
     assert.deepEqual(selectHudRunes(['FUL', 'IR'], 'IR'), ['FUL']);
     assert.deepEqual(selectHudRunes(['FUL', 'IR', 'BRO', 'NETA'], 'DES'), ['FUL', 'IR', 'BRO', 'NETA']);
     assert.deepEqual(selectHudRunes(['FUL', 'IR'], 'BRO'), ['FUL', 'IR', 'BRO']);
+});
+
+test('didPartyTakeSingleStep only reports adjacent same-level movement', () => {
+    assert.equal(didPartyTakeSingleStep({
+        previousLevel: 0,
+        nextLevel: 0,
+        previousPosition: [4, 4],
+        nextPosition: [4, 5],
+    }), true);
+    assert.equal(didPartyTakeSingleStep({
+        previousLevel: 0,
+        nextLevel: 1,
+        previousPosition: [4, 4],
+        nextPosition: [4, 5],
+    }), false);
+    assert.equal(didPartyTakeSingleStep({
+        previousLevel: 0,
+        nextLevel: 0,
+        previousPosition: [4, 4],
+        nextPosition: [6, 4],
+    }), false);
 });
 
 test('buildHudCastState derives selected champion, active family, and cast availability', () => {

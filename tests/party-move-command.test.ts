@@ -33,6 +33,7 @@ test('resolvePartyMoveCommand keeps only the fatigue patch when forward hits a b
     const state = createState();
     const result = resolvePartyMoveCommand(state, 'forward', 1234, {
         applyPartyMoveFatigue: () => movedVitals,
+        isPartyStepBlockedByCreature: () => false,
         getTile: () => ({ type: 'Floor' }),
         isWalkable: () => false,
         buildSensorStateSnapshot: () => ({}),
@@ -56,6 +57,7 @@ test('resolvePartyMoveCommand merges wall push and bump effects for blocked forw
     const nextPending = [{ id: 'next' }];
     const result = resolvePartyMoveCommand(state, 'forward', 555, {
         applyPartyMoveFatigue: () => ({ 1: { hp: 27 } as ChampionVitals }),
+        isPartyStepBlockedByCreature: () => false,
         getTile: () => ({ type: 'Wall' }),
         isWalkable: () => false,
         buildSensorStateSnapshot: () => ({ snapshot: true }),
@@ -85,6 +87,7 @@ test('resolvePartyMoveCommand delegates non-forward movement to step transport a
 
     const result = resolvePartyMoveCommand<TestState>(createState(), 'backward', 999, {
         applyPartyMoveFatigue: () => null,
+        isPartyStepBlockedByCreature: () => false,
         getTile: () => ({ type: 'Floor' }),
         isWalkable: () => true,
         buildSensorStateSnapshot: () => ({}),
@@ -105,4 +108,26 @@ test('resolvePartyMoveCommand delegates non-forward movement to step transport a
     assert.deepEqual(result.patch, { position: [5, 5] });
     assert.equal(result.blockedMessage, 'blocked');
     assert.equal(result.shouldPlayWallBump, true);
+});
+
+test('resolvePartyMoveCommand stops before step transport when a creature blocks the target tile', () => {
+    const movedVitals = { 1: { hp: 29 } as ChampionVitals };
+    const result = resolvePartyMoveCommand(createState(), 'forward', 77, {
+        applyPartyMoveFatigue: () => movedVitals,
+        isPartyStepBlockedByCreature: () => true,
+        getTile: () => ({ type: 'Floor' }),
+        isWalkable: () => true,
+        buildSensorStateSnapshot: () => ({}),
+        triggerWallPushSensors: () => ({ sensorChanges: {}, pendingSensorEvents: [] }),
+        applyFrontRowWallBumpDamage: () => null,
+        applyImmediateTransportSquareEffects: () => {
+            throw new Error('transport effects should not run');
+        },
+        resolvePartyStepTransport: () => {
+            throw new Error('step transport should not run');
+        },
+    });
+
+    assert.deepEqual(result.patch, { championVitals: movedVitals });
+    assert.equal(result.shouldPlayWallBump, false);
 });

@@ -2,7 +2,6 @@ import originalCreaturesRaw from '../assets/runtime/reference/original_creatures
 import { getGameDbCreaturesRawSync } from './gameDbData';
 import { resolveItemName } from './items';
 
-const gameDb = JSON.parse(getGameDbCreaturesRawSync()) as unknown;
 const originalCreatures = JSON.parse(originalCreaturesRaw) as unknown;
 
 export type AttackType =
@@ -93,15 +92,6 @@ type RawI559Creature = {
     seeInvisible?: boolean;
     ranges?: { attack?: number; sight?: number };
 };
-
-const originalAtariI559Creatures =
-    ((gameDb as {
-        originalAtari?: { i559?: { creatures?: RawI559Creature[] } };
-    }).originalAtari?.i559?.creatures ?? []) as RawI559Creature[];
-
-const I559_CREATURES_BY_INDEX = new Map<number, RawI559Creature>(
-    originalAtariI559Creatures.map((creature) => [creature.index, creature]),
-);
 
 const BASE_ATTACK_TYPE_MAP: Record<OriginalAttackType, AttackType[]> = {
     Unconditional: ['Physical'],
@@ -195,41 +185,118 @@ export function getOriginalCreatureFixedDropSpecs(creatureId: number): CreatureF
 
 const dataset = originalCreatures as OriginalCreaturesDataset;
 
-export const CREATURE_TYPES: Record<number, CreatureDef> = Object.fromEntries(
-    dataset.creatures.map((creature) => {
-        const original = I559_CREATURES_BY_INDEX.get(creature.id);
-        const fixedDrops = getOriginalCreatureFixedDropSpecs(creature.id);
-        return [creature.id, {
-            id: creature.id,
-            name: creature.name,
-            sizeOnTile: Math.max(0, Math.min(2, original?.sizeOnTile ?? 0)),
-            baseHP: creature.baseHP,
-            armor: creature.armor,
-            hitProb: creature.hitProb,
-            atkSpd: creature.atkSpd,
-            moveSpd: creature.moveSpd,
-            exp: creature.exp,
-            poison: creature.poison,
-            originalAttackType: creature.attackType,
-            attackTypes: ATTACK_TYPE_OVERRIDES[creature.id] ?? BASE_ATTACK_TYPE_MAP[creature.attackType] ?? ['Physical'],
-            drops: fixedDrops.map((drop) => drop.rawName),
-            fixedDrops,
-            rawAttack: original?.attack ?? 0,
-            poisonAttack: original?.poisonAttack ?? 0,
-            dexterity: original?.dexterity ?? 0,
-            fireResistance: original?.resistances?.fire ?? 0,
-            poisonResistance: original?.resistances?.poison ?? 0,
-            nonMaterial: Boolean(original?.nonMaterial),
-            attackAnyChampion: Boolean(original?.attackAnyChampion),
-            attackFromAllSides: Boolean(original?.attackFromAllSides),
-            attackRange: Math.max(1, original?.ranges?.attack ?? 1),
-            sightRange: Math.max(1, original?.ranges?.sight ?? 8),
-            preferBackRow: Boolean(original?.preferBackRow),
-            levitates: Boolean(original?.levitates),
-            absorbMissiles: Boolean(original?.absorbMissiles),
-            seeInvisible: Boolean(original?.seeInvisible),
-            fearResistance: Math.max(0, Math.min(15, original?.properties?.fearResistance ?? 0)),
-            archenemy: Boolean(original?.archenemy),
-        } satisfies CreatureDef];
-    }),
-);
+let creatureTypesCache: Record<number, CreatureDef> | null = null;
+let creatureSourceDataHydrated = false;
+
+const creatureTypesTarget: Record<number, CreatureDef> = {};
+
+function replaceCreatureRecord(target: Record<number, CreatureDef>, source: Record<number, CreatureDef>): void {
+    for (const key of Object.keys(target)) {
+        delete target[Number(key)];
+    }
+    Object.assign(target, source);
+}
+
+function syncExportedCreatureTargets(source: Record<number, CreatureDef>): void {
+    replaceCreatureRecord(creatureTypesTarget, source);
+}
+
+function createHydratingCreatureRecordProxy<T extends Record<number, unknown>>(target: T): T {
+    return new Proxy(target, {
+        get(currentTarget, prop, receiver) {
+            getCreatureTypes();
+            return Reflect.get(currentTarget, prop, receiver);
+        },
+        has(currentTarget, prop) {
+            getCreatureTypes();
+            return Reflect.has(currentTarget, prop);
+        },
+        ownKeys(currentTarget) {
+            getCreatureTypes();
+            return Reflect.ownKeys(currentTarget);
+        },
+        getOwnPropertyDescriptor(currentTarget, prop) {
+            getCreatureTypes();
+            return Reflect.getOwnPropertyDescriptor(currentTarget, prop);
+        },
+    });
+}
+
+function tryReadGameDbCreatures(): unknown | null {
+    try {
+        return JSON.parse(getGameDbCreaturesRawSync()) as unknown;
+    } catch {
+        return null;
+    }
+}
+
+function buildCreatureTypes(rawGameDb: unknown): Record<number, CreatureDef> {
+    const originalAtariI559Creatures =
+        ((rawGameDb as {
+            originalAtari?: { i559?: { creatures?: RawI559Creature[] } };
+        }).originalAtari?.i559?.creatures ?? []) as RawI559Creature[];
+
+    const creaturesByIndex = new Map<number, RawI559Creature>(
+        originalAtariI559Creatures.map((creature) => [creature.index, creature]),
+    );
+
+    return Object.fromEntries(
+        dataset.creatures.map((creature) => {
+            const original = creaturesByIndex.get(creature.id);
+            const fixedDrops = getOriginalCreatureFixedDropSpecs(creature.id);
+            return [creature.id, {
+                id: creature.id,
+                name: creature.name,
+                sizeOnTile: Math.max(0, Math.min(2, original?.sizeOnTile ?? 0)),
+                baseHP: creature.baseHP,
+                armor: creature.armor,
+                hitProb: creature.hitProb,
+                atkSpd: creature.atkSpd,
+                moveSpd: creature.moveSpd,
+                exp: creature.exp,
+                poison: creature.poison,
+                originalAttackType: creature.attackType,
+                attackTypes: ATTACK_TYPE_OVERRIDES[creature.id] ?? BASE_ATTACK_TYPE_MAP[creature.attackType] ?? ['Physical'],
+                drops: fixedDrops.map((drop) => drop.rawName),
+                fixedDrops,
+                rawAttack: original?.attack ?? 0,
+                poisonAttack: original?.poisonAttack ?? 0,
+                dexterity: original?.dexterity ?? 0,
+                fireResistance: original?.resistances?.fire ?? 0,
+                poisonResistance: original?.resistances?.poison ?? 0,
+                nonMaterial: Boolean(original?.nonMaterial),
+                attackAnyChampion: Boolean(original?.attackAnyChampion),
+                attackFromAllSides: Boolean(original?.attackFromAllSides),
+                attackRange: Math.max(1, original?.ranges?.attack ?? 1),
+                sightRange: Math.max(1, original?.ranges?.sight ?? 8),
+                preferBackRow: Boolean(original?.preferBackRow),
+                levitates: Boolean(original?.levitates),
+                absorbMissiles: Boolean(original?.absorbMissiles),
+                seeInvisible: Boolean(original?.seeInvisible),
+                fearResistance: Math.max(0, Math.min(15, original?.properties?.fearResistance ?? 0)),
+                archenemy: Boolean(original?.archenemy),
+            } satisfies CreatureDef];
+        }),
+    );
+}
+
+function getCreatureTypes(): Record<number, CreatureDef> {
+    if (!creatureSourceDataHydrated) {
+        const rawGameDb = tryReadGameDbCreatures();
+        if (rawGameDb) {
+            creatureTypesCache = buildCreatureTypes(rawGameDb);
+            creatureSourceDataHydrated = true;
+            syncExportedCreatureTargets(creatureTypesCache);
+            return creatureTypesCache;
+        }
+    }
+
+    if (!creatureTypesCache) {
+        creatureTypesCache = buildCreatureTypes({});
+        syncExportedCreatureTargets(creatureTypesCache);
+    }
+
+    return creatureTypesCache;
+}
+
+export const CREATURE_TYPES: Record<number, CreatureDef> = createHydratingCreatureRecordProxy(creatureTypesTarget);

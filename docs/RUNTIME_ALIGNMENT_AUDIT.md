@@ -369,6 +369,7 @@ Reste explicitement en attente cote mecanismes rares:
 ### Objets
 
 - [src/data/items.ts](/D:/DungeonMaster-codex/src/data/items.ts) reste une couche hybride.
+- les derniers alias runtime et overrides de starters sont maintenant isoles dans [src/data/itemRuntimeCompatibility.ts](/D:/DungeonMaster-codex/src/data/itemRuntimeCompatibility.ts)
 - Le fichier exploite bien les catalogues originaux, mais garde encore des tables de compatibilite et des helpers pour:
   - anciens noms runtime
   - objets synthetiques
@@ -378,7 +379,7 @@ Reste explicitement en attente cote mecanismes rares:
 ### Images d'objets
 
 - [src/data/itemImages.ts](/D:/DungeonMaster-codex/src/data/itemImages.ts) derive maintenant beaucoup de chemins a partir des noms et variantes, avec verification contre les assets reels.
-- Il reste toutefois un noyau d'alias et quelques fallbacks, normaux a ce stade parce qu'il faut encore faire le pont entre noms originaux, variantes et vrais fichiers du projet.
+- Le noyau d'alias et les fallbacks visuels restants sont maintenant rassembles dans [src/data/itemImageCompatibility.ts](/D:/DungeonMaster-codex/src/data/itemImageCompatibility.ts), ce qui rend le runtime actif plus lisible.
 
 ### Equipement
 
@@ -433,7 +434,7 @@ Reste explicitement en attente cote mecanismes rares:
 ### Sorts et semantique complete des missiles
 
 - Le runtime reel de cast s'appuie sur [src/data/runes.ts](/D:/DungeonMaster-codex/src/data/runes.ts) et le store.
-- [src/data/spells.ts](/D:/DungeonMaster-codex/src/data/spells.ts) reste un fichier legacy de reference.
+- [src/data/reference/spellsReference.ts](/D:/DungeonMaster-codex/src/data/reference/spellsReference.ts) reste une table de reference uniquement, hors pipeline runtime actif.
 - Les VFX ont fait un grand bond, mais toute la semantique fine de certains missiles ou effets rares n'est pas encore completement recalee.
 - Le plus gros reliquat runtime visible cote creatures n'est plus `Slime`; le gros morceau mecanismes restant est maintenant surtout quelques `local effects` rares qui ne passent pas par la rotation simple de face.
 

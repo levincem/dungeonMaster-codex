@@ -21,6 +21,8 @@ type TorchState = {
     torchBurnStart: Record<string, number>;
 };
 
+export const MAX_CHAMPION_INVENTORY_ITEMS = 17;
+
 export type LocatedChampionItem = {
     inventory: FloorItem[];
     equipment: ChampionEquipment;
@@ -28,6 +30,10 @@ export type LocatedChampionItem = {
     slotKey?: EquipSlotKey;
     item: FloorItem;
 };
+
+export function canChampionInventoryAcceptItem(inventory: FloorItem[]): boolean {
+    return inventory.length < MAX_CHAMPION_INVENTORY_ITEMS;
+}
 
 export function locateChampionItem(
     state: InventoryCollectionsState,
@@ -110,6 +116,7 @@ export function unequipChampionItem(
     if (!item) return null;
 
     const inventory = state.championInventories[championId] ?? [];
+    if (!canChampionInventoryAcceptItem(inventory)) return null;
     const nextEquipment = { ...currentEquipment };
     delete nextEquipment[slotKey];
 
@@ -130,6 +137,7 @@ export function giveChampionInventoryItem(
     if (!item) return null;
 
     const toInventory = state.championInventories[toChampionId] ?? [];
+    if (fromChampionId !== toChampionId && !canChampionInventoryAcceptItem(toInventory)) return null;
     return {
         championInventories: {
             ...state.championInventories,
@@ -150,6 +158,7 @@ export function giveChampionEquippedItem(
     if (!item) return null;
 
     const toInventory = state.championInventories[toChampionId] ?? [];
+    if (!canChampionInventoryAcceptItem(toInventory)) return null;
     const nextEquipment = { ...fromEquipment };
     delete nextEquipment[slotKey];
 

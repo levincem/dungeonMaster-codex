@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createStoreWorldRuntime } from '../src/engine/systems/storeWorldRuntime.js';
-import type { ChampionEquipment, CreatureInstance, GameMap } from '../src/types/game.js';
+import type { ChampionEquipment, CreatureInstance, FloorItem, GameMap, SensorObject, WallTextObject } from '../src/types/game.js';
 
 function createMap(index: number, difficulty: number, tiles: GameMap['tiles']): GameMap {
     return {
@@ -15,37 +15,44 @@ function createMap(index: number, difficulty: number, tiles: GameMap['tiles']): 
     };
 }
 
-function createRuntime(maps: GameMap[], overrides: Partial<Parameters<typeof createStoreWorldRuntime<any>>[0]> = {}) {
-    const registeredTimers = new Map<string, { mt: number; at: number }>();
-    const reservationCalls: Array<{
+function createBaseParams(
+    maps: GameMap[],
+    registeredTimers: Map<string, { mt: number; at: number }>,
+    reservationCalls: Array<{
         level: number;
         creatures: CreatureInstance[];
         pendingGeneratorSpawns: unknown[];
-    }> = [];
-
-    const runtime = createStoreWorldRuntime({
-        getGameMaps: () => maps,
-        getGameMap: (level) => maps.find((map) => map.index === level) ?? maps[0]!,
-        getMapDifficulty: (level) => maps.find((map) => map.index === level)?.difficulty ?? 1,
+    }>,
+) {
+    return {
+        getGameMaps: (): GameMap[] => maps,
+        getGameMap: (level: number): GameMap => maps.find((map) => map.index === level) ?? maps[0]!,
+        getMapDifficulty: (level: number): number => maps.find((map) => map.index === level)?.difficulty ?? 1,
         creatureTypes: {
             7: { baseHP: 30, moveSpd: 12, atkSpd: 18, sizeOnTile: 0 },
             9: { baseHP: 10, moveSpd: 12, atkSpd: 18, sizeOnTile: 2 },
         },
-        buildRuntimeCreatureGroupId: (kind, level, x, y, typeId) => `${kind}:${level}:${x}:${y}:${typeId}`,
-        registerCreatureTimers: (id, timers) => {
+        buildRuntimeCreatureGroupId: (
+            kind: 'generator' | 'init',
+            level: number,
+            x: number,
+            y: number,
+            typeId: number,
+        ) => `${kind}:${level}:${x}:${y}:${typeId}`,
+        registerCreatureTimers: (id: string, timers: { mt: number; at: number }) => {
             registeredTimers.set(id, timers);
         },
-        normalizeCreatureCells: (creatures) => creatures.map((creature, index) => ({
+        normalizeCreatureCells: (creatures: CreatureInstance[]) => creatures.map((creature, index) => ({
             ...creature,
             cell: index === 0 ? 'frontLeft' : creature.cell,
         })),
-        resolveItemName: (category, typeId, rawName) => `${category}:${typeId}:${rawName ?? ''}`,
-        normalizeScrollText: (text) => `normalized:${text ?? ''}`,
-        parseItemCharges: (rawName) => rawName ? { charges: 2, maxCharges: 4 } : {},
-        normaliseWaterContainer: (item) => item.category === 'Container'
+        resolveItemName: (category: FloorItem['category'], typeId: number, rawName?: string) => `${category}:${typeId}:${rawName ?? ''}`,
+        normalizeScrollText: (text?: string) => `normalized:${text ?? ''}`,
+        parseItemCharges: (rawName?: string) => rawName ? { charges: 2, maxCharges: 4 } : {},
+        normaliseWaterContainer: (item: FloorItem): FloorItem => item.category === 'Container'
             ? { ...item, waterCharges: 1, waterMaxCharges: 1 }
             : item,
-        buildChampionStarterLoadout: (championId) => ({
+        buildChampionStarterLoadout: (championId: number) => ({
             equipment: {
                 rightHand: {
                     id: `starter-equip-${championId}`,
@@ -66,18 +73,44 @@ function createRuntime(maps: GameMap[], overrides: Partial<Parameters<typeof cre
                     x: 0,
                     y: 0,
                     tilePos: 'North',
-                },
+                } satisfies FloorItem,
             ],
         }),
-        canMaterializeReservedGeneratorSpawnOnLevel: (level, creatures, pendingGeneratorSpawns) => {
+        canMaterializeReservedGeneratorSpawnOnLevel: (
+            level: number,
+            creatures: CreatureInstance[],
+            pendingGeneratorSpawns: unknown[],
+        ) => {
             reservationCalls.push({ level, creatures, pendingGeneratorSpawns });
             return creatures.length === 0 && pendingGeneratorSpawns.length === 0;
         },
-        isGeneratorSpawnBlocked: (state, level, x, y) =>
-            state.creatures.some((creature) => creature.mapIndex === level && creature.x === x && creature.y === y),
+        isGeneratorSpawnBlocked: (
+            state: { creatures: CreatureInstance[] },
+            level: number,
+            x: number,
+            y: number,
+        ) => state.creatures.some((creature) => creature.mapIndex === level && creature.x === x && creature.y === y),
         randomInt: () => 0,
         randomFraction: () => 0.5,
         now: () => 99,
+    };
+}
+
+function createRuntime(
+    maps: GameMap[],
+    overrides: Partial<ReturnType<typeof createBaseParams>> = {},
+) {
+    const registeredTimers = new Map<string, { mt: number; at: number }>();
+    const reservationCalls: Array<{
+        level: number;
+        creatures: CreatureInstance[];
+        pendingGeneratorSpawns: unknown[];
+    }> = [];
+
+    const baseParams = createBaseParams(maps, registeredTimers, reservationCalls);
+
+    const runtime = createStoreWorldRuntime({
+        ...baseParams,
         ...overrides,
     });
 
@@ -173,7 +206,7 @@ test('store world runtime builds floor items while skipping the hall champion ti
                         targetX: 0,
                         targetDir: 'North',
                         championGraphic: 1,
-                    } as any,
+                    } as unknown as SensorObject,
                     {
                         category: 'Weapon',
                         index: 1,
@@ -193,14 +226,14 @@ test('store world runtime builds floor items while skipping the hall champion ti
                         tilePos: 'East',
                         type: 5,
                         text: 'FUL BRO KU',
-                    } as any,
+                    } as unknown as WallTextObject,
                     {
                         category: 'Container',
                         index: 3,
                         tilePos: 'South',
                         type: 6,
                         name: 'Waterskin',
-                    } as any,
+                    } as unknown as WallTextObject,
                 ],
             },
         ]]),

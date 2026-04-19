@@ -127,10 +127,8 @@ export default defineConfig({
 
           if (
             normalizedId.includes('/src/data/champions.ts') ||
-            normalizedId.includes('/src/data/championsRuntime.ts') ||
             normalizedId.includes('/src/data/championStarterItems.ts') ||
             normalizedId.includes('/src/data/creatures.ts') ||
-            normalizedId.includes('/src/data/creaturesRuntime.ts') ||
             normalizedId.includes('/src/data/mechanisms.ts') ||
             normalizedId.includes('/src/data/equipment.ts') ||
             normalizedId.includes('/src/data/doors.ts')

@@ -91,57 +91,59 @@ export interface CreatureRuntimeMaps {
     creatureLastSeenPartyPos: Map<string, { x: number; y: number; expiresAt: number }>;
 }
 
+function normalizeChargedPersistedItem(
+    item: FloorItem,
+    params: {
+        when: (item: FloorItem) => boolean;
+        clampTo: number;
+        defaultCharges: number;
+        resolveCategory: (charges: number) => FloorItem['category'];
+        resolveTypeId: (charges: number) => number;
+    },
+): FloorItem | null {
+    if (!params.when(item)) return null;
+    const charges = Math.max(0, Math.min(params.clampTo, item.waterCharges ?? params.defaultCharges));
+    return {
+        ...item,
+        category: params.resolveCategory(charges),
+        typeId: params.resolveTypeId(charges),
+        waterCharges: charges,
+        waterMaxCharges: params.clampTo,
+    };
+}
+
 function normalizePersistedItem(item: FloorItem): FloorItem {
-    if (item.category === 'Potion' && item.typeId === 24) {
-        const charges = Math.max(0, Math.min(4, item.waterCharges ?? 4));
-        return {
-            ...item,
-            category: charges > 0 ? 'Potion' : 'Misc',
-            typeId: charges > 0 ? 24 : 1,
-            waterCharges: charges,
-            waterMaxCharges: 4,
-        };
-    }
-    if (item.category === 'Misc' && item.typeId === 1) {
-        const charges = Math.max(0, Math.min(4, item.waterCharges ?? 0));
-        return {
-            ...item,
-            category: charges > 0 ? 'Potion' : 'Misc',
-            typeId: charges > 0 ? 24 : 1,
-            waterCharges: charges,
-            waterMaxCharges: 4,
-        };
-    }
-    if (item.category === 'Potion' && item.typeId === 15) {
-        const charges = Math.max(0, Math.min(1, item.waterCharges ?? 1));
-        return {
-            ...item,
-            category: 'Potion',
-            typeId: charges > 0 ? 15 : 20,
-            waterCharges: charges,
-            waterMaxCharges: 1,
-        };
-    }
-    if (item.category === 'Potion' && item.typeId === 20) {
-        const charges = Math.max(0, Math.min(1, item.waterCharges ?? 0));
-        return {
-            ...item,
-            category: 'Potion',
-            typeId: charges > 0 ? 15 : 20,
-            waterCharges: charges,
-            waterMaxCharges: 1,
-        };
-    }
-    if (item.category === 'Misc' && (item.typeId === 40 || item.typeId === 41)) {
-        const charges = Math.max(0, Math.min(1, item.waterCharges ?? (item.typeId === 41 ? 1 : 0)));
-        return {
-            ...item,
-            category: 'Misc',
-            typeId: charges > 0 ? 41 : 40,
-            waterCharges: charges,
-            waterMaxCharges: 1,
-        };
-    }
+    const waterskin = normalizeChargedPersistedItem(item, {
+        when: (currentItem) =>
+            (currentItem.category === 'Potion' && currentItem.typeId === 24)
+            || (currentItem.category === 'Misc' && currentItem.typeId === 1),
+        clampTo: 4,
+        defaultCharges: item.category === 'Potion' ? 4 : 0,
+        resolveCategory: (charges) => charges > 0 ? 'Potion' : 'Misc',
+        resolveTypeId: (charges) => charges > 0 ? 24 : 1,
+    });
+    if (waterskin) return waterskin;
+
+    const flask = normalizeChargedPersistedItem(item, {
+        when: (currentItem) =>
+            currentItem.category === 'Potion' && (currentItem.typeId === 15 || currentItem.typeId === 20),
+        clampTo: 1,
+        defaultCharges: item.typeId === 15 ? 1 : 0,
+        resolveCategory: () => 'Potion',
+        resolveTypeId: (charges) => charges > 0 ? 15 : 20,
+    });
+    if (flask) return flask;
+
+    const bomb = normalizeChargedPersistedItem(item, {
+        when: (currentItem) =>
+            currentItem.category === 'Misc' && (currentItem.typeId === 40 || currentItem.typeId === 41),
+        clampTo: 1,
+        defaultCharges: item.typeId === 41 ? 1 : 0,
+        resolveCategory: () => 'Misc',
+        resolveTypeId: (charges) => charges > 0 ? 41 : 40,
+    });
+    if (bomb) return bomb;
+
     return item;
 }
 

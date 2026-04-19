@@ -4,7 +4,8 @@ import * as THREE from 'three';
 import { GRID_SIZE } from '../../engine/constants';
 import type { FloorItem } from '../../types/game';
 import { getFloorItemImage } from '../../data/itemImages';
-import { BillboardGroup, useLoadedTexture } from './renderHelpers';
+import { BillboardGroup } from './renderHelpers';
+import { useLoadedTexture } from './useLoadedTexture';
 
 // ─── Layout ───────────────────────────────────────────────────────────────────
 

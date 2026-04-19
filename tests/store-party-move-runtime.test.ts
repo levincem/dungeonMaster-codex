@@ -70,6 +70,7 @@ test('runStoreMovementAction applies the move patch and triggers side effects', 
         },
         buildDeps: () => ({
             applyPartyMoveFatigue: () => null,
+            isPartyStepBlockedByCreature: () => false,
             getTile: () => ({ type: 'Floor' }),
             isWalkable: () => true,
             buildSensorStateSnapshot: () => ({}),

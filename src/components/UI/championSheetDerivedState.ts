@@ -41,6 +41,10 @@ export type ChampionSheetFrontWallContext<TMechanism> = {
     canDismissChampion: boolean;
 };
 
+type PartyChampionLike = {
+    id: number;
+};
+
 type ChampionCurrentStats = Partial<{
     luck: number;
     strength: number;
@@ -103,6 +107,14 @@ export function getChampionPotionBonusesForSheet(
         antiFire: timedBonuses.antiFire + ((currentStats.antiFire ?? champion.antiFire) - champion.antiFire),
         luck: timedBonuses.luck + ((currentStats.luck ?? champion.luck) - champion.luck),
     };
+}
+
+export function findActivePartyChampion<TChampion extends PartyChampionLike>(
+    party: TChampion[],
+    activePartyMemberId: number | null,
+): TChampion | null {
+    if (activePartyMemberId === null) return null;
+    return party.find((champion) => champion.id === activePartyMemberId) ?? null;
 }
 
 export function buildChampionSheetVitalsSummary(args: {

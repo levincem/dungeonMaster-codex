@@ -4,6 +4,7 @@ import type { Champion } from '../src/types/champion.js';
 import type { FloorItem, GameTile, SensorObject } from '../src/types/game.js';
 import {
     buildFloorItemPickupPatch,
+    canPartyReachFloorItem,
     hasHiddenFirestaffPickupRestriction,
     transferFloorItemToChampionState,
 } from '../src/engine/systems/floorItemState.js';
@@ -37,7 +38,7 @@ function createChampion(id: number): Champion {
     };
 }
 
-function createFloorItem(id: string, typeId: number): FloorItem {
+function createFloorItem(id: string, typeId: number, overrides: Partial<FloorItem> = {}): FloorItem {
     return {
         id,
         category: 'Weapon',
@@ -46,6 +47,7 @@ function createFloorItem(id: string, typeId: number): FloorItem {
         x: 0,
         y: 0,
         tilePos: 'North',
+        ...overrides,
     };
 }
 
@@ -84,6 +86,9 @@ test('buildFloorItemPickupPatch removes the floor item, adds it to inventory and
     const item = createFloorItem('sword', 1);
     const patch = buildFloorItemPickupPatch(
         {
+            level: 0,
+            position: [0, 0],
+            direction: 'NORTH',
             floorItems: [item],
             party: [createChampion(1)],
             championInventories: { 1: [] },
@@ -103,12 +108,18 @@ test('buildFloorItemPickupPatch removes the floor item, adds it to inventory and
 test('transferFloorItemToChampionState returns a warning instead of hidden Firestaff pickup', () => {
     const firestaff = createFloorItem('firestaff', 45);
     const pickupState: {
+        level: number;
+        position: [number, number];
+        direction: 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
         floorItems: FloorItem[];
         party: Champion[];
         championInventories: Record<number, FloorItem[]>;
         activeFloorDrag: { itemId: string; pointerX: number; pointerY: number } | null;
         lastCastResult: { success: boolean; message: string; ts: number } | null;
     } = {
+        level: 0,
+        position: [0, 0],
+        direction: 'NORTH',
         floorItems: [firestaff],
         party: [createChampion(1)],
         championInventories: { 1: [] },
@@ -133,12 +144,18 @@ test('transferFloorItemToChampionState returns a warning instead of hidden Fires
 test('transferFloorItemToChampionState applies alcove cleanup before pickup', () => {
     const item = createFloorItem('sword', 1);
     const pickupState: {
+        level: number;
+        position: [number, number];
+        direction: 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
         floorItems: FloorItem[];
         party: Champion[];
         championInventories: Record<number, FloorItem[]>;
         activeFloorDrag: { itemId: string; pointerX: number; pointerY: number } | null;
         lastCastResult: { success: boolean; message: string; ts: number } | null;
     } = {
+        level: 0,
+        position: [0, 0],
+        direction: 'NORTH',
         floorItems: [item],
         party: [createChampion(1)],
         championInventories: { 1: [] },
@@ -160,4 +177,95 @@ test('transferFloorItemToChampionState applies alcove cleanup before pickup', ()
     assert.ok(patch && 'championInventories' in patch);
     assert.deepEqual(patch.championInventories[1]?.map((entry: FloorItem) => entry.id), [item.id]);
     assert.deepEqual([...(patch.visibleTexts as Set<string>)], ['cleared']);
+});
+
+test('canPartyReachFloorItem only allows items on the current or front tile', () => {
+    const state = {
+        level: 0,
+        position: [5, 5] as [number, number],
+        direction: 'NORTH' as const,
+    };
+
+    assert.equal(canPartyReachFloorItem(state, createFloorItem('current', 1, { x: 5, y: 5 })), true);
+    assert.equal(canPartyReachFloorItem(state, createFloorItem('front', 1, { x: 5, y: 4 })), true);
+    assert.equal(canPartyReachFloorItem(state, createFloorItem('far', 1, { x: 5, y: 2 })), false);
+    assert.equal(canPartyReachFloorItem(state, createFloorItem('other-level', 1, { mapIndex: 1 })), false);
+});
+
+test('transferFloorItemToChampionState ignores distant items', () => {
+    const item = createFloorItem('distant', 1, { x: 5, y: 2 });
+    const pickupState: {
+        level: number;
+        position: [number, number];
+        direction: 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
+        floorItems: FloorItem[];
+        party: Champion[];
+        championInventories: Record<number, FloorItem[]>;
+        activeFloorDrag: { itemId: string; pointerX: number; pointerY: number } | null;
+        lastCastResult: { success: boolean; message: string; ts: number } | null;
+    } = {
+        level: 0,
+        position: [5, 5] as [number, number],
+        direction: 'NORTH' as const,
+        floorItems: [item],
+        party: [createChampion(1)],
+        championInventories: { 1: [] as FloorItem[] },
+        activeFloorDrag: null,
+        lastCastResult: null,
+    };
+
+    const patch = transferFloorItemToChampionState(
+        pickupState,
+        item.id,
+        1,
+        {
+            getTile: () => ({ x: item.x, y: item.y, type: 'Floor', objects: [] }),
+            buildPickupPatch: buildFloorItemPickupPatch,
+            clearAlcoveStateOnPickup: () => ({}),
+            buildHiddenFirestaffMessage: () => ({ success: false, message: 'blocked', ts: 0 }),
+        },
+    );
+
+    assert.equal(patch, null);
+});
+
+test('transferFloorItemToChampionState returns null when the target backpack is full', async () => {
+    const { MAX_CHAMPION_INVENTORY_ITEMS } = await import('../src/engine/systems/inventoryState.js');
+    const item = createFloorItem('floor-item', 1);
+    const fullInventory = Array.from({ length: MAX_CHAMPION_INVENTORY_ITEMS }, (_, index) =>
+        createFloorItem(`inv-${index}`, index + 10),
+    );
+    const pickupState: {
+        level: number;
+        position: [number, number];
+        direction: 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
+        floorItems: FloorItem[];
+        party: Champion[];
+        championInventories: Record<number, FloorItem[]>;
+        activeFloorDrag: { itemId: string; pointerX: number; pointerY: number } | null;
+        lastCastResult: { success: boolean; message: string; ts: number } | null;
+    } = {
+        level: 0,
+        position: [0, 0],
+        direction: 'NORTH',
+        floorItems: [item],
+        party: [createChampion(1)],
+        championInventories: { 1: fullInventory },
+        activeFloorDrag: null,
+        lastCastResult: null,
+    };
+
+    const patch = transferFloorItemToChampionState(
+        pickupState,
+        item.id,
+        1,
+        {
+            getTile: () => ({ x: 0, y: 0, type: 'Floor', objects: [] }),
+            buildPickupPatch: buildFloorItemPickupPatch,
+            clearAlcoveStateOnPickup: () => ({}),
+            buildHiddenFirestaffMessage: () => ({ success: false, message: 'blocked', ts: 0 }),
+        },
+    );
+
+    assert.equal(patch, null);
 });

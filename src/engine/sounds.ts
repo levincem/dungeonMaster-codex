@@ -147,6 +147,25 @@ function playLoopFor(name: string, durationMs: number, volume = 0.65): void {
     if (!audios.length) return;
 
     const currentLoop = activeLoops[name];
+    const timeoutId = loopTimeouts[name];
+    if (timeoutId !== undefined) {
+        window.clearTimeout(timeoutId);
+    }
+
+    if (currentLoop && !currentLoop.paused) {
+        currentLoop.volume = volume;
+        loopTimeouts[name] = window.setTimeout(() => {
+            currentLoop.loop = false;
+            currentLoop.pause();
+            currentLoop.currentTime = 0;
+            if (activeLoops[name] === currentLoop) {
+                activeLoops[name] = null;
+            }
+            loopTimeouts[name] = undefined;
+        }, durationMs);
+        return;
+    }
+
     if (currentLoop) {
         currentLoop.loop = false;
         currentLoop.pause();
@@ -154,10 +173,6 @@ function playLoopFor(name: string, durationMs: number, volume = 0.65): void {
     }
 
     const audio = audios.find(a => a !== currentLoop && (a.paused || a.ended)) ?? audios[0];
-    const timeoutId = loopTimeouts[name];
-    if (timeoutId !== undefined) {
-        window.clearTimeout(timeoutId);
-    }
 
     try {
         audio.loop = true;

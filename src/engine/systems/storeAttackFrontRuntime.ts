@@ -75,7 +75,7 @@ type AttackXpPatch = {
     party?: Champion[];
 };
 
-type StoreAttackFrontRuntimeDeps<TState extends StoreAttackFrontRuntimeState> = {
+type AttackOptionRuntimeDeps = {
     getWeaponAttackOptions: (item: FloorItem | null | undefined) => WeaponAttackOption[];
     getRequiredAmmoRawClass: (item: FloorItem | undefined) => number | null;
     getAttackCooldownSeconds: (option: WeaponAttackOption | null) => number;
@@ -84,6 +84,9 @@ type StoreAttackFrontRuntimeDeps<TState extends StoreAttackFrontRuntimeState> = 
     isPhysicalAttack: (option: WeaponAttackOption | null) => boolean;
     isShootAttack: (option: WeaponAttackOption | null) => boolean;
     isThrowAttack: (option: WeaponAttackOption | null) => boolean;
+};
+
+type ChampionAttackRuntimeDeps<TState extends StoreAttackFrontRuntimeState> = {
     getChampionMasteryLevel: (state: TState, championId: number, champion: Champion, skill: SkillKey) => number;
     findCompatibleAmmo: (
         equip: ChampionEquipment | undefined,
@@ -131,6 +134,9 @@ type StoreAttackFrontRuntimeDeps<TState extends StoreAttackFrontRuntimeState> = 
         currentVitals: ChampionVitals | undefined,
         activePotionBoosts: ActivePotionBoost[],
     ) => EquipmentStatBonuses;
+};
+
+type UtilityAttackRuntimeDeps<TState extends StoreAttackFrontRuntimeState> = {
     resolveAttackFrontContext: (
         level: number,
         position: [number, number],
@@ -147,6 +153,9 @@ type StoreAttackFrontRuntimeDeps<TState extends StoreAttackFrontRuntimeState> = 
     applyFearResult: (fearResult: FearUtilityActionResult) => void;
     clearCreatureControlStatuses: () => void;
     getEndgameMessagesForMap: (level: number) => string[];
+};
+
+type CreatureCombatRuntimeDeps<TState extends StoreAttackFrontRuntimeState> = {
     dropCreatureCarriedItems: (creatures: CreatureInstance[], floorItems: FloorItem[], deadId: string) => {
         creatures: CreatureInstance[];
         floorItems: FloorItem[];
@@ -181,12 +190,30 @@ type StoreAttackFrontRuntimeDeps<TState extends StoreAttackFrontRuntimeState> = 
     onPartyAttack: () => void;
 };
 
+type StoreAttackFrontRuntimeDeps<TState extends StoreAttackFrontRuntimeState> =
+    AttackOptionRuntimeDeps
+    & ChampionAttackRuntimeDeps<TState>
+    & UtilityAttackRuntimeDeps<TState>
+    & CreatureCombatRuntimeDeps<TState>;
+
 export function buildStoreAttackFrontRuntimePatch<TState extends StoreAttackFrontRuntimeState>(
     state: TState,
     championId: number,
     attackType: number | undefined,
     deps: StoreAttackFrontRuntimeDeps<TState>,
 ): Partial<TState> | null {
+    const getChampionMasteryLevel = (
+        targetChampionId: number,
+        champion: Champion,
+        skill: SkillKey,
+    ) => deps.getChampionMasteryLevel(state, targetChampionId, champion, skill);
+
+    const buildChampionSkillExperiencePatch = (
+        targetChampionId: number,
+        skill: SkillKey,
+        amount: number,
+    ) => deps.buildChampionSkillExperiencePatch(state, targetChampionId, skill, amount);
+
     return runAttackFrontRuntime(
         state,
         championId,
@@ -200,8 +227,7 @@ export function buildStoreAttackFrontRuntimePatch<TState extends StoreAttackFron
             isPhysicalAttack: deps.isPhysicalAttack,
             isShootAttack: deps.isShootAttack,
             isThrowAttack: deps.isThrowAttack,
-            getChampionMasteryLevel: (targetChampionId, champion, skill) =>
-                deps.getChampionMasteryLevel(state, targetChampionId, champion, skill),
+            getChampionMasteryLevel,
             findCompatibleAmmo: deps.findCompatibleAmmo,
             getRightHandStats: deps.getRightHandStats,
             createChampionCombatState: deps.createChampionCombatState,
@@ -242,8 +268,8 @@ export function buildStoreAttackFrontRuntimePatch<TState extends StoreAttackFron
                     isThrowAttack: deps.isThrowAttack,
                     isShootAttack: deps.isShootAttack,
                     getOriginalWeaponReference,
-                    getFighterMastery: () => deps.getChampionMasteryLevel(state, targetChampionId, champion, 'fighter'),
-                    getNinjaMastery: () => deps.getChampionMasteryLevel(state, targetChampionId, champion, 'ninja'),
+                    getFighterMastery: () => getChampionMasteryLevel(targetChampionId, champion, 'fighter'),
+                    getNinjaMastery: () => getChampionMasteryLevel(targetChampionId, champion, 'ninja'),
                     getRuntimeBonuses: (currentVitals) => deps.getChampionRuntimeBonuses(
                         champion,
                         currentVitals ?? attackState.championVitals[targetChampionId],
@@ -257,8 +283,7 @@ export function buildStoreAttackFrontRuntimePatch<TState extends StoreAttackFron
                         currentEquip,
                         deps.getRequiredAmmoRawClass(currentRightHand ?? undefined),
                     ),
-                    buildAttackXpPatch: () => deps.buildChampionSkillExperiencePatch(
-                        state,
+                    buildAttackXpPatch: () => buildChampionSkillExperiencePatch(
                         targetChampionId,
                         selectedSkill,
                         selectedAttack.attack.experienceForAttacking,
@@ -281,7 +306,7 @@ export function buildStoreAttackFrontRuntimePatch<TState extends StoreAttackFron
                 const now = Date.now();
                 const utilityXP = selectedAttack.attack.experienceForAttacking;
                 const utilityXpPatch = utilityXP > 0
-                    ? deps.buildChampionSkillExperiencePatch(state, targetChampionId, selectedSkill, utilityXP)
+                    ? buildChampionSkillExperiencePatch(targetChampionId, selectedSkill, utilityXP)
                     : null;
                 const base = {
                     championCombat: { ...attackState.championCombat, [targetChampionId]: newCombat },
@@ -425,10 +450,9 @@ export function buildStoreAttackFrontRuntimePatch<TState extends StoreAttackFron
                             randomInt: deps.randomInt,
                             isCharacterLucky: deps.isCharacterLuckyOriginal,
                             originalThrowingDistance: deps.originalThrowingDistance,
-                            getFighterMastery: () => deps.getChampionMasteryLevel(state, targetChampionId, champion, 'fighter'),
-                            getNinjaMastery: () => deps.getChampionMasteryLevel(state, targetChampionId, champion, 'ninja'),
-                            getAttackMastery: (attackOption) => deps.getChampionMasteryLevel(
-                                state,
+                            getFighterMastery: () => getChampionMasteryLevel(targetChampionId, champion, 'fighter'),
+                            getNinjaMastery: () => getChampionMasteryLevel(targetChampionId, champion, 'ninja'),
+                            getAttackMastery: (attackOption) => getChampionMasteryLevel(
                                 targetChampionId,
                                 champion,
                                 attackOption ? mapOriginalSkillNumberToSkillKey(attackOption.attack.skillNumber) : 'fighter',

@@ -9,7 +9,7 @@ import type { Champion } from '../../data/champions';
 import type { CardinalDir } from '../../types/game';
 import { getDoorTexturePath } from '../../data/doors';
 import { miscPath, texturesPath } from '../../data/assetPaths';
-import { useLoadedTexture } from './renderHelpers';
+import { useLoadedTexture } from './useLoadedTexture';
 
 // ─── Tile render type ─────────────────────────────────────────────────────────
 

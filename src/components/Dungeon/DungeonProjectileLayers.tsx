@@ -5,7 +5,8 @@ import { useStore, getCreatureFluxcageExpiry } from '../../engine/store';
 import { GRID_SIZE } from '../../engine/constants';
 import type { Direction, ProjectileEffect } from '../../engine/runtimeTypes';
 import { getFloorItemImage } from '../../data/itemImages';
-import { BillboardGroup, useLoadedTexture } from './renderHelpers';
+import { BillboardGroup } from './renderHelpers';
+import { useLoadedTexture } from './useLoadedTexture';
 import type { CreatureInstance, FloorItem } from '../../types/game';
 
 type MagicProjectileEffect = Exclude<ProjectileEffect, 'physical'>;

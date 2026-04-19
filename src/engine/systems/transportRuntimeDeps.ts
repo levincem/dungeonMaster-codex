@@ -30,6 +30,28 @@ type PitLanding = { level: number; x: number; y: number } | null;
 type ProjectileTeleportResult = { level: number; x: number; y: number; direction: Direction };
 type CreatureTeleportResult = ProjectileTeleportResult & { cell: CreatureCell };
 
+type TerrainLookupDeps = {
+    getTile: (level: number, x: number, y: number) => GameTile | undefined;
+    isWalkable: (
+        level: number,
+        y: number,
+        x: number,
+        openDoors: Set<string>,
+        openWalls: Set<string>,
+        openPits: Set<string>,
+    ) => boolean;
+};
+
+type TerrainTransportDeps = {
+    getTile: (level: number, x: number, y: number) => GameTile | undefined;
+    getOriginalTeleporterRuntime: (
+        level: number,
+        x: number,
+        y: number,
+        index: number,
+    ) => TeleporterRuntimeMeta;
+};
+
 type TransportRuntimeState<TPendingSensorEvent extends PendingSensorEventLike> = {
     level: number;
     position: [number, number];
@@ -54,6 +76,58 @@ type TransportRuntimeState<TPendingSensorEvent extends PendingSensorEventLike> =
     championCombat: Record<number, ChampionCombat>;
     pendingSensorEvents: TPendingSensorEvent[];
     elapsedGameTimeTicks: number;
+};
+
+type TerrainEffectsDeps<TGameState extends TransportRuntimeState<PendingSensorEventLike>> = {
+    resolvePitLanding: (
+        level: number,
+        y: number,
+        x: number,
+        openDoors: Set<string>,
+        openWalls: Set<string>,
+        openPits: Set<string>,
+    ) => PitLanding;
+    resolveCreatureTeleporterTransport: (
+        state: Pick<TGameState, 'openTeleporters'>,
+        level: number,
+        x: number,
+        y: number,
+        direction: Direction,
+        cell: CreatureCell,
+    ) => CreatureTeleportResult;
+    dropCreatureCarriedItems: (
+        creatures: CreatureInstance[],
+        floorItems: FloorItem[],
+        creatureId: string,
+    ) => { creatures: CreatureInstance[]; floorItems: FloorItem[] };
+    buildDeathDustEvent: (level: number, x: number, y: number) => SpellVisualEvent;
+    buildCreatureDamageEvent: (
+        level: number,
+        x: number,
+        y: number,
+        amount: number,
+        creatureId: string,
+    ) => DamageEvent;
+    normalizeCreatureCellsOnTile: (
+        creatures: CreatureInstance[],
+        level: number,
+        x: number,
+        y: number,
+    ) => CreatureInstance[];
+    isWalkable: TerrainLookupDeps['isWalkable'];
+    canCreatureShareTile: (
+        creature: CreatureInstance,
+        level: number,
+        x: number,
+        y: number,
+        creatures: CreatureInstance[],
+    ) => boolean;
+    getTile: (level: number, x: number, y: number) => GameTile | undefined;
+    getTeleporter: (tile: GameTile) => TeleporterObject | undefined;
+    buildLevelHydrationPatch: (
+        state: Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems'>,
+        level: number,
+    ) => Partial<TGameState> | null;
 };
 
 type MovementSensorDepsLike<TSensorState, TPendingSensorEvent extends PendingSensorEventLike> = {
@@ -354,88 +428,100 @@ export function createTransportRuntimeDeps<
 >(
     params: TransportRuntimeDepsParams<TGameState, TSensorState, TPendingSensorEvent>,
 ) {
-    const buildTerrainTransportDeps = () => ({
+    const terrainLookupDeps: TerrainLookupDeps = {
+        getTile: params.getTile,
+        isWalkable: params.isWalkable,
+    };
+
+    const terrainTransportDeps: TerrainTransportDeps = {
         getTile: params.getTile,
         getOriginalTeleporterRuntime: params.getOriginalTeleporterRuntime,
-    });
+    };
 
-    const buildTerrainEffectsDeps = () => ({
+    const resolvePitLanding = (
+        level: number,
+        y: number,
+        x: number,
+        openDoors: Set<string>,
+        openWalls: Set<string>,
+        openPits: Set<string>,
+    ) => params.resolvePitLanding(
+        level,
+        y,
+        x,
+        openDoors,
+        openWalls,
+        openPits,
+        terrainLookupDeps,
+    );
+
+    const resolveProjectileTeleporterTransport = (
+        state: Pick<TGameState, 'openTeleporters'>,
+        level: number,
+        x: number,
+        y: number,
+        direction: Direction,
+    ) => params.resolveProjectileTeleporterTransport(
+        state,
+        level,
+        x,
+        y,
+        direction,
+        terrainTransportDeps,
+    );
+
+    const resolveCreatureTeleporterTransport = (
+        state: Pick<TGameState, 'openTeleporters'>,
+        level: number,
+        x: number,
+        y: number,
+        direction: Direction,
+        cell: CreatureCell,
+    ) => params.resolveCreatureTeleporterTransport(
+        state,
+        level,
+        x,
+        y,
+        direction,
+        cell,
+        terrainTransportDeps,
+    );
+
+    const buildLevelHydrationPatch = (
+        state: Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems'>,
+        level: number,
+    ) => params.buildLevelHydrationPatch(state, level);
+
+    const buildTerrainTransportDeps = () => terrainTransportDeps;
+
+    const terrainEffectsDeps: TerrainEffectsDeps<TGameState> = {
         dropCreatureCarriedItems: params.dropCreatureCarriedItems,
         buildDeathDustEvent: params.buildDeathDustEvent,
         buildCreatureDamageEvent: params.buildCreatureDamageEvent,
         normalizeCreatureCellsOnTile: params.normalizeCreatureCellsOnTile,
-        resolvePitLanding: (
-            level: number,
-            y: number,
-            x: number,
-            openDoors: Set<string>,
-            openWalls: Set<string>,
-            openPits: Set<string>,
-        ) => params.resolvePitLanding(
-            level,
-            y,
-            x,
-            openDoors,
-            openWalls,
-            openPits,
-            { getTile: params.getTile, isWalkable: params.isWalkable },
-        ),
+        resolvePitLanding,
         isWalkable: params.isWalkable,
         canCreatureShareTile: params.canCreatureShareTile,
         getTile: params.getTile,
         getTeleporter: params.getTeleporter,
-        resolveCreatureTeleporterTransport: (
-            state: Pick<TGameState, 'openTeleporters'>,
-            level: number,
-            x: number,
-            y: number,
-            direction: Direction,
-            cell: CreatureCell,
-        ) => params.resolveCreatureTeleporterTransport(
-            state,
-            level,
-            x,
-            y,
-            direction,
-            cell,
-            buildTerrainTransportDeps(),
-        ),
-        buildLevelHydrationPatch: (
-            state: Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems'>,
-            level: number,
-        ) => params.buildLevelHydrationPatch(state, level),
-    });
+        resolveCreatureTeleporterTransport,
+        buildLevelHydrationPatch,
+    };
+
+    const buildTerrainEffectsDeps = () => terrainEffectsDeps;
 
     const buildOpenedTeleporterEffectsDeps = () => {
-        const terrainTransportDeps = buildTerrainTransportDeps();
-        const terrainEffectsDeps = buildTerrainEffectsDeps();
         return {
             getTile: params.getTile,
             getTeleporter: params.getTeleporter,
-            resolveProjectileTeleporterTransport: (
-                state: Pick<TGameState, 'openTeleporters'>,
-                level: number,
-                x: number,
-                y: number,
-                direction: Direction,
-            ) => params.resolveProjectileTeleporterTransport(
-                state,
-                level,
-                x,
-                y,
-                direction,
-                terrainTransportDeps,
-            ),
+            resolveProjectileTeleporterTransport,
             applyPartyTelefragAtSquare: (
                 state: Pick<TGameState, 'creatures' | 'floorItems' | 'spellVisualEvents'>,
                 level: number,
                 x: number,
                 y: number,
             ) => params.applyPartyTelefragAtSquare(state, level, x, y, terrainEffectsDeps),
-            buildLevelHydrationPatch: (
-                state: Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems'>,
-                level: number,
-            ) => params.buildLevelHydrationPatch(state, level),
+            buildLevelHydrationPatch,
             applyCreaturesStandingOnOpenTeleporter: (
                 state: Pick<TGameState, 'level' | 'position' | 'hydratedLevels' | 'creatures' | 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters'>,
                 level: number,
@@ -446,24 +532,8 @@ export function createTransportRuntimeDeps<
     };
 
     const buildOpenedPitEffectsDeps = () => {
-        const terrainEffectsDeps = buildTerrainEffectsDeps();
         return {
-            resolvePitLanding: (
-                level: number,
-                y: number,
-                x: number,
-                openDoors: Set<string>,
-                openWalls: Set<string>,
-                openPits: Set<string>,
-            ) => params.resolvePitLanding(
-                level,
-                y,
-                x,
-                openDoors,
-                openWalls,
-                openPits,
-                { getTile: params.getTile, isWalkable: params.isWalkable },
-            ),
+            resolvePitLanding,
             applyPartyTelefragAtSquare: (
                 state: Pick<TGameState, 'creatures' | 'floorItems' | 'spellVisualEvents'>,
                 level: number,
@@ -471,10 +541,7 @@ export function createTransportRuntimeDeps<
                 y: number,
             ) => params.applyPartyTelefragAtSquare(state, level, x, y, terrainEffectsDeps),
             applyPartyFallImpactDamage: params.applyPartyFallImpactDamage,
-            buildLevelHydrationPatch: (
-                state: Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems'>,
-                level: number,
-            ) => params.buildLevelHydrationPatch(state, level),
+            buildLevelHydrationPatch,
             applyCreaturesStandingOnOpenPit: (
                 state: Pick<TGameState, 'level' | 'position' | 'hydratedLevels' | 'creatures' | 'floorItems' | 'damageEvents' | 'spellVisualEvents' | 'openDoors' | 'openWalls' | 'openPits'>,
                 level: number,
@@ -486,24 +553,8 @@ export function createTransportRuntimeDeps<
 
     const buildPitEntryTransportDeps = () => {
         const movementSensorDeps = params.buildMovementSensorDeps();
-        const terrainEffectsDeps = buildTerrainEffectsDeps();
         return {
-            resolvePitLanding: (
-                level: number,
-                y: number,
-                x: number,
-                openDoors: Set<string>,
-                openWalls: Set<string>,
-                openPits: Set<string>,
-            ) => params.resolvePitLanding(
-                level,
-                y,
-                x,
-                openDoors,
-                openWalls,
-                openPits,
-                { getTile: params.getTile, isWalkable: params.isWalkable },
-            ),
+            resolvePitLanding,
             buildSensorStateSnapshot: params.buildSensorStateSnapshot,
             triggerFloorSensors: (
                 level: number,
@@ -534,7 +585,7 @@ export function createTransportRuntimeDeps<
                 y: number,
             ) => params.applyPartyTelefragAtSquare(state, level, x, y, terrainEffectsDeps),
             applyPartyFallImpactDamage: params.applyPartyFallImpactDamage,
-            buildLevelHydrationPatch: params.buildLevelHydrationPatch,
+            buildLevelHydrationPatch,
             applyImmediateTransportSquareEffects: params.applyImmediateTransportSquareEffects,
             computeMovementCooldown: params.computeMovementCooldown,
         };
@@ -542,23 +593,8 @@ export function createTransportRuntimeDeps<
 
     const buildTeleporterStepTransportDeps = () => {
         const movementSensorDeps = params.buildMovementSensorDeps();
-        const terrainTransportDeps = buildTerrainTransportDeps();
-        const terrainEffectsDeps = buildTerrainEffectsDeps();
         return {
-            resolveProjectileTeleporterTransport: (
-                state: Pick<TGameState, 'openTeleporters'>,
-                level: number,
-                x: number,
-                y: number,
-                direction: Direction,
-            ) => params.resolveProjectileTeleporterTransport(
-                state,
-                level,
-                x,
-                y,
-                direction,
-                terrainTransportDeps,
-            ),
+            resolveProjectileTeleporterTransport,
             buildSensorStateSnapshot: params.buildSensorStateSnapshot,
             transitionFloorSensors: (
                 level: number,
@@ -592,7 +628,7 @@ export function createTransportRuntimeDeps<
                 x: number,
                 y: number,
             ) => params.applyPartyTelefragAtSquare(state, level, x, y, terrainEffectsDeps),
-            buildLevelHydrationPatch: params.buildLevelHydrationPatch,
+            buildLevelHydrationPatch,
             applyImmediateTransportSquareEffects: params.applyImmediateTransportSquareEffects,
             computeMovementCooldown: params.computeMovementCooldown,
             playTeleport: params.playTeleport,
@@ -601,7 +637,7 @@ export function createTransportRuntimeDeps<
 
     const buildStairStepTransportDeps = () => ({
         computeMovementCooldown: params.computeMovementCooldown,
-        buildLevelHydrationPatch: params.buildLevelHydrationPatch,
+        buildLevelHydrationPatch,
     });
 
     const buildStandardStepTransportDeps = () => {

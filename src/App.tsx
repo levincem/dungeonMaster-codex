@@ -192,7 +192,7 @@ function App() {
                 background: welcomePressedButton === 'close' ? 'rgba(98, 66, 27, 0.42)' : closeButtonStyle.background,
               }}
             >
-              ×
+              X
             </button>
             <div style={{ fontSize: 24, letterSpacing: 0.8, marginBottom: 18, color: '#f1d9a1' }}>
               Dungeon Master Remastered

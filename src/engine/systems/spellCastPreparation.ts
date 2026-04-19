@@ -86,7 +86,7 @@ export function prepareSpellCast<TXpPatch extends object>(
             patch: {
                 lastCastResult: {
                     success: false,
-                    message: `Mana insuffisant — ${spell.name} requiert ${spell.manaCost} points.`,
+                    message: `Mana insuffisant - ${spell.name} requiert ${spell.manaCost} points.`,
                     ts: now,
                 },
             },
@@ -112,10 +112,10 @@ export function prepareSpellCast<TXpPatch extends object>(
 
     const lowSkill = castCheck.missingSkillLevels > 0;
     const message = !castSucceeded
-        ? `${spell.name} échoue.`
+        ? `${spell.name} echoue.`
         : lowSkill
-            ? `${spell.name} lancé avec difficulté. (${spell.castSkill} niv. ${skillLevel}/${castCheck.requiredSkillLevel})`
-            : `${spell.name} — ${spell.description}`;
+            ? `${spell.name} lance avec difficulte. (${spell.castSkill} niv. ${skillLevel}/${castCheck.requiredSkillLevel})`
+            : `${spell.name} - ${spell.description}`;
 
     const nextVitals = {
         ...vitals,

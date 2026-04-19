@@ -1,16 +1,49 @@
 # Next Phase Plan
 
-Etat pose le `2026-04-18`.
+Etat relu le `2026-04-19`.
 
-## Plan autonome - reprise 2026-04-20
+## Note demain - fidelite gameplay
 
-Ordre d'attaque a suivre sans revalidation utilisateur sauf regression sensible:
+Ordre recommande pour la prochaine vraie passe moteur:
+
+1. `GROUP / ACTIVE_GROUP / generateurs`
+2. IA creatures + timings combat
+3. mecanismes rares et `local effects`
+4. playtest dirige de fin de jeu (`Zo Kath Ra`, `Firestaff`, `Amalgam`, `Fuse`, victoire)
+
+Pourquoi cet ordre:
+
+- les generateurs et groupes actifs restent le plus gros ecart moteur perceptible
+- l'IA creatures/combat est le deuxieme meilleur levier de fidelite ressentie
+- les mecanismes rares et l'endgame valent mieux apres resserrage du coeur runtime
+
+## Checkpoint 2026-04-19
+
+Le plan autonome prioritaire a ete execute jusqu'au bout:
 
 1. `DungeonScene`
 2. `HUD`
 3. `ChampionSheet`
 4. modules runtime hybrides (`sensorRuntimeDeps`, `transportRuntimeDeps`, `storeAttackFrontRuntime`, `storeSpellRuntime`, `persistence`)
-5. seulement ensuite une nouvelle passe i18n/labels si le chantier precedent reste stable
+
+Validation en sortie de passe:
+
+- `npm.cmd run lint`
+- `npm.cmd test`
+- `npm.cmd run build`
+
+Suite recommandee maintenant:
+
+1. nouvelle passe `i18n/labels` ciblee tant que l'etat courant est stable
+2. seulement ensuite profilage / optimisation (`DungeonScene`, `three-core`, `dungeon-render`, `hud-ui`, `champion-sheet`)
+
+## Plan autonome - reprise 2026-04-20
+
+Ordre d'attaque a suivre sans revalidation utilisateur sauf regression sensible:
+
+1. passe `i18n/labels` ciblee
+2. verification visuelle rapide des zones HUD / ChampionSheet / DungeonScene deja remaniees
+3. puis optimisation/profile des gros chargements et rerenders
 
 ### Phase 1 - DungeonScene
 

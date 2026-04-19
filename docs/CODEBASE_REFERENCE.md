@@ -1,6 +1,6 @@
 ﻿# DungeonMaster Codex - Reference codebase
 
-Document vivant. Cette version de reference decrit l'etat observe dans le code au `2026-04-18`.
+Document vivant. Cette version de reference decrit l'etat observe dans le code au `2026-04-19`.
 
 Pour l'etat de fidelite et les verrous ouverts, privilegier aussi:
 
@@ -16,7 +16,7 @@ Pour l'etat de fidelite et les verrous ouverts, privilegier aussi:
 | Vite | Build et dev server |
 | Three.js + React Three Fiber | Rendu 3D du donjon |
 | Zustand | Etat global du jeu |
-| Helpers maison `renderHelpers.tsx` | Billboard/textures simples et utilitaires de rendu legers |
+| Helpers maison `renderHelpers.tsx` + `useLoadedTexture.ts` | Billboard et chargement de textures legers |
 
 ## Flux d'entree
 
@@ -24,7 +24,7 @@ Pour l'etat de fidelite et les verrous ouverts, privilegier aussi:
 2. `src/App.tsx` affiche `LoadingScreen`, detecte les smartphones, puis prechauffe `GameRoot` pendant l'ecran de bienvenue avant de le lazy-load; si ce warm-up n'est pas termine quand l'utilisateur continue, un sas visuel "Preparing Title Screen" prend le relais.
 3. `src/components/UI/LoadingScreen.tsx` ne precharge plus que les visuels du titre et le bootstrap du donjon, pour rendre le tout premier boot beaucoup plus leger.
 4. `src/GameRoot.tsx` lance la boucle `requestAnimationFrame`, monte `TitleScreen` tant que `gamePhase === 'title'`, rechauffe d'abord le voisinage utile du donjon, puis etale en vagues idle les visuels gameplay, les slices `game_db`, les overlays muraux et les modules gameplay coeur (`DungeonScene`, `HUD`, effets de sorts), avant de continuer le warm-up complet en arriere-plan pendant l'exploration.
-5. `src/components/Dungeon/renderHelpers.tsx` porte maintenant les helpers de rendu legers (`useLoadedTexture`, `BillboardGroup`) utilises par la scene et les sprites, ce qui retire les usages actifs de `@react-three/drei` du graphe gameplay.
+5. `src/components/Dungeon/renderHelpers.tsx` et `src/components/Dungeon/useLoadedTexture.ts` portent maintenant les helpers de rendu legers (`BillboardGroup`, chargement de textures) utilises par la scene et les sprites, ce qui retire les usages actifs de `@react-three/drei` du graphe gameplay.
 6. `src/components/Dungeon/DungeonScene.tsx` garde maintenant son overlay de drag/drop hors du coeur canvas; les previews et drop targets de floor-drag vivent dans un overlay dedie, et le drop plein ecran relit l'etat runtime a la demande plutot que de garder le canvas abonne aux coordonnees de drag.
 7. `src/components/Dungeon/dungeonSceneDerivedState.ts` porte maintenant les derives purs les plus denses de la scene (boutons muraux, decals, pressure plates, trick walls, pits, interactions murales de drop), ce qui rend `DungeonScene.tsx` plus lisible et plus testable.
 8. `src/components/Dungeon/DungeonProjectileLayers.tsx` porte maintenant les couches runtime de projectiles, shields, `Fluxcage` et poison persistant, ce qui coupe un autre bloc dense hors de `DungeonScene.tsx` tout en gardant le preload des effets photons.
@@ -67,7 +67,7 @@ src/
 |   |   |-- WallMountedItemMesh.tsx
 |   |   |-- WallDecal.tsx
 |   |   |-- WallSensor.tsx
-|   |   `-- Torch.tsx
+|   |   `-- WallTextLayer.tsx
 |   `-- UI/
 |       |-- LoadingScreen.tsx
 |       |-- TitleScreen.tsx
@@ -76,7 +76,6 @@ src/
 |       |-- HudOptionsModal.tsx
 |       |-- ChampionSheet.tsx
 |       |-- MirrorPopup.tsx
-|       |-- RunePanel.tsx
 |       |-- VictoryScreen.tsx
 |       `-- dragPayload.ts
 |-- data/
@@ -89,10 +88,15 @@ src/
 |   |-- equipment.ts
 |   |-- champions.ts
 |   |-- creatures.ts
+|   |-- itemImageCompatibility.ts
 |   |-- items.ts
 |   |-- itemImages.ts
+|   |-- itemRuntimeCompatibility.ts
+|   |-- originalSpells.ts
 |   |-- runes.ts
-|   `-- spells.ts
+|   |-- spellRuntime.ts
+|   `-- reference/
+|       `-- spellsReference.ts
 |-- engine/
 |   |-- store.ts
 |   |-- runtimeTypes.ts
@@ -313,8 +317,32 @@ Catalogue objets hybride:
 
 - s'appuie surtout sur `src/assets/runtime/db/game_db_items.json` pour les types, noms et tables runtime
 - centralise les helpers de nommage et de lookup
-- garde des fallback legacy integres la ou le runtime a encore besoin de compatibilite
+- garde seulement la glue runtime active; les alias/fallbacks residuels vivent maintenant dans `src/data/itemRuntimeCompatibility.ts`
 - expose `WEAPON_TYPES`, `ARMOR_TYPES`, `POTION_TYPES`, `MISC_TYPES`
+
+### `src/data/itemRuntimeCompatibility.ts`
+
+Pont de compatibilite encore assume:
+
+- alias de potions runtime
+- overrides d'armures synthetiques utilises par les loadouts de depart
+- fallback defensif minimal tant que toute la table source n'est pas disponible partout
+
+### `src/data/itemImages.ts`
+
+Resolution d'images runtime:
+
+- derive d'abord le chemin depuis le nom canonique de l'objet
+- garde seulement le branchement public pour inventaire / equipement / sol
+- consomme les alias/fallbacks isoles dans `src/data/itemImageCompatibility.ts`
+
+### `src/data/itemImageCompatibility.ts`
+
+Pont de compatibilite visuelle:
+
+- aliases nom -> fichier image
+- maps legacy `typeId -> filename` gardees en dernier recours
+- fallback par categorie tant que tous les assets ne suivent pas encore les noms runtime
 
 ### `src/data/equipment.ts`
 
@@ -358,6 +386,15 @@ Inclut notamment:
 - stats de base
 - categories d'attaque
 - flags de comportement comme `attackFromAllSides`, `sightRange`, `preferBackRow`, `levitates`, `absorbMissiles`, `seeInvisible`
+
+### Pipeline sorts
+
+Le pipeline sorts actif se repartit maintenant clairement ainsi:
+
+- `src/data/runes.ts`: catalogue runtime utilise par le HUD, le cast et les tests
+- `src/data/originalSpells.ts`: descripteurs et formules source-backed utiles au runtime
+- `src/data/spellRuntime.ts`: helpers runtime de duree, shields, projectiles et impacts
+- `src/data/reference/spellsReference.ts`: table de reference conservee pour audits/cross-checks, non importee par le gameplay
 
 ## Conventions utiles
 

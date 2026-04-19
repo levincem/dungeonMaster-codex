@@ -3,6 +3,12 @@
 
 import type { WeaponDef, ArmorDef, PotionDef, MiscDef, ArmorSlot } from '../types/items';
 import { getGameDbItemsRawSync } from './gameDbData';
+import {
+    FALLBACK_WOUND_DEFENSE_FACTORS,
+    POTION_NAME_TO_RUNTIME_TYPE_ID,
+    STARTER_ARMOR_OVERRIDES,
+    STARTER_ARMOR_SLOT_BY_NAME,
+} from './itemRuntimeCompatibility';
 
 const PLACEHOLDER_NAME_RE = /^([A-Za-z]+_\d+|\(W\d+\))$/;
 
@@ -100,7 +106,6 @@ type ItemsDerivedData = {
 };
 
 const EMPTY_ITEM_TYPE_NAMES: RawItemTypeNames = {};
-const FALLBACK_WOUND_DEFENSE_FACTORS = [16, 32, 48, 64, 80, 96];
 
 let itemsDerivedDataCache: ItemsDerivedData | null = null;
 let itemsSourceDataHydrated = false;
@@ -490,21 +495,7 @@ const OFFICIAL_ARMOR_TYPES: Record<number, ArmorDef> = {
     57: { id: 57, name: 'Halter',             slot: 'torso', armor:   3, weight: 0.2 },
 };
 
-const STARTER_ARMOR_NAME_OVERRIDES: Record<string, ArmorDef> = {
-    'robe (body)':      { id: -1, name: 'Robe (Body)',      slot: 'torso', armor:  5, weight: 0.4 },
-    'robe (legs)':      { id: -2, name: 'Robe (Legs)',      slot: 'legs',  armor:  5, weight: 0.4 },
-    'fine robe (body)': { id:  7, name: 'Fine Robe (Body)', slot: 'torso', armor:  7, weight: 0.3 },
-    'fine robe (legs)': { id:  8, name: 'Fine Robe (Legs)', slot: 'legs',  armor:  7, weight: 0.3 },
-    kirtle:             { id: -3, name: 'Kirtle',           slot: 'torso', armor:  6, weight: 0.4 },
-    tabard:             { id: -4, name: 'Tabard',           slot: 'legs',  armor:  5, weight: 0.4 },
-    'blue pants':       { id: -5, name: 'Blue Pants',       slot: 'legs',  armor: 12, weight: 0.6 },
-    sandals:            { id: -6, name: 'Sandals',          slot: 'feet',  armor:  5, weight: 0.6 },
-    'hide shield':      { id: -7, name: 'Hide Shield',      slot: 'hands', armor: 16, weight: 1.0 },
-};
-
-export const STARTER_ARMOR_SLOT_BY_NAME: Record<string, ArmorDef['slot']> = Object.fromEntries(
-    Object.entries(STARTER_ARMOR_NAME_OVERRIDES).map(([name, def]) => [name, def.slot]),
-);
+export { STARTER_ARMOR_SLOT_BY_NAME };
 
 export const SOURCE_BACKED_ARMOR_ALLOWED_SLOTS_BY_NAME: Record<string, ArmorSlot[]> = {
     // The original carry masks allow both neck and torso here.
@@ -843,32 +834,6 @@ export const POTION_TYPES: Record<number, PotionDef> = createHydratingRecordProx
 export const MISC_TYPES: Record<number, MiscDef> = createHydratingRecordProxy(miscTypesTarget);
 export const I562_WOUND_DEFENSE_FACTORS = createHydratingArrayProxy(woundDefenseFactorsTarget);
 
-const POTION_NAME_TO_RUNTIME_TYPE_ID: Record<string, number> = {
-    'ven potion': 3,
-    'ros potion': 6,
-    'dexterity potion': 6,
-    'ku potion': 7,
-    'strength potion': 7,
-    'dane potion': 8,
-    'wisdom potion': 8,
-    'neta potion': 9,
-    'vitality potion': 9,
-    antivenin: 10,
-    antidote: 10,
-    'bro potion': 10,
-    'mon potion': 11,
-    'stamina potion': 11,
-    'ya potion': 12,
-    'shield potion': 12,
-    'ee potion': 13,
-    'mana potion': 13,
-    'vi potion': 14,
-    'health potion': 14,
-    'water flask': 15,
-    'ful bomb': 19,
-    'empty flask': 20,
-};
-
 export function normalizeLookupName(value: string | undefined): string | null {
     if (!value) return null;
     return value.trim().toLowerCase().replace(/\s+/g, ' ');
@@ -887,7 +852,7 @@ export function getItemTypeIdByName(
             return derived.weaponEntries.find((entry) => normalizeLookupName(entry.name) === normalizedName)?.id;
         case 'Armor':
             return derived.armorEntries.find((entry) => normalizeLookupName(entry.name) === normalizedName)?.id
-                ?? STARTER_ARMOR_NAME_OVERRIDES[normalizedName]?.id;
+                ?? STARTER_ARMOR_OVERRIDES[normalizedName]?.id;
         case 'Potion': {
             const runtimeTypeId = POTION_NAME_TO_RUNTIME_TYPE_ID[normalizedName];
             if (runtimeTypeId !== undefined) return runtimeTypeId;
@@ -932,7 +897,7 @@ export function getArmorDef(typeId: number, rawName?: string): ArmorDef | undefi
     if (normalizedName) {
         const exact = derived.armorNameLookup[normalizedName];
         if (exact) return exact;
-        const starter = STARTER_ARMOR_NAME_OVERRIDES[normalizedName];
+        const starter = STARTER_ARMOR_OVERRIDES[normalizedName];
         if (starter) return starter;
     }
     return ARMOR_TYPES[typeId];

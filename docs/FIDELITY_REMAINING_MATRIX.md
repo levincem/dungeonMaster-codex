@@ -140,11 +140,12 @@ Ce qui reste encore manuel ou derive:
 
 - base tables `OFFICIAL_*` servant encore de squelette/fallback
 - semantique des potions runtime (`effect`, `drinkable`, `throwable`)
-- aliases de noms et compatibilite (`POTION_NAME_TO_RUNTIME_TYPE_ID`, starter overrides)
+- aliases de noms et compatibilite, maintenant isoles dans `itemRuntimeCompatibility.ts`
 
 Source:
 
 - [src/data/items.ts](/D:/DungeonMaster-codex/src/data/items.ts)
+- [src/data/itemRuntimeCompatibility.ts](/D:/DungeonMaster-codex/src/data/itemRuntimeCompatibility.ts)
 
 ### `src/data/creatures.ts`
 

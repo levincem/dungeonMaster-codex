@@ -1,4 +1,14 @@
-import type { ChampionVitals } from '../runtimeTypes';
+import type { Champion } from '../../types/champion';
+import type { ChampionEquipment, CreatureInstance, FloorItem } from '../../types/game';
+import type {
+    ActivePotionBoost,
+    ChampionCombat,
+    ChampionVitals,
+    DamageEvent,
+    Direction,
+    PartyShield,
+    SpellVisualEvent,
+} from '../runtimeTypes';
 import { applyImmediateTransportSquareEffects as applyImmediateTransportSquareEffectsSystem } from './partyImmediateTransportEffects';
 import { resolvePartyStepTransport as resolvePartyStepTransportSystem } from './partyStepTransport';
 import { createStorePartyMoveRuntimeDeps } from './storePartyMoveRuntime';
@@ -10,28 +20,90 @@ type PendingSensorEventLike = {
 };
 
 type MovementRuntimeState = {
+    gamePhase: string;
+    movementCooldown: number;
     level: number;
     position: [number, number];
-    direction: string;
-    party: unknown[];
+    direction: Direction;
+    party: Champion[];
     selectedChampionIndex: number;
+    hydratedLevels: Set<number>;
     openDoors: Set<string>;
     openPits: Set<string>;
     openTeleporters: Set<string>;
     openWalls: Set<string>;
-    creatures: unknown[];
-    floorItems: unknown[];
-    championInventories: Record<number, unknown[]>;
-    championEquipment: Record<number, unknown>;
+    creatures: CreatureInstance[];
+    floorItems: FloorItem[];
+    championInventories: Record<number, FloorItem[]>;
+    championEquipment: Record<number, ChampionEquipment>;
     championVitals: Record<number, ChampionVitals>;
-    damageEvents: unknown[];
-    spellVisualEvents: unknown[];
-    deadChampions: Record<number, unknown>;
-    activeShields: unknown[];
-    activePotionBoosts: unknown[];
-    championCombat: Record<number, unknown>;
+    damageEvents: DamageEvent[];
+    spellVisualEvents: SpellVisualEvent[];
+    deadChampions: Record<number, Champion>;
+    activeShields: PartyShield[];
+    activePotionBoosts: ActivePotionBoost[];
+    championCombat: Record<number, ChampionCombat>;
     pendingSensorEvents: PendingSensorEventLike[];
 };
+
+type OpenedPitEffectsState = Pick<
+    MovementRuntimeState,
+    | 'level'
+    | 'position'
+    | 'party'
+    | 'selectedChampionIndex'
+    | 'hydratedLevels'
+    | 'openDoors'
+    | 'openPits'
+    | 'openWalls'
+    | 'creatures'
+    | 'floorItems'
+    | 'championInventories'
+    | 'championEquipment'
+    | 'championVitals'
+    | 'damageEvents'
+    | 'spellVisualEvents'
+    | 'deadChampions'
+    | 'activeShields'
+    | 'activePotionBoosts'
+    | 'championCombat'
+>;
+
+type OpenedPitEffectsResult = Pick<
+    MovementRuntimeState,
+    | 'level'
+    | 'position'
+    | 'creatures'
+    | 'floorItems'
+    | 'championVitals'
+    | 'party'
+    | 'championInventories'
+    | 'championEquipment'
+    | 'deadChampions'
+    | 'selectedChampionIndex'
+    | 'damageEvents'
+    | 'spellVisualEvents'
+> & { changed: boolean };
+
+type OpenedTeleporterEffectsState = Pick<
+    MovementRuntimeState,
+    | 'level'
+    | 'position'
+    | 'direction'
+    | 'hydratedLevels'
+    | 'openDoors'
+    | 'openPits'
+    | 'openTeleporters'
+    | 'openWalls'
+    | 'creatures'
+    | 'floorItems'
+    | 'spellVisualEvents'
+>;
+
+type OpenedTeleporterEffectsResult = Pick<
+    MovementRuntimeState,
+    'level' | 'position' | 'direction' | 'creatures' | 'floorItems' | 'spellVisualEvents'
+> & { changed: boolean };
 
 type StoreMovementRuntimeParams<
     TState extends MovementRuntimeState,
@@ -40,6 +112,7 @@ type StoreMovementRuntimeParams<
     TStairLink,
 > = {
     applyPartyMoveFatigue: (state: TState) => Record<number, ChampionVitals> | null;
+    isPartyStepBlockedByCreature: (state: TState, level: number, x: number, y: number) => boolean;
     getTile: (level: number, x: number, y: number) => { type: string } | undefined;
     isWalkable: (
         level: number,
@@ -70,8 +143,11 @@ type StoreMovementRuntimeParams<
             now: number,
         ) => Record<string, unknown> | null;
     };
-    applyOpenedPitEffects: (state: TState, openedPitKeys: string[]) => object;
-    applyOpenedTeleporterEffects: (state: TState, openedTeleporterKeys: string[]) => object;
+    applyOpenedPitEffects: (state: OpenedPitEffectsState, openedPitKeys: string[]) => OpenedPitEffectsResult;
+    applyOpenedTeleporterEffects: (
+        state: OpenedTeleporterEffectsState,
+        openedTeleporterKeys: string[],
+    ) => OpenedTeleporterEffectsResult;
     resolveOpenPitEntryTransport: (
         state: TState,
         x: number,
@@ -114,15 +190,27 @@ export function createStoreMovementRuntime<
         state: TState,
         basePatch: Partial<TState>,
     ): Partial<TState> => applyImmediateTransportSquareEffectsSystem(
-        state as any,
-        basePatch as any,
+        state,
+        basePatch,
         {
             applyOpenedPitEffects: (transportState, openedPitKeys) =>
-                params.applyOpenedPitEffects(transportState as TState, openedPitKeys) as any,
+                params.applyOpenedPitEffects(
+                    {
+                        ...transportState,
+                        hydratedLevels: state.hydratedLevels,
+                    },
+                    openedPitKeys,
+                ),
             applyOpenedTeleporterEffects: (transportState, openedTeleporterKeys) =>
-                params.applyOpenedTeleporterEffects(transportState as TState, openedTeleporterKeys) as any,
+                params.applyOpenedTeleporterEffects(
+                    {
+                        ...transportState,
+                        hydratedLevels: state.hydratedLevels,
+                    },
+                    openedTeleporterKeys,
+                ),
         },
-    ) as Partial<TState>;
+    ) as unknown as Partial<TState>;
 
     const resolvePartyStepTransport = (
         state: TState,
@@ -147,27 +235,24 @@ export function createStoreMovementRuntime<
             resolveTeleporterStepTransport: params.resolveTeleporterStepTransport,
             resolveStandardStepTransport: params.resolveStandardStepTransport,
         },
-    ) as {
-        patch: Partial<TState> | TState;
-        blockedMessage?: string;
-        fellThroughPit?: boolean;
-    };
+    );
 
     const buildPartyMoveDeps = (enableFrontWallBumpDamage: boolean) =>
-        createStorePartyMoveRuntimeDeps({
-            applyPartyMoveFatigue: (state: any) => params.applyPartyMoveFatigue(state as TState),
+        createStorePartyMoveRuntimeDeps<TState, TWallPushDeps, TState>({
+            applyPartyMoveFatigue: params.applyPartyMoveFatigue,
+            isPartyStepBlockedByCreature: params.isPartyStepBlockedByCreature,
             getTile: params.getTile,
             isWalkable: params.isWalkable,
-            buildSensorStateSnapshot: (state: any) => params.buildSensorStateSnapshot(state as TState),
+            buildSensorStateSnapshot: params.buildSensorStateSnapshot,
             buildWallPushSensorDeps: params.buildWallPushSensorDeps,
             triggerWallPushSensorsSystem: (
-                level: any,
-                x: any,
-                y: any,
-                direction: any,
-                sensorState: any,
-                pendingSensorEvents: any,
-                deps: any,
+                level,
+                x,
+                y,
+                direction,
+                sensorState,
+                pendingSensorEvents,
+                deps,
             ) =>
                 params.triggerWallPushSensorsSystem(
                     level,
@@ -178,21 +263,20 @@ export function createStoreMovementRuntime<
                     pendingSensorEvents as PendingSensorEventLike[],
                     deps,
                 ),
-            buildPartyDamageState: (state: any) => state as TState,
+            buildPartyDamageState: (state) => state,
             applyFrontRowWallBumpDamageState: enableFrontWallBumpDamage
-                ? (state: any, championVitals: any, now: any) =>
+                ? (state, championVitals, now) =>
                     params.buildPartyDamageDeps().applyFrontRowWallBumpDamage(
-                        state as TState,
+                        state,
                         championVitals,
                         now,
                     )
                 : () => null,
             enableFrontWallBumpDamage,
-            applyImmediateTransportSquareEffects: (state: any, patch: any) =>
-                applyImmediateTransportSquareEffects(state as TState, patch as Partial<TState>),
-            resolvePartyStepTransport: (state: any, ny: any, nx: any, movedVitals: any) =>
-                resolvePartyStepTransport(state as TState, ny, nx, movedVitals),
-        } as any) as ReturnType<typeof createStorePartyMoveRuntimeDeps<any, TWallPushDeps, TState>>;
+            applyImmediateTransportSquareEffects: (state, patch) =>
+                applyImmediateTransportSquareEffects(state, patch as Partial<TState>) as Record<string, unknown>,
+            resolvePartyStepTransport,
+        });
 
     return {
         applyImmediateTransportSquareEffects,

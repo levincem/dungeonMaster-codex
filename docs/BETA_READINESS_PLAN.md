@@ -353,8 +353,8 @@ Objectif:
 
 Actions:
 
-- clarifier le statut de `src/data/spells.ts`
-- reduire les couches de compatibilite inutiles dans `items.ts`, `itemImages.ts` et voisins
+- clarifier le statut de `src/data/reference/spellsReference.ts`
+- continuer a reduire les couches de compatibilite inutiles maintenant qu'elles sont isolees dans `itemRuntimeCompatibility.ts` et `itemImageCompatibility.ts`
 - nettoyer les branches et commentaires legacy qui ne servent plus
 
 Definition of done:

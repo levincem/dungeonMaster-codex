@@ -86,6 +86,10 @@ test('store sensor runtime detects required floor items on the targeted tile onl
         tileHasRequiredMechanismFloorItem(1, 2, 3, 'Key of B', floorItems as never, matches as never),
         false,
     );
+    assert.equal(
+        tileHasRequiredMechanismFloorItem(1, 2, 3, undefined, floorItems as never, matches as never),
+        true,
+    );
     assert.equal(PUSH_FACE_BY_DIRECTION.NORTH, 'South');
     assert.equal(PUSH_FACE_BY_DIRECTION.WEST, 'East');
 });

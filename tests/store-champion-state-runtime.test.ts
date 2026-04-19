@@ -7,8 +7,11 @@ import {
     createStoreChampionStateRuntime,
 } from '../src/engine/systems/storeChampionStateRuntime.js';
 import type { Champion } from '../src/types/champion.js';
-import type { ChampionVitals } from '../src/engine/runtimeTypes.js';
+import type { ChampionEquipment } from '../src/types/game.js';
+import type { ActivePotionBoost, ChampionVitals, PartyShield } from '../src/engine/runtimeTypes.js';
 import {
+    type ChampionTemporaryXP,
+    type ChampionXP,
     createEmptyChampionTemporaryXP,
     createEmptyChampionXP,
 } from '../src/data/skillProgression.js';
@@ -71,8 +74,23 @@ function createVitals(overrides: Partial<ChampionVitals> = {}): ChampionVitals {
     };
 }
 
+type IncomingState = {
+    championEquipment: Record<number, ChampionEquipment>;
+    activePotionBoosts: ActivePotionBoost[];
+    activeShields: PartyShield[];
+};
+
+type ChampionXpState = {
+    level: number;
+    party: Champion[];
+    championXP: Record<number, ChampionXP>;
+    championTemporaryXP: Record<number, ChampionTemporaryXP>;
+    elapsedGameTimeTicks: number;
+    lastCreatureAttackGameTick: number;
+};
+
 function createRuntime() {
-    return createStoreChampionStateRuntime<any, any>({
+    return createStoreChampionStateRuntime<IncomingState, ChampionXpState>({
         poisonTickIntervalSec: 0.6,
         randomInt: () => 0,
         getMapDifficulty: () => 2,

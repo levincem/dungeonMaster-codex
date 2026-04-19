@@ -228,7 +228,13 @@ export function tileHasRequiredMechanismFloorItem(
     floorItems: FloorItem[],
     itemMatchesMechanismRequirement: (item: FloorItem, name: string | undefined) => boolean,
 ): boolean {
-    if (!requiredName) return false;
+    if (!requiredName) {
+        return floorItems.some((item) =>
+            item.mapIndex === level &&
+            item.x === x &&
+            item.y === y,
+        );
+    }
     return floorItems.some((item) =>
         item.mapIndex === level &&
         item.x === x &&

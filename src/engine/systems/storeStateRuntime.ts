@@ -98,6 +98,7 @@ export function buildStoreKillChampionPatch<
         championVitals: _championVitals,
         ...deathState
     } = state;
+    void _championVitals;
     return deps.applyChampionDeathDropsToPartyState(deathState, [championId], now);
 }
 

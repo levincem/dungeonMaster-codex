@@ -107,6 +107,7 @@ import {
 } from './systems/inventoryState';
 import {
     buildFloorItemPickupPatch,
+    canPartyReachFloorItem,
 } from './systems/floorItemState';
 import {
     buildDropInventoryItemRuntimePatch,
@@ -924,6 +925,20 @@ function playDoorMotionForTarget(target: { level: number; x: number; y: number }
     );
 }
 
+function isPartyStepBlockedByCreature(
+    level: number,
+    x: number,
+    y: number,
+    creatures: CreatureInstance[],
+): boolean {
+    return creatures.some((creature) =>
+        creature.alive &&
+        creature.mapIndex === level &&
+        creature.x === x &&
+        creature.y === y,
+    );
+}
+
 const {
     WALL_LAUNCHER_SENSOR_TYPES,
     PUSH_FACE_BY_DIRECTION,
@@ -1307,11 +1322,13 @@ const storeMovementRuntime = createStoreMovementRuntime<
     SensorState,
     ReturnType<typeof buildWallPushSensorDeps>,
     typeof STAIR_CONNECTIONS[number]
->({
-    applyPartyMoveFatigue,
-    getTile: (level, x, y) => getMap(level).tiles[y]?.[x],
-    isWalkable,
-    buildSensorStateSnapshot,
+  >({
+      applyPartyMoveFatigue,
+      isPartyStepBlockedByCreature: (state, level, x, y) =>
+          isPartyStepBlockedByCreature(level, x, y, state.creatures),
+      getTile: (level, x, y) => getMap(level).tiles[y]?.[x],
+      isWalkable,
+      buildSensorStateSnapshot,
     buildWallPushSensorDeps,
     triggerWallPushSensorsSystem: (level, x, y, direction, sensorState, pendingSensorEvents, deps) =>
         triggerWallPushSensorsSystem(
@@ -2341,7 +2358,11 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             (patch) => set(patch),
         ),
 
-    beginFloorDrag: (itemId, pointerX, pointerY) => set(buildBeginFloorDragPatch(itemId, pointerX, pointerY)),
+    beginFloorDrag: (itemId, pointerX, pointerY) => set((state) => {
+        const item = state.floorItems.find((entry) => entry.id === itemId);
+        if (!item || !canPartyReachFloorItem(state, item)) return state;
+        return buildBeginFloorDragPatch(itemId, pointerX, pointerY);
+    }),
     updateFloorDrag: (pointerX, pointerY) => set((state) =>
         buildUpdateFloorDragPatch(state, pointerX, pointerY) ?? state
     ),

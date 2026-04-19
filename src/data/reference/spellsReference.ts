@@ -1,11 +1,12 @@
-// Legacy spell reference table sourced from the canonical extracted game DB.
+// Reference-only spell table kept for audits and cross-checks.
 //
 // Important:
-// - the current runtime spell-casting pipeline uses `src/data/runes.ts`
-// - this file is kept as a parallel reference and should not be treated as the
-//   live source of truth for gameplay behavior until the two models are merged
+// - the live spell-casting runtime uses `src/data/runes.ts`
+// - original formulas and timings live in `src/data/originalSpells.ts`
+// - runtime helpers live in `src/data/spellRuntime.ts`
+// - this file is intentionally not imported by gameplay code
 
-import type { RuneSymbol, Spell, SpellCastingRules } from '../types/spells';
+import type { RuneSymbol, Spell, SpellCastingRules } from '../../types/spells';
 
 // --- Rune symbols -------------------------------------------------------------
 // uiPos: [panelRow, panelCol]  (0-indexed)

@@ -187,7 +187,7 @@ export function isPartyPossessionSensor(sensor: SensorObject): boolean {
 }
 
 export function isSpecificObjectFloorSensor(sensor: SensorObject): boolean {
-    return sensor.type === 4;
+    return sensor.type === 4 || (sensor.type === 3 && Boolean(getRequiredSensorItemName(sensor)));
 }
 
 export function isCreatureOnlyFloorSensor(sensor: SensorObject): boolean {

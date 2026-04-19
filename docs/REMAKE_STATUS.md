@@ -20,6 +20,33 @@ Docs de reference a privilegier pour l'etat courant:
 - [docs/FIDELITY_REMAINING_MATRIX.md](/D:/DungeonMaster-codex/docs/FIDELITY_REMAINING_MATRIX.md)
 - [docs/RUNTIME_ALIGNMENT_AUDIT.md](/D:/DungeonMaster-codex/docs/RUNTIME_ALIGNMENT_AUDIT.md)
 
+## Session 2026-04-19
+
+Passe autonome complete alignee sur [docs/NEXT_PHASE_PLAN.md](/D:/DungeonMaster-codex/docs/NEXT_PHASE_PLAN.md):
+
+- `npm.cmd run lint` passe
+- `npm.cmd test` passe a `532` tests verts
+- `npm.cmd run build` passe
+- le sweep de nettoyage a retire plusieurs reliquats non utilises du repo:
+  - `src/components/UI/RunePanel.tsx`
+  - `src/components/Dungeon/Torch.tsx`
+  - `src/data/championsRuntime.ts`
+  - `src/data/creaturesRuntime.ts`
+- une passe de nettoyage d'encodage a supprime les derniers libelles/commentaires mojibake visibles dans `App`, `ChampionSheet`, `HUD`, `DungeonScene` et les messages de cast runtime
+- [src/components/Dungeon/DungeonScene.tsx](/D:/DungeonMaster-codex/src/components/Dungeon/DungeonScene.tsx) a encore ete degonfle:
+  - les hooks temporels vivent maintenant dans [src/components/Dungeon/useWallClock.ts](/D:/DungeonMaster-codex/src/components/Dungeon/useWallClock.ts)
+  - les couches runtime creatures / traces / degats / items sol vivent maintenant dans [src/components/Dungeon/DungeonSceneRuntimeLayers.tsx](/D:/DungeonMaster-codex/src/components/Dungeon/DungeonSceneRuntimeLayers.tsx)
+  - la scene garde mieux son role de composition R3F et de branchement store/runtime
+- [src/components/UI/HUD.tsx](/D:/DungeonMaster-codex/src/components/UI/HUD.tsx) delegue maintenant le gros bloc portraits / formation / mains vers [src/components/UI/HudPartyPanel.tsx](/D:/DungeonMaster-codex/src/components/UI/HudPartyPanel.tsx), ce qui clarifie le drag/drop party sans casser les interactions runtime
+- [src/components/UI/ChampionSheet.tsx](/D:/DungeonMaster-codex/src/components/UI/ChampionSheet.tsx) delegue maintenant sa colonne descriptive a [src/components/UI/ChampionSheetOverviewPanel.tsx](/D:/DungeonMaster-codex/src/components/UI/ChampionSheetOverviewPanel.tsx), tout en gardant le wiring d'actions et de drag/drop dans le conteneur principal
+- la passe runtime hybride a clarifie les contrats de deps sans relancer de chantier `store`:
+  - [src/engine/systems/sensorRuntimeDeps.ts](/D:/DungeonMaster-codex/src/engine/systems/sensorRuntimeDeps.ts) nomme mieux les frontieres `door motion`, `sensor effect`, `wall face`, `sensor snapshot` et reutilise ces paquets dans le bundle principal
+  - [src/engine/systems/transportRuntimeDeps.ts](/D:/DungeonMaster-codex/src/engine/systems/transportRuntimeDeps.ts) recentralise les deps `terrain lookup`, `terrain transport`, `terrain effects` et supprime plusieurs wrappers inline repetes
+  - [src/engine/systems/storeAttackFrontRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeAttackFrontRuntime.ts) separe plus lisiblement les deps `attack option`, `champion attack`, `utility`, `creature combat`
+  - [src/engine/systems/storeSpellRuntime.ts](/D:/DungeonMaster-codex/src/engine/systems/storeSpellRuntime.ts) distingue mieux la preparation de cast et le cablage projectile / tick spells
+  - [src/engine/systems/persistence.ts](/D:/DungeonMaster-codex/src/engine/systems/persistence.ts) normalise ses conteneurs charges via un helper commun au lieu d'une chaine de cas speciaux
+- le prochain meilleur levier n'est plus la structure store/UI immediate, mais une nouvelle passe `i18n/labels` ciblee puis du profilage/optimisation des gros chunks de rendu
+
 ## Session 2026-04-18
 
 Note de reprise preparee pour la prochaine session autonome:
@@ -327,11 +354,12 @@ Etat actuel:
 - objets, noms et grande partie des catalogues viennent maintenant des donnees extraites
 - images d'objets beaucoup moins hardcodees, avec resolution plus systematique et quelques alias speciaux restants
 - poids, equipement, eau, faim, soif, sommeil, fatigue et regeneration sont jouables
+- la compatibilite residuelle des objets/images est maintenant isolee dans `src/data/itemRuntimeCompatibility.ts` et `src/data/itemImageCompatibility.ts`
 
 Reste a faire:
 
 - garder un oeil sur quelques alias d'images et objets speciaux
-- il reste une couche de compatibilite dans `items.ts` pour faire le pont entre data source, objets synthetiques et runtime
+- la couche de compatibilite restante existe toujours, mais elle n'est plus diffusee partout dans `items.ts` / `itemImages.ts`
 
 ### Magie, runes et projectiles
 
@@ -400,7 +428,7 @@ Etat actuel:
 
 Reste a faire:
 
-- `src/data/spells.ts` reste encore un fichier legacy de reference
+- `src/data/reference/spellsReference.ts` reste encore une table de reference uniquement, hors pipeline runtime actif
 - quelques `reference_exports` peuvent encore garder une nomenclature de sorts plus ancienne que le runtime regenere
 - quelques nuances fines de missiles / effets restent a verifier:
   - quelques `local effects` rares restent plus subtils que le simple ciblage `(x,y)`, meme si `F271` et la rotation locale de liste de sensors sont maintenant recables

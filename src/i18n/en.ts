@@ -146,6 +146,7 @@ export const en = {
         saveGame: 'Save game',
         health: 'HEALTH',
         stamina: 'STAMINA',
+        mana: 'MANA',
         hunger: 'HUNGER',
         thirst: 'THIRST',
         attributes: 'ATTRIBUTES',

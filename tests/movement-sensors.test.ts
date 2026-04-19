@@ -121,3 +121,102 @@ test('transitionFloorSensors blocks the empty party at the starting gate plate',
     assert.equal(result.blockedMessage, 'Choose at least one adventurer, four is better !');
     assert.deepEqual([...result.sensorChanges.openDoors!], ['0,4,6']);
   });
+
+test('triggerFloorSensors keeps type 3 object-named sensors active as group plates', () => {
+    const sensor = createSensor({ type: 3, requiredObjectName: 'COMPASS' });
+    const { deps } = createDeps(sensor, {
+        isSpecificObjectFloorSensor: (candidate: SensorObject) =>
+            candidate.type === 4 || (candidate.type === 3 && Boolean(candidate.requiredObjectName)),
+        tileHasRequiredFloorItem: () => false,
+    });
+
+    const result = triggerFloorSensors(
+        0,
+        6,
+        9,
+        { openDoors: new Set<string>() },
+        {},
+        {},
+        [],
+        [],
+        deps,
+        'enter',
+    );
+
+    assert.deepEqual([...result.sensorChanges.openDoors!], ['0,4,6']);
+});
+
+test('triggerFloorSensors still requires a floor item for type 4 object-only sensors', () => {
+    const sensor = createSensor({ type: 4, requiredObjectName: 'COMPASS' });
+    const { deps } = createDeps(sensor, {
+        isSpecificObjectFloorSensor: (candidate: SensorObject) =>
+            candidate.type === 4 || (candidate.type === 3 && Boolean(candidate.requiredObjectName)),
+        tileHasRequiredFloorItem: () => false,
+    });
+
+    const result = triggerFloorSensors(
+        0,
+        6,
+        9,
+        { openDoors: new Set<string>() },
+        {},
+        {},
+        [],
+        [],
+        deps,
+        'enter',
+    );
+
+    assert.deepEqual(result.sensorChanges, {});
+    assert.deepEqual(result.pendingSensorEvents, []);
+});
+
+test('triggerFloorSensors releases hold effects when a type 3 hybrid plate is left', () => {
+    const sensor = createSensor({ type: 3, requiredObjectName: 'COMPASS', action: 'Hold' });
+    const { deps } = createDeps(sensor, {
+        isSpecificObjectFloorSensor: (candidate: SensorObject) =>
+            candidate.type === 4 || (candidate.type === 3 && Boolean(candidate.requiredObjectName)),
+        tileHasRequiredFloorItem: () => false,
+        computeSensorEffect: () => ({ openDoors: new Set<string>() }),
+    });
+
+    const result = triggerFloorSensors(
+        0,
+        6,
+        9,
+        { openDoors: new Set(['0,4,6']) },
+        {},
+        {},
+        [],
+        [],
+        deps,
+        'leave',
+    );
+
+    assert.deepEqual([...result.sensorChanges.openDoors!], []);
+});
+
+test('triggerFloorSensors keeps a hold plate active when the required floor item remains on it', () => {
+    const sensor = createSensor({ type: 3, requiredObjectName: 'COMPASS', action: 'Hold' });
+    const { deps } = createDeps(sensor, {
+        isSpecificObjectFloorSensor: (candidate: SensorObject) =>
+            candidate.type === 4 || (candidate.type === 3 && Boolean(candidate.requiredObjectName)),
+        tileHasRequiredFloorItem: () => true,
+        computeSensorEffect: () => ({ openDoors: new Set<string>() }),
+    });
+
+    const result = triggerFloorSensors(
+        0,
+        6,
+        9,
+        { openDoors: new Set(['0,4,6']) },
+        {},
+        {},
+        [],
+        [],
+        deps,
+        'leave',
+    );
+
+    assert.deepEqual(result.sensorChanges, {});
+});

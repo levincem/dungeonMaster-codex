@@ -87,6 +87,9 @@ test('buildPickupItemToChampionRuntimePatch delegates to the pickup transfer hel
 
 test('buildStoreSelectedChampionPickupPatch picks up with the currently selected champion', () => {
     const state = {
+        level: 0,
+        position: [0, 0] as [number, number],
+        direction: 'NORTH' as const,
         floorItems: [createItem('sword')],
         party: [createChampion(1), createChampion(2)],
         selectedChampionIndex: 1,

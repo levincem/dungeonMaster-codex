@@ -10,9 +10,9 @@ let gameplayRenderFullReady = false;
 
 export function preloadGameRootModule(): Promise<GameRootModule> {
     if (!gameRootModulePromise) {
-        gameRootModulePromise = preloadGameDbData().then(() => import('../GameRoot'));
+        gameRootModulePromise = import('../GameRoot');
     }
-    return gameRootModulePromise;
+    return gameRootModulePromise!;
 }
 
 export function preloadGameplayRenderCoreModules(): Promise<void> {
@@ -28,7 +28,7 @@ export function preloadGameplayRenderCoreModules(): Promise<void> {
             });
     }
 
-    return gameplayRenderCorePromise;
+    return gameplayRenderCorePromise!;
 }
 
 export function preloadGameplayRenderModules(): Promise<void> {
@@ -43,7 +43,7 @@ export function preloadGameplayRenderModules(): Promise<void> {
         });
     }
 
-    return gameplayRenderFullPromise;
+    return gameplayRenderFullPromise!;
 }
 
 export function isGameplayRenderCoreModulesPreloaded(): boolean {

@@ -5,7 +5,7 @@ import type { FloorItem, CardinalDir } from '../../types/game';
 import { getFloorItemImage } from '../../data/itemImages';
 import { hasOriginalWallOverlayAt } from '../../data/originalWallOverlays';
 import { useStore } from '../../engine/store';
-import { useLoadedTexture } from './renderHelpers';
+import { useLoadedTexture } from './useLoadedTexture';
 
 const FACE_OFFSET = GRID_SIZE / 2 + 0.04;
 const FACE_POS: Record<CardinalDir, [number, number, number]> = {
