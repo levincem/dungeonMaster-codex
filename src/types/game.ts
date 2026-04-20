@@ -243,6 +243,8 @@ export interface FloorItem {
     waterMaxCharges?: number;
     /** Set on bones items (Misc typeId 5) - links to the dead champion's id */
     championId?: number;
+    /** Set when the item has just fallen from a projectile impact, to bias its floor presentation. */
+    projectileDropped?: boolean;
 }
 
 /** Per-champion equipped items, keyed by slot. */

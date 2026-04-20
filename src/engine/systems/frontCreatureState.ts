@@ -26,6 +26,24 @@ const PARTY_SLOT_LAYOUT: readonly PartySlotLayout[] = [
     { x: 1, y: 1, column: 'right' },
 ];
 
+function getExposedPartySlotIndexes(
+    localTileDelta: { x: number; y: number },
+): readonly number[] {
+    if (localTileDelta.y < 0 && Math.abs(localTileDelta.y) >= Math.abs(localTileDelta.x)) {
+        return [0, 1];
+    }
+    if (localTileDelta.y > 0 && Math.abs(localTileDelta.y) >= Math.abs(localTileDelta.x)) {
+        return [2, 3];
+    }
+    if (localTileDelta.x < 0 && Math.abs(localTileDelta.x) > Math.abs(localTileDelta.y)) {
+        return [0, 2];
+    }
+    if (localTileDelta.x > 0 && Math.abs(localTileDelta.x) > Math.abs(localTileDelta.y)) {
+        return [1, 3];
+    }
+    return [0, 1, 2, 3];
+}
+
 export function compareCreatureCells(a: CreatureCell, b: CreatureCell): number {
     return CREATURE_CELL_PRIORITY[a] - CREATURE_CELL_PRIORITY[b];
 }
@@ -133,10 +151,15 @@ export function selectCreatureAttackTarget(
         const sourceX = (localTileDelta.x * 4) + cellOffset.x;
         const sourceY = (localTileDelta.y * 4) + cellOffset.y;
         const preferredColumn = getCreatureColumn(cell);
+        const exposedIndexes = new Set(getExposedPartySlotIndexes(localTileDelta));
 
-        const ranked = party
+        const rankedCandidates = party
             .map((champion, index) => ({ champion, index, slot: PARTY_SLOT_LAYOUT[index] }))
-            .filter(({ champion, slot }) => Boolean(slot) && (vitals[champion.id]?.hp ?? 0) > 0)
+            .filter(({ champion, slot }) => Boolean(slot) && (vitals[champion.id]?.hp ?? 0) > 0);
+        const exposedCandidates = rankedCandidates.filter(({ index }) => exposedIndexes.has(index));
+        const candidates = exposedCandidates.length > 0 ? exposedCandidates : rankedCandidates;
+
+        const ranked = candidates
             .sort((a, b) => {
                 const aDistance = ((a.slot!.x - sourceX) ** 2) + ((a.slot!.y - sourceY) ** 2);
                 const bDistance = ((b.slot!.x - sourceX) ** 2) + ((b.slot!.y - sourceY) ** 2);

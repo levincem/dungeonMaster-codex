@@ -154,6 +154,12 @@ export function resolveMonsterAttackTurn(
         };
     }
 
+    const targetingContext = {
+        partyPosition: args.partyPosition,
+        attackerPosition: args.movedPosition,
+        partyDirection: args.partyDirection,
+    };
+
     const target = selectCreatureAttackTarget(
         args.party,
         args.championVitals,
@@ -161,14 +167,23 @@ export function resolveMonsterAttackTurn(
         args.attackerDef.attackAnyChampion,
         args.attackerDef.attackFromAllSides,
         (maxExclusive) => deps.randomInt(maxExclusive),
-        {
-            partyPosition: args.partyPosition,
-            attackerPosition: args.movedPosition,
-            partyDirection: args.partyDirection,
-        },
+        targetingContext,
     );
 
-    if (!target) {
+    const constrainedAdjacentTarget = adjacentAfterMove
+        ? selectCreatureAttackTarget(
+            args.party,
+            args.championVitals,
+            args.creature.cell,
+            false,
+            false,
+            (maxExclusive) => deps.randomInt(maxExclusive),
+            targetingContext,
+        )
+        : null;
+    const finalTarget = constrainedAdjacentTarget ?? target;
+
+    if (!finalTarget) {
         return {
             kind: 'none',
             nextAttackTimer: attackStart.nextAttackTimer,
@@ -184,7 +199,7 @@ export function resolveMonsterAttackTurn(
             ...args.baseChampionEquipment,
             ...args.championEquipment,
         },
-        selectedTargetId: target.id,
+        selectedTargetId: finalTarget.id,
     });
 
     const attackResult = resolveCreatureAttackState(

@@ -23,6 +23,13 @@ test('store sensor runtime applies Set, Clear, and Toggle actions on string sets
     assert.deepEqual([...base], ['door_a']);
 });
 
+test('store sensor runtime keeps set identity for no-op Set and Clear actions', () => {
+    const base = new Set<string>(['door_a']);
+
+    assert.equal(applySensorActionToSet(base, 'door_a', 'Set'), base);
+    assert.equal(applySensorActionToSet(base, 'door_b', 'Clear'), base);
+});
+
 test('store sensor runtime diffs only the changed sensor state slices', () => {
     const before = {
         openDoors: new Set<string>(),
@@ -39,6 +46,7 @@ test('store sensor runtime diffs only the changed sensor state slices', () => {
         pendingGeneratorSpawns: [],
         currentLevel: 0,
         currentPosition: [0, 0] as [number, number],
+        currentDirection: 'NORTH' as const,
         elapsedGameTimeTicks: 0,
     };
     const after = {

@@ -22,6 +22,7 @@ import type {
     SensorObject, CardinalDir,
     ChampionEquipment,
 } from '../types/game';
+import type { GeneratedCreatureGroupPlanEntry } from './systems/generatedCreatureGroups';
 import type { EquipSlotKey } from '../types/items';
 import type { Champion } from '../data/champions';
 import { CHAMPION_BY_ID } from '../data/champions';
@@ -72,6 +73,7 @@ import {
     isWaterContainer,
     normaliseWaterContainer,
 } from '../data/waterContainers';
+import { getTranslations } from '../i18n';
 import { doorBlocksThrownItems, doorBlocksVision } from '../data/doors';
 import {
     playPartyAttack,
@@ -111,7 +113,10 @@ import {
 } from './systems/floorItemState';
 import {
     buildDropInventoryItemRuntimePatch,
+    buildMoveFloorItemToTileRuntimePatch,
     buildPickupItemToChampionRuntimePatch,
+    buildThrowFloorItemRuntimePatch,
+    removeChampionCarriedItemToTile,
 } from './systems/floorItemCommandRuntime';
 import {
     getChampionPotionBonuses,
@@ -232,6 +237,7 @@ import {
 } from './systems/storeTimeRuntime';
 import {
     createStoreCastSpellRuntimeDeps,
+    buildStoreTickSpellsRuntimePatch,
     createStoreTickSpellsRuntimePartyDamageDeps,
     createStoreTickSpellsStatefulDeps,
     createStoreTickSpellsRuntimeDeps,
@@ -244,7 +250,6 @@ import {
     createStoreAttackFrontAction,
     createStoreCastSpellAction,
     createStoreMonsterTickAction,
-    createStoreTickSpellsAction,
 } from './systems/storeGameplayRuntime';
 import { resolveMonsterAttackAgainstChampion } from './systems/monsterAttackResolution';
 import { buildDeathDrop as buildDeathDropSystem } from './systems/deathDrops';
@@ -349,6 +354,7 @@ import {
     createStoreFloorItemCommandDeps,
 } from './systems/storeFloorItemRuntime';
 import {
+    type PendingGeneratorDeps,
     processPendingGeneratorSpawns as processPendingGeneratorSpawnsSystem,
     processPendingSensorEvents as processPendingSensorEventsSystem,
     queuePendingGeneratorSpawnEvent,
@@ -764,6 +770,7 @@ interface PendingGeneratorSpawnEvent {
     hpMultiplier: number;
     creatureCount: number;
     groupId: string;
+    generatedCreatures?: GeneratedCreatureGroupPlanEntry[];
     remaining: number;
 }
 
@@ -777,10 +784,12 @@ const ORIGINAL_MOVE_GROUP_RETRY_SECONDS = originalTimerTicksToSeconds(5);
 const {
     buildCreatureInstancesForLevel,
     buildFloorItemsForLevel,
+    buildPendingGeneratedCreatureGroup,
     canApproximateOriginalReservedGeneratorSpawn,
     createGeneratedCreatureGroupInstances,
     getChampionStarterLoadout,
     isGeneratorSpawnBlocked,
+    materializePendingGeneratedCreatureGroup,
 } = createStoreWorldRuntime<SensorState>({
     getGameMaps,
     getGameMap,
@@ -918,11 +927,38 @@ type SensorState = StoreSensorState<
     PendingGeneratorSpawnEvent
 >;
 
+type PendingGeneratorRuntimeDeps = PendingGeneratorDeps<
+    SensorState,
+    PendingGeneratorSpawnEvent,
+    CreatureInstance
+>;
+
 function playDoorMotionForTarget(target: { level: number; x: number; y: number } | null) {
     playDoorMotion(
         DOOR_TOGGLE_SOUND_DURATION_MS,
         target ? getDoorSoundVolume(target.level, target.x, target.y) : DOOR_SOUND_MIN_VOLUME,
     );
+}
+
+function buildPendingGeneratorRuntimeDeps(): PendingGeneratorRuntimeDeps {
+    return {
+        canMaterializeReservedGeneratorSpawn: canApproximateOriginalReservedGeneratorSpawn,
+        isGeneratorSpawnBlocked,
+        materializePendingGeneratorSpawnEvent: (event: PendingGeneratorSpawnEvent) =>
+            event.generatedCreatures
+                ? materializePendingGeneratedCreatureGroup(event.generatedCreatures)
+                : createGeneratedCreatureGroupInstances(
+                    event.spawnLevel,
+                    event.spawnX,
+                    event.spawnY,
+                    event.typeId,
+                    event.hpMultiplier,
+                    event.creatureCount,
+                    event.groupId,
+                ),
+        retrySeconds: ORIGINAL_MOVE_GROUP_RETRY_SECONDS,
+        diffSensorState,
+    };
 }
 
 function isPartyStepBlockedByCreature(
@@ -971,10 +1007,31 @@ const {
     randomInt,
     canReserveGeneratorGroup: (state, spawnLevel) =>
         canReserveApproximateGeneratorGroupOnLevel(
+            state.currentLevel,
             spawnLevel,
             state.creatures,
             state.pendingGeneratorSpawns,
         ),
+    buildPendingGeneratorSpawnEvent: (level, sensorIndex, generatorConfig, creatureCount, groupId) => ({
+        sensorLevel: level,
+        sensorIndex,
+        spawnLevel: level,
+        spawnX: generatorConfig.spawnX,
+        spawnY: generatorConfig.spawnY,
+        typeId: generatorConfig.typeId,
+        hpMultiplier: generatorConfig.hpMultiplier,
+        creatureCount,
+        groupId,
+        generatedCreatures: buildPendingGeneratedCreatureGroup(
+            level,
+            generatorConfig.spawnX,
+            generatorConfig.spawnY,
+            generatorConfig.typeId,
+            generatorConfig.hpMultiplier,
+            creatureCount,
+            groupId,
+        ),
+    }),
     queuePendingGeneratorSpawnEvent,
     retrySeconds: ORIGINAL_MOVE_GROUP_RETRY_SECONDS,
     createGeneratedCreatureGroupInstances,
@@ -1588,7 +1645,11 @@ interface GameState {
     pickupItemToChampion: (id: string, championId: number) => boolean;
     dropItem: (itemId: string, championId: number) => void;
     dropCarriedItem: (championId: number, itemId: string, fromSlot: EquipSlotKey | 'inventory') => boolean;
+    dropCarriedItemInFront: (championId: number, itemId: string, fromSlot: EquipSlotKey | 'inventory') => boolean;
     throwCarriedItem: (championId: number, itemId: string, fromSlot: EquipSlotKey | 'inventory') => boolean;
+    moveFloorItemToCurrentTile: (itemId: string, championId: number) => boolean;
+    moveFloorItemToFrontTile: (itemId: string, championId: number) => boolean;
+    throwFloorItem: (itemId: string, championId: number) => boolean;
     equipItem: (championId: number, slotKey: EquipSlotKey, itemId: string) => void;
     unequipItem: (championId: number, slotKey: EquipSlotKey) => void;
     giveItem: (fromChampionId: number, toChampionId: number, itemId: string) => void;
@@ -1670,13 +1731,7 @@ function buildStoreTickFramePatch(
                             deltaSeconds,
                             currentSleepState.pendingGeneratorSpawns,
                             buildSensorStateSnapshot(currentSleepState),
-                            {
-                                canMaterializeReservedGeneratorSpawn: canApproximateOriginalReservedGeneratorSpawn,
-                                isGeneratorSpawnBlocked,
-                                createGeneratedCreatureGroupInstances,
-                                retrySeconds: ORIGINAL_MOVE_GROUP_RETRY_SECONDS,
-                                diffSensorState,
-                            },
+                            buildPendingGeneratorRuntimeDeps(),
                         ),
                     applyCombatTick: buildCombatTickPatch,
                     isPartyRested: isPartyRestedRuntime,
@@ -1702,13 +1757,7 @@ function buildStoreTickFramePatch(
                     sensorState,
                     deps,
                 ),
-            generatorRuntimeDeps: {
-                canMaterializeReservedGeneratorSpawn: canApproximateOriginalReservedGeneratorSpawn,
-                isGeneratorSpawnBlocked,
-                createGeneratedCreatureGroupInstances,
-                retrySeconds: ORIGINAL_MOVE_GROUP_RETRY_SECONDS,
-                diffSensorState,
-            },
+            generatorRuntimeDeps: buildPendingGeneratorRuntimeDeps(),
             applyImmediateTransportSquareEffects,
         },
     );
@@ -1925,9 +1974,9 @@ const runStoreCastSpellAction = createStoreCastSpellAction<GameState>({
                     currentNow,
                 ),
         }, {
-            buildUnknownCombinationPatch: (currentNow) => ({
-                lastCastResult: { success: false, message: 'Combinaison de runes inconnue.', ts: currentNow },
-            }),
+              buildUnknownCombinationPatch: (currentNow) => ({
+                lastCastResult: { success: false, message: getTranslations().runtime.unknownRuneCombination, ts: currentNow },
+              }),
             getChampionMasteryLevel: (currentState, targetChampionId, _champion, skill) =>
                 getChampionMasteryLevel(currentState as GameState, targetChampionId, skill),
             rollCastCheck: (champion, equip, activePotionBoosts, vitals, spell, skillLevel) =>
@@ -1974,12 +2023,61 @@ const runStoreCastSpellAction = createStoreCastSpellAction<GameState>({
     },
 });
 
-const runStoreTickSpellsAction = createStoreTickSpellsAction<GameState>(() => {
+function applyDroppedFloorItemRuntimeEffects(
+    state: GameState,
+    patch: Partial<GameState> | GameState | null,
+): Partial<GameState> | GameState | null {
+    if (!patch || patch === state) return patch;
+
+    const nextFloorItems = patch.floorItems;
+    if (!nextFloorItems || nextFloorItems === state.floorItems) return patch;
+
+    const existingIds = new Set(state.floorItems.map((item) => item.id));
+    const addedItems = nextFloorItems.filter((item) => !existingIds.has(item.id));
+    if (addedItems.length === 0) return patch;
+
+    let currentPatch: Partial<GameState> = {
+        ...(patch as Partial<GameState>),
+        floorItems: nextFloorItems,
+    };
+    let currentPendingSensorEvents = currentPatch.pendingSensorEvents ?? state.pendingSensorEvents;
+
+    for (const item of addedItems) {
+        const sensorState = buildSensorStateSnapshot({
+            ...state,
+            ...currentPatch,
+        });
+        const sensorResult = triggerFloorSensorsSystem(
+            item.mapIndex,
+            item.x,
+            item.y,
+            sensorState,
+            state.championInventories,
+            state.championEquipment,
+            currentPatch.floorItems ?? nextFloorItems,
+            currentPendingSensorEvents,
+            buildMovementSensorDeps(),
+            'enter',
+            'item',
+        );
+        currentPendingSensorEvents = sensorResult.pendingSensorEvents;
+        currentPatch = {
+            ...currentPatch,
+            ...sensorResult.sensorChanges,
+            floorItems: currentPatch.floorItems ?? nextFloorItems,
+            pendingSensorEvents: currentPendingSensorEvents,
+        };
+    }
+
+    return applyImmediateTransportSquareEffects(state, currentPatch);
+}
+
+const runStoreTickSpellsAction = (state: GameState, now: number) => {
     const tickSpellsPartyDamageDeps = createStoreTickSpellsRuntimePartyDamageDeps(
         buildRuntimePartyDamageDeps(),
         { attackType: 'Normal', allowedSlots: [] },
     );
-    return createStoreTickSpellsRuntimeDeps(
+    const runtimeDeps = createStoreTickSpellsRuntimeDeps(
         tickSpellsPartyDamageDeps,
         createStoreTickSpellsStatefulDeps({
             buildTerrainTransportDeps,
@@ -2027,9 +2125,12 @@ const runStoreTickSpellsAction = createStoreTickSpellsAction<GameState>(() => {
             damageEventLifetimeMs: DAMAGE_EVENT_LIFETIME_MS,
         },
     );
-});
 
-const runStoreMonsterTickAction = createStoreMonsterTickAction<GameState>((state) =>
+    const patch = buildStoreTickSpellsRuntimePatch(state, now, runtimeDeps);
+    return applyDroppedFloorItemRuntimeEffects(state, patch) as Partial<GameState> | null;
+};
+
+const runStoreMonsterTickActionBase = createStoreMonsterTickAction<GameState>((state) =>
     createStoreMonsterTickRuntimeDeps({
         getMap,
         getCreatureDef: (typeId) => CREATURE_TYPES[typeId],
@@ -2125,6 +2226,86 @@ const runStoreMonsterTickAction = createStoreMonsterTickAction<GameState>((state
     }),
 );
 
+function applyCreatureFloorSensorRuntimeEffects(
+    state: GameState,
+    patch: Partial<GameState> | null,
+): Partial<GameState> | null {
+    if (!patch) return patch;
+
+    const nextCreatures = patch.creatures ?? state.creatures;
+    if (nextCreatures === state.creatures) return patch;
+
+    const previousById = new Map(state.creatures.map((creature) => [creature.id, creature]));
+    const movedCreatures = nextCreatures.filter((creature) => {
+        const previous = previousById.get(creature.id);
+        return (
+            previous &&
+            previous.alive &&
+            creature.alive &&
+            (
+                previous.mapIndex !== creature.mapIndex ||
+                previous.x !== creature.x ||
+                previous.y !== creature.y
+            )
+        );
+    });
+    if (movedCreatures.length === 0) return patch;
+
+    let currentPatch: Partial<GameState> = {
+        ...patch,
+        creatures: nextCreatures,
+    };
+    let currentPendingSensorEvents = currentPatch.pendingSensorEvents ?? state.pendingSensorEvents;
+
+    for (const creature of movedCreatures) {
+        const previous = previousById.get(creature.id);
+        if (!previous) continue;
+
+        const applySensorPhase = (
+            level: number,
+            x: number,
+            y: number,
+            mode: 'enter' | 'leave',
+        ) => {
+            const sensorState = buildSensorStateSnapshot({
+                ...state,
+                ...currentPatch,
+            });
+            const sensorResult = triggerFloorSensorsSystem(
+                level,
+                x,
+                y,
+                sensorState,
+                currentPatch.championInventories ?? state.championInventories,
+                currentPatch.championEquipment ?? state.championEquipment,
+                currentPatch.floorItems ?? state.floorItems,
+                currentPendingSensorEvents,
+                buildMovementSensorDeps(),
+                mode,
+                'creature',
+                currentPatch.creatures ?? nextCreatures,
+            );
+            currentPendingSensorEvents = sensorResult.pendingSensorEvents;
+            currentPatch = {
+                ...currentPatch,
+                ...sensorResult.sensorChanges,
+                pendingSensorEvents: currentPendingSensorEvents,
+            };
+        };
+
+        applySensorPhase(previous.mapIndex, previous.x, previous.y, 'leave');
+        applySensorPhase(creature.mapIndex, creature.x, creature.y, 'enter');
+    }
+
+    return currentPatch;
+}
+
+const runStoreMonsterTickAction = (state: GameState, delta: number) =>
+    applyCreatureFloorSensorRuntimeEffects(
+        state,
+        runStoreMonsterTickActionBase(state, delta) as Partial<GameState> | null,
+    );
+
 function buildStorePickupItemPatch(
     state: GameState,
     itemId: string,
@@ -2141,6 +2322,34 @@ function buildStoreDropInventoryItemPatch(
     return buildDropInventoryItemRuntimePatch(state, championId, itemId, floorItemCommandDeps);
 }
 
+function resolveFrontTilePosition(
+    position: [number, number],
+    direction: Direction,
+): { x: number; y: number } {
+    const [y, x] = position;
+    if (direction === 'NORTH') return { x, y: y - 1 };
+    if (direction === 'SOUTH') return { x, y: y + 1 };
+    if (direction === 'EAST') return { x: x + 1, y };
+    return { x: x - 1, y };
+}
+
+function canPlaceDungeonDraggedItemOnTile(
+    state: GameState,
+    x: number,
+    y: number,
+): boolean {
+    const tile = getMap(state.level).tiles[y]?.[x];
+    if (!tile) return false;
+    if (tile.type === 'Wall') return false;
+    if (tile.type === 'TrickWall') {
+        return state.openWalls.has(`${state.level},${y},${x}`);
+    }
+    if (tile.type === 'Door') {
+        return state.openDoors.has(`${state.level},${y},${x}`);
+    }
+    return true;
+}
+
 const floorItemCommandDeps = createStoreFloorItemCommandDeps<
     CastResult,
     Partial<GameState>,
@@ -2153,7 +2362,7 @@ const floorItemCommandDeps = createStoreFloorItemCommandDeps<
     clearAlcoveStateOnPickup: (item, pickupState) =>
         clearAlcoveStateOnPickupSystem(item, pickupState, buildWallItemSensorDeps()),
     buildHiddenFirestaffMessage: () =>
-        buildAttackResultMessage("Le Firestaff complet ne peut etre obtenu que via l'Amalgam."),
+        buildAttackResultMessage(getTranslations().runtime.completeFirestaffOnlyViaAmalgam),
     isAltarTile: (level, x, y) =>
         isAltarTileSystem(level, x, y, (mapLevel, tileX, tileY) => getMap(mapLevel).tiles[tileY]?.[tileX]),
     buildViAltarResurrectionPatch: (state, deadChampionId, itemId, championId) =>
@@ -2172,6 +2381,8 @@ const floorItemCommandDeps = createStoreFloorItemCommandDeps<
         equipment,
         floorItems,
         pendingSensorEvents,
+        source,
+        mode,
     ) => triggerFloorSensorsSystem(
         level,
         x,
@@ -2182,7 +2393,8 @@ const floorItemCommandDeps = createStoreFloorItemCommandDeps<
         floorItems,
         pendingSensorEvents,
         buildMovementSensorDeps(),
-        'enter',
+        mode,
+        source,
     ),
     applyImmediateTransportSquareEffects: (state, patch) =>
         applyImmediateTransportSquareEffects(state, patch),
@@ -2424,6 +2636,37 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             (patch) => set(patch),
         ),
 
+    dropCarriedItemInFront: (championId, itemId, fromSlot) =>
+        runStoreOptionalPatchAction(
+            () => {
+                const state = get();
+                const { x, y } = resolveFrontTilePosition(state.position, state.direction);
+                if (!canPlaceDungeonDraggedItemOnTile(state, x, y)) return null;
+                const basePatch = removeChampionCarriedItemToTile(state, championId, itemId, fromSlot, x, y);
+                if (!basePatch) return null;
+                const nextFloorItems = (basePatch.floorItems as FloorItem[] | undefined) ?? state.floorItems;
+                const sensorChanges = triggerFloorSensorsSystem(
+                    state.level,
+                    x,
+                    y,
+                    buildSensorStateSnapshot(state),
+                    state.championInventories,
+                    state.championEquipment,
+                    nextFloorItems,
+                    state.pendingSensorEvents,
+                    buildMovementSensorDeps(),
+                    'enter',
+                    'item',
+                );
+                return {
+                    ...basePatch,
+                    ...sensorChanges.sensorChanges,
+                    pendingSensorEvents: sensorChanges.pendingSensorEvents,
+                };
+            },
+            (patch) => set(patch),
+        ),
+
     throwCarriedItem: (championId, itemId, fromSlot) =>
         runStoreOptionalPatchAction(
             () => buildThrowCarriedItemRuntimePatch(
@@ -2443,6 +2686,68 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                         }),
                 },
             ),
+            (patch) => set(patch),
+        ),
+
+    moveFloorItemToCurrentTile: (itemId, championId) =>
+        runStoreOptionalPatchAction(
+            () => {
+                const state = get();
+                const [y, x] = state.position;
+                return buildMoveFloorItemToTileRuntimePatch(state, itemId, championId, x, y, floorItemCommandDeps);
+            },
+            (patch) => set(patch),
+        ),
+
+    moveFloorItemToFrontTile: (itemId, championId) =>
+        runStoreOptionalPatchAction(
+            () => {
+                const state = get();
+                const { x, y } = resolveFrontTilePosition(state.position, state.direction);
+                if (!canPlaceDungeonDraggedItemOnTile(state, x, y)) return null;
+                return buildMoveFloorItemToTileRuntimePatch(state, itemId, championId, x, y, floorItemCommandDeps);
+            },
+            (patch) => set(patch),
+        ),
+
+    throwFloorItem: (itemId, championId) =>
+        runStoreOptionalPatchAction(
+            () =>
+                buildThrowFloorItemRuntimePatch(get(), itemId, championId, {
+                    buildSensorStateSnapshot,
+                    triggerFloorSensors: (
+                        level,
+                        x,
+                        y,
+                        sensorState,
+                        inventories,
+                        equipment,
+                        floorItems,
+                        pendingSensorEvents,
+                        source,
+                        mode,
+                    ) => triggerFloorSensorsSystem(
+                        level,
+                        x,
+                        y,
+                        sensorState as SensorState,
+                        inventories,
+                        equipment,
+                        floorItems,
+                        pendingSensorEvents as PendingSensorEvent[],
+                        buildMovementSensorDeps(),
+                        mode,
+                        source,
+                    ),
+                    buildProjectile: (currentState, targetChampionId, champion, item) =>
+                        buildDragThrowProjectile(currentState, targetChampionId, champion, item, {
+                            randomFraction: Math.random,
+                            nowMs: () => Date.now(),
+                            getChampionRuntimeBonuses,
+                        }),
+                    buildThrowXpPatch: (currentState, targetChampionId) =>
+                        buildChampionSkillExperiencePatchOriginal(currentState, targetChampionId, 'throw', 5),
+                }),
             (patch) => set(patch),
         ),
 

@@ -61,6 +61,8 @@ export function createStoreFloorItemCommandDeps<
         equipment: Record<number, ChampionEquipment>,
         floorItems: FloorItem[],
         pendingSensorEvents: TPendingSensorEvent[],
+        source: 'party' | 'item',
+        mode: 'enter' | 'leave',
     ) => {
         sensorChanges: TSensorPatch;
         pendingSensorEvents: TPendingSensorEvent[];
@@ -93,6 +95,8 @@ export function createStoreFloorItemCommandDeps<
             equipment: Record<number, ChampionEquipment>,
             floorItems: FloorItem[],
             pendingSensorEvents: unknown[],
+            source: 'party' | 'item',
+            mode: 'enter' | 'leave',
         ) => params.triggerFloorSensors(
             level,
             x,
@@ -102,6 +106,8 @@ export function createStoreFloorItemCommandDeps<
             equipment,
             floorItems,
             pendingSensorEvents as TPendingSensorEvent[],
+            source,
+            mode,
         ),
         applyImmediateTransportSquareEffects: (
             state: TState,

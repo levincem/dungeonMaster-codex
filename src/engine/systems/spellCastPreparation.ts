@@ -1,7 +1,10 @@
 import { getOriginalSpellCastXpRange } from '../../data/originalSpells';
+import { getTranslations } from '../../i18n';
 import type { SpellDef } from '../../data/runes';
 import type { ChampionCombat, ChampionVitals } from '../runtimeTypes';
 import type { SkillKey } from '../../data/skillProgression';
+
+const runtimeText = getTranslations().runtime;
 
 type CastCheck = {
     success: boolean;
@@ -73,7 +76,7 @@ export function prepareSpellCast<TXpPatch extends object>(
             patch: {
                 lastCastResult: {
                     success: false,
-                    message: 'Le champion recupere encore de sa derniere action.',
+                    message: runtimeText.championRecovering,
                     ts: now,
                 },
             },
@@ -86,7 +89,7 @@ export function prepareSpellCast<TXpPatch extends object>(
             patch: {
                 lastCastResult: {
                     success: false,
-                    message: `Mana insuffisant - ${spell.name} requiert ${spell.manaCost} points.`,
+                    message: runtimeText.insufficientMana(spell.name, spell.manaCost),
                     ts: now,
                 },
             },
@@ -112,10 +115,15 @@ export function prepareSpellCast<TXpPatch extends object>(
 
     const lowSkill = castCheck.missingSkillLevels > 0;
     const message = !castSucceeded
-        ? `${spell.name} echoue.`
+        ? runtimeText.spellFailed(spell.name)
         : lowSkill
-            ? `${spell.name} lance avec difficulte. (${spell.castSkill} niv. ${skillLevel}/${castCheck.requiredSkillLevel})`
-            : `${spell.name} - ${spell.description}`;
+            ? runtimeText.spellCastWithDifficulty(
+                spell.name,
+                runtimeText.skillNames[spell.castSkill],
+                skillLevel,
+                castCheck.requiredSkillLevel,
+            )
+            : runtimeText.spellSuccess(spell.name, spell.description);
 
     const nextVitals = {
         ...vitals,

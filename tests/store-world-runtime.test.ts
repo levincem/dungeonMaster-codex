@@ -19,6 +19,7 @@ function createBaseParams(
     maps: GameMap[],
     registeredTimers: Map<string, { mt: number; at: number }>,
     reservationCalls: Array<{
+        partyLevel: number;
         level: number;
         creatures: CreatureInstance[];
         pendingGeneratorSpawns: unknown[];
@@ -77,11 +78,12 @@ function createBaseParams(
             ],
         }),
         canMaterializeReservedGeneratorSpawnOnLevel: (
+            partyLevel: number,
             level: number,
             creatures: CreatureInstance[],
             pendingGeneratorSpawns: unknown[],
         ) => {
-            reservationCalls.push({ level, creatures, pendingGeneratorSpawns });
+            reservationCalls.push({ partyLevel, level, creatures, pendingGeneratorSpawns });
             return creatures.length === 0 && pendingGeneratorSpawns.length === 0;
         },
         isGeneratorSpawnBlocked: (
@@ -102,6 +104,7 @@ function createRuntime(
 ) {
     const registeredTimers = new Map<string, { mt: number; at: number }>();
     const reservationCalls: Array<{
+        partyLevel: number;
         level: number;
         creatures: CreatureInstance[];
         pendingGeneratorSpawns: unknown[];
@@ -257,6 +260,7 @@ test('store world runtime forwards generator reservation checks and difficulty-b
     const { runtime, registeredTimers, reservationCalls } = createRuntime(maps);
 
     const canSpawn = runtime.canApproximateOriginalReservedGeneratorSpawn({
+        currentLevel: 2,
         creatures: [],
         pendingGeneratorSpawns: [],
     }, 2);
@@ -264,6 +268,7 @@ test('store world runtime forwards generator reservation checks and difficulty-b
 
     assert.equal(canSpawn, true);
     assert.deepEqual(reservationCalls, [{
+        partyLevel: 2,
         level: 2,
         creatures: [],
         pendingGeneratorSpawns: [],

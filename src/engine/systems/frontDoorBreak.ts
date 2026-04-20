@@ -1,8 +1,11 @@
 import type { Champion } from '../../types/champion';
 import type { ChampionEquipment, DoorObject, GameTile } from '../../types/game';
+import { getTranslations } from '../../i18n';
 import type { ActivePotionBoost, ChampionVitals, Direction } from '../runtimeTypes';
 import type { WeaponAttackOption } from '../../data/weaponAttacks';
 import { resolveBreakDoorAttempt } from './breakDoorAction';
+
+const runtimeText = getTranslations().runtime;
 
 type FrontDoorBreakState = {
     level: number;
@@ -74,7 +77,7 @@ export function tryBreakFrontDoor(
         openDoors: result.nextOpenDoors,
         brokenDoors: result.nextBrokenDoors,
         message: result.outcome === 'broken'
-            ? deps.buildAttackResultMessage('La porte cede.', true)
-            : deps.buildAttackResultMessage('La porte resiste.'),
+            ? deps.buildAttackResultMessage(runtimeText.doorYields, true)
+            : deps.buildAttackResultMessage(runtimeText.doorResists),
     };
 }

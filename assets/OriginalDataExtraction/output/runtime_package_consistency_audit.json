@@ -1,0 +1,229 @@
+{
+  "generatedAt": "2026-04-20T14:49:58.607Z",
+  "summary": {
+    "topLevelChecks": 7,
+    "topLevelFailures": 0,
+    "runtimeDungeonMapsCompared": 14,
+    "runtimeDungeonMapFailures": 0,
+    "runtimeWallOverlayMapsCompared": 14,
+    "runtimeWallOverlayMapFailures": 0,
+    "expectedMapCount": 14,
+    "expectedOverlayMapCount": 14
+  },
+  "checks": [
+    {
+      "label": "dungeon bootstrap",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_dungeon_bootstrap.json",
+      "actualPath": "src/assets/runtime/dungeon/bootstrap.json",
+      "matches": true
+    },
+    {
+      "label": "game_db monolith",
+      "expectedPath": "assets/OriginalDataExtraction/output/game_db.json",
+      "actualPath": "src/assets/runtime/db/game_db.json",
+      "matches": true
+    },
+    {
+      "label": "runtime manifest",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_data_manifest.json",
+      "actualPath": "src/assets/runtime/runtime_data_manifest.json",
+      "matches": true
+    },
+    {
+      "label": "runtime wall overlays snapshot",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_wall_overlay_positions.json",
+      "actualPath": "src/assets/runtime/support/original_wall_overlay_positions.json",
+      "matches": true
+    },
+    {
+      "label": "game_db items slice",
+      "expectedPath": "assets/OriginalDataExtraction/output/game_db.json",
+      "actualPath": "src/assets/runtime/db/game_db_items.json",
+      "matches": true
+    },
+    {
+      "label": "game_db weapon attacks slice",
+      "expectedPath": "assets/OriginalDataExtraction/output/game_db.json",
+      "actualPath": "src/assets/runtime/db/game_db_weapon_attacks.json",
+      "matches": true
+    },
+    {
+      "label": "game_db creatures slice",
+      "expectedPath": "assets/OriginalDataExtraction/output/game_db.json",
+      "actualPath": "src/assets/runtime/db/game_db_creatures.json",
+      "matches": true
+    }
+  ],
+  "mapChecks": [
+    {
+      "label": "runtime dungeon map 0",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_dungeon.json",
+      "actualPath": "src/assets/runtime/dungeon/maps/level-00.json",
+      "matches": true
+    },
+    {
+      "label": "runtime dungeon map 1",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_dungeon.json",
+      "actualPath": "src/assets/runtime/dungeon/maps/level-01.json",
+      "matches": true
+    },
+    {
+      "label": "runtime dungeon map 2",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_dungeon.json",
+      "actualPath": "src/assets/runtime/dungeon/maps/level-02.json",
+      "matches": true
+    },
+    {
+      "label": "runtime dungeon map 3",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_dungeon.json",
+      "actualPath": "src/assets/runtime/dungeon/maps/level-03.json",
+      "matches": true
+    },
+    {
+      "label": "runtime dungeon map 4",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_dungeon.json",
+      "actualPath": "src/assets/runtime/dungeon/maps/level-04.json",
+      "matches": true
+    },
+    {
+      "label": "runtime dungeon map 5",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_dungeon.json",
+      "actualPath": "src/assets/runtime/dungeon/maps/level-05.json",
+      "matches": true
+    },
+    {
+      "label": "runtime dungeon map 6",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_dungeon.json",
+      "actualPath": "src/assets/runtime/dungeon/maps/level-06.json",
+      "matches": true
+    },
+    {
+      "label": "runtime dungeon map 7",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_dungeon.json",
+      "actualPath": "src/assets/runtime/dungeon/maps/level-07.json",
+      "matches": true
+    },
+    {
+      "label": "runtime dungeon map 8",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_dungeon.json",
+      "actualPath": "src/assets/runtime/dungeon/maps/level-08.json",
+      "matches": true
+    },
+    {
+      "label": "runtime dungeon map 9",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_dungeon.json",
+      "actualPath": "src/assets/runtime/dungeon/maps/level-09.json",
+      "matches": true
+    },
+    {
+      "label": "runtime dungeon map 10",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_dungeon.json",
+      "actualPath": "src/assets/runtime/dungeon/maps/level-10.json",
+      "matches": true
+    },
+    {
+      "label": "runtime dungeon map 11",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_dungeon.json",
+      "actualPath": "src/assets/runtime/dungeon/maps/level-11.json",
+      "matches": true
+    },
+    {
+      "label": "runtime dungeon map 12",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_dungeon.json",
+      "actualPath": "src/assets/runtime/dungeon/maps/level-12.json",
+      "matches": true
+    },
+    {
+      "label": "runtime dungeon map 13",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_dungeon.json",
+      "actualPath": "src/assets/runtime/dungeon/maps/level-13.json",
+      "matches": true
+    }
+  ],
+  "overlayMapChecks": [
+    {
+      "label": "runtime wall overlay map 0",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_wall_overlay_positions.json",
+      "actualPath": "src/assets/runtime/support/wall_overlays/map-00.json",
+      "matches": true
+    },
+    {
+      "label": "runtime wall overlay map 1",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_wall_overlay_positions.json",
+      "actualPath": "src/assets/runtime/support/wall_overlays/map-01.json",
+      "matches": true
+    },
+    {
+      "label": "runtime wall overlay map 2",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_wall_overlay_positions.json",
+      "actualPath": "src/assets/runtime/support/wall_overlays/map-02.json",
+      "matches": true
+    },
+    {
+      "label": "runtime wall overlay map 3",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_wall_overlay_positions.json",
+      "actualPath": "src/assets/runtime/support/wall_overlays/map-03.json",
+      "matches": true
+    },
+    {
+      "label": "runtime wall overlay map 4",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_wall_overlay_positions.json",
+      "actualPath": "src/assets/runtime/support/wall_overlays/map-04.json",
+      "matches": true
+    },
+    {
+      "label": "runtime wall overlay map 5",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_wall_overlay_positions.json",
+      "actualPath": "src/assets/runtime/support/wall_overlays/map-05.json",
+      "matches": true
+    },
+    {
+      "label": "runtime wall overlay map 6",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_wall_overlay_positions.json",
+      "actualPath": "src/assets/runtime/support/wall_overlays/map-06.json",
+      "matches": true
+    },
+    {
+      "label": "runtime wall overlay map 7",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_wall_overlay_positions.json",
+      "actualPath": "src/assets/runtime/support/wall_overlays/map-07.json",
+      "matches": true
+    },
+    {
+      "label": "runtime wall overlay map 8",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_wall_overlay_positions.json",
+      "actualPath": "src/assets/runtime/support/wall_overlays/map-08.json",
+      "matches": true
+    },
+    {
+      "label": "runtime wall overlay map 9",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_wall_overlay_positions.json",
+      "actualPath": "src/assets/runtime/support/wall_overlays/map-09.json",
+      "matches": true
+    },
+    {
+      "label": "runtime wall overlay map 10",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_wall_overlay_positions.json",
+      "actualPath": "src/assets/runtime/support/wall_overlays/map-10.json",
+      "matches": true
+    },
+    {
+      "label": "runtime wall overlay map 11",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_wall_overlay_positions.json",
+      "actualPath": "src/assets/runtime/support/wall_overlays/map-11.json",
+      "matches": true
+    },
+    {
+      "label": "runtime wall overlay map 12",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_wall_overlay_positions.json",
+      "actualPath": "src/assets/runtime/support/wall_overlays/map-12.json",
+      "matches": true
+    },
+    {
+      "label": "runtime wall overlay map 13",
+      "expectedPath": "assets/OriginalDataExtraction/output/runtime_wall_overlay_positions.json",
+      "actualPath": "src/assets/runtime/support/wall_overlays/map-13.json",
+      "matches": true
+    }
+  ]
+}

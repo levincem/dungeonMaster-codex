@@ -3,8 +3,11 @@ import assert from 'node:assert/strict';
 import type { Champion } from '../src/types/champion.js';
 import type { ChampionEquipment, FloorItem } from '../src/types/game.js';
 import {
+    buildDropInventoryItemToTileRuntimePatch,
     buildDropInventoryItemRuntimePatch,
+    buildMoveFloorItemToTileRuntimePatch,
     buildPickupItemToChampionRuntimePatch,
+    buildThrowFloorItemRuntimePatch,
 } from '../src/engine/systems/floorItemCommandRuntime.js';
 import { buildStoreSelectedChampionPickupPatch } from '../src/engine/systems/storeFloorItemRuntime.js';
 
@@ -58,11 +61,14 @@ function createItem(id: string, overrides: Partial<FloorItem> = {}): FloorItem {
 
 test('buildPickupItemToChampionRuntimePatch delegates to the pickup transfer helper', () => {
     const state = {
+        level: 0,
         floorItems: [createItem('sword')],
         party: [createChampion(1)],
         championInventories: { 1: [] as FloorItem[] },
+        championEquipment: { 1: {} as ChampionEquipment },
         activeFloorDrag: null,
         lastCastResult: null,
+        pendingSensorEvents: [] as PendingSensorEvent[],
     };
 
     const patch = buildPickupItemToChampionRuntimePatch(
@@ -82,6 +88,62 @@ test('buildPickupItemToChampionRuntimePatch delegates to the pickup transfer hel
 
     assert.deepEqual(patch, {
         championInventories: { 1: [createItem('sword')] },
+    });
+});
+
+test('buildPickupItemToChampionRuntimePatch clears item-held floor sensors when the last item leaves the tile', () => {
+    const item = createItem('boulder', { category: 'Misc', typeId: 25, x: 25, y: 1 });
+    const state = {
+        level: 1,
+        floorItems: [item],
+        party: [createChampion(1)],
+        championInventories: { 1: [] as FloorItem[] },
+        championEquipment: { 1: {} as ChampionEquipment },
+        activeFloorDrag: null,
+        lastCastResult: null,
+        pendingSensorEvents: [{ level: 1, sensorIndex: 8, remaining: 0 }] as PendingSensorEvent[],
+    };
+    const modes: string[] = [];
+
+    const patch = buildPickupItemToChampionRuntimePatch(
+        state,
+        item.id,
+        1,
+        {
+            transferFloorItemToChampionState: () => ({
+                floorItems: [],
+                championInventories: { 1: [item] },
+                activeFloorDrag: null,
+            }),
+            buildSensorStateSnapshot: () => ({ snapshot: true }),
+            triggerFloorSensors: (
+                _level,
+                _x,
+                _y,
+                _sensorState,
+                _inventories,
+                _equipment,
+                floorItems,
+                _pending,
+                _source,
+                mode,
+            ) => {
+                modes.push(mode);
+                return {
+                    sensorChanges: { floorItems, openDoors: new Set<string>() },
+                    pendingSensorEvents: [],
+                };
+            },
+        },
+    );
+
+    assert.deepEqual(modes, ['leave']);
+    assert.deepEqual(patch, {
+        floorItems: [],
+        championInventories: { 1: [item] },
+        activeFloorDrag: null,
+        openDoors: new Set<string>(),
+        pendingSensorEvents: [],
     });
 });
 
@@ -189,9 +251,202 @@ test('buildDropInventoryItemRuntimePatch drops the item, triggers sensors and ap
 
     assert.deepEqual(patch, {
         championInventories: { 1: [] },
-        floorItems: [{ ...item, mapIndex: 0, x: 5, y: 4, tilePos: 'North' }],
+        floorItems: [{ ...item, mapIndex: 0, x: 5, y: 4, tilePos: 'North', projectileDropped: undefined }],
         marker: '5,4',
         pendingSensorEvents: [],
         transported: true,
+    });
+});
+
+test('buildDropInventoryItemRuntimePatch tags floor-sensor checks as item-driven', () => {
+    const item = createItem('coin', { category: 'Misc', typeId: 6 });
+    const sources: string[] = [];
+    const state = {
+        level: 0,
+        position: [4, 5] as [number, number],
+        party: [createChampion(1)],
+        floorItems: [] as FloorItem[],
+        championInventories: { 1: [item] },
+        championEquipment: { 1: {} as ChampionEquipment },
+        deadChampions: {},
+        pendingSensorEvents: [] as PendingSensorEvent[],
+    };
+
+    buildDropInventoryItemRuntimePatch(
+        state,
+        1,
+        item.id,
+        {
+            isAltarTile: () => false,
+            buildViAltarResurrectionPatch: () => null,
+            buildSensorStateSnapshot: () => ({ snapshot: true }),
+            triggerFloorSensors: (
+                _level,
+                _x,
+                _y,
+                _sensorState,
+                _inventories,
+                _equipment,
+                floorItems,
+                _pending,
+                source,
+            ) => {
+                sources.push(source);
+                return {
+                    sensorChanges: { floorItems },
+                    pendingSensorEvents: [],
+                };
+            },
+            applyImmediateTransportSquareEffects: (_currentState, basePatch) => basePatch,
+        },
+    );
+
+    assert.deepEqual(sources, ['item']);
+});
+
+test('buildDropInventoryItemToTileRuntimePatch can place a carried item on the front tile', () => {
+    const item = createItem('club');
+    const state = {
+        level: 0,
+        position: [4, 5] as [number, number],
+        direction: 'NORTH' as const,
+        party: [createChampion(1)],
+        floorItems: [] as FloorItem[],
+        championInventories: { 1: [item] },
+        championEquipment: { 1: {} as ChampionEquipment },
+        deadChampions: {},
+        pendingSensorEvents: [] as PendingSensorEvent[],
+    };
+
+    const patch = buildDropInventoryItemToTileRuntimePatch(
+        state,
+        1,
+        item.id,
+        5,
+        3,
+        {
+            isAltarTile: () => false,
+            buildViAltarResurrectionPatch: () => null,
+            buildSensorStateSnapshot: () => ({ snapshot: true }),
+            triggerFloorSensors: (_level, x, y, _sensorState, _inventories, _equipment, floorItems) => ({
+                sensorChanges: { floorItems, marker: `${x},${y}` },
+                pendingSensorEvents: [],
+            }),
+            applyImmediateTransportSquareEffects: (_currentState, basePatch) => ({
+                ...basePatch,
+                transported: true,
+            }),
+        },
+    );
+
+    assert.deepEqual(patch, {
+        championInventories: { 1: [] },
+        floorItems: [{ ...item, mapIndex: 0, x: 5, y: 3, tilePos: 'North', projectileDropped: undefined }],
+        marker: '5,3',
+        pendingSensorEvents: [],
+    });
+});
+
+test('buildMoveFloorItemToTileRuntimePatch clears source sensors then triggers destination sensors', () => {
+    const item = createItem('scroll', { category: 'Scroll', x: 5, y: 3 });
+    const modes: Array<{ mode: string; x: number; y: number }> = [];
+    const state = {
+        level: 0,
+        position: [4, 5] as [number, number],
+        direction: 'NORTH' as const,
+        party: [createChampion(1)],
+        floorItems: [item],
+        championInventories: { 1: [] as FloorItem[] },
+        championEquipment: { 1: {} as ChampionEquipment },
+        deadChampions: {},
+        pendingSensorEvents: [] as PendingSensorEvent[],
+        activeFloorDrag: { itemId: item.id, pointerX: 10, pointerY: 10 },
+    };
+
+    const patch = buildMoveFloorItemToTileRuntimePatch(
+        state,
+        item.id,
+        1,
+        5,
+        4,
+        {
+            buildSensorStateSnapshot: () => ({ snapshot: true }),
+            triggerFloorSensors: (_level, x, y, _sensorState, _inventories, _equipment, floorItems, _pending, _source, mode) => {
+                modes.push({ mode, x, y });
+                return {
+                    sensorChanges: { floorItems },
+                    pendingSensorEvents: [],
+                };
+            },
+            applyImmediateTransportSquareEffects: (_currentState, basePatch) => ({
+                ...basePatch,
+                transported: true,
+            }),
+        },
+    );
+
+    assert.deepEqual(modes, [
+        { mode: 'leave', x: 5, y: 3 },
+        { mode: 'enter', x: 5, y: 4 },
+    ]);
+    assert.deepEqual(patch, {
+        floorItems: [{ ...item, mapIndex: 0, x: 5, y: 4, tilePos: 'North', projectileDropped: undefined }],
+        pendingSensorEvents: [],
+        activeFloorDrag: null,
+        transported: true,
+    });
+});
+
+test('buildThrowFloorItemRuntimePatch removes the floor item and appends a projectile', () => {
+    const item = createItem('dagger', { x: 5, y: 3, typeId: 8 });
+    const projectile = {
+        id: 'projectile_1',
+        level: 0,
+        x: 5,
+        y: 4,
+        direction: 'NORTH' as const,
+        effect: 'physical' as const,
+        damage: [2, 4] as [number, number],
+        nextMoveAt: 0,
+        remainingRange: 4,
+        remainingAttack: 4,
+        stepDecay: 1,
+        physicalItem: item,
+    };
+    const state = {
+        level: 0,
+        position: [4, 5] as [number, number],
+        direction: 'NORTH' as const,
+        party: [createChampion(1)],
+        floorItems: [item],
+        championInventories: { 1: [] as FloorItem[] },
+        championEquipment: { 1: {} as ChampionEquipment },
+        deadChampions: {},
+        pendingSensorEvents: [] as PendingSensorEvent[],
+        activeFloorDrag: { itemId: item.id, pointerX: 10, pointerY: 10 },
+        projectiles: [],
+    };
+
+    const patch = buildThrowFloorItemRuntimePatch(
+        state,
+        item.id,
+        1,
+        {
+            buildSensorStateSnapshot: () => ({ snapshot: true }),
+            triggerFloorSensors: () => ({
+                sensorChanges: { floorItems: [] },
+                pendingSensorEvents: [],
+            }),
+            buildProjectile: () => projectile,
+            buildThrowXpPatch: () => ({ marker: 'xp' } as never),
+        },
+    );
+
+    assert.deepEqual(patch, {
+        floorItems: [],
+        pendingSensorEvents: [],
+        activeFloorDrag: null,
+        projectiles: [projectile],
+        marker: 'xp',
     });
 });

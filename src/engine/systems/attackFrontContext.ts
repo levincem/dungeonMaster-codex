@@ -16,6 +16,14 @@ export function getChampionPreferredColumn(
     return isLeftColumn ? 'left' : 'right';
 }
 
+export function isChampionInRearRank(
+    party: Champion[],
+    championId: number,
+): boolean {
+    const championIndex = party.findIndex((champion) => champion.id === championId);
+    return championIndex >= 2;
+}
+
 export function resolveAttackFrontContext(
     level: number,
     position: [number, number],

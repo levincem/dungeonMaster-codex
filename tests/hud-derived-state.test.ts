@@ -10,8 +10,9 @@ import {
 } from '../src/components/UI/hudDerivedState.js';
 import type { ChampionCombat, DamageEvent } from '../src/engine/runtimeTypes.js';
 import type { GameMap, GameTile } from '../src/types/game.js';
-import type { ChampionEquipment } from '../src/types/game.js';
+import type { ChampionEquipment, FloorItem } from '../src/types/game.js';
 import type { WeaponAttackOption } from '../src/data/weaponAttacks.js';
+import { getPreferredCombatItem } from '../src/data/equipment.js';
 
 type TestChampion = {
     id: number;
@@ -156,6 +157,66 @@ test('buildCombatGridSlotState derives readiness, images, names, and usable atta
     assert.equal(state.weaponName, 'Execution Axe');
     assert.deepEqual(state.allAttacks, [jab, cleave]);
     assert.deepEqual(state.usableAttacks, [jab]);
+});
+
+test('buildCombatGridSlotState can surface the next throwable quiver item when the hand is empty', () => {
+    const champion = createChampion(1, 'Wu Tse');
+    const throwAttack = {
+        attackType: 3,
+        displayName: 'Throw',
+        enumName: 'Throw',
+        masteryThreshold: 0,
+        attack: { skillNumber: 1 },
+    } as WeaponAttackOption;
+    const star: FloorItem = {
+        id: 'star',
+        category: 'Weapon',
+        typeId: 32,
+        rawName: 'Throwing Star',
+        mapIndex: 0,
+        x: 0,
+        y: 0,
+        tilePos: 'North',
+    };
+    const championCombat: Record<number, ChampionCombat> = {
+        1: { cooldown: 0, cooldownMax: 12, defenseModifier: 0 },
+    };
+    const championEquipment: Record<number, ChampionEquipment> = {
+        1: { quiver1: star },
+    };
+
+    const state = buildCombatGridSlotState({
+        champion,
+        championCombat,
+        championEquipment,
+        emptyWeaponImage: 'empty.png',
+        fistLabel: 'FIST',
+        direction: 'NORTH',
+        resolveWeaponImage: (_championId, equipment) =>
+            getPreferredCombatItem(equipment, {
+                getWeaponAttackOptions: (item) => item?.id === 'star' ? [throwAttack] : [],
+                isThrowAttack: (attack) => attack?.enumName === 'Throw',
+            })?.item?.id === 'star'
+                ? 'star.png'
+                : 'empty.png',
+        resolveWeaponName: (_championId, equipment) =>
+            getPreferredCombatItem(equipment, {
+                getWeaponAttackOptions: (item) => item?.id === 'star' ? [throwAttack] : [],
+                isThrowAttack: (attack) => attack?.enumName === 'Throw',
+            })?.item?.rawName ?? 'FIST',
+        getAllAttacks: (_championId, equipment) => getPreferredCombatItem(equipment, {
+            getWeaponAttackOptions: (item) => item?.id === 'star' ? [throwAttack] : [],
+            isThrowAttack: (attack) => attack?.enumName === 'Throw',
+        })?.item?.id === 'star'
+            ? [throwAttack]
+            : [],
+        getAttackMasteryLevel: () => 3,
+    });
+
+    assert.equal(state.weaponImage, 'star.png');
+    assert.equal(state.weaponName, 'Throwing Star');
+    assert.deepEqual(state.allAttacks, [throwAttack]);
+    assert.deepEqual(state.usableAttacks, [throwAttack]);
 });
 
 test('selectHudRunes truncates at an existing rune and refuses to exceed four runes', () => {

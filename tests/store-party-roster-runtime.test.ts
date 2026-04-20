@@ -184,3 +184,37 @@ test('buildRemoveFromPartyPatch drops inventory and equipment onto the current f
         },
     });
 });
+
+test('buildRemoveFromPartyPatch keeps carried gear in champion storage when dismissing in the Hall of Champions', () => {
+    const state = {
+        level: 0,
+        position: [6, 7] as [number, number],
+        party: [createChampion(1), createChampion(2)],
+        floorItems: [createItem('floor')],
+        championInventories: {
+            2: [createItem('apple')],
+        },
+        championEquipment: {
+            2: {
+                leftHand: createItem('dagger'),
+            } as ChampionEquipment,
+        },
+    };
+
+    const patch = buildRemoveFromPartyPatch(state, 2);
+
+    assert.deepEqual(patch, {
+        party: [createChampion(1)],
+        gateOpen: false,
+        floorItems: [createItem('floor')],
+        championInventories: {
+            2: [
+                createItem('apple'),
+                createItem('dagger'),
+            ],
+        },
+        championEquipment: {
+            2: {},
+        },
+    });
+});

@@ -161,6 +161,7 @@ test('buildPhysicalProjectileAttackPatch resolves throw attacks into a success p
         createChampion(),
         { rightHand },
         rightHand,
+        'rightHand',
         60,
         createCombat(),
         baseDeps,
@@ -186,13 +187,14 @@ test('buildPhysicalProjectileAttackPatch reports missing ammo for shoot attacks'
         createChampion(),
         {},
         undefined,
+        null,
         60,
         createCombat(),
         baseDeps,
     );
 
     assert.ok(patch && 'lastCastResult' in patch);
-    assert.equal(patch.lastCastResult.message, 'Aucune munition compatible dans le carquois.');
+    assert.equal(patch.lastCastResult.message, 'No compatible ammunition in the quiver.');
     assert.equal(patch.lastCastResult.success, false);
 });
 
@@ -204,6 +206,7 @@ test('buildPhysicalProjectileAttackPatch consumes the ammo slot on shoot success
         createChampion(),
         { quiver1: ammo } as ChampionEquipment,
         createItem({ id: 'bow' }),
+        'rightHand',
         60,
         createCombat(),
         {
@@ -220,4 +223,31 @@ test('buildPhysicalProjectileAttackPatch consumes the ammo slot on shoot success
 
     assert.equal(successPatch.championEquipment[1]?.quiver1, undefined);
     assert.equal(successPatch.projectiles.length, 1);
+});
+
+test('buildPhysicalProjectileAttackPatch throws a quiver weapon without requiring it in hand', () => {
+    const dagger = createItem({ id: 'dagger', rawName: 'Dagger' });
+    const patch = buildPhysicalProjectileAttackPatch(
+        createAttack('Throw'),
+        createState(),
+        createChampion(),
+        { quiver1: dagger } as ChampionEquipment,
+        dagger,
+        'quiver1',
+        60,
+        createCombat(),
+        baseDeps,
+    );
+
+    assert.ok(patch && 'projectiles' in patch && 'championEquipment' in patch);
+    const successPatch = patch as {
+        championEquipment: Record<number, ChampionEquipment>;
+        projectiles: unknown[];
+        lastCastResult: { success: boolean; message: string };
+    };
+
+    assert.equal(successPatch.championEquipment[1]?.quiver1, undefined);
+    assert.equal(successPatch.projectiles.length, 1);
+    assert.equal(successPatch.lastCastResult.message, 'Throw');
+    assert.equal(successPatch.lastCastResult.success, true);
 });

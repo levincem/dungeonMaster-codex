@@ -10,6 +10,7 @@ import { getGameMap } from '../../data/mapLoader';
 import type { Champion } from '../../data/champions';
 import type { ChampionEquipment } from '../../types/game';
 import { getEquippedItemImage } from '../../data/itemImages';
+import { getPreferredCombatItem } from '../../data/equipment';
 import { formatKeybinding, matchesKeybinding, normalizeBindingKey } from '../../engine/options';
 import { findSpell } from '../../data/runes';
 import { itemsPath } from '../../data/assetPaths';
@@ -24,7 +25,7 @@ import {
     isAttackOptionUsableAtMastery,
     type WeaponAttackOption,
 } from '../../data/weaponAttacks';
-import { getChampionSkillLevel, mapOriginalSkillNumberToSkillKey } from '../../data/skillProgression';
+import { BASIC_SKILL_KEYS, getChampionSkillLevel, mapOriginalSkillNumberToSkillKey } from '../../data/skillProgression';
 import {
     buildChampionRecentDamageMap,
     buildHudCastState,
@@ -97,11 +98,17 @@ const CombatGrid: React.FC<{
                     fistLabel: text.fist,
                     direction,
                     resolveWeaponImage: (_championId, equipment) => {
-                        const weapon = equipment.rightHand;
+                        const weapon = getPreferredCombatItem(equipment, {
+                            getWeaponAttackOptions,
+                            isThrowAttack: (attack) => attack?.enumName === 'Throw',
+                        })?.item;
                         return weapon ? getEquippedItemImage(weapon, torchBurnStart) : emptyWeaponImage;
                     },
                     resolveWeaponName: (_championId, equipment, facingDirection) => {
-                        const weapon = equipment.rightHand;
+                        const weapon = getPreferredCombatItem(equipment, {
+                            getWeaponAttackOptions,
+                            isThrowAttack: (attack) => attack?.enumName === 'Throw',
+                        })?.item;
                         if (!weapon) return text.fist;
                         return weapon.category === 'Weapon'
                             ? (WEAPON_TYPES[weapon.typeId]?.name ?? weapon.rawName ?? '?')
@@ -111,7 +118,12 @@ const CombatGrid: React.FC<{
                                 facingDirection,
                             );
                     },
-                    getAllAttacks: (_championId, equipment) => getWeaponAttackOptions(equipment.rightHand),
+                    getAllAttacks: (_championId, equipment) => getWeaponAttackOptions(
+                        getPreferredCombatItem(equipment, {
+                            getWeaponAttackOptions,
+                            isThrowAttack: (attack) => attack?.enumName === 'Throw',
+                        })?.item,
+                    ),
                     getAttackMasteryLevel: getMasteryForAttack,
                 });
                 const { allAttacks, cooldownRatio, ready, usableAttacks, weaponImage, weaponName } = slotState;
@@ -324,6 +336,9 @@ export const HUD = () => {
     const [rebindingTarget, setRebindingTarget] = useState<RebindingTarget | null>(null);
     const [tutorialModalOpen, setTutorialModalOpen] = useState(false);
     const [activeManualSectionId, setActiveManualSectionId] = useState<string | null>(manual.sections[0]?.id ?? null);
+    const [levelUpChampionIds, setLevelUpChampionIds] = useState<number[]>([]);
+    const previousBasicSkillLevelsRef = useRef<Record<number, number[]>>({});
+    const levelUpTimeoutsRef = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
     const handleCloseOptionsModal = useCallback(() => {
         setRebindingTarget(null);
         closeOptionsModal();
@@ -340,6 +355,47 @@ export const HUD = () => {
         }
         previousPartyStepRef.current = { level, position };
     }, [level, position]);
+
+    useEffect(() => {
+        const nextBasicSkillLevels: Record<number, number[]> = {};
+
+        for (const champion of party) {
+            const basicLevels = BASIC_SKILL_KEYS.map((skill) =>
+                getChampionSkillLevel(
+                    championXP[champion.id],
+                    championTemporaryXP[champion.id],
+                    skill,
+                    { ignoreTemporary: true },
+                ),
+            );
+            const previousBasicLevels = previousBasicSkillLevelsRef.current[champion.id];
+
+            if (
+                previousBasicLevels &&
+                basicLevels.some((value, index) => value > (previousBasicLevels[index] ?? 0))
+            ) {
+                setLevelUpChampionIds((current) => current.includes(champion.id) ? current : [...current, champion.id]);
+                const existingTimeout = levelUpTimeoutsRef.current[champion.id];
+                if (existingTimeout) {
+                    clearTimeout(existingTimeout);
+                }
+                levelUpTimeoutsRef.current[champion.id] = setTimeout(() => {
+                    setLevelUpChampionIds((current) => current.filter((id) => id !== champion.id));
+                    delete levelUpTimeoutsRef.current[champion.id];
+                }, 2200);
+            }
+
+            nextBasicSkillLevels[champion.id] = basicLevels;
+        }
+
+        previousBasicSkillLevelsRef.current = nextBasicSkillLevels;
+    }, [party, championXP, championTemporaryXP]);
+
+    useEffect(() => () => {
+        for (const timeoutId of Object.values(levelUpTimeoutsRef.current)) {
+            clearTimeout(timeoutId);
+        }
+    }, []);
 
     const flash = useCallback((key: string, action: () => void) => {
         action();
@@ -535,6 +591,7 @@ export const HUD = () => {
                 championVitals={championVitals}
                 championEquipment={championEquipment}
                 recentDamageByChampionId={recentDamageByChampionId}
+                levelUpChampionIds={levelUpChampionIds}
                 selectedChampionIndex={selectedChampionIndex}
                 activeFloorDrag={activeFloorDrag}
                 dragFrom={dragFrom}

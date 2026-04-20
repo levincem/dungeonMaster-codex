@@ -165,3 +165,43 @@ test('activateWallSensor reveals self-revealing walls and exposed items', () => 
         floorItems: [hiddenItem],
     });
 });
+
+test('activateWallSensor keeps the clicked lever active even if remote wall routing also reports source active state', () => {
+    const tile: GameTile = {
+        x: 6,
+        y: 5,
+        type: 'Wall',
+        objects: [createSensor({
+            index: 11,
+            action: 'Toggle',
+            targetX: 7,
+            targetY: 5,
+            targetDir: 'East',
+        })],
+    };
+    const { deps } = createDeps(tile, {
+        queueOrComputeSensorEffect: (_sensor: SensorObject, _level: number, _ss: TestSensorState, pending: string[]) => ({
+            sensorChanges: {
+                activeSensors: new Set<string>(),
+            },
+            pendingSensorEvents: pending,
+        }),
+    });
+
+    const result = activateWallSensor(
+        { pendingSensorEvents: [], floorItems: [] },
+        3,
+        6,
+        5,
+        11,
+        deps,
+    );
+
+    assert.deepEqual(result, {
+        activeSensors: new Set(['3_11']),
+        openDoors: new Set(),
+        openWalls: new Set(),
+        firedSensors: new Set(),
+        sensorRotationOffsets: {},
+    });
+});

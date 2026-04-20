@@ -11,7 +11,7 @@ import {
 } from '../src/engine/systems/generatorCapacity.js';
 
 test('getApproximateActiveGroupCountOnLevel counts unique live groups on the requested level', () => {
-    const count = getApproximateActiveGroupCountOnLevel(2, [
+    const count = getApproximateActiveGroupCountOnLevel(2, 2, [
         { alive: true, mapIndex: 2, x: 1, y: 1, groupId: 'group-a' },
         { alive: true, mapIndex: 2, x: 1, y: 1, groupId: 'group-a' },
         { alive: true, mapIndex: 2, x: 4, y: 5, groupId: 'group-b' },
@@ -23,7 +23,7 @@ test('getApproximateActiveGroupCountOnLevel counts unique live groups on the req
 });
 
 test('getApproximateReservedGeneratorGroupCountOnLevel counts pending generator group reservations', () => {
-    const count = getApproximateReservedGeneratorGroupCountOnLevel(2, [
+    const count = getApproximateReservedGeneratorGroupCountOnLevel(2, 2, [
         { spawnLevel: 2, spawnX: 1, spawnY: 1, groupId: 'pending-a' },
         { spawnLevel: 2, spawnX: 1, spawnY: 1, groupId: 'pending-a' },
         { spawnLevel: 2, spawnX: 2, spawnY: 2, groupId: 'pending-b' },
@@ -35,6 +35,7 @@ test('getApproximateReservedGeneratorGroupCountOnLevel counts pending generator 
 
 test('getApproximateGeneratorOccupiedGroupCountOnLevel combines live and pending generator groups', () => {
     const count = getApproximateGeneratorOccupiedGroupCountOnLevel(
+        2,
         2,
         [
             { alive: true, mapIndex: 2, x: 1, y: 1, groupId: 'group-a' },
@@ -52,6 +53,7 @@ test('getApproximateGeneratorOccupiedGroupCountOnLevel combines live and pending
 test('collectRuntimeGroupsOnLevel builds explicit alive and reserved runtime group records', () => {
     const records = collectRuntimeGroupsOnLevel(
         2,
+        2,
         [
             { alive: true, mapIndex: 2, x: 1, y: 1, groupId: 'group-a' },
             { alive: true, mapIndex: 2, x: 1, y: 1, groupId: 'group-a' },
@@ -68,6 +70,7 @@ test('collectRuntimeGroupsOnLevel builds explicit alive and reserved runtime gro
             groupId: 'group-a',
             level: 2,
             lifecycle: 'alive',
+            activity: 'active',
             memberCount: 2,
             tileKeys: ['2,1,1'],
             hasExplicitGroupId: true,
@@ -76,6 +79,7 @@ test('collectRuntimeGroupsOnLevel builds explicit alive and reserved runtime gro
             groupId: 'tile_3,4',
             level: 2,
             lifecycle: 'alive',
+            activity: 'active',
             memberCount: 1,
             tileKeys: ['2,3,4'],
             hasExplicitGroupId: false,
@@ -84,6 +88,7 @@ test('collectRuntimeGroupsOnLevel builds explicit alive and reserved runtime gro
             groupId: 'pending-a',
             level: 2,
             lifecycle: 'reserved',
+            activity: 'active',
             memberCount: 2,
             tileKeys: ['2,6,7'],
             hasExplicitGroupId: true,
@@ -93,6 +98,7 @@ test('collectRuntimeGroupsOnLevel builds explicit alive and reserved runtime gro
 
 test('getRuntimeGroupCapacitySnapshotOnLevel keeps active, reserved and occupied counts distinct', () => {
     const snapshot = getRuntimeGroupCapacitySnapshotOnLevel(
+        2,
         2,
         [
             { alive: true, mapIndex: 2, x: 1, y: 1, groupId: 'group-a' },
@@ -107,7 +113,10 @@ test('getRuntimeGroupCapacitySnapshotOnLevel keeps active, reserved and occupied
 
     assert.deepEqual(snapshot, {
         activeGroups: 2,
+        dormantGroups: 0,
         reservedGroups: 3,
+        reservedDormantGroups: 0,
+        occupiedActiveGroups: 5,
         occupiedGroups: 5,
     });
 });
@@ -115,6 +124,7 @@ test('getRuntimeGroupCapacitySnapshotOnLevel keeps active, reserved and occupied
 test('canReserveApproximateGeneratorGroupOnLevel keeps a five-slot margin for new groups', () => {
     assert.equal(
         canReserveApproximateGeneratorGroupOnLevel(
+            2,
             2,
             Array.from({ length: 55 }, (_, index) => ({
                 alive: true,
@@ -130,6 +140,7 @@ test('canReserveApproximateGeneratorGroupOnLevel keeps a five-slot margin for ne
 
     assert.equal(
         canReserveApproximateGeneratorGroupOnLevel(
+            2,
             2,
             Array.from({ length: 54 }, (_, index) => ({
                 alive: true,
@@ -153,6 +164,7 @@ test('canMaterializeReservedGeneratorSpawnOnLevel allows a reserved group to res
     assert.equal(
         canMaterializeReservedGeneratorSpawnOnLevel(
             2,
+            2,
             Array.from({ length: 55 }, (_, index) => ({
                 alive: true,
                 mapIndex: 2,
@@ -166,7 +178,30 @@ test('canMaterializeReservedGeneratorSpawnOnLevel allows a reserved group to res
     );
 });
 
-test('off-level generator capacity checks still apply the spawn-level capacity snapshot', () => {
+test('off-level runtime groups are tracked as dormant instead of active', () => {
+    const snapshot = getRuntimeGroupCapacitySnapshotOnLevel(
+        2,
+        3,
+        [
+            { alive: true, mapIndex: 3, x: 1, y: 1, groupId: 'group-a' },
+            { alive: true, mapIndex: 3, x: 2, y: 2, groupId: 'group-b' },
+        ],
+        [
+            { spawnLevel: 3, spawnX: 3, spawnY: 4, groupId: 'pending-a' },
+        ],
+    );
+
+    assert.deepEqual(snapshot, {
+        activeGroups: 0,
+        dormantGroups: 2,
+        reservedGroups: 0,
+        reservedDormantGroups: 1,
+        occupiedActiveGroups: 0,
+        occupiedGroups: 3,
+    });
+});
+
+test('off-level generator capacity checks no longer consume active-group slots', () => {
     const crowdedCreatures = Array.from({ length: 60 }, (_, index) => ({
         alive: true,
         mapIndex: 2,
@@ -178,18 +213,20 @@ test('off-level generator capacity checks still apply the spawn-level capacity s
     assert.equal(
         canReserveApproximateGeneratorGroupOnLevel(
             2,
+            3,
             crowdedCreatures,
             [],
         ),
-        false,
+        true,
     );
 
     assert.equal(
         canMaterializeReservedGeneratorSpawnOnLevel(
             2,
+            3,
             crowdedCreatures,
-            [{ spawnLevel: 2, spawnX: 0, spawnY: 1, groupId: 'pending-a' }],
+            [{ spawnLevel: 3, spawnX: 0, spawnY: 1, groupId: 'pending-a' }],
         ),
-        false,
+        true,
     );
 });

@@ -243,7 +243,7 @@ test('runFloorItemOnFrontWallRuntime delegates to front-wall floor item interact
         championInventories: { 1: [] },
         floorItems: [],
         activeFloorDrag: null,
-        lastCastResult: { message: 'Le Firestaff absorbe l energie de l Amalgam.' },
+        lastCastResult: { message: 'The Firestaff absorbs the energy of the Amalgam.' },
     });
 });
 

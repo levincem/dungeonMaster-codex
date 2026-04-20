@@ -1,8 +1,7 @@
-import originalCreaturesRaw from '../assets/runtime/reference/original_creatures_runtime.json?raw';
+import originalCreatures from '../assets/runtime/reference/original_creatures_runtime.json';
+import packagedGameDbCreatures from '../assets/runtime/db/game_db_creatures.json';
 import { getGameDbCreaturesRawSync } from './gameDbData';
 import { resolveItemName } from './items';
-
-const originalCreatures = JSON.parse(originalCreaturesRaw) as unknown;
 
 export type AttackType =
     | 'Physical'
@@ -77,10 +76,15 @@ interface OriginalCreaturesDataset {
 type RawI559Creature = {
     index: number;
     sizeOnTile?: number;
+    movementTicks?: number;
+    attackTicks?: number;
+    defense?: number;
+    baseHealth?: number;
     attack?: number;
     poisonAttack?: number;
     dexterity?: number;
     archenemy?: boolean;
+    byte22?: number[];
     properties?: { fearResistance?: number };
     resistances?: { fire?: number; poison?: number };
     nonMaterial?: boolean;
@@ -92,6 +96,17 @@ type RawI559Creature = {
     seeInvisible?: boolean;
     ranges?: { attack?: number; sight?: number };
 };
+
+const ORIGINAL_ATTACK_TYPE_BY_ID: readonly OriginalAttackType[] = [
+    'Unconditional',
+    'Fire',
+    'Impact',
+    'Blunt',
+    'Sharp',
+    'Magic',
+    'Mental',
+    'Blast',
+];
 
 const BASE_ATTACK_TYPE_MAP: Record<OriginalAttackType, AttackType[]> = {
     Unconditional: ['Physical'],
@@ -222,12 +237,27 @@ function createHydratingCreatureRecordProxy<T extends Record<number, unknown>>(t
     });
 }
 
-function tryReadGameDbCreatures(): unknown | null {
+function tryReadGameDbCreatures(): unknown {
     try {
         return JSON.parse(getGameDbCreaturesRawSync()) as unknown;
     } catch {
-        return null;
+        return packagedGameDbCreatures as unknown;
     }
+}
+
+function resolveOriginalAttackType(
+    original: RawI559Creature | undefined,
+    fallback: OriginalAttackType,
+): OriginalAttackType {
+    const attackTypeId = original?.byte22?.[2];
+    if (
+        typeof attackTypeId === 'number'
+        && attackTypeId >= 0
+        && attackTypeId < ORIGINAL_ATTACK_TYPE_BY_ID.length
+    ) {
+        return ORIGINAL_ATTACK_TYPE_BY_ID[attackTypeId] ?? fallback;
+    }
+    return fallback;
 }
 
 function buildCreatureTypes(rawGameDb: unknown): Record<number, CreatureDef> {
@@ -244,19 +274,20 @@ function buildCreatureTypes(rawGameDb: unknown): Record<number, CreatureDef> {
         dataset.creatures.map((creature) => {
             const original = creaturesByIndex.get(creature.id);
             const fixedDrops = getOriginalCreatureFixedDropSpecs(creature.id);
+            const originalAttackType = resolveOriginalAttackType(original, creature.attackType);
             return [creature.id, {
                 id: creature.id,
                 name: creature.name,
                 sizeOnTile: Math.max(0, Math.min(2, original?.sizeOnTile ?? 0)),
-                baseHP: creature.baseHP,
-                armor: creature.armor,
-                hitProb: creature.hitProb,
-                atkSpd: creature.atkSpd,
-                moveSpd: creature.moveSpd,
+                baseHP: original?.baseHealth ?? creature.baseHP,
+                armor: original?.defense ?? creature.armor,
+                hitProb: original?.dexterity ?? creature.hitProb,
+                atkSpd: original?.attackTicks ?? creature.atkSpd,
+                moveSpd: original?.movementTicks ?? creature.moveSpd,
                 exp: creature.exp,
-                poison: creature.poison,
-                originalAttackType: creature.attackType,
-                attackTypes: ATTACK_TYPE_OVERRIDES[creature.id] ?? BASE_ATTACK_TYPE_MAP[creature.attackType] ?? ['Physical'],
+                poison: typeof original?.poisonAttack === 'number' ? original.poisonAttack > 0 : creature.poison,
+                originalAttackType,
+                attackTypes: ATTACK_TYPE_OVERRIDES[creature.id] ?? BASE_ATTACK_TYPE_MAP[originalAttackType] ?? ['Physical'],
                 drops: fixedDrops.map((drop) => drop.rawName),
                 fixedDrops,
                 rawAttack: original?.attack ?? 0,
@@ -283,12 +314,10 @@ function buildCreatureTypes(rawGameDb: unknown): Record<number, CreatureDef> {
 function getCreatureTypes(): Record<number, CreatureDef> {
     if (!creatureSourceDataHydrated) {
         const rawGameDb = tryReadGameDbCreatures();
-        if (rawGameDb) {
-            creatureTypesCache = buildCreatureTypes(rawGameDb);
-            creatureSourceDataHydrated = true;
-            syncExportedCreatureTargets(creatureTypesCache);
-            return creatureTypesCache;
-        }
+        creatureTypesCache = buildCreatureTypes(rawGameDb);
+        creatureSourceDataHydrated = true;
+        syncExportedCreatureTargets(creatureTypesCache);
+        return creatureTypesCache;
     }
 
     if (!creatureTypesCache) {

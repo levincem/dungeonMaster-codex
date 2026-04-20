@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useEffect, useMemo } from 'react';
 import type {} from '@react-three/fiber';
 import * as THREE from 'three';
 import { useStore } from '../../engine/store';
@@ -58,11 +58,18 @@ function makeEngravedTexture(text: string): THREE.CanvasTexture {
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
+    texture.wrapS = THREE.ClampToEdgeWrapping;
+    texture.wrapT = THREE.ClampToEdgeWrapping;
+    texture.generateMipmaps = false;
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.needsUpdate = true;
     return texture;
 }
 
 const WallTextEntry: React.FC<{ tileX: number; tileY: number; face: CardinalDir; text: string }> = ({ tileX, tileY, face, text }) => {
     const tex = useMemo(() => makeEngravedTexture(text), [text]);
+    useEffect(() => () => tex.dispose(), [tex]);
     const [ox, , oz] = FACE_POS_TEXT[face];
     const [rx, ry, rz] = FACE_ROT_TEXT[face];
     return (
@@ -76,6 +83,7 @@ const WallTextEntry: React.FC<{ tileX: number; tileY: number; face: CardinalDir;
             <meshBasicMaterial
                 map={tex}
                 transparent
+                alphaTest={0.08}
                 depthWrite={false}
                 depthTest
                 polygonOffset

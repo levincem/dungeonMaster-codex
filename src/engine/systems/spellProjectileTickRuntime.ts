@@ -161,6 +161,7 @@ function resolveProjectileImpactOnSquare(
                 applyPartyWideIncomingAttack: deps.applyPartyWideIncomingAttack,
                 rollExplosionBurstAttack: deps.rollExplosionBurstAttack,
                 buildActivePoisonCloud: deps.buildActivePoisonCloud,
+                buildDroppedItem: deps.buildDroppedItem,
                 getThrownExplosionVisualScale: deps.getThrownExplosionVisualScale,
                 gridSize: deps.gridSize,
             },

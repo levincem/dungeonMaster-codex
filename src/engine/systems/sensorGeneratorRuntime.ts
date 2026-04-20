@@ -48,6 +48,13 @@ type TriggerGeneratorSensorDeps<
     getSensorStateKey: (level: number, sensorIndex: number) => string;
     randomInt: (maxExclusive: number) => number;
     canReserveGeneratorGroup: (state: TState, level: number) => boolean;
+    buildPendingGeneratorSpawnEvent: (
+        level: number,
+        sensorIndex: number,
+        generatorConfig: GeneratorConfigLike,
+        creatureCount: number,
+        groupId: string,
+    ) => Omit<TPendingGeneratorSpawn, 'remaining'>;
     queuePendingGeneratorSpawnEvent: (
         pendingGeneratorSpawns: TPendingGeneratorSpawn[],
         event: Omit<TPendingGeneratorSpawn, 'remaining'>,
@@ -151,19 +158,16 @@ export function triggerGeneratorSensor<
     );
 
     if (isGeneratorSpawnBlocked(state, level, generatorConfig.spawnX, generatorConfig.spawnY)) {
+        const pendingEvent = deps.buildPendingGeneratorSpawnEvent(
+            level,
+            sensor.index,
+            generatorConfig,
+            desiredCount,
+            groupId,
+        );
         const nextPendingGeneratorSpawns = deps.queuePendingGeneratorSpawnEvent(
             state.pendingGeneratorSpawns,
-            {
-                sensorLevel: level,
-                sensorIndex: sensor.index,
-                spawnLevel: level,
-                spawnX: generatorConfig.spawnX,
-                spawnY: generatorConfig.spawnY,
-                typeId: generatorConfig.typeId,
-                hpMultiplier: generatorConfig.hpMultiplier,
-                creatureCount: desiredCount,
-                groupId,
-            } as Omit<TPendingGeneratorSpawn, 'remaining'>,
+            pendingEvent,
             deps.retrySeconds,
         );
         if (nextPendingGeneratorSpawns === state.pendingGeneratorSpawns) return state;

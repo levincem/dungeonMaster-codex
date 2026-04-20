@@ -131,7 +131,7 @@ export const MirrorPopup: React.FC = () => {
                         lineHeight: 1,
                     }}
                 >
-                    ×
+                    x
                 </button>
 
                 <div style={{ fontSize: 11, letterSpacing: 4, color: GOLD_DIM, marginBottom: 16, textAlign: 'center' }}>
@@ -286,3 +286,4 @@ export const MirrorPopup: React.FC = () => {
         </div>
     );
 };
+

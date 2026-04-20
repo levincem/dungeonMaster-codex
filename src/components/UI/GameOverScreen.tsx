@@ -1,6 +1,8 @@
 import { useStore } from '../../engine/store';
+import { useI18n } from '../../i18n';
 
 export const GameOverScreen = () => {
+    const text = useI18n().gameOver;
     const returnToTitle = useStore((state) => state.returnToTitle);
 
     return (
@@ -27,7 +29,7 @@ export const GameOverScreen = () => {
                     letterSpacing: 4,
                     textTransform: 'uppercase',
                 }}>
-                    Game Over
+                    {text.title}
                 </div>
                 <button
                     type="button"
@@ -47,7 +49,7 @@ export const GameOverScreen = () => {
                         boxShadow: '0 10px 20px rgba(0,0,0,0.28)',
                     }}
                 >
-                    Return To Title
+                    {text.returnToTitle}
                 </button>
             </div>
         </div>

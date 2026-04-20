@@ -1,4 +1,5 @@
 import type { CreatureDef } from '../../data/creatures';
+import { getTranslations } from '../../i18n';
 import type { CreatureInstance } from '../../types/game';
 import { resolveCreatureControlAction, type CreatureTimers } from './creatureControlActions';
 import {
@@ -6,6 +7,8 @@ import {
     type FearUtilityAction,
     type FearUtilityActionResult,
 } from './fearUtilityActions';
+
+const runtimeText = getTranslations().runtime;
 
 export type UtilityControlAction =
     | 'Confuse'
@@ -54,7 +57,7 @@ export function buildUtilityRuntimeActionPatch<TPatch extends object, TMessage>(
                 return {
                     patch: {
                         ...basePatch,
-                        lastCastResult: deps.buildAttackResultMessage(`${action.toUpperCase()} sans cible.`),
+                        lastCastResult: deps.buildAttackResultMessage(runtimeText.utilityNoTarget(action)),
                     } as TPatch,
                 };
             }

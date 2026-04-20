@@ -1,5 +1,6 @@
 import type { CreatureInstance, FloorItem } from '../../types/game';
 import type { ActivePoisonCloud, DamageEvent, Projectile, SpellVisualEvent } from '../runtimeTypes';
+import { buildProjectileDroppedItem } from './projectileDroppedItem';
 
 type RolledSpellImpact = {
     damage: number;
@@ -104,6 +105,20 @@ export function applyProjectileCreatureHit(
     }
 
     if (projectile.effect === 'physical' && hitAbsorbsMissiles) {
+        if (projectile.physicalItem) {
+            if (creatures === state.creatures) creatures = [...creatures];
+            const idx = creatures.findIndex((creature) => creature.id === hit.id);
+            if (idx >= 0) {
+                const currentTarget = creatures[idx]!;
+                creatures[idx] = {
+                    ...currentTarget,
+                    carriedItems: [
+                        ...(currentTarget.carriedItems ?? []),
+                        deps.buildDroppedItem(projectile.physicalItem, projectileLevel, x, y),
+                    ],
+                };
+            }
+        }
         return {
             creatures,
             floorItems,
@@ -240,7 +255,16 @@ export function applyProjectileCreatureHit(
 
     if (projectile.effect === 'physical' && projectile.physicalItem && !projectile.explosionOnImpact) {
         if (floorItems === state.floorItems) floorItems = [...floorItems];
-        floorItems.push(deps.buildDroppedItem(projectile.physicalItem, projectileLevel, x, y));
+        floorItems.push(
+            buildProjectileDroppedItem(
+                projectile.physicalItem,
+                projectileLevel,
+                x,
+                y,
+                projectile.direction,
+                deps.buildDroppedItem,
+            ),
+        );
     }
 
     return {

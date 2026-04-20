@@ -1,5 +1,8 @@
 import type { ChampionCombat, ChampionVitals, Projectile } from '../runtimeTypes';
 import type { ChampionEquipment } from '../../types/game';
+import { getTranslations } from '../../i18n';
+
+const runtimeText = getTranslations().runtime;
 
 type AttackResultMessage = {
     success: boolean;
@@ -50,6 +53,6 @@ export function buildMissingAmmoAttackPatch(
     buildAttackResultMessage: (message: string, success?: boolean) => AttackResultMessage,
 ) {
     return {
-        lastCastResult: buildAttackResultMessage('Aucune munition compatible dans le carquois.'),
+        lastCastResult: buildAttackResultMessage(runtimeText.noCompatibleAmmo),
     };
 }

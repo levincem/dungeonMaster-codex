@@ -1,8 +1,12 @@
 /**
  * resolve_armor_names.cjs
  *
- * Resolves the 6 placeholder armor names in parse_full.js:
- *   Armor_11, Armor_12, Armor_20, Armor_21, Armor_29, Armor_57
+ * Historical helper kept for audit context.
+ *
+ * Important:
+ *   This script is no longer authoritative for runtime armor naming.
+ *   The canonical armor table now comes from the source-backed names wired
+ *   directly into parse_full + game_db_items.
  *
  * Method:
  *   1. Load dungeon.json (Hall of Champions, level 0)
@@ -15,13 +19,13 @@
  * Output:
  *   output/resolved_armor_names.json
  *
- * Key confirmed mappings (from champion starter cross-reference):
- *   11 -> Silk Shirt   (WuTse, Syra)
- *   12 -> Gunna        (Tiggy, Chani, Sonja)
- *   20 -> Tunic        (Stamm, Boris, Nabi)
- *   21 -> Ghi          (Iaido - Japanese martial arts gi)
- *   29 -> Barbarian Hide (Azizi)
- *   57 -> Halter       (Azizi, Sonja - warrior-female garment)
+ * Canonical source-backed mappings now active in the parser/runtime include:
+ *   11 -> Tabard
+ *   12 -> Gunna
+ *   20 -> Tunic
+ *   21 -> Ghi
+ *   29 -> Hide Shield
+ *   57 -> Halter
  */
 
 'use strict';
@@ -33,6 +37,8 @@ const path = require('path');
 // Paths
 // ---------------------------------------------------------------------------
 const DUNGEON_JSON = path.join(__dirname, 'output', 'dungeon.json');
+const GAME_DB_JSON = path.join(__dirname, 'output', 'game_db.json');
+const ORIGINAL_LEVEL_CONTENT_JSON = path.join(__dirname, 'output', 'original_level_content.json');
 const OUTPUT_DIR   = path.join(__dirname, 'output');
 const OUTPUT_FILE  = path.join(OUTPUT_DIR, 'resolved_armor_names.json');
 
@@ -104,12 +110,12 @@ const ARMOR_NAMES_ORIGINAL = {
 // Resolved names (from champion cross-reference + CSBwin CLOTHINGTYPE enum)
 // ---------------------------------------------------------------------------
 const RESOLVED_NAMES = {
-  11: { name: 'Silk Shirt',      evidence: 'WuTse (typeId 11 in starter), Syra (armored type 11 on mirror tile)' },
-  12: { name: 'Gunna',           evidence: 'Chani (typeId 12 in starter = Gunna), Tiggy, Sonja (same type)' },
-  20: { name: 'Tunic',           evidence: 'Boris/Stamm/Nabi (all listed as Tunic in starter items, share type 20)' },
-  21: { name: 'Ghi',             evidence: 'Iaido exclusively (Japanese martial-arts gi; type 22 = Ghi Trousers confirms the pair)' },
-  29: { name: 'Barbarian Hide',  evidence: 'Azizi exclusively (typeId 29 = Barbarian Hide in starter)' },
-  57: { name: 'Halter',          evidence: 'Azizi (typeId 57 in starter), Sonja (same type 57 on mirror tile)' },
+  11: { name: 'Tabard',      evidence: 'Matches the source-backed clothing enum and packaged runtime tables' },
+  12: { name: 'Gunna',       evidence: 'Matches the source-backed clothing enum and packaged runtime tables' },
+  20: { name: 'Tunic',       evidence: 'Matches the source-backed clothing enum and packaged runtime tables' },
+  21: { name: 'Ghi',         evidence: 'Matches the source-backed clothing enum and packaged runtime tables' },
+  29: { name: 'Hide Shield', evidence: 'Matches the source-backed clothing enum and packaged runtime tables' },
+  57: { name: 'Halter',      evidence: 'Matches the source-backed clothing enum and packaged runtime tables' },
 };
 
 // ---------------------------------------------------------------------------
@@ -117,43 +123,70 @@ const RESOLVED_NAMES = {
 // (from dungeon.json champion mirror sensors — sensor type 127, data = champion slot)
 // Verified from parse_full.js CHAMPION_DATA decoding and championStarterItems.ts
 // ---------------------------------------------------------------------------
-const CHAMPION_NAMES_BY_SLOT = {
-   0: 'Gothmog',
-   1: 'Leif',
-   2: 'Halk',
-   3: 'Wuuf',
-   4: 'Gando',
-   5: 'Chani',
-   6: 'Elija',
-   7: 'Leyla',
-   8: 'Mophus',
-   9: 'Boris',
-  10: 'WuTse',
-  11: 'Syra',
-  12: 'Nabi',
-  13: 'Azizi',
-  14: 'Iaido',
-  15: 'Tiggy',
-  16: 'Stamm',
-  17: 'Hawk',
-  18: 'Sonja',
-  19: 'Linflas',
-  20: 'Zed',
-  21: 'Alex',
-  22: 'Wutse2',
-  23: 'Tiggy2',
-};
+function normalizeName(value) {
+  return String(value ?? '')
+    .toLowerCase()
+    .replace(/[^a-z0-9 ]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function deriveChampionBaseNames(gameDb) {
+  const championPortraits = gameDb.championPortraits ?? {};
+  return Object.entries(championPortraits)
+    .map(([id, portrait]) => ({
+      id: Number(id),
+      baseName: String(portrait).split('/')[0].trim(),
+    }))
+    .sort((left, right) => right.baseName.length - left.baseName.length);
+}
+
+function resolveChampionShortName(fullName, championBaseNames) {
+  const normalizedFullName = normalizeName(fullName);
+  const match = championBaseNames.find(({ baseName }) => normalizedFullName.startsWith(normalizeName(baseName)));
+  if (!match) {
+    throw new Error(`Unable to match Hall champion "${fullName}" to game_db championPortraits`);
+  }
+
+  return match.baseName.replace(/\s+/g, '');
+}
+
+function buildChampionNamesBySlot(map0, hallChampions, championBaseNames) {
+  const championNamesBySlot = {};
+
+  for (const tile of map0.tiles) {
+    if (!tile.objects || tile.objects.length === 0) continue;
+    const mirror = tile.objects.find((object) => object.category === 'Sensor' && object.type === 127);
+    if (!mirror) continue;
+
+    const adjacentChampions = hallChampions.filter((champion) => (
+      Math.abs(champion.x - tile.x) + Math.abs(champion.y - tile.y) === 1
+    ));
+
+    if (adjacentChampions.length !== 1) {
+      throw new Error(
+        `Expected exactly one Hall champion adjacent to mirror slot ${mirror.data} at (${tile.x},${tile.y}), found ${adjacentChampions.length}`,
+      );
+    }
+
+    championNamesBySlot[mirror.data] = resolveChampionShortName(adjacentChampions[0].name, championBaseNames);
+  }
+
+  return championNamesBySlot;
+}
 
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 function run() {
-  if (!fs.existsSync(DUNGEON_JSON)) {
-    console.error('ERROR: dungeon.json not found at', DUNGEON_JSON);
+  if (!fs.existsSync(DUNGEON_JSON) || !fs.existsSync(GAME_DB_JSON) || !fs.existsSync(ORIGINAL_LEVEL_CONTENT_JSON)) {
+    console.error('ERROR: one or more extraction inputs are missing');
     process.exit(1);
   }
 
   const dungeon = JSON.parse(fs.readFileSync(DUNGEON_JSON, 'utf8'));
+  const gameDb = JSON.parse(fs.readFileSync(GAME_DB_JSON, 'utf8'));
+  const originalLevelContent = JSON.parse(fs.readFileSync(ORIGINAL_LEVEL_CONTENT_JSON, 'utf8'));
 
   // dungeon.json structure: { maps: [...], objectDatabase: { Armor, Sensor, ... } }
   const maps = dungeon.maps;
@@ -164,6 +197,16 @@ function run() {
 
   // Level 0 = Hall of Champions
   const map0 = maps[0];
+  const hallLevel = originalLevelContent.levels?.find((level) => String(level.name).toLowerCase().includes('hall of champions'));
+  if (!hallLevel?.champions) {
+    console.error('ERROR: Hall of Champions champion list not found in original_level_content.json');
+    process.exit(1);
+  }
+  const championNamesBySlot = buildChampionNamesBySlot(
+    map0,
+    hallLevel.champions,
+    deriveChampionBaseNames(gameDb),
+  );
 
   // Build a map: (tileX, tileY) -> champion slot index
   // from tiles that contain a mirror sensor (type 127) object
@@ -184,7 +227,7 @@ function run() {
     if (!tile.objects || tile.objects.length === 0) continue;
     const champSlot = posToChampion.get(`${tile.x},${tile.y}`);
     if (champSlot === undefined) continue;
-    const champName = CHAMPION_NAMES_BY_SLOT[champSlot] ?? `Champion_${champSlot}`;
+    const champName = championNamesBySlot[champSlot] ?? `Champion_${champSlot}`;
     for (const obj of tile.objects) {
       if (obj.category !== 'Armor') continue;
       const typeId = obj.type;
@@ -245,7 +288,7 @@ function run() {
       source: 'resolve_armor_names.cjs',
       date: new Date().toISOString().slice(0, 10),
       description: 'Complete armor type ID to name mapping for DM1, with the 6 placeholder names resolved via champion cross-reference',
-      method: 'Armor items placed on Hall of Champions mirror tiles are champion starter equipment. Champion identity determines item name.',
+      method: 'Historical Hall cross-reference kept for audit context only; canonical names now come from the source-backed parser/runtime tables.',
     },
     resolvedPlaceholders: Object.fromEntries(
       resolved.map(id => [id, RESOLVED_NAMES[id].name])

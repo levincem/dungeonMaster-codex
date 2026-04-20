@@ -25,6 +25,10 @@ const LazyPhotonsOpenDoorProjectile = lazy(() =>
     loadPhotonEffects().then((module) => ({ default: module.PhotonsOpenDoorProjectile })),
 );
 
+const LazyPhotonsTeleporterCloud = lazy(() =>
+    loadPhotonEffects().then((module) => ({ default: module.PhotonsTeleporterCloud })),
+);
+
 const LazyPhotonsPoisonProjectile = lazy(() =>
     loadPhotonEffects().then((module) => ({ default: module.PhotonsPoisonProjectile })),
 );
@@ -73,7 +77,11 @@ export const ProjectileRenderer: React.FC = () => {
                 projectile.effect === 'physical' && projectile.physicalItem ? (
                     <PhysicalProjectileSprite
                         key={projectile.id}
-                        projectile={{ ...projectile, physicalItem: projectile.physicalItem }}
+                        projectile={{
+                            ...projectile,
+                            physicalItem: projectile.physicalItem,
+                            direction: projectile.direction,
+                        }}
                     />
                 ) : (
                     <ProjectileOrb
@@ -85,6 +93,23 @@ export const ProjectileRenderer: React.FC = () => {
         </>
     );
 };
+
+export const TeleporterLayer: React.FC<{
+    teleporters: Array<{ tileX: number; tileY: number }>;
+}> = ({ teleporters }) => (
+    <>
+        {teleporters.map(({ tileX, tileY }) => (
+            <group
+                key={`teleporter_${tileX}_${tileY}`}
+                position={[tileX * GRID_SIZE, GRID_SIZE * 0.02, tileY * GRID_SIZE]}
+            >
+                <Suspense fallback={null}>
+                    <LazyPhotonsTeleporterCloud scale={0.9} />
+                </Suspense>
+            </group>
+        ))}
+    </>
+);
 
 const ProjectileOrb: React.FC<{
     projectile: { x: number; y: number; effect: MagicProjectileEffect; direction?: Direction; visualScale?: number };
@@ -128,7 +153,7 @@ const ProjectileOrb: React.FC<{
 };
 
 const PhysicalProjectileSprite: React.FC<{
-    projectile: { x: number; y: number; physicalItem: FloorItem };
+    projectile: { x: number; y: number; physicalItem: FloorItem; direction?: Direction };
 }> = ({ projectile }) => {
     const imagePath = getFloorItemImage(projectile.physicalItem);
     const baseTex = useLoadedTexture(imagePath);
@@ -143,12 +168,25 @@ const PhysicalProjectileSprite: React.FC<{
 
     const image = tex.image as { width: number; height: number } | undefined;
     const aspect = image ? image.width / image.height : 1;
-    const width = GRID_SIZE * 0.34;
+    const width = GRID_SIZE * 0.4;
     const height = width / aspect;
+    const forwardOffset = GRID_SIZE * 0.22;
+    const offsetX =
+        projectile.direction === 'EAST' ? forwardOffset :
+            projectile.direction === 'WEST' ? -forwardOffset :
+                0;
+    const offsetZ =
+        projectile.direction === 'SOUTH' ? forwardOffset :
+            projectile.direction === 'NORTH' ? -forwardOffset :
+                0;
 
     return (
         <BillboardGroup
-            position={[projectile.x * GRID_SIZE, GRID_SIZE * 0.05, projectile.y * GRID_SIZE]}
+            position={[
+                projectile.x * GRID_SIZE + offsetX,
+                GRID_SIZE * 0.14,
+                projectile.y * GRID_SIZE + offsetZ,
+            ]}
             follow
             lockX={false}
             lockY={false}

@@ -45,6 +45,7 @@ export type SensorPlacement = {
 type SensorStateSnapshotSource<TCreature, TPendingGeneratorSpawn, TProjectile> = Partial<{
     level: number;
     position: [number, number];
+    direction: Direction;
     openDoors: Set<string>;
     openPits: Set<string>;
     openTeleporters: Set<string>;
@@ -75,6 +76,7 @@ export type SensorStateSnapshot<TCreature, TPendingGeneratorSpawn, TProjectile> 
     pendingGeneratorSpawns: TPendingGeneratorSpawn[];
     currentLevel: number;
     currentPosition: [number, number];
+    currentDirection: Direction;
     elapsedGameTimeTicks: number;
 };
 
@@ -169,6 +171,7 @@ export function buildSensorStateSnapshot<TCreature, TPendingGeneratorSpawn, TPro
         pendingGeneratorSpawns: source.pendingGeneratorSpawns ?? [],
         currentLevel: source.level ?? 0,
         currentPosition: source.position ?? [0, 0],
+        currentDirection: source.direction ?? 'NORTH',
         elapsedGameTimeTicks: source.elapsedGameTimeTicks ?? 0,
     };
 }

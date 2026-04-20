@@ -1,7 +1,10 @@
 import {
     type WeaponAttackOption,
 } from '../../data/weaponAttacks';
+import { getTranslations } from '../../i18n';
 import { mapOriginalSkillNumberToSkillKey, type SkillKey } from '../../data/skillProgression';
+
+const runtimeText = getTranslations().runtime;
 
 type ResolveAttackSelectionArgs = {
     attackType?: number;
@@ -48,7 +51,7 @@ export function resolveAttackSelection(
                 availableAttacks,
                 selectedAttack,
                 selectedSkill,
-                blockedMessage: `${selectedAttack.displayName} indisponible: ${unusableReason}.`,
+                blockedMessage: runtimeText.attackUnavailable(selectedAttack.displayName, unusableReason),
             };
         }
         if (deps.isShootAttack(selectedAttack) && !deps.hasCompatibleAmmo()) {
@@ -56,7 +59,7 @@ export function resolveAttackSelection(
                 availableAttacks,
                 selectedAttack,
                 selectedSkill,
-                blockedMessage: 'Aucune munition compatible dans le carquois.',
+                blockedMessage: runtimeText.noCompatibleAmmo,
             };
         }
     }

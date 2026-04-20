@@ -87,7 +87,7 @@ test('buildUtilityRuntimeActionPatch reports a missing target for control action
         deps,
     );
 
-    assert.equal(result.patch.lastCastResult.message, 'CONFUSE sans cible.');
+    assert.equal(result.patch.lastCastResult.message, 'CONFUSE has no target.');
     assert.equal(result.controlUpdate, undefined);
 });
 

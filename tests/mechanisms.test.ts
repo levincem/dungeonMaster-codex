@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import type { SensorObject } from '../src/types/game.js';
-import { getRequiredSensorItemName, isSpecificObjectFloorSensor } from '../src/data/mechanisms.js';
+import { describeFloorSensor, getRequiredSensorItemName, isSpecificObjectFloorSensor } from '../src/data/mechanisms.js';
 
 function createSensor(overrides: Partial<SensorObject> = {}): SensorObject {
     return {
@@ -24,13 +24,19 @@ function createSensor(overrides: Partial<SensorObject> = {}): SensorObject {
     };
 }
 
-test('isSpecificObjectFloorSensor accepts floor type 3 sensors that require a named object', () => {
-    const compassPlate = createSensor({ type: 3, requiredObjectName: 'COMPASS' });
-    const genericGroupPlate = createSensor({ type: 3 });
+test('isSpecificObjectFloorSensor only treats floor type 4 as an object plate', () => {
+    const partyPlate = createSensor({ type: 3, requiredObjectName: 'COMPASS' });
+    const genericPartyPlate = createSensor({ type: 3 });
     const explicitObjectPlate = createSensor({ type: 4, requiredObjectName: 'Gold Key' });
 
-    assert.equal(getRequiredSensorItemName(compassPlate), 'COMPASS');
-    assert.equal(isSpecificObjectFloorSensor(compassPlate), true);
-    assert.equal(isSpecificObjectFloorSensor(genericGroupPlate), false);
+    assert.equal(getRequiredSensorItemName(explicitObjectPlate), 'Gold Key');
+    assert.equal(isSpecificObjectFloorSensor(partyPlate), false);
+    assert.equal(isSpecificObjectFloorSensor(genericPartyPlate), false);
     assert.equal(isSpecificObjectFloorSensor(explicitObjectPlate), true);
+});
+
+test('describeFloorSensor distinguishes party presence from party orientation plates', () => {
+    assert.equal(describeFloorSensor(createSensor({ type: 3, data: 0 })), 'Capteur de passage (party)');
+    assert.equal(describeFloorSensor(createSensor({ type: 3, data: 2 })), 'Capteur d orientation (party)');
+    assert.equal(describeFloorSensor(createSensor({ type: 4, data: 0 })), 'Dalle de pression (objet specifique)');
 });

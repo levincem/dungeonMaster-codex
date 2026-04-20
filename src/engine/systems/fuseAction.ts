@@ -1,4 +1,7 @@
 import type { CreatureInstance, FloorItem } from '../../types/game';
+import { getTranslations } from '../../i18n';
+
+const runtimeText = getTranslations().runtime;
 
 type FuseRightHand = {
     typeId: number;
@@ -65,7 +68,7 @@ export function buildFuseActionPatch<
         return {
             patch: {
                 ...basePatch,
-                lastCastResult: deps.buildAttackResultMessage('FUSE sans cible.'),
+                lastCastResult: deps.buildAttackResultMessage(runtimeText.fuseNoTarget),
             } as TPatch,
         };
     }
@@ -74,7 +77,7 @@ export function buildFuseActionPatch<
         return {
             patch: {
                 ...basePatch,
-                lastCastResult: deps.buildAttackResultMessage('FUSE requiert le Firestaff complet.'),
+                lastCastResult: deps.buildAttackResultMessage(runtimeText.fuseRequiresCompleteFirestaff),
             } as TPatch,
         };
     }
@@ -84,7 +87,7 @@ export function buildFuseActionPatch<
         return {
             patch: {
                 ...basePatch,
-                lastCastResult: deps.buildAttackResultMessage('Lord Chaos doit etre fluxcage avant FUSE.'),
+                lastCastResult: deps.buildAttackResultMessage(runtimeText.lordChaosMustBeFluxcaged),
             } as TPatch,
         };
     }

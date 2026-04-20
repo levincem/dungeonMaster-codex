@@ -21,6 +21,13 @@ const TILEPOS_OFFSET: Record<string, [number, number]> = {
     West:  [-0.30,  0   ],
 };
 
+const PROJECTILE_TILEPOS_OFFSET: Record<string, [number, number]> = {
+    North: [ 0,    -0.43],
+    South: [ 0,     0.43],
+    East:  [ 0.43,  0   ],
+    West:  [-0.43,  0   ],
+};
+
 // ─── Inner sprite (uses texture) ──────────────────────────────────────────────
 
 const ItemSprite = ({
@@ -134,10 +141,11 @@ interface Props {
 }
 
 export const FloorItemMesh = ({ item, onPickup, onStartDrag, onUpdateDrag, onEndDrag }: Props) => {
-    const offset = TILEPOS_OFFSET[item.tilePos] ?? [0, 0];
+    const offsetMap = item.projectileDropped ? PROJECTILE_TILEPOS_OFFSET : TILEPOS_OFFSET;
+    const offset = offsetMap[item.tilePos] ?? [0, 0];
     const worldPos: [number, number, number] = [
         item.x * GRID_SIZE + offset[0],
-        ITEM_Y,
+        ITEM_Y + (item.projectileDropped ? GRID_SIZE * 0.03 : 0),
         item.y * GRID_SIZE + offset[1],
     ];
 

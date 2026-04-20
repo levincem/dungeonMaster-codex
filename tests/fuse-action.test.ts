@@ -103,8 +103,8 @@ test('buildFuseActionPatch reports missing target and missing complete Firestaff
         deps,
     );
 
-    assert.equal(noTarget.patch.lastCastResult.message, 'FUSE sans cible.');
-    assert.equal(noFirestaff.patch.lastCastResult.message, 'FUSE requiert le Firestaff complet.');
+    assert.equal(noTarget.patch.lastCastResult.message, 'FUSE has no target.');
+    assert.equal(noFirestaff.patch.lastCastResult.message, 'FUSE requires the complete Firestaff.');
 });
 
 test('buildFuseActionPatch requires Lord Chaos to be fluxcaged before starting endgame', () => {
@@ -126,7 +126,7 @@ test('buildFuseActionPatch requires Lord Chaos to be fluxcaged before starting e
         deps,
     );
 
-    assert.equal(result.patch.lastCastResult.message, 'Lord Chaos doit etre fluxcage avant FUSE.');
+    assert.equal(result.patch.lastCastResult.message, 'Lord Chaos must be fluxcaged before FUSE.');
   });
 
 test('buildFuseActionPatch starts the endgame flow for trapped Lord Chaos', () => {

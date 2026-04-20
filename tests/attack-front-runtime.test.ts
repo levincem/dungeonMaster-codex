@@ -195,6 +195,8 @@ function createBaseDeps(
         buildPhysicalProjectileAttackPatch: () => null,
         buildSupportedUtilityAttackPatch: () => null,
         resolveAttackFrontContext: () => ({ target: null }),
+        resolveCombatItem: (equip: ChampionEquipment | undefined) =>
+            equip?.rightHand ? { slot: 'rightHand' as const, item: equip.rightHand } : null,
         buildAttackMeleeStatePatch: () => ({ kind: 'melee' }),
         onPartyAttack: () => {},
         ...overrides,
@@ -278,4 +280,79 @@ test('runAttackFrontRuntime falls back to melee orchestration and triggers party
 
     assert.deepEqual(result, { kind: 'melee' });
     assert.equal(partyAttackPlayed, true);
+});
+
+test('runAttackFrontRuntime blocks rear-rank contact attacks before spending the action', () => {
+    let applyVitalsCalled = false;
+    let meleeCalled = false;
+
+    const result = runAttackFrontRuntime(
+        {
+            ...createBaseState(),
+            party: [createChampion(1), createChampion(2), createChampion(3)],
+            championCombat: {
+                3: { cooldown: 0, cooldownMax: 1, defenseModifier: 0 },
+            },
+            championEquipment: { 3: {} },
+            championVitals: { 3: createVitals() },
+            championInventories: { 3: [] },
+        },
+        3,
+        undefined,
+        createBaseDeps([], {
+            applyChampionAttackVitals: () => {
+                applyVitalsCalled = true;
+                return { nextVitals: createVitals() };
+            },
+            resolveAttackFrontContext: () => ({
+                target: {
+                    id: 'creature-1',
+                    typeId: 1,
+                    mapIndex: 0,
+                    x: 5,
+                    y: 4,
+                    currentHP: 10,
+                    alive: true,
+                    cell: 'frontLeft',
+                    carriedItems: [],
+                } satisfies CreatureInstance,
+            }),
+            buildAttackMeleeStatePatch: () => {
+                meleeCalled = true;
+                return { kind: 'melee' };
+            },
+        }),
+    );
+
+    assert.deepEqual(result, {
+        lastCastResult: { message: 'Target out of reach from the back row.', success: false },
+    });
+    assert.equal(applyVitalsCalled, false);
+    assert.equal(meleeCalled, false);
+});
+
+test('runAttackFrontRuntime uses the next throwable quiver item when the hand is empty', () => {
+    const throwAttack = createAttackOption(1, 'Throw', 'Throw');
+    const dagger = createWeaponItem(1);
+    let receivedAttackItemId: string | undefined;
+    let receivedAttackItemSlot: string | null | undefined;
+
+    const result = runAttackFrontRuntime(
+        createBaseState({ quiver1: dagger }),
+        1,
+        undefined,
+        createBaseDeps([], {
+            getWeaponAttackOptions: (item) => item?.id === dagger.id ? [throwAttack] : [],
+            resolveCombatItem: () => ({ slot: 'quiver1', item: dagger }),
+            buildPhysicalProjectileAttackPatch: ({ attackItem, attackItemSlot }) => {
+                receivedAttackItemId = attackItem?.id;
+                receivedAttackItemSlot = attackItemSlot;
+                return { kind: 'projectile' };
+            },
+        }),
+    );
+
+    assert.deepEqual(result, { kind: 'projectile' });
+    assert.equal(receivedAttackItemId, dagger.id);
+    assert.equal(receivedAttackItemSlot, 'quiver1');
 });

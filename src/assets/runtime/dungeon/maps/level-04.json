@@ -1210,8 +1210,7 @@
           "onceOnly": false,
           "targetY": 17,
           "targetX": 0,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -1716,8 +1715,7 @@
           "onceOnly": false,
           "targetY": 9,
           "targetX": 4,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -2243,8 +2241,7 @@
           "onceOnly": false,
           "targetY": 25,
           "targetX": 8,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -3191,8 +3188,7 @@
           "onceOnly": false,
           "targetY": 5,
           "targetX": 14,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -3230,8 +3226,7 @@
           "onceOnly": false,
           "targetY": 9,
           "targetX": 13,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -3247,8 +3242,7 @@
           "onceOnly": false,
           "targetY": 8,
           "targetX": 14,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -3264,8 +3258,7 @@
           "onceOnly": false,
           "targetY": 6,
           "targetX": 13,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -3289,8 +3282,7 @@
           "onceOnly": false,
           "targetY": 7,
           "targetX": 13,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -3541,8 +3533,7 @@
           "onceOnly": true,
           "targetY": 11,
           "targetX": 22,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -3584,8 +3575,7 @@
           "onceOnly": false,
           "targetY": 5,
           "targetX": 15,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -3609,8 +3599,7 @@
           "onceOnly": false,
           "targetY": 6,
           "targetX": 13,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -3626,8 +3615,7 @@
           "onceOnly": false,
           "targetY": 5,
           "targetX": 14,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -3651,8 +3639,7 @@
           "onceOnly": false,
           "targetY": 7,
           "targetX": 13,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -3683,8 +3670,7 @@
           "onceOnly": false,
           "targetY": 9,
           "targetX": 13,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -3700,8 +3686,7 @@
           "onceOnly": false,
           "targetY": 8,
           "targetX": 14,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -3881,8 +3866,7 @@
           "onceOnly": false,
           "targetY": 5,
           "targetX": 13,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -3898,8 +3882,7 @@
           "onceOnly": false,
           "targetY": 5,
           "targetX": 14,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -3923,8 +3906,7 @@
           "onceOnly": false,
           "targetY": 6,
           "targetX": 14,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -3940,8 +3922,7 @@
           "onceOnly": false,
           "targetY": 5,
           "targetX": 15,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -3965,8 +3946,7 @@
           "onceOnly": false,
           "targetY": 5,
           "targetX": 12,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -3982,8 +3962,7 @@
           "onceOnly": false,
           "targetY": 8,
           "targetX": 15,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -3999,8 +3978,7 @@
           "onceOnly": false,
           "targetY": 7,
           "targetX": 14,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -4016,8 +3994,7 @@
           "onceOnly": false,
           "targetY": 7,
           "targetX": 16,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -4033,8 +4010,7 @@
           "onceOnly": false,
           "targetY": 6,
           "targetX": 15,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -4058,8 +4034,7 @@
           "onceOnly": false,
           "targetY": 9,
           "targetX": 15,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -4083,8 +4058,7 @@
           "onceOnly": false,
           "targetY": 9,
           "targetX": 16,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -4100,8 +4074,7 @@
           "onceOnly": false,
           "targetY": 9,
           "targetX": 14,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -4124,8 +4097,7 @@
           "onceOnly": false,
           "targetY": 9,
           "targetX": 14,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -4141,8 +4113,7 @@
           "onceOnly": false,
           "targetY": 9,
           "targetX": 16,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -4158,8 +4129,7 @@
           "onceOnly": false,
           "targetY": 8,
           "targetX": 15,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -4175,8 +4145,7 @@
           "onceOnly": false,
           "targetY": 9,
           "targetX": 15,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -4216,8 +4185,7 @@
           "onceOnly": false,
           "targetY": 5,
           "targetX": 13,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -4409,8 +4377,7 @@
           "onceOnly": false,
           "targetY": 5,
           "targetX": 17,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -4434,8 +4401,7 @@
           "onceOnly": false,
           "targetY": 6,
           "targetX": 15,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -4451,8 +4417,7 @@
           "onceOnly": false,
           "targetY": 7,
           "targetX": 16,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -4468,8 +4433,7 @@
           "onceOnly": false,
           "targetY": 6,
           "targetX": 17,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -4500,8 +4464,7 @@
           "onceOnly": false,
           "targetY": 7,
           "targetX": 16,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -4517,8 +4480,7 @@
           "onceOnly": false,
           "targetY": 7,
           "targetX": 17,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -4534,8 +4496,7 @@
           "onceOnly": false,
           "targetY": 9,
           "targetX": 16,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -4559,8 +4520,7 @@
           "onceOnly": false,
           "targetY": 9,
           "targetX": 17,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -4576,8 +4536,7 @@
           "onceOnly": false,
           "targetY": 8,
           "targetX": 16,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -4593,8 +4552,7 @@
           "onceOnly": false,
           "targetY": 9,
           "targetX": 15,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -4786,8 +4744,7 @@
           "onceOnly": false,
           "targetY": 5,
           "targetX": 15,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -4811,8 +4768,7 @@
           "onceOnly": false,
           "targetY": 7,
           "targetX": 17,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -4836,8 +4792,7 @@
           "onceOnly": false,
           "targetY": 6,
           "targetX": 17,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -4853,8 +4808,7 @@
           "onceOnly": false,
           "targetY": 5,
           "targetX": 17,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -4878,8 +4832,7 @@
           "onceOnly": false,
           "targetY": 9,
           "targetX": 17,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -4895,8 +4848,7 @@
           "onceOnly": false,
           "targetY": 7,
           "targetX": 17,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -4920,8 +4872,7 @@
           "onceOnly": false,
           "targetY": 8,
           "targetX": 16,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -4937,8 +4888,7 @@
           "onceOnly": false,
           "targetY": 8,
           "targetX": 17,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },

@@ -3292,8 +3292,7 @@
           "onceOnly": true,
           "targetY": 15,
           "targetX": 13,
-          "targetDir": "North",
-          "requiredObjectName": "THE FIRESTAFF"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -3309,8 +3308,7 @@
           "onceOnly": true,
           "targetY": 15,
           "targetX": 15,
-          "targetDir": "North",
-          "requiredObjectName": "THE FIRESTAFF"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -3326,8 +3324,7 @@
           "onceOnly": true,
           "targetY": 17,
           "targetX": 14,
-          "targetDir": "North",
-          "requiredObjectName": "THE FIRESTAFF"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -3343,8 +3340,7 @@
           "onceOnly": true,
           "targetY": 17,
           "targetX": 16,
-          "targetDir": "North",
-          "requiredObjectName": "THE FIRESTAFF"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -3360,8 +3356,7 @@
           "onceOnly": true,
           "targetY": 17,
           "targetX": 12,
-          "targetDir": "North",
-          "requiredObjectName": "THE FIRESTAFF"
+          "targetDir": "North"
         },
         {
           "category": "Weapon",

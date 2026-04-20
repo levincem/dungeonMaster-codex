@@ -63,7 +63,7 @@
           "y": 9,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -76,7 +76,7 @@
           "y": 1,
           "support": "Teleporter",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur d orientation (party)",
           "action": "Hold",
           "onceOnly": false,
           "target": {
@@ -162,7 +162,7 @@
           "y": 15,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -189,7 +189,7 @@
           "y": 15,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -362,7 +362,7 @@
           "y": 0,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -375,7 +375,7 @@
           "y": 1,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -388,7 +388,7 @@
           "y": 2,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -471,7 +471,7 @@
           "y": 0,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -484,7 +484,7 @@
           "y": 1,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -497,7 +497,7 @@
           "y": 2,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -510,7 +510,7 @@
           "y": 0,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -523,7 +523,7 @@
           "y": 1,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -536,7 +536,7 @@
           "y": 2,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -576,7 +576,7 @@
           "y": 17,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -716,7 +716,7 @@
           "y": 27,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -1085,7 +1085,7 @@
           "y": 28,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": true,
           "target": {
@@ -1290,7 +1290,7 @@
           "y": 17,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -1502,7 +1502,7 @@
           "y": 11,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -1515,7 +1515,7 @@
           "y": 12,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -1528,7 +1528,7 @@
           "y": 20,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -1541,7 +1541,7 @@
           "y": 27,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -1554,7 +1554,7 @@
           "y": 14,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -1671,7 +1671,7 @@
           "y": 16,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -1684,7 +1684,7 @@
           "y": 16,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -1709,7 +1709,7 @@
           "y": 5,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -1722,7 +1722,7 @@
           "y": 11,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -1758,7 +1758,7 @@
           "y": 30,
           "support": "Teleporter",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Hold",
           "onceOnly": false,
           "target": {
@@ -1797,7 +1797,7 @@
           "y": 8,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -1824,7 +1824,7 @@
           "y": 2,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -1885,7 +1885,7 @@
           "y": 9,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -1934,7 +1934,7 @@
           "y": 27,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -1947,7 +1947,7 @@
           "y": 5,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -1960,7 +1960,7 @@
           "y": 8,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -1973,7 +1973,7 @@
           "y": 8,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -1986,7 +1986,7 @@
           "y": 8,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -1999,7 +1999,7 @@
           "y": 9,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -2047,7 +2047,7 @@
           "y": 1,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": true,
           "target": {
@@ -2060,7 +2060,7 @@
           "y": 5,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -2073,7 +2073,7 @@
           "y": 6,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -2086,7 +2086,7 @@
           "y": 6,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -2099,7 +2099,7 @@
           "y": 7,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -2112,7 +2112,7 @@
           "y": 9,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -2125,7 +2125,7 @@
           "y": 9,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -2138,7 +2138,7 @@
           "y": 5,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -2151,7 +2151,7 @@
           "y": 5,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -2164,7 +2164,7 @@
           "y": 6,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -2177,7 +2177,7 @@
           "y": 6,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -2190,7 +2190,7 @@
           "y": 7,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -2203,7 +2203,7 @@
           "y": 7,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -2216,7 +2216,7 @@
           "y": 7,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -2229,7 +2229,7 @@
           "y": 7,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -2242,7 +2242,7 @@
           "y": 7,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -2255,7 +2255,7 @@
           "y": 8,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -2268,7 +2268,7 @@
           "y": 9,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -2281,7 +2281,7 @@
           "y": 9,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -2294,7 +2294,7 @@
           "y": 10,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -2307,7 +2307,7 @@
           "y": 10,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -2320,7 +2320,7 @@
           "y": 10,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -2333,7 +2333,7 @@
           "y": 10,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -2346,7 +2346,7 @@
           "y": 12,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -2359,7 +2359,7 @@
           "y": 5,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -2372,7 +2372,7 @@
           "y": 6,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -2385,7 +2385,7 @@
           "y": 6,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -2398,7 +2398,7 @@
           "y": 6,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -2411,7 +2411,7 @@
           "y": 8,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -2424,7 +2424,7 @@
           "y": 8,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -2437,7 +2437,7 @@
           "y": 8,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -2450,7 +2450,7 @@
           "y": 9,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -2463,7 +2463,7 @@
           "y": 9,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -2476,7 +2476,7 @@
           "y": 9,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -2489,7 +2489,7 @@
           "y": 5,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -2502,7 +2502,7 @@
           "y": 6,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -2515,7 +2515,7 @@
           "y": 7,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -2528,7 +2528,7 @@
           "y": 7,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -2541,7 +2541,7 @@
           "y": 8,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -2554,7 +2554,7 @@
           "y": 8,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -2567,7 +2567,7 @@
           "y": 9,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -2580,7 +2580,7 @@
           "y": 9,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -2715,7 +2715,7 @@
           "y": 8,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -2775,7 +2775,7 @@
           "y": 15,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -2801,7 +2801,7 @@
           "y": 15,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -2841,7 +2841,7 @@
           "y": 27,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -2854,7 +2854,7 @@
           "y": 27,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -3036,7 +3036,7 @@
           "y": 28,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -3196,7 +3196,7 @@
           "y": 26,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -3245,7 +3245,7 @@
           "y": 26,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -3258,7 +3258,7 @@
           "y": 26,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -3351,7 +3351,7 @@
           "y": 8,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": true,
           "target": {
@@ -3525,7 +3525,7 @@
           "y": 8,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": true,
           "target": {
@@ -3538,7 +3538,7 @@
           "y": 8,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": true,
           "target": {
@@ -3602,7 +3602,7 @@
           "y": 15,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -3641,7 +3641,7 @@
           "y": 14,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -3654,7 +3654,7 @@
           "y": 27,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -4013,7 +4013,7 @@
           "y": 10,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -4039,7 +4039,7 @@
           "y": 30,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -4165,7 +4165,7 @@
           "y": 15,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -4178,7 +4178,7 @@
           "y": 14,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -4191,7 +4191,7 @@
           "y": 20,
           "support": "Pit",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -4204,7 +4204,7 @@
           "y": 19,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -4217,7 +4217,7 @@
           "y": 20,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -4230,7 +4230,7 @@
           "y": 20,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -4243,7 +4243,7 @@
           "y": 20,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -4256,7 +4256,7 @@
           "y": 21,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -4269,7 +4269,7 @@
           "y": 30,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -4282,7 +4282,7 @@
           "y": 13,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -4295,7 +4295,7 @@
           "y": 20,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -4331,7 +4331,7 @@
           "y": 15,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -4344,7 +4344,7 @@
           "y": 23,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -4357,7 +4357,7 @@
           "y": 17,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -4370,7 +4370,7 @@
           "y": 17,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -4396,7 +4396,7 @@
           "y": 30,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -4497,7 +4497,7 @@
           "y": 13,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -4711,7 +4711,7 @@
           "y": 14,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -4743,7 +4743,7 @@
           "y": 31,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -4756,7 +4756,7 @@
           "y": 31,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -4797,7 +4797,7 @@
           "y": 23,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -4859,7 +4859,7 @@
           "y": 29,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -4895,7 +4895,7 @@
           "y": 5,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -4908,7 +4908,7 @@
           "y": 12,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -4959,7 +4959,7 @@
           "y": 10,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": true,
           "target": {
@@ -4972,7 +4972,7 @@
           "y": 14,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": true,
           "target": {
@@ -5117,7 +5117,7 @@
           "y": 14,
           "support": "Teleporter",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Hold",
           "onceOnly": false,
           "target": {
@@ -5208,7 +5208,7 @@
           "y": 27,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -5240,7 +5240,7 @@
           "y": 0,
           "support": "Teleporter",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur d orientation (party)",
           "action": "Set",
           "onceOnly": false,
           "target": null
@@ -5250,7 +5250,7 @@
           "y": 0,
           "support": "Teleporter",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur d orientation (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": null
@@ -5330,7 +5330,7 @@
           "y": 8,
           "support": "Teleporter",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur d orientation (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -5343,7 +5343,7 @@
           "y": 8,
           "support": "Teleporter",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur d orientation (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -5369,7 +5369,7 @@
           "y": 6,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -5619,7 +5619,7 @@
           "y": 9,
           "support": "Teleporter",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur d orientation (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -5632,7 +5632,7 @@
           "y": 9,
           "support": "Teleporter",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur d orientation (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -5645,7 +5645,7 @@
           "y": 1,
           "support": "Teleporter",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur d orientation (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -5658,7 +5658,7 @@
           "y": 1,
           "support": "Teleporter",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur d orientation (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -5698,7 +5698,7 @@
           "y": 15,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -5711,7 +5711,7 @@
           "y": 25,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -5724,7 +5724,7 @@
           "y": 23,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -5737,7 +5737,7 @@
           "y": 25,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": true,
           "target": {
@@ -5750,7 +5750,7 @@
           "y": 23,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": true,
           "target": {
@@ -5787,7 +5787,7 @@
           "y": 20,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": true,
           "target": {
@@ -5814,7 +5814,7 @@
           "y": 20,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -5827,7 +5827,7 @@
           "y": 20,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -5840,7 +5840,7 @@
           "y": 14,
           "support": "Teleporter",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -5906,7 +5906,7 @@
           "y": 23,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -5919,7 +5919,7 @@
           "y": 23,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {
@@ -6024,7 +6024,7 @@
           "y": 1,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur d orientation (party)",
           "action": "Set",
           "onceOnly": true,
           "target": {
@@ -6050,7 +6050,7 @@
           "y": 10,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -6063,7 +6063,7 @@
           "y": 10,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -6246,7 +6246,7 @@
           "y": 7,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -6286,7 +6286,7 @@
           "y": 25,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -6299,7 +6299,7 @@
           "y": 25,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -6312,7 +6312,7 @@
           "y": 25,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -6325,7 +6325,7 @@
           "y": 25,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Toggle",
           "onceOnly": false,
           "target": {
@@ -6338,7 +6338,7 @@
           "y": 12,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": true,
           "target": {
@@ -6517,7 +6517,7 @@
           "y": 7,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -6543,7 +6543,7 @@
           "y": 11,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -6556,7 +6556,7 @@
           "y": 11,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -6569,7 +6569,7 @@
           "y": 11,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -6582,7 +6582,7 @@
           "y": 11,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -6595,7 +6595,7 @@
           "y": 11,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -6654,7 +6654,7 @@
           "y": 18,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -6716,7 +6716,7 @@
           "y": 1,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -6729,7 +6729,7 @@
           "y": 11,
           "support": "Teleporter",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -6742,7 +6742,7 @@
           "y": 11,
           "support": "Teleporter",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -6755,7 +6755,7 @@
           "y": 11,
           "support": "Teleporter",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -6768,7 +6768,7 @@
           "y": 11,
           "support": "Teleporter",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -6781,7 +6781,7 @@
           "y": 11,
           "support": "Teleporter",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -6794,7 +6794,7 @@
           "y": 11,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -6807,7 +6807,7 @@
           "y": 3,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -6820,7 +6820,7 @@
           "y": 13,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -6833,7 +6833,7 @@
           "y": 13,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -6846,7 +6846,7 @@
           "y": 13,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -6859,7 +6859,7 @@
           "y": 16,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Set",
           "onceOnly": false,
           "target": {
@@ -7007,7 +7007,7 @@
           "y": 7,
           "support": "Floor",
           "face": "North",
-          "kind": "Dalle de pression (groupe)",
+          "kind": "Capteur de passage (party)",
           "action": "Clear",
           "onceOnly": false,
           "target": {

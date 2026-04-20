@@ -589,8 +589,7 @@
           "onceOnly": false,
           "targetY": 15,
           "targetX": 5,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -837,8 +836,7 @@
           "onceOnly": false,
           "targetY": 15,
           "targetX": 5,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -3754,8 +3752,7 @@
           "onceOnly": false,
           "targetY": 1,
           "targetX": 18,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -3778,8 +3775,7 @@
           "onceOnly": false,
           "targetY": 1,
           "targetX": 18,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -3802,8 +3798,7 @@
           "onceOnly": false,
           "targetY": 1,
           "targetX": 18,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -4176,8 +4171,7 @@
           "onceOnly": false,
           "targetY": 1,
           "targetX": 19,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -4200,8 +4194,7 @@
           "onceOnly": false,
           "targetY": 1,
           "targetX": 18,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -4224,8 +4217,7 @@
           "onceOnly": false,
           "targetY": 1,
           "targetX": 19,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -4475,8 +4467,7 @@
           "onceOnly": false,
           "targetY": 1,
           "targetX": 19,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -4499,8 +4490,7 @@
           "onceOnly": false,
           "targetY": 1,
           "targetX": 19,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -4523,8 +4513,7 @@
           "onceOnly": false,
           "targetY": 1,
           "targetX": 19,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -5184,8 +5173,7 @@
           "onceOnly": false,
           "targetY": 18,
           "targetX": 18,
-          "targetDir": "East",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "East"
         }
       ]
     },
@@ -7128,8 +7116,7 @@
           "onceOnly": false,
           "targetY": 27,
           "targetX": 29,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },

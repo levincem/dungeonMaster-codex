@@ -1069,6 +1069,212 @@ function buildOpenDoorBundle(): PhotonsBundle {
     };
 }
 
+function buildTeleporterBundle(): PhotonsBundle {
+    const root = new THREE.Object3D();
+    const atlasTexture = createProjectileSpriteTexture([
+        [0, 'rgba(246,255,255,0.98)'],
+        [0.16, 'rgba(188,244,255,0.92)'],
+        [0.46, 'rgba(92,188,238,0.55)'],
+        [0.8, 'rgba(20,66,126,0.18)'],
+        [1, 'rgba(1,6,19,0)'],
+    ]);
+    const atlas = new Photons.Atlas(atlasTexture, 'generated://teleporter-cloud-sprite');
+    atlas.addFrameSet(1, 0, 0, 1, 1);
+
+    const floorDiscGeometry = new THREE.CircleGeometry(0.42, 48);
+    const floorDiscMaterial = new THREE.MeshBasicMaterial({
+        color: new THREE.Color('#66d9ff'),
+        map: atlasTexture,
+        transparent: true,
+        opacity: 0.22,
+        depthWrite: false,
+        blending: THREE.NormalBlending,
+        toneMapped: false,
+    });
+    const floorDisc = new THREE.Mesh(floorDiscGeometry, floorDiscMaterial);
+    floorDisc.rotation.x = -Math.PI / 2;
+    floorDisc.position.y = -0.475;
+    root.add(floorDisc);
+
+    const veilGeometry = new THREE.PlaneGeometry(0.96, 0.34);
+    const veilMaterial = new THREE.MeshBasicMaterial({
+        map: atlasTexture,
+        color: new THREE.Color('#8be6ff'),
+        transparent: true,
+        opacity: 0.22,
+        depthWrite: false,
+        blending: THREE.NormalBlending,
+        side: THREE.DoubleSide,
+        toneMapped: false,
+    });
+    const veilAngles = [0, Math.PI / 3, (Math.PI * 2) / 3];
+    const veils = veilAngles.map((angle, index) => {
+        const veil = new THREE.Mesh(
+            veilGeometry,
+            index === 0 ? veilMaterial : veilMaterial.clone(),
+        );
+        veil.position.set(0, -0.32, 0);
+        veil.rotation.y = angle;
+        root.add(veil);
+        return veil;
+    });
+
+    const mistRenderer = new Photons.AnimatedSpriteRenderer(true, atlas, true, THREE.NormalBlending, true, 84);
+    const mistSystem = new Photons.ParticleSystem(root, mistRenderer);
+    mistSystem.init(260);
+
+    const mistSampleState = mistSystem.getParticleStates().getState(0);
+    const mistVector2Type = mistSampleState.size.constructor;
+    const mistVector3Type = mistSampleState.acceleration.constructor;
+    mistSystem.setEmitter(new Photons.ConstantParticleEmitter(34));
+    mistSystem.addParticleStateInitializer(new Photons.LifetimeInitializer(0.62, 0.22, 0, 0, false));
+    mistSystem.addParticleStateInitializer(new Photons.SizeInitializer(
+        new Photons.RandomGenerator(
+            mistVector2Type,
+            new mistVector2Type(0.4, 0.28),
+            new mistVector2Type(0.2, 0.14),
+            0,
+            0,
+            false,
+        ),
+    ));
+    mistSystem.addParticleStateInitializer(new Photons.BoxPositionInitializer(
+        new THREE.Vector3(0.4, 0.05, 0.4),
+        new THREE.Vector3(-0.2, -0.48, -0.2),
+    ));
+    mistSystem.addParticleStateInitializer(new Photons.RandomVelocityInitializer(
+        new THREE.Vector3(0.08, 0.06, 0.08),
+        new THREE.Vector3(-0.04, 0.01, -0.04),
+        0.025,
+        0.008,
+        true,
+    ));
+
+    const mistOpacity = mistSystem.addParticleStateOperator(new Photons.OpacityInterpolatorOperator());
+    mistOpacity.addElements([
+        [0, 0],
+        [0.22, 0.14],
+        [0.16, 0.56],
+        [0, 1],
+    ]);
+
+    const mistSize = mistSystem.addParticleStateOperator(new Photons.SizeInterpolatorOperator(true));
+    mistSize.addElementsFromParameters([
+        [[0.82, 0.76], 0],
+        [[1.28, 1.18], 0.44],
+        [[1.12, 1.02], 1],
+    ]);
+
+    const mistColor = mistSystem.addParticleStateOperator(new Photons.ColorInterpolatorOperator(true));
+    mistColor.addElementsFromParameters([
+        [[1.15, 2.05, 2.35], 0],
+        [[0.64, 1.52, 2.0], 0.42],
+        [[0.18, 0.64, 1.18], 0.88],
+        [[0.04, 0.12, 0.28], 1],
+    ]);
+
+    mistSystem.addParticleStateOperator(new Photons.AccelerationOperator(
+        new Photons.RandomGenerator(
+            mistVector3Type,
+            new mistVector3Type(0.015, 0.015, 0.015),
+            new mistVector3Type(-0.0075, 0.002, -0.0075),
+            0,
+            0,
+            false,
+        ),
+    ));
+    mistSystem.setSimulateInWorldSpace(false);
+    mistSystem.start();
+
+    const accentRenderer = new Photons.AnimatedSpriteRenderer(true, atlas, true, THREE.AdditiveBlending, true, 36);
+    const accentSystem = new Photons.ParticleSystem(root, accentRenderer);
+    accentSystem.init(92);
+
+    const accentVector2Type = accentSystem.getParticleStates().getState(0).size.constructor;
+    accentSystem.setEmitter(new Photons.ConstantParticleEmitter(9));
+    accentSystem.addParticleStateInitializer(new Photons.LifetimeInitializer(0.24, 0.1, 0, 0, false));
+    accentSystem.addParticleStateInitializer(new Photons.SizeInitializer(
+        new Photons.RandomGenerator(
+            accentVector2Type,
+            new accentVector2Type(0.1, 0.08),
+            new accentVector2Type(0.05, 0.04),
+            0,
+            0,
+            false,
+        ),
+    ));
+    accentSystem.addParticleStateInitializer(new Photons.BoxPositionInitializer(
+        new THREE.Vector3(0.24, 0.03, 0.24),
+        new THREE.Vector3(-0.12, -0.44, -0.12),
+    ));
+    accentSystem.addParticleStateInitializer(new Photons.RandomVelocityInitializer(
+        new THREE.Vector3(0.1, 0.08, 0.1),
+        new THREE.Vector3(-0.05, 0.02, -0.05),
+        0.03,
+        0.01,
+        true,
+    ));
+
+    const accentOpacity = accentSystem.addParticleStateOperator(new Photons.OpacityInterpolatorOperator());
+    accentOpacity.addElements([
+        [0, 0],
+        [0.22, 0.12],
+        [0.1, 0.5],
+        [0, 1],
+    ]);
+
+    const accentSize = accentSystem.addParticleStateOperator(new Photons.SizeInterpolatorOperator(true));
+    accentSize.addElementsFromParameters([
+        [[0.72, 0.72], 0],
+        [[1.05, 1.05], 0.32],
+        [[0.46, 0.46], 1],
+    ]);
+
+    const accentColor = accentSystem.addParticleStateOperator(new Photons.ColorInterpolatorOperator(true));
+    accentColor.addElementsFromParameters([
+        [[1.5, 2.4, 2.9], 0],
+        [[0.7, 1.6, 2.25], 0.34],
+        [[0.22, 0.82, 1.55], 0.9],
+        [[0.04, 0.12, 0.3], 1],
+    ]);
+
+    accentSystem.setSimulateInWorldSpace(false);
+    accentSystem.start();
+
+    root.visible = true;
+
+    return {
+        root,
+        update: (elapsedTime, delta) => {
+            root.visible = true;
+            floorDisc.material.opacity = 0.16 + (Math.sin(elapsedTime * 2.4) * 0.03 + 0.03);
+            floorDisc.scale.setScalar(0.96 + Math.sin(elapsedTime * 2.8) * 0.05);
+            veils.forEach((veil, index) => {
+                veil.material.opacity = 0.16 + (Math.sin(elapsedTime * (1.7 + index * 0.23) + index) * 0.035 + 0.035);
+                veil.position.y = -0.33 + Math.sin(elapsedTime * (1.35 + index * 0.18) + index * 1.7) * 0.02;
+                veil.scale.setScalar(0.98 + Math.sin(elapsedTime * (1.1 + index * 0.14) + index * 0.9) * 0.05);
+            });
+            mistSystem.update(elapsedTime, delta);
+            accentSystem.update(elapsedTime, delta);
+        },
+        dispose: () => {
+            mistSystem.pause();
+            accentSystem.pause();
+            mistRenderer.dispose();
+            accentRenderer.dispose();
+            floorDiscGeometry.dispose();
+            floorDiscMaterial.dispose();
+            veilGeometry.dispose();
+            veilMaterial.dispose();
+            veils.slice(1).forEach((veil) => veil.material.dispose());
+            disposeObjectTree(root);
+            atlasTexture.dispose();
+            root.removeFromParent();
+            root.clear();
+        },
+    };
+}
+
 function buildRaDoorCurtainBundle(): PhotonsBundle {
     const root = new THREE.Object3D();
     const atlasTexture = createProjectileSpriteTexture([
@@ -1309,6 +1515,24 @@ export const PhotonsOpenDoorProjectile: React.FC<{ scale?: number }> = ({ scale 
 
     useEffect(() => {
         bundle.root.scale.setScalar(scale * 0.88);
+    }, [bundle, scale]);
+
+    useEffect(() => () => {
+        bundle.dispose();
+    }, [bundle]);
+
+    return <primitive object={bundle.root} />;
+};
+
+export const PhotonsTeleporterCloud: React.FC<{ scale?: number }> = ({ scale = 1 }) => {
+    const bundle = useMemo(() => buildTeleporterBundle(), []);
+
+    useFrame((state, delta) => {
+        bundle.update(state.clock.elapsedTime, delta);
+    });
+
+    useEffect(() => {
+        bundle.root.scale.setScalar(scale);
     }, [bundle, scale]);
 
     useEffect(() => () => {

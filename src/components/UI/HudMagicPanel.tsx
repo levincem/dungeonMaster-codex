@@ -1,9 +1,10 @@
 ﻿import React, { useEffect } from 'react';
 import { RUNES_BY_FAMILY, RUNES_BY_ID } from '../../data/runes';
 import { runesPath } from '../../data/assetPaths';
-import type { Translations } from '../../i18n';
+import { getTranslations, type Translations } from '../../i18n';
 
 const RUNE_FAMILIES = ['power', 'element', 'form', 'alignment'] as const;
+const runeText = getTranslations().runePanel;
 
 function getRuneImagePath(runeId: string): string {
     return runesPath(`${runeId}.png`);
@@ -149,7 +150,7 @@ export const HudMagicPanel: React.FC<{
                                 if (runeId) e.preventDefault();
                             }}
                             onClick={() => runeId && onTruncateRunes(i)}
-                            title={runeId ? `Retirer ${rune?.name}` : `Slot ${i + 1}`}
+                            title={runeId ? runeText.removeRune(rune?.name ?? '') : runeText.slot(i + 1)}
                             style={{
                                 flex: 1,
                                 aspectRatio: '1 / 0.68',
@@ -228,7 +229,7 @@ export const HudMagicPanel: React.FC<{
                         <div style={{ fontSize: 12, color: '#f0d060', fontWeight: 'bold', letterSpacing: 0.5 }}>
                             {spell.name}
                             <span style={{ color: '#d4b870', fontWeight: 'normal', fontSize: 10, marginLeft: 5 }}>
-                                {spell.manaCost} MP
+                                {spell.manaCost} {text.manaUnit}
                             </span>
                         </div>
                     ) : selectedRunes.length > 0 ? (
@@ -260,6 +261,7 @@ export const HudMagicPanel: React.FC<{
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={onClear}
                     disabled={selectedRunes.length === 0}
+                    title={runeText.clearSelection}
                     style={{
                         padding: '4px 7px',
                         background: selectedRunes.length > 0 ? 'rgba(0,0,0,0.95)' : 'rgba(0,0,0,0.82)',

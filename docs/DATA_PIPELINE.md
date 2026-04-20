@@ -23,6 +23,7 @@ Important files there:
 - [output/runtime_dungeon_bootstrap.json](/D:/DungeonMaster-codex/assets/OriginalDataExtraction/output/runtime_dungeon_bootstrap.json): compact bootstrap-only snapshot
 - [output/game_db.json](/D:/DungeonMaster-codex/assets/OriginalDataExtraction/output/game_db.json): regenerated runtime database
 - [output/runtime_data_manifest.json](/D:/DungeonMaster-codex/assets/OriginalDataExtraction/output/runtime_data_manifest.json): packaging summary
+- [output/runtime_package_consistency_audit.json](/D:/DungeonMaster-codex/assets/OriginalDataExtraction/output/runtime_package_consistency_audit.json): exact comparison between extraction-side runtime outputs and the shipped runtime package under `src/assets/runtime`
 
 This directory remains the source of truth for audits that need full coordinates, raw proof fields, or extraction-side comparisons.
 
@@ -124,6 +125,11 @@ Older extraction utilities that previously read `src/assets/data/dungeon.json` o
 - scripts that validate the current runtime database should read `src/assets/runtime/db/game_db.json`
 
 This avoids mixing audit-only needs with the shipped runtime package.
+
+Recommended quick validation after regeneration:
+
+- `node assets/OriginalDataExtraction/compare_atari_stats_to_game_db.cjs`
+- `node assets/OriginalDataExtraction/audit_runtime_package_consistency.cjs`
 
 ## Why this is cleaner
 

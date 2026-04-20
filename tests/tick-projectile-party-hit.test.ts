@@ -164,6 +164,7 @@ test('applyProjectilePartyHit applies direct champion damage and emits a party i
             buildActivePoisonCloud: () => {
                 throw new Error('poison cloud should not be created');
             },
+            buildDroppedItem: (item, level, x, y) => ({ ...item, mapIndex: level, x, y, tilePos: 'North' }),
             getThrownExplosionVisualScale: () => 1.5,
             gridSize: 2,
         },
@@ -223,6 +224,7 @@ test('applyProjectilePartyHit applies party backlash for fireball and lightning 
             buildActivePoisonCloud: () => {
                 throw new Error('poison cloud should not be created');
             },
+            buildDroppedItem: (item, level, x, y) => ({ ...item, mapIndex: level, x, y, tilePos: 'North' }),
             getThrownExplosionVisualScale: () => 1,
             gridSize: 2,
         },
@@ -272,6 +274,7 @@ test('applyProjectilePartyHit turns poison cloud impacts into lingering active c
                 nextPulseGameTick: currentGameTick,
                 visualScale,
             }),
+            buildDroppedItem: (item, level, x, y) => ({ ...item, mapIndex: level, x, y, tilePos: 'North' }),
             getThrownExplosionVisualScale: () => 1,
             gridSize: 2,
         },
@@ -318,6 +321,7 @@ test('applyProjectilePartyHit preserves direct-hit nextVitals even when no damag
             buildActivePoisonCloud: () => {
                 throw new Error('poison cloud should not be created');
             },
+            buildDroppedItem: (item, level, x, y) => ({ ...item, mapIndex: level, x, y, tilePos: 'North' }),
             getThrownExplosionVisualScale: () => 1,
             gridSize: 2,
         },
@@ -378,6 +382,7 @@ test('applyProjectilePartyHit only drops a poisoned champion once when poison de
             buildActivePoisonCloud: () => {
                 throw new Error('poison cloud should not be created');
             },
+            buildDroppedItem: (item, level, x, y) => ({ ...item, mapIndex: level, x, y, tilePos: 'North' }),
             getThrownExplosionVisualScale: () => 1,
             gridSize: 2,
         },
@@ -386,4 +391,63 @@ test('applyProjectilePartyHit only drops a poisoned champion once when poison de
     assert.equal(deathDropCalls, 1);
     assert.equal(result.party.length, 0);
     assert.equal(result.deadChampions[1]?.id, 1);
+});
+
+test('applyProjectilePartyHit drops physical projectiles on the party square after impact', () => {
+    const dagger: FloorItem = {
+        id: 'dagger-1',
+        category: 'Weapon',
+        typeId: 8,
+        rawName: 'Dagger',
+        mapIndex: 0,
+        x: 1,
+        y: 1,
+        tilePos: 'North',
+    };
+
+    const result = applyProjectilePartyHit(
+        createProjectile({
+            effect: 'physical',
+            physicalItem: dagger,
+            remainingAttack: 6,
+        }),
+        0,
+        3,
+        3,
+        10,
+        1000,
+        createState(),
+        {
+            resolveProjectileImpact: () => ({ damage: 4, attackType: 'Blunt', poisonAttack: 0 }),
+            resolveChampionIncomingAttack: (_state, _champion, currentVitals) => ({
+                damage: 4,
+                nextVitals: { ...currentVitals, hp: currentVitals.hp - 4 },
+            }),
+            buildChampionDamageEvent: (level, championId, amount) => ({
+                id: 'damage-physical',
+                level,
+                target: 'champion',
+                championId,
+                amount,
+                ts: 1000,
+            }),
+            applyPoisonCharacter: (vitals) => vitals,
+            randomInt: () => 0,
+            buildDeathDrop: () => {
+                throw new Error('death drop should not happen here');
+            },
+            applyPartySpellBacklashDamage: () => null,
+            applyPartyWideIncomingAttack: () => null,
+            rollExplosionBurstAttack: () => 0,
+            buildActivePoisonCloud: () => {
+                throw new Error('poison cloud should not be created');
+            },
+            buildDroppedItem: (item, level, x, y) => ({ ...item, mapIndex: level, x, y, tilePos: 'North' }),
+            getThrownExplosionVisualScale: () => 1,
+            gridSize: 2,
+        },
+    );
+
+    assert.equal(result.championVitals[1]?.hp, 46);
+    assert.deepEqual(result.floorItems, [{ ...dagger, mapIndex: 0, x: 3, y: 3, tilePos: 'South', projectileDropped: true }]);
 });

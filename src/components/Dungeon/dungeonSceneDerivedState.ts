@@ -23,6 +23,9 @@ type MapMechanismEntry = {
     y: number;
     kind: string;
     support: string;
+    trigger: string;
+    sensorType: number;
+    face: CardinalDir;
 };
 type StairConnection = {
     fromLevel: number;
@@ -44,7 +47,7 @@ export type WallButtonRender = {
     face: CardinalDir;
     sensorIndex: number;
 };
-export type TileMarkerRender = { tileX: number; tileY: number };
+export type TileMarkerRender = { tileX: number; tileY: number; face?: CardinalDir };
 export type WallDropPlacement = 'front' | 'left' | 'right';
 export type WallDecalRender = {
     tileX: number;
@@ -246,6 +249,7 @@ export function buildDungeonSceneWallButtons(args: {
 
     for (const row of map.tiles) {
         for (const tile of row) {
+            if (tile.type !== 'Wall' && tile.type !== 'TrickWall') continue;
             const hiddenWallOpen = tile.type === 'Wall' && selfRevealingWallTile(level, tile.x, tile.y) && openWalls.has(`${level},${tile.y},${tile.x}`);
             for (const obj of tile.objects) {
                 if (obj.category !== 'Sensor') continue;
@@ -348,13 +352,15 @@ export function collectDungeonScenePressurePlates(args: {
     const seen = new Set<string>();
     const plates: TileMarkerRender[] = [];
     for (const mech of mechanisms) {
-        if (mech.support !== 'Floor' || !mech.kind.startsWith('Dalle de pression')) continue;
+        if (mech.support !== 'Floor') continue;
+        if (mech.trigger !== 'floor-pressure' && mech.trigger !== 'object-pressure') continue;
+        if (![1, 2, 3, 4, 7].includes(mech.sensorType)) continue;
         const tile = map.tiles[mech.y]?.[mech.x];
         if (!tile || tile.type === 'Wall' || tile.type === 'Door' || tile.type === 'Teleporter') continue;
         const key = `${mech.x},${mech.y}`;
         if (seen.has(key)) continue;
         seen.add(key);
-        plates.push({ tileX: mech.x, tileY: mech.y });
+        plates.push({ tileX: mech.x, tileY: mech.y, face: mech.face });
     }
     return plates;
 }
@@ -383,6 +389,22 @@ export function collectDungeonScenePits(args: {
     for (const row of args.map.tiles) {
         for (const tile of row) {
             if (tile.type !== 'Pit') continue;
+            out.push({ tileX: tile.x, tileY: tile.y });
+        }
+    }
+    return out;
+}
+
+export function collectDungeonSceneTeleporters(args: {
+    level: number;
+    map: GameMap;
+    openTeleporters: Set<string>;
+}): TileMarkerRender[] {
+    const out: TileMarkerRender[] = [];
+    for (const row of args.map.tiles) {
+        for (const tile of row) {
+            if (tile.type !== 'Teleporter') continue;
+            if (!tile.open && !args.openTeleporters.has(`${args.level},${tile.y},${tile.x}`)) continue;
             out.push({ tileX: tile.x, tileY: tile.y });
         }
     }

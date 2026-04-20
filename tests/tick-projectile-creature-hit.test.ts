@@ -102,7 +102,7 @@ test('applyProjectileCreatureHit damages a creature, drops loot on kill, and emi
                 throw new Error('no active cloud expected');
             },
             getThrownExplosionVisualScale: () => 1.3,
-            buildDroppedItem: (item) => item,
+            buildDroppedItem: (item, level, x, y) => ({ ...item, mapIndex: level, x, y, tilePos: 'North' }),
             gridSize: 2,
         },
     );
@@ -110,8 +110,169 @@ test('applyProjectileCreatureHit damages a creature, drops loot on kill, and emi
     assert.equal(result.creatures[0]?.alive, false);
     assert.equal(result.damageEvents.length, 1);
     assert.equal(result.damageEvents[0]?.creatureId, 'creature-1');
+    assert.equal(result.floorItems.length, 1);
+    assert.equal(result.floorItems[0]?.tilePos, 'South');
     assert.equal(result.spellVisualEvents.length, 1);
     assert.equal(result.spellVisualEvents[0]?.kind, 'death');
+});
+
+test('applyProjectileCreatureHit keeps a thrown physical weapon on the creature square after a non-lethal hit', () => {
+    const hit = createCreature({ currentHP: 12 });
+    const dagger: FloorItem = {
+        id: 'dagger-hit',
+        category: 'Weapon',
+        typeId: 8,
+        rawName: 'Dagger',
+        mapIndex: 0,
+        x: 0,
+        y: 0,
+        tilePos: 'North',
+    };
+
+    const result = applyProjectileCreatureHit(
+        createProjectile({
+            effect: 'physical',
+            remainingAttack: 4,
+            physicalItem: dagger,
+            direction: 'EAST',
+        }),
+        hit,
+        [hit],
+        false,
+        0,
+        2,
+        2,
+        10,
+        1000,
+        createState({ creatures: [hit] }),
+        {
+            rollSourceBackedImpact: () => null,
+            getCreaturePoisonAdjustedAttack: (_typeId, attack) => attack,
+            rollRandomProjectileDamage: () => 0,
+            rollExplosionBurstAttack: () => 0,
+            isLikelyNonMaterial: () => false,
+            rollDisruptNonMaterialAttack: () => 0,
+            dropCreatureCarriedItems: (creatures, floorItems) => ({ creatures, floorItems }),
+            buildDeathDustEvent: () => ({
+                id: 'dust-1',
+                level: 0,
+                x: 2,
+                y: 2,
+                effect: 'fireball',
+                ts: 1000,
+                kind: 'death',
+            }),
+            buildCreatureDamageEvent: (level, x, y, amount, creatureId) => ({
+                id: 'damage-1',
+                level,
+                target: 'creature',
+                x,
+                y,
+                amount,
+                creatureId,
+                ts: 1000,
+            }),
+            buildLingeringPoisonCloud: () => null,
+            buildActivePoisonCloud: () => {
+                throw new Error('no active cloud expected');
+            },
+            getThrownExplosionVisualScale: () => 1.3,
+            buildDroppedItem: (item, level, x, y) => ({ ...item, mapIndex: level, x, y, tilePos: 'North' }),
+            gridSize: 2,
+        },
+    );
+
+    assert.equal(result.creatures[0]?.alive, true);
+    assert.equal(result.creatures[0]?.currentHP, 8);
+    assert.equal(result.floorItems.length, 1);
+    assert.deepEqual(result.floorItems[0], {
+        ...dagger,
+        mapIndex: 0,
+        x: 2,
+        y: 2,
+        tilePos: 'West',
+        projectileDropped: true,
+    });
+});
+
+test('applyProjectileCreatureHit stores a thrown physical weapon on missile-absorbing creatures instead of losing it', () => {
+    const hit = createCreature({ currentHP: 12, carriedItems: [] });
+    const dagger: FloorItem = {
+        id: 'dagger-absorbed',
+        category: 'Weapon',
+        typeId: 8,
+        rawName: 'Dagger',
+        mapIndex: 0,
+        x: 0,
+        y: 0,
+        tilePos: 'North',
+    };
+
+    const result = applyProjectileCreatureHit(
+        createProjectile({
+            effect: 'physical',
+            remainingAttack: 4,
+            physicalItem: dagger,
+            direction: 'EAST',
+        }),
+        hit,
+        [hit],
+        true,
+        0,
+        2,
+        2,
+        10,
+        1000,
+        createState({ creatures: [hit] }),
+        {
+            rollSourceBackedImpact: () => null,
+            getCreaturePoisonAdjustedAttack: (_typeId, attack) => attack,
+            rollRandomProjectileDamage: () => 0,
+            rollExplosionBurstAttack: () => 0,
+            isLikelyNonMaterial: () => false,
+            rollDisruptNonMaterialAttack: () => 0,
+            dropCreatureCarriedItems: (creatures, floorItems) => ({ creatures, floorItems }),
+            buildDeathDustEvent: () => ({
+                id: 'dust-1',
+                level: 0,
+                x: 2,
+                y: 2,
+                effect: 'fireball',
+                ts: 1000,
+                kind: 'death',
+            }),
+            buildCreatureDamageEvent: (level, x, y, amount, creatureId) => ({
+                id: 'damage-1',
+                level,
+                target: 'creature',
+                x,
+                y,
+                amount,
+                creatureId,
+                ts: 1000,
+            }),
+            buildLingeringPoisonCloud: () => null,
+            buildActivePoisonCloud: () => {
+                throw new Error('no active cloud expected');
+            },
+            getThrownExplosionVisualScale: () => 1.3,
+            buildDroppedItem: (item, level, x, y) => ({ ...item, mapIndex: level, x, y, tilePos: 'North' }),
+            gridSize: 2,
+        },
+    );
+
+    assert.equal(result.floorItems.length, 0);
+    assert.equal(result.damageEvents.length, 0);
+    assert.equal(result.creatures[0]?.currentHP, 12);
+    assert.deepEqual(result.creatures[0]?.carriedItems, [
+        {
+            ...dagger,
+            mapIndex: 0,
+            x: 2,
+            y: 2,
+            tilePos: 'North',
+        },
+    ]);
 });
 
 test('applyProjectileCreatureHit handles disrupt_nonmaterial as an area hit on non-material targets', () => {

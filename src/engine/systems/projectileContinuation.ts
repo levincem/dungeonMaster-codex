@@ -1,5 +1,6 @@
 import type { FloorItem } from '../../types/game';
 import type { Direction, Projectile } from '../runtimeTypes';
+import { buildProjectileDroppedItem } from './projectileDroppedItem';
 
 type ProjectileContinuationDeps = {
     projectileStepMs: number;
@@ -51,7 +52,17 @@ export function resolveProjectileContinuation(
         let nextFloorItems = floorItems;
         if (remainingRange <= 0 || remainingAttack <= 0) {
             if (projectile.physicalItem) {
-                nextFloorItems = [...floorItems, deps.buildDroppedItem(projectile.physicalItem, location.level, location.x, location.y)];
+                nextFloorItems = [
+                    ...floorItems,
+                    buildProjectileDroppedItem(
+                        projectile.physicalItem,
+                        location.level,
+                        location.x,
+                        location.y,
+                        location.direction,
+                        deps.buildDroppedItem,
+                    ),
+                ];
             }
             return { floorItems: nextFloorItems };
         }

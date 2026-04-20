@@ -35,6 +35,33 @@ type CreateGeneratedCreatureGroupInstancesDeps<TCreature> = {
     }) => TCreature;
 };
 
+export type GeneratedCreatureGroupPlanEntry = {
+    id: string;
+    groupId: string;
+    typeId: number;
+    mapIndex: number;
+    x: number;
+    y: number;
+    currentHP: number;
+    cell: CreatureCell;
+    moveTimer: number;
+    attackTimer: number;
+};
+
+type BuildGeneratedCreatureGroupPlanDeps = {
+    getCreatureDefinition: (typeId: number) => CreatureDefinitionLike | undefined;
+    getEffectiveHealthMultiplier: (level: number, hpMultiplier: number) => number;
+    randomInt: (maxExclusive: number) => number;
+    randomFraction?: () => number;
+    createCreatureId: (
+        level: number,
+        x: number,
+        y: number,
+        typeId: number,
+        ordinal: number,
+    ) => string;
+};
+
 export function getCreatureTileCapacity(sizeOnTile: number): number {
     if (sizeOnTile >= 2) return 1;
     if (sizeOnTile === 1) return 2;
@@ -65,6 +92,42 @@ export function getGeneratedCreatureCellsForOccupancy(
     return rotated.slice(0, Math.min(count, 4));
 }
 
+export function buildGeneratedCreatureGroupPlan(
+    level: number,
+    x: number,
+    y: number,
+    typeId: number,
+    hpMultiplier: number,
+    creatureCount: number,
+    groupId: string,
+    deps: BuildGeneratedCreatureGroupPlanDeps,
+): GeneratedCreatureGroupPlanEntry[] {
+    const definition = deps.getCreatureDefinition(typeId);
+    if (!definition || creatureCount <= 0) return [];
+
+    const randomFraction = deps.randomFraction ?? Math.random;
+    const effectiveMultiplier = deps.getEffectiveHealthMultiplier(level, hpMultiplier);
+    const capacity = getCreatureTileCapacity(definition.sizeOnTile ?? 0);
+    const actualCount = Math.max(1, Math.min(creatureCount, capacity));
+    const cells = getGeneratedCreatureCellsForOccupancy(actualCount, capacity, deps.randomInt(4));
+
+    return Array.from({ length: actualCount }, (_, ordinal) => ({
+        id: deps.createCreatureId(level, x, y, typeId, ordinal),
+        groupId,
+        typeId,
+        mapIndex: level,
+        x,
+        y,
+        currentHP: Math.max(
+            1,
+            (definition.baseHP * effectiveMultiplier) + deps.randomInt((definition.baseHP >> 2) + 1),
+        ),
+        cell: cells[ordinal] ?? 'center',
+        moveTimer: randomFraction() * (definition.moveSpd / 6),
+        attackTimer: randomFraction() * (definition.atkSpd / 6),
+    }));
+}
+
 export function createGeneratedCreatureGroupInstances<TCreature>(
     level: number,
     x: number,
@@ -78,33 +141,31 @@ export function createGeneratedCreatureGroupInstances<TCreature>(
     const definition = deps.getCreatureDefinition(typeId);
     if (!definition || creatureCount <= 0) return [];
 
-    const effectiveMultiplier = deps.getEffectiveHealthMultiplier(level, hpMultiplier);
-    const capacity = getCreatureTileCapacity(definition.sizeOnTile ?? 0);
-    const actualCount = Math.max(1, Math.min(creatureCount, capacity));
-    const cells = getGeneratedCreatureCellsForOccupancy(actualCount, capacity, deps.randomInt(4));
-    const instances: TCreature[] = [];
+    const plan = buildGeneratedCreatureGroupPlan(
+        level,
+        x,
+        y,
+        typeId,
+        hpMultiplier,
+        creatureCount,
+        groupId,
+        deps,
+    );
 
-    for (let ordinal = 0; ordinal < actualCount; ordinal += 1) {
-        const currentHP = Math.max(
-            1,
-            (definition.baseHP * effectiveMultiplier) + deps.randomInt((definition.baseHP >> 2) + 1),
-        );
-        const id = deps.createCreatureId(level, x, y, typeId, ordinal);
-        deps.registerCreatureTimers?.(id, {
-            mt: Math.random() * (definition.moveSpd / 6),
-            at: Math.random() * (definition.atkSpd / 6),
+    return plan.map((entry) => {
+        deps.registerCreatureTimers?.(entry.id, {
+            mt: entry.moveTimer,
+            at: entry.attackTimer,
         }, definition);
-        instances.push(deps.createCreature({
-            id,
-            groupId,
-            typeId,
-            mapIndex: level,
-            x,
-            y,
-            currentHP,
-            cell: cells[ordinal] ?? 'center',
-        }));
-    }
-
-    return instances;
+        return deps.createCreature({
+            id: entry.id,
+            groupId: entry.groupId,
+            typeId: entry.typeId,
+            mapIndex: entry.mapIndex,
+            x: entry.x,
+            y: entry.y,
+            currentHP: entry.currentHP,
+            cell: entry.cell,
+        });
+    });
 }

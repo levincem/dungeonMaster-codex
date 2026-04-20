@@ -1929,8 +1929,7 @@
           "onceOnly": false,
           "targetY": 5,
           "targetX": 22,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -2450,8 +2449,7 @@
           "onceOnly": false,
           "targetY": 5,
           "targetX": 22,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",

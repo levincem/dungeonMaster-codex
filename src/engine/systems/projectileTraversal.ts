@@ -2,6 +2,7 @@ import type { DoorObject, FloorItem, GameTile } from '../../types/game';
 import type { ActivePoisonCloud, Projectile, SpellVisualEvent } from '../runtimeTypes';
 import type { Direction } from '../runtimeTypes';
 import { getDoorObject } from './doorMetadata';
+import { buildProjectileDroppedItem } from './projectileDroppedItem';
 
 type TraversalState = {
     projectile: Projectile;
@@ -172,11 +173,13 @@ export function resolveProjectileTraversalStep(
         if (projectile.effect === 'physical' && projectile.physicalItem && !projectile.explosionOnImpact) {
             if (floorItems === state.floorItems) floorItems = [...floorItems];
             floorItems.push(
-                deps.buildDroppedItem(
+                buildProjectileDroppedItem(
                     projectile.physicalItem,
                     level,
                     projectile.x,
                     projectile.y,
+                    projectile.direction,
+                    deps.buildDroppedItem,
                 ),
             );
         }

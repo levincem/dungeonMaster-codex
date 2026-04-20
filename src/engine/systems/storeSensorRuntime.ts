@@ -72,6 +72,7 @@ export type StoreSensorState<TProjectile, TCreature, TPendingGeneratorSpawn> = {
     pendingGeneratorSpawns: TPendingGeneratorSpawn[];
     currentLevel: number;
     currentPosition: [number, number];
+    currentDirection: 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
     elapsedGameTimeTicks: number;
 };
 
@@ -92,6 +93,7 @@ const WALL_SENSOR_FACE_MASK: Record<CardinalDir, number> = {
 type SensorSnapshotSource<TProjectile, TCreature, TPendingGeneratorSpawn> = Partial<{
     level: number;
     position: [number, number];
+    direction: 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
     openDoors: Set<string>;
     openPits: Set<string>;
     openTeleporters: Set<string>;
@@ -127,6 +129,21 @@ type GeneratorRuntimeDeps<
     } | null;
     randomInt: (maxExclusive: number) => number;
     canReserveGeneratorGroup: (state: TState, spawnLevel: number) => boolean;
+    buildPendingGeneratorSpawnEvent: (
+        level: number,
+        sensorIndex: number,
+        generatorConfig: {
+            spawnX: number;
+            spawnY: number;
+            typeId: number;
+            hpMultiplier: number;
+            countRaw: number;
+            randomized: boolean;
+            ticks: number;
+        },
+        creatureCount: number,
+        groupId: string,
+    ) => Omit<TPendingGeneratorSpawn, 'remaining'>;
     queuePendingGeneratorSpawnEvent: (
         pendingGeneratorSpawns: TPendingGeneratorSpawn[],
         event: Omit<TPendingGeneratorSpawn, 'remaining'>,
@@ -155,6 +172,7 @@ type StoreSensorRuntimeParams<
     getGeneratorConfig: GeneratorRuntimeDeps<TState, TCreature, TPendingGeneratorSpawn>['getGeneratorConfig'];
     randomInt: GeneratorRuntimeDeps<TState, TCreature, TPendingGeneratorSpawn>['randomInt'];
     canReserveGeneratorGroup: GeneratorRuntimeDeps<TState, TCreature, TPendingGeneratorSpawn>['canReserveGeneratorGroup'];
+    buildPendingGeneratorSpawnEvent: GeneratorRuntimeDeps<TState, TCreature, TPendingGeneratorSpawn>['buildPendingGeneratorSpawnEvent'];
     queuePendingGeneratorSpawnEvent: GeneratorRuntimeDeps<TState, TCreature, TPendingGeneratorSpawn>['queuePendingGeneratorSpawnEvent'];
     retrySeconds: number;
     createGeneratedCreatureGroupInstances: GeneratorRuntimeDeps<TState, TCreature, TPendingGeneratorSpawn>['createGeneratedCreatureGroupInstances'];
@@ -170,14 +188,26 @@ export function applySensorActionToSet(
     key: string,
     action: SensorAction | string,
 ): Set<string> {
-    const next = new Set(set);
-    if (action === 'Set') next.add(key);
-    else if (action === 'Clear') next.delete(key);
-    else if (action === 'Toggle') {
-        if (next.has(key)) next.delete(key);
-        else next.add(key);
+    const hasKey = set.has(key);
+    if (action === 'Set') {
+        if (hasKey) return set;
+        const next = new Set(set);
+        next.add(key);
+        return next;
     }
-    return next;
+    if (action === 'Clear') {
+        if (!hasKey) return set;
+        const next = new Set(set);
+        next.delete(key);
+        return next;
+    }
+    if (action === 'Toggle') {
+        const next = new Set(set);
+        if (hasKey) next.delete(key);
+        else next.add(key);
+        return next;
+    }
+    return set;
 }
 
 export function diffStoreSensorState<TState extends StoreSensorState<unknown, unknown, unknown>>(
@@ -315,6 +345,7 @@ export function createStoreSensorRuntime<
         getSensorStateKey,
         randomInt: params.randomInt,
         canReserveGeneratorGroup: params.canReserveGeneratorGroup,
+        buildPendingGeneratorSpawnEvent: params.buildPendingGeneratorSpawnEvent,
         queuePendingGeneratorSpawnEvent: params.queuePendingGeneratorSpawnEvent,
         retrySeconds: params.retrySeconds,
         createGeneratedCreatureGroupInstances: params.createGeneratedCreatureGroupInstances,

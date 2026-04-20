@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { ComponentType } from 'react';
 import { LoadingScreen } from './components/UI/LoadingScreen';
+import { useI18n } from './i18n';
 import { preloadGameRootModule } from './preload/gameplayModulePreload';
 
 const welcomeBackdropStyle = {
@@ -43,6 +44,7 @@ const closeButtonStyle = {
 };
 
 function App() {
+  const text = useI18n().app;
   const [GameRootComponent, setGameRootComponent] = useState<ComponentType | null>(null);
   const [bootError, setBootError] = useState<string | null>(null);
   const [isSmartphone, setIsSmartphone] = useState(false);
@@ -98,7 +100,7 @@ function App() {
         fontFamily: '"Courier New", monospace',
         textAlign: 'center',
       }}>
-        Failed to load game: {bootError}
+        {text.bootError(bootError)}
       </div>
     );
   }
@@ -117,7 +119,7 @@ function App() {
         fontFamily: '"Courier New", monospace',
         textAlign: 'center',
       }}>
-        This is a desktop-first alpha. Smartphone play is not supported yet.
+        {text.smartphoneUnsupported}
       </div>
     );
   }
@@ -134,7 +136,7 @@ function App() {
             textAlign: 'center',
           }}>
             <div style={{ fontSize: 24, letterSpacing: 0.8, marginBottom: 18, color: '#f1d9a1' }}>
-              Preparing Title Screen
+              {text.preparingTitleScreen}
             </div>
             <div style={{
               fontSize: 15,
@@ -142,7 +144,7 @@ function App() {
               color: '#dcc48b',
               marginBottom: 18,
             }}>
-              The gameplay runtime is still warming up. This is expected in development mode and on a cold start.
+              {text.runtimeWarmupNotice}
             </div>
             <div style={{
               width: '100%',
@@ -183,7 +185,7 @@ function App() {
               onMouseDown={() => setWelcomePressedButton('close')}
               onMouseUp={() => setWelcomePressedButton(null)}
               onMouseLeave={() => setWelcomePressedButton(null)}
-              aria-label="Close welcome notice"
+              aria-label={text.welcome.closeNotice}
               style={{
                 ...closeButtonStyle,
                 transform: welcomePressedButton === 'close' ? 'translateY(1px) scale(0.97)' : 'translateY(0) scale(1)',
@@ -195,23 +197,23 @@ function App() {
               X
             </button>
             <div style={{ fontSize: 24, letterSpacing: 0.8, marginBottom: 18, color: '#f1d9a1' }}>
-              Dungeon Master Remastered
+              {text.welcome.title}
             </div>
             <div style={{ fontSize: 16, lineHeight: 1.6, color: '#dcc48b' }}>
               <p style={{ margin: '0 0 12px' }}>
-                Welcome to Dungeon Master Remastered.
+                {text.welcome.intro}
               </p>
               <p style={{ margin: '0 0 12px' }}>
-                The game is currently in alpha, and some bugs or behaviors that differ from the original game may still remain.
+                {text.welcome.alphaNotice}
               </p>
               <p style={{ margin: '0 0 12px' }}>
-                Saves are not guaranteed to remain compatible or reliable during alpha, before the beta version.
+                {text.welcome.saveNotice}
               </p>
               <p style={{ margin: '0 0 12px' }}>
-                For the best experience, play at 1920x1080 or higher with a keyboard and mouse.
+                {text.welcome.desktopNotice}
               </p>
               <p style={{ margin: '0 0 12px' }}>
-                Thank you for reporting any issues on GitHub:{' '}
+                {text.welcome.githubIntro}{' '}
                 <a
                   href="https://github.com/levincem/DungeonMaster-codex"
                   target="_blank"
@@ -222,7 +224,7 @@ function App() {
                 </a>
               </p>
               <p style={{ margin: '0 0 12px' }}>
-                You can also reach out on Reddit:{' '}
+                {text.welcome.redditIntro}{' '}
                 <a
                   href="https://www.reddit.com/user/levincem/"
                   target="_blank"
@@ -233,7 +235,7 @@ function App() {
                 </a>
               </p>
               <p style={{ margin: 0 }}>
-                Sounds and visuals have already been reworked, but they still need more polish to fully match the quality this game deserves.
+                {text.welcome.polishNotice}
               </p>
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 22 }}>
@@ -262,7 +264,7 @@ function App() {
                   transition: 'transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease',
                 }}
               >
-                Continue
+                {text.welcome.continue}
               </button>
             </div>
           </div>

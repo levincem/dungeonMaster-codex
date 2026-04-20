@@ -186,6 +186,25 @@ function createUnusedProjectileDeps(): UnusedProjectileDeps {
     } as unknown as UnusedProjectileDeps;
 }
 
+function createFloorMap(width: number, height: number): GameMap {
+    return {
+        index: 0,
+        name: 'Floor Test',
+        level: 0,
+        width,
+        height,
+        difficulty: 0,
+        tiles: Array.from({ length: height }, (_, y) =>
+            Array.from({ length: width }, (_, x) => ({
+                x,
+                y,
+                type: 'Floor' as const,
+                objects: [],
+            })),
+        ),
+    };
+}
+
 test('buildTickSpellsRuntimePatch returns the original state when the options modal is open', () => {
     let called = false;
     const state = createState({ optionsModalOpen: true });
@@ -282,4 +301,262 @@ test('buildTickSpellsRuntimePatch resolves spell projectile hits on the current 
     assert.equal(patch.damageEvents?.length, 1);
     assert.equal(patch.damageEvents?.[0]?.creatureId, 'creature-contact');
     assert.equal(patch.creatures?.[0]?.currentHP, 3);
+});
+
+test('buildTickSpellsRuntimePatch drops a thrown physical weapon on the creature square after a hit', () => {
+    const creature: CreatureInstance = {
+        id: 'creature-dagger',
+        typeId: 1,
+        mapIndex: 0,
+        x: 1,
+        y: 0,
+        currentHP: 5,
+        alive: true,
+        cell: 'frontLeft',
+    };
+    const dagger: FloorItem = {
+        id: 'dagger-1',
+        category: 'Weapon',
+        typeId: 8,
+        rawName: 'Dagger',
+        mapIndex: 0,
+        x: 0,
+        y: 0,
+        tilePos: 'North',
+    };
+    const projectile: Projectile = {
+        id: 'throw-dagger',
+        level: 0,
+        x: 0,
+        y: 0,
+        direction: 'EAST',
+        effect: 'physical',
+        damage: [6, 6],
+        nextMoveAt: 1000,
+        remainingRange: 4,
+        remainingAttack: 6,
+        physicalItem: dagger,
+    };
+    const state = createState({
+        position: [0, 0],
+        creatures: [creature],
+        projectiles: [projectile],
+    });
+    const map = createFloorMap(4, 1);
+
+    const patch = buildTickSpellsRuntimePatch(state, 1000, {
+        buildProjectileTickDeps: (_state, currentGameTick, now) => ({
+            ...createUnusedProjectileDeps(),
+            currentGameTick,
+            now,
+            getMap: () => map,
+            buildDroppedItem: (item, level, x, y) => ({ ...item, mapIndex: level, x, y, tilePos: 'North' }),
+            dropCreatureCarriedItems: (creatures, floorItems) => ({ creatures, floorItems }),
+            buildCreatureDamageEvent: (level, x, y, amount, creatureId) => ({
+                id: 'damage-dagger-hit',
+                level,
+                target: 'creature',
+                x,
+                y,
+                amount,
+                creatureId,
+                ts: now,
+            }),
+        }),
+        footprintLifetimeMs: 100,
+        damageEventLifetimeMs: 100,
+    });
+
+    assert.deepEqual(patch.projectiles, []);
+    assert.equal(patch.floorItems?.length, 1);
+    assert.deepEqual(patch.floorItems?.[0], { ...dagger, mapIndex: 0, x: 1, y: 0, tilePos: 'West', projectileDropped: true });
+    assert.equal(patch.damageEvents?.[0]?.creatureId, 'creature-dagger');
+    assert.equal(patch.creatures?.[0]?.alive, false);
+});
+
+test('buildTickSpellsRuntimePatch preserves a thrown physical weapon on the creature square after a non-lethal hit', () => {
+    const creature: CreatureInstance = {
+        id: 'creature-dagger-live',
+        typeId: 1,
+        mapIndex: 0,
+        x: 1,
+        y: 0,
+        currentHP: 8,
+        alive: true,
+        cell: 'frontLeft',
+    };
+    const dagger: FloorItem = {
+        id: 'dagger-live',
+        category: 'Weapon',
+        typeId: 8,
+        rawName: 'Dagger',
+        mapIndex: 0,
+        x: 0,
+        y: 0,
+        tilePos: 'North',
+    };
+    const projectile: Projectile = {
+        id: 'throw-dagger-live',
+        level: 0,
+        x: 0,
+        y: 0,
+        direction: 'EAST',
+        effect: 'physical',
+        damage: [4, 4],
+        nextMoveAt: 1000,
+        remainingRange: 4,
+        remainingAttack: 4,
+        physicalItem: dagger,
+    };
+    const state = createState({
+        position: [0, 0],
+        creatures: [creature],
+        projectiles: [projectile],
+    });
+    const map = createFloorMap(4, 1);
+
+    const patch = buildTickSpellsRuntimePatch(state, 1000, {
+        buildProjectileTickDeps: (_state, currentGameTick, now) => ({
+            ...createUnusedProjectileDeps(),
+            currentGameTick,
+            now,
+            getMap: () => map,
+            buildDroppedItem: (item, level, x, y) => ({ ...item, mapIndex: level, x, y, tilePos: 'North' }),
+            dropCreatureCarriedItems: (creatures, floorItems) => ({ creatures, floorItems }),
+            buildCreatureDamageEvent: (level, x, y, amount, creatureId) => ({
+                id: 'damage-dagger-live',
+                level,
+                target: 'creature',
+                x,
+                y,
+                amount,
+                creatureId,
+                ts: now,
+            }),
+        }),
+        footprintLifetimeMs: 100,
+        damageEventLifetimeMs: 100,
+    });
+
+    assert.deepEqual(patch.projectiles, []);
+    assert.equal(patch.floorItems?.length, 1);
+    assert.deepEqual(patch.floorItems?.[0], { ...dagger, mapIndex: 0, x: 1, y: 0, tilePos: 'West', projectileDropped: true });
+    assert.equal(patch.creatures?.[0]?.alive, true);
+    assert.equal(patch.creatures?.[0]?.currentHP, 4);
+});
+
+test('buildTickSpellsRuntimePatch keeps a thrown physical weapon on a missile-absorbing creature instead of deleting it', () => {
+    const creature: CreatureInstance = {
+        id: 'creature-absorber',
+        typeId: 1,
+        mapIndex: 0,
+        x: 1,
+        y: 0,
+        currentHP: 8,
+        alive: true,
+        cell: 'frontLeft',
+        carriedItems: [],
+    };
+    const dagger: FloorItem = {
+        id: 'dagger-absorber',
+        category: 'Weapon',
+        typeId: 8,
+        rawName: 'Dagger',
+        mapIndex: 0,
+        x: 0,
+        y: 0,
+        tilePos: 'North',
+    };
+    const projectile: Projectile = {
+        id: 'throw-dagger-absorber',
+        level: 0,
+        x: 0,
+        y: 0,
+        direction: 'EAST',
+        effect: 'physical',
+        damage: [4, 4],
+        nextMoveAt: 1000,
+        remainingRange: 4,
+        remainingAttack: 4,
+        physicalItem: dagger,
+    };
+    const state = createState({
+        position: [0, 0],
+        creatures: [creature],
+        projectiles: [projectile],
+    });
+    const map = createFloorMap(4, 1);
+
+    const patch = buildTickSpellsRuntimePatch(state, 1000, {
+        buildProjectileTickDeps: (_state, currentGameTick, now) => ({
+            ...createUnusedProjectileDeps(),
+            currentGameTick,
+            now,
+            getMap: () => map,
+            buildDroppedItem: (item, level, x, y) => ({ ...item, mapIndex: level, x, y, tilePos: 'North' }),
+            hitCreatureAbsorbsMissiles: () => true,
+        }),
+        footprintLifetimeMs: 100,
+        damageEventLifetimeMs: 100,
+    });
+
+    assert.deepEqual(patch.projectiles, []);
+    assert.equal(patch.floorItems, undefined);
+    assert.equal(patch.creatures?.[0]?.currentHP, 8);
+    assert.deepEqual(patch.creatures?.[0]?.carriedItems, [
+        {
+            ...dagger,
+            mapIndex: 0,
+            x: 1,
+            y: 0,
+            tilePos: 'North',
+        },
+    ]);
+});
+
+test('buildTickSpellsRuntimePatch drops a thrown physical weapon on the last reachable square when it runs out of range', () => {
+    const dagger: FloorItem = {
+        id: 'dagger-range',
+        category: 'Weapon',
+        typeId: 8,
+        rawName: 'Dagger',
+        mapIndex: 0,
+        x: 0,
+        y: 0,
+        tilePos: 'North',
+    };
+    const projectile: Projectile = {
+        id: 'throw-dagger-range',
+        level: 0,
+        x: 0,
+        y: 0,
+        direction: 'EAST',
+        effect: 'physical',
+        damage: [6, 6],
+        nextMoveAt: 1000,
+        remainingRange: 1,
+        remainingAttack: 6,
+        physicalItem: dagger,
+    };
+    const state = createState({
+        position: [0, 0],
+        projectiles: [projectile],
+    });
+    const map = createFloorMap(4, 1);
+
+    const patch = buildTickSpellsRuntimePatch(state, 1000, {
+        buildProjectileTickDeps: (_state, currentGameTick, now) => ({
+            ...createUnusedProjectileDeps(),
+            currentGameTick,
+            now,
+            getMap: () => map,
+            buildDroppedItem: (item, level, x, y) => ({ ...item, mapIndex: level, x, y, tilePos: 'North' }),
+        }),
+        footprintLifetimeMs: 100,
+        damageEventLifetimeMs: 100,
+    });
+
+    assert.deepEqual(patch.projectiles, []);
+    assert.equal(patch.floorItems?.length, 1);
+    assert.deepEqual(patch.floorItems?.[0], { ...dagger, mapIndex: 0, x: 1, y: 0, tilePos: 'West', projectileDropped: true });
 });

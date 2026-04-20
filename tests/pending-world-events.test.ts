@@ -119,8 +119,9 @@ test('processPendingGeneratorSpawns retries blocked spawns and appends successfu
         {
             canMaterializeReservedGeneratorSpawn: (_ss, spawnLevel) => spawnLevel !== 4,
             isGeneratorSpawnBlocked: () => false,
-            createGeneratedCreatureGroupInstances: (spawnLevel, spawnX, spawnY, typeId, _hpMultiplier, creatureCount, groupId) =>
-                Array.from({ length: creatureCount }, (_, index) => `${groupId}:${spawnLevel}:${spawnX}:${spawnY}:${typeId}:${index}`),
+            materializePendingGeneratorSpawnEvent: (event) =>
+                Array.from({ length: event.creatureCount }, (_, index) =>
+                    `${event.groupId}:${event.spawnLevel}:${event.spawnX}:${event.spawnY}:${event.typeId}:${index}`),
             retrySeconds: 5,
             diffSensorState: (_before, after) => ({ creatures: after.creatures }),
         },
@@ -173,8 +174,9 @@ test('processPendingGeneratorSpawns lets already reserved spawns resolve even if
         {
             canMaterializeReservedGeneratorSpawn: () => true,
             isGeneratorSpawnBlocked: () => false,
-            createGeneratedCreatureGroupInstances: (spawnLevel, spawnX, spawnY, typeId, _hpMultiplier, creatureCount, groupId) =>
-                Array.from({ length: creatureCount }, (_, index) => `${groupId}:${spawnLevel}:${spawnX}:${spawnY}:${typeId}:${index}`),
+            materializePendingGeneratorSpawnEvent: (event) =>
+                Array.from({ length: event.creatureCount }, (_, index) =>
+                    `${event.groupId}:${event.spawnLevel}:${event.spawnX}:${event.spawnY}:${event.typeId}:${index}`),
             retrySeconds: 5,
             diffSensorState: (_before, after) => ({ creatures: after.creatures }),
         },
@@ -184,6 +186,44 @@ test('processPendingGeneratorSpawns lets already reserved spawns resolve even if
         'existing',
         'reserved-group:3:5:6:12:0',
     ]);
+    assert.deepEqual(result.pendingGeneratorSpawns, []);
+});
+
+test('processPendingGeneratorSpawns can materialize a prebuilt blocked group without rerolling it', () => {
+    const state: TestSensorState = {
+        openDoors: new Set<string>(),
+        creatures: ['existing'],
+    };
+
+    const result = processPendingGeneratorSpawns(
+        1,
+        [
+            {
+                sensorLevel: 0,
+                sensorIndex: 4,
+                spawnLevel: 3,
+                spawnX: 8,
+                spawnY: 9,
+                typeId: 5,
+                hpMultiplier: 2,
+                creatureCount: 2,
+                groupId: 'reserved-group',
+                generatedCreatures: ['frozen-a', 'frozen-b'],
+                remaining: 0.1,
+            } as PendingGeneratorEvent & { generatedCreatures: string[] },
+        ],
+        state,
+        {
+            canMaterializeReservedGeneratorSpawn: () => true,
+            isGeneratorSpawnBlocked: () => false,
+            materializePendingGeneratorSpawnEvent: (event) =>
+                (event as PendingGeneratorEvent & { generatedCreatures?: string[] }).generatedCreatures ?? [],
+            retrySeconds: 5,
+            diffSensorState: (_before, after) => ({ creatures: after.creatures }),
+        },
+    );
+
+    assert.deepEqual(result.sensorChanges.creatures, ['existing', 'frozen-a', 'frozen-b']);
     assert.deepEqual(result.pendingGeneratorSpawns, []);
 });
 

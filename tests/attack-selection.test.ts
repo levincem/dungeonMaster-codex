@@ -59,7 +59,7 @@ test('resolveAttackSelection reports unusable mastery-gated attacks', () => {
     );
 
     assert.ok(result.selectedAttack);
-    assert.match(result.blockedMessage ?? '', /indisponible/i);
+    assert.match(result.blockedMessage ?? '', /unavailable/i);
 });
 
 test('resolveAttackSelection blocks ranged attacks without compatible ammo', () => {
@@ -81,5 +81,5 @@ test('resolveAttackSelection blocks ranged attacks without compatible ammo', () 
     );
 
     assert.equal(result.selectedAttack?.attackType !== undefined, true);
-    assert.equal(result.blockedMessage, 'Aucune munition compatible dans le carquois.');
+    assert.equal(result.blockedMessage, 'No compatible ammunition in the quiver.');
 });

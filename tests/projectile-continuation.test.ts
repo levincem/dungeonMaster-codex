@@ -61,6 +61,7 @@ test('resolveProjectileContinuation drops exhausted physical projectiles to the 
     assert.equal(result.keepProjectile, undefined);
     assert.equal(result.floorItems.length, 1);
     assert.equal(result.floorItems[0]?.x, 3);
+    assert.equal(result.floorItems[0]?.tilePos, 'West');
 });
 
 test('resolveProjectileContinuation advances magical projectiles while range and attack remain', () => {

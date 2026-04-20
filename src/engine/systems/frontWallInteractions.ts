@@ -1,8 +1,11 @@
 import type { ChampionEquipment, FloorItem, CardinalDir } from '../../types/game';
 import type { EquipSlotKey } from '../../types/items';
+import { getTranslations } from '../../i18n';
 import type { Direction } from '../runtimeTypes';
 import { resolveFrontWallTarget } from './frontWallState';
 export { resolveFrontWallTarget } from './frontWallState';
+
+const runtimeText = getTranslations().runtime;
 
 type SelectedItem = {
     championId: number;
@@ -275,7 +278,7 @@ export function tryUseChampionItemOnFrontWall<
             ...(firestaffExchange.nextEquipment ? { championEquipment: firestaffExchange.nextEquipment } : {}),
             ...(firestaffExchange.nextFloorItems !== state.floorItems ? { floorItems: firestaffExchange.nextFloorItems } : {}),
             ...(firestaffExchange.transformed ? {
-                lastCastResult: deps.buildAttackResultMessage('Le Firestaff absorbe l energie de l Amalgam.'),
+                lastCastResult: deps.buildAttackResultMessage(runtimeText.firestaffAbsorbsAmalgam),
             } : {}),
         }),
         shouldPlayPlate: hasSensorChanges(exchangerResult.sensorChanges),
@@ -410,7 +413,7 @@ export function tryUseFloorItemOnFrontWall<
             floorItems: firestaffExchange.nextFloorItems,
             activeFloorDrag: state.activeFloorDrag?.itemId === itemId ? null : state.activeFloorDrag,
             ...(firestaffExchange.transformed ? {
-                lastCastResult: deps.buildAttackResultMessage('Le Firestaff absorbe l energie de l Amalgam.'),
+                lastCastResult: deps.buildAttackResultMessage(runtimeText.firestaffAbsorbsAmalgam),
             } : {}),
         }),
         shouldPlayPlate: true,

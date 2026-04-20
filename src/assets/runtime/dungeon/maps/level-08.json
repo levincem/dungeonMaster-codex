@@ -1868,8 +1868,7 @@
           "onceOnly": false,
           "targetY": 27,
           "targetX": 9,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -5349,8 +5348,7 @@
           "onceOnly": true,
           "targetY": 15,
           "targetX": 22,
-          "targetDir": "North",
-          "requiredObjectName": "Corbamite"
+          "targetDir": "North"
         }
       ]
     },
@@ -5828,8 +5826,7 @@
           "onceOnly": false,
           "targetY": 0,
           "targetX": 23,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },

@@ -1,13 +1,12 @@
 // Runtime-facing item definitions built from extracted original data,
 // plus the minimal local metadata still needed by the remake.
 
-import type { WeaponDef, ArmorDef, PotionDef, MiscDef, ArmorSlot } from '../types/items';
+import type { WeaponDef, ArmorDef, PotionDef, MiscDef } from '../types/items';
+import packagedGameDbItems from '../assets/runtime/db/game_db_items.json';
 import { getGameDbItemsRawSync } from './gameDbData';
 import {
     FALLBACK_WOUND_DEFENSE_FACTORS,
     POTION_NAME_TO_RUNTIME_TYPE_ID,
-    STARTER_ARMOR_OVERRIDES,
-    STARTER_ARMOR_SLOT_BY_NAME,
 } from './itemRuntimeCompatibility';
 
 const PLACEHOLDER_NAME_RE = /^([A-Za-z]+_\d+|\(W\d+\))$/;
@@ -180,11 +179,11 @@ function createHydratingArrayProxy(target: number[]): number[] {
     });
 }
 
-function tryReadGameDbItems(): RawGameDb | null {
+function tryReadGameDbItems(): RawGameDb {
     try {
         return JSON.parse(getGameDbItemsRawSync()) as RawGameDb;
     } catch {
-        return null;
+        return packagedGameDbItems as unknown as RawGameDb;
     }
 }
 
@@ -203,7 +202,6 @@ function getExtractedItemName(
 ): string | undefined {
     return collection?.[String(typeId)];
 }
-
 
 const CANONICAL_WEAPON_NAMES: Record<number, string> = {
      0: 'Eye Of Time',
@@ -256,16 +254,16 @@ const CANONICAL_WEAPON_NAMES: Record<number, string> = {
 const CANONICAL_ARMOR_NAMES: Record<number, string> = {
      0: 'Cape',
      1: 'Cloak of Night',
-     2: 'Elven Doublet',
-     3: 'Leather Jerkin',
+     2: 'Barbarian Hide',
+     3: 'Sandals',
      4: 'Leather Boots',
-     5: 'Robe of the Kite Lord',
-     6: 'Robe',
+     5: 'Robe (Body)',
+     6: 'Robe (Legs)',
      7: 'Fine Robe (Body)',
      8: 'Fine Robe (Legs)',
-     9: 'Plate Mail',
-    10: 'Tunic',
-    11: 'Silk Shirt',
+     9: 'Kirtle',
+    10: 'Silk Shirt',
+    11: 'Tabard',
     12: 'Gunna',
     13: 'Elven Doublet',
     14: 'Elven Huke',
@@ -273,7 +271,7 @@ const CANONICAL_ARMOR_NAMES: Record<number, string> = {
     16: 'Leather Jerkin',
     17: 'Leather Pants',
     18: 'Suede Boots',
-    19: 'Chain Mail Aketon',
+    19: 'Blue Pants',
     20: 'Tunic',
     21: 'Ghi',
     22: 'Ghi Trousers',
@@ -283,7 +281,7 @@ const CANONICAL_ARMOR_NAMES: Record<number, string> = {
     26: 'Helmet',
     27: 'Basinet',
     28: 'Buckler',
-    29: 'Barbarian Hide',
+    29: 'Hide Shield',
     30: 'Wooden Shield',
     31: 'Small Shield',
     32: 'Mail Aketon',
@@ -307,7 +305,9 @@ const CANONICAL_ARMOR_NAMES: Record<number, string> = {
     50: 'Poleyn Of Darc',
     51: 'Greave Of Darc',
     52: 'Shield Of Darc',
+    53: 'Dexhelm',
     54: 'Flamebain',
+    55: 'Powertowers',
     56: 'Boots Of Speed',
     57: 'Halter',
 };
@@ -441,14 +441,16 @@ const OFFICIAL_WEAPON_TYPES: Record<number, WeaponDef> = {
 const OFFICIAL_ARMOR_TYPES: Record<number, ArmorDef> = {
      0: { id:  0, name: 'Cape',               slot: 'torso', armor:   5, weight: 0.3 },
      1: { id:  1, name: 'Cloak Of Night',     slot: 'torso', armor:  10, weight: 0.4 },
+     2: { id:  2, name: 'Barbarian Hide',     slot: 'legs',  armor:   2, weight: 0.3 },
+     3: { id:  3, name: 'Sandals',            slot: 'feet',  armor:   2, weight: 0.2 },
      4: { id:  4, name: 'Leather Boots',      slot: 'feet',  armor:  25, weight: 1.6 },
-     5: { id:  5, name: 'Robe Of The Kite Lord', slot: 'torso', armor: 25, weight: 8.0 },
-     6: { id:  6, name: 'Robe',               slot: 'legs',  armor:   5, weight: 0.4 },
+     5: { id:  5, name: 'Robe (Body)',        slot: 'torso', armor:   5, weight: 0.4 },
+     6: { id:  6, name: 'Robe (Legs)',        slot: 'legs',  armor:   5, weight: 0.4 },
      7: { id:  7, name: 'Fine Robe (Body)',   slot: 'torso', armor:   7, weight: 0.3 },
      8: { id:  8, name: 'Fine Robe (Legs)',   slot: 'legs',  armor:   7, weight: 0.3 },
-     9: { id:  9, name: 'Plate Mail',         slot: 'torso', armor:  35, weight: 25.0 },
-    10: { id: 10, name: 'Tunic',              slot: 'torso', armor:   9, weight: 0.5 },
-    11: { id: 11, name: 'Silk Shirt',         slot: 'torso', armor:   4, weight: 0.2 },
+     9: { id:  9, name: 'Kirtle',             slot: 'torso', armor:  35, weight: 25.0 },
+    10: { id: 10, name: 'Silk Shirt',         slot: 'torso', armor:   9, weight: 0.5 },
+    11: { id: 11, name: 'Tabard',             slot: 'legs',  armor:   4, weight: 0.2 },
     12: { id: 12, name: 'Gunna',              slot: 'legs',  armor:   7, weight: 0.5 },
     13: { id: 13, name: 'Elven Doublet',      slot: 'torso', armor:  11, weight: 0.3 },
     14: { id: 14, name: 'Elven Huke',         slot: 'legs',  armor:  13, weight: 0.3 },
@@ -456,7 +458,7 @@ const OFFICIAL_ARMOR_TYPES: Record<number, ArmorDef> = {
     16: { id: 16, name: 'Leather Jerkin',     slot: 'torso', armor:  17, weight: 0.6 },
     17: { id: 17, name: 'Leather Pants',      slot: 'legs',  armor:  20, weight: 0.8 },
     18: { id: 18, name: 'Suede Boots',        slot: 'feet',  armor:  20, weight: 1.4 },
-    19: { id: 19, name: 'Chain Mail Aketon',  slot: 'torso', armor:  20, weight: 15.0 },
+    19: { id: 19, name: 'Blue Pants',         slot: 'legs',  armor:  20, weight: 15.0 },
     20: { id: 20, name: 'Tunic',              slot: 'torso', armor:   9, weight: 0.5 },
     21: { id: 21, name: 'Ghi',                slot: 'torso', armor:   8, weight: 0.5 },
     22: { id: 22, name: 'Ghi Trousers',       slot: 'legs',  armor:   9, weight: 0.5 },
@@ -466,7 +468,7 @@ const OFFICIAL_ARMOR_TYPES: Record<number, ArmorDef> = {
     26: { id: 26, name: 'Helmet',             slot: 'head',  armor:  17, weight: 1.4 },
     27: { id: 27, name: 'Basinet',            slot: 'head',  armor:  20, weight: 1.5 },
     28: { id: 28, name: 'Buckler',            slot: 'hands', armor:  22, weight: 1.1 },
-    29: { id: 29, name: 'Barbarian Hide',     slot: 'torso', armor:   4, weight: 0.3 },
+    29: { id: 29, name: 'Hide Shield',        slot: 'hands', armor:   4, weight: 0.3, isShield: true },
     30: { id: 30, name: 'Wooden Shield',      slot: 'hands', armor:  20, weight: 1.4 },
     31: { id: 31, name: 'Small Shield',       slot: 'hands', armor:  35, weight: 2.1 },
     32: { id: 32, name: 'Mail Aketon',        slot: 'torso', armor:  35, weight: 6.5 },
@@ -490,70 +492,11 @@ const OFFICIAL_ARMOR_TYPES: Record<number, ArmorDef> = {
     50: { id: 50, name: 'Poleyn Of Darc',     slot: 'legs',  armor: 101, weight: 9.0 },
     51: { id: 51, name: 'Greave Of Darc',     slot: 'feet',  armor:  60, weight: 3.1 },
     52: { id: 52, name: 'Shield Of Darc',     slot: 'hands', armor: 100, weight: 4.0 },
+    53: { id: 53, name: 'Dexhelm',            slot: 'head',  armor:  48, weight: 1.8 },
     54: { id: 54, name: 'Flamebain',          slot: 'torso', armor:  60, weight: 5.7 },
+    55: { id: 55, name: 'Powertowers',        slot: 'legs',  armor:  18, weight: 1.8 },
     56: { id: 56, name: 'Boots Of Speed',     slot: 'feet',  armor:  16, weight: 0.3 },
     57: { id: 57, name: 'Halter',             slot: 'torso', armor:   3, weight: 0.2 },
-};
-
-export { STARTER_ARMOR_SLOT_BY_NAME };
-
-export const SOURCE_BACKED_ARMOR_ALLOWED_SLOTS_BY_NAME: Record<string, ArmorSlot[]> = {
-    // The original carry masks allow both neck and torso here.
-    // We keep torso first so default auto-equip preserves the established silhouette.
-    cape: ['torso', 'neck'],
-    'cloak of night': ['torso', 'neck'],
-    robe: ['legs'],
-    'fine robe (body)': ['torso'],
-    'fine robe (legs)': ['legs'],
-    kirtle: ['torso'],
-    'silk shirt': ['torso'],
-    tabard: ['legs'],
-    gunna: ['legs'],
-    'elven doublet': ['torso'],
-    'elven huke': ['legs'],
-    'leather jerkin': ['torso'],
-    tunic: ['torso'],
-    ghi: ['torso'],
-    'mail aketon': ['torso'],
-    'mithral aketon': ['torso'],
-    'torso plate': ['torso'],
-    'plate of lyte': ['torso'],
-    'plate of darc': ['torso'],
-    'barbarian hide': ['torso'],
-    flamebain: ['torso'],
-    halter: ['torso'],
-    'leather pants': ['legs'],
-    'blue pants': ['legs'],
-    'ghi trousers': ['legs'],
-    'leg mail': ['legs'],
-    'mithral mail': ['legs'],
-    'leg plate': ['legs'],
-    'poleyn of lyte': ['legs'],
-    'poleyn of darc': ['legs'],
-    sandals: ['feet'],
-    'suede boots': ['feet'],
-    'leather boots': ['feet'],
-    hosen: ['feet'],
-    'foot plate': ['feet'],
-    'greave of lyte': ['feet'],
-    'greave of darc': ['feet'],
-    'elven boots': ['feet'],
-    'boots of speed': ['feet'],
-    calista: ['head'],
-    'crown of nerra': ['head'],
-    'bezerker helm': ['head'],
-    helmet: ['head'],
-    basinet: ['head'],
-    "casque'n coif": ['head'],
-    armet: ['head'],
-    'helm of lyte': ['head'],
-    'helm of darc': ['head'],
-    buckler: ['hands'],
-    'wooden shield': ['hands'],
-    'small shield': ['hands'],
-    'large shield': ['hands'],
-    'shield of lyte': ['hands'],
-    'shield of darc': ['hands'],
 };
 
 // ─── Potions ──────────────────────────────────────────────────────────────────
@@ -812,12 +755,10 @@ function buildItemsDerivedData(gameDb: RawGameDb): ItemsDerivedData {
 function getItemsDerivedData(): ItemsDerivedData {
     if (!itemsSourceDataHydrated) {
         const loaded = tryReadGameDbItems();
-        if (loaded) {
-            itemsDerivedDataCache = buildItemsDerivedData(loaded);
-            itemsSourceDataHydrated = true;
-            syncExportedItemTargets(itemsDerivedDataCache);
-            return itemsDerivedDataCache;
-        }
+        itemsDerivedDataCache = buildItemsDerivedData(loaded);
+        itemsSourceDataHydrated = true;
+        syncExportedItemTargets(itemsDerivedDataCache);
+        return itemsDerivedDataCache;
     }
 
     if (!itemsDerivedDataCache) {
@@ -851,8 +792,7 @@ export function getItemTypeIdByName(
         case 'Weapon':
             return derived.weaponEntries.find((entry) => normalizeLookupName(entry.name) === normalizedName)?.id;
         case 'Armor':
-            return derived.armorEntries.find((entry) => normalizeLookupName(entry.name) === normalizedName)?.id
-                ?? STARTER_ARMOR_OVERRIDES[normalizedName]?.id;
+            return derived.armorEntries.find((entry) => normalizeLookupName(entry.name) === normalizedName)?.id;
         case 'Potion': {
             const runtimeTypeId = POTION_NAME_TO_RUNTIME_TYPE_ID[normalizedName];
             if (runtimeTypeId !== undefined) return runtimeTypeId;
@@ -872,13 +812,16 @@ export function getPotionDef(typeId: number, rawName?: string): PotionDef | unde
 }
 
 export function getWeaponAllowedSlotsMask(typeId: number): number | undefined {
+    if (typeId < 0) return undefined;
     return getItemsDerivedData().weaponAllowedSlotMaskByIndex.get(typeId);
 }
 
 export function getSourceItemAllowedSlotsMask(
     category: 'Weapon' | 'Armor' | 'Potion' | 'Misc' | 'Scroll' | 'Container',
     typeId: number,
+    _rawName?: string,
 ): number | undefined {
+    if (typeId < 0) return undefined;
     const offset = SOURCE_ITEM_OBJECT_INDEX_OFFSETS[category];
     return getItemsDerivedData().i559ObjectInfo[offset + typeId]?.allowedSlotsMask;
 }
@@ -886,19 +829,21 @@ export function getSourceItemAllowedSlotsMask(
 export function getSourceItemAttackClass(
     category: 'Weapon' | 'Armor' | 'Potion' | 'Misc' | 'Scroll' | 'Container',
     typeId: number,
+    _rawName?: string,
 ): number | undefined {
+    if (typeId < 0) return undefined;
     const offset = SOURCE_ITEM_OBJECT_INDEX_OFFSETS[category];
     return getItemsDerivedData().i559ObjectInfo[offset + typeId]?.attackClass;
 }
 
 export function getArmorDef(typeId: number, rawName?: string): ArmorDef | undefined {
+    if (typeId < 0) return undefined;
     const derived = getItemsDerivedData();
     const normalizedName = normalizeLookupName(rawName);
     if (normalizedName) {
         const exact = derived.armorNameLookup[normalizedName];
         if (exact) return exact;
-        const starter = STARTER_ARMOR_OVERRIDES[normalizedName];
-        if (starter) return starter;
     }
     return ARMOR_TYPES[typeId];
 }
+

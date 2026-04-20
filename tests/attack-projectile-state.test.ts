@@ -81,6 +81,6 @@ test('buildProjectileAttackSuccessPatch updates combat, equipment and projectile
 test('buildMissingAmmoAttackPatch returns the expected failure message', () => {
     const patch = buildMissingAmmoAttackPatch((message: string, success = false) => ({ success, message, ts: 1 }));
 
-    assert.equal(patch.lastCastResult.message, 'Aucune munition compatible dans le carquois.');
+    assert.equal(patch.lastCastResult.message, 'No compatible ammunition in the quiver.');
     assert.equal(patch.lastCastResult.success, false);
 });

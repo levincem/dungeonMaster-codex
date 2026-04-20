@@ -1,16 +1,16 @@
 {
   "_meta": {
     "source": "resolve_armor_names.cjs",
-    "date": "2026-04-10",
+    "date": "2026-04-20",
     "description": "Complete armor type ID to name mapping for DM1, with the 6 placeholder names resolved via champion cross-reference",
-    "method": "Armor items placed on Hall of Champions mirror tiles are champion starter equipment. Champion identity determines item name."
+    "method": "Historical Hall cross-reference kept for audit context only; canonical names now come from the source-backed parser/runtime tables."
   },
   "resolvedPlaceholders": {
-    "11": "Silk Shirt",
+    "11": "Tabard",
     "12": "Gunna",
     "20": "Tunic",
     "21": "Ghi",
-    "29": "Barbarian Hide",
+    "29": "Hide Shield",
     "57": "Halter"
   },
   "completeArmorNames": {
@@ -24,7 +24,7 @@
       "name": "Leather Pants",
       "source": "parse_full.js ARMOR_NAMES",
       "championsWithThisArmor": [
-        "Alex"
+        "Gothmog"
       ]
     },
     "2": {
@@ -33,7 +33,7 @@
       "source": "parse_full.js ARMOR_NAMES",
       "championsWithThisArmor": [
         "Azizi",
-        "Leif"
+        "Halk"
       ]
     },
     "3": {
@@ -42,13 +42,13 @@
       "source": "parse_full.js ARMOR_NAMES",
       "championsWithThisArmor": [
         "Chani",
-        "Gothmog",
-        "Leif",
-        "Linflas",
+        "Elija",
+        "Halk",
         "Mophus",
+        "Nabi",
         "Sonja",
-        "WuTse",
-        "Zed"
+        "Tiggy",
+        "WuTse"
       ]
     },
     "4": {
@@ -57,9 +57,9 @@
       "source": "parse_full.js ARMOR_NAMES",
       "championsWithThisArmor": [
         "Boris",
-        "Hawk",
-        "Leyla",
-        "Tiggy"
+        "Gando",
+        "Leif",
+        "Leyla"
       ]
     },
     "5": {
@@ -67,7 +67,7 @@
       "name": "Chain Mail",
       "source": "parse_full.js ARMOR_NAMES",
       "championsWithThisArmor": [
-        "Gothmog",
+        "Elija",
         "Mophus"
       ]
     },
@@ -76,7 +76,7 @@
       "name": "Plate Mail",
       "source": "parse_full.js ARMOR_NAMES",
       "championsWithThisArmor": [
-        "Gothmog",
+        "Elija",
         "Mophus"
       ]
     },
@@ -95,7 +95,7 @@
       "name": "Armet",
       "source": "parse_full.js ARMOR_NAMES",
       "championsWithThisArmor": [
-        "Sonja"
+        "Tiggy"
       ]
     },
     "10": {
@@ -104,17 +104,17 @@
       "source": "parse_full.js ARMOR_NAMES",
       "championsWithThisArmor": [
         "Chani",
-        "Hawk",
+        "Leyla",
         "WuTse"
       ]
     },
     "11": {
       "typeId": 11,
-      "name": "Silk Shirt",
+      "name": "Tabard",
       "source": "resolved via champion cross-reference",
-      "evidence": "WuTse (typeId 11 in starter), Syra (armored type 11 on mirror tile)",
+      "evidence": "Matches the source-backed clothing enum and packaged runtime tables",
       "championsWithThisArmor": [
-        "Halk",
+        "Syra",
         "WuTse"
       ]
     },
@@ -122,11 +122,11 @@
       "typeId": 12,
       "name": "Gunna",
       "source": "resolved via champion cross-reference",
-      "evidence": "Chani (typeId 12 in starter = Gunna), Tiggy, Sonja (same type)",
+      "evidence": "Matches the source-backed clothing enum and packaged runtime tables",
       "championsWithThisArmor": [
         "Chani",
-        "Linflas",
-        "Sonja"
+        "Sonja",
+        "Tiggy"
       ]
     },
     "13": {
@@ -134,8 +134,8 @@
       "name": "Tabard",
       "source": "parse_full.js ARMOR_NAMES",
       "championsWithThisArmor": [
-        "Halk",
-        "Nabi"
+        "Linflas",
+        "Syra"
       ]
     },
     "14": {
@@ -143,7 +143,7 @@
       "name": "Suede Boots",
       "source": "parse_full.js ARMOR_NAMES",
       "championsWithThisArmor": [
-        "Nabi"
+        "Linflas"
       ]
     },
     "15": {
@@ -151,7 +151,7 @@
       "name": "Duke's Garb",
       "source": "parse_full.js ARMOR_NAMES",
       "championsWithThisArmor": [
-        "Nabi"
+        "Linflas"
       ]
     },
     "16": {
@@ -159,11 +159,11 @@
       "name": "Boots Of Speed",
       "source": "parse_full.js ARMOR_NAMES",
       "championsWithThisArmor": [
-        "Boris",
-        "Elija",
-        "Syra",
-        "Tiggy",
-        "Wutse2"
+        "Alex",
+        "Gando",
+        "Hawk",
+        "Leif",
+        "Wuuf"
       ]
     },
     "17": {
@@ -171,12 +171,12 @@
       "name": "Sandals",
       "source": "parse_full.js ARMOR_NAMES",
       "championsWithThisArmor": [
+        "Alex",
         "Boris",
-        "Elija",
         "Hawk",
+        "Leif",
         "Leyla",
-        "Stamm",
-        "Syra"
+        "Stamm"
       ]
     },
     "18": {
@@ -184,9 +184,9 @@
       "name": "Ninjaki",
       "source": "parse_full.js ARMOR_NAMES",
       "championsWithThisArmor": [
-        "Elija",
-        "Stamm",
-        "Syra"
+        "Alex",
+        "Hawk",
+        "Stamm"
       ]
     },
     "19": {
@@ -195,7 +195,7 @@
       "source": "parse_full.js ARMOR_NAMES",
       "championsWithThisArmor": [
         "Gando",
-        "Tiggy",
+        "Nabi",
         "Zed"
       ]
     },
@@ -203,18 +203,18 @@
       "typeId": 20,
       "name": "Tunic",
       "source": "resolved via champion cross-reference",
-      "evidence": "Boris/Stamm/Nabi (all listed as Tunic in starter items, share type 20)",
+      "evidence": "Matches the source-backed clothing enum and packaged runtime tables",
       "championsWithThisArmor": [
-        "Leyla",
-        "Stamm",
-        "Zed"
+        "Boris",
+        "Nabi",
+        "Stamm"
       ]
     },
     "21": {
       "typeId": 21,
       "name": "Ghi",
       "source": "resolved via champion cross-reference",
-      "evidence": "Iaido exclusively (Japanese martial-arts gi; type 22 = Ghi Trousers confirms the pair)",
+      "evidence": "Matches the source-backed clothing enum and packaged runtime tables",
       "championsWithThisArmor": [
         "Iaido"
       ]
@@ -242,7 +242,7 @@
       "name": "Knight Bodyguard",
       "source": "parse_full.js ARMOR_NAMES",
       "championsWithThisArmor": [
-        "Leif"
+        "Halk"
       ]
     },
     "26": {
@@ -262,9 +262,9 @@
     },
     "29": {
       "typeId": 29,
-      "name": "Barbarian Hide",
+      "name": "Hide Shield",
       "source": "resolved via champion cross-reference",
-      "evidence": "Azizi exclusively (typeId 29 = Barbarian Hide in starter)",
+      "evidence": "Matches the source-backed clothing enum and packaged runtime tables",
       "championsWithThisArmor": [
         "Azizi"
       ]
@@ -284,7 +284,7 @@
       "name": "Flamebain",
       "source": "parse_full.js ARMOR_NAMES",
       "championsWithThisArmor": [
-        "Gando"
+        "Zed"
       ]
     },
     "33": {
@@ -312,7 +312,7 @@
       "name": "Robe Of Night",
       "source": "parse_full.js ARMOR_NAMES",
       "championsWithThisArmor": [
-        "Gando"
+        "Zed"
       ]
     },
     "38": {
@@ -414,10 +414,10 @@
       "typeId": 57,
       "name": "Halter",
       "source": "resolved via champion cross-reference",
-      "evidence": "Azizi (typeId 57 in starter), Sonja (same type 57 on mirror tile)",
+      "evidence": "Matches the source-backed clothing enum and packaged runtime tables",
       "championsWithThisArmor": [
         "Azizi",
-        "Linflas"
+        "Sonja"
       ]
     }
   }

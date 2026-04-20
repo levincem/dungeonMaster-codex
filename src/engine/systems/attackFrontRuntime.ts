@@ -2,6 +2,7 @@ import type { ChampionTemporaryXP, ChampionXP, SkillKey } from '../../data/skill
 import type { WeaponAttackOption } from '../../data/weaponAttacks';
 import type { Champion } from '../../types/champion';
 import type { ChampionEquipment, CreatureInstance, FloorItem } from '../../types/game';
+import type { EquipSlotKey } from '../../types/items';
 import type {
     ActivePotionBoost,
     ChampionCombat,
@@ -14,6 +15,10 @@ import type {
     SpellVisualEvent,
 } from '../runtimeTypes';
 import { resolveAttackSelection } from './attackSelection';
+import { isChampionInRearRank } from './attackFrontContext';
+import { getTranslations } from '../../i18n';
+
+const runtimeText = getTranslations().runtime;
 
 type AttackFrontRuntimeState = {
     championCombat: Record<number, ChampionCombat>;
@@ -80,7 +85,8 @@ type AttackFrontRuntimeDeps = {
         championId: number;
         champion: Champion;
         equip: ChampionEquipment;
-        rightHand: FloorItem | null | undefined;
+        attackItem: FloorItem | null | undefined;
+        attackItemSlot: EquipSlotKey | null;
         currentStamina: number | undefined;
         newCombat: ChampionCombat;
         selectedSkill: SkillKey;
@@ -106,6 +112,9 @@ type AttackFrontRuntimeDeps = {
         party: Champion[],
         championId: number,
     ) => { target: CreatureInstance | null };
+    resolveCombatItem: (
+        equip: ChampionEquipment | undefined,
+    ) => { slot: EquipSlotKey; item: FloorItem } | null;
     buildAttackMeleeStatePatch: (args: {
         state: AttackFrontRuntimeState;
         championId: number;
@@ -134,13 +143,16 @@ export function runAttackFrontRuntime(
 
     const equip = state.championEquipment[championId] ?? {};
     const rightHand = equip.rightHand;
-    const availableAttacks = deps.getWeaponAttackOptions(rightHand);
+    const resolvedCombatItem = deps.resolveCombatItem(equip);
+    const attackItem = resolvedCombatItem?.item ?? rightHand;
+    const attackItemSlot = resolvedCombatItem?.slot ?? (rightHand ? 'rightHand' : null);
+    const availableAttacks = deps.getWeaponAttackOptions(attackItem);
     const attackSelection = resolveAttackSelection(
         { attackType, availableAttacks },
         {
             getMasteryLevel: (skill) => deps.getChampionMasteryLevel(championId, champion, skill),
             hasCompatibleAmmo: () => {
-                const requiredAmmoRawClass = deps.getRequiredAmmoRawClass(rightHand ?? undefined);
+                const requiredAmmoRawClass = deps.getRequiredAmmoRawClass(attackItem ?? undefined);
                 return Boolean(deps.findCompatibleAmmo(equip, requiredAmmoRawClass));
             },
             isAttackUsableAtMastery: deps.isAttackOptionUsableAtMastery,
@@ -154,6 +166,29 @@ export function runAttackFrontRuntime(
     if (attackSelection.blockedMessage) {
         return {
             lastCastResult: deps.buildAttackResultMessage(attackSelection.blockedMessage),
+        };
+    }
+
+    const attackFrontContext = deps.resolveAttackFrontContext(
+        state.level,
+        state.position,
+        state.direction,
+        state.creatures,
+        state.party,
+        championId,
+    );
+    const rearRankContactAttack =
+        isChampionInRearRank(state.party, championId) &&
+        attackFrontContext.target &&
+        (!selectedAttack || (
+            deps.isPhysicalAttack(selectedAttack) &&
+            !deps.isThrowAttack(selectedAttack) &&
+            !deps.isShootAttack(selectedAttack)
+        ));
+
+    if (rearRankContactAttack) {
+        return {
+            lastCastResult: deps.buildAttackResultMessage(runtimeText.targetOutOfReach),
         };
     }
 
@@ -202,7 +237,8 @@ export function runAttackFrontRuntime(
             championId,
             champion,
             equip,
-            rightHand,
+            attackItem,
+            attackItemSlot,
             currentStamina: vitalsUpdate?.nextVitals.stamina,
             newCombat,
             selectedSkill,
@@ -236,14 +272,7 @@ export function runAttackFrontRuntime(
         };
     }
 
-    const { target } = deps.resolveAttackFrontContext(
-        state.level,
-        state.position,
-        state.direction,
-        state.creatures,
-        state.party,
-        championId,
-    );
+    const { target } = attackFrontContext;
 
     deps.onPartyAttack();
     return deps.buildAttackMeleeStatePatch({

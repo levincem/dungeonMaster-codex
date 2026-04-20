@@ -8,6 +8,9 @@ import {
 
 type TestSensorState = {
     openDoors: Set<string>;
+    currentDirection?: 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
+    currentLevel?: number;
+    currentPosition?: [number, number];
 };
 
 function createSensor(overrides: Partial<SensorObject> = {}): SensorObject {
@@ -78,7 +81,7 @@ test('triggerFloorSensors enter mode applies queued effects and notifies once', 
         6,
         9,
         { openDoors: new Set<string>() },
-        {},
+        {} as Record<number, never>,
         {},
         [],
         [],
@@ -111,30 +114,26 @@ test('transitionFloorSensors blocks the empty party at the starting gate plate',
         9,
         0,
         { openDoors: new Set<string>() },
-        {},
+        {} as Record<number, never>,
         {},
         [],
         [],
         deps,
     );
 
-    assert.equal(result.blockedMessage, 'Choose at least one adventurer, four is better !');
+    assert.equal(result.blockedMessage, 'Choose at least one adventurer, four is better!');
     assert.deepEqual([...result.sensorChanges.openDoors!], ['0,4,6']);
   });
 
-test('triggerFloorSensors keeps type 3 object-named sensors active as group plates', () => {
-    const sensor = createSensor({ type: 3, requiredObjectName: 'COMPASS' });
-    const { deps } = createDeps(sensor, {
-        isSpecificObjectFloorSensor: (candidate: SensorObject) =>
-            candidate.type === 4 || (candidate.type === 3 && Boolean(candidate.requiredObjectName)),
-        tileHasRequiredFloorItem: () => false,
-    });
+test('triggerFloorSensors only activates type 3 party plates when the facing direction matches', () => {
+    const sensor = createSensor({ type: 3, data: 2, requiredObjectName: 'COMPASS' });
+    const { deps } = createDeps(sensor);
 
-    const result = triggerFloorSensors(
+    const blocked = triggerFloorSensors(
         0,
         6,
         9,
-        { openDoors: new Set<string>() },
+        { openDoors: new Set<string>(), currentDirection: 'NORTH' },
         {},
         {},
         [],
@@ -143,14 +142,29 @@ test('triggerFloorSensors keeps type 3 object-named sensors active as group plat
         'enter',
     );
 
-    assert.deepEqual([...result.sensorChanges.openDoors!], ['0,4,6']);
+    assert.deepEqual(blocked.sensorChanges, {});
+    assert.deepEqual(blocked.pendingSensorEvents, []);
+
+    const triggered = triggerFloorSensors(
+        0,
+        6,
+        9,
+        { openDoors: new Set<string>(), currentDirection: 'EAST' },
+        {},
+        {},
+        [],
+        [],
+        deps,
+        'enter',
+    );
+
+    assert.deepEqual([...triggered.sensorChanges.openDoors!], ['0,4,6']);
 });
 
 test('triggerFloorSensors still requires a floor item for type 4 object-only sensors', () => {
     const sensor = createSensor({ type: 4, requiredObjectName: 'COMPASS' });
     const { deps } = createDeps(sensor, {
-        isSpecificObjectFloorSensor: (candidate: SensorObject) =>
-            candidate.type === 4 || (candidate.type === 3 && Boolean(candidate.requiredObjectName)),
+        isSpecificObjectFloorSensor: (candidate: SensorObject) => candidate.type === 4,
         tileHasRequiredFloorItem: () => false,
     });
 
@@ -158,7 +172,7 @@ test('triggerFloorSensors still requires a floor item for type 4 object-only sen
         0,
         6,
         9,
-        { openDoors: new Set<string>() },
+        { openDoors: new Set<string>(), currentDirection: 'NORTH' },
         {},
         {},
         [],
@@ -171,12 +185,9 @@ test('triggerFloorSensors still requires a floor item for type 4 object-only sen
     assert.deepEqual(result.pendingSensorEvents, []);
 });
 
-test('triggerFloorSensors releases hold effects when a type 3 hybrid plate is left', () => {
-    const sensor = createSensor({ type: 3, requiredObjectName: 'COMPASS', action: 'Hold' });
+test('triggerFloorSensors clears hold effects when a type 3 party plate is left', () => {
+    const sensor = createSensor({ type: 3, data: 2, action: 'Hold' });
     const { deps } = createDeps(sensor, {
-        isSpecificObjectFloorSensor: (candidate: SensorObject) =>
-            candidate.type === 4 || (candidate.type === 3 && Boolean(candidate.requiredObjectName)),
-        tileHasRequiredFloorItem: () => false,
         computeSensorEffect: () => ({ openDoors: new Set<string>() }),
     });
 
@@ -184,7 +195,7 @@ test('triggerFloorSensors releases hold effects when a type 3 hybrid plate is le
         0,
         6,
         9,
-        { openDoors: new Set(['0,4,6']) },
+        { openDoors: new Set(['0,4,6']), currentDirection: 'EAST' },
         {},
         {},
         [],
@@ -197,10 +208,9 @@ test('triggerFloorSensors releases hold effects when a type 3 hybrid plate is le
 });
 
 test('triggerFloorSensors keeps a hold plate active when the required floor item remains on it', () => {
-    const sensor = createSensor({ type: 3, requiredObjectName: 'COMPASS', action: 'Hold' });
+    const sensor = createSensor({ type: 4, requiredObjectName: 'COMPASS', action: 'Hold' });
     const { deps } = createDeps(sensor, {
-        isSpecificObjectFloorSensor: (candidate: SensorObject) =>
-            candidate.type === 4 || (candidate.type === 3 && Boolean(candidate.requiredObjectName)),
+        isSpecificObjectFloorSensor: (candidate: SensorObject) => candidate.type === 4,
         tileHasRequiredFloorItem: () => true,
         computeSensorEffect: () => ({ openDoors: new Set<string>() }),
     });
@@ -209,7 +219,7 @@ test('triggerFloorSensors keeps a hold plate active when the required floor item
         0,
         6,
         9,
-        { openDoors: new Set(['0,4,6']) },
+        { openDoors: new Set(['0,4,6']), currentDirection: 'NORTH' },
         {},
         {},
         [],
@@ -219,4 +229,161 @@ test('triggerFloorSensors keeps a hold plate active when the required floor item
     );
 
     assert.deepEqual(result.sensorChanges, {});
+});
+
+test('triggerFloorSensors ignores party-only plates when the source is a dropped item', () => {
+    const sensor = createSensor({ type: 3, data: 1 });
+    const { deps } = createDeps(sensor);
+
+    const result = triggerFloorSensors(
+        0,
+        6,
+        9,
+        { openDoors: new Set<string>(), currentDirection: 'NORTH' },
+        {},
+        {},
+        [],
+        [],
+        deps,
+        'enter',
+        'item',
+    );
+
+    assert.deepEqual(result.sensorChanges, {});
+    assert.deepEqual(result.pendingSensorEvents, []);
+});
+
+test('triggerFloorSensors activates generic weight plates when the source is a dropped item', () => {
+    const sensor = createSensor({ type: 1, action: 'Hold' });
+    const { deps } = createDeps(sensor);
+
+    const result = triggerFloorSensors(
+        0,
+        25,
+        1,
+        { openDoors: new Set<string>(), currentDirection: 'NORTH' },
+        {},
+        {},
+        [],
+        [],
+        deps,
+        'enter',
+        'item',
+    );
+
+    assert.deepEqual([...result.sensorChanges.openDoors!], ['0,4,6']);
+    assert.deepEqual(result.pendingSensorEvents, [{ level: 0, sensorIndex: 99, remaining: 1 }]);
+});
+
+test('triggerFloorSensors clears revert hold targets while a generic weight plate is held down', () => {
+    const sensor = createSensor({ type: 1, action: 'Hold', revert: true });
+    const { deps } = createDeps(sensor, {
+        queueOrComputeSensorEffect: (effectiveSensor: SensorObject, _level: number, _ss: TestSensorState, pending: Array<{ level: number; sensorIndex: number; remaining: number }>) => ({
+            sensorChanges: { openPits: effectiveSensor.action === 'Clear' ? new Set<string>() : new Set(['0,5,24']) } as Partial<TestSensorState>,
+            pendingSensorEvents: pending,
+        }),
+        diffSensorState: (_before: TestSensorState, after: TestSensorState) => after as Partial<TestSensorState>,
+    });
+
+    const result = triggerFloorSensors(
+        1,
+        25,
+        3,
+        { openDoors: new Set<string>(), currentDirection: 'NORTH' } as TestSensorState,
+        {},
+        {},
+        [],
+        [],
+        deps,
+        'enter',
+        'item',
+    );
+
+    assert.deepEqual([...(result.sensorChanges as { openPits: Set<string> }).openPits], []);
+});
+
+test('triggerFloorSensors activates generic weight plates when the source is a creature stepping on them', () => {
+    const sensor = createSensor({ type: 1, action: 'Hold' });
+    const { deps } = createDeps(sensor);
+
+    const result = triggerFloorSensors(
+        0,
+        25,
+        1,
+        { openDoors: new Set<string>(), currentDirection: 'NORTH' },
+        {},
+        {},
+        [],
+        [],
+        deps,
+        'enter',
+        'creature',
+        [{ mapIndex: 0, x: 25, y: 1, alive: true }],
+    );
+
+    assert.deepEqual([...result.sensorChanges.openDoors!], ['0,4,6']);
+    assert.deepEqual(result.pendingSensorEvents, [{ level: 0, sensorIndex: 99, remaining: 1 }]);
+});
+
+test('triggerFloorSensors keeps a generic weight hold plate active when an item remains on it after the party leaves', () => {
+    const sensor = createSensor({ type: 1, action: 'Hold' });
+    const { deps } = createDeps(sensor, {
+        computeSensorEffect: () => ({ openDoors: new Set<string>() }),
+    });
+
+    const result = triggerFloorSensors(
+        0,
+        25,
+        1,
+        { openDoors: new Set(['0,0,27']), currentDirection: 'NORTH' },
+        {},
+        {},
+        [
+            {
+                id: 'boulder-on-plate',
+                mapIndex: 0,
+                x: 25,
+                y: 1,
+                category: 'Misc',
+                typeId: 1,
+                tilePos: 'North',
+            },
+        ],
+        [],
+        deps,
+        'leave',
+    );
+
+    assert.deepEqual(result.sensorChanges, {});
+    assert.deepEqual(result.pendingSensorEvents, []);
+});
+
+test('triggerFloorSensors clears a generic weight hold plate when the party leaves and nothing remains on it', () => {
+    const sensor = createSensor({ type: 1, action: 'Hold' });
+    const { deps } = createDeps(sensor, {
+        computeSensorEffect: () => ({ openDoors: new Set<string>() }),
+    });
+
+    const result = triggerFloorSensors(
+        0,
+        25,
+        1,
+        {
+            openDoors: new Set(['0,0,27']),
+            currentDirection: 'NORTH',
+            currentLevel: 0,
+            currentPosition: [1, 25],
+        },
+        {},
+        {},
+        [],
+        [],
+        deps,
+        'leave',
+        'party',
+        [],
+    );
+
+    assert.deepEqual([...result.sensorChanges.openDoors!], []);
+    assert.deepEqual(result.pendingSensorEvents, []);
 });

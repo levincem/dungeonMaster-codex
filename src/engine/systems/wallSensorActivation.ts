@@ -145,13 +145,15 @@ export function activateWallSensor<
             }
             : deps.queueOrComputeSensorEffect(effectiveFaceSensor, mapIndex, withVisualState, nextPending);
 
-        const nextState = { ...withVisualState, ...queued.sensorChanges } as TSensorState;
+        const { activeSensors: _ignoredQueuedActiveSensors, ...queuedSensorChanges } =
+            queued.sensorChanges as Partial<TSensorState>;
+        const nextState = { ...withVisualState, ...queuedSensorChanges } as TSensorState;
 
-        if ((faceSensor.sound || faceSensor.type === 1 || faceSensor.type === 2) && Object.keys(queued.sensorChanges).length > 0) {
+        if ((faceSensor.sound || faceSensor.type === 1 || faceSensor.type === 2) && Object.keys(queuedSensorChanges).length > 0) {
             deps.playPlate();
         }
 
-        if (queued.sensorChanges.openDoors && queued.sensorChanges.openDoors !== cur.openDoors) {
+        if (queuedSensorChanges.openDoors && queuedSensorChanges.openDoors !== cur.openDoors) {
             deps.playDoorMotion(deps.resolveDoorSoundTarget(faceSensor, mapIndex));
         }
 

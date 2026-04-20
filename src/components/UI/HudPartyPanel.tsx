@@ -5,6 +5,7 @@ import { miscPath } from '../../data/assetPaths';
 import { getEquippedItemImage } from '../../data/itemImages';
 import type { ChampionVitals } from '../../engine/runtimeTypes';
 import { useStore } from '../../engine/store';
+import { getTranslations } from '../../i18n';
 import type { ChampionEquipment } from '../../types/game';
 import type { EquipSlotKey } from '../../types/items';
 import { getDragPayload, setDragPayload } from './dragPayload';
@@ -20,11 +21,64 @@ const EMPTY_HAND_IMAGES = {
     leftHand: miscPath('handLeft.png'),
     rightHand: miscPath('handRight.png'),
 } as const;
-
-const HAND_SLOT_LABELS = {
-    leftHand: 'MG',
-    rightHand: 'MD',
-} as const;
+const HUD_TEXT = getTranslations().hud;
+const LEVEL_UP_PARTICLES = [
+    { x: '-42px', y: '-34px', delay: '0s', size: 5, hue: '#fff1a8' },
+    { x: '-28px', y: '-48px', delay: '0.08s', size: 4, hue: '#ffd36a' },
+    { x: '-10px', y: '-56px', delay: '0.16s', size: 6, hue: '#ffb347' },
+    { x: '14px', y: '-52px', delay: '0.04s', size: 5, hue: '#ffcf66' },
+    { x: '30px', y: '-44px', delay: '0.12s', size: 4, hue: '#ff9952' },
+    { x: '44px', y: '-26px', delay: '0.18s', size: 6, hue: '#ffe59a' },
+    { x: '36px', y: '-4px', delay: '0.02s', size: 4, hue: '#ffc16b' },
+    { x: '22px', y: '12px', delay: '0.1s', size: 5, hue: '#ff9650' },
+    { x: '4px', y: '18px', delay: '0.2s', size: 4, hue: '#ffd978' },
+    { x: '-18px', y: '14px', delay: '0.06s', size: 5, hue: '#ffb85e' },
+    { x: '-34px', y: '2px', delay: '0.14s', size: 4, hue: '#ffe8a5' },
+    { x: '-46px', y: '-16px', delay: '0.22s', size: 5, hue: '#ff9b4a' },
+] as const;
+const LEVEL_UP_STYLE = `
+@keyframes hud-levelup-ring {
+    0% { transform: scale(0.8); opacity: 0; }
+    18% { opacity: 0.88; }
+    100% { transform: scale(1.16); opacity: 0; }
+}
+@keyframes hud-levelup-burst {
+    0% { transform: translateY(10px) scale(0.74); opacity: 0; }
+    16% { opacity: 1; }
+    100% { transform: translateY(-14px) scale(1.04); opacity: 0; }
+}
+@keyframes hud-levelup-sheen {
+    0% { transform: translateX(-125%) rotate(-18deg); opacity: 0; }
+    20% { opacity: 0.12; }
+    55% { opacity: 0.34; }
+    100% { transform: translateX(165%) rotate(-18deg); opacity: 0; }
+}
+@keyframes hud-levelup-glow {
+    0%, 100% { box-shadow: 0 0 0 1px rgba(255, 190, 92, 0.34), 0 0 20px rgba(255, 132, 48, 0.14); }
+    50% { box-shadow: 0 0 0 2px rgba(255, 224, 136, 0.86), 0 0 34px rgba(255, 170, 64, 0.3); }
+}
+@keyframes hud-levelup-particle {
+    0% {
+        transform: translate(-50%, -50%) translate(0, 0) scale(0.32);
+        opacity: 0;
+    }
+    12% {
+        opacity: 1;
+    }
+    72% {
+        opacity: 0.94;
+    }
+    100% {
+        transform: translate(-50%, -50%) translate(var(--burst-x), var(--burst-y)) scale(1.08);
+        opacity: 0;
+    }
+}
+@keyframes hud-levelup-core {
+    0% { transform: translate(-50%, -50%) scale(0.24); opacity: 0; }
+    18% { opacity: 0.98; }
+    100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; }
+}
+`;
 
 function getPortraitStyle(size: number): React.CSSProperties {
     return {
@@ -55,7 +109,7 @@ const FormationSilhouette: React.FC<{
             onDragOver={onDragOver}
             onDrop={onDrop}
             onDragEnd={onDragEnd}
-            title={champion ? `${champion.name} - position ${slotIndex + 1}` : `Position ${slotIndex + 1}`}
+            title={champion ? HUD_TEXT.party.formationPosition(champion.name, slotIndex + 1) : HUD_TEXT.party.position(slotIndex + 1)}
             style={{
                 width: 52,
                 height: 52,
@@ -156,7 +210,7 @@ const HandSlot: React.FC<{
                     color: 'rgba(208,184,112,0.6)',
                 }}
             >
-                {HAND_SLOT_LABELS[slotKey]}
+                {HUD_TEXT.handSlotLabels[slotKey]}
             </span>
             {imageSrc ? (
                 <img
@@ -250,6 +304,7 @@ const ChampionCard: React.FC<{
     vitals: ChampionVitals | undefined;
     equip: ChampionEquipment;
     recentDamage: number[];
+    levelUp: boolean;
     slotIndex: number;
     selected: boolean;
     isDragOver: boolean;
@@ -271,6 +326,7 @@ const ChampionCard: React.FC<{
     vitals,
     equip,
     recentDamage,
+    levelUp,
     slotIndex,
     selected,
     isDragOver,
@@ -301,8 +357,8 @@ const ChampionCard: React.FC<{
             onMouseUp={champion ? onFloorDrop : undefined}
             title={
                 champion
-                    ? (selected ? `Fiche de ${champion.name}` : `Selectionner ${champion.name}`)
-                    : `Slot ${slotIndex + 1}`
+                    ? (selected ? HUD_TEXT.party.openSheet(champion.name) : HUD_TEXT.party.selectChampion(champion.name))
+                    : HUD_TEXT.party.slot(slotIndex + 1)
             }
             style={{
                 width,
@@ -331,6 +387,7 @@ const ChampionCard: React.FC<{
                 outlineOffset: 2,
                 transition: 'border-color 0.15s',
                 userSelect: 'none',
+                animation: levelUp ? 'hud-levelup-glow 0.9s ease-in-out infinite' : undefined,
             }}
         >
             {champion ? (
@@ -345,6 +402,96 @@ const ChampionCard: React.FC<{
                         }}
                     >
                         <img src={champion.portrait} alt={champion.name} style={getPortraitStyle(width)} />
+                        {levelUp && (
+                            <>
+                                <div
+                                    style={{
+                                        position: 'absolute',
+                                        inset: 0,
+                                        pointerEvents: 'none',
+                                        overflow: 'visible',
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            position: 'absolute',
+                                            left: '50%',
+                                            top: '54%',
+                                            width: 18,
+                                            height: 18,
+                                            borderRadius: '50%',
+                                            background: 'radial-gradient(circle, rgba(255,246,182,0.98) 0%, rgba(255,186,84,0.92) 40%, rgba(255,120,38,0.12) 78%, rgba(255,120,38,0) 100%)',
+                                            filter: 'blur(0.5px)',
+                                            animation: 'hud-levelup-core 0.82s ease-out infinite',
+                                        }}
+                                    />
+                                    {LEVEL_UP_PARTICLES.map((particle, index) => (
+                                        <span
+                                            key={`${champion.id}_levelup_particle_${index}`}
+                                            style={{
+                                                position: 'absolute',
+                                                left: '50%',
+                                                top: '54%',
+                                                width: particle.size,
+                                                height: particle.size,
+                                                marginLeft: -(particle.size / 2),
+                                                marginTop: -(particle.size / 2),
+                                                borderRadius: '50%',
+                                                background: `radial-gradient(circle, rgba(255,255,255,0.95) 0%, ${particle.hue} 42%, rgba(255,140,48,0.12) 78%, rgba(255,140,48,0) 100%)`,
+                                                boxShadow: `0 0 10px ${particle.hue}, 0 0 18px rgba(255,144,44,0.34)`,
+                                                ['--burst-x' as string]: particle.x,
+                                                ['--burst-y' as string]: particle.y,
+                                                animation: `hud-levelup-particle 0.92s cubic-bezier(0.18, 0.72, 0.24, 1) ${particle.delay} infinite`,
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                                <div
+                                    style={{
+                                        position: 'absolute',
+                                        inset: 4,
+                                        borderRadius: 6,
+                                        border: '2px solid rgba(255,206,116,0.84)',
+                                        animation: 'hud-levelup-ring 0.92s ease-out infinite',
+                                        pointerEvents: 'none',
+                                    }}
+                                />
+                                <div
+                                    style={{
+                                        position: 'absolute',
+                                        top: -2,
+                                        left: '50%',
+                                        transform: 'translateX(-50%)',
+                                        padding: '2px 8px',
+                                        borderRadius: 999,
+                                        background: 'linear-gradient(180deg, rgba(255,245,188,0.98), rgba(255,182,72,0.98) 58%, rgba(231,96,28,0.98))',
+                                        border: '1px solid rgba(84,38,0,0.72)',
+                                        color: '#3b2104',
+                                        fontSize: 9,
+                                        fontWeight: 900,
+                                        letterSpacing: 1.1,
+                                        textTransform: 'uppercase',
+                                        animation: 'hud-levelup-burst 1.1s ease-out infinite',
+                                        boxShadow: '0 6px 16px rgba(0,0,0,0.42)',
+                                        pointerEvents: 'none',
+                                    }}
+                                >
+                                    {HUD_TEXT.party.levelUp}
+                                </div>
+                                <div
+                                    style={{
+                                        position: 'absolute',
+                                        top: -12,
+                                        bottom: -12,
+                                        width: 28,
+                                        background: 'linear-gradient(180deg, rgba(255,255,255,0), rgba(255,248,210,0.95), rgba(255,255,255,0))',
+                                        filter: 'blur(1px)',
+                                        animation: 'hud-levelup-sheen 1.4s linear infinite',
+                                        pointerEvents: 'none',
+                                    }}
+                                />
+                            </>
+                        )}
                         {recentDamage.map((amount, index) => (
                             <div
                                 key={`${champion.id}_hurt_${index}_${amount}`}
@@ -446,6 +593,7 @@ export const HudPartyPanel: React.FC<{
     championVitals: Record<number, ChampionVitals>;
     championEquipment: Record<number, ChampionEquipment>;
     recentDamageByChampionId: Record<number, number[]>;
+    levelUpChampionIds: number[];
     selectedChampionIndex: number;
     activeFloorDrag: ActiveFloorDrag;
     dragFrom: number | null;
@@ -470,6 +618,7 @@ export const HudPartyPanel: React.FC<{
     championVitals,
     championEquipment,
     recentDamageByChampionId,
+    levelUpChampionIds,
     selectedChampionIndex,
     activeFloorDrag,
     dragFrom,
@@ -493,9 +642,13 @@ export const HudPartyPanel: React.FC<{
     const selectedVitals = selectedChampion ? championVitals[selectedChampion.id] : undefined;
     const selectedChampionClass = selectedChampion?.class ?? '';
     const selectedChampionColor = selectedChampionClass ? HUD_CLASS_COLORS[selectedChampionClass] : '#d8d0b8';
+    const selectedChampionClassLabel = selectedChampionClass
+        ? HUD_TEXT.classLabels[selectedChampionClass.toLowerCase() as keyof typeof HUD_TEXT.classLabels]
+        : '';
 
     return (
         <div style={panelStyle}>
+            <style>{LEVEL_UP_STYLE}</style>
             <div style={{ display: 'flex', gap: 8, alignItems: 'stretch' }}>
                 <div style={{ flex: '0 0 80%', display: 'flex', gap: 6, minWidth: 0 }}>
                     {[0, 1, 2, 3].map((index) => (
@@ -505,6 +658,7 @@ export const HudPartyPanel: React.FC<{
                                 vitals={party[index] ? championVitals[party[index].id] : undefined}
                                 equip={party[index] ? (championEquipment[party[index].id] ?? {}) : {}}
                                 recentDamage={party[index] ? (recentDamageByChampionId[party[index].id] ?? []) : []}
+                                levelUp={party[index] ? levelUpChampionIds.includes(party[index].id) : false}
                                 slotIndex={index}
                                 selected={selectedChampionIndex === index && !!party[index]}
                                 isDragOver={itemDropOver === index}
@@ -658,10 +812,10 @@ export const HudPartyPanel: React.FC<{
                         {selectedChampion.name ?? ''}
                     </span>
                     <span style={{ fontSize: 10, color: '#887878', letterSpacing: 1 }}>
-                        {selectedChampionClass.toUpperCase()}
+                        {selectedChampionClassLabel}
                         {selectedVitals && (
                             <span style={{ color: '#5080c0', marginLeft: 7 }}>
-                                {Math.floor(selectedVitals.mana)}/{selectedChampion.mana} MP
+                                {Math.floor(selectedVitals.mana)}/{selectedChampion.mana} {HUD_TEXT.manaUnit}
                             </span>
                         )}
                     </span>

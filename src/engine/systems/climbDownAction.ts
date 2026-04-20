@@ -1,5 +1,8 @@
 import type { ChampionEquipment, FloorItem, GameTile } from '../../types/game';
+import { getTranslations } from '../../i18n';
 import type { ChampionVitals } from '../runtimeTypes';
+
+const runtimeText = getTranslations().runtime;
 
 type PendingSensorEventLike = {
     level: number;
@@ -69,7 +72,7 @@ export function resolveClimbDownAction<
     const { x: pitX, y: pitY } = deps.getFrontPosition(state.position, state.direction);
     const frontTile = deps.getTile(state.level, pitX, pitY);
     if (frontTile?.type !== 'Pit' || !state.openPits.has(`${state.level},${pitY},${pitX}`)) {
-        return { errorMessage: 'CLIMB DOWN requiert un puits ouvert devant le groupe.' };
+        return { errorMessage: runtimeText.climbDownRequiresOpenPit };
     }
 
     const landing = deps.resolvePitLanding(
@@ -81,7 +84,7 @@ export function resolveClimbDownAction<
         state.openPits,
     );
     if (!landing) {
-        return { errorMessage: 'Impossible de descendre ici.' };
+        return { errorMessage: runtimeText.climbDownImpossibleHere };
     }
 
     const hydrationPatch = deps.buildLevelHydrationPatch(state, landing.level);

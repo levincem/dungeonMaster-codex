@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { preloadDungeonBootstrapData } from '../../data/dungeonData';
 import { miscPath } from '../../data/assetPaths';
+import { useI18n } from '../../i18n';
 import { preloadTitleVisualAssets } from '../../preload/gameplayVisualPreload';
 
 interface Props {
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export const LoadingScreen = ({ onDone, autoStart = true }: Props) => {
+    const text = useI18n().loadingScreen;
     const totalAssets = 2;
     const [loaded, setLoaded] = useState(autoStart ? 0 : totalAssets);
     const [fadeOut, setFadeOut] = useState(false);
@@ -69,7 +71,7 @@ export const LoadingScreen = ({ onDone, autoStart = true }: Props) => {
 
             <img
                 src={miscPath('Dm_logo.png')}
-                alt="Dungeon Master Remastered"
+                alt={text.logoAlt}
                 draggable={false}
                 onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 style={{
@@ -90,7 +92,7 @@ export const LoadingScreen = ({ onDone, autoStart = true }: Props) => {
                 fontFamily: '"Courier New", monospace',
                 textTransform: 'uppercase',
             }}>
-                Dungeon Master Remastered
+                {text.title}
             </div>
 
             <div style={{

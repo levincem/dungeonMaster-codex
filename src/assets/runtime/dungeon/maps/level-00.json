@@ -1069,8 +1069,7 @@
           "onceOnly": false,
           "targetY": 9,
           "targetX": 5,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -1210,14 +1209,14 @@
           "index": 0,
           "tilePos": "South",
           "type": 3,
-          "name": "Leather Jerkin"
+          "name": "Sandals"
         },
         {
           "category": "Armor",
           "index": 1,
           "tilePos": "South",
           "type": 2,
-          "name": "Elven Doublet"
+          "name": "Barbarian Hide"
         },
         {
           "category": "Weapon",
@@ -1307,21 +1306,21 @@
           "index": 2,
           "tilePos": "North",
           "type": 10,
-          "name": "Tunic"
+          "name": "Silk Shirt"
         },
         {
           "category": "Armor",
           "index": 3,
           "tilePos": "North",
           "type": 11,
-          "name": "Silk Shirt"
+          "name": "Tabard"
         },
         {
           "category": "Armor",
           "index": 4,
           "tilePos": "North",
           "type": 3,
-          "name": "Leather Jerkin"
+          "name": "Sandals"
         },
         {
           "category": "Weapon",
@@ -1392,14 +1391,14 @@
           "index": 5,
           "tilePos": "North",
           "type": 2,
-          "name": "Elven Doublet"
+          "name": "Barbarian Hide"
         },
         {
           "category": "Armor",
           "index": 6,
           "tilePos": "North",
           "type": 29,
-          "name": "Barbarian Hide"
+          "name": "Hide Shield"
         },
         {
           "category": "Weapon",
@@ -1506,7 +1505,7 @@
           "index": 7,
           "tilePos": "East",
           "type": 3,
-          "name": "Leather Jerkin"
+          "name": "Sandals"
         },
         {
           "category": "Misc",
@@ -1520,14 +1519,14 @@
           "index": 8,
           "tilePos": "East",
           "type": 5,
-          "name": "Robe of the Kite Lord"
+          "name": "Robe (Body)"
         },
         {
           "category": "Armor",
           "index": 9,
           "tilePos": "East",
           "type": 6,
-          "name": "Robe"
+          "name": "Robe (Legs)"
         }
       ]
     },
@@ -1706,8 +1705,7 @@
           "onceOnly": false,
           "targetY": 1,
           "targetX": 9,
-          "targetDir": "South",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "South"
         },
         {
           "category": "Sensor",
@@ -1831,7 +1829,7 @@
           "index": 15,
           "tilePos": "North",
           "type": 11,
-          "name": "Silk Shirt"
+          "name": "Tabard"
         }
       ]
     },
@@ -2047,7 +2045,7 @@
           "index": 19,
           "tilePos": "North",
           "type": 19,
-          "name": "Chain Mail Aketon"
+          "name": "Blue Pants"
         },
         {
           "category": "Weapon",
@@ -2127,14 +2125,14 @@
           "index": 22,
           "tilePos": "West",
           "type": 9,
-          "name": "Plate Mail"
+          "name": "Kirtle"
         },
         {
           "category": "Armor",
           "index": 23,
           "tilePos": "West",
           "type": 3,
-          "name": "Leather Jerkin"
+          "name": "Sandals"
         },
         {
           "category": "Weapon",
@@ -2289,7 +2287,7 @@
           "index": 26,
           "tilePos": "North",
           "type": 19,
-          "name": "Chain Mail Aketon"
+          "name": "Blue Pants"
         },
         {
           "category": "Armor",
@@ -2715,7 +2713,7 @@
           "index": 36,
           "tilePos": "South",
           "type": 10,
-          "name": "Tunic"
+          "name": "Silk Shirt"
         },
         {
           "category": "Armor",
@@ -2836,7 +2834,7 @@
           "index": 39,
           "tilePos": "South",
           "type": 10,
-          "name": "Tunic"
+          "name": "Silk Shirt"
         },
         {
           "category": "Misc",
@@ -2850,7 +2848,7 @@
           "index": 40,
           "tilePos": "South",
           "type": 3,
-          "name": "Leather Jerkin"
+          "name": "Sandals"
         }
       ]
     },
@@ -3015,14 +3013,14 @@
           "index": 44,
           "tilePos": "West",
           "type": 5,
-          "name": "Robe of the Kite Lord"
+          "name": "Robe (Body)"
         },
         {
           "category": "Armor",
           "index": 45,
           "tilePos": "West",
           "type": 6,
-          "name": "Robe"
+          "name": "Robe (Legs)"
         },
         {
           "category": "Misc",
@@ -3043,7 +3041,7 @@
           "index": 46,
           "tilePos": "West",
           "type": 3,
-          "name": "Leather Jerkin"
+          "name": "Sandals"
         },
         {
           "category": "Misc",
@@ -3198,7 +3196,7 @@
           "index": 48,
           "tilePos": "West",
           "type": 3,
-          "name": "Leather Jerkin"
+          "name": "Sandals"
         },
         {
           "category": "Weapon",
@@ -3637,14 +3635,14 @@
           "index": 119,
           "tilePos": "North",
           "type": 19,
-          "name": "Chain Mail Aketon"
+          "name": "Blue Pants"
         },
         {
           "category": "Armor",
           "index": 120,
           "tilePos": "North",
           "type": 3,
-          "name": "Leather Jerkin"
+          "name": "Sandals"
         }
       ]
     },

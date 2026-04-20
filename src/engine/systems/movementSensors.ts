@@ -1,4 +1,7 @@
 import type { ChampionEquipment, FloorItem, SensorObject } from '../../types/game';
+import { getTranslations } from '../../i18n';
+
+const runtimeText = getTranslations().runtime;
 
 type PendingSensorEventLike = {
     level: number;
@@ -8,7 +11,20 @@ type PendingSensorEventLike = {
 
 type SensorStateLike = {
     openDoors: Set<string>;
+    currentDirection?: 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
+    currentLevel?: number;
+    currentPosition?: [number, number];
 };
+
+function getPartyDirectionOrdinal(direction: SensorStateLike['currentDirection']): number {
+    switch (direction) {
+        case 'NORTH': return 1;
+        case 'EAST': return 2;
+        case 'SOUTH': return 3;
+        case 'WEST': return 4;
+        default: return 1;
+    }
+}
 
 type PendingSensorChangeResult<TSensorState, TPendingSensorEvent> = {
     sensorChanges: Partial<TSensorState>;
@@ -64,6 +80,8 @@ export function triggerFloorSensors<
     pendingSensorEvents: TPendingSensorEvent[],
     deps: MovementSensorDeps<TSensorState, TPendingSensorEvent>,
     mode: 'enter' | 'leave' = 'enter',
+    source: 'party' | 'item' | 'creature' = 'party',
+    creatures: Array<{ mapIndex: number; x: number; y: number; alive?: boolean }> = [],
 ): PendingSensorChangeResult<TSensorState, TPendingSensorEvent> {
     const tile = deps.getTile(level, x, y);
     if (!tile) return { sensorChanges: {}, pendingSensorEvents };
@@ -72,20 +90,51 @@ export function triggerFloorSensors<
     let changed = false;
     let playedSound = false;
     let nextPending = pendingSensorEvents;
+    const tileHasAnyFloorItem = floorItems.some((item) =>
+        item.mapIndex === level && item.x === x && item.y === y,
+    );
+    const tileHasAnyCreature = creatures.some((creature) =>
+        creature.mapIndex === level &&
+        creature.x === x &&
+        creature.y === y &&
+        (creature.alive ?? true),
+    );
+    const tileHasParty =
+        source !== 'party' &&
+        ss.currentLevel === level &&
+        ss.currentPosition?.[1] === x &&
+        ss.currentPosition?.[0] === y;
 
     for (const obj of tile.objects) {
         const sensor = deps.asSensor(obj);
         if (!sensor || sensor.type === 127) continue;
+        const isPartyFloorSensor = sensor.type === 3;
         const isSpecificObjectFloorSensor = deps.isSpecificObjectFloorSensor(sensor);
+        const isGenericWeightFloorSensor = sensor.type === 1;
+        const isCreatureOnlyFloorSensor = deps.isCreatureOnlyFloorSensor(sensor);
         const isObjectOnlyFloorSensor = isSpecificObjectFloorSensor && sensor.type === 4;
+
+        if (source === 'item' && !isObjectOnlyFloorSensor && !isGenericWeightFloorSensor) continue;
+        if (source === 'creature' && !isGenericWeightFloorSensor && !isCreatureOnlyFloorSensor) continue;
 
         if (mode === 'leave') {
             if (sensor.action !== 'Hold') continue;
+            if (source === 'party' && isPartyFloorSensor) {
+                const effect = deps.computeSensorEffect({ ...sensor, action: sensor.revert ? 'Set' : 'Clear' }, level, cur);
+                if (Object.keys(effect).length > 0) {
+                    cur = { ...cur, ...effect } as TSensorState;
+                    changed = true;
+                }
+                continue;
+            }
+            if (isGenericWeightFloorSensor && (tileHasAnyFloorItem || tileHasAnyCreature || tileHasParty)) continue;
+            if (source === 'creature' && isCreatureOnlyFloorSensor && tileHasAnyCreature) continue;
             if (isSpecificObjectFloorSensor) {
                 const hasRequiredItem = deps.tileHasRequiredFloorItem(level, x, y, deps.getRequiredSensorItemName(sensor), floorItems);
                 if (hasRequiredItem) continue;
             }
-            if (deps.isCreatureOnlyFloorSensor(sensor) || deps.isGeneratorSensor(sensor) || isObjectOnlyFloorSensor) continue;
+            if (source !== 'creature' && (isCreatureOnlyFloorSensor || deps.isGeneratorSensor(sensor) || isObjectOnlyFloorSensor)) continue;
+            if (source === 'creature' && (isPartyFloorSensor || deps.isPartyPossessionSensor(sensor) || deps.isGeneratorSensor(sensor) || isObjectOnlyFloorSensor)) continue;
             const effect = deps.computeSensorEffect({ ...sensor, action: sensor.revert ? 'Set' : 'Clear' }, level, cur);
             if (Object.keys(effect).length > 0) {
                 cur = { ...cur, ...effect } as TSensorState;
@@ -107,7 +156,14 @@ export function triggerFloorSensors<
             continue;
         }
 
-        if (deps.isCreatureOnlyFloorSensor(sensor)) continue;
+        if (source !== 'creature' && isCreatureOnlyFloorSensor) continue;
+        if (isPartyFloorSensor) {
+            const directionMatches =
+                sensor.data === 0 ||
+                sensor.data === getPartyDirectionOrdinal(cur.currentDirection);
+            const shouldTrigger = sensor.revert ? !directionMatches : directionMatches;
+            if (!shouldTrigger) continue;
+        }
         if (deps.isPartyPossessionSensor(sensor)) {
             const hasRequiredItem = deps.partyHasRequiredItem(deps.getRequiredSensorItemName(sensor), inventories, equipment);
             const shouldTrigger = sensor.revert ? !hasRequiredItem : hasRequiredItem;
@@ -120,7 +176,9 @@ export function triggerFloorSensors<
         }
 
         const queued = deps.queueOrComputeSensorEffect(
-            sensor.action === 'Hold' ? { ...sensor, action: 'Set' } : sensor,
+            sensor.action === 'Hold'
+                ? { ...sensor, action: sensor.revert ? 'Clear' : 'Set' }
+                : sensor,
             level,
             cur,
             nextPending,
@@ -189,7 +247,7 @@ export function transitionFloorSensors<
 
     const isStartingGatePlate = level === 0 && toX === 6 && toY === 9;
     if (isStartingGatePlate && partySize === 0) {
-        blockedMessage = 'Choose at least one adventurer, four is better !';
+        blockedMessage = runtimeText.chooseAdventurer;
     } else {
         const enter = triggerFloorSensors(
             level,

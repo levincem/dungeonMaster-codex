@@ -147,7 +147,10 @@ export function dispatchTriggeredSensorEffect<TState extends SensorTriggeredStat
         for (const obj of targetTile.objects) {
             if (obj.category !== 'Sensor') continue;
             const targetSensor = obj as SensorObject;
-            if (targetSensor.tilePos !== sourceSensor.targetDir) continue;
+            // Type 5 gate sensors live on the destination wall square and aggregate face bits
+            // from remote wall clicks. Their physical facing on that wall does not have to match
+            // the source sensor's targetDir, so they must still receive the wall-square event.
+            if (targetSensor.type !== 5 && targetSensor.tilePos !== sourceSensor.targetDir) continue;
 
             if (deps.wallLauncherSensorTypes.has(targetSensor.type)) {
                 const targetSensorKey = deps.getSensorStateKey(sourceLevel, targetSensor.index);

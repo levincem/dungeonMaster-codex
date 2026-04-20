@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import type { Champion } from '../src/types/champion.js';
 import type { CreatureInstance } from '../src/types/game.js';
-import { getChampionPreferredColumn, resolveAttackFrontContext } from '../src/engine/systems/attackFrontContext.js';
+import { getChampionPreferredColumn, isChampionInRearRank, resolveAttackFrontContext } from '../src/engine/systems/attackFrontContext.js';
 
 function createChampion(id: number): Champion {
     return {
@@ -57,6 +57,15 @@ test('getChampionPreferredColumn maps party slots to original left/right columns
     assert.equal(getChampionPreferredColumn(party, 2), 'right');
     assert.equal(getChampionPreferredColumn(party, 3), 'left');
     assert.equal(getChampionPreferredColumn(party, 4), 'right');
+});
+
+test('isChampionInRearRank only flags the back row of the party formation', () => {
+    const party = [createChampion(1), createChampion(2), createChampion(3), createChampion(4)];
+
+    assert.equal(isChampionInRearRank(party, 1), false);
+    assert.equal(isChampionInRearRank(party, 2), false);
+    assert.equal(isChampionInRearRank(party, 3), true);
+    assert.equal(isChampionInRearRank(party, 4), true);
 });
 
 test('resolveAttackFrontContext returns the front creatures and the preferred target for the acting champion', () => {

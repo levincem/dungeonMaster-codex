@@ -91,7 +91,7 @@ const WALL_SENSOR_LABELS = {
 const FLOOR_SENSOR_LABELS = {
   1: 'Dalle de pression (tout)',
   2: 'Dalle de pression (créature)',
-  3: 'Dalle de pression (groupe)',
+  3: 'Capteur de passage (party / orientation)',
   4: 'Dalle de pression (objet spécifique)',
   5: 'Dalle d\'escalier',
   6: 'Générateur de groupe (sol)',
@@ -101,6 +101,16 @@ const FLOOR_SENSOR_LABELS = {
 };
 
 // ── Filtres : mécanismes "intéressants" (pas les pièges/lanceurs/portraits) ───
+function describeFloorSensor(obj) {
+  if (obj.type !== 3) {
+    return FLOOR_SENSOR_LABELS[obj.type] || `Type sol ${obj.type}`;
+  }
+
+  return obj.data === 0
+    ? 'Capteur de passage (party)'
+    : 'Capteur d orientation (party)';
+}
+
 function isInteresting(sensor, tileType) {
   const t = sensor.type;
   if (t === 0 || t === 127) return false;           // désactivé / portrait
@@ -130,7 +140,7 @@ for (const map of dungeon.maps) {
       const isWall  = tile.type === 'Wall' || tile.type === 'TrickWall';
       const label   = isWall
         ? (WALL_SENSOR_LABELS[obj.type]  || `Type mural ${obj.type}`)
-        : (FLOOR_SENSOR_LABELS[obj.type] || `Type sol ${obj.type}`);
+        : describeFloorSensor(obj);
 
       // Résolution de l'objet requis (pour serrures / dalles objet)
       let requiredObject = null;
@@ -227,3 +237,4 @@ console.log(`   Leviers     : ${totalLevers}`);
 console.log(`   Dalles      : ${totalPlates}`);
 console.log(`   Autres      : ${totalOther}`);
 console.log(`   Total       : ${totalLocks + totalLevers + totalPlates + totalOther} mécanismes`);
+

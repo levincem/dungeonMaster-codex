@@ -26881,8 +26881,6 @@
         "targetY": 1,
         "targetX": 2,
         "targetDir": "North",
-        "requiredObjectType": 0,
-        "requiredObjectName": "COMPASS",
         "raw": {
           "offset": 11060,
           "bytes": [
@@ -26944,8 +26942,6 @@
         "targetY": 1,
         "targetX": 3,
         "targetDir": "North",
-        "requiredObjectType": 0,
-        "requiredObjectName": "COMPASS",
         "raw": {
           "offset": 11068,
           "bytes": [
@@ -27069,8 +27065,6 @@
         "targetY": 1,
         "targetX": 5,
         "targetDir": "North",
-        "requiredObjectType": 0,
-        "requiredObjectName": "COMPASS",
         "raw": {
           "offset": 11084,
           "bytes": [
@@ -27132,8 +27126,6 @@
         "targetY": 1,
         "targetX": 6,
         "targetDir": "North",
-        "requiredObjectType": 0,
-        "requiredObjectName": "COMPASS",
         "raw": {
           "offset": 11092,
           "bytes": [
@@ -27195,8 +27187,6 @@
         "targetY": 7,
         "targetX": 6,
         "targetDir": "North",
-        "requiredObjectType": 0,
-        "requiredObjectName": "COMPASS",
         "raw": {
           "offset": 11100,
           "bytes": [
@@ -28421,8 +28411,6 @@
         "targetY": 4,
         "targetX": 6,
         "targetDir": "North",
-        "requiredObjectType": 0,
-        "requiredObjectName": "COMPASS",
         "raw": {
           "offset": 11260,
           "bytes": [
@@ -28604,8 +28592,6 @@
         "targetY": 23,
         "targetX": 13,
         "targetDir": "West",
-        "requiredObjectType": 129,
-        "requiredObjectName": "Blue Gem",
         "raw": {
           "offset": 11284,
           "bytes": [
@@ -28663,8 +28649,6 @@
         "targetY": 23,
         "targetX": 13,
         "targetDir": "South",
-        "requiredObjectType": 49,
-        "requiredObjectName": "BOW",
         "raw": {
           "offset": 11292,
           "bytes": [
@@ -28722,8 +28706,6 @@
         "targetY": 23,
         "targetX": 13,
         "targetDir": "North",
-        "requiredObjectType": 134,
-        "requiredObjectName": "Mirror Of Dawn",
         "raw": {
           "offset": 11300,
           "bytes": [
@@ -28781,8 +28763,6 @@
         "targetY": 23,
         "targetX": 13,
         "targetDir": "East",
-        "requiredObjectType": 127,
-        "requiredObjectName": "Gold Coin",
         "raw": {
           "offset": 11308,
           "bytes": [
@@ -29072,8 +29052,6 @@
         "targetY": 23,
         "targetX": 21,
         "targetDir": "North",
-        "requiredObjectType": 193,
-        "requiredObjectName": "MAGNIFIER",
         "raw": {
           "offset": 11348,
           "bytes": [
@@ -31447,8 +31425,6 @@
         "targetY": 5,
         "targetX": 6,
         "targetDir": "North",
-        "requiredObjectType": 0,
-        "requiredObjectName": "COMPASS",
         "raw": {
           "offset": 11668,
           "bytes": [
@@ -32156,8 +32132,6 @@
         "targetY": 23,
         "targetX": 23,
         "targetDir": "North",
-        "requiredObjectType": 0,
-        "requiredObjectName": "COMPASS",
         "raw": {
           "offset": 11764,
           "bytes": [
@@ -33748,8 +33722,6 @@
         "targetY": 4,
         "targetX": 5,
         "targetDir": "North",
-        "requiredObjectType": 0,
-        "requiredObjectName": "COMPASS",
         "raw": {
           "offset": 11972,
           "bytes": [
@@ -37385,8 +37357,6 @@
         "targetY": 15,
         "targetX": 22,
         "targetDir": "North",
-        "requiredObjectType": 138,
-        "requiredObjectName": "Corbamite",
         "raw": {
           "offset": 12460,
           "bytes": [
@@ -45440,8 +45410,6 @@
         "targetY": 9,
         "targetX": 4,
         "targetDir": "North",
-        "requiredObjectType": 0,
-        "requiredObjectName": "COMPASS",
         "raw": {
           "offset": 13532,
           "bytes": [
@@ -45617,8 +45585,6 @@
         "targetY": 7,
         "targetX": 27,
         "targetDir": "West",
-        "requiredObjectType": 0,
-        "requiredObjectName": "COMPASS",
         "raw": {
           "offset": 13556,
           "bytes": [
@@ -52993,8 +52959,6 @@
         "targetY": 12,
         "targetX": 5,
         "targetDir": "North",
-        "requiredObjectType": 0,
-        "requiredObjectName": "COMPASS",
         "raw": {
           "offset": 14516,
           "bytes": [
@@ -53956,8 +53920,6 @@
         "targetY": 25,
         "targetX": 8,
         "targetDir": "North",
-        "requiredObjectType": 0,
-        "requiredObjectName": "COMPASS",
         "raw": {
           "offset": 14644,
           "bytes": [
@@ -54072,8 +54034,6 @@
         "targetY": 25,
         "targetX": 8,
         "targetDir": "North",
-        "requiredObjectType": 0,
-        "requiredObjectName": "COMPASS",
         "raw": {
           "offset": 14660,
           "bytes": [
@@ -54568,8 +54528,6 @@
         "targetY": 12,
         "targetX": 2,
         "targetDir": "North",
-        "requiredObjectType": 39,
-        "requiredObjectName": "DIAMOND EDGE",
         "raw": {
           "offset": 14724,
           "bytes": [
@@ -56595,8 +56553,6 @@
         "targetY": 17,
         "targetX": 12,
         "targetDir": "North",
-        "requiredObjectType": 27,
-        "requiredObjectName": "THE FIRESTAFF",
         "raw": {
           "offset": 14988,
           "bytes": [
@@ -59444,8 +59400,6 @@
         "targetY": 5,
         "targetX": 22,
         "targetDir": "North",
-        "requiredObjectType": 0,
-        "requiredObjectName": "COMPASS",
         "raw": {
           "offset": 15356,
           "bytes": [
@@ -59570,8 +59524,6 @@
         "targetY": 20,
         "targetX": 22,
         "targetDir": "North",
-        "requiredObjectType": 189,
-        "requiredObjectName": "Ruby Key",
         "raw": {
           "offset": 15372,
           "bytes": [
@@ -60575,8 +60527,6 @@
         "targetY": 17,
         "targetX": 16,
         "targetDir": "North",
-        "requiredObjectType": 27,
-        "requiredObjectName": "THE FIRESTAFF",
         "raw": {
           "offset": 15508,
           "bytes": [
@@ -60638,8 +60588,6 @@
         "targetY": 17,
         "targetX": 14,
         "targetDir": "North",
-        "requiredObjectType": 27,
-        "requiredObjectName": "THE FIRESTAFF",
         "raw": {
           "offset": 15516,
           "bytes": [
@@ -60701,8 +60649,6 @@
         "targetY": 15,
         "targetX": 15,
         "targetDir": "North",
-        "requiredObjectType": 27,
-        "requiredObjectName": "THE FIRESTAFF",
         "raw": {
           "offset": 15524,
           "bytes": [
@@ -60764,8 +60710,6 @@
         "targetY": 15,
         "targetX": 13,
         "targetDir": "North",
-        "requiredObjectType": 27,
-        "requiredObjectName": "THE FIRESTAFF",
         "raw": {
           "offset": 15532,
           "bytes": [
@@ -76747,7 +76691,7 @@
           "index": 1
         },
         "type": 3,
-        "name": "Leather Jerkin",
+        "name": "Sandals",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -76784,7 +76728,7 @@
           "index": 88
         },
         "type": 2,
-        "name": "Elven Doublet",
+        "name": "Barbarian Hide",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -76821,7 +76765,7 @@
           "index": 3
         },
         "type": 10,
-        "name": "Tunic",
+        "name": "Silk Shirt",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -76858,7 +76802,7 @@
           "index": 4
         },
         "type": 11,
-        "name": "Silk Shirt",
+        "name": "Tabard",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -76895,7 +76839,7 @@
           "index": 1
         },
         "type": 3,
-        "name": "Leather Jerkin",
+        "name": "Sandals",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -76932,7 +76876,7 @@
           "index": 6
         },
         "type": 2,
-        "name": "Elven Doublet",
+        "name": "Barbarian Hide",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -76969,7 +76913,7 @@
           "index": 4
         },
         "type": 29,
-        "name": "Barbarian Hide",
+        "name": "Hide Shield",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -77006,7 +76950,7 @@
           "index": 0
         },
         "type": 3,
-        "name": "Leather Jerkin",
+        "name": "Sandals",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -77043,7 +76987,7 @@
           "index": 9
         },
         "type": 5,
-        "name": "Robe of the Kite Lord",
+        "name": "Robe (Body)",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -77076,7 +77020,7 @@
         "usedInDungeon": true,
         "next": null,
         "type": 6,
-        "name": "Robe",
+        "name": "Robe (Legs)",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -77286,7 +77230,7 @@
         "usedInDungeon": true,
         "next": null,
         "type": 11,
-        "name": "Silk Shirt",
+        "name": "Tabard",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -77434,7 +77378,7 @@
           "index": 89
         },
         "type": 19,
-        "name": "Chain Mail Aketon",
+        "name": "Blue Pants",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -77541,7 +77485,7 @@
           "index": 23
         },
         "type": 9,
-        "name": "Plate Mail",
+        "name": "Kirtle",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -77578,7 +77522,7 @@
           "index": 7
         },
         "type": 3,
-        "name": "Leather Jerkin",
+        "name": "Sandals",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -77685,7 +77629,7 @@
           "index": 27
         },
         "type": 19,
-        "name": "Chain Mail Aketon",
+        "name": "Blue Pants",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -78051,7 +77995,7 @@
           "index": 37
         },
         "type": 10,
-        "name": "Tunic",
+        "name": "Silk Shirt",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -78162,7 +78106,7 @@
           "index": 2
         },
         "type": 10,
-        "name": "Tunic",
+        "name": "Silk Shirt",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -78195,7 +78139,7 @@
         "usedInDungeon": true,
         "next": null,
         "type": 3,
-        "name": "Leather Jerkin",
+        "name": "Sandals",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -78343,7 +78287,7 @@
           "index": 45
         },
         "type": 5,
-        "name": "Robe of the Kite Lord",
+        "name": "Robe (Body)",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -78380,7 +78324,7 @@
           "index": 4
         },
         "type": 6,
-        "name": "Robe",
+        "name": "Robe (Legs)",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -78417,7 +78361,7 @@
           "index": 6
         },
         "type": 3,
-        "name": "Leather Jerkin",
+        "name": "Sandals",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -78491,7 +78435,7 @@
           "index": 12
         },
         "type": 3,
-        "name": "Leather Jerkin",
+        "name": "Sandals",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -80934,7 +80878,7 @@
           "index": 120
         },
         "type": 19,
-        "name": "Chain Mail Aketon",
+        "name": "Blue Pants",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -80967,7 +80911,7 @@
         "usedInDungeon": true,
         "next": null,
         "type": 3,
-        "name": "Leather Jerkin",
+        "name": "Sandals",
         "broken": false,
         "cursed": false,
         "doNotDiscard": true,
@@ -97514,8 +97458,6 @@
               "targetY": 9,
               "targetX": 5,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11404,
                 "bytes": [
@@ -98020,7 +97962,7 @@
               "index": 0,
               "tilePos": "South",
               "type": 3,
-              "name": "Leather Jerkin",
+              "name": "Sandals",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -98055,7 +97997,7 @@
               "index": 1,
               "tilePos": "South",
               "type": 2,
-              "name": "Elven Doublet",
+              "name": "Barbarian Hide",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -98399,7 +98341,7 @@
               "index": 2,
               "tilePos": "North",
               "type": 10,
-              "name": "Tunic",
+              "name": "Silk Shirt",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -98434,7 +98376,7 @@
               "index": 3,
               "tilePos": "North",
               "type": 11,
-              "name": "Silk Shirt",
+              "name": "Tabard",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -98469,7 +98411,7 @@
               "index": 4,
               "tilePos": "North",
               "type": 3,
-              "name": "Leather Jerkin",
+              "name": "Sandals",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -98769,7 +98711,7 @@
               "index": 5,
               "tilePos": "North",
               "type": 2,
-              "name": "Elven Doublet",
+              "name": "Barbarian Hide",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -98804,7 +98746,7 @@
               "index": 6,
               "tilePos": "North",
               "type": 29,
-              "name": "Barbarian Hide",
+              "name": "Hide Shield",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -99227,7 +99169,7 @@
               "index": 7,
               "tilePos": "East",
               "type": 3,
-              "name": "Leather Jerkin",
+              "name": "Sandals",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -99295,7 +99237,7 @@
               "index": 8,
               "tilePos": "East",
               "type": 5,
-              "name": "Robe of the Kite Lord",
+              "name": "Robe (Body)",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -99330,7 +99272,7 @@
               "index": 9,
               "tilePos": "East",
               "type": 6,
-              "name": "Robe",
+              "name": "Robe (Legs)",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -99970,8 +99912,6 @@
               "targetY": 1,
               "targetX": 9,
               "targetDir": "South",
-              "requiredObjectType": 1,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 15420,
                 "bytes": [
@@ -100447,7 +100387,7 @@
               "index": 15,
               "tilePos": "North",
               "type": 11,
-              "name": "Silk Shirt",
+              "name": "Tabard",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -101261,7 +101201,7 @@
               "index": 19,
               "tilePos": "North",
               "type": 19,
-              "name": "Chain Mail Aketon",
+              "name": "Blue Pants",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -101570,7 +101510,7 @@
               "index": 22,
               "tilePos": "West",
               "type": 9,
-              "name": "Plate Mail",
+              "name": "Kirtle",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -101605,7 +101545,7 @@
               "index": 23,
               "tilePos": "West",
               "type": 3,
-              "name": "Leather Jerkin",
+              "name": "Sandals",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -102178,7 +102118,7 @@
               "index": 26,
               "tilePos": "North",
               "type": 19,
-              "name": "Chain Mail Aketon",
+              "name": "Blue Pants",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -103815,7 +103755,7 @@
               "index": 36,
               "tilePos": "South",
               "type": 10,
-              "name": "Tunic",
+              "name": "Silk Shirt",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -104279,7 +104219,7 @@
               "index": 39,
               "tilePos": "South",
               "type": 10,
-              "name": "Tunic",
+              "name": "Silk Shirt",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -104347,7 +104287,7 @@
               "index": 40,
               "tilePos": "South",
               "type": 3,
-              "name": "Leather Jerkin",
+              "name": "Sandals",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -104964,7 +104904,7 @@
               "index": 44,
               "tilePos": "West",
               "type": 5,
-              "name": "Robe of the Kite Lord",
+              "name": "Robe (Body)",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -104999,7 +104939,7 @@
               "index": 45,
               "tilePos": "West",
               "type": 6,
-              "name": "Robe",
+              "name": "Robe (Legs)",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -105100,7 +105040,7 @@
               "index": 46,
               "tilePos": "West",
               "type": 3,
-              "name": "Leather Jerkin",
+              "name": "Sandals",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -105666,7 +105606,7 @@
               "index": 48,
               "tilePos": "West",
               "type": 3,
-              "name": "Leather Jerkin",
+              "name": "Sandals",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -107351,7 +107291,7 @@
               "index": 119,
               "tilePos": "North",
               "type": 19,
-              "name": "Chain Mail Aketon",
+              "name": "Blue Pants",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -107386,7 +107326,7 @@
               "index": 120,
               "tilePos": "North",
               "type": 3,
-              "name": "Leather Jerkin",
+              "name": "Sandals",
               "broken": false,
               "cursed": false,
               "doNotDiscard": true,
@@ -110740,8 +110680,6 @@
               "targetY": 15,
               "targetX": 5,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 10444,
                 "bytes": [
@@ -111832,8 +111770,6 @@
               "targetY": 15,
               "targetX": 5,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 10452,
                 "bytes": [
@@ -121911,8 +121847,6 @@
               "targetY": 1,
               "targetX": 18,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 10460,
                 "bytes": [
@@ -121993,8 +121927,6 @@
               "targetY": 1,
               "targetX": 18,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 10484,
                 "bytes": [
@@ -122075,8 +122007,6 @@
               "targetY": 1,
               "targetX": 18,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 10508,
                 "bytes": [
@@ -123416,8 +123346,6 @@
               "targetY": 1,
               "targetX": 19,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 10468,
                 "bytes": [
@@ -123498,8 +123426,6 @@
               "targetY": 1,
               "targetX": 18,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 10492,
                 "bytes": [
@@ -123580,8 +123506,6 @@
               "targetY": 1,
               "targetX": 19,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 10516,
                 "bytes": [
@@ -124468,8 +124392,6 @@
               "targetY": 1,
               "targetX": 19,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 10476,
                 "bytes": [
@@ -124550,8 +124472,6 @@
               "targetY": 1,
               "targetX": 19,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 10500,
                 "bytes": [
@@ -124632,8 +124552,6 @@
               "targetY": 1,
               "targetX": 19,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 10524,
                 "bytes": [
@@ -126888,8 +126806,6 @@
               "targetY": 18,
               "targetX": 18,
               "targetDir": "East",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 10612,
                 "bytes": [
@@ -133423,8 +133339,6 @@
               "targetY": 27,
               "targetX": 29,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 10268,
                 "bytes": [
@@ -149914,8 +149828,6 @@
               "targetY": 27,
               "targetX": 4,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 15196,
                 "bytes": [
@@ -158200,8 +158112,6 @@
               "targetY": 28,
               "targetX": 24,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14548,
                 "bytes": [
@@ -170248,8 +170158,6 @@
               "targetY": 13,
               "targetX": 1,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13524,
                 "bytes": [
@@ -171896,8 +171804,6 @@
               "targetY": 17,
               "targetX": 0,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11156,
                 "bytes": [
@@ -172150,8 +172056,6 @@
               "targetY": 15,
               "targetX": 4,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11132,
                 "bytes": [
@@ -172385,8 +172289,6 @@
               "targetY": 23,
               "targetX": 4,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11164,
                 "bytes": [
@@ -173590,8 +173492,6 @@
               "targetY": 13,
               "targetX": 1,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14524,
                 "bytes": [
@@ -175388,8 +175288,6 @@
               "targetY": 12,
               "targetX": 5,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14516,
                 "bytes": [
@@ -176031,8 +175929,6 @@
               "targetY": 5,
               "targetX": 6,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11668,
                 "bytes": [
@@ -176094,8 +175990,6 @@
               "targetY": 4,
               "targetX": 6,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11260,
                 "bytes": [
@@ -176157,8 +176051,6 @@
               "targetY": 7,
               "targetX": 6,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11100,
                 "bytes": [
@@ -176220,8 +176112,6 @@
               "targetY": 1,
               "targetX": 6,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11092,
                 "bytes": [
@@ -176283,8 +176173,6 @@
               "targetY": 1,
               "targetX": 5,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11084,
                 "bytes": [
@@ -176346,8 +176234,6 @@
               "targetY": 1,
               "targetX": 3,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11068,
                 "bytes": [
@@ -176409,8 +176295,6 @@
               "targetY": 1,
               "targetX": 2,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11060,
                 "bytes": [
@@ -176797,8 +176681,6 @@
               "targetY": 23,
               "targetX": 7,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11204,
                 "bytes": [
@@ -176860,8 +176742,6 @@
               "targetY": 14,
               "targetX": 8,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11188,
                 "bytes": [
@@ -180430,8 +180310,6 @@
               "targetY": 6,
               "targetX": 15,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11236,
                 "bytes": [
@@ -180602,8 +180480,6 @@
               "targetY": 17,
               "targetX": 10,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11228,
                 "bytes": [
@@ -184909,8 +184785,6 @@
               "targetY": 30,
               "targetX": 14,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11028,
                 "bytes": [
@@ -186609,8 +186483,6 @@
               "targetY": 6,
               "targetX": 15,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 10692,
                 "bytes": [
@@ -191847,8 +191719,6 @@
               "targetY": 5,
               "targetX": 24,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11252,
                 "bytes": [
@@ -200521,8 +200391,6 @@
               "targetY": 17,
               "targetX": 0,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14540,
                 "bytes": [
@@ -202252,8 +202120,6 @@
               "targetY": 9,
               "targetX": 4,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13532,
                 "bytes": [
@@ -204212,8 +204078,6 @@
               "targetY": 25,
               "targetX": 8,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14572,
                 "bytes": [
@@ -207432,8 +207296,6 @@
               "targetY": 5,
               "targetX": 14,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13700,
                 "bytes": [
@@ -207556,8 +207418,6 @@
               "targetY": 9,
               "targetX": 13,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13740,
                 "bytes": [
@@ -207619,8 +207479,6 @@
               "targetY": 8,
               "targetX": 14,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13732,
                 "bytes": [
@@ -207682,8 +207540,6 @@
               "targetY": 6,
               "targetX": 13,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13724,
                 "bytes": [
@@ -207766,8 +207622,6 @@
               "targetY": 7,
               "targetX": 13,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13716,
                 "bytes": [
@@ -208643,8 +208497,6 @@
               "targetY": 11,
               "targetX": 22,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13052,
                 "bytes": [
@@ -208787,8 +208639,6 @@
               "targetY": 5,
               "targetX": 15,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13684,
                 "bytes": [
@@ -208871,8 +208721,6 @@
               "targetY": 6,
               "targetX": 13,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13708,
                 "bytes": [
@@ -208934,8 +208782,6 @@
               "targetY": 5,
               "targetX": 14,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13692,
                 "bytes": [
@@ -209018,8 +208864,6 @@
               "targetY": 7,
               "targetX": 13,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13748,
                 "bytes": [
@@ -209122,8 +208966,6 @@
               "targetY": 9,
               "targetX": 13,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13276,
                 "bytes": [
@@ -209185,8 +209027,6 @@
               "targetY": 8,
               "targetX": 14,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13268,
                 "bytes": [
@@ -209788,8 +209628,6 @@
               "targetY": 5,
               "targetX": 13,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13676,
                 "bytes": [
@@ -209851,8 +209689,6 @@
               "targetY": 5,
               "targetX": 14,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13348,
                 "bytes": [
@@ -209935,8 +209771,6 @@
               "targetY": 6,
               "targetX": 14,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13332,
                 "bytes": [
@@ -209998,8 +209832,6 @@
               "targetY": 5,
               "targetX": 15,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13324,
                 "bytes": [
@@ -210082,8 +209914,6 @@
               "targetY": 5,
               "targetX": 12,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13252,
                 "bytes": [
@@ -210145,8 +209975,6 @@
               "targetY": 8,
               "targetX": 15,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13180,
                 "bytes": [
@@ -210208,8 +210036,6 @@
               "targetY": 7,
               "targetX": 14,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13172,
                 "bytes": [
@@ -210271,8 +210097,6 @@
               "targetY": 7,
               "targetX": 16,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13164,
                 "bytes": [
@@ -210334,8 +210158,6 @@
               "targetY": 6,
               "targetX": 15,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13156,
                 "bytes": [
@@ -210418,8 +210240,6 @@
               "targetY": 9,
               "targetX": 15,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13188,
                 "bytes": [
@@ -210502,8 +210322,6 @@
               "targetY": 9,
               "targetX": 16,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13068,
                 "bytes": [
@@ -210565,8 +210383,6 @@
               "targetY": 9,
               "targetX": 14,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13060,
                 "bytes": [
@@ -210647,8 +210463,6 @@
               "targetY": 9,
               "targetX": 14,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13044,
                 "bytes": [
@@ -210710,8 +210524,6 @@
               "targetY": 9,
               "targetX": 16,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13036,
                 "bytes": [
@@ -210773,8 +210585,6 @@
               "targetY": 8,
               "targetX": 15,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13028,
                 "bytes": [
@@ -210836,8 +210646,6 @@
               "targetY": 9,
               "targetX": 15,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13020,
                 "bytes": [
@@ -210976,8 +210784,6 @@
               "targetY": 5,
               "targetX": 13,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14372,
                 "bytes": [
@@ -211643,8 +211449,6 @@
               "targetY": 5,
               "targetX": 17,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13340,
                 "bytes": [
@@ -211727,8 +211531,6 @@
               "targetY": 6,
               "targetX": 15,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13316,
                 "bytes": [
@@ -211790,8 +211592,6 @@
               "targetY": 7,
               "targetX": 16,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13308,
                 "bytes": [
@@ -211853,8 +211653,6 @@
               "targetY": 6,
               "targetX": 17,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13300,
                 "bytes": [
@@ -211957,8 +211755,6 @@
               "targetY": 7,
               "targetX": 16,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13196,
                 "bytes": [
@@ -212020,8 +211816,6 @@
               "targetY": 7,
               "targetX": 17,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13140,
                 "bytes": [
@@ -212083,8 +211877,6 @@
               "targetY": 9,
               "targetX": 16,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13132,
                 "bytes": [
@@ -212167,8 +211959,6 @@
               "targetY": 9,
               "targetX": 17,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13092,
                 "bytes": [
@@ -212230,8 +212020,6 @@
               "targetY": 8,
               "targetX": 16,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13084,
                 "bytes": [
@@ -212293,8 +212081,6 @@
               "targetY": 9,
               "targetX": 15,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13076,
                 "bytes": [
@@ -212965,8 +212751,6 @@
               "targetY": 5,
               "targetX": 15,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13940,
                 "bytes": [
@@ -213049,8 +212833,6 @@
               "targetY": 7,
               "targetX": 17,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13292,
                 "bytes": [
@@ -213133,8 +212915,6 @@
               "targetY": 6,
               "targetX": 17,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13284,
                 "bytes": [
@@ -213196,8 +212976,6 @@
               "targetY": 5,
               "targetX": 17,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13148,
                 "bytes": [
@@ -213280,8 +213058,6 @@
               "targetY": 9,
               "targetX": 17,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13124,
                 "bytes": [
@@ -213343,8 +213119,6 @@
               "targetY": 7,
               "targetX": 17,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13116,
                 "bytes": [
@@ -213427,8 +213201,6 @@
               "targetY": 8,
               "targetX": 16,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13108,
                 "bytes": [
@@ -213490,8 +213262,6 @@
               "targetY": 8,
               "targetX": 17,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13100,
                 "bytes": [
@@ -226259,8 +226029,6 @@
               "targetY": 19,
               "targetX": 0,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14356,
                 "bytes": [
@@ -228170,8 +227938,6 @@
               "targetY": 22,
               "targetX": 5,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 15644,
                 "bytes": [
@@ -229878,8 +229644,6 @@
               "targetY": 18,
               "targetX": 5,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 15652,
                 "bytes": [
@@ -231277,8 +231041,6 @@
               "targetY": 25,
               "targetX": 8,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14644,
                 "bytes": [
@@ -231377,8 +231139,6 @@
               "targetY": 27,
               "targetX": 11,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14708,
                 "bytes": [
@@ -231440,8 +231200,6 @@
               "targetY": 28,
               "targetX": 10,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14692,
                 "bytes": [
@@ -233057,8 +232815,6 @@
               "targetY": 23,
               "targetX": 13,
               "targetDir": "North",
-              "requiredObjectType": 134,
-              "requiredObjectName": "Mirror Of Dawn",
               "raw": {
                 "offset": 11300,
                 "bytes": [
@@ -233232,8 +232988,6 @@
               "targetY": 23,
               "targetX": 13,
               "targetDir": "West",
-              "requiredObjectType": 129,
-              "requiredObjectName": "Blue Gem",
               "raw": {
                 "offset": 11284,
                 "bytes": [
@@ -233335,8 +233089,6 @@
               "targetY": 25,
               "targetX": 8,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14660,
                 "bytes": [
@@ -235881,8 +235633,6 @@
               "targetY": 28,
               "targetX": 7,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14668,
                 "bytes": [
@@ -236463,8 +236213,6 @@
               "targetY": 23,
               "targetX": 13,
               "targetDir": "East",
-              "requiredObjectType": 127,
-              "requiredObjectName": "Gold Coin",
               "raw": {
                 "offset": 11308,
                 "bytes": [
@@ -236638,8 +236386,6 @@
               "targetY": 23,
               "targetX": 13,
               "targetDir": "South",
-              "requiredObjectType": 49,
-              "requiredObjectName": "BOW",
               "raw": {
                 "offset": 11292,
                 "bytes": [
@@ -239134,8 +238880,6 @@
               "targetY": 28,
               "targetX": 13,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11716,
                 "bytes": [
@@ -240202,8 +239946,6 @@
               "targetY": 28,
               "targetX": 13,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12780,
                 "bytes": [
@@ -240265,8 +240007,6 @@
               "targetY": 27,
               "targetX": 15,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11700,
                 "bytes": [
@@ -242690,8 +242430,6 @@
               "targetY": 8,
               "targetX": 24,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13388,
                 "bytes": [
@@ -246801,8 +246539,6 @@
               "targetY": 5,
               "targetX": 19,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13396,
                 "bytes": [
@@ -246864,8 +246600,6 @@
               "targetY": 8,
               "targetX": 24,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13380,
                 "bytes": [
@@ -249054,8 +248788,6 @@
               "targetY": 17,
               "targetX": 29,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11732,
                 "bytes": [
@@ -249211,8 +248943,6 @@
               "targetY": 23,
               "targetX": 23,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11764,
                 "bytes": [
@@ -249934,8 +249664,6 @@
               "targetY": 18,
               "targetX": 25,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11756,
                 "bytes": [
@@ -250321,8 +250049,6 @@
               "targetY": 19,
               "targetX": 0,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14364,
                 "bytes": [
@@ -266213,8 +265939,6 @@
               "targetY": 15,
               "targetX": 13,
               "targetDir": "North",
-              "requiredObjectType": 27,
-              "requiredObjectName": "THE FIRESTAFF",
               "raw": {
                 "offset": 15532,
                 "bytes": [
@@ -266276,8 +266000,6 @@
               "targetY": 15,
               "targetX": 15,
               "targetDir": "North",
-              "requiredObjectType": 27,
-              "requiredObjectName": "THE FIRESTAFF",
               "raw": {
                 "offset": 15524,
                 "bytes": [
@@ -266339,8 +266061,6 @@
               "targetY": 17,
               "targetX": 14,
               "targetDir": "North",
-              "requiredObjectType": 27,
-              "requiredObjectName": "THE FIRESTAFF",
               "raw": {
                 "offset": 15516,
                 "bytes": [
@@ -266402,8 +266122,6 @@
               "targetY": 17,
               "targetX": 16,
               "targetDir": "North",
-              "requiredObjectType": 27,
-              "requiredObjectName": "THE FIRESTAFF",
               "raw": {
                 "offset": 15508,
                 "bytes": [
@@ -266465,8 +266183,6 @@
               "targetY": 17,
               "targetX": 12,
               "targetDir": "North",
-              "requiredObjectType": 27,
-              "requiredObjectName": "THE FIRESTAFF",
               "raw": {
                 "offset": 14988,
                 "bytes": [
@@ -281548,8 +281264,6 @@
               "targetY": 19,
               "targetX": 2,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12108,
                 "bytes": [
@@ -283767,8 +283481,6 @@
               "targetY": 29,
               "targetX": 5,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12004,
                 "bytes": [
@@ -289626,8 +289338,6 @@
               "targetY": 15,
               "targetX": 10,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12028,
                 "bytes": [
@@ -290385,8 +290095,6 @@
               "targetY": 12,
               "targetX": 13,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12036,
                 "bytes": [
@@ -290632,8 +290340,6 @@
               "targetY": 15,
               "targetX": 13,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12188,
                 "bytes": [
@@ -291449,8 +291155,6 @@
               "targetY": 8,
               "targetX": 17,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12140,
                 "bytes": [
@@ -291531,8 +291235,6 @@
               "targetY": 6,
               "targetX": 12,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12132,
                 "bytes": [
@@ -291594,8 +291296,6 @@
               "targetY": 9,
               "targetX": 3,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12100,
                 "bytes": [
@@ -291657,8 +291357,6 @@
               "targetY": 20,
               "targetX": 13,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12044,
                 "bytes": [
@@ -291739,8 +291437,6 @@
               "targetY": 15,
               "targetX": 13,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13948,
                 "bytes": [
@@ -292064,8 +291760,6 @@
               "targetY": 20,
               "targetX": 24,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14324,
                 "bytes": [
@@ -292404,8 +292098,6 @@
               "targetY": 8,
               "targetX": 17,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12164,
                 "bytes": [
@@ -292597,8 +292289,6 @@
               "targetY": 20,
               "targetX": 24,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12148,
                 "bytes": [
@@ -294181,8 +293871,6 @@
               "targetY": 13,
               "targetX": 17,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12052,
                 "bytes": [
@@ -294564,8 +294252,6 @@
               "targetY": 24,
               "targetX": 18,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12060,
                 "bytes": [
@@ -295857,8 +295543,6 @@
               "targetY": 17,
               "targetX": 21,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12068,
                 "bytes": [
@@ -296622,8 +296306,6 @@
               "targetY": 20,
               "targetX": 24,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12156,
                 "bytes": [
@@ -299620,8 +299302,6 @@
               "targetY": 29,
               "targetX": 5,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12084,
                 "bytes": [
@@ -312101,8 +311781,6 @@
               "targetY": 27,
               "targetX": 9,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14316,
                 "bytes": [
@@ -323801,8 +323479,6 @@
               "targetY": 15,
               "targetX": 22,
               "targetDir": "North",
-              "requiredObjectType": 138,
-              "requiredObjectName": "Corbamite",
               "raw": {
                 "offset": 12460,
                 "bytes": [
@@ -325434,8 +325110,6 @@
               "targetY": 0,
               "targetX": 23,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14076,
                 "bytes": [
@@ -332147,8 +331821,6 @@
               "targetY": 24,
               "targetX": 1,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14044,
                 "bytes": [
@@ -332210,8 +331882,6 @@
               "targetY": 29,
               "targetX": 1,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14036,
                 "bytes": [
@@ -336474,8 +336144,6 @@
               "targetY": 31,
               "targetX": 2,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13828,
                 "bytes": [
@@ -339124,8 +338792,6 @@
               "targetY": 29,
               "targetX": 16,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13844,
                 "bytes": [
@@ -342436,8 +342102,6 @@
               "targetY": 15,
               "targetX": 27,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13996,
                 "bytes": [
@@ -342669,8 +342333,6 @@
               "targetY": 12,
               "targetX": 5,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14396,
                 "bytes": [
@@ -346048,8 +345710,6 @@
               "targetY": 11,
               "targetX": 18,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12548,
                 "bytes": [
@@ -346264,8 +345924,6 @@
               "targetY": 13,
               "targetX": 18,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12540,
                 "bytes": [
@@ -350833,8 +350491,6 @@
               "targetY": 14,
               "targetX": 23,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12652,
                 "bytes": [
@@ -352514,8 +352170,6 @@
               "targetY": 7,
               "targetX": 21,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13980,
                 "bytes": [
@@ -358252,8 +357906,6 @@
               "targetY": 0,
               "targetX": 0,
               "targetDir": "North",
-              "requiredObjectType": 2,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11380,
                 "bytes": [
@@ -358315,8 +357967,6 @@
               "targetY": 0,
               "targetX": 0,
               "targetDir": "North",
-              "requiredObjectType": 2,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11324,
                 "bytes": [
@@ -358920,8 +358570,6 @@
               "targetY": 8,
               "targetX": 0,
               "targetDir": "North",
-              "requiredObjectType": 1,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11868,
                 "bytes": [
@@ -358983,8 +358631,6 @@
               "targetY": 8,
               "targetX": 0,
               "targetDir": "North",
-              "requiredObjectType": 1,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11876,
                 "bytes": [
@@ -359273,8 +358919,6 @@
               "targetY": 12,
               "targetX": 2,
               "targetDir": "North",
-              "requiredObjectType": 39,
-              "requiredObjectName": "DIAMOND EDGE",
               "raw": {
                 "offset": 14724,
                 "bytes": [
@@ -360016,8 +359660,6 @@
               "targetY": 29,
               "targetX": 17,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14092,
                 "bytes": [
@@ -367612,8 +367254,6 @@
               "targetY": 9,
               "targetX": 8,
               "targetDir": "North",
-              "requiredObjectType": 4,
-              "requiredObjectName": "TORCH",
               "raw": {
                 "offset": 11924,
                 "bytes": [
@@ -367675,8 +367315,6 @@
               "targetY": 9,
               "targetX": 8,
               "targetDir": "North",
-              "requiredObjectType": 4,
-              "requiredObjectName": "TORCH",
               "raw": {
                 "offset": 11932,
                 "bytes": [
@@ -368358,8 +367996,6 @@
               "targetY": 1,
               "targetX": 9,
               "targetDir": "North",
-              "requiredObjectType": 3,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11948,
                 "bytes": [
@@ -368421,8 +368057,6 @@
               "targetY": 1,
               "targetX": 9,
               "targetDir": "North",
-              "requiredObjectType": 3,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11956,
                 "bytes": [
@@ -368699,8 +368333,6 @@
               "targetY": 4,
               "targetX": 5,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11972,
                 "bytes": [
@@ -368883,8 +368515,6 @@
               "targetY": 16,
               "targetX": 3,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14188,
                 "bytes": [
@@ -369203,8 +368833,6 @@
               "targetY": 16,
               "targetX": 3,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14196,
                 "bytes": [
@@ -370059,8 +369687,6 @@
               "targetY": 22,
               "targetX": 6,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14220,
                 "bytes": [
@@ -370162,8 +369788,6 @@
               "targetY": 25,
               "targetX": 11,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12412,
                 "bytes": [
@@ -370962,8 +370586,6 @@
               "targetY": 23,
               "targetX": 12,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12420,
                 "bytes": [
@@ -375334,8 +374956,6 @@
               "targetY": 21,
               "targetX": 17,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12428,
                 "bytes": [
@@ -376218,8 +375838,6 @@
               "targetY": 3,
               "targetX": 29,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14172,
                 "bytes": [
@@ -376281,8 +375899,6 @@
               "targetY": 20,
               "targetX": 25,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14164,
                 "bytes": [
@@ -377075,8 +376691,6 @@
               "targetY": 22,
               "targetX": 6,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14212,
                 "bytes": [
@@ -378333,8 +377947,6 @@
               "targetY": 22,
               "targetX": 20,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 15500,
                 "bytes": [
@@ -378396,8 +378008,6 @@
               "targetY": 20,
               "targetX": 22,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 15436,
                 "bytes": [
@@ -379314,8 +378924,6 @@
               "targetY": 23,
               "targetX": 21,
               "targetDir": "North",
-              "requiredObjectType": 193,
-              "requiredObjectName": "MAGNIFIER",
               "raw": {
                 "offset": 11348,
                 "bytes": [
@@ -380067,8 +379675,6 @@
               "targetY": 20,
               "targetX": 22,
               "targetDir": "North",
-              "requiredObjectType": 189,
-              "requiredObjectName": "Ruby Key",
               "raw": {
                 "offset": 15372,
                 "bytes": [
@@ -380796,8 +380402,6 @@
               "targetY": 3,
               "targetX": 24,
               "targetDir": "North",
-              "requiredObjectType": 4,
-              "requiredObjectName": "TORCH",
               "raw": {
                 "offset": 11332,
                 "bytes": [
@@ -381108,8 +380712,6 @@
               "targetY": 20,
               "targetX": 25,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14156,
                 "bytes": [
@@ -381171,8 +380773,6 @@
               "targetY": 3,
               "targetX": 29,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14148,
                 "bytes": [
@@ -394717,8 +394317,6 @@
               "targetY": 1,
               "targetX": 16,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14108,
                 "bytes": [
@@ -397903,8 +397501,6 @@
               "targetY": 29,
               "targetX": 10,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12836,
                 "bytes": [
@@ -397966,8 +397562,6 @@
               "targetY": 28,
               "targetX": 10,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12828,
                 "bytes": [
@@ -398029,8 +397623,6 @@
               "targetY": 27,
               "targetX": 10,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12820,
                 "bytes": [
@@ -398092,8 +397684,6 @@
               "targetY": 26,
               "targetX": 10,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12812,
                 "bytes": [
@@ -398507,8 +398097,6 @@
               "targetY": 9,
               "targetX": 16,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12948,
                 "bytes": [
@@ -405584,8 +405172,6 @@
               "targetY": 6,
               "targetX": 15,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13964,
                 "bytes": [
@@ -407262,8 +406848,6 @@
               "targetY": 11,
               "targetX": 27,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 15596,
                 "bytes": [
@@ -407325,8 +406909,6 @@
               "targetY": 11,
               "targetX": 21,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 15588,
                 "bytes": [
@@ -407388,8 +406970,6 @@
               "targetY": 11,
               "targetX": 23,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 15564,
                 "bytes": [
@@ -407451,8 +407031,6 @@
               "targetY": 12,
               "targetX": 24,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 15364,
                 "bytes": [
@@ -407514,8 +407092,6 @@
               "targetY": 11,
               "targetX": 25,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11580,
                 "bytes": [
@@ -409238,8 +408814,6 @@
               "targetY": 7,
               "targetX": 27,
               "targetDir": "West",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13556,
                 "bytes": [
@@ -416190,8 +415764,6 @@
               "targetY": 18,
               "targetX": 2,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14124,
                 "bytes": [
@@ -418198,8 +417770,6 @@
               "targetY": 1,
               "targetX": 7,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14980,
                 "bytes": [
@@ -419847,8 +419417,6 @@
               "targetY": 12,
               "targetX": 13,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13884,
                 "bytes": [
@@ -419910,8 +419478,6 @@
               "targetY": 10,
               "targetX": 13,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13876,
                 "bytes": [
@@ -419973,8 +419539,6 @@
               "targetY": 12,
               "targetX": 12,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12996,
                 "bytes": [
@@ -420036,8 +419600,6 @@
               "targetY": 4,
               "targetX": 19,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12980,
                 "bytes": [
@@ -420099,8 +419661,6 @@
               "targetY": 10,
               "targetX": 14,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 12964,
                 "bytes": [
@@ -420729,8 +420289,6 @@
               "targetY": 10,
               "targetX": 14,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13892,
                 "bytes": [
@@ -421658,8 +421216,6 @@
               "targetY": 3,
               "targetX": 14,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13908,
                 "bytes": [
@@ -423882,8 +423438,6 @@
               "targetY": 9,
               "targetX": 20,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14276,
                 "bytes": [
@@ -423945,8 +423499,6 @@
               "targetY": 10,
               "targetX": 19,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14268,
                 "bytes": [
@@ -424008,8 +423560,6 @@
               "targetY": 11,
               "targetX": 18,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 14260,
                 "bytes": [
@@ -424126,8 +423676,6 @@
               "targetY": 16,
               "targetX": 18,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 13900,
                 "bytes": [
@@ -432813,8 +432361,6 @@
               "targetY": 5,
               "targetX": 22,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 15356,
                 "bytes": [
@@ -434721,8 +434267,6 @@
               "targetY": 5,
               "targetX": 22,
               "targetDir": "North",
-              "requiredObjectType": 0,
-              "requiredObjectName": "COMPASS",
               "raw": {
                 "offset": 11796,
                 "bytes": [

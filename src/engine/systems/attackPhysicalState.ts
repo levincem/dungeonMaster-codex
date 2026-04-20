@@ -83,19 +83,20 @@ export function buildPhysicalProjectileAttackPatch(
     state: PhysicalAttackState,
     champion: Champion,
     equip: ChampionEquipment,
-    rightHand: FloorItem | null | undefined,
+    attackItem: FloorItem | null | undefined,
+    attackItemSlot: EquipSlotKey | null,
     currentStamina: number | undefined,
     newCombat: ChampionCombat,
     deps: PhysicalAttackDeps,
 ) {
-    if (deps.isThrowAttack(action) && rightHand) {
-        const descriptor = deps.getOriginalWeaponReference(rightHand);
+    if (deps.isThrowAttack(action) && attackItem && attackItemSlot) {
+        const descriptor = deps.getOriginalWeaponReference(attackItem);
         const projectile = buildThrownAttackProjectile(
             {
                 champion,
                 equip,
                 currentStamina,
-                item: rightHand,
+                item: attackItem,
                 descriptor,
                 fighterMastery: deps.getFighterMastery(),
                 ninjaMastery: deps.getNinjaMastery(),
@@ -118,7 +119,7 @@ export function buildPhysicalProjectileAttackPatch(
             newCombat,
             championVitals: state.championVitals,
             championEquipment: state.championEquipment,
-            nextEquip: { ...equip, rightHand: undefined },
+            nextEquip: { ...equip, [attackItemSlot]: undefined },
             attackXpPatch: deps.buildAttackXpPatch(),
             projectiles: state.projectiles,
             projectile,
@@ -131,14 +132,14 @@ export function buildPhysicalProjectileAttackPatch(
         return null;
     }
 
-    const ammo = deps.findAmmo(equip, rightHand);
+    const ammo = deps.findAmmo(equip, attackItem);
     if (!ammo) {
         return buildMissingAmmoAttackPatch(deps.buildAttackResultMessage);
     }
 
     const projectile = buildShotAttackProjectile(
         {
-            launcher: deps.getOriginalWeaponReference(rightHand ?? undefined),
+            launcher: deps.getOriginalWeaponReference(attackItem ?? undefined),
             ammoDescriptor: deps.getOriginalWeaponReference(ammo.item),
             ammoItem: ammo.item,
             mastery: deps.getNinjaMastery(),

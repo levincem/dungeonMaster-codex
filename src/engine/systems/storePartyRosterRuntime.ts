@@ -125,16 +125,25 @@ export function buildRemoveFromPartyPatch<TState extends RemoveFromPartyStateLik
     const [y, x] = state.position;
     const inventory = state.championInventories[championId] ?? [];
     const equipment = state.championEquipment[championId] ?? {};
-    const dropped: FloorItem[] = [
+    const carriedItems = [
         ...inventory,
         ...(Object.values(equipment).filter(Boolean) as FloorItem[]),
+    ];
+    const inHallOfChampions = state.level === 0;
+    const dropped: FloorItem[] = [
+        ...carriedItems,
     ].map((item) => ({ ...item, mapIndex: state.level, x, y, tilePos: 'North' }));
 
     return {
         party: newParty,
         gateOpen: false,
-        floorItems: [...state.floorItems, ...dropped],
-        championInventories: { ...state.championInventories, [championId]: [] },
+        floorItems: inHallOfChampions
+            ? state.floorItems
+            : [...state.floorItems, ...dropped],
+        championInventories: {
+            ...state.championInventories,
+            [championId]: inHallOfChampions ? carriedItems : [],
+        },
         championEquipment: { ...state.championEquipment, [championId]: {} },
     };
 }

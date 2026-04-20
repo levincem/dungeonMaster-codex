@@ -267,11 +267,11 @@ test('buildSupportedUtilityAttackPatch converts climb-down errors into attack re
         createState({ creatures: [] }),
         createBasePatch(),
         createDeps({
-            resolveClimbDown: () => ({ errorMessage: 'Impossible de descendre ici.' }),
+            resolveClimbDown: () => ({ errorMessage: 'Cannot climb down here.' }),
         }),
     );
 
-    assert.equal(patch?.lastCastResult.message, 'Impossible de descendre ici.');
+    assert.equal(patch?.lastCastResult.message, 'Cannot climb down here.');
     assert.equal(patch?.lastCastResult.success, false);
 });
 

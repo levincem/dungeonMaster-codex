@@ -184,7 +184,7 @@ test('buildAttackMeleeStatePatch applies the break-door result when no target is
             tryBreakFrontDoor: () => ({
                 openDoors: new Set(['0,2,4']),
                 brokenDoors: new Set(['0,2,4']),
-                message: { success: true, message: 'La porte cede.', ts: 1 },
+                message: { success: true, message: 'The door gives way.', ts: 1 },
             }),
             determineMeleeDamage: () => 0,
             getAttackSkill: () => 'fighter',
@@ -199,7 +199,7 @@ test('buildAttackMeleeStatePatch applies the break-door result when no target is
         openDoors?: Set<string>;
         brokenDoors?: Set<string>;
     };
-    assert.equal(doorPatch.lastCastResult?.message, 'La porte cede.');
+    assert.equal(doorPatch.lastCastResult?.message, 'The door gives way.');
     assert.deepEqual([...doorPatch.openDoors ?? []], ['0,2,4']);
     assert.deepEqual([...doorPatch.brokenDoors ?? []], ['0,2,4']);
 });

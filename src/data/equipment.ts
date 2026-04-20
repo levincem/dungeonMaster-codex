@@ -1,7 +1,8 @@
 import type { Champion } from '../types/champion';
-import { getArmorDef, getSourceItemAllowedSlotsMask, getWeaponAllowedSlotsMask, MISC_TYPES, STARTER_ARMOR_SLOT_BY_NAME, normalizeLookupName, WEAPON_TYPES } from './items';
+import { getArmorDef, getSourceItemAllowedSlotsMask, getWeaponAllowedSlotsMask, MISC_TYPES, WEAPON_TYPES } from './items';
 import type { ChampionEquipment, FloorItem } from '../types/game';
 import type { ArmorSlot, EquipSlotKey } from '../types/items';
+import type { WeaponAttackOption } from './weaponAttacks';
 
 export interface EquipmentStatBonuses {
     mana: number;
@@ -46,6 +47,8 @@ export const EMPTY_CHAMPION_WOUNDS: ChampionWounds = {
     legs: false,
     feet: false,
 };
+
+export const QUIVER_SLOT_KEYS: EquipSlotKey[] = ['quiver1', 'quiver2', 'quiver3', 'quiver4'];
 
 const ZERO_BONUSES: EquipmentStatBonuses = {
     mana: 0,
@@ -124,7 +127,7 @@ function mapExtractedWeaponSlots(typeId: number): EquipSlotKey[] {
 }
 
 function mapExtractedArmorSlots(item: FloorItem): EquipSlotKey[] {
-    const allowedMask = getSourceItemAllowedSlotsMask('Armor', item.typeId);
+    const allowedMask = getSourceItemAllowedSlotsMask('Armor', item.typeId, item.rawName);
     const def = getArmorDef(item.typeId, item.rawName);
     const slots: EquipSlotKey[] = [];
 
@@ -163,9 +166,6 @@ function mapExtractedConsumableSlots(category: 'Potion' | 'Scroll', typeId: numb
 
 function mapFallbackArmorSlots(item: FloorItem): EquipSlotKey[] {
     const def = getArmorDef(item.typeId, item.rawName);
-    const rawName = normalizeLookupName(item.rawName) ?? '';
-    const overriddenSlot = STARTER_ARMOR_SLOT_BY_NAME[rawName];
-    if (overriddenSlot) return mapArmorWearSlots(overriddenSlot);
     if (!def) return [];
     return mapArmorWearSlots(def.slot);
 }
@@ -181,6 +181,48 @@ function mapFallbackMiscSlots(item: FloorItem): EquipSlotKey[] {
     if (/rabbit/.test(name)) return ['pocket1', 'pocket2', 'rightHand', 'leftHand'];
     if (def?.key) return ['pocket1', 'pocket2', 'rightHand', 'leftHand'];
     return ['pocket1', 'pocket2', 'rightHand', 'leftHand'];
+}
+
+function mapStarterArmorSlots(item: FloorItem): EquipSlotKey[] {
+    const def = getArmorDef(item.typeId, item.rawName);
+    const slots: EquipSlotKey[] = [];
+    if (def) {
+        pushUniqueSlots(slots, ...mapArmorWearSlots(def.slot));
+    }
+
+    const allowedMask = getSourceItemAllowedSlotsMask('Armor', item.typeId, item.rawName);
+    if (allowedMask == null || allowedMask === 0) return slots;
+
+    addSourceWearSlots(slots, allowedMask);
+    if ((allowedMask & 512) !== 0) {
+        pushUniqueSlots(slots, 'rightHand', 'leftHand');
+    }
+    return slots;
+}
+
+function mapStarterMiscSlots(typeId: number): EquipSlotKey[] {
+    const allowedMask = getSourceItemAllowedSlotsMask('Misc', typeId);
+    if (allowedMask == null || allowedMask === 0) return ['pocket1', 'pocket2'];
+
+    const slots: EquipSlotKey[] = [];
+    addSourceWearSlots(slots, allowedMask);
+    addSourceStorageSlots(slots, allowedMask);
+    if (slots.length === 0) {
+        addHandCarrySlots(slots, allowedMask);
+    }
+    return slots;
+}
+
+function mapStarterConsumableSlots(category: 'Potion' | 'Scroll', typeId: number): EquipSlotKey[] {
+    const allowedMask = getSourceItemAllowedSlotsMask(category, typeId);
+    if (allowedMask == null || allowedMask === 0) return ['pocket1', 'pocket2'];
+
+    const slots: EquipSlotKey[] = [];
+    addSourceStorageSlots(slots, allowedMask);
+    if (slots.length === 0) {
+        addHandCarrySlots(slots, allowedMask);
+    }
+    return slots;
 }
 
 export function getItemWeight(item: FloorItem): number {
@@ -223,6 +265,56 @@ export function getEquippableSlots(item: FloorItem): EquipSlotKey[] {
         default:
             return [];
     }
+}
+
+export function getStarterAutoEquipSlots(item: FloorItem): EquipSlotKey[] {
+    switch (item.category) {
+        case 'Weapon': {
+            const extractedSlots = mapExtractedWeaponSlots(item.typeId);
+            if (extractedSlots.length > 0) return extractedSlots;
+
+            const def = WEAPON_TYPES[item.typeId];
+            if (def?.type === 'Ammo' || def?.thrown) return ['quiver1', 'quiver2', 'quiver3', 'quiver4'];
+            return ['rightHand', 'leftHand'];
+        }
+        case 'Armor': {
+            const starterSlots = mapStarterArmorSlots(item);
+            if (starterSlots.length > 0) return starterSlots;
+            return mapFallbackArmorSlots(item);
+        }
+        case 'Misc':
+            return mapStarterMiscSlots(item.typeId);
+        case 'Potion':
+            return mapStarterConsumableSlots('Potion', item.typeId);
+        case 'Scroll':
+            return mapStarterConsumableSlots('Scroll', item.typeId);
+        default:
+            return [];
+    }
+}
+
+export function getPreferredCombatItem(
+    equipment: ChampionEquipment | undefined,
+    deps: {
+        getWeaponAttackOptions: (item: FloorItem | undefined) => WeaponAttackOption[];
+        isThrowAttack: (option: WeaponAttackOption | null) => boolean;
+    },
+): { slot: EquipSlotKey; item: FloorItem } | null {
+    const rightHand = equipment?.rightHand;
+    if (rightHand) {
+        return { slot: 'rightHand', item: rightHand };
+    }
+
+    for (const slot of QUIVER_SLOT_KEYS) {
+        const item = equipment?.[slot];
+        if (!item) continue;
+        const attacks = deps.getWeaponAttackOptions(item);
+        if (attacks.some((attack) => deps.isThrowAttack(attack))) {
+            return { slot, item };
+        }
+    }
+
+    return null;
 }
 
 export function canEquipItemInSlot(item: FloorItem, slotKey: EquipSlotKey): boolean {

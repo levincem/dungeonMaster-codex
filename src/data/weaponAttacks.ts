@@ -214,7 +214,7 @@ function getItemAttackClassEntry(item: FloorItem | undefined): RawLegalAttackCla
         } : null;
     }
 
-    const attackClass = getSourceItemAttackClass(item.category, item.typeId);
+    const attackClass = getSourceItemAttackClass(item.category, item.typeId, item.rawName);
     if (!attackClass || attackClass <= 0) return null;
     return derived.legalAttacksByIndex.get(attackClass) ?? null;
 }

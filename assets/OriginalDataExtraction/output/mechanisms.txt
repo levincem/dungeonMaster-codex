@@ -7,12 +7,12 @@
     ( 1, 3)  Teleporter face:North  [Set]  🗝  requis: THE FIRESTAFF  → (1,3)  [USAGE UNIQUE]
     ( 1, 3)  Teleporter face:North  [Set]  🗝  requis: THE FIRESTAFF  → (1,2)  [USAGE UNIQUE]
     ( 1, 4)  Floor face:North  [Set]  🗝  requis: THE FIRESTAFF  → (1,4)  [USAGE UNIQUE]
-    ( 6, 9)  Floor face:North  [Set]  → (5,9)
-    ( 9, 1)  Teleporter face:North  [Hold]  → (9,1)
     ( 9, 1)  Teleporter face:North  [Set]  → (10,1)
 
   ── AUTRES MÉCANISMES ──
     ( 3,14)  Wall face:East   [Set]  📦 objet: TORCH
+    ( 6, 9)  Floor face:North  [Set]  → (5,9)
+    ( 9, 1)  Teleporter face:North  [Hold]  → (9,1)
     (10, 1)  Wall face:North  [Set]  → (9,0)
     (10, 1)  Wall face:North  [Set]  → (10,1)
 
@@ -53,29 +53,29 @@
     (23,19)  Wall face:West   [Toggle]  → (17,20)
 
   ── DALLES DE PRESSION ──
+    (14,14)  Floor face:North  [Clear]  → (13,15)
+    (23, 8)  Floor face:North  [Hold]  → (21,8)
+    (25, 1)  Floor face:North  [Hold]  → (27,0)
+    (25, 3)  Floor face:North  [Hold]  → (24,5)
+
+  ── AUTRES MÉCANISMES ──
     ( 2,15)  Floor face:North  [Set]  → (5,15)
     ( 3,15)  Floor face:North  [Clear]  → (5,15)
-    (14,14)  Floor face:North  [Clear]  → (13,15)
+    ( 5,29)  Wall face:East   [Set]  📦 objet: TORCH
     (15, 0)  Floor face:North  [Toggle]  → (18,1)
     (15, 1)  Floor face:North  [Toggle]  → (18,1)
     (15, 2)  Floor face:North  [Toggle]  → (18,1)
+    (15, 8)  Wall face:West   [Set]  📦 objet: TORCH
+    (15,13)  Wall face:East   [Set]  📦 objet: TORCH
     (16, 0)  Floor face:North  [Toggle]  → (19,1)
     (16, 1)  Floor face:North  [Toggle]  → (18,1)
     (16, 2)  Floor face:North  [Toggle]  → (19,1)
     (17, 0)  Floor face:North  [Toggle]  → (19,1)
     (17, 1)  Floor face:North  [Toggle]  → (19,1)
     (17, 2)  Floor face:North  [Toggle]  → (19,1)
-    (19,17)  Floor face:North  [Clear]  → (18,18)
-    (23, 8)  Floor face:North  [Hold]  → (21,8)
-    (25, 1)  Floor face:North  [Hold]  → (27,0)
-    (25, 3)  Floor face:North  [Hold]  → (24,5)
-    (27,27)  Floor face:North  [Clear]  → (29,27)
-
-  ── AUTRES MÉCANISMES ──
-    ( 5,29)  Wall face:East   [Set]  📦 objet: TORCH
-    (15, 8)  Wall face:West   [Set]  📦 objet: TORCH
-    (15,13)  Wall face:East   [Set]  📦 objet: TORCH
     (17,20)  Wall face:South  [Hold]  → (18,20)
+    (19,17)  Floor face:North  [Clear]  → (18,18)
+    (27,27)  Floor face:North  [Clear]  → (29,27)
     (30,26)  Wall face:North  [Set]  📦 objet: TORCH
 
 ══════════════════════════════════════════════════════════════════════
@@ -133,16 +133,16 @@
 
   ── DALLES DE PRESSION ──
     ( 4,16)  Floor face:North  [Clear]  → (6,16)
-    (10,28)  Floor face:North  [Clear]  → (4,27)  [USAGE UNIQUE]
     (14, 6)  Floor face:North  [Set]  → (11,7)
     (17, 4)  Floor face:North  [Clear]  → (16,5)
     (20,14)  Teleporter face:North  [Hold]  → (20,13)
-    (20,17)  Floor face:North  [Set]  → (24,28)
 
   ── AUTRES MÉCANISMES ──
     ( 4,27)  Wall face:North  [Toggle]  → (4,28)
     ( 4,27)  Wall face:North  [Clear]  → (4,27)
     (10,13)  Wall face:West   [Set]  → (9,13)
+    (10,28)  Floor face:North  [Clear]  → (4,27)  [USAGE UNIQUE]
+    (20,17)  Floor face:North  [Set]  → (24,28)
     (28,29)  Wall face:East   [Set]  📦 objet: TORCH
     (31,29)  Wall face:West   [Set]  📦 objet: TORCH
 
@@ -164,11 +164,6 @@
     (17,31)  Wall face:North  [Set]  → (17,30)
 
   ── DALLES DE PRESSION ──
-    ( 0,11)  Floor face:North  [Clear]  → (1,13)
-    ( 2,12)  Floor face:North  [Set]  → (0,17)
-    ( 2,20)  Floor face:North  [Set]  → (4,15)
-    ( 2,27)  Floor face:North  [Set]  → (4,23)
-    ( 4,14)  Floor face:North  [Clear]  → (1,13)
     ( 7, 5)  Floor face:North  [Set]  → (6,5)  [USAGE UNIQUE]
     ( 7, 5)  Floor face:North  [Set]  → (6,4)
     ( 7, 5)  Floor face:North  [Set]  → (6,7)
@@ -176,16 +171,21 @@
     ( 7, 5)  Floor face:North  [Set]  → (5,1)
     ( 7, 5)  Floor face:North  [Set]  → (3,1)
     ( 7, 5)  Floor face:North  [Set]  → (2,1)
+
+  ── AUTRES MÉCANISMES ──
+    ( 0,11)  Floor face:North  [Clear]  → (1,13)
+    ( 2,12)  Floor face:North  [Set]  → (0,17)
+    ( 2,20)  Floor face:North  [Set]  → (4,15)
+    ( 2,27)  Floor face:North  [Set]  → (4,23)
+    ( 4,14)  Floor face:North  [Clear]  → (1,13)
     ( 7,16)  Floor face:North  [Set]  → (7,23)
     ( 7,16)  Floor face:North  [Set]  → (8,14)
+    (10,30)  Wall face:North  [Set]  📦 objet: GOLD KEY  [USAGE UNIQUE]
     (12, 5)  Floor face:North  [Set]  → (15,6)
     (12,11)  Floor face:North  [Set]  → (10,17)
     (17,30)  Teleporter face:North  [Hold]  → (14,30)
     (20, 8)  Floor face:North  [Set]  → (15,6)
     (27, 2)  Floor face:North  [Set]  → (24,5)
-
-  ── AUTRES MÉCANISMES ──
-    (10,30)  Wall face:North  [Set]  📦 objet: GOLD KEY  [USAGE UNIQUE]
 
 ══════════════════════════════════════════════════════════════════════
   LEVEL 4  (map 4)
@@ -206,7 +206,7 @@
     (24,29)  Wall face:West   [Clear]  → (21,26)
     (26,25)  Wall face:West   [Toggle]  → (25,27)
 
-  ── DALLES DE PRESSION ──
+  ── AUTRES MÉCANISMES ──
     ( 5, 9)  Floor face:North  [Set]  → (0,17)
     ( 8,27)  Floor face:North  [Toggle]  → (8,25)
     (13, 5)  Pit face:North  [Clear]  → (14,5)
@@ -214,6 +214,7 @@
     (13, 8)  Pit face:North  [Set]  → (14,8)
     (13, 8)  Pit face:North  [Toggle]  → (13,6)
     (13, 9)  Pit face:North  [Toggle]  → (13,7)
+    (13,17)  Wall face:North  [Set]  📦 objet: TORCH
     (14, 1)  Floor face:North  [Set]  → (22,11)  [USAGE UNIQUE]
     (14, 5)  Pit face:North  [Clear]  → (15,5)
     (14, 6)  Pit face:North  [Set]  → (13,6)
@@ -256,9 +257,6 @@
     (17, 8)  Pit face:North  [Toggle]  → (17,7)
     (17, 9)  Pit face:North  [Toggle]  → (16,8)
     (17, 9)  Pit face:North  [Toggle]  → (17,8)
-
-  ── AUTRES MÉCANISMES ──
-    (13,17)  Wall face:North  [Set]  📦 objet: TORCH
     (22, 6)  Wall face:West   [Set]  📦 objet: TORCH
 
 ══════════════════════════════════════════════════════════════════════
@@ -311,45 +309,45 @@
     (30,27)  Wall face:West   [Set]  → (29,16)  [USAGE UNIQUE]
 
   ── DALLES DE PRESSION ──
-    ( 2, 8)  Floor face:North  [Set]  → (0,19)
-    ( 4,15)  Floor face:North  [Set]  → (5,22)
-    ( 6,15)  Floor face:North  [Set]  → (5,18)
     ( 7,25)  Floor face:North  [Clear]  → (8,25)
-    ( 7,27)  Floor face:North  [Set]  → (11,27)
-    ( 7,27)  Floor face:North  [Set]  → (10,28)
     ( 9,25)  Floor face:North  [Clear]  → (8,25)
     (10,10)  Floor face:North  [Set]  → (10,9)  [USAGE UNIQUE]
     (11,10)  Teleporter face:North  [Hold]  → (11,10)
-    (11,28)  Floor face:North  [Set]  → (7,28)
     (12,10)  Teleporter face:North  [Hold]  → (12,10)
     (13,10)  Teleporter face:North  [Hold]  → (13,10)
     (14,10)  Teleporter face:North  [Hold]  → (14,10)
-    (14,26)  Floor face:North  [Clear]  → (13,28)
     (15,10)  Teleporter face:North  [Hold]  → (15,10)
-    (15,26)  Floor face:North  [Set]  → (13,28)
-    (15,26)  Floor face:North  [Set]  → (15,27)
     (15,28)  Floor face:North  [Set]  → (13,28)
     (16,10)  Teleporter face:North  [Hold]  → (16,10)
     (17,10)  Teleporter face:North  [Hold]  → (17,10)
-    (18, 8)  Floor face:North  [Set]  → (24,8)  [USAGE UNIQUE]
-    (22, 8)  Floor face:North  [Clear]  → (19,5)  [USAGE UNIQUE]
-    (22, 8)  Floor face:North  [Clear]  → (24,8)  [USAGE UNIQUE]
-    (24,15)  Floor face:North  [Set]  → (29,17)
     (24,20)  Floor face:North  [Hold]  → (23,23)
-    (25,14)  Floor face:North  [Set]  → (25,18)
-    (25,27)  Floor face:North  [Set]  → (0,19)
 
   ── AUTRES MÉCANISMES ──
+    ( 2, 8)  Floor face:North  [Set]  → (0,19)
     ( 2,26)  Wall face:North  [Set]  📦 objet: TORCH
     ( 3,12)  Wall face:East   [Set]  📦 objet: TORCH
+    ( 4,15)  Floor face:North  [Set]  → (5,22)
+    ( 6,15)  Floor face:North  [Set]  → (5,18)
+    ( 7,27)  Floor face:North  [Set]  → (11,27)
+    ( 7,27)  Floor face:North  [Set]  → (10,28)
     (10, 2)  Wall face:West   [Set]  📦 objet: TORCH
+    (11,28)  Floor face:North  [Set]  → (7,28)
     (13,19)  Wall face:West   [Set]
     (13,23)  Wall face:West   [Clear]  → (13,19)
     (13,23)  Wall face:West   [Set]  → (13,20)
+    (14,26)  Floor face:North  [Clear]  → (13,28)
+    (15,26)  Floor face:North  [Set]  → (13,28)
+    (15,26)  Floor face:North  [Set]  → (15,27)
+    (18, 8)  Floor face:North  [Set]  → (24,8)  [USAGE UNIQUE]
     (19, 5)  Wall face:South  [Toggle]  → (21,6)
     (19, 5)  Wall face:North  [Toggle]  → (21,4)
     (19, 5)  Wall face:East   [Clear]  → (19,5)
     (21,24)  Wall face:West   [Set]  → (20,21)
+    (22, 8)  Floor face:North  [Clear]  → (19,5)  [USAGE UNIQUE]
+    (22, 8)  Floor face:North  [Clear]  → (24,8)  [USAGE UNIQUE]
+    (24,15)  Floor face:North  [Set]  → (29,17)
+    (25,14)  Floor face:North  [Set]  → (25,18)
+    (25,27)  Floor face:North  [Set]  → (0,19)
 
 ══════════════════════════════════════════════════════════════════════
   LEVEL 6  (map 6)
@@ -406,8 +404,10 @@
     (28,18)  Wall face:West   [Toggle]  → (29,19)
 
   ── DALLES DE PRESSION ──
-    ( 2,10)  Floor face:North  [Set]  → (2,19)
     ( 2,26)  Floor face:North  [Set]  → (2,2)
+
+  ── AUTRES MÉCANISMES ──
+    ( 2,10)  Floor face:North  [Set]  → (2,19)
     ( 4,30)  Floor face:North  [Set]  → (5,29)
     (12,15)  Floor face:North  [Toggle]  → (10,15)
     (13,14)  Floor face:North  [Toggle]  → (13,12)
@@ -446,7 +446,6 @@
     (24,26)  Wall face:East   [Set]  → (20,28)  [USAGE UNIQUE]
 
   ── DALLES DE PRESSION ──
-    ( 8,13)  Floor face:North  [Set]  → (9,27)
     ( 9, 7)  Pit face:North  [Set]  🗝  requis: GREEN GEM  → (9,8)  [USAGE UNIQUE]
     ( 9,11)  Floor face:North  [Set]  → (28,0)  [USAGE UNIQUE]
     (18, 3)  Floor face:North  [Set]  → (22,3)
@@ -455,6 +454,9 @@
     (19, 4)  Floor face:North  [Set]  → (22,4)
     (20, 3)  Floor face:North  [Set]  → (22,3)
     (20, 4)  Floor face:North  [Set]  → (22,4)
+
+  ── AUTRES MÉCANISMES ──
+    ( 8,13)  Floor face:North  [Set]  → (9,27)
     (25,14)  Floor face:North  [Set]  → (23,0)
 
 ══════════════════════════════════════════════════════════════════════
@@ -483,30 +485,30 @@
     (24,29)  Wall face:West   [Set]  → (18,26)  [USAGE UNIQUE]
 
   ── DALLES DE PRESSION ──
-    ( 1,31)  Floor face:North  [Clear]  → (1,24)
-    ( 1,31)  Floor face:North  [Clear]  → (1,29)
-    ( 6,23)  Floor face:North  [Set]  → (2,31)
-    ( 9,29)  Floor face:North  [Set]  → (16,29)
-    (14, 5)  Floor face:North  [Set]  → (27,15)
-    (14,12)  Floor face:North  [Set]  → (5,12)
-    (18,10)  Floor face:North  [Set]  → (18,11)  [USAGE UNIQUE]
-    (18,14)  Floor face:North  [Set]  → (18,13)  [USAGE UNIQUE]
     (22,14)  Teleporter face:North  [Hold]  → (22,14)
     (22,15)  Teleporter face:North  [Hold]  → (22,15)
     (22,16)  Teleporter face:North  [Hold]  → (22,16)
     (22,17)  Teleporter face:North  [Hold]  → (22,17)
     (22,18)  Teleporter face:North  [Hold]  → (22,18)
-    (23,14)  Teleporter face:North  [Hold]  → (23,14)
     (23,18)  Teleporter face:North  [Hold]  → (23,18)
     (24,14)  Teleporter face:North  [Hold]  → (24,14)
     (24,15)  Teleporter face:North  [Hold]  → (24,15)
     (24,16)  Teleporter face:North  [Hold]  → (24,16)
     (24,17)  Teleporter face:North  [Hold]  → (24,17)
     (24,18)  Teleporter face:North  [Hold]  → (24,18)
-    (24,27)  Floor face:North  [Set]  → (21,7)
 
   ── AUTRES MÉCANISMES ──
+    ( 1,31)  Floor face:North  [Clear]  → (1,24)
+    ( 1,31)  Floor face:North  [Clear]  → (1,29)
+    ( 6,23)  Floor face:North  [Set]  → (2,31)
+    ( 9,29)  Floor face:North  [Set]  → (16,29)
+    (14, 5)  Floor face:North  [Set]  → (27,15)
+    (14,12)  Floor face:North  [Set]  → (5,12)
     (16,17)  Wall face:East   [Set]  📦 objet: TORCH
+    (18,10)  Floor face:North  [Set]  → (18,11)  [USAGE UNIQUE]
+    (18,14)  Floor face:North  [Set]  → (18,13)  [USAGE UNIQUE]
+    (23,14)  Teleporter face:North  [Hold]  → (23,14)
+    (24,27)  Floor face:North  [Set]  → (21,7)
 
 ══════════════════════════════════════════════════════════════════════
   LEVEL 10  (map 10)
@@ -540,42 +542,24 @@
     (23, 3)  Wall face:East   [Set]  → (24,4)  [USAGE UNIQUE]
 
   ── DALLES DE PRESSION ──
+    ( 2,14)  Floor face:North  [Set]  🗝  requis: DIAMOND EDGE  → (2,12)  [USAGE UNIQUE]
+    ( 4,14)  Floor face:North  [Set]  🗝  requis: DIAMOND EDGE  → (2,12)  [USAGE UNIQUE]
+    ( 6,14)  Floor face:North  [Set]  🗝  requis: DIAMOND EDGE  → (2,12)  [USAGE UNIQUE]
+    ( 9, 9)  Floor face:North  [Set]  → (5,4)
+    (20,20)  Teleporter face:North  [Hold]  → (20,20)
+    (20,21)  Teleporter face:North  [Hold]  → (20,21)
+    (20,22)  Teleporter face:North  [Hold]  → (20,22)
+    (21,20)  Teleporter face:North  [Hold]  → (21,20)
+    (22,21)  Teleporter face:North  [Hold]  → (22,21)
+    (22,22)  Teleporter face:North  [Hold]  → (22,22)
+    (22,23)  Teleporter face:North  [Hold]  → (22,23)
+
+  ── AUTRES MÉCANISMES ──
     ( 0, 0)  Teleporter face:North  [Set]
     ( 0, 0)  Teleporter face:North  [Clear]
     ( 0, 8)  Teleporter face:North  [Clear]  → (0,8)
     ( 0, 8)  Teleporter face:North  [Set]  → (0,8)
     ( 1, 6)  Floor face:North  [Set]  → (17,29)
-    ( 2,14)  Floor face:North  [Set]  🗝  requis: DIAMOND EDGE  → (2,12)  [USAGE UNIQUE]
-    ( 4,14)  Floor face:North  [Set]  🗝  requis: DIAMOND EDGE  → (2,12)  [USAGE UNIQUE]
-    ( 6,14)  Floor face:North  [Set]  🗝  requis: DIAMOND EDGE  → (2,12)  [USAGE UNIQUE]
-    ( 8, 9)  Teleporter face:North  [Clear]  → (8,9)
-    ( 8, 9)  Teleporter face:North  [Set]  → (8,9)
-    ( 9, 1)  Teleporter face:North  [Clear]  → (9,1)
-    ( 9, 1)  Teleporter face:North  [Set]  → (9,1)
-    ( 9, 9)  Floor face:North  [Set]  → (5,4)
-    ( 9,15)  Floor face:North  [Set]  → (3,16)
-    ( 9,25)  Floor face:North  [Set]  → (3,16)
-    (10,23)  Floor face:North  [Set]  → (6,22)
-    (10,25)  Floor face:North  [Set]  → (11,25)  [USAGE UNIQUE]
-    (11,23)  Floor face:North  [Set]  → (12,23)  [USAGE UNIQUE]
-    (17,20)  Floor face:North  [Set]  → (17,21)  [USAGE UNIQUE]
-    (18,20)  Floor face:North  [Set]  → (29,3)
-    (18,20)  Floor face:North  [Set]  → (25,20)
-    (19,14)  Teleporter face:North  [Set]  → (6,22)
-    (20,20)  Teleporter face:North  [Hold]  → (20,20)
-    (20,21)  Teleporter face:North  [Hold]  → (20,21)
-    (20,22)  Teleporter face:North  [Hold]  → (20,22)
-    (20,23)  Floor face:North  [Set]  → (20,22)
-    (20,23)  Floor face:North  [Clear]  → (22,20)
-    (21,20)  Teleporter face:North  [Hold]  → (21,20)
-    (22,21)  Teleporter face:North  [Hold]  → (22,21)
-    (22,22)  Teleporter face:North  [Hold]  → (22,22)
-    (22,23)  Teleporter face:North  [Hold]  → (22,23)
-    (23, 1)  Floor face:North  [Set]  → (24,3)  [USAGE UNIQUE]
-    (23,10)  Floor face:North  [Set]  → (25,20)
-    (23,10)  Floor face:North  [Set]  → (29,3)
-
-  ── AUTRES MÉCANISMES ──
     ( 2,12)  Wall face:North  [Clear]  → (8,12)
     ( 2,12)  Wall face:North  [Set]  → (7,14)
     ( 2,12)  Wall face:North  [Set]  → (7,11)
@@ -590,6 +574,24 @@
     ( 2,12)  Wall face:North  [Set]  → (3,15)
     ( 2,12)  Wall face:North  [Set]  → (2,15)
     ( 2,12)  Wall face:North  [Set]  → (1,15)
+    ( 8, 9)  Teleporter face:North  [Clear]  → (8,9)
+    ( 8, 9)  Teleporter face:North  [Set]  → (8,9)
+    ( 9, 1)  Teleporter face:North  [Clear]  → (9,1)
+    ( 9, 1)  Teleporter face:North  [Set]  → (9,1)
+    ( 9,15)  Floor face:North  [Set]  → (3,16)
+    ( 9,25)  Floor face:North  [Set]  → (3,16)
+    (10,23)  Floor face:North  [Set]  → (6,22)
+    (10,25)  Floor face:North  [Set]  → (11,25)  [USAGE UNIQUE]
+    (11,23)  Floor face:North  [Set]  → (12,23)  [USAGE UNIQUE]
+    (17,20)  Floor face:North  [Set]  → (17,21)  [USAGE UNIQUE]
+    (18,20)  Floor face:North  [Set]  → (29,3)
+    (18,20)  Floor face:North  [Set]  → (25,20)
+    (19,14)  Teleporter face:North  [Set]  → (6,22)
+    (20,23)  Floor face:North  [Set]  → (20,22)
+    (20,23)  Floor face:North  [Clear]  → (22,20)
+    (23, 1)  Floor face:North  [Set]  → (24,3)  [USAGE UNIQUE]
+    (23,10)  Floor face:North  [Set]  → (25,20)
+    (23,10)  Floor face:North  [Set]  → (29,3)
 
 ══════════════════════════════════════════════════════════════════════
   LEVEL 11  (map 11)
@@ -615,21 +617,15 @@
     (23,21)  Wall face:East   [Set]  → (26,22)  [USAGE UNIQUE]
 
   ── DALLES DE PRESSION ──
+    (26, 7)  Floor face:North  [Clear]  → (27,7)
+
+  ── AUTRES MÉCANISMES ──
     ( 8, 7)  Floor face:North  [Set]  → (16,1)
     (12,25)  Floor face:North  [Toggle]  → (10,29)
     (12,25)  Floor face:North  [Toggle]  → (10,28)
     (12,25)  Floor face:North  [Toggle]  → (10,27)
     (12,25)  Floor face:North  [Toggle]  → (10,26)
     (13,12)  Floor face:North  [Set]  → (16,9)  [USAGE UNIQUE]
-    (22, 7)  Floor face:North  [Set]  → (15,6)
-    (24,11)  Floor face:North  [Set]  → (27,11)
-    (24,11)  Floor face:North  [Set]  → (21,11)
-    (24,11)  Floor face:North  [Set]  → (23,11)
-    (24,11)  Floor face:North  [Set]  → (24,12)
-    (24,11)  Floor face:North  [Set]  → (25,11)
-    (26, 7)  Floor face:North  [Clear]  → (27,7)
-
-  ── AUTRES MÉCANISMES ──
     (19,11)  Wall face:South  [Hold]  → (15,12)
     (19,11)  Wall face:South  [Hold]  → (16,12)
     (19,11)  Wall face:South  [Hold]  → (16,11)
@@ -638,6 +634,12 @@
     (19,11)  Wall face:North  [Toggle]  → (19,11)
     (19,11)  Wall face:North  [Toggle]  → (19,11)
     (19,11)  Wall face:North  [Toggle]  → (19,11)
+    (22, 7)  Floor face:North  [Set]  → (15,6)
+    (24,11)  Floor face:North  [Set]  → (27,11)
+    (24,11)  Floor face:North  [Set]  → (21,11)
+    (24,11)  Floor face:North  [Set]  → (23,11)
+    (24,11)  Floor face:North  [Set]  → (24,12)
+    (24,11)  Floor face:North  [Set]  → (25,11)
     (27, 7)  Wall face:West   [Set]  → (27,6)  [USAGE UNIQUE]
 
 ══════════════════════════════════════════════════════════════════════
@@ -652,9 +654,11 @@
     ( 7, 5)  Wall face:North  [Toggle]  → (6,4)
 
   ── DALLES DE PRESSION ──
-    ( 3,18)  Floor face:North  [Set]  → (2,18)
     ( 5, 9)  Floor face:North  [Clear]  → (3,9)  [USAGE UNIQUE]
     ( 5, 9)  Floor face:North  [Clear]  → (8,8)  [USAGE UNIQUE]
+
+  ── AUTRES MÉCANISMES ──
+    ( 3,18)  Floor face:North  [Set]  → (2,18)
     ( 8, 1)  Floor face:North  [Set]  → (7,1)
     (11,11)  Teleporter face:North  [Set]  → (13,12)
     (11,11)  Teleporter face:North  [Set]  → (13,10)
@@ -686,8 +690,8 @@
 
   ── DALLES DE PRESSION ──
     (21, 5)  Floor face:North  [Set]  → (22,5)
-    (24, 7)  Floor face:North  [Clear]  → (22,5)
     (24, 7)  Floor face:North  [Set]  🗝  requis: THE FIRESTAFF  → (23,1)  [USAGE UNIQUE]
 
   ── AUTRES MÉCANISMES ──
     (24, 3)  Wall face:South  [Set]  📦 objet: THE FIRESTAFF  [USAGE UNIQUE]
+    (24, 7)  Floor face:North  [Clear]  → (22,5)

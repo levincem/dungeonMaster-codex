@@ -541,8 +541,7 @@
           "onceOnly": false,
           "targetY": 19,
           "targetX": 0,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -1110,8 +1109,7 @@
           "onceOnly": false,
           "targetY": 22,
           "targetX": 5,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -1604,8 +1602,7 @@
           "onceOnly": false,
           "targetY": 18,
           "targetX": 5,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -1992,8 +1989,7 @@
           "onceOnly": false,
           "targetY": 25,
           "targetX": 8,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -2022,8 +2018,7 @@
           "onceOnly": false,
           "targetY": 27,
           "targetX": 11,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -2039,8 +2034,7 @@
           "onceOnly": false,
           "targetY": 28,
           "targetX": 10,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -2507,8 +2501,7 @@
           "onceOnly": false,
           "targetY": 23,
           "targetX": 13,
-          "targetDir": "North",
-          "requiredObjectName": "Mirror Of Dawn"
+          "targetDir": "North"
         }
       ]
     },
@@ -2561,8 +2554,7 @@
           "onceOnly": false,
           "targetY": 23,
           "targetX": 13,
-          "targetDir": "West",
-          "requiredObjectName": "Blue Gem"
+          "targetDir": "West"
         }
       ]
     },
@@ -2591,8 +2583,7 @@
           "onceOnly": false,
           "targetY": 25,
           "targetX": 8,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -3295,8 +3286,7 @@
           "onceOnly": false,
           "targetY": 28,
           "targetX": 7,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -3469,8 +3459,7 @@
           "onceOnly": false,
           "targetY": 23,
           "targetX": 13,
-          "targetDir": "East",
-          "requiredObjectName": "Gold Coin"
+          "targetDir": "East"
         }
       ]
     },
@@ -3523,8 +3512,7 @@
           "onceOnly": false,
           "targetY": 23,
           "targetX": 13,
-          "targetDir": "South",
-          "requiredObjectName": "BOW"
+          "targetDir": "South"
         }
       ]
     },
@@ -4222,8 +4210,7 @@
           "onceOnly": false,
           "targetY": 28,
           "targetX": 13,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -4541,8 +4528,7 @@
           "onceOnly": false,
           "targetY": 28,
           "targetX": 13,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -4558,8 +4544,7 @@
           "onceOnly": false,
           "targetY": 27,
           "targetX": 15,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -5262,8 +5247,7 @@
           "onceOnly": true,
           "targetY": 8,
           "targetX": 24,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -6435,8 +6419,7 @@
           "onceOnly": true,
           "targetY": 5,
           "targetX": 19,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         },
         {
           "category": "Sensor",
@@ -6452,8 +6435,7 @@
           "onceOnly": true,
           "targetY": 8,
           "targetX": 24,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -7084,8 +7066,7 @@
           "onceOnly": false,
           "targetY": 17,
           "targetX": 29,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -7132,8 +7113,7 @@
           "onceOnly": false,
           "targetY": 23,
           "targetX": 23,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -7350,8 +7330,7 @@
           "onceOnly": false,
           "targetY": 18,
           "targetX": 25,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -7465,8 +7444,7 @@
           "onceOnly": false,
           "targetY": 19,
           "targetX": 0,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },

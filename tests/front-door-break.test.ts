@@ -161,7 +161,7 @@ test('tryBreakFrontDoor returns a resisted message when the break power is insuf
         },
     );
 
-    assert.equal(result?.message.message, 'La porte resiste.');
+    assert.equal(result?.message.message, 'The door resists.');
     assert.equal(result?.message.success, false);
 });
 
@@ -187,6 +187,6 @@ test('tryBreakFrontDoor opens and marks a breakable door when the power threshol
 
     assert.deepEqual([...result?.openDoors ?? []], ['0,1,1', '0,2,4']);
     assert.deepEqual([...result?.brokenDoors ?? []], ['0,2,4']);
-    assert.equal(result?.message.message, 'La porte cede.');
+    assert.equal(result?.message.message, 'The door gives way.');
     assert.equal(result?.message.success, true);
 });

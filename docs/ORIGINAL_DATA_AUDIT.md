@@ -1,5 +1,11 @@
 # Original Data Audit
 
+Update `2026-04-20`:
+
+- `0696.RAW1` is now considered semantically bounded enough to classify as a post-Atari composition/layout container rather than a major unknown gameplay block
+- the detailed sections below remain useful as the supporting audit trail
+- the remaining open questions are mostly helper/opcode naming and broader gameplay-table integration, not "what is 0696"
+
 ## Goal
 
 This document summarizes what has already been recovered from the original Dungeon Master data files, what is only partially understood, and what still needs to be decoded to reach a near-complete original-data export.

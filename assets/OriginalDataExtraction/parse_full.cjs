@@ -721,7 +721,7 @@ for (let i = 0; i < NUM_TEXTS; i++) {
 }
 
 const sensors = [];
-const SENSOR_TYPES_WITH_OBJECT_REQUIREMENT = new Set([2, 3, 4, 8, 11, 12, 13, 16, 17]);
+const SENSOR_TYPES_WITH_NAMED_OBJECT_DATA = new Set([3, 4, 8, 11, 12, 13, 16, 17]);
 const SENSOR_TYPES_WITH_PROJECTILE_LAUNCH_ENERGY = new Set([7, 8, 9, 10, 14, 15]);
 for (let i = 0; i < NUM_SENSORS; i++) {
   const b = OFF_SENSORS + i * 8;
@@ -761,8 +761,8 @@ for (let i = 0; i < NUM_SENSORS; i++) {
     championGraphic: sType === 127 ? sData : undefined,
     kineticEnergy: SENSOR_TYPES_WITH_PROJECTILE_LAUNCH_ENERGY.has(sType) ? (multipleValue & 0xFF) : undefined,
     stepEnergy: SENSOR_TYPES_WITH_PROJECTILE_LAUNCH_ENERGY.has(sType) ? (multipleValue >> 8) : undefined,
-    requiredObjectType: SENSOR_TYPES_WITH_OBJECT_REQUIREMENT.has(sType) ? sData : undefined,
-    requiredObjectName: SENSOR_TYPES_WITH_OBJECT_REQUIREMENT.has(sType) ? resolveObjectTypeName(sData) : undefined,
+    requiredObjectType: SENSOR_TYPES_WITH_NAMED_OBJECT_DATA.has(sType) ? sData : undefined,
+    requiredObjectName: SENSOR_TYPES_WITH_NAMED_OBJECT_DATA.has(sType) ? resolveObjectTypeName(sData) : undefined,
     raw:        {
       offset: b,
       bytes: Array.from(data.subarray(b, b + 8)),
@@ -875,16 +875,16 @@ const WEAPON_NAMES = {
 
 const ARMOR_NAMES = {
   // Torso
-  0:'Cape', 1:'Cloak of Night', 2:'Elven Doublet', 3:'Leather Jerkin',
-  4:'Leather Boots', 5:'Robe of the Kite Lord', 6:'Robe', 7:'Fine Robe (Body)',
-  8:'Fine Robe (Legs)', 9:'Plate Mail', 10:'Tunic', 11:'Silk Shirt', 12:'Gunna',
+  0:'Cape', 1:'Cloak of Night', 2:'Barbarian Hide', 3:'Sandals',
+  4:'Leather Boots', 5:'Robe (Body)', 6:'Robe (Legs)', 7:'Fine Robe (Body)',
+  8:'Fine Robe (Legs)', 9:'Kirtle', 10:'Silk Shirt', 11:'Tabard', 12:'Gunna',
   // Legs
-  16:'Leather Jerkin', 17:'Leather Pants', 18:'Suede Boots', 19:'Chain Mail Aketon',
+  16:'Leather Jerkin', 17:'Leather Pants', 18:'Suede Boots', 19:'Blue Pants',
   // Leg armor
   13:'Elven Doublet', 14:'Elven Huke', 15:'Elven Boots', 20:'Tunic', 21:'Ghi',
   22:'Ghi Trousers', 23:'Calista', 24:'Crown Of Nerra', 25:'Bezerker Helm',
   // Head
-  26:'Helmet', 27:'Basinet', 28:'Buckler', 29:'Barbarian Hide',
+  26:'Helmet', 27:'Basinet', 28:'Buckler', 29:'Hide Shield',
   32:'Mail Aketon', 33:'Leg Mail', 34:'Mithral Aketon', 35:'Mithral Mail',
   36:"Casque'n Coif", 37:'Hosen', 38:'Armet', 39:'Torso Plate',
   // Neck / plate
@@ -894,8 +894,8 @@ const ARMOR_NAMES = {
   44:'Plate Of Lyte', 45:'Poleyn Of Lyte', 46:'Greave Of Lyte', 47:'Shield Of Lyte',
   48:'Helm Of Darc', 49:'Plate Of Darc',
   // Misc
-  50:'Poleyn Of Darc', 51:'Greave Of Darc', 52:'Shield Of Darc', 54:'Flamebain',
-  56:'Boots Of Speed', 57:'Halter',
+  50:'Poleyn Of Darc', 51:'Greave Of Darc', 52:'Shield Of Darc', 53:'Dexhelm',
+  54:'Flamebain', 55:'Powertowers', 56:'Boots Of Speed', 57:'Halter',
 };
 
 const POTION_NAMES = {
@@ -1212,6 +1212,10 @@ function enrichObjectWithGlobalCoords(map, tile, obj) {
   obj.globalY = tile.globalY;
 
   if (obj.category === 'Sensor') {
+    if (obj.type === 3 && tile.type !== 'Wall' && tile.type !== 'TrickWall') {
+      delete obj.requiredObjectType;
+      delete obj.requiredObjectName;
+    }
     obj.targetGlobalX = map.mapOffset.x + obj.targetX;
     obj.targetGlobalY = map.mapOffset.y + obj.targetY;
   } else if (obj.category === 'Teleporter') {

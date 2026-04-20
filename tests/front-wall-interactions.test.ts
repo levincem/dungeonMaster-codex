@@ -110,6 +110,6 @@ test('tryUseFloorItemOnFrontWall clears the drag state and adds the message when
         championInventories: { 1: [] },
         floorItems: [],
         activeFloorDrag: null,
-        lastCastResult: { message: 'Le Firestaff absorbe l energie de l Amalgam.' },
+        lastCastResult: { message: 'The Firestaff absorbs the energy of the Amalgam.' },
     });
 });

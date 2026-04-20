@@ -10,7 +10,9 @@ interface Props {
 }
 
 export const TitleScreen = ({ onEnter, onResume }: Props) => {
-    const text = useI18n().titleScreen;
+    const translations = useI18n();
+    const text = translations.titleScreen;
+    const loadingText = translations.loadingScreen;
     const appVersion = `v${APP_VERSION}`;
     const [saveStatus] = useState(() => getPersistedSaveStatus());
     const hasCompatibleSave = saveStatus.kind === 'ready';
@@ -301,7 +303,7 @@ export const TitleScreen = ({ onEnter, onResume }: Props) => {
             }}>
                 <img
                     src={miscPath('Dm_logo.png')}
-                    alt="Dungeon Master Remastered"
+                    alt={loadingText.logoAlt}
                     draggable={false}
                     style={{
                         width: showScene ? 'min(34vw, 520px)' : 'min(46vw, 700px)',

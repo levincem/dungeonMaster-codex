@@ -83,7 +83,7 @@ const WALL_SENSOR_LABELS: Record<number, string> = {
 const FLOOR_SENSOR_LABELS: Record<number, string> = {
     1: 'Dalle de pression (tout)',
     2: 'Dalle de pression (creature)',
-    3: 'Dalle de pression (groupe)',
+    3: 'Capteur de passage (party / orientation)',
     4: 'Dalle de pression (objet specifique)',
     5: 'Dalle d escalier',
     6: 'Generateur de groupe (sol)',
@@ -99,6 +99,16 @@ function getMechanismLabel(tileType: TileType, sensorType: number): string {
     return isWall
         ? (WALL_SENSOR_LABELS[sensorType] ?? `Type mural ${sensorType}`)
         : (FLOOR_SENSOR_LABELS[sensorType] ?? `Type sol ${sensorType}`);
+}
+
+export function describeFloorSensor(sensor: Pick<SensorObject, 'type' | 'data'>): string {
+    if (sensor.type !== 3) {
+        return FLOOR_SENSOR_LABELS[sensor.type] ?? `Type sol ${sensor.type}`;
+    }
+
+    return sensor.data === 0
+        ? 'Capteur de passage (party)'
+        : 'Capteur d orientation (party)';
 }
 
 function getMechanismTrigger(tileType: TileType, sensorType: number): MechanismTrigger {
@@ -131,6 +141,12 @@ function buildMechanismMap(map: RawMap): Mechanism[] {
             if (object.category !== 'Sensor') continue;
             if (object.type === 0 || object.type === 127) continue;
             const targetTile = map.tiles.find((entry) => entry.x === object.targetX && entry.y === object.targetY);
+            const isWall = tile.type === 'Wall' || tile.type === 'TrickWall';
+            const isNamedRequirement =
+                (isWall && (object.type === 3 || object.type === 4 || object.type === 11 || object.type === 17)) ||
+                (!isWall && (object.type === 4 || object.type === 8));
+            const isStoredObjectSensor =
+                isWall && (object.type === 12 || object.type === 13 || object.type === 16);
             mechanisms.push({
                 sensorIndex: object.index,
                 sensorType: object.type,
@@ -138,7 +154,9 @@ function buildMechanismMap(map: RawMap): Mechanism[] {
                 x: tile.x,
                 y: tile.y,
                 face: object.tilePos,
-                kind: getMechanismLabel(tile.type, object.type),
+                kind: isWall
+                    ? getMechanismLabel(tile.type, object.type)
+                    : describeFloorSensor(object),
                 support: tile.type,
                 action: object.action,
                 onceOnly: object.onceOnly,
@@ -147,8 +165,8 @@ function buildMechanismMap(map: RawMap): Mechanism[] {
                     ? { x: object.targetX, y: object.targetY }
                     : null,
                 targetTileType: targetTile?.type,
-                requires: object.requiredObjectName,
-                storedObject: object.type === 12 || object.type === 13 || object.type === 16
+                requires: isNamedRequirement ? object.requiredObjectName : undefined,
+                storedObject: isStoredObjectSensor
                     ? object.requiredObjectName
                     : undefined,
             });
@@ -187,7 +205,7 @@ export function isPartyPossessionSensor(sensor: SensorObject): boolean {
 }
 
 export function isSpecificObjectFloorSensor(sensor: SensorObject): boolean {
-    return sensor.type === 4 || (sensor.type === 3 && Boolean(getRequiredSensorItemName(sensor)));
+    return sensor.type === 4;
 }
 
 export function isCreatureOnlyFloorSensor(sensor: SensorObject): boolean {

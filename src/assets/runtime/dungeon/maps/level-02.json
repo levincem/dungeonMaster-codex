@@ -3245,8 +3245,7 @@
           "onceOnly": true,
           "targetY": 27,
           "targetX": 4,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },
@@ -5631,8 +5630,7 @@
           "onceOnly": false,
           "targetY": 28,
           "targetX": 24,
-          "targetDir": "North",
-          "requiredObjectName": "COMPASS"
+          "targetDir": "North"
         }
       ]
     },

@@ -190,6 +190,7 @@ test('resolveProjectileTraversalStep drops blocked physical projectiles on the s
         assert.equal(result.floorItems.length, 1);
         assert.equal(result.floorItems[0]?.x, 2);
         assert.equal(result.floorItems[0]?.y, 2);
+        assert.equal(result.floorItems[0]?.tilePos, 'West');
     }
 });
 
@@ -236,5 +237,6 @@ test('resolveProjectileTraversalStep treats metadata-less closed doors as solid 
         assert.equal(result.floorItems.length, 1);
         assert.equal(result.floorItems[0]?.x, 2);
         assert.equal(result.floorItems[0]?.y, 0);
+        assert.equal(result.floorItems[0]?.tilePos, 'East');
     }
 });

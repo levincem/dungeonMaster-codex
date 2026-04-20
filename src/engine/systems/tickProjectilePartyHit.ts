@@ -10,6 +10,7 @@ import type {
     Projectile,
     SpellVisualEvent,
 } from '../runtimeTypes';
+import { buildProjectileDroppedItem } from './projectileDroppedItem';
 
 type ProjectilePartyImpact = {
     damage: number;
@@ -137,6 +138,7 @@ type ProjectilePartyHitDeps = {
         currentGameTick: number,
         visualScale: number,
     ) => ActivePoisonCloud;
+    buildDroppedItem: (item: FloorItem, level: number, x: number, y: number) => FloorItem;
     getThrownExplosionVisualScale: (attack?: number) => number;
     gridSize: number;
 };
@@ -350,6 +352,20 @@ export function applyProjectilePartyHit(
                 kind: 'creature',
             },
         ];
+    }
+
+    if (projectile.effect === 'physical' && projectile.physicalItem && !projectile.explosionOnImpact) {
+        if (floorItems === state.floorItems) floorItems = [...floorItems];
+        floorItems.push(
+            buildProjectileDroppedItem(
+                projectile.physicalItem,
+                projectileLevel,
+                x,
+                y,
+                projectile.direction,
+                deps.buildDroppedItem,
+            ),
+        );
     }
 
     return {

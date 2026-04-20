@@ -27,7 +27,7 @@ import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import { getFloorItemImage } from '../../data/itemImages';
 import { miscPath, texturesPath } from '../../data/assetPaths';
 import { doorBlocksVision } from '../../data/doors';
-import { getDragPayload } from '../UI/dragPayload';
+import { getDragPayload, hasActiveDragPayload } from '../UI/dragPayload';
 import { useI18n } from '../../i18n';
 import { useLoadedTexture } from './useLoadedTexture';
 import {
@@ -35,10 +35,17 @@ import {
     buildDungeonSceneWallDecals,
     collectDungeonScenePressurePlates,
     collectDungeonScenePits,
+    collectDungeonSceneTeleporters,
     collectDungeonSceneTrickWalls,
     resolveAltarDropTargets,
     resolveFrontWallInteractionKind,
 } from './dungeonSceneDerivedState';
+import {
+    DUNGEON_DRAG_DROP_BANDS,
+    isPointerInsideDungeonViewport,
+    performDungeonDragDropAction,
+    resolveDungeonDragDropDestination,
+} from './dungeonDragDrop';
 import {
     WallTextPlanes as SceneWallTextPlanes,
 } from './WallTextLayer';
@@ -48,6 +55,7 @@ import {
     PoisonCloudLayer,
     ProjectileRenderer,
     ShieldAuraLayer,
+    TeleporterLayer,
 } from './DungeonProjectileLayers';
 import { MagicVisionLayer } from './DungeonMagicVisionLayer';
 import {
@@ -62,7 +70,19 @@ import { useTemporalFlag, useWallClock } from './useWallClock';
 const HALF = GRID_SIZE / 2;
 const BASE_FOG_NEAR = GRID_SIZE * 2;
 const BASE_FOG_FAR = GRID_SIZE * 7;
-const FLOOR_DROP_SCREEN_RATIO = 0.7;
+type RenderDebugState = {
+    wallTexts: boolean;
+    wallDecals: boolean;
+    wallButtons: boolean;
+};
+const RENDER_DEBUG_ENABLED = import.meta.env.DEV;
+
+const DEFAULT_RENDER_DEBUG_STATE: RenderDebugState = {
+    wallTexts: true,
+    wallDecals: true,
+    wallButtons: true,
+};
+
 const DUNGEON_AMBIENT_COLOR = new THREE.Color('#f4e2ba');
 const DUNGEON_DARK_AMBIENT_COLOR = new THREE.Color('#8ea0c0');
 const CAMERA_HEIGHT_OFFSET = 0;
@@ -611,6 +631,9 @@ const DungeonSceneDragOverlay: React.FC<{
         () => activeFloorDrag ? floorItems.find((item) => item.id === activeFloorDrag.itemId) ?? null : null,
         [activeFloorDrag, floorItems],
     );
+    const hasFloorItemDrag = Boolean(activeFloorDrag && draggedFloorItem);
+    const hasInventoryItemDrag = isItemDragActive && hasActiveDragPayload();
+    const shouldShowWallDropTargets = hasInventoryItemDrag || hasFloorItemDrag;
     const altarDropTargets = useMemo(
         () => resolveAltarDropTargets({ level, map, position, direction, openDoors, openWalls, isSelfRevealingWallTile, doorBlocksVision }),
         [direction, level, map, openDoors, openWalls, position],
@@ -659,7 +682,7 @@ const DungeonSceneDragOverlay: React.FC<{
                     />
                 </div>
             )}
-            {altarDropTargets.length > 0 && (isItemDragActive || activeFloorDrag) && altarDropTargets.map((target) => (
+            {altarDropTargets.length > 0 && shouldShowWallDropTargets && altarDropTargets.map((target) => (
                 <WallMechanismDropTarget
                     key={`altar_drop_${target.placement}_${target.wallX}_${target.wallY}_${target.face}`}
                     kind="altar"
@@ -674,7 +697,7 @@ const DungeonSceneDragOverlay: React.FC<{
                     }
                 />
             ))}
-            {frontWallInteractionKind && altarDropTargets.every((target) => target.placement !== 'front') && (isItemDragActive || activeFloorDrag) && (
+            {frontWallInteractionKind && altarDropTargets.every((target) => target.placement !== 'front') && shouldShowWallDropTargets && (
                 <WallMechanismDropTarget
                     kind={frontWallInteractionKind}
                     onUseItem={applyItemOnFrontWall}
@@ -701,10 +724,12 @@ const TileGrid: React.FC<{
     recruitedIds: Set<number>;
     wallButtons: { tileX: number; tileY: number; face: CardinalDir; sensorIndex: number }[];
     wallDecals: OriginalWallOverlayRender[];
-    pressurePlates: { tileX: number; tileY: number }[];
+    pressurePlates: { tileX: number; tileY: number; face?: CardinalDir }[];
+    showWallButtons: boolean;
+    showWallDecals: boolean;
     onCellClick: (e: ThreeEvent<MouseEvent>, renderType: CellRenderType, x: number, y: number) => void;
     onWallSensor: (level: number, x: number, y: number, sensorIndex: number) => void;
-}> = memo(({ map, level, partyPosition, partyDirection, openDoors, brokenDoors, crushingDoors, openWalls, recruitedIds, wallButtons, wallDecals, pressurePlates, onCellClick, onWallSensor }) => {
+}> = memo(({ map, level, partyPosition, partyDirection, openDoors, brokenDoors, crushingDoors, openWalls, recruitedIds, wallButtons, wallDecals, pressurePlates, showWallButtons, showWallDecals, onCellClick, onWallSensor }) => {
     const frontTileY = partyDirection === 'NORTH' ? partyPosition[0] - 1 : partyDirection === 'SOUTH' ? partyPosition[0] + 1 : partyPosition[0];
     const frontTileX = partyDirection === 'EAST' ? partyPosition[1] + 1 : partyDirection === 'WEST' ? partyPosition[1] - 1 : partyPosition[1];
     return (
@@ -712,9 +737,9 @@ const TileGrid: React.FC<{
             {/* One draw call each for floor, ceiling, and walls */}
             <InstancedTiles key={level} map={map} openWalls={openWalls} />
             {/* Pressure plates - floor-level objects */}
-            {pressurePlates.map(({ tileX, tileY }) => (
+            {pressurePlates.map(({ tileX, tileY, face }) => (
                 <group key={`plate_${tileX}_${tileY}`} position={[tileX * GRID_SIZE, 0, tileY * GRID_SIZE]}>
-                    <PressurePlate tileX={tileX} tileY={tileY} level={level} />
+                    <PressurePlate tileX={tileX} tileY={tileY} level={level} face={face} />
                 </group>
             ))}
             {/* Only Door and Mirror tiles need a Cell - everything else is instanced */}
@@ -773,14 +798,14 @@ const TileGrid: React.FC<{
                 })
             )}
 
-            {wallButtons.map(({ tileX, tileY, face, sensorIndex }) => (
+            {showWallButtons && wallButtons.map(({ tileX, tileY, face, sensorIndex }) => (
                 <WallSensor
                     key={`wsensor_${tileX}_${tileY}_${sensorIndex}`}
                     tileX={tileX} tileY={tileY} face={face}
                     onClick={() => onWallSensor(level, tileX, tileY, sensorIndex)}
                 />
             ))}
-            {wallDecals.map(({ tileX, tileY, face, image, label, accent, width, height, interactiveSensorIndices }, i) => (
+            {showWallDecals && wallDecals.map(({ tileX, tileY, face, image, label, accent, width, height, interactiveSensorIndices }, i) => (
                 <WallDecal
                     key={`wdecal_${tileX}_${tileY}_${face}_${i}`}
                     tileX={tileX}
@@ -804,6 +829,9 @@ const TileGrid: React.FC<{
 export const DungeonScene = () => {
     const canvasHostRef = useRef<HTMLDivElement>(null);
     const [isItemDragActive, setIsItemDragActive] = useState(false);
+    const [nativeDungeonDragPointer, setNativeDungeonDragPointer] = useState<{ x: number; y: number } | null>(null);
+    const [renderDebug, setRenderDebug] = useState<RenderDebugState>(() => DEFAULT_RENDER_DEBUG_STATE);
+    const text = useI18n().dungeonScene;
     // Only subscribe to stable/slow-changing state here
     const level          = useStore(s => s.level);
     const position       = useStore(s => s.position);
@@ -812,9 +840,12 @@ export const DungeonScene = () => {
     const brokenDoors    = useStore(s => s.brokenDoors);
     const crushingDoors  = useStore(s => s.crushingDoors);
     const openWalls      = useStore(s => s.openWalls);
+    const openTeleporters = useStore(s => s.openTeleporters);
     const openMirror     = useStore(s => s.openMirror);
     const toggleDoor     = useStore(s => s.toggleDoor);
     const activateWallSensor = useStore(s => s.activateWallSensor);
+    const dropCarriedItemInFront = useStore(s => s.dropCarriedItemInFront);
+    const activeFloorDrag = useStore(s => s.activeFloorDrag);
     const activeSensors  = useStore(s => s.activeSensors);
     const firedSensors   = useStore(s => s.firedSensors);
     const party          = useStore(s => s.party);
@@ -839,6 +870,40 @@ export const DungeonScene = () => {
             window.removeEventListener('dragstart', handleDragStart);
             window.removeEventListener('dragend', handleDragEnd);
             window.removeEventListener('drop', handleDragEnd);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!RENDER_DEBUG_ENABLED) return;
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (!(event.altKey && event.shiftKey)) return;
+            const key = event.key.toLowerCase();
+
+            if (key === 't') {
+                event.preventDefault();
+                setRenderDebug((current) => ({ ...current, wallTexts: !current.wallTexts }));
+                return;
+            }
+            if (key === 'd') {
+                event.preventDefault();
+                setRenderDebug((current) => ({ ...current, wallDecals: !current.wallDecals }));
+                return;
+            }
+            if (key === 'b') {
+                event.preventDefault();
+                setRenderDebug((current) => ({ ...current, wallButtons: !current.wallButtons }));
+                return;
+            }
+            if (key === 'r') {
+                event.preventDefault();
+                setRenderDebug(DEFAULT_RENDER_DEBUG_STATE);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
         };
     }, []);
 
@@ -890,6 +955,11 @@ export const DungeonScene = () => {
     const pits = useMemo(
         () => collectDungeonScenePits({ map }),
         [map],
+    );
+
+    const teleporters = useMemo(
+        () => collectDungeonSceneTeleporters({ level, map, openTeleporters }),
+        [level, map, openTeleporters],
     );
 
     const handleCellClick = useCallback((
@@ -953,6 +1023,7 @@ export const DungeonScene = () => {
         event.preventDefault();
         event.stopPropagation();
         setIsItemDragActive(false);
+        setNativeDungeonDragPointer(null);
 
         const state = useStore.getState();
         const currentMap = getGameMap(state.level);
@@ -966,10 +1037,10 @@ export const DungeonScene = () => {
             isSelfRevealingWallTile,
             doorBlocksVision,
         });
-        const floorDropThreshold = window.innerHeight * FLOOR_DROP_SCREEN_RATIO;
-        const shouldDropToFloor = event.clientY >= floorDropThreshold;
+        const destination = resolveDungeonDragDropDestination(event.clientY, window.innerHeight);
+        const shouldUseWallTarget = destination !== 'throw';
 
-        if (!shouldDropToFloor) {
+        if (shouldUseWallTarget) {
             for (const target of altarDropTargets) {
                 if (state.useItemOnViAltar(payload.fromChampionId, payload.itemId, payload.fromSlot, target.wallX, target.wallY, target.face)) {
                     return;
@@ -977,27 +1048,145 @@ export const DungeonScene = () => {
             }
         }
 
-        if (shouldDropToFloor) {
-            state.dropCarriedItem(payload.fromChampionId, payload.itemId, payload.fromSlot);
-        } else {
-            state.throwCarriedItem(payload.fromChampionId, payload.itemId, payload.fromSlot);
+        performDungeonDragDropAction(destination, {
+            throwItem: () => state.throwCarriedItem(payload.fromChampionId, payload.itemId, payload.fromSlot),
+            dropFront: () => dropCarriedItemInFront(payload.fromChampionId, payload.itemId, payload.fromSlot),
+            dropCurrent: () => state.dropCarriedItem(payload.fromChampionId, payload.itemId, payload.fromSlot),
+        });
+    }, [dropCarriedItemInFront]);
+
+    const dungeonDragPreview = useMemo(() => {
+        const pointer = activeFloorDrag
+            ? { x: activeFloorDrag.pointerX, y: activeFloorDrag.pointerY }
+            : nativeDungeonDragPointer;
+        if (!pointer) return null;
+        if (!isPointerInsideDungeonViewport(pointer.x, window.innerWidth)) return null;
+        const hovered = document.elementFromPoint(pointer.x, pointer.y) as HTMLElement | null;
+        if (hovered?.closest('[data-dm-wall-drop="true"]')) return null;
+        const destination = resolveDungeonDragDropDestination(pointer.y, window.innerHeight);
+        return { pointer, destination };
+    }, [activeFloorDrag, nativeDungeonDragPointer]);
+
+    useEffect(() => {
+        if (!isItemDragActive && !activeFloorDrag) {
+            setNativeDungeonDragPointer(null);
         }
-    }, []);
+    }, [activeFloorDrag, isItemDragActive]);
 
     return (
         <div
             ref={canvasHostRef}
             onDragOver={(event) => {
-                if (!isItemDragActive) return;
+                if (!isItemDragActive || !hasActiveDragPayload()) return;
                 event.preventDefault();
                 event.dataTransfer.dropEffect = 'move';
+                setNativeDungeonDragPointer({ x: event.clientX, y: event.clientY });
+            }}
+            onDragLeave={() => {
+                if (!activeFloorDrag) {
+                    setNativeDungeonDragPointer(null);
+                }
             }}
             onDrop={(event) => {
                 handleRootDrop(event);
             }}
             style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', background: '#000', overflow: 'hidden' }}
         >
+            {dungeonDragPreview && (
+                <div
+                    style={{
+                        position: 'absolute',
+                        inset: 0,
+                        width: '67%',
+                        pointerEvents: 'none',
+                        zIndex: 145,
+                    }}
+                >
+                    {DUNGEON_DRAG_DROP_BANDS.map((band) => {
+                        const active = band.destination === dungeonDragPreview.destination;
+                        const top = `${band.startRatio * 100}%`;
+                        const height = `${(band.endRatio - band.startRatio) * 100}%`;
+                        return (
+                            <div
+                                key={band.destination}
+                                style={{
+                                    position: 'absolute',
+                                    left: 0,
+                                    right: 0,
+                                    top,
+                                    height,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: band.destination === 'throw'
+                                        ? 'center'
+                                        : band.destination === 'front'
+                                            ? 'center'
+                                            : 'center',
+                                    background: active
+                                        ? band.destination === 'throw'
+                                            ? 'linear-gradient(180deg, rgba(114,34,18,0.18), rgba(168,74,28,0.28))'
+                                            : band.destination === 'front'
+                                                ? 'linear-gradient(180deg, rgba(132,104,32,0.12), rgba(192,160,72,0.22))'
+                                                : 'linear-gradient(180deg, rgba(116,112,54,0.08), rgba(208,198,118,0.24))'
+                                        : 'transparent',
+                                    borderTop: band.startRatio === 0 ? 'none' : '1px solid rgba(232, 210, 146, 0.08)',
+                                    borderBottom: band.endRatio === 1 ? 'none' : '1px solid rgba(232, 210, 146, 0.08)',
+                                    transition: 'background 0.08s ease-out, border-color 0.08s ease-out',
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        padding: '8px 16px',
+                                        borderRadius: 999,
+                                        border: active
+                                            ? '1px solid rgba(250, 230, 180, 0.52)'
+                                            : '1px solid rgba(250, 230, 180, 0.18)',
+                                        background: active
+                                            ? 'rgba(10, 8, 6, 0.68)'
+                                            : 'rgba(10, 8, 6, 0.34)',
+                                        color: active ? '#f3de9b' : 'rgba(243, 222, 155, 0.52)',
+                                        fontFamily: '"Courier New", monospace',
+                                        fontSize: 12,
+                                        letterSpacing: 1.4,
+                                        textTransform: 'uppercase',
+                                        boxShadow: active ? '0 0 18px rgba(240, 208, 96, 0.14)' : 'none',
+                                    }}
+                                >
+                                    {text.dropBands[band.destination]}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
             <LevelName key={level} level={level} />
+            {RENDER_DEBUG_ENABLED && (
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: 14,
+                        left: 14,
+                        zIndex: 150,
+                        padding: '8px 10px',
+                        borderRadius: 8,
+                        background: 'rgba(10, 10, 10, 0.72)',
+                        border: '1px solid rgba(197, 164, 106, 0.28)',
+                        color: '#d8c48f',
+                        fontFamily: '"Courier New", monospace',
+                        fontSize: 11,
+                        lineHeight: 1.35,
+                        pointerEvents: 'none',
+                        userSelect: 'none',
+                        whiteSpace: 'pre-line',
+                    }}
+                >
+                    {`Debug render
+Alt+Shift+T texts: ${renderDebug.wallTexts ? 'on' : 'off'}
+Alt+Shift+D decals: ${renderDebug.wallDecals ? 'on' : 'off'}
+Alt+Shift+B buttons: ${renderDebug.wallButtons ? 'on' : 'off'}
+Alt+Shift+R reset`}
+                </div>
+            )}
             <DarknessOverlay />
 
             <Canvas
@@ -1015,7 +1204,7 @@ export const DungeonScene = () => {
                 <CameraController />
                 <ShieldAuraLayer />
                 <BoundaryWalls map={map} />
-                <SceneWallTextPlanes map={map} />
+                {(!RENDER_DEBUG_ENABLED || renderDebug.wallTexts) && <SceneWallTextPlanes map={map} />}
                 <TileGrid
                     map={map}
                     level={level}
@@ -1028,6 +1217,8 @@ export const DungeonScene = () => {
                     wallButtons={wallButtons}
                     wallDecals={wallDecals}
                     pressurePlates={pressurePlates}
+                    showWallButtons={!RENDER_DEBUG_ENABLED || renderDebug.wallButtons}
+                    showWallDecals={!RENDER_DEBUG_ENABLED || renderDebug.wallDecals}
                     onCellClick={handleCellClick}
                     onWallSensor={activateWallSensor}
                     partyDirection={direction}
@@ -1043,6 +1234,7 @@ export const DungeonScene = () => {
                 <CreaturesLayer />
                 <FluxcageLayer />
                 <PoisonCloudLayer />
+                <TeleporterLayer teleporters={teleporters} />
                 <DamageLayer />
                 <SpellImpactLayer />
                 <FloorItemsLayer />

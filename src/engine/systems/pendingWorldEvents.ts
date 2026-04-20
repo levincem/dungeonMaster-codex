@@ -8,7 +8,7 @@ type PendingSensorEventLike = {
     remaining: number;
 };
 
-type PendingGeneratorSpawnEventLike = {
+export type PendingGeneratorSpawnEventLike = {
     sensorLevel: number;
     sensorIndex: number;
     spawnLevel: number;
@@ -38,7 +38,7 @@ export function queuePendingGeneratorSpawnEvent<
     ];
 }
 
-type PendingSensorStateLike<TCreature> = {
+export type PendingSensorStateLike<TCreature> = {
     openDoors: Set<string>;
     creatures: TCreature[];
 };
@@ -52,17 +52,15 @@ type PendingSensorDeps<TSensorState extends PendingSensorStateLike<TCreature>, T
     diffSensorState: (before: TSensorState, after: TSensorState) => Partial<TSensorState>;
 };
 
-type PendingGeneratorDeps<TSensorState extends PendingSensorStateLike<TCreature>, TCreature> = {
+export type PendingGeneratorDeps<
+    TSensorState extends PendingSensorStateLike<TCreature>,
+    TPendingGeneratorSpawnEvent extends PendingGeneratorSpawnEventLike,
+    TCreature,
+> = {
     canMaterializeReservedGeneratorSpawn: (ss: TSensorState, spawnLevel: number) => boolean;
     isGeneratorSpawnBlocked: (ss: TSensorState, spawnLevel: number, spawnX: number, spawnY: number) => boolean;
-    createGeneratedCreatureGroupInstances: (
-        spawnLevel: number,
-        spawnX: number,
-        spawnY: number,
-        typeId: number,
-        hpMultiplier: number,
-        creatureCount: number,
-        groupId: string,
+    materializePendingGeneratorSpawnEvent: (
+        event: TPendingGeneratorSpawnEvent,
     ) => TCreature[];
     retrySeconds: number;
     diffSensorState: (before: TSensorState, after: TSensorState) => Partial<TSensorState>;
@@ -124,7 +122,7 @@ export function processPendingGeneratorSpawns<
     delta: number,
     pendingGeneratorSpawns: TPendingGeneratorSpawnEvent[],
     ss: TSensorState,
-    deps: PendingGeneratorDeps<TSensorState, TCreature>,
+    deps: PendingGeneratorDeps<TSensorState, TPendingGeneratorSpawnEvent, TCreature>,
 ): {
     sensorChanges: Partial<TSensorState>;
     pendingGeneratorSpawns: TPendingGeneratorSpawnEvent[];
@@ -150,15 +148,7 @@ export function processPendingGeneratorSpawns<
             continue;
         }
 
-        const generatedCreatures = deps.createGeneratedCreatureGroupInstances(
-            event.spawnLevel,
-            event.spawnX,
-            event.spawnY,
-            event.typeId,
-            event.hpMultiplier,
-            event.creatureCount,
-            event.groupId,
-        );
+        const generatedCreatures = deps.materializePendingGeneratorSpawnEvent(event);
         if (generatedCreatures.length <= 0) continue;
 
         cur = {

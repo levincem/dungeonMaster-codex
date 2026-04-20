@@ -63,7 +63,7 @@ test('resolveClimbDownAction returns an error when there is no open pit ahead', 
         },
     );
 
-    assert.equal(result.errorMessage, 'CLIMB DOWN requiert un puits ouvert devant le groupe.');
+    assert.equal(result.errorMessage, 'CLIMB DOWN requires an open pit in front of the party.');
 });
 
 test('resolveClimbDownAction returns an error when the landing is invalid', () => {
@@ -82,7 +82,7 @@ test('resolveClimbDownAction returns an error when the landing is invalid', () =
         },
     );
 
-    assert.equal(result.errorMessage, 'Impossible de descendre ici.');
+    assert.equal(result.errorMessage, 'Cannot climb down here.');
 });
 
 test('resolveClimbDownAction returns the movement patch on success', () => {

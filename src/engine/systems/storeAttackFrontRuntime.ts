@@ -6,7 +6,7 @@ import {
     type SkillKey,
 } from '../../data/skillProgression';
 import { WEAPON_TYPES } from '../../data/items';
-import { getEffectiveChampionStatsWithBonuses, type EquipmentStatBonuses } from '../../data/equipment';
+import { getEffectiveChampionStatsWithBonuses, getPreferredCombatItem, type EquipmentStatBonuses } from '../../data/equipment';
 import {
     getOriginalWeaponReference,
     type WeaponProjectileDescriptor,
@@ -241,7 +241,8 @@ export function buildStoreAttackFrontRuntimePatch<TState extends StoreAttackFron
                 championId: targetChampionId,
                 champion,
                 equip,
-                rightHand,
+                attackItem,
+                attackItemSlot,
                 currentStamina,
                 newCombat,
                 selectedSkill,
@@ -261,7 +262,8 @@ export function buildStoreAttackFrontRuntimePatch<TState extends StoreAttackFron
                 },
                 champion,
                 equip,
-                rightHand,
+                attackItem,
+                attackItemSlot,
                 currentStamina,
                 newCombat,
                 {
@@ -362,6 +364,10 @@ export function buildStoreAttackFrontRuntimePatch<TState extends StoreAttackFron
                     },
                 );
             },
+            resolveCombatItem: (equip) => getPreferredCombatItem(equip, {
+                getWeaponAttackOptions: deps.getWeaponAttackOptions,
+                isThrowAttack: deps.isThrowAttack,
+            }),
             resolveAttackFrontContext: deps.resolveAttackFrontContext,
             buildAttackMeleeStatePatch: ({
                 state: attackState,

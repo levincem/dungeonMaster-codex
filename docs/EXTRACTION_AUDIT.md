@@ -55,6 +55,11 @@ Note importante sur les placements d'items :
 
 - 199 noms d'items en anglais (offset 0x47150 de GRAPHICS.DAT)
 - 44 noms d'attaques
+- certaines entrées `IMG*` de `GRAPHICS.DAT` décrivent une famille de rendu contextuelle, par exemple `Item on floor 20`
+  - ce libellé signifie "ces objets peuvent partager cette ressource de rendu au sol"
+  - cela ne fusionne pas leur identité gameplay
+  - `Mail Aketon`, `Mithral Aketon`, `Hosen`, `Leg Mail` ou `Mithral Mail` restent donc des objets distincts dans les tables runtime
+  - il ne faut pas relire ces familles de rendu comme une source autoritaire pour les starters du Hall ou pour la nomenclature canonique des items
 - 4 familles de portes : Porticullis, Wooden Door, Iron Door, Ra Door
   - 3 frames par famille (Front 1/2/3), stockées comme BMP extraits par `sck`
 - 120 entrées de décorations murales nommées avec dimensions :
@@ -126,20 +131,26 @@ Types couverts : dalles de pression, leviers, serrures, faux-murs, téléporteur
 
 ### 1. Noms d'armures non résolus dans `dungeon.json` — RÉSOLU
 
-Les 6 noms placeholders ont été résolus via `resolve_armor_names.cjs` → `output/resolved_armor_names.json`.
+Le vieux chantier de placeholders Hall est clos, mais la méthode "miroir du Hall -> nom d'armure" ne doit plus être considérée comme source de vérité.
 
-Méthode : les armures placées sur les cases miroir (sensor type 127) du Hall of Champions sont l'équipement de départ des champions. L'identité du champion (encodée dans `sensor.data`) détermine le nom.
+La source canonique active est maintenant :
 
-| Type ID | Nom résolu | Champions porteurs |
-|---|---|---|
-| 11 | Silk Shirt | WuTse, Halk |
-| 12 | Gunna | Chani, Sonja, Linflas |
-| 20 | Tunic | Stamm, Leyla, Zed |
-| 21 | Ghi | Iaido |
-| 29 | Barbarian Hide | Azizi |
-| 57 | Halter | Azizi, Linflas |
+- la table source-backed branchée dans `parse_full.{js,cjs}`
+- le catalogue packagé `src/assets/runtime/db/game_db_items.json`
+- les valeurs de gameplay `originalAtari.i559`
 
-Ces noms doivent être ajoutés à la table `ARMOR_NAMES` dans `parse_full.js`.
+Correspondances canoniques à retenir pour les ids qui ont longtemps prêté à confusion :
+
+| Type ID | Nom canonique actuel |
+|---|---|
+| 11 | Tabard |
+| 12 | Gunna |
+| 20 | Tunic |
+| 21 | Ghi |
+| 29 | Hide Shield |
+| 57 | Halter |
+
+`resolve_armor_names.cjs` et `output/resolved_armor_names.json` restent des artefacts d'audit historiques, pas une source runtime autoritaire.
 
 ### 2. Bloc `0696.RAW1` partiellement opaque
 
@@ -247,7 +258,7 @@ Les blocages restants sont :
 
 1. **`0696.RAW1`** — seul vrai verrou extraction encore ouvert, probablement non critique pour le gameplay de base
 2. **Intégration runtime** — les données existent encore sans être branchées partout (slots i562, quelques combats/effets spéciaux, rendus de portes)
-3. **Noms d'armures** — 12 placeholders à résoudre, effort mineur
+3. **Nettoyage d'artefacts d'audit** — quelques notes historiques peuvent encore contredire les tables runtime canoniques si elles ne sont pas relues
 
 Il n'y a plus de manque d'information qui bloque la fidélité du gameplay principal. Le travail prioritaire est désormais l'intégration, pas l'extraction.
 

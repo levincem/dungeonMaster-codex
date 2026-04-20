@@ -186,6 +186,58 @@ test('selectCreatureAttackTarget uses the attacker position to favor the champio
     assert.equal(leftTarget?.id, 1);
 });
 
+test('selectCreatureAttackTarget keeps front attackers on the front row while it is still alive', () => {
+    const party = [createChampion(1), createChampion(2), createChampion(3), createChampion(4)];
+    const vitals = {
+        1: createVitals(20),
+        2: createVitals(20),
+        3: createVitals(20),
+        4: createVitals(20),
+    };
+
+    const target = selectCreatureAttackTarget(
+        party,
+        vitals,
+        'backLeft',
+        false,
+        false,
+        () => 0,
+        {
+            partyPosition: [5, 5],
+            attackerPosition: { x: 5, y: 4 },
+            partyDirection: 'NORTH',
+        },
+    );
+
+    assert.equal(target?.id, 1);
+});
+
+test('selectCreatureAttackTarget falls back to the rear row only when the whole front row is down', () => {
+    const party = [createChampion(1), createChampion(2), createChampion(3), createChampion(4)];
+    const vitals = {
+        1: createVitals(0),
+        2: createVitals(0),
+        3: createVitals(20),
+        4: createVitals(20),
+    };
+
+    const target = selectCreatureAttackTarget(
+        party,
+        vitals,
+        'frontLeft',
+        false,
+        false,
+        () => 0,
+        {
+            partyPosition: [5, 5],
+            attackerPosition: { x: 5, y: 4 },
+            partyDirection: 'NORTH',
+        },
+    );
+
+    assert.equal(target?.id, 3);
+});
+
 test('selectCreatureAttackTarget can pick any living champion for all-sides attacks', () => {
     const party = [createChampion(1), createChampion(2)];
     const vitals = {

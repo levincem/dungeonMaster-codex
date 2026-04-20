@@ -52,17 +52,9 @@ const PULSE_STYLE = `
 .slot-valid { animation: slot-pulse 1s ease-in-out infinite; border-color: #e0c050 !important; }
 `;
 
-// Skill level names (DM1 original)
-const SKILL_LEVEL_NAMES: string[] = [
-    'None', 'Novice', 'Apprentice', 'Neophyte', 'Journeyman',
-    'Craftsman', 'Artisan', 'Adept', 'Expert', 'LoreKeeper',
-    'Wizard', 'Artist', 'Champion', 'Hero', 'Master',
-    'HighMaster', 'LegendMaster', 'ArchMaster', 'GrandMaster', 'TimeStone',
-];
-
-function getSkillLevelName(xp: number): string {
+function getSkillLevelName(xp: number, names: readonly string[]): string {
     const lvl = xpToLevel(xp);
-    return SKILL_LEVEL_NAMES[Math.min(lvl, SKILL_LEVEL_NAMES.length - 1)] ?? 'GrandMaster';
+    return names[Math.min(lvl, names.length - 1)] ?? names[names.length - 1] ?? '';
 }
 
 function formatWeight(value: number): string {
@@ -393,10 +385,10 @@ const BackpackGrid: React.FC<{
                                 {getItemName(item, direction).substring(0, 12)}
                             </div>
                             <div style={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-                                {getEquippableSlots(item).length > 0 && <button onClick={() => onEquip(item)} title={text.equip} style={{ background: T.goldDim, border: 'none', borderRadius: 2, color: '#000', fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>EQ</button>}
-                                {item.category === 'Scroll' && <button onClick={() => onReadScroll(item)} title={text.read} style={{ background: '#4a3010', border: 'none', borderRadius: 2, color: T.cream, fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>RD</button>}
-                                {isConsumable(item) && <button onClick={() => onUseItem(item.id)} title={text.use} style={{ background: '#103010', border: 'none', borderRadius: 2, color: '#60d060', fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>USE</button>}
-                                <button onClick={() => onDropToFloor(item.id)} title={text.drop} style={{ background: '#180808', border: 'none', borderRadius: 2, color: T.red, fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>DR</button>
+                                {getEquippableSlots(item).length > 0 && <button onClick={() => onEquip(item)} title={text.equip} style={{ background: T.goldDim, border: 'none', borderRadius: 2, color: '#000', fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>{text.actionShortLabels.equip}</button>}
+                                {item.category === 'Scroll' && <button onClick={() => onReadScroll(item)} title={text.read} style={{ background: '#4a3010', border: 'none', borderRadius: 2, color: T.cream, fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>{text.actionShortLabels.read}</button>}
+                                {isConsumable(item) && <button onClick={() => onUseItem(item.id)} title={text.use} style={{ background: '#103010', border: 'none', borderRadius: 2, color: '#60d060', fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>{text.actionShortLabels.use}</button>}
+                                <button onClick={() => onDropToFloor(item.id)} title={text.drop} style={{ background: '#180808', border: 'none', borderRadius: 2, color: T.red, fontSize: 7, cursor: 'pointer', padding: '1px 3px', lineHeight: 1 }}>{text.actionShortLabels.drop}</button>
                             </div>
                         </div>
                     </div>
@@ -669,7 +661,7 @@ export const ChampionSheet: React.FC = () => {
                         >
                             <SaveIcon />
                         </button>
-                        <button onClick={closePartyMember} style={{ width: 36, height: 36, background: 'none', border: 'none', color: T.goldDim, fontSize: 28, cursor: 'pointer', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>X</button>
+                        <button aria-label={text.closeSheet} title={text.closeSheet} onClick={closePartyMember} style={{ width: 36, height: 36, background: 'none', border: 'none', color: T.goldDim, fontSize: 28, cursor: 'pointer', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>X</button>
                     </div>
                 </div>
 
@@ -699,8 +691,8 @@ export const ChampionSheet: React.FC = () => {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
                             <span style={{ fontSize: 10, letterSpacing: 3, color: T.gold }}>{text.equipment}</span>
                             <span style={{ fontSize: 11, fontWeight: 'bold', color: loadColor }}>
-                                WT {formatWeight(loadState.weight)}
-                                <span style={{ fontSize: 10, color: T.creamDim, fontWeight: 'normal' }}>/{formatWeight(loadState.maxWeight)} kg</span>
+                                {text.weightLabel} {formatWeight(loadState.weight)}
+                                <span style={{ fontSize: 10, color: T.creamDim, fontWeight: 'normal' }}>/{formatWeight(loadState.maxWeight)} {text.weightUnit}</span>
                                 {loadState.overloaded && <span style={{ color: T.red }}> !</span>}
                             </span>
                         </div>
@@ -838,9 +830,9 @@ export const ChampionSheet: React.FC = () => {
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 18px' }}>
                                 {skills.map(({ key, label }) => {
                                     const skillXP = xp?.[key] ?? 0;
-                                    const name = getSkillLevelName(skillXP);
+                                    const name = getSkillLevelName(skillXP, text.skillLevelNames);
                                     const color = SKILL_COLORS[key];
-                                    if (name === 'None') return null;
+                                    if (name === text.skillLevelNames[0]) return null;
                                     return (
                                         <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 2 }}>
                                             <span style={{ fontSize: 14, color: T.creamDim }}>{label}</span>

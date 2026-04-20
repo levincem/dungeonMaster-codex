@@ -30,6 +30,7 @@ import {
   preloadGameplayRenderModules,
 } from './preload/gameplayModulePreload';
 import { preloadGameplayVisualAssets } from './preload/gameplayVisualPreload';
+import { useI18n } from './i18n';
 import './App.css';
 
 const IS_DEV = import.meta.env.DEV;
@@ -123,6 +124,7 @@ async function preloadRemainingGameplayLevels(
 }
 
 function GameRoot() {
+  const text = useI18n().gameRoot;
   const gamePhase = useStore((state) => state.gamePhase);
   const level = useStore((state) => state.level);
   const activePartyMemberId = useStore((state) => state.activePartyMemberId);
@@ -140,7 +142,7 @@ function GameRoot() {
   const handleEnterDungeon = useCallback(() => {
     if (titleTransitionMessage !== null) return;
 
-    setTitleTransitionMessage('Preparing the dungeon...');
+    setTitleTransitionMessage(text.preparingDungeon);
     void preloadGameplayVisualAssets().catch(() => {});
     void Promise.all([
       preloadGameplayLevelNeighborhood(0),
@@ -152,13 +154,13 @@ function GameRoot() {
     }).finally(() => {
       setTitleTransitionMessage(null);
     });
-  }, [enterDungeon, titleTransitionMessage]);
+  }, [enterDungeon, text.preparingDungeon, titleTransitionMessage]);
 
   const handleLoadGame = useCallback(() => {
     if (titleTransitionMessage !== null) return;
 
     const inspection = inspectPersistedSaveData(readBestPersistedSave());
-    setTitleTransitionMessage('Preparing your saved game...');
+    setTitleTransitionMessage(text.preparingSavedGame);
     void preloadGameplayVisualAssets().catch(() => {});
     const preload = Promise.all([
       inspection.status === 'compatible'
@@ -175,7 +177,7 @@ function GameRoot() {
     }).finally(() => {
       setTitleTransitionMessage(null);
     });
-  }, [loadGame, titleTransitionMessage]);
+  }, [loadGame, text.preparingSavedGame, titleTransitionMessage]);
 
   useEffect(() => {
     let rafId: number;
@@ -399,7 +401,7 @@ function GameRoot() {
                 }}
               >
                 <div style={{ fontSize: 11, color: 'rgba(212,184,112,0.72)', marginBottom: 8 }}>
-                  PRELOAD
+                  {text.preloadLabel}
                 </div>
                 <div style={{ fontSize: 15, color: '#f0d060' }}>
                   {titleTransitionMessage}

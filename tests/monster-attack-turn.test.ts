@@ -228,3 +228,201 @@ test('resolveMonsterAttackTurn returns damage outcome and attack window for a va
     assert.equal(result.damageEvents?.[0]?.amount, 4);
     assert.equal(result.championVitals?.[1]?.hp, 16);
 });
+
+test('resolveMonsterAttackTurn does not attack on the same tick after moving into contact', () => {
+    const creature = createCreature('front', { cell: 'frontLeft' });
+
+    const result = resolveMonsterAttackTurn(
+        {
+            creature,
+            attackerDef: createCreatureDef(),
+            creatures: [creature],
+            stateCreatures: [creature],
+            projectiles: [],
+            stateProjectiles: [],
+            championInventories: { 1: [] },
+            championEquipment: { 1: {} },
+            baseChampionEquipment: {},
+            championVitals: { 1: createVitals(20) },
+            damageEvents: [],
+            party: [createChampion(1)],
+            partyDirection: 'NORTH',
+            activePotionBoosts: [],
+            partyPosition: [5, 5],
+            movedPosition: { x: 5, y: 4 },
+            movedThisTick: true,
+            canDetectParty: true,
+            frightened: false,
+            confused: false,
+            attackReach: 1,
+            currentAttackTimer: 0,
+            nowMs: 1000,
+            level: 0,
+            levelDifficulty: 2,
+            partySleeping: false,
+        },
+        baseDeps,
+    );
+
+    assert.equal(result.kind, 'idle');
+    assert.equal(result.nextAttackTimer, 1.2);
+    assert.equal(result.attackWindowExpiresAt, undefined);
+    assert.equal(result.damageEvents, undefined);
+    assert.equal(result.championVitals, undefined);
+});
+
+test('resolveMonsterAttackTurn keeps an adjacent front attacker on the front row even if permissive targeting would pick the rear', () => {
+    const creature = createCreature('front', { cell: 'frontLeft' });
+    const party = [createChampion(1), createChampion(2), createChampion(3), createChampion(4)];
+
+    const result = resolveMonsterAttackTurn(
+        {
+            creature,
+            attackerDef: createCreatureDef({ attackAnyChampion: true }),
+            creatures: [creature],
+            stateCreatures: [creature],
+            projectiles: [],
+            stateProjectiles: [],
+            championInventories: { 1: [], 2: [], 3: [], 4: [] },
+            championEquipment: { 1: {}, 2: {}, 3: {}, 4: {} },
+            baseChampionEquipment: {},
+            championVitals: {
+                1: createVitals(20),
+                2: createVitals(20),
+                3: createVitals(20),
+                4: createVitals(20),
+            },
+            damageEvents: [],
+            party,
+            partyDirection: 'NORTH',
+            activePotionBoosts: [],
+            partyPosition: [5, 5],
+            movedPosition: { x: 5, y: 4 },
+            movedThisTick: false,
+            canDetectParty: true,
+            frightened: false,
+            confused: false,
+            attackReach: 1,
+            currentAttackTimer: 0,
+            nowMs: 1000,
+            level: 0,
+            levelDifficulty: 2,
+            partySleeping: false,
+        },
+        {
+            ...baseDeps,
+            randomInt: (maxExclusive: number) => Math.max(0, maxExclusive - 1),
+        },
+    );
+
+    assert.equal(result.kind, 'damage');
+    assert.ok(result.damageEvents);
+    assert.equal(result.damageEvents?.length, 1);
+    assert.ok([1, 2].includes(result.damageEvents?.[0]?.championId ?? -1));
+    assert.equal(result.championVitals?.[3]?.hp, 20);
+    assert.equal(result.championVitals?.[4]?.hp, 20);
+});
+
+test('resolveMonsterAttackTurn keeps an adjacent Screamer-style attacker on the front row despite all-sides metadata', () => {
+    const creature = createCreature('screamer', { cell: 'frontLeft' });
+    const party = [createChampion(1), createChampion(2), createChampion(3), createChampion(4)];
+
+    const result = resolveMonsterAttackTurn(
+        {
+            creature,
+            attackerDef: createCreatureDef({
+                originalAttackType: 'Mental',
+                attackTypes: ['StaminaDrain'],
+                attackFromAllSides: true,
+                preferBackRow: true,
+            }),
+            creatures: [creature],
+            stateCreatures: [creature],
+            projectiles: [],
+            stateProjectiles: [],
+            championInventories: { 1: [], 2: [], 3: [], 4: [] },
+            championEquipment: { 1: {}, 2: {}, 3: {}, 4: {} },
+            baseChampionEquipment: {},
+            championVitals: {
+                1: createVitals(20),
+                2: createVitals(20),
+                3: createVitals(20),
+                4: createVitals(20),
+            },
+            damageEvents: [],
+            party,
+            partyDirection: 'NORTH',
+            activePotionBoosts: [],
+            partyPosition: [5, 5],
+            movedPosition: { x: 5, y: 4 },
+            movedThisTick: false,
+            canDetectParty: true,
+            frightened: false,
+            confused: false,
+            attackReach: 1,
+            currentAttackTimer: 0,
+            nowMs: 1000,
+            level: 0,
+            levelDifficulty: 2,
+            partySleeping: false,
+        },
+        {
+            ...baseDeps,
+            randomInt: (maxExclusive: number) => Math.max(0, maxExclusive - 1),
+        },
+    );
+
+    assert.equal(result.kind, 'damage');
+    assert.equal(result.damageEvents?.length, 1);
+    assert.ok([1, 2].includes(result.damageEvents?.[0]?.championId ?? -1));
+});
+
+test('resolveMonsterAttackTurn keeps a current front attacker on the front row for east-facing parties too', () => {
+    const creature = createCreature('front', { cell: 'frontRight', x: 6, y: 5 });
+    const party = [createChampion(1), createChampion(2), createChampion(3), createChampion(4)];
+
+    const result = resolveMonsterAttackTurn(
+        {
+            creature,
+            attackerDef: createCreatureDef({ attackAnyChampion: true }),
+            creatures: [creature],
+            stateCreatures: [creature],
+            projectiles: [],
+            stateProjectiles: [],
+            championInventories: { 1: [], 2: [], 3: [], 4: [] },
+            championEquipment: { 1: {}, 2: {}, 3: {}, 4: {} },
+            baseChampionEquipment: {},
+            championVitals: {
+                1: createVitals(20),
+                2: createVitals(20),
+                3: createVitals(20),
+                4: createVitals(20),
+            },
+            damageEvents: [],
+            party,
+            partyDirection: 'EAST',
+            activePotionBoosts: [],
+            partyPosition: [5, 5],
+            movedPosition: { x: 6, y: 5 },
+            movedThisTick: false,
+            canDetectParty: true,
+            frightened: false,
+            confused: false,
+            attackReach: 1,
+            currentAttackTimer: 0,
+            nowMs: 1000,
+            level: 0,
+            levelDifficulty: 2,
+            partySleeping: false,
+        },
+        {
+            ...baseDeps,
+            randomInt: (maxExclusive: number) => Math.max(0, maxExclusive - 1),
+        },
+    );
+
+    assert.equal(result.kind, 'damage');
+    assert.ok([1, 2].includes(result.damageEvents?.[0]?.championId ?? -1));
+    assert.equal(result.championVitals?.[3]?.hp, 20);
+    assert.equal(result.championVitals?.[4]?.hp, 20);
+});

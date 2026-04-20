@@ -540,12 +540,12 @@ const DoorMesh: React.FC<{
 
 // ─── Pressure plate ───────────────────────────────────────────────────────────
 
-const PLATE_W  = GRID_SIZE * 0.52;
-const PLATE_D  = GRID_SIZE * 0.52;
-const PLATE_H  = 0.045;           // raised height above floor
-const PLATE_SINK = 0.040;         // how far it sinks when pressed
+const PLATE_W  = GRID_SIZE * 0.62;
+const PLATE_D  = GRID_SIZE * 0.62;
+const PLATE_SINK = 0.016;         // enough movement to read as pressed without exposing side faces
 const PLATE_ANIM = 0.18;          // press-down duration in seconds
 const FLOOR_Y  = -GRID_SIZE / 2;  // world Y of floor surface
+const PLATE_SURFACE_Y = FLOOR_Y + 0.0025;
 
 function makePlateTex(): THREE.CanvasTexture {
     const S = 128;
@@ -608,7 +608,7 @@ function makePlateTex(): THREE.CanvasTexture {
 
 const PLATE_TOP_TEX = makePlateTex();
 
-export const PressurePlate: React.FC<{ tileX: number; tileY: number; level: number }> = ({ tileX, tileY, level }) => {
+export const PressurePlate: React.FC<{ tileX: number; tileY: number; level: number; face?: CardinalDir }> = ({ tileX, tileY, level }) => {
     const pressRef = useRef(0);   // 0 = up, 1 = down, animating between
     const groupRef = useRef<THREE.Group>(null);
 
@@ -628,35 +628,20 @@ export const PressurePlate: React.FC<{ tileX: number; tileY: number; level: numb
             pressRef.current = Math.max(0, pressRef.current - delta / PLATE_ANIM);
         }
         const sink = pressRef.current * PLATE_SINK;
-        groupRef.current.position.y = FLOOR_Y + PLATE_H - sink;
+        groupRef.current.position.y = PLATE_SURFACE_Y - sink;
     });
 
-    // Side faces to give volume (4 thin boxes around the plate edges)
-    const sideColor = '#3f433d';
-
     return (
-        <group ref={groupRef} position={[0, FLOOR_Y + PLATE_H, 0]}>
-            {/* Top face */}
+        <group ref={groupRef} position={[0, PLATE_SURFACE_Y, 0]}>
             <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
                 <planeGeometry args={[PLATE_W, PLATE_D]} />
-                <meshBasicMaterial map={PLATE_TOP_TEX} />
-            </mesh>
-            {/* Side faces — N/S/E/W thin strips for depth illusion */}
-            <mesh position={[0, -PLATE_H, -PLATE_D / 2]} rotation={[0, 0, 0]}>
-                <planeGeometry args={[PLATE_W, PLATE_H * 2]} />
-                <meshBasicMaterial color={sideColor} />
-            </mesh>
-            <mesh position={[0, -PLATE_H,  PLATE_D / 2]} rotation={[0, Math.PI, 0]}>
-                <planeGeometry args={[PLATE_W, PLATE_H * 2]} />
-                <meshBasicMaterial color={sideColor} />
-            </mesh>
-            <mesh position={[-PLATE_W / 2, -PLATE_H, 0]} rotation={[0,  Math.PI / 2, 0]}>
-                <planeGeometry args={[PLATE_D, PLATE_H * 2]} />
-                <meshBasicMaterial color={sideColor} />
-            </mesh>
-            <mesh position={[ PLATE_W / 2, -PLATE_H, 0]} rotation={[0, -Math.PI / 2, 0]}>
-                <planeGeometry args={[PLATE_D, PLATE_H * 2]} />
-                <meshBasicMaterial color={sideColor} />
+                <meshBasicMaterial
+                    map={PLATE_TOP_TEX}
+                    color="#c1baad"
+                    polygonOffset
+                    polygonOffsetFactor={-2}
+                    polygonOffsetUnits={-2}
+                />
             </mesh>
         </group>
     );

@@ -6,7 +6,11 @@ import type {
     SensorObject,
     WallTextObject,
 } from '../../types/game';
-import { createGeneratedCreatureGroupInstances as createGeneratedCreatureGroupInstancesSystem } from './generatedCreatureGroups';
+import {
+    buildGeneratedCreatureGroupPlan as buildGeneratedCreatureGroupPlanSystem,
+    createGeneratedCreatureGroupInstances as createGeneratedCreatureGroupInstancesSystem,
+    type GeneratedCreatureGroupPlanEntry,
+} from './generatedCreatureGroups';
 
 type CreatureDefinitionLike = {
     baseHP: number;
@@ -16,6 +20,7 @@ type CreatureDefinitionLike = {
 };
 
 type SensorStateLike = {
+    currentLevel: number;
     creatures: CreatureInstance[];
     pendingGeneratorSpawns: unknown[];
 };
@@ -42,6 +47,7 @@ type StoreWorldRuntimeParams<TSensorState extends SensorStateLike> = {
         championId: number,
     ) => { equipment: ChampionEquipment; inventory: FloorItem[] };
     canMaterializeReservedGeneratorSpawnOnLevel: (
+        partyLevel: number,
         level: number,
         creatures: TSensorState['creatures'],
         pendingGeneratorSpawns: TSensorState['pendingGeneratorSpawns'],
@@ -129,6 +135,7 @@ export function createStoreWorldRuntime<TSensorState extends SensorStateLike>(
         level: number,
     ): boolean =>
         params.canMaterializeReservedGeneratorSpawnOnLevel(
+            state.currentLevel,
             level,
             state.creatures,
             state.pendingGeneratorSpawns,
@@ -185,6 +192,61 @@ export function createStoreWorldRuntime<TSensorState extends SensorStateLike>(
             }),
         },
     );
+
+    const buildPendingGeneratedCreatureGroup = (
+        level: number,
+        x: number,
+        y: number,
+        typeId: number,
+        hpMultiplier: number,
+        creatureCount: number,
+        groupId: string,
+    ): GeneratedCreatureGroupPlanEntry[] => buildGeneratedCreatureGroupPlanSystem(
+        level,
+        x,
+        y,
+        typeId,
+        hpMultiplier,
+        creatureCount,
+        groupId,
+        {
+            getCreatureDefinition: (spawnTypeId) => params.creatureTypes[spawnTypeId],
+            getEffectiveHealthMultiplier: (spawnLevel, spawnHpMultiplier) =>
+                getOriginalGeneratorEffectiveHealthMultiplier(
+                    spawnLevel,
+                    spawnHpMultiplier,
+                    params.getMapDifficulty,
+                ),
+            randomInt: params.randomInt,
+            randomFraction,
+            createCreatureId: (spawnLevel, spawnX, spawnY, spawnTypeId, ordinal) =>
+                `gen_${spawnLevel}_${spawnX}_${spawnY}_${spawnTypeId}_${now()}_${ordinal}_${Math.random().toString(36).slice(2)}`,
+        },
+    );
+
+    const materializePendingGeneratedCreatureGroup = (
+        plan: GeneratedCreatureGroupPlanEntry[],
+    ): CreatureInstance[] => {
+        for (const entry of plan) {
+            params.registerCreatureTimers(entry.id, {
+                mt: entry.moveTimer,
+                at: entry.attackTimer,
+            });
+        }
+
+        return plan.map((entry) => ({
+            id: entry.id,
+            groupId: entry.groupId,
+            typeId: entry.typeId,
+            mapIndex: entry.mapIndex,
+            x: entry.x,
+            y: entry.y,
+            currentHP: entry.currentHP,
+            alive: true,
+            cell: entry.cell,
+            carriedItems: [],
+        }));
+    };
 
     const buildFloorItemsForMap = (map: GameMap): FloorItem[] => {
         const items: FloorItem[] = [];
@@ -310,9 +372,11 @@ export function createStoreWorldRuntime<TSensorState extends SensorStateLike>(
         buildOpenPits,
         buildOpenTeleporters,
         buildVisibleTexts,
+        buildPendingGeneratedCreatureGroup,
         canApproximateOriginalReservedGeneratorSpawn,
         createGeneratedCreatureGroupInstances,
         getChampionStarterLoadout,
         isGeneratorSpawnBlocked: params.isGeneratorSpawnBlocked,
+        materializePendingGeneratedCreatureGroup,
     };
 }

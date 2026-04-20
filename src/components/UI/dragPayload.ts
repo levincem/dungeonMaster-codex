@@ -17,6 +17,13 @@ function ensureCleanupHandlers(): void {
     };
     window.addEventListener('dragend', clear);
     window.addEventListener('drop', clear);
+    window.addEventListener('mouseup', clear);
+    window.addEventListener('blur', clear);
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState !== 'visible') {
+            clear();
+        }
+    });
     cleanupRegistered = true;
 }
 
@@ -43,4 +50,8 @@ export function getDragPayload(event: React.DragEvent): DragPayload | null {
     } catch {
         return activeDragPayload;
     }
+}
+
+export function hasActiveDragPayload(): boolean {
+    return activeDragPayload !== null;
 }
