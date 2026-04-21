@@ -197,6 +197,17 @@ export const spellsFr = {
             'Cree un elixir de mana.',
         ],
     },
+    venPotion: {
+        names: ['Ven Potion (faible)', 'Ven Potion', 'Ven Potion (forte)', 'Grande Ven Potion', 'Ven Potion Supreme', 'Ven Potion Absolue'],
+        descriptions: [
+            'Cree une faible potion toxique.',
+            'Cree une potion toxique.',
+            'Cree une potion toxique puissante.',
+            'Cree une grande potion toxique.',
+            'Cree une potion toxique supreme.',
+            'Cree la plus puissante des potions toxiques.',
+        ],
+    },
     strengthPotion: {
         names: ['Potion de Force (faible)', 'Potion de Force', 'Potion de Force (forte)', 'Grande Potion de Force', 'Potion Supreme de Force', 'Elixir de Force'],
         descriptions: [

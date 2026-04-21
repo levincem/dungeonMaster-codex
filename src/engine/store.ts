@@ -79,8 +79,13 @@ import {
     playPartyAttack,
     playCreatureMove,
     playCreatureAttack,
+    playExplodingFireball,
+    playExplodingSpell,
+    playFallingAndDying,
+    playFallingItem,
     playPlate,
     playDoorMotion,
+    playSwallowing,
     playTeleport,
     playWallBump,
     playChampionWounded,
@@ -118,6 +123,7 @@ import {
     buildThrowFloorItemRuntimePatch,
     removeChampionCarriedItemToTile,
 } from './systems/floorItemCommandRuntime';
+import { applyFloorItemTeleporterEffects as applyFloorItemTeleporterEffectsSystem } from './systems/floorItemTeleporterEffects';
 import {
     getChampionPotionBonuses,
     getChampionRuntimeBonuses,
@@ -156,9 +162,11 @@ import {
     buildRemoveFromPartyPatch,
 } from './systems/storePartyRosterRuntime';
 import {
+    buildStoreDrinkFromFountainPatch,
     buildStoreFillWaterPatch,
     buildStoreResurrectChampionPatch,
     buildStoreUseItemPatch as buildStoreUseItemActionPatch,
+    createStoreDrinkFromFountainRuntimeDeps,
     createStoreFillWaterRuntimeDeps,
     createStoreResurrectChampionRuntimeDeps,
     createStoreUseItemRuntimeDeps,
@@ -239,6 +247,7 @@ import {
     createStoreCastSpellRuntimeDeps,
     buildStoreTickSpellsRuntimePatch,
     createStoreTickSpellsRuntimePartyDamageDeps,
+    resolveSpellVisualSoundNames,
     createStoreTickSpellsStatefulDeps,
     createStoreTickSpellsRuntimeDeps,
 } from './systems/storeSpellRuntime';
@@ -277,6 +286,7 @@ import { resolveClimbDownAction as resolveClimbDownActionSystem } from './system
 import { resolveStairStepTransport as resolveStairStepTransportSystem } from './systems/stairStepTransport';
 import { resolveStandardStepTransport as resolveStandardStepTransportSystem } from './systems/standardStepTransport';
 import { resolveTeleporterStepTransport as resolveTeleporterStepTransportSystem } from './systems/teleporterStepTransport';
+import { sanitizeOpenTeleporterKeys } from './systems/disabledTeleporters';
 import { applyOpenedPitEffects as applyOpenedPitEffectsSystem } from './systems/openedPitSquares';
 import { applyOpenedTeleporterEffects as applyOpenedTeleporterEffectsSystem } from './systems/openedTransportSquares';
 import { isGeneratorSpawnBlocked as isGeneratorSpawnBlockedSystem } from './systems/sensorGeneratorRuntime';
@@ -814,7 +824,7 @@ const { buildFreshDungeonState } = createStoreBootstrapRuntime({
     hallStart: [3, 1],
     hallStartDirection: 'SOUTH',
     buildDefaultOpenPits: () => new Set<string>(getDungeonBootstrap().defaultOpenPits ?? []),
-    buildDefaultOpenTeleporters: () => new Set<string>(getDungeonBootstrap().defaultOpenTeleporters ?? []),
+    buildDefaultOpenTeleporters: () => sanitizeOpenTeleporterKeys(getDungeonBootstrap().defaultOpenTeleporters ?? []),
     buildDefaultVisibleTexts: () => new Set<string>(getDungeonBootstrap().defaultVisibleTexts ?? []),
     buildCreatureInstancesForLevel,
     buildFloorItemsForLevel,
@@ -1657,6 +1667,7 @@ interface GameState {
     killChampion: (championId: number) => void;
     resurrectChampion: (bonesItemId: string) => void;
     useItem: (championId: number, itemId: string, fromSlot?: EquipSlotKey | 'inventory') => void;
+    drinkFromFountain: (championId: number) => void;
     fillWaterContainer: (championId: number, itemId: string) => void;
     sleep: () => void;
     wakeUp: () => void;
@@ -1859,6 +1870,20 @@ const storeFillWaterRuntimeDeps = createStoreFillWaterRuntimeDeps({
     fillWaterContainer,
 });
 
+const storeDrinkFromFountainRuntimeDeps = createStoreDrinkFromFountainRuntimeDeps({
+    isFacingFountain: (currentState) => isFacingFountainSystem(
+        currentState.level,
+        currentState.position,
+        currentState.direction,
+        {
+            getTile: (level, x, y) => getMap(level).tiles[y]?.[x],
+            hasOriginalWallOverlayAt,
+        },
+    ),
+    clampWater: (value) => clampFoodWater(value, MAX_WATER),
+    waterGain: 800,
+});
+
 const runStoreAttackFrontAction = createStoreAttackFrontAction<GameState>({
     getWeaponAttackOptions: (item) => getWeaponAttackOptions(item ?? undefined),
     getRequiredAmmoRawClass,
@@ -2023,6 +2048,21 @@ const runStoreCastSpellAction = createStoreCastSpellAction<GameState>({
     },
 });
 
+function playSpellVisualImpactSounds(
+    previousSpellVisualEvents: GameState['spellVisualEvents'],
+    nextSpellVisualEvents: GameState['spellVisualEvents'] | undefined,
+): void {
+    if (!nextSpellVisualEvents || nextSpellVisualEvents === previousSpellVisualEvents) return;
+    const sounds = resolveSpellVisualSoundNames(previousSpellVisualEvents, nextSpellVisualEvents);
+    for (const sound of sounds) {
+        if (sound === 'exploding_fireball') {
+            playExplodingFireball();
+            continue;
+        }
+        playExplodingSpell();
+    }
+}
+
 function applyDroppedFloorItemRuntimeEffects(
     state: GameState,
     patch: Partial<GameState> | GameState | null,
@@ -2069,7 +2109,54 @@ function applyDroppedFloorItemRuntimeEffects(
         };
     }
 
-    return applyImmediateTransportSquareEffects(state, currentPatch);
+    return applyFloorItemTeleporterEffects(
+        state,
+        applyImmediateTransportSquareEffects(state, currentPatch) as Partial<GameState>,
+    );
+}
+
+function applyFloorItemTeleporterEffects(
+    state: GameState,
+    patch: Partial<GameState> | GameState | null,
+): Partial<GameState> | GameState | null {
+    if (!patch || patch === state) return patch;
+    return applyFloorItemTeleporterEffectsSystem(state, patch as Partial<GameState>, {
+        buildSensorStateSnapshot,
+        triggerFloorSensors: (
+            level,
+            x,
+            y,
+            sensorState,
+            inventories,
+            equipment,
+            floorItems,
+            pendingSensorEvents,
+            source,
+            mode,
+        ) => triggerFloorSensorsSystem(
+            level,
+            x,
+            y,
+            sensorState as SensorState,
+            inventories,
+            equipment,
+            floorItems,
+            pendingSensorEvents as PendingSensorEvent[],
+            buildMovementSensorDeps(),
+            mode,
+            source,
+        ),
+        resolveProjectileTeleporterTransport: (transportState, level, x, y, direction, transportKind) =>
+            resolveProjectileTeleporterTransportSystem(
+                transportState,
+                level,
+                x,
+                y,
+                direction,
+                buildTerrainTransportDeps(),
+                transportKind,
+            ),
+    });
 }
 
 const runStoreTickSpellsAction = (state: GameState, now: number) => {
@@ -2127,7 +2214,9 @@ const runStoreTickSpellsAction = (state: GameState, now: number) => {
     );
 
     const patch = buildStoreTickSpellsRuntimePatch(state, now, runtimeDeps);
-    return applyDroppedFloorItemRuntimeEffects(state, patch) as Partial<GameState> | null;
+    const nextPatch = applyDroppedFloorItemRuntimeEffects(state, patch) as Partial<GameState> | null;
+    playSpellVisualImpactSounds(state.spellVisualEvents, nextPatch?.spellVisualEvents);
+    return nextPatch;
 };
 
 const runStoreMonsterTickActionBase = createStoreMonsterTickAction<GameState>((state) =>
@@ -2412,6 +2501,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             applyState: set,
             buildDeps: () => buildStorePartyMoveDeps(true),
             playWallBump,
+            playFallingAndDying,
             showTransientMessage: (message) => get().showTransientMessage(message),
         });
     },
@@ -2423,6 +2513,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             applyState: set,
             buildDeps: () => buildStorePartyMoveDeps(false),
             playWallBump,
+            playFallingAndDying,
             showTransientMessage: (message) => get().showTransientMessage(message),
         });
     },
@@ -2434,6 +2525,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             applyState: set,
             buildDeps: () => buildStorePartyMoveDeps(false),
             playWallBump,
+            playFallingAndDying,
             showTransientMessage: (message) => get().showTransientMessage(message),
         });
     },
@@ -2445,6 +2537,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             applyState: set,
             buildDeps: () => buildStorePartyMoveDeps(false),
             playWallBump,
+            playFallingAndDying,
             showTransientMessage: (message) => get().showTransientMessage(message),
         });
     },
@@ -2624,16 +2717,32 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             (patch) => set(patch),
         ),
 
-    dropItem: (itemId, championId) => set((state) =>
-        buildStoreDropInventoryItemPatch(state, championId, itemId) ?? state
-    ),
+    dropItem: (itemId, championId) => {
+        const state = get();
+        const patch = applyFloorItemTeleporterEffects(
+            state,
+            buildStoreDropInventoryItemPatch(state, championId, itemId),
+        );
+        if (!patch) return;
+        set(patch);
+        playFallingItem();
+    },
 
     dropCarriedItem: (championId, itemId, fromSlot) =>
         runStoreOptionalPatchAction(
-            () => buildDropCarriedItemRuntimePatch(get(), championId, itemId, fromSlot, {
-                dropChampionCarriedItem,
-            }),
-            (patch) => set(patch),
+            () => {
+                const state = get();
+                return applyFloorItemTeleporterEffects(
+                    state,
+                    buildDropCarriedItemRuntimePatch(state, championId, itemId, fromSlot, {
+                        dropChampionCarriedItem,
+                    }),
+                );
+            },
+            (patch) => {
+                set(patch);
+                playFallingItem();
+            },
         ),
 
     dropCarriedItemInFront: (championId, itemId, fromSlot) =>
@@ -2658,13 +2767,19 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                     'enter',
                     'item',
                 );
-                return {
+                return applyFloorItemTeleporterEffects(
+                    state,
+                    {
                     ...basePatch,
                     ...sensorChanges.sensorChanges,
                     pendingSensorEvents: sensorChanges.pendingSensorEvents,
-                };
+                    },
+                );
             },
-            (patch) => set(patch),
+            (patch) => {
+                set(patch);
+                playFallingItem();
+            },
         ),
 
     throwCarriedItem: (championId, itemId, fromSlot) =>
@@ -2686,7 +2801,10 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                         }),
                 },
             ),
-            (patch) => set(patch),
+            (patch) => {
+                set(patch);
+                playFallingItem();
+            },
         ),
 
     moveFloorItemToCurrentTile: (itemId, championId) =>
@@ -2694,9 +2812,15 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             () => {
                 const state = get();
                 const [y, x] = state.position;
-                return buildMoveFloorItemToTileRuntimePatch(state, itemId, championId, x, y, floorItemCommandDeps);
+                return applyFloorItemTeleporterEffects(
+                    state,
+                    buildMoveFloorItemToTileRuntimePatch(state, itemId, championId, x, y, floorItemCommandDeps),
+                );
             },
-            (patch) => set(patch),
+            (patch) => {
+                set(patch);
+                playFallingItem();
+            },
         ),
 
     moveFloorItemToFrontTile: (itemId, championId) =>
@@ -2705,7 +2829,10 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 const state = get();
                 const { x, y } = resolveFrontTilePosition(state.position, state.direction);
                 if (!canPlaceDungeonDraggedItemOnTile(state, x, y)) return null;
-                return buildMoveFloorItemToTileRuntimePatch(state, itemId, championId, x, y, floorItemCommandDeps);
+                return applyFloorItemTeleporterEffects(
+                    state,
+                    buildMoveFloorItemToTileRuntimePatch(state, itemId, championId, x, y, floorItemCommandDeps),
+                );
             },
             (patch) => set(patch),
         ),
@@ -2780,9 +2907,32 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         buildStoreResurrectChampionPatch(state, bonesItemId, storeResurrectChampionRuntimeDeps) ?? state
     ),
 
-    useItem: (championId, itemId, fromSlot = 'inventory') => set((state) =>
-        buildStoreUseItemActionPatch(state, championId, itemId, fromSlot, Date.now(), storeUseItemRuntimeDeps) ?? state
-    ),
+    useItem: (championId, itemId, fromSlot = 'inventory') => {
+        const state = get();
+        const located = storeUseItemRuntimeDeps.locateChampionItem(state, championId, itemId, fromSlot);
+        if (!located) return;
+        const patch = buildStoreUseItemActionPatch(
+            state,
+            championId,
+            itemId,
+            fromSlot,
+            Date.now(),
+            storeUseItemRuntimeDeps,
+        );
+        if (!patch) return;
+        set(patch);
+        if (storeUseItemRuntimeDeps.resolveUseItemSound(located.item) === 'swallowing') {
+            playSwallowing();
+        }
+    },
+
+    drinkFromFountain: (championId) => {
+        const state = get();
+        const patch = buildStoreDrinkFromFountainPatch(state, championId, storeDrinkFromFountainRuntimeDeps);
+        if (!patch) return;
+        set(patch);
+        playSwallowing();
+    },
 
     fillWaterContainer: (championId, itemId) => set((state) =>
         buildStoreFillWaterPatch(state, championId, itemId, storeFillWaterRuntimeDeps) ?? state
@@ -2825,9 +2975,13 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
 
     returnToTitle: () => set(buildStoreReturnToTitlePatch()),
 
-    castSpell: (championId, runeIds) => set((state) =>
-        runStoreCastSpellAction(state, championId, runeIds, Date.now()) ?? state
-    ),
+    castSpell: (championId, runeIds) => {
+        const state = get();
+        const patch = runStoreCastSpellAction(state, championId, runeIds, Date.now());
+        if (!patch) return;
+        set(patch);
+        playSpellVisualImpactSounds(state.spellVisualEvents, patch.spellVisualEvents);
+    },
 
     tickFrame: (delta, now) => set((state) => buildStoreTickFramePatch(state, delta, now) ?? state),
 

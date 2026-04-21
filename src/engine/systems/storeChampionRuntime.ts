@@ -178,7 +178,7 @@ export function buildEmptyFlaskReplacement(item: FloorItem, resolveItemName: (ca
         ...item,
         category: 'Potion',
         typeId: 20,
-        rawName: resolveItemName('Potion', 20, item.rawName),
+        rawName: resolveItemName('Potion', 20),
         waterCharges: 0,
         waterMaxCharges: 1,
     };

@@ -13,6 +13,11 @@ const FILES: Record<string, string> = {
     door:                   'door.wav',
     teleport:               'teleport.wav',
     wall_bump:              'wall_bump.wav',
+    falling_item:           'falling_item.wav',
+    falling_and_dying:      'falling_and_dying.wav',
+    exploding_fireball:     'exploding_fireball.wav',
+    exploding_spell:        'exploding_spell.wav',
+    swallowing:             'swallowing.wav',
     champion_wounded_1:     'champion_wounded_1.wav',
     champion_wounded_2:     'champion_wounded_2.wav',
     champion_wounded_3:     'champion_wounded_3.wav',
@@ -207,6 +212,11 @@ export function playDoor(): void { play('door', 0.65); }
 export function playDoorMotion(durationMs = 1000, volume = 0.65): void { playLoopFor('door', durationMs, volume); }
 export function playTeleport(): void { play('teleport', 0.70); }
 export function playWallBump(): void { play('wall_bump', 0.70); }
+export function playFallingItem(): void { play('falling_item', 0.68); }
+export function playFallingAndDying(): void { play('falling_and_dying', 0.72); }
+export function playExplodingFireball(): void { play('exploding_fireball', 0.72); }
+export function playExplodingSpell(): void { play('exploding_spell', 0.72); }
+export function playSwallowing(): void { play('swallowing', 0.68); }
 export function playChampionWounded(): void {
     const sound = CHAMPION_WOUNDED_SOUNDS[Math.floor(Math.random() * CHAMPION_WOUNDED_SOUNDS.length)];
     play(sound, 0.68);

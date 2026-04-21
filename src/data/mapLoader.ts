@@ -16,6 +16,7 @@ import {
     type RawDungeonBootstrap,
     type RawDungeonMapSummary,
 } from './dungeonData';
+import { getOriginalTeleporterRuntime } from './originalTeleporters';
 import { normalizeScrollText } from './textNormalization';
 
 interface RawObject {
@@ -38,10 +39,12 @@ interface RawTile {
     open?: boolean;
     visible?: boolean;
     objects?: RawObject[];
+    [key: string]: unknown;
 }
 
 interface RawMap extends Omit<RawDungeonMapSummary, 'file'> {
     tiles: RawTile[];
+    [key: string]: unknown;
 }
 
 function normaliseTileType(raw: string): TileType {
@@ -60,8 +63,23 @@ function normaliseTileType(raw: string): TileType {
     }
 }
 
-function buildTile(raw: RawTile): GameTile {
+function buildTile(mapIndex: number, raw: RawTile): GameTile {
     const objects = ((raw.objects ?? []) as unknown as TileObject[]).map((object) => {
+        if (object.category === 'Teleporter') {
+            const teleporter = object as TileObject & {
+                index: number;
+                scope?: string;
+                rotationType?: number;
+                rotation?: CardinalDir;
+            };
+            const meta = getOriginalTeleporterRuntime(mapIndex, raw.x, raw.y, teleporter.index);
+            return {
+                ...teleporter,
+                scope: teleporter.scope ?? meta?.scope ?? 'Everything',
+                rotationType: teleporter.rotationType ?? meta?.rotationType ?? 0,
+                rotation: teleporter.rotation ?? meta?.rotation ?? 'North',
+            };
+        }
         if (object.category !== 'Text') return object;
         return {
             ...object,
@@ -70,7 +88,7 @@ function buildTile(raw: RawTile): GameTile {
     });
 
     // Small runtime-only helper text in the Hall of Champions.
-    if (raw.x === 9 && raw.y === 3 && raw.type === 'Wall') {
+    if (mapIndex === 0 && raw.x === 9 && raw.y === 3 && raw.type === 'Wall') {
         objects.push({
             category: 'Text',
             index: 1000003,
@@ -81,21 +99,10 @@ function buildTile(raw: RawTile): GameTile {
     }
 
     return {
-        x: raw.x,
-        y: raw.y,
-        globalX: raw.globalX,
-        globalY: raw.globalY,
+        ...raw,
         type: normaliseTileType(raw.type),
-        allowDecoN: raw.allowDecoN,
-        allowDecoE: raw.allowDecoE,
-        allowDecoS: raw.allowDecoS,
-        allowDecoW: raw.allowDecoW,
-        orientation: raw.orientation as GameTile['orientation'],
-        state: raw.state as GameTile['state'],
-        open: raw.open,
-        visible: raw.visible,
         objects,
-    };
+    } as GameTile;
 }
 
 function buildMap(raw: RawMap): GameMap {
@@ -110,21 +117,13 @@ function buildMap(raw: RawMap): GameMap {
     );
 
     for (const rawTile of raw.tiles) {
-        tiles[rawTile.y][rawTile.x] = buildTile(rawTile);
+        tiles[rawTile.y][rawTile.x] = buildTile(raw.index, rawTile);
     }
 
     return {
-        index: raw.index,
-        name: raw.name,
-        level: raw.level,
-        width: raw.width,
-        height: raw.height,
-        difficulty: raw.difficulty,
-        mapOffset: raw.mapOffset,
-        localBounds: raw.localBounds,
-        globalBounds: raw.globalBounds,
+        ...raw,
         tiles,
-    };
+    } as GameMap;
 }
 
 let cachedDungeonBootstrap: RawDungeonBootstrap | null = null;

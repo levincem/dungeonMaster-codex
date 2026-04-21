@@ -75,6 +75,7 @@ type RawGameDb = {
         };
         i562?: {
             woundDefenseFactors?: number[];
+            dropOrder?: number[];
             underscoreCharacterString?: number[];
             renameChampionInputCharacterString?: number[];
             reincarnateSpecialCharacters?: number[];
@@ -91,6 +92,10 @@ type ItemsDerivedData = {
     i559MiscWeights: number[];
     i559FoodValues: number[];
     i562WoundDefenseFactorsRaw: number[];
+    i562DropOrderRaw: number[];
+    i562UnderscoreCharacterStringRaw: number[];
+    i562RenameChampionInputCharacterStringRaw: number[];
+    i562ReincarnateSpecialCharactersRaw: number[];
     itemTypeNames: RawItemTypeNames;
     weaponAllowedSlotMaskByIndex: Map<number, number>;
     weaponEntries: WeaponDef[];
@@ -114,6 +119,10 @@ const armorTypesTarget: Record<number, ArmorDef> = {};
 const potionTypesTarget: Record<number, PotionDef> = {};
 const miscTypesTarget: Record<number, MiscDef> = {};
 const woundDefenseFactorsTarget: number[] = [...FALLBACK_WOUND_DEFENSE_FACTORS];
+const dropOrderTarget: number[] = [];
+const underscoreCharacterStringTarget: number[] = [];
+const renameChampionInputCharacterStringTarget: number[] = [];
+const reincarnateSpecialCharactersTarget: number[] = [];
 
 function replaceNumberRecord<T>(target: Record<number, T>, source: Record<number, T>): void {
     for (const key of Object.keys(target)) {
@@ -135,6 +144,10 @@ function syncExportedItemTargets(derived: ItemsDerivedData): void {
         woundDefenseFactorsTarget,
         Array.from({ length: 6 }, (_, index) => derived.i562WoundDefenseFactorsRaw[index] ?? FALLBACK_WOUND_DEFENSE_FACTORS[index] ?? 0),
     );
+    replaceArray(dropOrderTarget, derived.i562DropOrderRaw);
+    replaceArray(underscoreCharacterStringTarget, derived.i562UnderscoreCharacterStringRaw);
+    replaceArray(renameChampionInputCharacterStringTarget, derived.i562RenameChampionInputCharacterStringRaw);
+    replaceArray(reincarnateSpecialCharactersTarget, derived.i562ReincarnateSpecialCharactersRaw);
 }
 
 function createHydratingRecordProxy<T extends Record<number, unknown>>(target: T): T {
@@ -679,6 +692,10 @@ function buildItemsDerivedData(gameDb: RawGameDb): ItemsDerivedData {
         i559MiscWeights: originalI559?.miscWeightsKg ?? [],
         i559FoodValues: originalI559?.foodValues ?? [],
         i562WoundDefenseFactorsRaw: gameDb.originalAtari?.i562?.woundDefenseFactors ?? [],
+        i562DropOrderRaw: gameDb.originalAtari?.i562?.dropOrder ?? [],
+        i562UnderscoreCharacterStringRaw: gameDb.originalAtari?.i562?.underscoreCharacterString ?? [],
+        i562RenameChampionInputCharacterStringRaw: gameDb.originalAtari?.i562?.renameChampionInputCharacterString ?? [],
+        i562ReincarnateSpecialCharactersRaw: gameDb.originalAtari?.i562?.reincarnateSpecialCharacters ?? [],
         weaponAllowedSlotMaskByIndex: new Map<number, number>(
             weaponAttackReference.map((entry) => [entry.weaponIndex, entry.allowedSlotsMask]),
         ),
@@ -774,6 +791,10 @@ export const ARMOR_TYPES: Record<number, ArmorDef> = createHydratingRecordProxy(
 export const POTION_TYPES: Record<number, PotionDef> = createHydratingRecordProxy(potionTypesTarget);
 export const MISC_TYPES: Record<number, MiscDef> = createHydratingRecordProxy(miscTypesTarget);
 export const I562_WOUND_DEFENSE_FACTORS = createHydratingArrayProxy(woundDefenseFactorsTarget);
+export const I562_DROP_ORDER = createHydratingArrayProxy(dropOrderTarget);
+export const I562_UNDERSCORE_CHARACTER_STRING = createHydratingArrayProxy(underscoreCharacterStringTarget);
+export const I562_RENAME_CHAMPION_INPUT_CHARACTER_STRING = createHydratingArrayProxy(renameChampionInputCharacterStringTarget);
+export const I562_REINCARNATE_SPECIAL_CHARACTERS = createHydratingArrayProxy(reincarnateSpecialCharactersTarget);
 
 export function normalizeLookupName(value: string | undefined): string | null {
     if (!value) return null;

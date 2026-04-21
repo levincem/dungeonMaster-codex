@@ -3,15 +3,22 @@ import assert from 'node:assert/strict';
 import type { Champion } from '../src/types/champion.js';
 import type { ChampionEquipment, FloorItem } from '../src/types/game.js';
 import type { ChampionVitals } from '../src/engine/runtimeTypes.js';
-import { buildFillWaterRuntimePatch, buildUseItemRuntimePatch } from '../src/engine/systems/itemCommandRuntime.js';
+import {
+    buildDrinkFromFountainRuntimePatch,
+    buildFillWaterRuntimePatch,
+    buildUseItemRuntimePatch,
+} from '../src/engine/systems/itemCommandRuntime.js';
 import { buildResurrectChampionRuntimePatch } from '../src/engine/systems/itemCarryCommandRuntime.js';
 import {
+    buildStoreDrinkFromFountainPatch,
     buildStoreFillWaterPatch,
     buildStoreResurrectChampionPatch,
     buildStoreUseItemPatch,
+    createStoreDrinkFromFountainRuntimeDeps,
     createStoreFillWaterRuntimeDeps,
     createStoreResurrectChampionRuntimeDeps,
     createStoreUseItemRuntimeDeps,
+    resolveStoreUseItemSound,
 } from '../src/engine/systems/storeItemRuntime.js';
 
 function createChampion(id: number): Champion {
@@ -157,6 +164,58 @@ test('createStoreUseItemRuntimeDeps wires nested consumption deps into the runti
     );
 });
 
+test('resolveStoreUseItemSound only marks source-backed consumables for swallowing', () => {
+    const waterskin: FloorItem = {
+        id: 'waterskin',
+        category: 'Misc',
+        typeId: 1,
+        mapIndex: 0,
+        x: 0,
+        y: 0,
+        tilePos: 'North',
+    };
+    const potion: FloorItem = {
+        id: 'potion-2',
+        category: 'Potion',
+        typeId: 14,
+        mapIndex: 0,
+        x: 0,
+        y: 0,
+        tilePos: 'North',
+    };
+    const food: FloorItem = {
+        id: 'food-1',
+        category: 'Misc',
+        typeId: 31,
+        mapIndex: 0,
+        x: 0,
+        y: 0,
+        tilePos: 'North',
+    };
+    const coin: FloorItem = {
+        id: 'coin-1',
+        category: 'Misc',
+        typeId: 8,
+        mapIndex: 0,
+        x: 0,
+        y: 0,
+        tilePos: 'North',
+    };
+
+    const deps = {
+        isWaterContainer: (item: FloorItem) => item.category === 'Misc' && item.typeId === 1,
+        getPotionDef: (typeId: number) => typeId === 14
+            ? { id: 14, name: 'Vi Potion', effect: 'health' as const, drinkable: true }
+            : undefined,
+        getMiscNutrition: (typeId: number) => typeId === 31 ? 400 : null,
+    };
+
+    assert.equal(resolveStoreUseItemSound(waterskin, deps), 'swallowing');
+    assert.equal(resolveStoreUseItemSound(potion, deps), 'swallowing');
+    assert.equal(resolveStoreUseItemSound(food, deps), 'swallowing');
+    assert.equal(resolveStoreUseItemSound(coin, deps), null);
+});
+
 test('createStoreFillWaterRuntimeDeps and buildStoreFillWaterPatch delegate to the fill-water runtime', () => {
     const flask: FloorItem = {
         id: 'flask',
@@ -190,6 +249,38 @@ test('createStoreFillWaterRuntimeDeps and buildStoreFillWaterPatch delegate to t
     });
     assert.deepEqual(buildFillWaterRuntimePatch(state, 1, flask.id, deps), {
         championInventories: { 1: [filledFlask] },
+    });
+});
+
+test('createStoreDrinkFromFountainRuntimeDeps and buildStoreDrinkFromFountainPatch delegate to direct fountain drinking', () => {
+    const deps = createStoreDrinkFromFountainRuntimeDeps({
+        isFacingFountain: () => true,
+        clampWater: (value) => Math.min(2048, value),
+        waterGain: 800,
+    });
+
+    const state = {
+        level: 0,
+        position: [5, 5] as [number, number],
+        direction: 'NORTH' as const,
+        championVitals: { 1: createVitals() },
+    };
+
+    assert.deepEqual(buildStoreDrinkFromFountainPatch(state, 1, deps), {
+        championVitals: {
+            1: {
+                ...createVitals(),
+                water: 800,
+            },
+        },
+    });
+    assert.deepEqual(buildDrinkFromFountainRuntimePatch(state, 1, deps), {
+        championVitals: {
+            1: {
+                ...createVitals(),
+                water: 800,
+            },
+        },
     });
 });
 

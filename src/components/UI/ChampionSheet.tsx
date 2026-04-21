@@ -280,8 +280,9 @@ const DropZone: React.FC<{
     borderColor: string;
     highlight?: boolean;
     canAccept?: (payload: DragPayload) => boolean;
+    onClick?: () => void;
     onDrop: (p: DragPayload) => void;
-}> = ({ icon, label, title, borderColor, highlight = false, canAccept, onDrop }) => {
+}> = ({ icon, label, title, borderColor, highlight = false, canAccept, onClick, onDrop }) => {
     const [over, setOver] = useState(false);
     const tryAcceptDrag = (event: React.DragEvent, onOver?: () => void) => {
         const payload = getDragPayload(event);
@@ -292,7 +293,8 @@ const DropZone: React.FC<{
     return (
         <div title={title}
             className={highlight && !over ? 'slot-valid' : undefined}
-            style={{ width: 48, height: 48, border: `1px solid ${over ? borderColor : T.slotBorder}`, borderRadius: 3, background: over ? 'rgba(30,15,0,0.9)' : 'rgba(0,0,0,0.58)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, cursor: 'default', transition: over ? undefined : 'border-color 0.1s', position: 'relative', zIndex: 3 }}
+            style={{ width: 48, height: 48, border: `1px solid ${over ? borderColor : T.slotBorder}`, borderRadius: 3, background: over ? 'rgba(30,15,0,0.9)' : 'rgba(0,0,0,0.58)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, cursor: onClick ? 'pointer' : 'default', transition: over ? undefined : 'border-color 0.1s', position: 'relative', zIndex: 3 }}
+            onClick={onClick}
             onDragEnter={e => tryAcceptDrag(e, () => setOver(true))}
             onDragOver={e => tryAcceptDrag(e, () => setOver(true))}
             onDragLeave={() => setOver(false)}
@@ -406,7 +408,7 @@ export const ChampionSheet: React.FC = () => {
         closePartyMember, openPartyMember, removeFromParty,
         championInventories, championEquipment, championVitals, championXP, firedSensors,
         equipItem, unequipItem, dropItem, giveItem, giveEquippedItem, sleeping,
-        useItem: consumeItem, fillWaterContainer, sleep, saveGame, showTransientMessage, useItemOnFrontWall: frontWallItemAction,
+        useItem: consumeItem, drinkFromFountain, fillWaterContainer, sleep, saveGame, showTransientMessage, useItemOnFrontWall: frontWallItemAction,
     } = useStore();
     const activePotionBoosts = useStore((s) => s.activePotionBoosts);
 
@@ -560,6 +562,11 @@ export const ChampionSheet: React.FC = () => {
         if (!facingFountain) return;
         fillWaterContainer(champion.id, payload.itemId);
         clearDragState();
+    };
+
+    const handleDrinkAtFountain = () => {
+        if (!facingFountain) return;
+        drinkFromFountain(champion.id);
     };
 
     const handleUseOnWallMechanism = (payload: DragPayload) => {
@@ -724,6 +731,7 @@ export const ChampionSheet: React.FC = () => {
                                         borderColor="#3aa0d8"
                                         highlight={highlightFountain}
                                         canAccept={canDropContainerOnFountain}
+                                        onClick={handleDrinkAtFountain}
                                         onDrop={handleFillAtFountain}
                                     />
                                 ) : facingAltar ? (

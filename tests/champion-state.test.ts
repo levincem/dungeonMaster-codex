@@ -7,6 +7,7 @@ import {
     isLegacyChampionXPForChampion,
     normalizeChampionVitalsForChampion,
 } from '../src/engine/systems/championState.js';
+import { ORIGINAL_CHAMPION_LEVEL_THRESHOLDS } from '../src/data/originalChampionProgression.js';
 
 function createChampion(id: number): Champion {
     return {
@@ -75,7 +76,7 @@ test('normalizeChampionVitalsForChampion restores missing current stats from cha
 test('isLegacyChampionXPForChampion detects old basic-only initial XP and rejects hidden XP progress', () => {
     const champion = createChampion(2);
     const legacyXP = {
-        fighter: 500,
+        fighter: ORIGINAL_CHAMPION_LEVEL_THRESHOLDS.baseExperienceStep,
         ninja: 0,
         priest: 0,
         wizard: 0,

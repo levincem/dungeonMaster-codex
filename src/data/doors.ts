@@ -1,4 +1,4 @@
-import rawDoorsText from '../assets/runtime/reference/original_doors_runtime.json?raw';
+import payload from '../assets/runtime/reference/original_doors_runtime.json';
 import type { FloorItem } from '../types/game';
 import { miscPath, texturesPath } from './assetPaths';
 import { getSourceItemAllowedSlotsMask, MISC_TYPES, WEAPON_TYPES } from './items';
@@ -16,10 +16,9 @@ interface OriginalDoorsPayload {
     doors: OriginalDoorDefinition[];
 }
 
-const payload = JSON.parse(rawDoorsText) as OriginalDoorsPayload;
 const POUCH_ALLOWED_SLOTS_MASK = 1 << 8;
 
-export const ORIGINAL_DOOR_DEFS = payload.doors.reduce<Record<number, OriginalDoorDefinition>>((acc, door) => {
+export const ORIGINAL_DOOR_DEFS = (payload as OriginalDoorsPayload).doors.reduce<Record<number, OriginalDoorDefinition>>((acc, door) => {
     acc[door.id] = door;
     return acc;
 }, {});

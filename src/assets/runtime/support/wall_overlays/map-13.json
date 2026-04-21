@@ -697,5 +697,4128 @@
       "primaryOverlayIndex": 20,
       "primaryOverlayClassification": "interactive"
     }
+  ],
+  "randomCapableFaces": [
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 2,
+      "y": 6,
+      "globalX": 27,
+      "globalY": 38,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 9,
+      "rawAttrs": 9,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 2,
+      "y": 6,
+      "globalX": 27,
+      "globalY": 38,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 9,
+      "rawAttrs": 9,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 3,
+      "y": 6,
+      "globalX": 28,
+      "globalY": 38,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 12,
+      "rawAttrs": 12,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 3,
+      "y": 6,
+      "globalX": 28,
+      "globalY": 38,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 12,
+      "rawAttrs": 12,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 4,
+      "y": 4,
+      "globalX": 29,
+      "globalY": 36,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 2,
+      "rawAttrs": 2,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 5,
+      "y": 4,
+      "globalX": 30,
+      "globalY": 36,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 2,
+      "rawAttrs": 2,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 6,
+      "y": 8,
+      "globalX": 31,
+      "globalY": 40,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 4,
+      "rawAttrs": 4,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 7,
+      "y": 7,
+      "globalX": 32,
+      "globalY": 39,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 6,
+      "rawAttrs": 6,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 7,
+      "y": 7,
+      "globalX": 32,
+      "globalY": 39,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 6,
+      "rawAttrs": 6,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 7,
+      "y": 11,
+      "globalX": 32,
+      "globalY": 43,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 12,
+      "rawAttrs": 12,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 7,
+      "y": 11,
+      "globalX": 32,
+      "globalY": 43,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 12,
+      "rawAttrs": 12,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 8,
+      "y": 6,
+      "globalX": 33,
+      "globalY": 38,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 2,
+      "rawAttrs": 2,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 8,
+      "y": 9,
+      "globalX": 33,
+      "globalY": 41,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 8,
+      "y": 9,
+      "globalX": 33,
+      "globalY": 41,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 8,
+      "y": 9,
+      "globalX": 33,
+      "globalY": 41,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 8,
+      "y": 9,
+      "globalX": 33,
+      "globalY": 41,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 8,
+      "y": 12,
+      "globalX": 33,
+      "globalY": 44,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 9,
+      "y": 6,
+      "globalX": 34,
+      "globalY": 38,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 6,
+      "rawAttrs": 6,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 9,
+      "y": 6,
+      "globalX": 34,
+      "globalY": 38,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 6,
+      "rawAttrs": 6,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 9,
+      "y": 12,
+      "globalX": 34,
+      "globalY": 44,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 12,
+      "rawAttrs": 12,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 9,
+      "y": 12,
+      "globalX": 34,
+      "globalY": 44,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 12,
+      "rawAttrs": 12,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 10,
+      "y": 5,
+      "globalX": 35,
+      "globalY": 37,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 10,
+      "y": 5,
+      "globalX": 35,
+      "globalY": 37,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 11,
+      "y": 5,
+      "globalX": 36,
+      "globalY": 37,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 11,
+      "y": 5,
+      "globalX": 36,
+      "globalY": 37,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 12,
+      "y": 5,
+      "globalX": 37,
+      "globalY": 37,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 12,
+      "y": 5,
+      "globalX": 37,
+      "globalY": 37,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 12,
+      "y": 9,
+      "globalX": 37,
+      "globalY": 41,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 12,
+      "y": 9,
+      "globalX": 37,
+      "globalY": 41,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 12,
+      "y": 9,
+      "globalX": 37,
+      "globalY": 41,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 12,
+      "y": 9,
+      "globalX": 37,
+      "globalY": 41,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 13,
+      "y": 6,
+      "globalX": 38,
+      "globalY": 38,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 3,
+      "rawAttrs": 3,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 13,
+      "y": 6,
+      "globalX": 38,
+      "globalY": 38,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 3,
+      "rawAttrs": 3,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 13,
+      "y": 12,
+      "globalX": 38,
+      "globalY": 44,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 9,
+      "rawAttrs": 9,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 13,
+      "y": 12,
+      "globalX": 38,
+      "globalY": 44,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 9,
+      "rawAttrs": 9,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 14,
+      "y": 6,
+      "globalX": 39,
+      "globalY": 38,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 14,
+      "y": 6,
+      "globalX": 39,
+      "globalY": 38,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 14,
+      "y": 12,
+      "globalX": 39,
+      "globalY": 44,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 15,
+      "y": 12,
+      "globalX": 40,
+      "globalY": 44,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 16,
+      "y": 6,
+      "globalX": 41,
+      "globalY": 38,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 16,
+      "y": 6,
+      "globalX": 41,
+      "globalY": 38,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 16,
+      "y": 12,
+      "globalX": 41,
+      "globalY": 44,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 18,
+      "y": 6,
+      "globalX": 43,
+      "globalY": 38,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 2,
+      "rawAttrs": 2,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 18,
+      "y": 12,
+      "globalX": 43,
+      "globalY": 44,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 19,
+      "y": 6,
+      "globalX": 44,
+      "globalY": 38,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 2,
+      "rawAttrs": 2,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 19,
+      "y": 12,
+      "globalX": 44,
+      "globalY": 44,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 20,
+      "y": 12,
+      "globalX": 45,
+      "globalY": 44,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 21,
+      "y": 6,
+      "globalX": 46,
+      "globalY": 38,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 21,
+      "y": 6,
+      "globalX": 46,
+      "globalY": 38,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 21,
+      "y": 12,
+      "globalX": 46,
+      "globalY": 44,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 22,
+      "y": 6,
+      "globalX": 47,
+      "globalY": 38,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 20,
+      "rawAttrs": 4,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 22,
+      "y": 7,
+      "globalX": 47,
+      "globalY": 39,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 3,
+      "rawAttrs": 3,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 22,
+      "y": 7,
+      "globalX": 47,
+      "globalY": 39,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 3,
+      "rawAttrs": 3,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 23,
+      "y": 4,
+      "globalX": 48,
+      "globalY": 36,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 18,
+      "rawAttrs": 2,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 23,
+      "y": 8,
+      "globalX": 48,
+      "globalY": 40,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 19,
+      "rawAttrs": 3,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 23,
+      "y": 8,
+      "globalX": 48,
+      "globalY": 40,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 19,
+      "rawAttrs": 3,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 23,
+      "y": 10,
+      "globalX": 48,
+      "globalY": 42,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 9,
+      "rawAttrs": 9,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 23,
+      "y": 10,
+      "globalX": 48,
+      "globalY": 42,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 9,
+      "rawAttrs": 9,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 24,
+      "y": 10,
+      "globalX": 49,
+      "globalY": 42,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 25,
+      "y": 5,
+      "globalX": 50,
+      "globalY": 37,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 1,
+      "rawAttrs": 1,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 25,
+      "y": 9,
+      "globalX": 50,
+      "globalY": 41,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 1,
+      "rawAttrs": 1,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ]
+    }
+  ],
+  "effectivePlacements": [
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 2,
+      "y": 6,
+      "globalX": 27,
+      "globalY": 38,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 9,
+      "rawAttrs": 9,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 5,
+      "randomComputation": {
+        "value1": 2071,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 2,
+      "y": 6,
+      "globalX": 27,
+      "globalY": 38,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 9,
+      "rawAttrs": 9,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 5,
+      "randomComputation": {
+        "value1": 2092,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 3,
+      "y": 6,
+      "globalX": 28,
+      "globalY": 38,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 12,
+      "rawAttrs": 12,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 3,
+      "randomComputation": {
+        "value1": 2103,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 3,
+      "y": 6,
+      "globalX": 28,
+      "globalY": 38,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 12,
+      "rawAttrs": 12,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 13,
+      "randomComputation": {
+        "value1": 2110,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 4,
+      "y": 4,
+      "globalX": 29,
+      "globalY": 36,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 2,
+      "rawAttrs": 2,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 8,
+      "randomComputation": {
+        "value1": 2143,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 5,
+      "y": 4,
+      "globalX": 30,
+      "globalY": 36,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 2,
+      "rawAttrs": 2,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 6,
+      "randomComputation": {
+        "value1": 2175,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 6,
+      "y": 8,
+      "globalX": 31,
+      "globalY": 40,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 4,
+      "rawAttrs": 4,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 26,
+      "randomComputation": {
+        "value1": 2210,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 7,
+      "y": 7,
+      "globalX": 32,
+      "globalY": 39,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 6,
+      "rawAttrs": 6,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": 1,
+      "overlayIndex": 39,
+      "overlayName": "Scratches",
+      "overlayClassification": "decorative",
+      "overlayNotes": "Resolved via the original engine random ornament formula.",
+      "stateful": false,
+      "variantNames": [
+        "Scratches"
+      ],
+      "resolvedRandomIndex": 0,
+      "randomComputation": {
+        "value1": 2240,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 7,
+      "y": 7,
+      "globalX": 32,
+      "globalY": 39,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 6,
+      "rawAttrs": 6,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 7,
+      "randomComputation": {
+        "value1": 2248,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 7,
+      "y": 11,
+      "globalX": 32,
+      "globalY": 43,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 12,
+      "rawAttrs": 12,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 11,
+      "randomComputation": {
+        "value1": 2236,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 7,
+      "y": 11,
+      "globalX": 32,
+      "globalY": 43,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 12,
+      "rawAttrs": 12,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 7,
+      "randomComputation": {
+        "value1": 2248,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 8,
+      "y": 6,
+      "globalX": 33,
+      "globalY": 38,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 2,
+      "rawAttrs": 2,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 13,
+      "randomComputation": {
+        "value1": 2277,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 8,
+      "y": 9,
+      "globalX": 33,
+      "globalY": 41,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 15,
+      "randomComputation": {
+        "value1": 2266,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 8,
+      "y": 9,
+      "globalX": 33,
+      "globalY": 41,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 16,
+      "randomComputation": {
+        "value1": 2276,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 8,
+      "y": 9,
+      "globalX": 33,
+      "globalY": 41,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 17,
+      "randomComputation": {
+        "value1": 2286,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 8,
+      "y": 9,
+      "globalX": 33,
+      "globalY": 41,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 19,
+      "randomComputation": {
+        "value1": 2296,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 8,
+      "y": 12,
+      "globalX": 33,
+      "globalY": 44,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 6,
+      "randomComputation": {
+        "value1": 2269,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 9,
+      "y": 6,
+      "globalX": 34,
+      "globalY": 38,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 6,
+      "rawAttrs": 6,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": 2,
+      "overlayIndex": 36,
+      "overlayName": "Manacles",
+      "overlayClassification": "decorative",
+      "overlayNotes": "Resolved via the original engine random ornament formula.",
+      "stateful": false,
+      "variantNames": [
+        "Manacles"
+      ],
+      "resolvedRandomIndex": 1,
+      "randomComputation": {
+        "value1": 2302,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 9,
+      "y": 6,
+      "globalX": 34,
+      "globalY": 38,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 6,
+      "rawAttrs": 6,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 11,
+      "randomComputation": {
+        "value1": 2309,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 9,
+      "y": 12,
+      "globalX": 34,
+      "globalY": 44,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 12,
+      "rawAttrs": 12,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 4,
+      "randomComputation": {
+        "value1": 2301,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 9,
+      "y": 12,
+      "globalX": 34,
+      "globalY": 44,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 12,
+      "rawAttrs": 12,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 27,
+      "randomComputation": {
+        "value1": 2314,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 10,
+      "y": 5,
+      "globalX": 35,
+      "globalY": 37,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 22,
+      "randomComputation": {
+        "value1": 2326,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 10,
+      "y": 5,
+      "globalX": 35,
+      "globalY": 37,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 18,
+      "randomComputation": {
+        "value1": 2338,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 11,
+      "y": 5,
+      "globalX": 36,
+      "globalY": 37,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 20,
+      "randomComputation": {
+        "value1": 2358,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 11,
+      "y": 5,
+      "globalX": 36,
+      "globalY": 37,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 16,
+      "randomComputation": {
+        "value1": 2370,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 12,
+      "y": 5,
+      "globalX": 37,
+      "globalY": 37,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 18,
+      "randomComputation": {
+        "value1": 2390,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 12,
+      "y": 5,
+      "globalX": 37,
+      "globalY": 37,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 14,
+      "randomComputation": {
+        "value1": 2402,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 12,
+      "y": 9,
+      "globalX": 37,
+      "globalY": 41,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 7,
+      "randomComputation": {
+        "value1": 2394,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 12,
+      "y": 9,
+      "globalX": 37,
+      "globalY": 41,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 8,
+      "randomComputation": {
+        "value1": 2404,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 12,
+      "y": 9,
+      "globalX": 37,
+      "globalY": 41,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 9,
+      "randomComputation": {
+        "value1": 2414,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 12,
+      "y": 9,
+      "globalX": 37,
+      "globalY": 41,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 11,
+      "randomComputation": {
+        "value1": 2424,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 13,
+      "y": 6,
+      "globalX": 38,
+      "globalY": 38,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 3,
+      "rawAttrs": 3,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 3,
+      "randomComputation": {
+        "value1": 2437,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 13,
+      "y": 6,
+      "globalX": 38,
+      "globalY": 38,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 3,
+      "rawAttrs": 3,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 13,
+      "randomComputation": {
+        "value1": 2444,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 13,
+      "y": 12,
+      "globalX": 38,
+      "globalY": 44,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 9,
+      "rawAttrs": 9,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 26,
+      "randomComputation": {
+        "value1": 2429,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 13,
+      "y": 12,
+      "globalX": 38,
+      "globalY": 44,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 9,
+      "rawAttrs": 9,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 4,
+      "randomComputation": {
+        "value1": 2468,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 14,
+      "y": 6,
+      "globalX": 39,
+      "globalY": 38,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 11,
+      "randomComputation": {
+        "value1": 2455,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 14,
+      "y": 6,
+      "globalX": 39,
+      "globalY": 38,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": 2,
+      "overlayIndex": 36,
+      "overlayName": "Manacles",
+      "overlayClassification": "decorative",
+      "overlayNotes": "Resolved via the original engine random ornament formula.",
+      "stateful": false,
+      "variantNames": [
+        "Manacles"
+      ],
+      "resolvedRandomIndex": 1,
+      "randomComputation": {
+        "value1": 2469,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 14,
+      "y": 12,
+      "globalX": 39,
+      "globalY": 44,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 24,
+      "randomComputation": {
+        "value1": 2461,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 15,
+      "y": 12,
+      "globalX": 40,
+      "globalY": 44,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 22,
+      "randomComputation": {
+        "value1": 2493,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 16,
+      "y": 6,
+      "globalX": 41,
+      "globalY": 38,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 7,
+      "randomComputation": {
+        "value1": 2519,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 16,
+      "y": 6,
+      "globalX": 41,
+      "globalY": 38,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 27,
+      "randomComputation": {
+        "value1": 2533,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 16,
+      "y": 12,
+      "globalX": 41,
+      "globalY": 44,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 20,
+      "randomComputation": {
+        "value1": 2525,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 18,
+      "y": 6,
+      "globalX": 43,
+      "globalY": 38,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 2,
+      "rawAttrs": 2,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 23,
+      "randomComputation": {
+        "value1": 2597,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 18,
+      "y": 12,
+      "globalX": 43,
+      "globalY": 44,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 16,
+      "randomComputation": {
+        "value1": 2589,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 19,
+      "y": 6,
+      "globalX": 44,
+      "globalY": 38,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 2,
+      "rawAttrs": 2,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 21,
+      "randomComputation": {
+        "value1": 2629,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 19,
+      "y": 12,
+      "globalX": 44,
+      "globalY": 44,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 14,
+      "randomComputation": {
+        "value1": 2621,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 20,
+      "y": 12,
+      "globalX": 45,
+      "globalY": 44,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 12,
+      "randomComputation": {
+        "value1": 2653,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 21,
+      "y": 6,
+      "globalX": 46,
+      "globalY": 38,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 27,
+      "randomComputation": {
+        "value1": 2679,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 21,
+      "y": 6,
+      "globalX": 46,
+      "globalY": 38,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 17,
+      "randomComputation": {
+        "value1": 2693,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 21,
+      "y": 12,
+      "globalX": 46,
+      "globalY": 44,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 10,
+      "randomComputation": {
+        "value1": 2685,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 22,
+      "y": 6,
+      "globalX": 47,
+      "globalY": 38,
+      "face": "East",
+      "source": "fixed-sensor",
+      "category": "Sensor",
+      "objectIndex": 414,
+      "overlayOrdinal": 7,
+      "overlayIndex": 17,
+      "overlayName": "Coin Slot",
+      "overlayClassification": "interactive",
+      "overlayNotes": "Insertion slot for a specific item or coin.",
+      "objectRaw": {
+        "offset": 13508,
+        "words": [
+          "0xfffe",
+          "0x3e84",
+          "0x70c0",
+          "0x2d80"
+        ],
+        "nextWord": 65534,
+        "typeDataWord": 16004,
+        "attributesWord": 28864,
+        "targetWord": 11648
+      },
+      "sensorType": 4,
+      "sensorTypeName": "Wall Ornament Click With Specific Object Removed",
+      "sensorData": 125,
+      "ornamentOrdinal": 7,
+      "isLocal": false,
+      "delay": 1,
+      "sound": true,
+      "revert": false,
+      "action": "Set",
+      "onceOnly": false,
+      "targetX": 22,
+      "targetY": 5,
+      "targetDir": "North",
+      "targetGlobalX": 47,
+      "targetGlobalY": 37,
+      "effectiveSource": "fixed",
+      "variantNames": [
+        "Coin Slot"
+      ],
+      "stateful": false
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 22,
+      "y": 7,
+      "globalX": 47,
+      "globalY": 39,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 3,
+      "rawAttrs": 3,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 7,
+      "randomComputation": {
+        "value1": 2728,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 22,
+      "y": 7,
+      "globalX": 47,
+      "globalY": 39,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 3,
+      "rawAttrs": 3,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 14,
+      "randomComputation": {
+        "value1": 2736,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 23,
+      "y": 4,
+      "globalX": 48,
+      "globalY": 36,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 18,
+      "rawAttrs": 2,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": 1,
+      "overlayIndex": 39,
+      "overlayName": "Scratches",
+      "overlayClassification": "decorative",
+      "overlayNotes": "Resolved via the original engine random ornament formula.",
+      "stateful": false,
+      "variantNames": [
+        "Scratches"
+      ],
+      "resolvedRandomIndex": 0,
+      "randomComputation": {
+        "value1": 2751,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 23,
+      "y": 8,
+      "globalX": 48,
+      "globalY": 40,
+      "face": "South",
+      "source": "fixed-sensor",
+      "category": "Sensor",
+      "objectIndex": 287,
+      "overlayOrdinal": 4,
+      "overlayIndex": 19,
+      "overlayName": "Square Lock",
+      "overlayClassification": "interactive",
+      "overlayNotes": "Lock or keyhole style wall mechanism.",
+      "objectRaw": {
+        "offset": 12492,
+        "words": [
+          "0xfffe",
+          "0x5984",
+          "0x40c4",
+          "0x4600"
+        ],
+        "nextWord": 65534,
+        "typeDataWord": 22916,
+        "attributesWord": 16580,
+        "targetWord": 17920
+      },
+      "sensorType": 4,
+      "sensorTypeName": "Wall Ornament Click With Specific Object Removed",
+      "sensorData": 179,
+      "ornamentOrdinal": 4,
+      "isLocal": false,
+      "delay": 1,
+      "sound": true,
+      "revert": false,
+      "action": "Set",
+      "onceOnly": true,
+      "targetX": 24,
+      "targetY": 8,
+      "targetDir": "North",
+      "targetGlobalX": 49,
+      "targetGlobalY": 40,
+      "effectiveSource": "fixed",
+      "variantNames": [
+        "Square Lock"
+      ],
+      "stateful": false
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 23,
+      "y": 8,
+      "globalX": 48,
+      "globalY": 40,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 19,
+      "rawAttrs": 3,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": 1,
+      "overlayIndex": 39,
+      "overlayName": "Scratches",
+      "overlayClassification": "decorative",
+      "overlayNotes": "Resolved via the original engine random ornament formula.",
+      "stateful": false,
+      "variantNames": [
+        "Scratches"
+      ],
+      "resolvedRandomIndex": 0,
+      "randomComputation": {
+        "value1": 2772,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 23,
+      "y": 10,
+      "globalX": 48,
+      "globalY": 42,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 9,
+      "rawAttrs": 9,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 12,
+      "randomComputation": {
+        "value1": 2747,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 23,
+      "y": 10,
+      "globalX": 48,
+      "globalY": 42,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 9,
+      "rawAttrs": 9,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 7,
+      "randomComputation": {
+        "value1": 2780,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 24,
+      "y": 10,
+      "globalX": 49,
+      "globalY": 42,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 10,
+      "randomComputation": {
+        "value1": 2779,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 25,
+      "y": 5,
+      "globalX": 50,
+      "globalY": 37,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 1,
+      "rawAttrs": 1,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": 2,
+      "overlayIndex": 36,
+      "overlayName": "Manacles",
+      "overlayClassification": "decorative",
+      "overlayNotes": "Resolved via the original engine random ornament formula.",
+      "stateful": false,
+      "variantNames": [
+        "Manacles"
+      ],
+      "resolvedRandomIndex": 1,
+      "randomComputation": {
+        "value1": 2824,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 13,
+      "mapName": "Lord Chaos's Lair",
+      "level": 13,
+      "x": 25,
+      "y": 9,
+      "globalX": 50,
+      "globalY": 41,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 1,
+      "rawAttrs": 1,
+      "randomWallOrnamentCount": 2,
+      "randomPool": [
+        {
+          "index": 39,
+          "name": "Scratches",
+          "classification": "decorative"
+        },
+        {
+          "index": 36,
+          "name": "Manacles",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 15,
+      "randomComputation": {
+        "value1": 2840,
+        "value2": 3871,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    }
   ]
 }

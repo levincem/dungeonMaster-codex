@@ -4,6 +4,7 @@ import type { Champion } from '../src/types/champion.js';
 import type { ChampionEquipment, FloorItem } from '../src/types/game.js';
 import type { ChampionVitals } from '../src/engine/runtimeTypes.js';
 import {
+    buildDrinkFromFountainRuntimePatch,
     buildFillWaterRuntimePatch,
     buildUseItemRuntimePatch,
     runChampionItemOnFrontWallRuntime,
@@ -168,6 +169,48 @@ test('buildFillWaterRuntimePatch requires a fountain before delegating', () => {
 
     assert.deepEqual(patch, {
         championInventories: { 1: [filledFlask] },
+    });
+});
+
+test('buildDrinkFromFountainRuntimePatch requires a fountain and restores water by one flask ration', () => {
+    const noFountain = buildDrinkFromFountainRuntimePatch(
+        {
+            level: 0,
+            position: [5, 5],
+            direction: 'NORTH',
+            championVitals: { 1: createVitals() },
+        },
+        1,
+        {
+            isFacingFountain: () => false,
+            clampWater: (value) => value,
+            waterGain: 800,
+        },
+    );
+    assert.equal(noFountain, null);
+
+    const patch = buildDrinkFromFountainRuntimePatch(
+        {
+            level: 0,
+            position: [5, 5],
+            direction: 'NORTH',
+            championVitals: { 1: createVitals() },
+        },
+        1,
+        {
+            isFacingFountain: () => true,
+            clampWater: (value) => Math.min(2048, value),
+            waterGain: 800,
+        },
+    );
+
+    assert.deepEqual(patch, {
+        championVitals: {
+            1: {
+                ...createVitals(),
+                water: 800,
+            },
+        },
     });
 });
 

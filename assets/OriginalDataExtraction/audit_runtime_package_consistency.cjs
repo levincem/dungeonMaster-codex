@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const {
   ROOT_DIR,
+  RUNTIME_REFERENCE_DIR,
   RUNTIME_DUNGEON_BOOTSTRAP_FILE,
   RUNTIME_GAME_DB_FILE,
   RUNTIME_GAME_DB_ITEMS_FILE,
@@ -15,11 +16,14 @@ const {
 
 const OUTPUT_DIR = path.join(__dirname, 'output');
 const OUTPUT_RUNTIME_BOOTSTRAP = path.join(OUTPUT_DIR, 'runtime_dungeon_bootstrap.json');
+const OUTPUT_DUNGEON = path.join(OUTPUT_DIR, 'dungeon.json');
 const OUTPUT_RUNTIME_DUNGEON = path.join(OUTPUT_DIR, 'runtime_dungeon.json');
 const OUTPUT_GAME_DB = path.join(OUTPUT_DIR, 'game_db.json');
 const OUTPUT_RUNTIME_MANIFEST = path.join(OUTPUT_DIR, 'runtime_data_manifest.json');
 const OUTPUT_RUNTIME_WALL_OVERLAYS = path.join(OUTPUT_DIR, 'runtime_wall_overlay_positions.json');
 const REPORT_PATH = path.join(OUTPUT_DIR, 'runtime_package_consistency_audit.json');
+const REFERENCE_EXPORTS_DIR = path.join(__dirname, 'reference_exports');
+const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -27,6 +31,15 @@ function readJson(filePath) {
 
 function stableStringify(value) {
   return JSON.stringify(value);
+}
+
+function resolveReferenceAuditSource(fileName) {
+  const candidates = [
+    path.join(OUTPUT_DIR, fileName),
+    path.join(REFERENCE_EXPORTS_DIR, fileName),
+    path.join(PUBLIC_DIR, fileName),
+  ];
+  return candidates.find((candidatePath) => fs.existsSync(candidatePath)) ?? null;
 }
 
 function compareExact(label, expectedPath, actualPath, expectedValue, actualValue) {
@@ -57,6 +70,10 @@ function buildRuntimeItemsGameDb(fullGameDb) {
       },
       i562: {
         woundDefenseFactors: fullGameDb.originalAtari?.i562?.woundDefenseFactors ?? [],
+        dropOrder: fullGameDb.originalAtari?.i562?.dropOrder ?? [],
+        underscoreCharacterString: fullGameDb.originalAtari?.i562?.underscoreCharacterString ?? [],
+        renameChampionInputCharacterString: fullGameDb.originalAtari?.i562?.renameChampionInputCharacterString ?? [],
+        reincarnateSpecialCharacters: fullGameDb.originalAtari?.i562?.reincarnateSpecialCharacters ?? [],
       },
     },
   };
@@ -86,7 +103,11 @@ function buildRuntimeCreaturesGameDb(fullGameDb) {
 
 function buildRuntimeWallOverlayMapSnapshots(runtimeOverlayData) {
   const fixedFaces = Array.isArray(runtimeOverlayData?.fixedFaces) ? runtimeOverlayData.fixedFaces : [];
+  const randomCapableFaces = Array.isArray(runtimeOverlayData?.randomCapableFaces) ? runtimeOverlayData.randomCapableFaces : [];
+  const effectivePlacements = Array.isArray(runtimeOverlayData?.effectivePlacements) ? runtimeOverlayData.effectivePlacements : [];
   const fixedFacesByMap = new Map();
+  const randomCapableFacesByMap = new Map();
+  const effectivePlacementsByMap = new Map();
 
   for (const face of fixedFaces) {
     const list = fixedFacesByMap.get(face.mapIndex) ?? [];
@@ -94,16 +115,37 @@ function buildRuntimeWallOverlayMapSnapshots(runtimeOverlayData) {
     fixedFacesByMap.set(face.mapIndex, list);
   }
 
-  return Array.from(fixedFacesByMap.entries())
-    .sort((left, right) => left[0] - right[0])
-    .map(([mapIndex, mapFixedFaces]) => ({
+  for (const face of randomCapableFaces) {
+    const list = randomCapableFacesByMap.get(face.mapIndex) ?? [];
+    list.push(face);
+    randomCapableFacesByMap.set(face.mapIndex, list);
+  }
+
+  for (const placement of effectivePlacements) {
+    const list = effectivePlacementsByMap.get(placement.mapIndex) ?? [];
+    list.push(placement);
+    effectivePlacementsByMap.set(placement.mapIndex, list);
+  }
+
+  const mapIndices = new Set([
+    ...fixedFacesByMap.keys(),
+    ...randomCapableFacesByMap.keys(),
+    ...effectivePlacementsByMap.keys(),
+  ]);
+
+  return Array.from(mapIndices)
+    .sort((left, right) => left - right)
+    .map((mapIndex) => ({
       mapIndex,
       file: `wall_overlays/map-${String(mapIndex).padStart(2, '0')}.json`,
-      fixedFaces: mapFixedFaces,
+      fixedFaces: fixedFacesByMap.get(mapIndex) ?? [],
+      randomCapableFaces: randomCapableFacesByMap.get(mapIndex) ?? [],
+      effectivePlacements: effectivePlacementsByMap.get(mapIndex) ?? [],
     }));
 }
 
-function main() {
+function runAudit() {
+  const outputDungeon = readJson(OUTPUT_DUNGEON);
   const outputRuntimeBootstrap = readJson(OUTPUT_RUNTIME_BOOTSTRAP);
   const runtimeBootstrap = readJson(RUNTIME_DUNGEON_BOOTSTRAP_FILE);
   const outputRuntimeDungeon = readJson(OUTPUT_RUNTIME_DUNGEON);
@@ -118,6 +160,20 @@ function main() {
   const runtimeWallOverlays = readJson(RUNTIME_WALL_OVERLAY_FILE);
 
   const checks = [];
+  checks.push(compareExact(
+    'source dungeon start position',
+    OUTPUT_DUNGEON,
+    OUTPUT_RUNTIME_DUNGEON,
+    outputDungeon.startPosition,
+    outputRuntimeDungeon.startPosition,
+  ));
+  checks.push(compareExact(
+    'source dungeon champions',
+    OUTPUT_DUNGEON,
+    OUTPUT_RUNTIME_DUNGEON,
+    outputDungeon.champions,
+    outputRuntimeDungeon.champions,
+  ));
   checks.push(compareExact(
     'dungeon bootstrap',
     OUTPUT_RUNTIME_BOOTSTRAP,
@@ -174,14 +230,23 @@ function main() {
     runtimeCreaturesGameDb,
   ));
 
-  const expectedMapCount = Array.isArray(outputRuntimeDungeon.maps) ? outputRuntimeDungeon.maps.length : 0;
-  const mapChecks = [];
-  for (const map of outputRuntimeDungeon.maps ?? []) {
+  const expectedMapCount = Array.isArray(outputDungeon.maps) ? outputDungeon.maps.length : 0;
+  const sourceRuntimeMapChecks = [];
+  const packagedMapChecks = [];
+  for (const map of outputDungeon.maps ?? []) {
+    const outputRuntimeMap = (outputRuntimeDungeon.maps ?? []).find((entry) => entry.index === map.index);
+    sourceRuntimeMapChecks.push(compareExact(
+      `source dungeon map ${map.index}`,
+      OUTPUT_DUNGEON,
+      OUTPUT_RUNTIME_DUNGEON,
+      map,
+      outputRuntimeMap,
+    ));
     const runtimeMapPath = buildRuntimeDungeonMapFile(map.index);
     const runtimeMap = readJson(runtimeMapPath);
-    mapChecks.push(compareExact(
+    packagedMapChecks.push(compareExact(
       `runtime dungeon map ${map.index}`,
-      OUTPUT_RUNTIME_DUNGEON,
+      OUTPUT_DUNGEON,
       runtimeMapPath,
       map,
       runtimeMap,
@@ -202,20 +267,51 @@ function main() {
     ));
   }
 
+  const runtimeReferenceChecks = [];
+  const runtimeReferenceSkips = [];
+  for (const fileName of outputRuntimeManifest.files?.syncedRuntimeReferences ?? []) {
+    const expectedPath = resolveReferenceAuditSource(fileName);
+    const actualPath = path.join(RUNTIME_REFERENCE_DIR, fileName);
+    if (!expectedPath) {
+      runtimeReferenceSkips.push({
+        label: `runtime reference ${fileName}`,
+        reason: 'No canonical source file available for audit',
+      });
+      continue;
+    }
+    const expectedValue = readJson(expectedPath);
+    const actualValue = readJson(actualPath);
+    runtimeReferenceChecks.push(compareExact(
+      `runtime reference ${fileName}`,
+      expectedPath,
+      actualPath,
+      expectedValue,
+      actualValue,
+    ));
+  }
+
   const report = {
     generatedAt: new Date().toISOString(),
     summary: {
       topLevelChecks: checks.length,
       topLevelFailures: checks.filter((entry) => !entry.matches).length,
-      runtimeDungeonMapsCompared: mapChecks.length,
-      runtimeDungeonMapFailures: mapChecks.filter((entry) => !entry.matches).length,
+      runtimeReferencesCompared: runtimeReferenceChecks.length,
+      runtimeReferenceFailures: runtimeReferenceChecks.filter((entry) => !entry.matches).length,
+      runtimeReferenceSkips: runtimeReferenceSkips.length,
+      sourceRuntimeDungeonMapsCompared: sourceRuntimeMapChecks.length,
+      sourceRuntimeDungeonMapFailures: sourceRuntimeMapChecks.filter((entry) => !entry.matches).length,
+      runtimeDungeonMapsCompared: packagedMapChecks.length,
+      runtimeDungeonMapFailures: packagedMapChecks.filter((entry) => !entry.matches).length,
       runtimeWallOverlayMapsCompared: overlayMapChecks.length,
       runtimeWallOverlayMapFailures: overlayMapChecks.filter((entry) => !entry.matches).length,
       expectedMapCount,
       expectedOverlayMapCount: expectedOverlayMaps.length,
     },
     checks,
-    mapChecks,
+    sourceRuntimeMapChecks,
+    runtimeReferenceChecks,
+    runtimeReferenceSkips,
+    mapChecks: packagedMapChecks,
     overlayMapChecks,
   };
 
@@ -224,17 +320,33 @@ function main() {
 
   const hasFailures =
     report.summary.topLevelFailures > 0 ||
+    report.summary.runtimeReferenceFailures > 0 ||
+    report.summary.sourceRuntimeDungeonMapFailures > 0 ||
     report.summary.runtimeDungeonMapFailures > 0 ||
     report.summary.runtimeWallOverlayMapFailures > 0;
 
   if (hasFailures) {
-    console.error('Runtime package consistency audit found mismatches.');
-    process.exit(1);
+    throw new Error('Runtime package consistency audit found mismatches.');
   }
 
   console.log(`Top-level checks: ${report.summary.topLevelChecks}/${report.summary.topLevelChecks}`);
-  console.log(`Runtime dungeon maps: ${mapChecks.length}/${expectedMapCount}`);
+  console.log(`Runtime references: ${runtimeReferenceChecks.length}/${runtimeReferenceChecks.length}`);
+  console.log(`Source -> runtime dungeon maps: ${sourceRuntimeMapChecks.length}/${expectedMapCount}`);
+  console.log(`Runtime dungeon maps: ${packagedMapChecks.length}/${expectedMapCount}`);
   console.log(`Runtime wall overlay maps: ${overlayMapChecks.length}/${expectedOverlayMaps.length}`);
+
+  return report;
 }
 
-main();
+module.exports = {
+  runAudit,
+};
+
+if (require.main === module) {
+  try {
+    runAudit();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  }
+}

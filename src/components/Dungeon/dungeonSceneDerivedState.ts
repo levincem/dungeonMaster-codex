@@ -27,13 +27,6 @@ type MapMechanismEntry = {
     sensorType: number;
     face: CardinalDir;
 };
-type StairConnection = {
-    fromLevel: number;
-    fromX: number;
-    fromY: number;
-    toLevel: number;
-};
-
 export type FrontWallInteractionKind = 'wall-lock' | 'alcove' | 'object-exchanger';
 export type AltarDropTarget = {
     placement: WallDropPlacement;
@@ -132,21 +125,6 @@ function isWallFaceVisible(
 ): boolean {
     const anchor = wallFaceAnchor(tileX, tileY, face);
     return hasWallFaceLineOfSight(map, level, openDoors, openWalls, isSelfRevealingWallTile, doorBlocksVision, partyX, partyY, anchor.x, anchor.y);
-}
-
-function resolveStairsEntryFace(map: GameMap, x: number, y: number): CardinalDir {
-    const neighbours: Array<{ dx: number; dy: number; dir: CardinalDir }> = [
-        { dx: 0, dy: -1, dir: 'North' },
-        { dx: 0, dy: 1, dir: 'South' },
-        { dx: 1, dy: 0, dir: 'East' },
-        { dx: -1, dy: 0, dir: 'West' },
-    ];
-    for (const { dx, dy, dir } of neighbours) {
-        const row = map.tiles[y + dy];
-        const neighbour = row?.[x + dx];
-        if (neighbour && neighbour.type !== 'Wall') return dir;
-    }
-    return 'South';
 }
 
 export function resolveFrontWallInteractionKind(args: {
@@ -289,15 +267,11 @@ export function buildDungeonSceneWallDecals(args: {
     openWalls: Set<string>;
     partyPosition: [number, number];
     originalWallOverlays: readonly WallDecalRender[];
-    stairConnections?: readonly StairConnection[];
-    miscImagePathBuilder?: (file: string) => string;
     isSelfRevealingWallTile?: (level: number, tileX: number, tileY: number) => boolean;
     doorBlocksVision?: (doorType: number | undefined) => boolean;
 }): WallDecalRender[] {
     const { level, map, openDoors, openWalls, partyPosition } = args;
     const overlays = args.originalWallOverlays;
-    const stairConnections = args.stairConnections ?? [];
-    const miscImagePathBuilder = args.miscImagePathBuilder ?? ((file: string) => `/game/images/misc/${file}`);
     const selfRevealingWallTile = args.isSelfRevealingWallTile ?? (() => false);
     const doorBlocksVisionFn = args.doorBlocksVision ?? (() => true);
     const partyX = partyPosition[1];
@@ -309,25 +283,9 @@ export function buildDungeonSceneWallDecals(args: {
         const key = `${overlay.tileX}_${overlay.tileY}_${overlay.face}_${visualKey}`;
         if (seen.has(key)) return;
         if (!isWallFaceVisible(map, level, openDoors, openWalls, selfRevealingWallTile, doorBlocksVisionFn, partyX, partyY, overlay.tileX, overlay.tileY, overlay.face)) return;
-        seen.add(key);
-        decals.push(overlay);
-    };
-
-    for (const row of map.tiles) {
-        for (const tile of row) {
-            if (tile.type !== 'Stairs') continue;
-            const link = stairConnections.find(
-                (stair) => stair.fromLevel === level && stair.fromY === tile.y && stair.fromX === tile.x,
-            );
-            if (!link) continue;
-            add({
-                tileX: tile.x,
-                tileY: tile.y,
-                face: resolveStairsEntryFace(map, tile.x, tile.y),
-                image: link.toLevel > level ? miscImagePathBuilder('stairs_down.png') : miscImagePathBuilder('stairs_up.png'),
-            });
-        }
-    }
+          seen.add(key);
+          decals.push(overlay);
+      };
 
     for (const overlay of overlays) {
         if (

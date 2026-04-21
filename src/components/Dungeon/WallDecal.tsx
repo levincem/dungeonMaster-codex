@@ -1,9 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
+import type {} from '@react-three/fiber';
+import type { ThreeEvent } from '@react-three/fiber';
 import * as THREE from 'three';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import type { CardinalDir } from '../../types/game';
 import { itemsPath, miscPath } from '../../data/assetPaths';
-
+import {
+    getOriginalStairsDownFrontHeightRatio,
+    getOriginalStairsDownFrontWidthRatio,
+    getOriginalStairsUpFrontHeightRatio,
+    getOriginalStairsUpFrontWidthRatio,
+} from '../../data/originalStairPanelMetrics';
 const NO_RAYCAST: THREE.Mesh['raycast'] = () => {};
 
 // ─── Face positioning (same convention as WallSensor / Cell FACE_CONFIGS) ─────
@@ -28,13 +35,15 @@ const FACE_ROT: Record<CardinalDir, [number, number, number]> = {
     West:  [0,  Math.PI / 2, 0],
 };
 
-type DecalPreset = {
+export type DecalPreset = {
     width: number;
     height: number;
     y: number;
     hasBacking: boolean;
     hasGlow: boolean;
     plateColor: string;
+    faceInset?: number;
+    contentDepth?: number;
 };
 
 const DEFAULT_PRESET: DecalPreset = {
@@ -44,6 +53,7 @@ const DEFAULT_PRESET: DecalPreset = {
     hasBacking: false,
     hasGlow: false,
     plateColor: '#3a2b1d',
+    faceInset: 0,
 };
 
 const LOCK_IMAGE = miscPath('serrure.png');
@@ -52,6 +62,8 @@ const LEVER_DOWN_IMAGE = miscPath('levier_bas.png');
 const ALTAR_IMAGE = miscPath('autel.png');
 const TORCH_IMAGE = itemsPath('torch_unlit.png');
 const FOUNTAIN_IMAGE = miscPath('wall_foutain_overlay.png');
+const STAIRS_UP_IMAGE = miscPath('stairs_up.png');
+const STAIRS_DOWN_IMAGE = miscPath('stairs_down.png');
 
 const DECAL_PRESETS: Record<string, DecalPreset> = {
     [LOCK_IMAGE]: {
@@ -102,7 +114,27 @@ const DECAL_PRESETS: Record<string, DecalPreset> = {
         hasGlow: true,
         plateColor: '#1b2b39',
     },
+    [STAIRS_UP_IMAGE]: {
+        width: GRID_SIZE * getOriginalStairsUpFrontWidthRatio(),
+        height: WALL_HEIGHT * getOriginalStairsUpFrontHeightRatio(),
+        y: 0,
+        hasBacking: false,
+        hasGlow: false,
+        plateColor: '#3a2b1d',
+    },
+    [STAIRS_DOWN_IMAGE]: {
+        width: GRID_SIZE * getOriginalStairsDownFrontWidthRatio(),
+        height: WALL_HEIGHT * getOriginalStairsDownFrontHeightRatio(),
+        y: 0,
+        hasBacking: false,
+        hasGlow: false,
+        plateColor: '#3a2b1d',
+    },
 };
+
+export function getWallDecalPresetForImage(image?: string): DecalPreset | undefined {
+    return image ? DECAL_PRESETS[image] : undefined;
+}
 
 // ─── Inner sprite (loads texture) ─────────────────────────────────────────────
 
@@ -311,16 +343,20 @@ export const WallDecal = ({
             y: -WALL_HEIGHT * 0.04,
             plateColor: '#1f1a15',
         };
+    const faceInset = preset.faceInset ?? 0;
+    const faceX = ox !== 0 ? ox - Math.sign(ox) * faceInset : ox;
+    const faceZ = oz !== 0 ? oz - Math.sign(oz) * faceInset : oz;
     const decalWidth = width ?? preset.width;
     const decalHeight = height ?? preset.height;
     const plateWidth = Math.max(decalWidth - PLATE_INSET_X, decalWidth * 0.86);
     const plateHeight = Math.max(decalHeight - PLATE_INSET_Y, decalHeight * 0.84);
-    const contentDepth =
+    const contentDepth = preset.contentDepth ?? (
         image === LEVER_UP_IMAGE || image === LEVER_DOWN_IMAGE
             ? PLATE_DEPTH * 0.34
             : image === miscPath('wall_torch_holder_empty.png')
                 ? PLATE_DEPTH * 0.02
-                : PLATE_DEPTH * 0.16;
+                : PLATE_DEPTH * 0.16
+    );
     const fallbackImage =
         image === LEVER_UP_IMAGE
             ? LEVER_DOWN_IMAGE
@@ -330,10 +366,10 @@ export const WallDecal = ({
 
     return (
         <group
-            position={[tileX * GRID_SIZE + ox, preset.y, tileY * GRID_SIZE + oz]}
+            position={[tileX * GRID_SIZE + faceX, preset.y, tileY * GRID_SIZE + faceZ]}
             rotation={[rx, ry, rz]}
             frustumCulled={false}
-            onClick={onClick ? (e) => {
+            onClick={onClick ? (e: ThreeEvent<MouseEvent>) => {
                 e.stopPropagation();
                 onClick();
             } : undefined}

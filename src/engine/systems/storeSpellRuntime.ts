@@ -43,6 +43,8 @@ type CastSpellStoreRuntimeState = {
     projectiles: import('../runtimeTypes').Projectile[];
 };
 
+type SpellVisualSoundName = 'exploding_fireball' | 'exploding_spell';
+
 type CastSpellStorePatch = Partial<CastSpellStoreRuntimeState> & Record<string, unknown>;
 type CastCheck = {
     success: boolean;
@@ -175,6 +177,30 @@ export function playCastSpellDoorMotionResult(
             result.doorMotionSquare.y,
         ),
     );
+}
+
+export function resolveSpellVisualSoundNames(
+    previousSpellVisualEvents: Array<Pick<CastSpellStoreRuntimeState['spellVisualEvents'][number], 'id'>>,
+    nextSpellVisualEvents: Array<Pick<CastSpellStoreRuntimeState['spellVisualEvents'][number], 'id' | 'effect' | 'kind'>>,
+): SpellVisualSoundName[] {
+    const previousIds = new Set(previousSpellVisualEvents.map((event) => event.id));
+    let hasFireballExplosion = false;
+    let hasGenericSpellExplosion = false;
+
+    for (const event of nextSpellVisualEvents) {
+        if (previousIds.has(event.id) || event.kind === 'death') continue;
+        if (event.effect === 'fireball') {
+            hasFireballExplosion = true;
+            continue;
+        }
+        if (event.effect === 'slime') continue;
+        hasGenericSpellExplosion = true;
+    }
+
+    const sounds: SpellVisualSoundName[] = [];
+    if (hasFireballExplosion) sounds.push('exploding_fireball');
+    if (hasGenericSpellExplosion) sounds.push('exploding_spell');
+    return sounds;
 }
 
 export function buildStoreCastSpellRuntimeResult(

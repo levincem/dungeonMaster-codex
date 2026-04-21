@@ -30,6 +30,7 @@ import {
     isLegacyChampionXPForChampion,
     normalizeChampionVitalsForChampion,
 } from './championState';
+import { sanitizeOpenTeleporterKeys } from './disabledTeleporters';
 
 export interface PersistableGameState {
     gameOptions: import('../runtimeTypes').GameOptions;
@@ -187,7 +188,7 @@ function buildDefaultOpenPits(): Set<string> {
 }
 
 function buildDefaultOpenTeleporters(): Set<string> {
-    return new Set<string>(getDungeonBootstrap().defaultOpenTeleporters ?? []);
+    return sanitizeOpenTeleporterKeys(getDungeonBootstrap().defaultOpenTeleporters ?? []);
 }
 
 function buildDefaultVisibleTexts(): Set<string> {
@@ -268,7 +269,7 @@ export function buildPersistedSaveData(
         openDoors: [...state.openDoors],
         brokenDoors: [...state.brokenDoors],
         openPits: [...state.openPits],
-        openTeleporters: [...state.openTeleporters],
+        openTeleporters: [...sanitizeOpenTeleporterKeys(state.openTeleporters)],
         openWalls: [...state.openWalls],
         activeSensors: [...state.activeSensors],
         firedSensors: [...state.firedSensors],
@@ -397,7 +398,7 @@ export function hydratePersistedGameState(
         openDoors: new Set<string>(data.openDoors),
         brokenDoors: new Set<string>(data.brokenDoors ?? []),
         openPits: new Set<string>(data.openPits ?? [...buildDefaultOpenPits()]),
-        openTeleporters: new Set<string>(data.openTeleporters ?? [...buildDefaultOpenTeleporters()]),
+        openTeleporters: sanitizeOpenTeleporterKeys(data.openTeleporters ?? [...buildDefaultOpenTeleporters()]),
         openWalls: new Set<string>(data.openWalls),
         activeSensors: new Set<string>(data.activeSensors),
         firedSensors: new Set<string>(data.firedSensors),

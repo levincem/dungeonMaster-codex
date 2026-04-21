@@ -8,6 +8,11 @@ import type { ThreeEvent } from '@react-three/fiber';
 import type { Champion } from '../../data/champions';
 import type { CardinalDir } from '../../types/game';
 import { getDoorTexturePath } from '../../data/doors';
+import {
+    getOriginalDoorButtonAspectRatio,
+    getOriginalDoorButtonStripWidthRatio,
+    getOriginalDoorButtonWidthRatio,
+} from '../../data/originalDoorPanelMetrics';
 import { miscPath, texturesPath } from '../../data/assetPaths';
 import { useLoadedTexture } from './useLoadedTexture';
 
@@ -42,6 +47,21 @@ const FACE_CONFIGS: Record<CardinalDir, FaceConfig> = {
     South: { pos: [0, 0,  FACE_OFFSET], rot: [0, Math.PI,      0] }, // player looks north (-Z)
     East:  { pos: [ FACE_OFFSET, 0, 0], rot: [0, -Math.PI / 2, 0] }, // player looks west (-X)
     West:  { pos: [-FACE_OFFSET, 0, 0], rot: [0,  Math.PI / 2, 0] }, // player looks east (+X)
+};
+
+const INNER_WALL_OFFSET = HALF_LOCAL - 0.02;
+const INNER_FACE_CONFIGS: Record<CardinalDir, FaceConfig> = {
+    North: { pos: [0, 0, -INNER_WALL_OFFSET], rot: [0, 0,            0] },
+    South: { pos: [0, 0,  INNER_WALL_OFFSET], rot: [0, Math.PI,      0] },
+    East:  { pos: [ INNER_WALL_OFFSET, 0, 0], rot: [0, -Math.PI / 2, 0] },
+    West:  { pos: [-INNER_WALL_OFFSET, 0, 0], rot: [0,  Math.PI / 2, 0] },
+};
+
+const OPPOSITE_FACE: Record<CardinalDir, CardinalDir> = {
+    North: 'South',
+    South: 'North',
+    East: 'West',
+    West: 'East',
 };
 
 // Portrait + frame dimensions
@@ -246,6 +266,34 @@ const MirrorPortrait: React.FC<{ champion: Champion; wallFace: CardinalDir }> = 
     );
 };
 
+const StairOpeningInner: React.FC<{ type: 'StairsDown' | 'StairsUp'; wallFace: CardinalDir }> = ({ type, wallFace }) => {
+    const baseTexture = useLoadedTexture(
+        type === 'StairsDown' ? miscPath('stairs_down.png') : miscPath('stairs_up.png'),
+    );
+    const texture = useMemo(
+        () => cloneTexture(baseTexture, next => {
+            next.colorSpace = THREE.SRGBColorSpace;
+        }),
+        [baseTexture],
+    );
+    useEffect(() => () => texture.dispose(), [texture]);
+
+    const backFace = OPPOSITE_FACE[wallFace];
+    const { pos, rot } = INNER_FACE_CONFIGS[backFace];
+    return (
+        <mesh position={pos} rotation={rot}>
+            <planeGeometry args={[GRID_SIZE, WALL_HEIGHT]} />
+            <meshBasicMaterial map={texture} transparent alphaTest={0.05} side={THREE.FrontSide} />
+        </mesh>
+    );
+};
+
+const StairOpening: React.FC<{ type: 'StairsDown' | 'StairsUp'; wallFace: CardinalDir }> = ({ type, wallFace }) => (
+    <Suspense fallback={null}>
+        <StairOpeningInner type={type} wallFace={wallFace} />
+    </Suspense>
+);
+
 const ProceduralPortrait: React.FC<{ champion: Champion; wallFace: CardinalDir }> = ({ champion, wallFace }) => {
     const { pos, rot } = FACE_CONFIGS[wallFace];
     const zOff = 0.004;
@@ -276,11 +324,14 @@ function getDoorLift(doorType?: number): number {
 }
 
 // Door-panel proportion when a wall-button is present
-const BTN_RATIO  = 0.22;                     // generic side strip width
-const DOOR_W_BTN = GRID_SIZE * (1 - BTN_RATIO);
-const BTN_W      = GRID_SIZE * BTN_RATIO;
+const BTN_STRIP_RATIO = getOriginalDoorButtonStripWidthRatio();
+const DOOR_BUTTON_WIDTH_RATIO = getOriginalDoorButtonWidthRatio();
+const DOOR_BUTTON_ASPECT_RATIO = getOriginalDoorButtonAspectRatio();
+const DOOR_W_BTN = GRID_SIZE * (1 - BTN_STRIP_RATIO);
+const BTN_W      = GRID_SIZE * BTN_STRIP_RATIO;
 const DOOR_OFF_X = -(BTN_W / 2);
 const BTN_CX     = GRID_SIZE / 2 - BTN_W / 2;
+const BTN_RENDER_W = GRID_SIZE * DOOR_BUTTON_WIDTH_RATIO;
 const BTN_OVERLAY_Z = 0.003;
 const RA_DOOR_CURTAIN_Z = 0.012;
 const BROKEN_DOOR_HEIGHT = WALL_HEIGHT * 0.34;
@@ -352,6 +403,14 @@ function makeBrokenDoorTexture(texture: THREE.Texture): THREE.Texture {
     return next;
 }
 
+function getTextureAspectRatio(texture: THREE.Texture | null): number | null {
+    const image = texture?.image as { width?: number; height?: number } | undefined;
+    const width = image?.width ?? 0;
+    const height = image?.height ?? 0;
+    if (!width || !height) return null;
+    return height / width;
+}
+
 const DoorMeshInner: React.FC<{
     open: boolean;
     broken: boolean;
@@ -415,7 +474,6 @@ const DoorMeshInner: React.FC<{
     const doorW   = renderButtonStrip ? DOOR_W_BTN : GRID_SIZE;
     const doorOff = renderButtonStrip ? DOOR_OFF_X * buttonSideSign : 0;
     const buttonStripWidth = BTN_W;
-    const buttonSize = BTN_W * 0.39;
     const tex = useMemo(
         () => cloneTexture(baseDoorTex, next => {
             next.colorSpace = THREE.SRGBColorSpace;
@@ -448,6 +506,8 @@ const DoorMeshInner: React.FC<{
             }),
         );
     }, [baseButtonTex]);
+    const buttonAspectRatio = getTextureAspectRatio(buttonTex) ?? DOOR_BUTTON_ASPECT_RATIO;
+    const buttonRenderHeight = BTN_RENDER_W * buttonAspectRatio;
     const brokenDoorTex = useMemo(
         () => (broken ? makeBrokenDoorTexture(baseDoorTex) : null),
         [baseDoorTex, broken],
@@ -500,7 +560,7 @@ const DoorMeshInner: React.FC<{
                         buttonTex && (
                             <group position={[BTN_CX * buttonSideSign, -WALL_HEIGHT * 0.05, BTN_OVERLAY_Z * buttonFaceSign]}>
                                 <mesh onClick={handleBtnClick}>
-                                    <planeGeometry args={[buttonSize, buttonSize]} />
+                                    <planeGeometry args={[BTN_RENDER_W, buttonRenderHeight]} />
                                     <meshBasicMaterial
                                         map={buttonTex}
                                         side={THREE.DoubleSide}
@@ -702,9 +762,9 @@ export const Cell: React.FC<CellProps> = ({ type, position, wallFace, champion, 
 
     // ── DOOR ──────────────────────────────────────────────────────────────────
     // InstancedTiles renders floor + ceiling for Door tiles.
-    if (type === 'Door') {
-        const doorRotY = doorOrientation === 'WestEast' ? Math.PI / 2 : 0;
-        const hasBtn   = doorHasButton ?? false;
+      if (type === 'Door') {
+          const doorRotY = doorOrientation === 'WestEast' ? Math.PI / 2 : 0;
+          const hasBtn   = doorHasButton ?? false;
         return (
             <group position={position} onClick={hasBtn ? undefined : onClick}>
                 <group rotation={[0, doorRotY, 0]}>
@@ -721,9 +781,17 @@ export const Cell: React.FC<CellProps> = ({ type, position, wallFace, champion, 
                     />
                 </group>
             </group>
-        );
-    }
+          );
+      }
 
-    // Wall, Floor, Stairs — all handled by InstancedTiles; nothing to render here.
-    return null;
-};
+      if (type === 'StairsDown' || type === 'StairsUp') {
+          return (
+              <group position={position} onClick={onClick}>
+                  <StairOpening type={type} wallFace={wallFace ?? 'South'} />
+              </group>
+          );
+      }
+
+      // Wall and Floor are handled by InstancedTiles; nothing to render here.
+      return null;
+  };

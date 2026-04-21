@@ -247,5 +247,1894 @@
       "primaryOverlayIndex": 25,
       "primaryOverlayClassification": "interactive"
     }
+  ],
+  "randomCapableFaces": [
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 1,
+      "y": 1,
+      "globalX": 26,
+      "globalY": 31,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 9,
+      "rawAttrs": 9,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 1,
+      "y": 1,
+      "globalX": 26,
+      "globalY": 31,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 9,
+      "rawAttrs": 9,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 2,
+      "y": 1,
+      "globalX": 27,
+      "globalY": 31,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 3,
+      "y": 1,
+      "globalX": 28,
+      "globalY": 31,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 4,
+      "y": 1,
+      "globalX": 29,
+      "globalY": 31,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 7,
+      "y": 2,
+      "globalX": 32,
+      "globalY": 32,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 7,
+      "y": 2,
+      "globalX": 32,
+      "globalY": 32,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 11,
+      "y": 10,
+      "globalX": 36,
+      "globalY": 40,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 2,
+      "rawAttrs": 2,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 11,
+      "y": 12,
+      "globalX": 36,
+      "globalY": 42,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 12,
+      "y": 3,
+      "globalX": 37,
+      "globalY": 33,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 6,
+      "rawAttrs": 6,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 12,
+      "y": 3,
+      "globalX": 37,
+      "globalY": 33,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 6,
+      "rawAttrs": 6,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 13,
+      "y": 1,
+      "globalX": 38,
+      "globalY": 31,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 4,
+      "rawAttrs": 4,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 13,
+      "y": 2,
+      "globalX": 38,
+      "globalY": 32,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 6,
+      "rawAttrs": 6,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 13,
+      "y": 2,
+      "globalX": 38,
+      "globalY": 32,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 6,
+      "rawAttrs": 6,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 15,
+      "y": 6,
+      "globalX": 40,
+      "globalY": 36,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 15,
+      "y": 6,
+      "globalX": 40,
+      "globalY": 36,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 15,
+      "y": 6,
+      "globalX": 40,
+      "globalY": 36,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 15,
+      "y": 6,
+      "globalX": 40,
+      "globalY": 36,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 16,
+      "y": 11,
+      "globalX": 41,
+      "globalY": 41,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 16,
+      "y": 11,
+      "globalX": 41,
+      "globalY": 41,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 16,
+      "y": 11,
+      "globalX": 41,
+      "globalY": 41,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 16,
+      "y": 11,
+      "globalX": 41,
+      "globalY": 41,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 17,
+      "y": 3,
+      "globalX": 42,
+      "globalY": 33,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 7,
+      "rawAttrs": 7,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 17,
+      "y": 3,
+      "globalX": 42,
+      "globalY": 33,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 7,
+      "rawAttrs": 7,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 17,
+      "y": 3,
+      "globalX": 42,
+      "globalY": 33,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 7,
+      "rawAttrs": 7,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 17,
+      "y": 12,
+      "globalX": 42,
+      "globalY": 42,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 17,
+      "y": 12,
+      "globalX": 42,
+      "globalY": 42,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 17,
+      "y": 12,
+      "globalX": 42,
+      "globalY": 42,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 17,
+      "y": 12,
+      "globalX": 42,
+      "globalY": 42,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 20,
+      "y": 0,
+      "globalX": 45,
+      "globalY": 30,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 1,
+      "rawAttrs": 1,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 20,
+      "y": 1,
+      "globalX": 45,
+      "globalY": 31,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 1,
+      "rawAttrs": 1,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 20,
+      "y": 3,
+      "globalX": 45,
+      "globalY": 33,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 1,
+      "rawAttrs": 1,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 20,
+      "y": 4,
+      "globalX": 45,
+      "globalY": 34,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 1,
+      "rawAttrs": 1,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ]
+    }
+  ],
+  "effectivePlacements": [
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 1,
+      "y": 1,
+      "globalX": 26,
+      "globalY": 31,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 9,
+      "rawAttrs": 9,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 4,
+      "randomComputation": {
+        "value1": 2034,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 1,
+      "y": 1,
+      "globalX": 26,
+      "globalY": 31,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 9,
+      "rawAttrs": 9,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 17,
+      "randomComputation": {
+        "value1": 2040,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 2,
+      "y": 1,
+      "globalX": 27,
+      "globalY": 31,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 2,
+      "randomComputation": {
+        "value1": 2066,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 3,
+      "y": 1,
+      "globalX": 28,
+      "globalY": 31,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": 1,
+      "overlayIndex": 37,
+      "overlayName": "Ghoul's Head",
+      "overlayClassification": "decorative",
+      "overlayNotes": "Resolved via the original engine random ornament formula.",
+      "stateful": false,
+      "variantNames": [
+        "Ghoul's Head"
+      ],
+      "resolvedRandomIndex": 0,
+      "randomComputation": {
+        "value1": 2098,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 4,
+      "y": 1,
+      "globalX": 29,
+      "globalY": 31,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 28,
+      "randomComputation": {
+        "value1": 2130,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 7,
+      "y": 2,
+      "globalX": 32,
+      "globalY": 32,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 19,
+      "randomComputation": {
+        "value1": 2227,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 7,
+      "y": 2,
+      "globalX": 32,
+      "globalY": 32,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 10,
+      "rawAttrs": 10,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 2,
+      "randomComputation": {
+        "value1": 2233,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 11,
+      "y": 10,
+      "globalX": 36,
+      "globalY": 40,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 2,
+      "rawAttrs": 2,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 15,
+      "randomComputation": {
+        "value1": 2385,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 11,
+      "y": 12,
+      "globalX": 36,
+      "globalY": 42,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 8,
+      "rawAttrs": 8,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 12,
+      "randomComputation": {
+        "value1": 2365,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 12,
+      "y": 3,
+      "globalX": 37,
+      "globalY": 33,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 6,
+      "rawAttrs": 6,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 25,
+      "randomComputation": {
+        "value1": 2392,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 12,
+      "y": 3,
+      "globalX": 37,
+      "globalY": 33,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 6,
+      "rawAttrs": 6,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 13,
+      "randomComputation": {
+        "value1": 2396,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 13,
+      "y": 1,
+      "globalX": 38,
+      "globalY": 31,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 4,
+      "rawAttrs": 4,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 4,
+      "randomComputation": {
+        "value1": 2420,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 13,
+      "y": 2,
+      "globalX": 38,
+      "globalY": 32,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 6,
+      "rawAttrs": 6,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 29,
+      "randomComputation": {
+        "value1": 2422,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 13,
+      "y": 2,
+      "globalX": 38,
+      "globalY": 32,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 6,
+      "rawAttrs": 6,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 20,
+      "randomComputation": {
+        "value1": 2425,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 15,
+      "y": 6,
+      "globalX": 40,
+      "globalY": 36,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 22,
+      "randomComputation": {
+        "value1": 2487,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 15,
+      "y": 6,
+      "globalX": 40,
+      "globalY": 36,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 2,
+      "randomComputation": {
+        "value1": 2494,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 15,
+      "y": 6,
+      "globalX": 40,
+      "globalY": 36,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 11,
+      "randomComputation": {
+        "value1": 2501,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 15,
+      "y": 6,
+      "globalX": 40,
+      "globalY": 36,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 21,
+      "randomComputation": {
+        "value1": 2508,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 16,
+      "y": 11,
+      "globalX": 41,
+      "globalY": 41,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 5,
+      "randomComputation": {
+        "value1": 2524,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 16,
+      "y": 11,
+      "globalX": 41,
+      "globalY": 41,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 1,
+      "randomComputation": {
+        "value1": 2536,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 16,
+      "y": 11,
+      "globalX": 41,
+      "globalY": 41,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 26,
+      "randomComputation": {
+        "value1": 2548,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 16,
+      "y": 11,
+      "globalX": 41,
+      "globalY": 41,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 22,
+      "randomComputation": {
+        "value1": 2560,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 17,
+      "y": 3,
+      "globalX": 42,
+      "globalY": 33,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 7,
+      "rawAttrs": 7,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 15,
+      "randomComputation": {
+        "value1": 2552,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 17,
+      "y": 3,
+      "globalX": 42,
+      "globalY": 33,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 7,
+      "rawAttrs": 7,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 3,
+      "randomComputation": {
+        "value1": 2556,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 17,
+      "y": 3,
+      "globalX": 42,
+      "globalY": 33,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 7,
+      "rawAttrs": 7,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 22,
+      "randomComputation": {
+        "value1": 2560,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 17,
+      "y": 12,
+      "globalX": 42,
+      "globalY": 42,
+      "face": "North",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": 1,
+      "overlayIndex": 37,
+      "overlayName": "Ghoul's Head",
+      "overlayClassification": "decorative",
+      "overlayNotes": "Resolved via the original engine random ornament formula.",
+      "stateful": false,
+      "variantNames": [
+        "Ghoul's Head"
+      ],
+      "resolvedRandomIndex": 0,
+      "randomComputation": {
+        "value1": 2557,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 17,
+      "y": 12,
+      "globalX": 42,
+      "globalY": 42,
+      "face": "East",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 23,
+      "randomComputation": {
+        "value1": 2570,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 17,
+      "y": 12,
+      "globalX": 42,
+      "globalY": 42,
+      "face": "South",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 16,
+      "randomComputation": {
+        "value1": 2583,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 17,
+      "y": 12,
+      "globalX": 42,
+      "globalY": 42,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 15,
+      "rawAttrs": 15,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 8,
+      "randomComputation": {
+        "value1": 2596,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 20,
+      "y": 0,
+      "globalX": 45,
+      "globalY": 30,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 1,
+      "rawAttrs": 1,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 20,
+      "randomComputation": {
+        "value1": 2644,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 20,
+      "y": 1,
+      "globalX": 45,
+      "globalY": 31,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 1,
+      "rawAttrs": 1,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 9,
+      "randomComputation": {
+        "value1": 2648,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 20,
+      "y": 3,
+      "globalX": 45,
+      "globalY": 33,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 1,
+      "rawAttrs": 1,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 16,
+      "randomComputation": {
+        "value1": 2656,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    },
+    {
+      "mapIndex": 12,
+      "mapName": "Level 12",
+      "level": 12,
+      "x": 20,
+      "y": 4,
+      "globalX": 45,
+      "globalY": 34,
+      "face": "West",
+      "source": "random-capable",
+      "rawByte": 1,
+      "rawAttrs": 1,
+      "randomWallOrnamentCount": 1,
+      "randomPool": [
+        {
+          "index": 37,
+          "name": "Ghoul's Head",
+          "classification": "decorative"
+        }
+      ],
+      "effectiveSource": "random-capable",
+      "overlayOrdinal": null,
+      "overlayIndex": null,
+      "overlayName": null,
+      "overlayClassification": null,
+      "overlayNotes": "Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.",
+      "stateful": false,
+      "variantNames": [],
+      "resolvedRandomIndex": 4,
+      "randomComputation": {
+        "value1": 2660,
+        "value2": 3810,
+        "modulo": 30,
+        "ornamentRandomSeed": 99
+      }
+    }
   ]
 }

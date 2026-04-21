@@ -37,6 +37,7 @@ type StorePartyMoveRuntimeDepsParams<
 
 type PartyMoveSideEffectDeps = {
     playWallBump: () => void;
+    playFallingAndDying: () => void;
     showTransientMessage: (message: string) => void;
 };
 
@@ -93,10 +94,11 @@ export function runStorePartyMoveCommand<TState extends PartyMoveState>(
 }
 
 export function applyStorePartyMoveSideEffects(
-    result: { blockedMessage?: string; shouldPlayWallBump: boolean },
+    result: { blockedMessage?: string; shouldPlayWallBump: boolean; shouldPlayFallingAndDying: boolean },
     deps: PartyMoveSideEffectDeps,
 ) {
     if (result.shouldPlayWallBump) deps.playWallBump();
+    if (result.shouldPlayFallingAndDying) deps.playFallingAndDying();
     if (result.blockedMessage) deps.showTransientMessage(result.blockedMessage);
 }
 
@@ -117,6 +119,7 @@ export function runStoreMovementAction<TState extends PartyMoveState>(
     if (moveResult) {
         applyStorePartyMoveSideEffects(moveResult, {
             playWallBump: deps.playWallBump,
+            playFallingAndDying: deps.playFallingAndDying,
             showTransientMessage: deps.showTransientMessage,
         });
     }

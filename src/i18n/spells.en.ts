@@ -197,6 +197,17 @@ export const spellsEn = {
             'Creates a mana elixir.',
         ],
     },
+    venPotion: {
+        names: ['Ven Potion (weak)', 'Ven Potion', 'Ven Potion (strong)', 'Greater Ven Potion', 'Supreme Ven Potion', 'Absolute Ven Potion'],
+        descriptions: [
+            'Creates a weak poisonous potion.',
+            'Creates a poisonous potion.',
+            'Creates a powerful poisonous potion.',
+            'Creates a greater poisonous potion.',
+            'Creates a supreme poisonous potion.',
+            'Creates the strongest poisonous potion.',
+        ],
+    },
     strengthPotion: {
         names: ['Strength Potion (weak)', 'Strength Potion', 'Strength Potion (strong)', 'Greater Strength Potion', 'Supreme Strength Potion', 'Strength Elixir'],
         descriptions: [

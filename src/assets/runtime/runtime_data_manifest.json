@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-20T14:29:01.187Z",
+  "generatedAt": "2026-04-21T17:24:00.005Z",
   "parser": "parse_full",
   "canonicalRuntimeRootDir": "src/assets/runtime",
   "canonicalRuntimeDungeonDir": "src/assets/runtime/dungeon",
@@ -65,6 +65,15 @@
     "syncedRuntimeReferences": [
       "original_creatures_runtime.json",
       "original_doors_runtime.json",
+      "original_experience_runtime.json",
+      "original_champion_progression_runtime.json",
+      "original_mirror_recruitment_runtime.json",
+      "original_item_rules_runtime.json",
+      "original_skills_runtime.json",
+      "original_magic_runtime.json",
+      "original_actions_runtime.json",
+      "original_action_combos_runtime.json",
+      "original_ui_support_runtime.json",
       "original_teleporters_runtime.json"
     ],
     "syncedSupportAssets": [

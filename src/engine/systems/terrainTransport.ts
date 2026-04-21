@@ -5,6 +5,7 @@ import type {
     TeleporterObject,
 } from '../../types/game';
 import type { Direction } from '../runtimeTypes';
+import { isDisabledTeleporterKey } from './disabledTeleporters';
 
 const DIRECTIONS: Direction[] = ['NORTH', 'EAST', 'SOUTH', 'WEST'];
 const CARDINAL_TO_DIRECTION: Record<CardinalDir, Direction> = {
@@ -13,6 +14,55 @@ const CARDINAL_TO_DIRECTION: Record<CardinalDir, Direction> = {
     South: 'SOUTH',
     West: 'WEST',
 };
+
+type TeleporterScope = 'Items' | 'Creatures' | 'Items+Party' | 'Everything';
+type TeleporterTransportKind = 'item' | 'creature' | 'party';
+
+function normalizeTeleporterScope(scope: string | undefined): TeleporterScope {
+    if (scope === 'Items' || scope === 'Creatures' || scope === 'Items+Party' || scope === 'Everything') {
+        return scope;
+    }
+    return 'Everything';
+}
+
+export function getTeleporterScope(
+    level: number,
+    x: number,
+    y: number,
+    teleporter: TeleporterObject,
+    getOriginalTeleporterRuntime: (
+        level: number,
+        x: number,
+        y: number,
+        index: number,
+    ) => { scope?: string } | null | undefined,
+): TeleporterScope {
+    const meta = getOriginalTeleporterRuntime(level, x, y, teleporter.index);
+    return normalizeTeleporterScope(teleporter.scope ?? meta?.scope);
+}
+
+function teleporterAllowsTransport(
+    level: number,
+    x: number,
+    y: number,
+    teleporter: TeleporterObject,
+    transportKind: TeleporterTransportKind,
+    getOriginalTeleporterRuntime: (
+        level: number,
+        x: number,
+        y: number,
+        index: number,
+    ) => { scope?: string } | null | undefined,
+): boolean {
+    const scope = getTeleporterScope(level, x, y, teleporter, getOriginalTeleporterRuntime);
+    if (transportKind === 'item') {
+        return scope === 'Items' || scope === 'Items+Party' || scope === 'Everything';
+    }
+    if (transportKind === 'party') {
+        return scope === 'Items+Party' || scope === 'Everything';
+    }
+    return scope === 'Creatures' || scope === 'Everything';
+}
 
 export function getTeleporter(tile: GameTile): TeleporterObject | undefined {
     return tile.objects.find((entry): entry is TeleporterObject => entry.category === 'Teleporter');
@@ -29,7 +79,7 @@ export function getTeleporterRotationDirection(
         x: number,
         y: number,
         index: number,
-    ) => { rotationType?: number; rotation?: CardinalDir } | null | undefined,
+    ) => { scope?: string; rotationType?: number; rotation?: CardinalDir } | null | undefined,
 ): Direction {
     const meta = getOriginalTeleporterRuntime(level, x, y, teleporter.index);
     const rotationType = teleporter.rotationType ?? meta?.rotationType ?? 0;
@@ -54,7 +104,7 @@ export function getTeleporterRotationQuarterTurns(
         x: number,
         y: number,
         index: number,
-    ) => { rotationType?: number; rotation?: CardinalDir } | null | undefined,
+    ) => { scope?: string; rotationType?: number; rotation?: CardinalDir } | null | undefined,
 ): number {
     const currentIndex = DIRECTIONS.indexOf(currentDirection);
     const rotatedIndex = DIRECTIONS.indexOf(
@@ -96,7 +146,7 @@ type TeleportTransportDeps = {
         x: number,
         y: number,
         index: number,
-    ) => { rotationType?: number; rotation?: CardinalDir } | null | undefined;
+    ) => { scope?: string; rotationType?: number; rotation?: CardinalDir } | null | undefined;
 };
 
 export function resolveProjectileTeleporterTransport(
@@ -106,6 +156,7 @@ export function resolveProjectileTeleporterTransport(
     y: number,
     direction: Direction,
     deps: TeleportTransportDeps,
+    transportKind: Extract<TeleporterTransportKind, 'item' | 'party'> = 'item',
 ): { level: number; x: number; y: number; direction: Direction } {
     let nextLevel = level;
     let nextX = x;
@@ -118,7 +169,15 @@ export function resolveProjectileTeleporterTransport(
         if (tile?.type !== 'Teleporter') break;
         const teleporter = getTeleporter(tile);
         const teleporterKey = `${nextLevel},${nextY},${nextX}`;
-        if (!teleporter || !state.openTeleporters.has(teleporterKey)) break;
+        if (!teleporter || isDisabledTeleporterKey(teleporterKey) || !state.openTeleporters.has(teleporterKey)) break;
+        if (!teleporterAllowsTransport(
+            nextLevel,
+            nextX,
+            nextY,
+            teleporter,
+            transportKind,
+            deps.getOriginalTeleporterRuntime,
+        )) break;
 
         const loopKey = `${nextLevel},${nextX},${nextY},${teleporter.index},${nextDirection}`;
         if (visited.has(loopKey)) break;
@@ -166,7 +225,15 @@ export function resolveCreatureTeleporterTransport(
         if (tile?.type !== 'Teleporter') break;
         const teleporter = getTeleporter(tile);
         const teleporterKey = `${nextLevel},${nextY},${nextX}`;
-        if (!teleporter || !state.openTeleporters.has(teleporterKey)) break;
+        if (!teleporter || isDisabledTeleporterKey(teleporterKey) || !state.openTeleporters.has(teleporterKey)) break;
+        if (!teleporterAllowsTransport(
+            nextLevel,
+            nextX,
+            nextY,
+            teleporter,
+            'creature',
+            deps.getOriginalTeleporterRuntime,
+        )) break;
 
         const loopKey = `${nextLevel},${nextX},${nextY},${teleporter.index},${nextDirection},${nextCell}`;
         if (visited.has(loopKey)) break;

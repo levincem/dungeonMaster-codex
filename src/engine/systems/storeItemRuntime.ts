@@ -9,7 +9,11 @@ import type {
 } from '../runtimeTypes';
 import { resolveUseItemConsumption as resolveUseItemConsumptionSystem } from './useItemConsumption';
 import { resolvePotionConsumption as resolvePotionConsumptionSystem } from './potionConsumption';
-import { buildFillWaterRuntimePatch, buildUseItemRuntimePatch } from './itemCommandRuntime';
+import {
+    buildDrinkFromFountainRuntimePatch,
+    buildFillWaterRuntimePatch,
+    buildUseItemRuntimePatch,
+} from './itemCommandRuntime';
 import { buildResurrectChampionRuntimePatch } from './itemCarryCommandRuntime';
 
 type UseItemStateLike = {
@@ -27,6 +31,13 @@ type FillWaterStateLike = {
     direction: 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
     championInventories: Record<number, FloorItem[]>;
     championEquipment: Record<number, ChampionEquipment>;
+};
+
+type DrinkFromFountainStateLike = {
+    level: number;
+    position: [number, number];
+    direction: 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
+    championVitals: Record<number, ChampionVitals>;
 };
 
 type ResurrectStateLike = {
@@ -51,6 +62,30 @@ type StoreUseItemConsumptionDeps = {
     maxFood: number;
     maxWater: number;
 };
+
+export function resolveStoreUseItemSound(
+    item: FloorItem,
+    deps: Pick<
+        StoreUseItemConsumptionDeps,
+        'isWaterContainer' | 'getPotionDef' | 'getMiscNutrition'
+    >,
+): 'swallowing' | null {
+    if (deps.isWaterContainer(item)) return 'swallowing';
+
+    if (item.category === 'Potion') {
+        return deps.getPotionDef(item.typeId, item.rawName)?.drinkable
+            ? 'swallowing'
+            : null;
+    }
+
+    if (item.category === 'Misc') {
+        return (deps.getMiscNutrition(item.typeId) ?? 0) > 0
+            ? 'swallowing'
+            : null;
+    }
+
+    return null;
+}
 
 export function createStoreUseItemRuntimeDeps(params: {
     locateChampionItem: (
@@ -98,6 +133,12 @@ export function createStoreUseItemRuntimeDeps(params: {
         locateChampionItem: params.locateChampionItem,
         getEffectiveChampionStatsRuntime: params.getEffectiveChampionStatsRuntime,
         normalizeChampionCurrentStats: params.normalizeChampionCurrentStats,
+        resolveUseItemSound: (item: FloorItem) =>
+            resolveStoreUseItemSound(item, {
+                isWaterContainer: params.consumptionDeps.isWaterContainer,
+                getPotionDef: params.consumptionDeps.getPotionDef,
+                getMiscNutrition: params.consumptionDeps.getMiscNutrition,
+            }),
         resolveUseItemConsumption: (args: Parameters<typeof resolveUseItemConsumptionSystem>[0]) =>
             resolveUseItemConsumptionSystem(args, {
                 isWaterContainer: params.consumptionDeps.isWaterContainer,
@@ -122,6 +163,18 @@ export function createStoreFillWaterRuntimeDeps(params: {
         isFacingFountain: params.isFacingFountain,
         canFillWaterContainer: params.canFillWaterContainer,
         fillWaterContainer: params.fillWaterContainer,
+    };
+}
+
+export function createStoreDrinkFromFountainRuntimeDeps(params: {
+    isFacingFountain: (state: DrinkFromFountainStateLike) => boolean;
+    clampWater: (value: number) => number;
+    waterGain: number;
+}) {
+    return {
+        isFacingFountain: params.isFacingFountain,
+        clampWater: params.clampWater,
+        waterGain: params.waterGain,
     };
 }
 
@@ -173,6 +226,18 @@ export function buildStoreFillWaterPatch<TState extends FillWaterStateLike>(
         state,
         championId,
         itemId,
+        deps,
+    );
+}
+
+export function buildStoreDrinkFromFountainPatch<TState extends DrinkFromFountainStateLike>(
+    state: TState,
+    championId: number,
+    deps: ReturnType<typeof createStoreDrinkFromFountainRuntimeDeps>,
+) {
+    return buildDrinkFromFountainRuntimePatch(
+        state,
+        championId,
         deps,
     );
 }

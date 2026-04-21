@@ -25,7 +25,7 @@ type PendingSensorEventLike = {
     remaining: number;
 };
 
-type TeleporterRuntimeMeta = { rotationType?: number; rotation?: CardinalDir } | null | undefined;
+type TeleporterRuntimeMeta = { scope?: string; rotationType?: number; rotation?: CardinalDir } | null | undefined;
 type PitLanding = { level: number; x: number; y: number } | null;
 type ProjectileTeleportResult = { level: number; x: number; y: number; direction: Direction };
 type CreatureTeleportResult = ProjectileTeleportResult & { cell: CreatureCell };
@@ -211,6 +211,7 @@ type TransportRuntimeDepsParams<
             getTile: (level: number, x: number, y: number) => GameTile | undefined;
             getOriginalTeleporterRuntime: TransportRuntimeDepsParams<TGameState, TSensorState, TPendingSensorEvent>['getOriginalTeleporterRuntime'];
         },
+        transportKind?: 'item' | 'party',
     ) => ProjectileTeleportResult;
     resolveCreatureTeleporterTransport: (
         state: Pick<TGameState, 'openTeleporters'>,
@@ -461,6 +462,7 @@ export function createTransportRuntimeDeps<
         x: number,
         y: number,
         direction: Direction,
+        transportKind?: 'item' | 'party',
     ) => params.resolveProjectileTeleporterTransport(
         state,
         level,
@@ -468,6 +470,7 @@ export function createTransportRuntimeDeps<
         y,
         direction,
         terrainTransportDeps,
+        transportKind,
     );
 
     const resolveCreatureTeleporterTransport = (

@@ -49,6 +49,7 @@ test('resolvePartyMoveCommand keeps only the fatigue patch when forward hits a b
 
     assert.deepEqual(result.patch, { championVitals: movedVitals });
     assert.equal(result.shouldPlayWallBump, false);
+    assert.equal(result.shouldPlayFallingAndDying, false);
 });
 
 test('resolvePartyMoveCommand merges wall push and bump effects for blocked forward movement', () => {
@@ -80,6 +81,7 @@ test('resolvePartyMoveCommand merges wall push and bump effects for blocked forw
         routed: true,
     });
     assert.equal(result.shouldPlayWallBump, true);
+    assert.equal(result.shouldPlayFallingAndDying, false);
 });
 
 test('resolvePartyMoveCommand delegates non-forward movement to step transport and forwards the blocked message', () => {
@@ -107,7 +109,8 @@ test('resolvePartyMoveCommand delegates non-forward movement to step transport a
     assert.deepEqual(capturedArgs, [5, 5, null]);
     assert.deepEqual(result.patch, { position: [5, 5] });
     assert.equal(result.blockedMessage, 'blocked');
-    assert.equal(result.shouldPlayWallBump, true);
+    assert.equal(result.shouldPlayWallBump, false);
+    assert.equal(result.shouldPlayFallingAndDying, true);
 });
 
 test('resolvePartyMoveCommand stops before step transport when a creature blocks the target tile', () => {
@@ -130,4 +133,5 @@ test('resolvePartyMoveCommand stops before step transport when a creature blocks
 
     assert.deepEqual(result.patch, { championVitals: movedVitals });
     assert.equal(result.shouldPlayWallBump, false);
+    assert.equal(result.shouldPlayFallingAndDying, false);
 });

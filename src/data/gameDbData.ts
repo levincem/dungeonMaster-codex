@@ -2,6 +2,14 @@ type CachedRawSlice = {
     raw: string | null;
     promise: Promise<string> | null;
     importer: () => Promise<string | { default: string }>;
+    fallbackWorkspacePath: string;
+};
+
+type NodeProcessLike = {
+    versions?: {
+        node?: string;
+    };
+    cwd?: () => string;
 };
 
 function unwrapImportedModule<T>(module: T | { default: T }): T {
@@ -13,21 +21,37 @@ function unwrapImportedModule<T>(module: T | { default: T }): T {
 
 function createRawSliceLoader(
     importer: () => Promise<string | { default: string }>,
+    fallbackWorkspacePath: string,
 ): CachedRawSlice {
     return {
         raw: null,
         promise: null,
         importer,
+        fallbackWorkspacePath,
     };
 }
 
 async function preloadRawSlice(slice: CachedRawSlice): Promise<void> {
     if (slice.raw !== null) return;
     if (!slice.promise) {
-        slice.promise = slice.importer().then((module) => {
-            slice.raw = unwrapImportedModule(module);
-            return slice.raw;
-        });
+        slice.promise = slice.importer()
+            .catch(async (error) => {
+                const runtimeProcess = (globalThis as { process?: NodeProcessLike }).process;
+                if (!runtimeProcess?.versions?.node || typeof runtimeProcess.cwd !== 'function') {
+                    throw error;
+                }
+
+                const dynamicImport = new Function('specifier', 'return import(specifier)') as (
+                    specifier: string,
+                ) => Promise<{ readFile: (path: string, encoding: string) => Promise<string> }>;
+                const fsPromises = await dynamicImport('node:fs/promises');
+                return fsPromises.readFile(`${runtimeProcess.cwd()}\\${slice.fallbackWorkspacePath}`, 'utf8');
+            })
+            .then((module) => {
+                const raw = unwrapImportedModule(module);
+                slice.raw = raw;
+                return raw;
+            });
     }
     await slice.promise;
 }
@@ -39,9 +63,23 @@ function getRawSliceSync(slice: CachedRawSlice, label: string): string {
     return slice.raw;
 }
 
-const itemsSlice = createRawSliceLoader(() => import('../assets/runtime/db/game_db_items.json?raw'));
-const weaponAttacksSlice = createRawSliceLoader(() => import('../assets/runtime/db/game_db_weapon_attacks.json?raw'));
-const creaturesSlice = createRawSliceLoader(() => import('../assets/runtime/db/game_db_creatures.json?raw'));
+const itemsSlice = createRawSliceLoader(
+    () => import('../assets/runtime/db/game_db_items.json?raw'),
+    'src\\assets\\runtime\\db\\game_db_items.json',
+);
+const weaponAttacksSlice = createRawSliceLoader(
+    () => import('../assets/runtime/db/game_db_weapon_attacks.json?raw'),
+    'src\\assets\\runtime\\db\\game_db_weapon_attacks.json',
+);
+const creaturesSlice = createRawSliceLoader(
+    () => import('../assets/runtime/db/game_db_creatures.json?raw'),
+    'src\\assets\\runtime\\db\\game_db_creatures.json',
+);
+
+function resetRawSlice(slice: CachedRawSlice): void {
+    slice.raw = null;
+    slice.promise = null;
+}
 
 export async function preloadGameDbCoreData(): Promise<void> {
     await preloadGameDbCreaturesData();
@@ -77,4 +115,10 @@ export function getGameDbWeaponAttacksRawSync(): string {
 
 export function getGameDbCreaturesRawSync(): string {
     return getRawSliceSync(creaturesSlice, 'game_db creatures');
+}
+
+export function resetGameDbDataForTests(): void {
+    resetRawSlice(itemsSlice);
+    resetRawSlice(weaponAttacksSlice);
+    resetRawSlice(creaturesSlice);
 }

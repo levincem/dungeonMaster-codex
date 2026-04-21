@@ -511,3 +511,26 @@ test('hydratePersistedGameState normalizes persisted water containers in invento
         Date.now = originalNow;
     }
 });
+
+test('hydratePersistedGameState strips disabled teleporter keys from saves', () => {
+    const now = 50_000;
+    const originalNow = Date.now;
+    Date.now = () => now;
+
+    try {
+        const state = createState(now);
+        state.openTeleporters = new Set(['0,6,7', '1,21,18']);
+        const runtime = createRuntimeMaps(now);
+        const persisted = buildPersistedSaveData(state, runtime);
+
+        assert.deepEqual(persisted.openTeleporters, ['0,6,7']);
+
+        persisted.openTeleporters = ['0,6,7', '1,21,18'];
+        const hydrated = hydratePersistedGameState(persisted, now);
+
+        assert.equal(hydrated.openTeleporters.has('0,6,7'), true);
+        assert.equal(hydrated.openTeleporters.has('1,21,18'), false);
+    } finally {
+        Date.now = originalNow;
+    }
+});

@@ -11,6 +11,11 @@ import {
     type ChampionXP,
     type SkillKey,
 } from '../../data/skillProgression';
+import {
+    ORIGINAL_CHAMPION_LEVEL_UP,
+    ORIGINAL_CHAMPION_TEMPORARY_EXPERIENCE,
+    getOriginalChampionLevelUpBranch,
+} from '../../data/originalChampionProgression';
 
 function clampToRange(min: number, value: number, max: number): number {
     return Math.max(min, Math.min(max, value));
@@ -32,9 +37,11 @@ export function buildOriginalLevelUpChampionUpdate(
     baseSkillLevelAfter: number,
     randomInt: (maxExclusive: number) => number,
 ): Champion {
-    const minorStatisticIncrease = randomInt(2);
-    const majorStatisticIncrease = 1 + randomInt(2);
-    let vitalityAmount = randomInt(2);
+    const branch = getOriginalChampionLevelUpBranch(baseSkill);
+    const rolls = ORIGINAL_CHAMPION_LEVEL_UP.randomRolls;
+    const minorStatisticIncrease = randomInt(rolls.minorStatisticIncreaseMaxExclusive);
+    const majorStatisticIncrease = 1 + randomInt(rolls.majorStatisticIncreaseMaxExclusive);
+    let vitalityAmount = randomInt(rolls.vitalityIncreaseMaxExclusive);
 
     if (baseSkill !== 'priest') {
         vitalityAmount &= baseSkillLevelAfter;
@@ -53,39 +60,50 @@ export function buildOriginalLevelUpChampionUpdate(
     let healthLevelFactor = baseSkillLevelAfter;
     let staminaAmount = champion.stamina;
 
-    switch (baseSkill) {
-        case 'fighter':
-            staminaAmount >>= 4;
-            healthLevelFactor *= 3;
-            nextStrength += majorStatisticIncrease;
-            nextDexterity += minorStatisticIncrease;
-            break;
-        case 'ninja':
-            staminaAmount = Math.floor(staminaAmount / 21);
-            healthLevelFactor <<= 1;
-            nextStrength += minorStatisticIncrease;
-            nextDexterity += majorStatisticIncrease;
-            break;
-        case 'wizard':
-            staminaAmount >>= 5;
-            nextMana += baseSkillLevelAfter + (baseSkillLevelAfter >> 1);
-            nextWisdom += majorStatisticIncrease;
-            nextMana += Math.min(randomInt(4), Math.max(0, baseSkillLevelAfter - 1));
-            nextAntiMagic += randomInt(3);
-            break;
-        case 'priest':
-            staminaAmount = Math.floor(staminaAmount / 25);
-            nextMana += baseSkillLevelAfter;
-            healthLevelFactor += (healthLevelFactor + 1) >> 1;
-            nextWisdom += minorStatisticIncrease;
-            nextMana += Math.min(randomInt(4), Math.max(0, baseSkillLevelAfter - 1));
-            nextAntiMagic += randomInt(3);
-            break;
+    if (branch.staminaMode === 'shift_right') {
+        staminaAmount >>= branch.staminaOperand;
+    } else {
+        staminaAmount = Math.floor(staminaAmount / branch.staminaOperand);
     }
 
-    nextMana = Math.min(900, nextMana);
-    nextHealth = Math.min(999, nextHealth + healthLevelFactor + randomInt((healthLevelFactor >> 1) + 1));
-    nextStamina = Math.min(9999, nextStamina + staminaAmount + randomInt((staminaAmount >> 1) + 1));
+    if (branch.healthFactorMode === 'multiply') {
+        healthLevelFactor *= branch.healthFactorOperand;
+    } else if (branch.healthFactorMode === 'plus_half_rounded_up') {
+        healthLevelFactor += (healthLevelFactor + 1) >> 1;
+    }
+
+    const applyIncrease = (kind: 'minor' | 'major') => (kind === 'major' ? majorStatisticIncrease : minorStatisticIncrease);
+    if (branch.primaryStat === 'strength') nextStrength += applyIncrease(branch.primaryIncrease);
+    if (branch.primaryStat === 'dexterity') nextDexterity += applyIncrease(branch.primaryIncrease);
+    if (branch.primaryStat === 'wisdom') nextWisdom += applyIncrease(branch.primaryIncrease);
+    if (branch.secondaryStat === 'strength' && branch.secondaryIncrease) nextStrength += applyIncrease(branch.secondaryIncrease);
+    if (branch.secondaryStat === 'dexterity' && branch.secondaryIncrease) nextDexterity += applyIncrease(branch.secondaryIncrease);
+
+    if (branch.baseManaMode === 'wizard') {
+        nextMana += baseSkillLevelAfter + (baseSkillLevelAfter >> 1);
+        nextMana += Math.min(
+            randomInt(rolls.extraManaIncreaseMaxExclusive),
+            Math.max(0, baseSkillLevelAfter - 1),
+        );
+        nextAntiMagic += randomInt(rolls.antiMagicIncreaseMaxExclusive);
+    } else if (branch.baseManaMode === 'priest') {
+        nextMana += baseSkillLevelAfter;
+        nextMana += Math.min(
+            randomInt(rolls.extraManaIncreaseMaxExclusive),
+            Math.max(0, baseSkillLevelAfter - 1),
+        );
+        nextAntiMagic += randomInt(rolls.antiMagicIncreaseMaxExclusive);
+    }
+
+    nextMana = Math.min(ORIGINAL_CHAMPION_LEVEL_UP.caps.mana, nextMana);
+    nextHealth = Math.min(
+        ORIGINAL_CHAMPION_LEVEL_UP.caps.health,
+        nextHealth + healthLevelFactor + randomInt((healthLevelFactor >> 1) + 1),
+    );
+    nextStamina = Math.min(
+        ORIGINAL_CHAMPION_LEVEL_UP.caps.stamina,
+        nextStamina + staminaAmount + randomInt((staminaAmount >> 1) + 1),
+    );
 
     return cloneChampionWithUpdatedMaximum(champion, {
         health: nextHealth,
@@ -152,8 +170,12 @@ export function applyOriginalChampionSkillExperience(
 
     const nextChampionXP = awardChampionXP(normalizedChampionXP, skill, adjustedExperience);
     const nextTemporaryChampionXP = normalizeChampionTemporaryXP(normalizedTemporaryChampionXP);
-    if (nextTemporaryChampionXP[skill] < 32000) {
-        nextTemporaryChampionXP[skill] += clampToRange(1, adjustedExperience >> 3, 100);
+    if (nextTemporaryChampionXP[skill] < ORIGINAL_CHAMPION_TEMPORARY_EXPERIENCE.gainBlockedAtOrAbove) {
+        nextTemporaryChampionXP[skill] += clampToRange(
+            ORIGINAL_CHAMPION_TEMPORARY_EXPERIENCE.minimumGain,
+            adjustedExperience >> ORIGINAL_CHAMPION_TEMPORARY_EXPERIENCE.gainShiftRight,
+            ORIGINAL_CHAMPION_TEMPORARY_EXPERIENCE.maximumGain,
+        );
     }
 
     const nextBaseSkillLevel = getChampionSkillLevel(

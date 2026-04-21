@@ -106,3 +106,62 @@ test('buildDeathDrop leaves deadChampions unchanged when the champion is already
     assert.deepEqual(Object.keys(result.deadChampions).map(Number), [existing.id]);
     assert.equal(result.floorItems.at(-1)?.id, `bones_${champion.id}_42`);
 });
+
+test('buildDeathDrop follows the original I562 possession drop order before bones', () => {
+    const champion = createChampion(4, 'Tiggy');
+    const inventory: FloorItem[] = [];
+    inventory[0] = createItem('bag-13', 'Misc', 1);
+    inventory[1] = createItem('bag-14', 'Misc', 2);
+
+    const result = buildDeathDrop(
+        {
+            level: 1,
+            position: [3, 4],
+            party: [champion],
+            championInventories: { [champion.id]: inventory },
+            championEquipment: {
+                [champion.id]: {
+                    leftHand: createItem('left-hand', 'Weapon', 8),
+                    rightHand: createItem('right-hand', 'Weapon', 9),
+                    head: createItem('head', 'Armor', 26),
+                    torso: createItem('torso', 'Armor', 16),
+                    legs: createItem('legs', 'Armor', 17),
+                    feet: createItem('feet', 'Armor', 4),
+                    neck: createItem('neck', 'Misc', 48),
+                    pocket1: createItem('pocket-1', 'Potion', 20),
+                    pocket2: createItem('pocket-2', 'Scroll', 0),
+                    quiver1: createItem('quiver-1', 'Weapon', 27),
+                    quiver2: createItem('quiver-2', 'Weapon', 28),
+                    quiver3: createItem('quiver-3', 'Weapon', 31),
+                    quiver4: createItem('quiver-4', 'Weapon', 32),
+                },
+            },
+            floorItems: [],
+            deadChampions: {},
+        },
+        champion.id,
+        999,
+    );
+
+    assert.deepEqual(
+        result.floorItems.map((item) => item.id),
+        [
+            'feet',
+            'legs',
+            'quiver-4',
+            'quiver-3',
+            'quiver-2',
+            'quiver-1',
+            'pocket-2',
+            'pocket-1',
+            'torso',
+            'bag-13',
+            'bag-14',
+            'neck',
+            'head',
+            'left-hand',
+            'right-hand',
+            `bones_${champion.id}_999`,
+        ],
+    );
+});

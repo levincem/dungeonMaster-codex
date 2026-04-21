@@ -249,7 +249,7 @@ export const en = {
         inspectDropZone: 'INSPECT',
         inspectDropZoneTitle: 'Drop a scroll or waterskin here to inspect it',
         fountain: 'FOUNTAIN',
-        fountainTitle: 'Drop a flask or waterskin here to fill it',
+        fountainTitle: 'Click to drink, or drop a flask or waterskin here to fill it',
         alcove: 'ALCOVE',
         receptacle: 'RECEPTACLE',
         altar: 'ALTAR',

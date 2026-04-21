@@ -70,6 +70,7 @@ export type PartyMoveCommandResult<TState extends PartyMoveState> = {
     patch: Record<string, unknown> | TState;
     blockedMessage?: string;
     shouldPlayWallBump: boolean;
+    shouldPlayFallingAndDying: boolean;
 };
 
 export function resolvePartyMoveTarget(
@@ -109,11 +110,11 @@ export function resolvePartyMoveCommand<TState extends PartyMoveState>(
     deps: PartyMoveCommandDeps<TState>,
 ): PartyMoveCommandResult<TState> {
     if (state.gamePhase !== 'exploration') {
-        return { patch: state, shouldPlayWallBump: false };
+        return { patch: state, shouldPlayWallBump: false, shouldPlayFallingAndDying: false };
     }
 
     if (Number.isFinite(state.movementCooldown) && state.movementCooldown > 0) {
-        return { patch: state, shouldPlayWallBump: false };
+        return { patch: state, shouldPlayWallBump: false, shouldPlayFallingAndDying: false };
     }
 
     const movedVitals = deps.applyPartyMoveFatigue(state);
@@ -122,6 +123,7 @@ export function resolvePartyMoveCommand<TState extends PartyMoveState>(
         return {
             patch: movedVitals ? { championVitals: movedVitals } : state,
             shouldPlayWallBump: false,
+            shouldPlayFallingAndDying: false,
         };
     }
 
@@ -158,6 +160,7 @@ export function resolvePartyMoveCommand<TState extends PartyMoveState>(
                 return {
                     patch: movedVitals ? { championVitals: movedVitals } : state,
                     shouldPlayWallBump: false,
+                    shouldPlayFallingAndDying: false,
                 };
             }
             return {
@@ -168,6 +171,7 @@ export function resolvePartyMoveCommand<TState extends PartyMoveState>(
                     pendingSensorEvents: pushChanges.pendingSensorEvents,
                 }),
                 shouldPlayWallBump: Boolean(wallBumpChanges) && state.party.length > 0,
+                shouldPlayFallingAndDying: false,
             };
         }
     }
@@ -176,6 +180,7 @@ export function resolvePartyMoveCommand<TState extends PartyMoveState>(
     return {
         patch: stepResult.patch,
         blockedMessage: stepResult.blockedMessage,
-        shouldPlayWallBump: Boolean(stepResult.fellThroughPit) && state.party.length > 0,
+        shouldPlayWallBump: false,
+        shouldPlayFallingAndDying: Boolean(stepResult.fellThroughPit) && state.party.length > 0,
     };
 }

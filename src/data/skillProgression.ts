@@ -1,3 +1,6 @@
+import { ORIGINAL_CHAMPION_LEVEL_THRESHOLDS } from './originalChampionProgression';
+import originalSkillsRuntime from '../assets/runtime/reference/original_skills_runtime.json';
+
 export type BasicSkillKey = 'fighter' | 'ninja' | 'priest' | 'wizard';
 
 export type HiddenSkillKey =
@@ -11,61 +14,54 @@ export type SkillKey = BasicSkillKey | HiddenSkillKey;
 export type ChampionXP = Record<SkillKey, number>;
 export type ChampionTemporaryXP = Record<SkillKey, number>;
 
-export const BASIC_SKILL_KEYS: readonly BasicSkillKey[] = ['fighter', 'ninja', 'priest', 'wizard'];
+type OriginalSkillsRuntime = {
+    basicSkills: Array<{
+        id: number;
+        name: string;
+    }>;
+    hiddenSkills: Array<{
+        id: number;
+        name: string;
+        parentSkill: string;
+    }>;
+};
 
-export const HIDDEN_SKILL_KEYS: readonly HiddenSkillKey[] = [
-    'swing', 'thrust', 'club', 'parry',
-    'steal', 'fight', 'throw', 'shoot',
-    'identify', 'heal', 'influence', 'defend',
-    'fire', 'air', 'earth', 'water',
-];
+const ORIGINAL_SKILLS = originalSkillsRuntime as OriginalSkillsRuntime;
+
+function normalizeSkillKey(value: string): SkillKey {
+    return value.toLowerCase() as SkillKey;
+}
+
+function normalizeBasicSkillKey(value: string): BasicSkillKey {
+    return value.toLowerCase() as BasicSkillKey;
+}
+
+export const BASIC_SKILL_KEYS: readonly BasicSkillKey[] = ORIGINAL_SKILLS.basicSkills.map(
+    (skill) => normalizeBasicSkillKey(skill.name),
+);
+
+export const HIDDEN_SKILL_KEYS: readonly HiddenSkillKey[] = ORIGINAL_SKILLS.hiddenSkills.map(
+    (skill) => normalizeSkillKey(skill.name) as HiddenSkillKey,
+);
 
 export const ALL_SKILL_KEYS: readonly SkillKey[] = [
     ...BASIC_SKILL_KEYS,
     ...HIDDEN_SKILL_KEYS,
 ];
 
-const HIDDEN_SKILL_TO_PARENT: Record<HiddenSkillKey, BasicSkillKey> = {
-    swing: 'fighter',
-    thrust: 'fighter',
-    club: 'fighter',
-    parry: 'fighter',
-    steal: 'ninja',
-    fight: 'ninja',
-    throw: 'ninja',
-    shoot: 'ninja',
-    identify: 'priest',
-    heal: 'priest',
-    influence: 'priest',
-    defend: 'priest',
-    fire: 'wizard',
-    air: 'wizard',
-    earth: 'wizard',
-    water: 'wizard',
-};
+const HIDDEN_SKILL_TO_PARENT: Record<HiddenSkillKey, BasicSkillKey> = Object.fromEntries(
+    ORIGINAL_SKILLS.hiddenSkills.map((skill) => [
+        normalizeSkillKey(skill.name),
+        normalizeBasicSkillKey(skill.parentSkill),
+    ]),
+) as Record<HiddenSkillKey, BasicSkillKey>;
 
-const ORIGINAL_SKILL_INDEX_TO_KEY: Record<number, SkillKey> = {
-    0: 'fighter',
-    1: 'ninja',
-    2: 'priest',
-    3: 'wizard',
-    4: 'swing',
-    5: 'thrust',
-    6: 'club',
-    7: 'parry',
-    8: 'steal',
-    9: 'fight',
-    10: 'throw',
-    11: 'shoot',
-    12: 'identify',
-    13: 'heal',
-    14: 'influence',
-    15: 'defend',
-    16: 'fire',
-    17: 'air',
-    18: 'earth',
-    19: 'water',
-};
+const ORIGINAL_SKILL_INDEX_TO_KEY: Record<number, SkillKey> = Object.fromEntries(
+    [...ORIGINAL_SKILLS.basicSkills, ...ORIGINAL_SKILLS.hiddenSkills].map((skill) => [
+        skill.id,
+        normalizeSkillKey(skill.name),
+    ]),
+) as Record<number, SkillKey>;
 
 export function isHiddenSkill(skill: SkillKey): skill is HiddenSkillKey {
     return skill in HIDDEN_SKILL_TO_PARENT;
@@ -80,28 +76,9 @@ export function mapOriginalSkillNumberToSkillKey(skillNumber: number): SkillKey 
 }
 
 export function createEmptyChampionXP(): ChampionXP {
-    return {
-        fighter: 0,
-        ninja: 0,
-        priest: 0,
-        wizard: 0,
-        swing: 0,
-        thrust: 0,
-        club: 0,
-        parry: 0,
-        steal: 0,
-        fight: 0,
-        throw: 0,
-        shoot: 0,
-        identify: 0,
-        heal: 0,
-        influence: 0,
-        defend: 0,
-        fire: 0,
-        air: 0,
-        earth: 0,
-        water: 0,
-    };
+    return Object.fromEntries(
+        ALL_SKILL_KEYS.map((key) => [key, 0]),
+    ) as ChampionXP;
 }
 
 export function createEmptyChampionTemporaryXP(): ChampionTemporaryXP {
@@ -141,7 +118,7 @@ export function awardChampionXP(
 export function skillExperienceToLevel(experience: number): number {
     let remaining = Math.max(0, Math.floor(experience));
     let level = 1;
-    while (remaining >= 500) {
+    while (remaining >= ORIGINAL_CHAMPION_LEVEL_THRESHOLDS.baseExperienceStep) {
         remaining >>= 1;
         level += 1;
     }

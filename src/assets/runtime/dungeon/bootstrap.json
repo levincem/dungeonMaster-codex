@@ -8,6 +8,13 @@
   "champions": [
     {
       "portraitId": 23,
+      "portraitName": "Daroou/Lor",
+      "map": 0,
+      "x": 5,
+      "y": 13,
+      "globalX": 5,
+      "globalY": 13,
+      "wallFace": "East",
       "name": "DAROOU",
       "title": "",
       "gender": "M",
@@ -46,14 +53,17 @@
           1,
           1
         ]
-      },
-      "x": 5,
-      "y": 13,
-      "wallFace": "East",
-      "map": 0
+      }
     },
     {
       "portraitId": 1,
+      "portraitName": "Halk/Aroc",
+      "map": 0,
+      "x": 7,
+      "y": 8,
+      "globalX": 7,
+      "globalY": 8,
+      "wallFace": "South",
       "name": "HALK",
       "title": "THE BARBARIAN",
       "gender": "M",
@@ -92,14 +102,17 @@
           0,
           0
         ]
-      },
-      "x": 7,
-      "y": 8,
-      "wallFace": "South",
-      "map": 0
+      }
     },
     {
       "portraitId": 10,
+      "portraitName": "WuTse/Slogar",
+      "map": 0,
+      "x": 7,
+      "y": 14,
+      "globalX": 7,
+      "globalY": 14,
+      "wallFace": "North",
       "name": "WU TSE",
       "title": "SON OF HEAVEN",
       "gender": "F",
@@ -138,14 +151,17 @@
           0,
           0
         ]
-      },
-      "x": 7,
-      "y": 14,
-      "wallFace": "North",
-      "map": 0
+      }
     },
     {
       "portraitId": 13,
+      "portraitName": "Azizi/Deth",
+      "map": 0,
+      "x": 7,
+      "y": 17,
+      "globalX": 7,
+      "globalY": 17,
+      "wallFace": "North",
       "name": "AZIZI",
       "title": "JOHARI",
       "gender": "F",
@@ -184,14 +200,17 @@
           0,
           0
         ]
-      },
-      "x": 7,
-      "y": 17,
-      "wallFace": "North",
-      "map": 0
+      }
     },
     {
       "portraitId": 0,
+      "portraitName": "Elija/Airwing",
+      "map": 0,
+      "x": 8,
+      "y": 7,
+      "globalX": 8,
+      "globalY": 7,
+      "wallFace": "East",
       "name": "ELIJA",
       "title": "LION OF YAITOPYA",
       "gender": "M",
@@ -230,14 +249,17 @@
           0,
           0
         ]
-      },
-      "x": 8,
-      "y": 7,
-      "wallFace": "East",
-      "map": 0
+      }
     },
     {
       "portraitId": 9,
+      "portraitName": "Leif/Gnatu",
+      "map": 0,
+      "x": 8,
+      "y": 14,
+      "globalX": 8,
+      "globalY": 14,
+      "wallFace": "South",
       "name": "LEIF",
       "title": "THE VALIANT",
       "gender": "M",
@@ -276,14 +298,17 @@
           0,
           0
         ]
-      },
-      "x": 8,
-      "y": 14,
-      "wallFace": "South",
-      "map": 0
+      }
     },
     {
       "portraitId": 2,
+      "portraitName": "Syra/Talon",
+      "map": 0,
+      "x": 9,
+      "y": 10,
+      "globalX": 9,
+      "globalY": 10,
+      "wallFace": "North",
       "name": "SYRA",
       "title": "CHILD OF NATURE",
       "gender": "F",
@@ -322,14 +347,17 @@
           3,
           3
         ]
-      },
-      "x": 9,
-      "y": 10,
-      "wallFace": "North",
-      "map": 0
+      }
     },
     {
       "portraitId": 14,
+      "portraitName": "Iaido/Necro",
+      "map": 0,
+      "x": 10,
+      "y": 3,
+      "globalX": 10,
+      "globalY": 3,
+      "wallFace": "South",
       "name": "IAIDO",
       "title": "RUYITO CHIBURI",
       "gender": "M",
@@ -368,14 +396,17 @@
           0,
           0
         ]
-      },
-      "x": 10,
-      "y": 3,
-      "wallFace": "South",
-      "map": 0
+      }
     },
     {
       "portraitId": 4,
+      "portraitName": "Zed/Dema",
+      "map": 0,
+      "x": 10,
+      "y": 6,
+      "globalX": 10,
+      "globalY": 6,
+      "wallFace": "North",
       "name": "ZED",
       "title": "DUKE OF BANVILLE",
       "gender": "M",
@@ -414,14 +445,17 @@
           1,
           1
         ]
-      },
-      "x": 10,
-      "y": 6,
-      "wallFace": "North",
-      "map": 0
+      }
     },
     {
       "portraitId": 18,
+      "portraitName": "Tiggy/Buzzzz",
+      "map": 0,
+      "x": 10,
+      "y": 13,
+      "globalX": 10,
+      "globalY": 13,
+      "wallFace": "West",
       "name": "TIGGY",
       "title": "TAMAL",
       "gender": "F",
@@ -460,14 +494,17 @@
           3,
           2
         ]
-      },
-      "x": 10,
-      "y": 13,
-      "wallFace": "West",
-      "map": 0
+      }
     },
     {
       "portraitId": 15,
+      "portraitName": "Gando/Plague",
+      "map": 0,
+      "x": 11,
+      "y": 11,
+      "globalX": 11,
+      "globalY": 11,
+      "wallFace": "North",
       "name": "GANDO",
       "title": "THURFOOT",
       "gender": "M",
@@ -506,14 +543,17 @@
           1,
           2
         ]
-      },
-      "x": 11,
-      "y": 11,
-      "wallFace": "North",
-      "map": 0
+      }
     },
     {
       "portraitId": 22,
+      "portraitName": "Wuuf/Kazai",
+      "map": 0,
+      "x": 11,
+      "y": 13,
+      "globalX": 11,
+      "globalY": 13,
+      "wallFace": "East",
       "name": "WUUF",
       "title": "THE BIKA",
       "gender": "F",
@@ -552,14 +592,17 @@
           0,
           0
         ]
-      },
-      "x": 11,
-      "y": 13,
-      "wallFace": "East",
-      "map": 0
+      }
     },
     {
       "portraitId": 16,
+      "portraitName": "Stamm/Tunda",
+      "map": 0,
+      "x": 11,
+      "y": 16,
+      "globalX": 11,
+      "globalY": 16,
+      "wallFace": "North",
       "name": "STAMM",
       "title": "BLADECASTER",
       "gender": "M",
@@ -598,14 +641,17 @@
           0,
           0
         ]
-      },
-      "x": 11,
-      "y": 16,
-      "wallFace": "North",
-      "map": 0
+      }
     },
     {
       "portraitId": 12,
+      "portraitName": "Linflas/Skelar",
+      "map": 0,
+      "x": 12,
+      "y": 8,
+      "globalX": 12,
+      "globalY": 8,
+      "wallFace": "South",
       "name": "LINFLAS",
       "title": "",
       "gender": "M",
@@ -644,14 +690,17 @@
           2,
           2
         ]
-      },
-      "x": 12,
-      "y": 8,
-      "wallFace": "South",
-      "map": 0
+      }
     },
     {
       "portraitId": 17,
+      "portraitName": "Leyla/Lana",
+      "map": 0,
+      "x": 13,
+      "y": 11,
+      "globalX": 13,
+      "globalY": 11,
+      "wallFace": "South",
       "name": "LEYLA",
       "title": "SHADOWSEEK",
       "gender": "F",
@@ -690,14 +739,17 @@
           0,
           0
         ]
-      },
-      "x": 13,
-      "y": 11,
-      "wallFace": "South",
-      "map": 0
+      }
     },
     {
       "portraitId": 5,
+      "portraitName": "Chani/Algor",
+      "map": 0,
+      "x": 14,
+      "y": 2,
+      "globalX": 14,
+      "globalY": 2,
+      "wallFace": "South",
       "name": "CHANI",
       "title": "SAYYADINA SIHAYA",
       "gender": "F",
@@ -736,14 +788,17 @@
           3,
           1
         ]
-      },
-      "x": 14,
-      "y": 2,
-      "wallFace": "South",
-      "map": 0
+      }
     },
     {
       "portraitId": 7,
+      "portraitName": "Boris/Ven",
+      "map": 0,
+      "x": 14,
+      "y": 7,
+      "globalX": 14,
+      "globalY": 7,
+      "wallFace": "North",
       "name": "BORIS",
       "title": "WIZARD OF BALDOR",
       "gender": "M",
@@ -782,14 +837,17 @@
           3,
           3
         ]
-      },
-      "x": 14,
-      "y": 7,
-      "wallFace": "North",
-      "map": 0
+      }
     },
     {
       "portraitId": 8,
+      "portraitName": "Mophus/Mantia",
+      "map": 0,
+      "x": 14,
+      "y": 14,
+      "globalX": 14,
+      "globalY": 14,
+      "wallFace": "West",
       "name": "MOPHUS",
       "title": "THE HEALER",
       "gender": "M",
@@ -828,14 +886,17 @@
           0,
           0
         ]
-      },
-      "x": 14,
-      "y": 14,
-      "wallFace": "West",
-      "map": 0
+      }
     },
     {
       "portraitId": 19,
+      "portraitName": "Sonja/Petal",
+      "map": 0,
+      "x": 15,
+      "y": 12,
+      "globalX": 15,
+      "globalY": 12,
+      "wallFace": "West",
       "name": "SONJA",
       "title": "SHE DEVIL",
       "gender": "F",
@@ -874,14 +935,17 @@
           0,
           0
         ]
-      },
-      "x": 15,
-      "y": 12,
-      "wallFace": "West",
-      "map": 0
+      }
     },
     {
       "portraitId": 6,
+      "portraitName": "Hawk/Toadrot",
+      "map": 0,
+      "x": 16,
+      "y": 4,
+      "globalX": 16,
+      "globalY": 4,
+      "wallFace": "West",
       "name": "HAWK",
       "title": "THE FEARLESS",
       "gender": "M",
@@ -920,14 +984,17 @@
           0,
           0
         ]
-      },
-      "x": 16,
-      "y": 4,
-      "wallFace": "West",
-      "map": 0
+      }
     },
     {
       "portraitId": 11,
+      "portraitName": "Alex/Sting",
+      "map": 0,
+      "x": 16,
+      "y": 7,
+      "globalX": 16,
+      "globalY": 7,
+      "wallFace": "South",
       "name": "ALEX",
       "title": "ANDER",
       "gender": "M",
@@ -966,14 +1033,17 @@
           1,
           2
         ]
-      },
-      "x": 16,
-      "y": 7,
-      "wallFace": "South",
-      "map": 0
+      }
     },
     {
       "portraitId": 3,
+      "portraitName": "Hissssa/Leta",
+      "map": 0,
+      "x": 16,
+      "y": 15,
+      "globalX": 16,
+      "globalY": 15,
+      "wallFace": "North",
       "name": "HISSSSA",
       "title": "LIZAR OF MAKAN",
       "gender": "M",
@@ -1012,14 +1082,17 @@
           0,
           0
         ]
-      },
-      "x": 16,
-      "y": 15,
-      "wallFace": "North",
-      "map": 0
+      }
     },
     {
       "portraitId": 21,
+      "portraitName": "Gothmog/Tula",
+      "map": 0,
+      "x": 16,
+      "y": 16,
+      "globalX": 16,
+      "globalY": 16,
+      "wallFace": "South",
       "name": "GOTHMOG",
       "title": "",
       "gender": "M",
@@ -1058,14 +1131,17 @@
           2,
           2
         ]
-      },
-      "x": 16,
-      "y": 16,
-      "wallFace": "South",
-      "map": 0
+      }
     },
     {
       "portraitId": 20,
+      "portraitName": "Nabi/Itza",
+      "map": 0,
+      "x": 17,
+      "y": 10,
+      "globalX": 17,
+      "globalY": 10,
+      "wallFace": "North",
       "name": "NABI",
       "title": "THE PROPHET",
       "gender": "M",
@@ -1104,11 +1180,7 @@
           1,
           1
         ]
-      },
-      "x": 17,
-      "y": 10,
-      "wallFace": "North",
-      "map": 0
+      }
     }
   ],
   "defaultOpenPits": [

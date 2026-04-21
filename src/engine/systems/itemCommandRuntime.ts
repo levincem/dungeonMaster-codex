@@ -22,6 +22,13 @@ type FillWaterRuntimeState = {
     championEquipment: Record<number, ChampionEquipment>;
 };
 
+type DrinkFromFountainRuntimeState = {
+    level: number;
+    position: [number, number];
+    direction: Direction;
+    championVitals: Record<number, ChampionVitals>;
+};
+
 type FrontWallRuntimeState = {
     level: number;
     position: [number, number];
@@ -78,6 +85,30 @@ export function buildFillWaterRuntimePatch<TPatch extends Record<string, unknown
             fillWaterContainer: deps.fillWaterContainer,
         },
     ) as TPatch | null;
+}
+
+export function buildDrinkFromFountainRuntimePatch<TPatch extends Record<string, unknown>>(
+    state: DrinkFromFountainRuntimeState,
+    championId: number,
+    deps: {
+        isFacingFountain: (state: DrinkFromFountainRuntimeState) => boolean;
+        clampWater: (value: number) => number;
+        waterGain: number;
+    },
+): TPatch | null {
+    if (!deps.isFacingFountain(state)) return null;
+    const vitals = state.championVitals[championId];
+    if (!vitals) return null;
+
+    return {
+        championVitals: {
+            ...state.championVitals,
+            [championId]: {
+                ...vitals,
+                water: deps.clampWater(vitals.water + deps.waterGain),
+            },
+        },
+    } as unknown as TPatch;
 }
 
 export function runChampionItemOnFrontWallRuntime<

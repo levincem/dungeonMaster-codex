@@ -49,6 +49,15 @@ export const EMPTY_CHAMPION_WOUNDS: ChampionWounds = {
 };
 
 export const QUIVER_SLOT_KEYS: EquipSlotKey[] = ['quiver1', 'quiver2', 'quiver3', 'quiver4'];
+export const EXPLICIT_ZERO_SLOT_ITEM_FALLBACKS = {
+    Misc: {
+        51: {
+            rawName: 'Zokathra',
+            equippableSlots: ['rightHand', 'leftHand'] as EquipSlotKey[],
+            starterAutoEquipSlots: ['rightHand', 'leftHand'] as EquipSlotKey[],
+        },
+    },
+} as const;
 
 const ZERO_BONUSES: EquipmentStatBonuses = {
     mana: 0,
@@ -171,16 +180,9 @@ function mapFallbackArmorSlots(item: FloorItem): EquipSlotKey[] {
 }
 
 function mapFallbackMiscSlots(item: FloorItem): EquipSlotKey[] {
-    const def = MISC_TYPES[item.typeId];
-    const name = (def?.name ?? item.rawName ?? '').toLowerCase();
-    if (
-        /jewel symal|illumulet|moonstone|ekkhard cross|pendant feral|choker/.test(name)
-    ) {
-        return ['neck', 'pocket1', 'pocket2', 'rightHand', 'leftHand'];
-    }
-    if (/rabbit/.test(name)) return ['pocket1', 'pocket2', 'rightHand', 'leftHand'];
-    if (def?.key) return ['pocket1', 'pocket2', 'rightHand', 'leftHand'];
-    return ['pocket1', 'pocket2', 'rightHand', 'leftHand'];
+    const explicitFallback = EXPLICIT_ZERO_SLOT_ITEM_FALLBACKS.Misc[item.typeId as keyof typeof EXPLICIT_ZERO_SLOT_ITEM_FALLBACKS.Misc];
+    if (explicitFallback) return [...explicitFallback.equippableSlots];
+    return [];
 }
 
 function mapStarterArmorSlots(item: FloorItem): EquipSlotKey[] {
@@ -202,7 +204,10 @@ function mapStarterArmorSlots(item: FloorItem): EquipSlotKey[] {
 
 function mapStarterMiscSlots(typeId: number): EquipSlotKey[] {
     const allowedMask = getSourceItemAllowedSlotsMask('Misc', typeId);
-    if (allowedMask == null || allowedMask === 0) return ['pocket1', 'pocket2'];
+    if (allowedMask == null || allowedMask === 0) {
+        const explicitFallback = EXPLICIT_ZERO_SLOT_ITEM_FALLBACKS.Misc[typeId as keyof typeof EXPLICIT_ZERO_SLOT_ITEM_FALLBACKS.Misc];
+        return explicitFallback ? [...explicitFallback.starterAutoEquipSlots] : [];
+    }
 
     const slots: EquipSlotKey[] = [];
     addSourceWearSlots(slots, allowedMask);

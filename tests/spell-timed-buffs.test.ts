@@ -37,14 +37,14 @@ test('resolveSpellTimedBuff builds a light entry for positive and negative light
     assert.deepEqual(light, {
         spellLight: {
             id: 'light_100_light',
-            lightContrib: 0.25,
+            lightContrib: 0.24,
             expiresAt: 2400100,
         },
     });
     assert.deepEqual(darkness, {
         spellLight: {
             id: 'darkness_100_dark',
-            lightContrib: -2 / 12,
+            lightContrib: -0.12,
             expiresAt: 23620,
         },
     });

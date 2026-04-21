@@ -6,6 +6,7 @@ import {
     type ChampionXP,
     type SkillKey,
 } from '../../data/skillProgression';
+import { ORIGINAL_CHAMPION_LEVEL_THRESHOLDS } from '../../data/originalChampionProgression';
 import type { Champion } from '../../types/champion';
 import type { ChampionVitals } from '../runtimeTypes';
 
@@ -68,7 +69,8 @@ export function isLegacyChampionXPForChampion(champion: Champion, xp: ChampionXP
     if (hasAnyHiddenXP) return false;
 
     const legacyInitial = createEmptyChampionXP();
-    const lvlXP = (skills: [number, number, number, number]) => Math.pow(Math.max(skills[0], skills[2]), 2) * 500;
+    const lvlXP = (skills: [number, number, number, number]) =>
+        Math.pow(Math.max(skills[0], skills[2]), 2) * ORIGINAL_CHAMPION_LEVEL_THRESHOLDS.baseExperienceStep;
     legacyInitial.fighter = lvlXP(champion.skills.fighter);
     legacyInitial.ninja = lvlXP(champion.skills.ninja);
     legacyInitial.priest = lvlXP(champion.skills.priest);

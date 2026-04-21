@@ -269,6 +269,14 @@ export function applyCreaturesStandingOnOpenTeleporter(
             'NORTH',
             creature.cell,
         );
+        if (
+            resolvedTransport.level === creature.mapIndex
+            && resolvedTransport.x === creature.x
+            && resolvedTransport.y === creature.y
+            && resolvedTransport.cell === creature.cell
+        ) {
+            continue;
+        }
         const hydrationPatch = deps.buildLevelHydrationPatch(
             {
                 hydratedLevels: state.hydratedLevels,

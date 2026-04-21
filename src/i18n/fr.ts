@@ -249,7 +249,7 @@ export const fr = {
         inspectDropZone: 'EXAM.',
         inspectDropZoneTitle: 'Deposer un parchemin ou une outre ici pour l examiner',
         fountain: 'FONTAINE',
-        fountainTitle: 'Deposer une flasque ou une outre ici pour la remplir',
+        fountainTitle: 'Cliquer pour boire, ou deposer une flasque ou une outre ici pour la remplir',
         alcove: 'ALCOVE',
         receptacle: 'RECEPTACLE',
         altar: 'AUTEL',

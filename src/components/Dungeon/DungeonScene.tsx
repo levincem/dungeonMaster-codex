@@ -25,7 +25,7 @@ import { WallSensor } from './WallSensor';
 import { WallDecal } from './WallDecal';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import { getFloorItemImage } from '../../data/itemImages';
-import { miscPath, texturesPath } from '../../data/assetPaths';
+import { texturesPath } from '../../data/assetPaths';
 import { doorBlocksVision } from '../../data/doors';
 import { getDragPayload, hasActiveDragPayload } from '../UI/dragPayload';
 import { useI18n } from '../../i18n';
@@ -379,6 +379,21 @@ function getRenderType(tile: GameTile, level: number): CellRenderType {
         default:
             return 'Floor';
     }
+}
+
+function resolveStairsEntryFace(map: GameMap, x: number, y: number): CardinalDir {
+    const neighbours: Array<{ dx: number; dy: number; dir: CardinalDir }> = [
+        { dx: 0, dy: -1, dir: 'North' },
+        { dx: 0, dy: 1, dir: 'South' },
+        { dx: 1, dy: 0, dir: 'East' },
+        { dx: -1, dy: 0, dir: 'West' },
+    ];
+    for (const { dx, dy, dir } of neighbours) {
+        const row = map.tiles[y + dy];
+        const neighbour = row?.[x + dx];
+        if (neighbour && neighbour.type !== 'Wall') return dir;
+    }
+    return 'South';
 }
 
 // Level name overlay
@@ -746,13 +761,19 @@ const TileGrid: React.FC<{
             {map.tiles.map((row, y) =>
                 row.map((tile, x) => {
                     const renderType = getRenderType(tile, level);
-                    if (renderType !== 'Door' && renderType !== 'Mirror') return null;
+                    const isRenderedStair = tile.type === 'Stairs' && (renderType === 'StairsDown' || renderType === 'StairsUp');
+                    if (renderType !== 'Door' && renderType !== 'Mirror' && !isRenderedStair) return null;
 
                     const mirrorChampion: Champion | null =
                         renderType === 'Mirror' ? (MIRROR_WALL_MAP.get(`${level},${x},${y}`) ?? null) : null;
                     const champion = mirrorChampion && !recruitedIds.has(mirrorChampion.id)
                         ? mirrorChampion : null;
-                    const wallFace = renderType === 'Mirror' ? MIRROR_FACE_MAP.get(`${level},${x},${y}`) : undefined;
+                    const wallFace =
+                        renderType === 'Mirror'
+                            ? MIRROR_FACE_MAP.get(`${level},${x},${y}`)
+                            : isRenderedStair
+                                ? resolveStairsEntryFace(map, x, y)
+                                : undefined;
                     const doorOpen = renderType === 'Door' ? openDoors.has(`${level},${y},${x}`) : undefined;
                     const doorBroken = renderType === 'Door' ? brokenDoors.has(`${level},${y},${x}`) : undefined;
                     const doorCrushPhase = renderType === 'Door' ? crushingDoors[`${level},${y},${x}`]?.phase : undefined;
@@ -934,8 +955,6 @@ export const DungeonScene = () => {
             openWalls,
             partyPosition: position,
             originalWallOverlays,
-            miscImagePathBuilder: miscPath,
-            stairConnections: STAIR_CONNECTIONS,
             isSelfRevealingWallTile,
             doorBlocksVision,
         }),

@@ -4,6 +4,7 @@ import { getDungeonDataSync } from '../src/data/dungeonData.js';
 import {
     getGameDbCreaturesRawSync,
     getGameDbItemsRawSync,
+    resetGameDbDataForTests,
     getGameDbWeaponAttacksRawSync,
 } from '../src/data/gameDbData.js';
 import { getOriginalWallOverlayMapDataSync } from '../src/data/originalWallOverlayData.js';
@@ -16,6 +17,7 @@ test('dungeon data access fails before preload completes', () => {
 });
 
 test('game_db slice access fails before preload completes', () => {
+    resetGameDbDataForTests();
     assert.throws(
         () => getGameDbItemsRawSync(),
         /game_db items data accessed before preload completed\./,

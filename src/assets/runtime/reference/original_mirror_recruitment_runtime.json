@@ -1,0 +1,58 @@
+{
+  "_meta": {
+    "source": "Dungeon Master and Chaos Strikes Back Skills and Statistics",
+    "status": "documented_external",
+    "generatedAt": "2026-04-21T00:00:00Z",
+    "purpose": "Normalized runtime-facing mirror recruitment, resurrect and reincarnate rules from the documented original champion behavior."
+  },
+  "mirrorRecruitment": {
+    "resurrect": {
+      "preserveChampionRecord": true,
+      "preserveSkills": true,
+      "seedInitialChampionXP": true
+    },
+    "reincarnate": {
+      "resetSkills": true,
+      "preserveLuckBeforeBonusRolls": true,
+      "reducedStatFloor": 30,
+      "reducedStats": [
+        "strength",
+        "dexterity",
+        "wisdom",
+        "vitality",
+        "antiMagic",
+        "antiFire"
+      ],
+      "reductionMode": "value_minus_value_shift_right_3",
+      "poolHalving": {
+        "healthMin": 1,
+        "staminaMin": 1,
+        "manaMin": 0
+      },
+      "bonusRolls": 12,
+      "bonusStats": [
+        "luck",
+        "strength",
+        "dexterity",
+        "wisdom",
+        "vitality",
+        "antiMagic",
+        "antiFire"
+      ]
+    }
+  },
+  "viAltarResurrection": {
+    "maximumHealthRule": {
+      "mode": "health_minus_health_shift_right_6_minus_1",
+      "floor": 25
+    },
+    "revivedVitals": {
+      "healthMode": "half_of_revived_maximum",
+      "healthMin": 1,
+      "stamina": 0,
+      "mana": 0,
+      "foodRatio": 0.35,
+      "waterRatio": 0.35
+    }
+  }
+}

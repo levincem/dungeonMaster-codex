@@ -41,6 +41,18 @@ const REQUIRED_RUNTIME_REFERENCE_FILES = [
   'original_doors_runtime.json',
 ];
 
+const REFERENCE_EXPORT_RUNTIME_FILES = [
+  'original_experience_runtime.json',
+  'original_champion_progression_runtime.json',
+  'original_mirror_recruitment_runtime.json',
+  'original_item_rules_runtime.json',
+  'original_skills_runtime.json',
+  'original_magic_runtime.json',
+  'original_actions_runtime.json',
+  'original_action_combos_runtime.json',
+  'original_ui_support_runtime.json',
+];
+
 const GENERATED_RUNTIME_REFERENCE_FILES = [
   'original_teleporters_runtime.json',
 ];
@@ -54,16 +66,23 @@ const SUPPORT_ASSET_FILES = [
 ];
 
 function listRuntimeReferenceFiles() {
-  const missing = REQUIRED_RUNTIME_REFERENCE_FILES.filter((fileName) =>
-    !fs.existsSync(path.join(PUBLIC_DIR, fileName)),
-  );
+  const missing = [
+    ...REQUIRED_RUNTIME_REFERENCE_FILES.filter((fileName) =>
+      !fs.existsSync(path.join(PUBLIC_DIR, fileName)),
+    ),
+    ...REFERENCE_EXPORT_RUNTIME_FILES.filter((fileName) =>
+      !fs.existsSync(path.join(REFERENCE_EXPORTS_DIR, fileName)) &&
+      !fs.existsSync(path.join(PUBLIC_DIR, fileName)),
+    ),
+  ];
   if (missing.length > 0) {
     throw new Error(
-      `Missing required runtime reference exports in public/: ${missing.join(', ')}`,
+      `Missing required runtime reference exports: ${missing.join(', ')}`,
     );
   }
   return [
     ...REQUIRED_RUNTIME_REFERENCE_FILES,
+    ...REFERENCE_EXPORT_RUNTIME_FILES,
     ...GENERATED_RUNTIME_REFERENCE_FILES,
   ];
 }
@@ -152,14 +171,24 @@ function cleanupLegacyRuntimePaths(runtimeReferenceFiles, supportAssetFiles) {
 }
 
 function buildRuntimeWallOverlaySnapshot(fullOverlayData) {
+  const runtimeDungeonPath = path.join(OUTPUT_DIR, 'dungeon.json');
+  const fullDungeon = fs.existsSync(runtimeDungeonPath)
+    ? JSON.parse(fs.readFileSync(runtimeDungeonPath, 'utf8'))
+    : null;
   return {
     fixedFaces: Array.isArray(fullOverlayData?.fixedFaces) ? fullOverlayData.fixedFaces : [],
+    randomCapableFaces: Array.isArray(fullOverlayData?.randomCapableFaces) ? fullOverlayData.randomCapableFaces : [],
+    effectivePlacements: resolveWallOverlayEffectivePlacements(fullOverlayData, fullDungeon),
   };
 }
 
 function buildRuntimeWallOverlayMapSnapshots(fullOverlayData) {
   const fixedFaces = Array.isArray(fullOverlayData?.fixedFaces) ? fullOverlayData.fixedFaces : [];
+  const randomCapableFaces = Array.isArray(fullOverlayData?.randomCapableFaces) ? fullOverlayData.randomCapableFaces : [];
+  const effectivePlacements = Array.isArray(fullOverlayData?.effectivePlacements) ? fullOverlayData.effectivePlacements : [];
   const fixedFacesByMap = new Map();
+  const randomCapableFacesByMap = new Map();
+  const effectivePlacementsByMap = new Map();
 
   for (const face of fixedFaces) {
     const list = fixedFacesByMap.get(face.mapIndex) ?? [];
@@ -167,13 +196,134 @@ function buildRuntimeWallOverlayMapSnapshots(fullOverlayData) {
     fixedFacesByMap.set(face.mapIndex, list);
   }
 
-  return Array.from(fixedFacesByMap.entries())
-    .sort((a, b) => a[0] - b[0])
-    .map(([mapIndex, mapFixedFaces]) => ({
+  for (const face of randomCapableFaces) {
+    const list = randomCapableFacesByMap.get(face.mapIndex) ?? [];
+    list.push(face);
+    randomCapableFacesByMap.set(face.mapIndex, list);
+  }
+
+  for (const placement of effectivePlacements) {
+    const list = effectivePlacementsByMap.get(placement.mapIndex) ?? [];
+    list.push(placement);
+    effectivePlacementsByMap.set(placement.mapIndex, list);
+  }
+
+  const mapIndices = new Set([
+    ...fixedFacesByMap.keys(),
+    ...randomCapableFacesByMap.keys(),
+    ...effectivePlacementsByMap.keys(),
+  ]);
+
+  return Array.from(mapIndices)
+    .sort((a, b) => a - b)
+    .map((mapIndex) => ({
       mapIndex,
       file: `wall_overlays/${buildRuntimeWallOverlayMapFileName(mapIndex)}`,
-      fixedFaces: mapFixedFaces,
+      fixedFaces: fixedFacesByMap.get(mapIndex) ?? [],
+      randomCapableFaces: randomCapableFacesByMap.get(mapIndex) ?? [],
+      effectivePlacements: effectivePlacementsByMap.get(mapIndex) ?? [],
     }));
+}
+
+const FACE_RANDOM_FACTOR = {
+  North: 1,
+  East: 2,
+  South: 3,
+  West: 4,
+};
+
+const ALCOVE_OVERLAY_NAMES = new Set([
+  'Square Alcove',
+  'Arched Alcove',
+]);
+
+function normalizeWallOverlayRandomIndex(value1, value2, seed, modulo) {
+  return Math.floor(
+    (Math.floor((value1 * 31417) / 2) + (value2 * 11) + seed) / 4,
+  ) % modulo;
+}
+
+function resolveRandomCapableWallFace(face, mapByIndex, ornamentRandomSeed) {
+  const map = mapByIndex.get(face.mapIndex);
+  if (!map) return face;
+
+  const factor = FACE_RANDOM_FACTOR[face.face];
+  if (!factor) return face;
+
+  const randomCount = Number.isInteger(face.randomWallOrnamentCount)
+    ? face.randomWallOrnamentCount
+    : map.original?.counts?.randomWallOrnamentCount ?? 0;
+  if (randomCount <= 0) {
+    return {
+      ...face,
+      effectiveSource: 'random-capable',
+      overlayOrdinal: null,
+      overlayIndex: null,
+      overlayName: null,
+      overlayClassification: null,
+      overlayNotes: 'The wall face allows random ornaments, but this map exposes no random wall ornament entries.',
+      stateful: false,
+      variantNames: [],
+    };
+  }
+
+  const value1 = 2000 + (face.x << 5) + ((face.y + 1) * factor);
+  const value2 = 3000 + (face.mapIndex << 6) + map.width + map.height;
+  const randomIndex = normalizeWallOverlayRandomIndex(value1, value2, ornamentRandomSeed, 30);
+  const resolvedPoolEntry = randomIndex < randomCount
+    ? (Array.isArray(face.randomPool) ? face.randomPool[randomIndex] ?? null : null)
+    : null;
+  const resolvedOverlayName = resolvedPoolEntry?.name ?? null;
+  const tile = map.tiles?.find?.((tileEntry) => tileEntry.x === face.x && tileEntry.y === face.y) ?? null;
+  const isFakeWall = tile?.type === 'TrickWall';
+  const removeBecauseFakeWallAlcove = isFakeWall && resolvedOverlayName !== null && ALCOVE_OVERLAY_NAMES.has(resolvedOverlayName);
+
+  return {
+    ...face,
+    effectiveSource: 'random-capable',
+    overlayOrdinal: resolvedPoolEntry && !removeBecauseFakeWallAlcove ? randomIndex + 1 : null,
+    overlayIndex: resolvedPoolEntry && !removeBecauseFakeWallAlcove ? resolvedPoolEntry.index : null,
+    overlayName: resolvedPoolEntry && !removeBecauseFakeWallAlcove ? resolvedOverlayName : null,
+    overlayClassification: resolvedPoolEntry && !removeBecauseFakeWallAlcove ? resolvedPoolEntry.classification : null,
+    overlayNotes: removeBecauseFakeWallAlcove
+      ? 'Resolved via the original engine random ornament formula, then suppressed because fake walls cannot display random alcoves.'
+      : resolvedPoolEntry
+        ? 'Resolved via the original engine random ornament formula.'
+        : 'Resolved via the original engine random ornament formula: this face receives no ornament because the generated random index falls outside the map random wall ornament count.',
+    stateful: false,
+    variantNames: resolvedPoolEntry && !removeBecauseFakeWallAlcove ? [resolvedPoolEntry.name] : [],
+    resolvedRandomIndex: randomIndex,
+    randomComputation: {
+      value1,
+      value2,
+      modulo: 30,
+      ornamentRandomSeed,
+    },
+  };
+}
+
+function resolveWallOverlayEffectivePlacements(fullOverlayData, fullDungeon) {
+  const effectivePlacements = Array.isArray(fullOverlayData?.effectivePlacements) ? fullOverlayData.effectivePlacements : [];
+  if (!fullDungeon || !Array.isArray(fullDungeon.maps)) {
+    return effectivePlacements;
+  }
+
+  const ornamentRandomSeed = Number.isInteger(fullDungeon.meta?.ornamentRandomSeed)
+    ? fullDungeon.meta.ornamentRandomSeed
+    : Number.isInteger(fullDungeon.meta?.dungeonId)
+      ? fullDungeon.meta.dungeonId
+      : 0;
+  const mapByIndex = new Map((fullDungeon.maps ?? []).map((map) => [map.index, map]));
+
+  return effectivePlacements.map((placement) => {
+    if (placement?.effectiveSource !== 'random-capable' && placement?.source !== 'random-capable') {
+      return placement;
+    }
+    if (typeof placement?.overlayName === 'string' && placement.overlayName.length > 0) {
+      return placement;
+    }
+    return resolveRandomCapableWallFace(placement, mapByIndex, ornamentRandomSeed);
+  });
 }
 
 const COMPRESSED_DUNGEON_SIGNATURE = 0x8104;
@@ -1968,6 +2118,7 @@ const dungeon = {
     checksumWord: CHECKSUM_WORD,
     computedChecksum: COMPUTED_CHECKSUM,
     checksumValid: CHECKSUM_VALID,
+    ornamentRandomSeed: data.readUInt16LE(0),
     dungeonId,
     numMaps,
     mapDataSize,
@@ -2126,34 +2277,17 @@ function pickKeys(source, allowedKeys) {
 
 function compactRuntimeChampion(champion) {
   return {
-    portraitId: champion.portraitId,
-    name: champion.name,
-    title: champion.title,
-    gender: champion.gender,
-    health: champion.health,
-    stamina: champion.stamina,
-    mana: champion.mana,
-    luck: champion.luck,
-    strength: champion.strength,
-    dexterity: champion.dexterity,
-    wisdom: champion.wisdom,
-    vitality: champion.vitality,
-    antiMagic: champion.antiMagic,
-    antiFire: champion.antiFire,
-    skills: champion.skills,
-    x: champion.x,
-    y: champion.y,
-    wallFace: champion.wallFace,
+    ...champion,
     map: champion.map ?? champion.mapIndex ?? 0,
   };
 }
 
 function compactRuntimeMap(map) {
   return {
-    ...pickKeys(map, MAP_RUNTIME_KEYS),
+    ...map,
     tiles: (map.tiles ?? []).map((tile) => ({
-      ...pickKeys(tile, TILE_RUNTIME_KEYS),
-      objects: (tile.objects ?? []).map((object) => pickKeys(object, OBJECT_RUNTIME_KEYS)),
+      ...tile,
+      objects: (tile.objects ?? []).map((object) => ({ ...object })),
     })),
   };
 }
@@ -2211,6 +2345,7 @@ function buildRuntimeTeleporterReference(fullDungeon) {
           x: tile.x,
           y: tile.y,
           index: object.index,
+          scope: object.scope,
           rotationType: object.rotationType,
           rotation: object.rotation,
           destMap: object.destMap,
@@ -2241,6 +2376,10 @@ function buildRuntimeItemsGameDb(fullGameDb) {
       },
       i562: {
         woundDefenseFactors: fullGameDb.originalAtari?.i562?.woundDefenseFactors ?? [],
+        dropOrder: fullGameDb.originalAtari?.i562?.dropOrder ?? [],
+        underscoreCharacterString: fullGameDb.originalAtari?.i562?.underscoreCharacterString ?? [],
+        renameChampionInputCharacterString: fullGameDb.originalAtari?.i562?.renameChampionInputCharacterString ?? [],
+        reincarnateSpecialCharacters: fullGameDb.originalAtari?.i562?.reincarnateSpecialCharacters ?? [],
       },
     },
   };
@@ -2279,6 +2418,7 @@ const runtimeReferenceFiles = listRuntimeReferenceFiles();
 const supportAssetFiles = listSupportAssetFiles();
 
 fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+fs.mkdirSync(REFERENCE_EXPORTS_DIR, { recursive: true });
 fs.mkdirSync(RUNTIME_ROOT_DIR, { recursive: true });
 fs.mkdirSync(RUNTIME_DUNGEON_DIR, { recursive: true });
 fs.mkdirSync(RUNTIME_DUNGEON_MAPS_DIR, { recursive: true });
@@ -2338,13 +2478,18 @@ cleanupLegacyRuntimePaths(runtimeReferenceFiles, SUPPORT_ASSET_FILES);
 for (const fileName of runtimeReferenceFiles) {
   const runtimePath = path.join(RUNTIME_REFERENCE_DIR, fileName);
   if (fileName === 'original_teleporters_runtime.json') {
-    fs.writeFileSync(runtimePath, JSON.stringify(runtimeTeleporterReference, null, 2));
+    const payload = JSON.stringify(runtimeTeleporterReference, null, 2);
+    fs.writeFileSync(path.join(OUTPUT_DIR, fileName), payload);
+    fs.writeFileSync(path.join(REFERENCE_EXPORTS_DIR, fileName), payload);
+    fs.writeFileSync(runtimePath, payload);
     continue;
   }
 
   const publicPath = path.join(PUBLIC_DIR, fileName);
-  if (fs.existsSync(publicPath)) {
-    fs.copyFileSync(publicPath, runtimePath);
+  const referenceExportPath = path.join(REFERENCE_EXPORTS_DIR, fileName);
+  const sourcePath = fs.existsSync(publicPath) ? publicPath : referenceExportPath;
+  if (fs.existsSync(sourcePath)) {
+    fs.copyFileSync(sourcePath, runtimePath);
   }
 }
 

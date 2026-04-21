@@ -1,5 +1,17 @@
-const BASE_URL = import.meta.env.BASE_URL;
-const GAME_ASSETS_ROOT = `${BASE_URL}game`;
+function resolveBaseUrl(): string {
+    if (typeof document === 'undefined') {
+        return '/';
+    }
+
+    const explicitBase = document.querySelector('base')?.getAttribute('href');
+    const resolved = explicitBase
+        ? new URL(explicitBase, document.baseURI).pathname
+        : new URL('.', document.baseURI).pathname;
+
+    return resolved.endsWith('/') ? resolved : `${resolved}/`;
+}
+
+const GAME_ASSETS_ROOT = `${resolveBaseUrl()}game`;
 
 function joinAssetPath(folder: string, file: string): string {
     return `${GAME_ASSETS_ROOT}/${folder}/${file}`;
@@ -7,6 +19,10 @@ function joinAssetPath(folder: string, file: string): string {
 
 export function miscPath(file: string): string {
     return joinAssetPath('images/misc', file);
+}
+
+export function originalMiscPath(file: string): string {
+    return joinAssetPath('images/misc/original', file);
 }
 
 export function itemsPath(file: string): string {

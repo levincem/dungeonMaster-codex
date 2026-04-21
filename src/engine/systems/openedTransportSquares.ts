@@ -24,6 +24,7 @@ type TeleporterLoopDeps = {
         x: number,
         y: number,
         direction: Direction,
+        transportKind?: 'item' | 'party',
     ) => { level: number; x: number; y: number; direction: Direction };
     applyPartyTelefragAtSquare: (
         state: Pick<TeleporterLoopState, 'creatures' | 'floorItems' | 'spellVisualEvents'>,
@@ -79,6 +80,7 @@ export function applyOpenedTeleporterEffects(
                 tpX,
                 tpY,
                 direction,
+                'party',
             );
             direction = resolvedTransport.direction;
             const hydrationPatch = deps.buildLevelHydrationPatch(

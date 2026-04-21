@@ -6,6 +6,7 @@ type RawTeleporterRuntime = {
     x: number;
     y: number;
     index: number;
+    scope?: string;
     rotationType: number;
     rotation: CardinalDir;
     destMap: number;

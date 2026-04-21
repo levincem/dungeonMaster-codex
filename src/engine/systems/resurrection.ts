@@ -1,5 +1,9 @@
 import type { Champion } from '../../types/champion';
 import type { CardinalDir, ChampionEquipment, FloorItem, GameTile, WallTextObject } from '../../types/game';
+import {
+    ORIGINAL_MIRROR_RECRUITMENT_RULES,
+    ORIGINAL_VI_ALTAR_RESURRECTION_RULES,
+} from '../../data/originalMirrorRecruitment';
 
 function hasAltarText(entry: unknown): entry is WallTextObject {
     return Boolean(
@@ -16,9 +20,10 @@ export function createReincarnatedChampion(
     champion: Champion,
     randomInt: (max: number) => number,
 ): Champion {
+    const rules = ORIGINAL_MIRROR_RECRUITMENT_RULES.reincarnate;
     const reduceReincarnatedStat = (value: number): number => {
         const reduced = value - (value >> 3);
-        return Math.max(30, reduced);
+        return Math.max(rules.reducedStatFloor, reduced);
     };
 
     const reincarnated: Champion = {
@@ -29,9 +34,9 @@ export function createReincarnatedChampion(
         vitality: reduceReincarnatedStat(champion.vitality),
         antiMagic: reduceReincarnatedStat(champion.antiMagic),
         antiFire: reduceReincarnatedStat(champion.antiFire),
-        health: Math.max(1, champion.health >> 1),
-        stamina: Math.max(1, champion.stamina >> 1),
-        mana: Math.max(0, champion.mana >> 1),
+        health: Math.max(rules.poolHalving.healthMin, champion.health >> 1),
+        stamina: Math.max(rules.poolHalving.staminaMin, champion.stamina >> 1),
+        mana: Math.max(rules.poolHalving.manaMin, champion.mana >> 1),
         skills: {
             fighter: [0, 0, 0, 0],
             ninja: [0, 0, 0, 0],
@@ -40,17 +45,9 @@ export function createReincarnatedChampion(
         },
     };
 
-    const statisticKeys: Array<keyof Pick<Champion, 'luck' | 'strength' | 'dexterity' | 'wisdom' | 'vitality' | 'antiMagic' | 'antiFire'>> = [
-        'luck',
-        'strength',
-        'dexterity',
-        'wisdom',
-        'vitality',
-        'antiMagic',
-        'antiFire',
-    ];
+    const statisticKeys = [...rules.bonusStats];
 
-    for (let i = 0; i < 12; i += 1) {
+    for (let i = 0; i < rules.bonusRolls; i += 1) {
         const statKey = statisticKeys[randomInt(statisticKeys.length)];
         if (!statKey) continue;
         reincarnated[statKey] += 1;
@@ -60,7 +57,11 @@ export function createReincarnatedChampion(
 }
 
 export function createViAltarRevivedChampion(champion: Champion): Champion {
-    const revivedMaximumHealth = Math.max(25, champion.health - (champion.health >> 6) - 1);
+    const rules = ORIGINAL_VI_ALTAR_RESURRECTION_RULES;
+    const revivedMaximumHealth = Math.max(
+        rules.maximumHealthRule.floor,
+        champion.health - (champion.health >> 6) - 1,
+    );
     return {
         ...champion,
         health: revivedMaximumHealth,
@@ -144,11 +145,11 @@ export function buildViAltarResurrectionPatch<TChampionVitals>(
             ...state.championVitals,
             [deadChampionId]: deps.createChampionVitals(
                 revivedChampion,
-                Math.max(1, revivedChampion.health >> 1),
-                0,
-                0,
-                Math.round(deps.maxFood * 0.35),
-                Math.round(deps.maxWater * 0.35),
+                Math.max(ORIGINAL_VI_ALTAR_RESURRECTION_RULES.revivedVitals.healthMin, revivedChampion.health >> 1),
+                ORIGINAL_VI_ALTAR_RESURRECTION_RULES.revivedVitals.stamina,
+                ORIGINAL_VI_ALTAR_RESURRECTION_RULES.revivedVitals.mana,
+                Math.round(deps.maxFood * ORIGINAL_VI_ALTAR_RESURRECTION_RULES.revivedVitals.foodRatio),
+                Math.round(deps.maxWater * ORIGINAL_VI_ALTAR_RESURRECTION_RULES.revivedVitals.waterRatio),
             ),
         },
         championInventories: nextInventories,

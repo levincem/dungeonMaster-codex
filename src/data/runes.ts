@@ -127,11 +127,12 @@ const RAW_SPELLS: SpellDef[] = [
     ...variants('invisibility', 5, 'wizard', ['oh', 'ew', 'sar'], 'invisibility', true),
     ...variants('magicVision', 4, 'wizard', ['oh', 'ew', 'ra'], 'see_through_walls', true),
     ...variants('openDoor', 2, 'priest', ['zo'], 'open', true),
-    ...variants('healthPotion', 4, 'priest', ['vi', 'bro', 'ra'], 'potion', true),
+    ...variants('healthPotion', 4, 'priest', ['vi'], 'potion', true),
     ...variants('antidote', 3, 'priest', ['vi', 'bro'], 'potion', true),
     ...variants('staminaPotion', 2, 'fighter', ['ya'], 'potion', true),
     ...variants('shieldPotion', 3, 'fighter', ['ya', 'bro'], 'potion', true),
     ...variants('manaPotion', 4, 'wizard', ['zo', 'bro', 'ra'], 'potion', true),
+    ...variants('venPotion', 3, 'wizard', ['zo', 'ven'], 'potion', true),
     ...variants('strengthPotion', 4, 'fighter', ['ful', 'bro', 'ku'], 'potion', true),
     ...variants('dexterityPotion', 4, 'priest', ['oh', 'bro', 'ros'], 'potion', true),
     ...variants('wisdomPotion', 4, 'ninja', ['ya', 'bro', 'dain'], 'potion', true),
@@ -148,6 +149,7 @@ export const SPELLS: SpellDef[] = RAW_SPELLS.map((spell) => {
     const manaBase = source.baseDifficulty;
     return {
         ...spell,
+        name: source.name,
         manaBase,
         manaCost: Math.floor(manaBase * powerFactor / 8),
         castSkill: sourceCastSkill,

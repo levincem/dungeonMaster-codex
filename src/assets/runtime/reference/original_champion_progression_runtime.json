@@ -1,0 +1,87 @@
+{
+  "_meta": {
+    "source": "Dungeon Master and Chaos Strikes Back Skills and Statistics",
+    "status": "documented_external",
+    "generatedAt": "2026-04-21T00:00:00Z",
+    "purpose": "Normalized runtime-facing champion progression and level-up rules from the documented original skill and growth behavior."
+  },
+  "temporaryExperience": {
+    "gainShiftRight": 3,
+    "minimumGain": 1,
+    "maximumGain": 100,
+    "gainBlockedAtOrAbove": 32000
+  },
+  "levelThresholds": {
+    "baseExperienceStep": 500,
+    "rule": "While remaining experience is at least the base step, shift remaining right by one and increment the level."
+  },
+  "levelUp": {
+    "caps": {
+      "health": 999,
+      "stamina": 9999,
+      "mana": 900
+    },
+    "randomRolls": {
+      "minorStatisticIncreaseMaxExclusive": 2,
+      "majorStatisticIncreaseMaxExclusive": 2,
+      "vitalityIncreaseMaxExclusive": 2,
+      "antiFireIncreaseMaxExclusive": 2,
+      "antiMagicIncreaseMaxExclusive": 3,
+      "extraManaIncreaseMaxExclusive": 4
+    },
+    "healthBonusRule": {
+      "mode": "random_up_to_half_health_factor"
+    },
+    "staminaBonusRule": {
+      "mode": "random_up_to_half_stamina_amount"
+    },
+    "antiFireRule": {
+      "mode": "random_and_bitwise_not_base_skill_level_after"
+    },
+    "extraManaRule": {
+      "mode": "min_random_roll_with_base_skill_minus_one_cap"
+    },
+    "branches": {
+      "fighter": {
+        "staminaMode": "shift_right",
+        "staminaOperand": 4,
+        "healthFactorMode": "multiply",
+        "healthFactorOperand": 3,
+        "primaryStat": "strength",
+        "primaryIncrease": "major",
+        "secondaryStat": "dexterity",
+        "secondaryIncrease": "minor",
+        "baseManaMode": "none"
+      },
+      "ninja": {
+        "staminaMode": "divide",
+        "staminaOperand": 21,
+        "healthFactorMode": "multiply",
+        "healthFactorOperand": 2,
+        "primaryStat": "dexterity",
+        "primaryIncrease": "major",
+        "secondaryStat": "strength",
+        "secondaryIncrease": "minor",
+        "baseManaMode": "none"
+      },
+      "wizard": {
+        "staminaMode": "shift_right",
+        "staminaOperand": 5,
+        "healthFactorMode": "identity",
+        "healthFactorOperand": 1,
+        "primaryStat": "wisdom",
+        "primaryIncrease": "major",
+        "baseManaMode": "wizard"
+      },
+      "priest": {
+        "staminaMode": "divide",
+        "staminaOperand": 25,
+        "healthFactorMode": "plus_half_rounded_up",
+        "healthFactorOperand": 0,
+        "primaryStat": "wisdom",
+        "primaryIncrease": "minor",
+        "baseManaMode": "priest"
+      }
+    }
+  }
+}

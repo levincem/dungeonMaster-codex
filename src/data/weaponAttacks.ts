@@ -76,6 +76,7 @@ export type WeaponProjectileDescriptor = {
 type WeaponAttackDerivedData = {
     attacksByIndex: Map<number, RawAttack>;
     legalAttacksByIndex: Map<number, RawLegalAttackClass>;
+    referencesByWeaponIndex: Map<number, RawWeaponAttackReference>;
     displayNameToEntry: Map<string, RawWeaponAttackReference>;
     symbolNameToEntry: Map<string, RawWeaponAttackReference>;
 };
@@ -131,6 +132,9 @@ function buildWeaponAttackDerivedData(rawGameDb: unknown): WeaponAttackDerivedDa
         legalAttacksByIndex: new Map<number, RawLegalAttackClass>(
             (originalAtari?.i560?.legalAttackClasses ?? []).map((attackClass) => [attackClass.index, attackClass]),
         ),
+        referencesByWeaponIndex: new Map<number, RawWeaponAttackReference>(
+            referenceEntries.map((entry) => [entry.weaponIndex, entry]),
+        ),
         displayNameToEntry,
         symbolNameToEntry,
     };
@@ -159,6 +163,8 @@ function getWeaponAttackDerivedData(): WeaponAttackDerivedData {
 function getReferenceEntry(item: FloorItem | undefined): RawWeaponAttackReference | null {
     if (!item || item.category !== 'Weapon') return null;
     const derived = getWeaponAttackDerivedData();
+    const directMatch = derived.referencesByWeaponIndex.get(item.typeId);
+    if (directMatch) return directMatch;
 
     const weaponName = WEAPON_TYPES[item.typeId]?.name;
     const rawName = item.rawName;

@@ -36,15 +36,19 @@ function createState(): TestState {
     };
 }
 
-test('applyStorePartyMoveSideEffects plays the bump and forwards the blocked message', () => {
+test('applyStorePartyMoveSideEffects routes bump and pit-fall sounds separately while forwarding the blocked message', () => {
     let wallBumpCount = 0;
+    let fallingAndDyingCount = 0;
     let blockedMessage: string | null = null;
 
     applyStorePartyMoveSideEffects(
-        { shouldPlayWallBump: true, blockedMessage: 'Nope' },
+        { shouldPlayWallBump: true, shouldPlayFallingAndDying: true, blockedMessage: 'Nope' },
         {
             playWallBump: () => {
                 wallBumpCount += 1;
+            },
+            playFallingAndDying: () => {
+                fallingAndDyingCount += 1;
             },
             showTransientMessage: (message) => {
                 blockedMessage = message;
@@ -53,13 +57,15 @@ test('applyStorePartyMoveSideEffects plays the bump and forwards the blocked mes
     );
 
     assert.equal(wallBumpCount, 1);
+    assert.equal(fallingAndDyingCount, 1);
     assert.equal(blockedMessage, 'Nope');
 });
 
-test('runStoreMovementAction applies the move patch and triggers side effects', () => {
+test('runStoreMovementAction applies the move patch and plays the pit-fall sound for open-pit transport', () => {
     let currentState = createState();
     let blockedMessage: string | null = null;
     let wallBumpCount = 0;
+    let fallingAndDyingCount = 0;
 
     runStoreMovementAction<TestState>({
         command: 'backward',
@@ -86,12 +92,16 @@ test('runStoreMovementAction applies the move patch and triggers side effects', 
         playWallBump: () => {
             wallBumpCount += 1;
         },
+        playFallingAndDying: () => {
+            fallingAndDyingCount += 1;
+        },
         showTransientMessage: (message) => {
             blockedMessage = message;
         },
     });
 
     assert.deepEqual(currentState.position, [5, 5]);
-    assert.equal(wallBumpCount, 1);
+    assert.equal(wallBumpCount, 0);
+    assert.equal(fallingAndDyingCount, 1);
     assert.equal(blockedMessage, 'blocked');
 });

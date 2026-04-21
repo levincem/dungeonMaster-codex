@@ -1,6 +1,7 @@
 import type { CardinalDir, GameMap } from '../types/game';
-import { miscPath } from './assetPaths';
+import { miscPath, originalMiscPath } from './assetPaths';
 import { getOriginalWallOverlayMapDataSync } from './originalWallOverlayData';
+import { GRID_SIZE, WALL_HEIGHT } from '../engine/constants';
 
 type OverlayClassification = 'interactive' | 'stateful' | 'hazard' | 'decorative' | 'unclear';
 
@@ -33,6 +34,7 @@ type FixedFace = {
 type OverlayPositionsData = {
     mapIndex?: number;
     fixedFaces: FixedFace[];
+    effectivePlacements?: EffectivePlacement[];
 };
 
 type OverlayVisual = {
@@ -41,6 +43,23 @@ type OverlayVisual = {
     accent: string;
     width?: number;
     height?: number;
+};
+
+type OverlayAssetSource = 'modern-remake' | 'original-fallback';
+
+type OverlayAssetPolicy = {
+    modernImage?: string;
+    originalFallbackImage: string;
+    note?: string;
+};
+
+export type WallOverlayAssetStatus = {
+    name: string;
+    image: string;
+    source: OverlayAssetSource;
+    modernImage?: string;
+    originalFallbackImage: string;
+    note?: string;
 };
 
 export type OriginalWallOverlayRender = {
@@ -62,7 +81,19 @@ type OverlayRuntimeState = {
 
 type OverlayMapIndex = {
     fixedFaces: FixedFace[];
-    fixedFaceNameKeys: Set<string>;
+    resolvedPlacements: EffectivePlacement[];
+    overlayNameKeys: Set<string>;
+};
+
+type EffectivePlacement = {
+    mapIndex: number;
+    x: number;
+    y: number;
+    face: CardinalDir;
+    effectiveSource?: 'random-capable' | 'fixed';
+    overlayName: string | null;
+    overlayIndex: number | null;
+    overlayClassification: OverlayClassification | null;
 };
 
 const overlayMapIndexes = new Map<number, OverlayMapIndex>();
@@ -73,15 +104,23 @@ function ensureOverlayMapIndex(mapIndex: number): OverlayMapIndex {
 
     const data = getOriginalWallOverlayMapDataSync<OverlayPositionsData>(mapIndex);
     const fixedFaces = data.fixedFaces ?? [];
-    const fixedFaceNameKeys = new Set<string>();
+    const resolvedPlacements = (data.effectivePlacements ?? []).filter(
+        (placement): placement is EffectivePlacement =>
+            typeof placement?.overlayName === 'string' && placement.overlayName.length > 0,
+    );
+    const overlayNameKeys = new Set<string>();
 
     for (const face of fixedFaces) {
         for (const variant of face.variants) {
-            fixedFaceNameKeys.add(`${face.mapIndex}:${face.x}:${face.y}:${face.face}:${variant.overlayName}`);
+            overlayNameKeys.add(`${face.mapIndex}:${face.x}:${face.y}:${face.face}:${variant.overlayName}`);
         }
     }
 
-    const index = { fixedFaces, fixedFaceNameKeys };
+    for (const placement of resolvedPlacements) {
+        overlayNameKeys.add(`${placement.mapIndex}:${placement.x}:${placement.y}:${placement.face}:${placement.overlayName}`);
+    }
+
+    const index = { fixedFaces, resolvedPlacements, overlayNameKeys };
     overlayMapIndexes.set(mapIndex, index);
     return index;
 }
@@ -91,61 +130,169 @@ const OMITTED_OVERLAYS = new Set([
     'Unreadable Wall Inscription',
 ]);
 
-function originalOverlayPath(file: string): string {
-    return miscPath(`original/${file}`);
+const ORIGINAL_OVERLAY_REMAKE_NOTE =
+    'No dedicated modern remake yet; using the original BMP fallback to preserve the exact family-specific art.';
+
+const WALL_OVERLAY_ASSET_POLICY_BY_NAME: Record<string, OverlayAssetPolicy> = {
+    'Fountain': { modernImage: miscPath('wall_foutain_overlay.png'), originalFallbackImage: originalMiscPath('fountain.bmp') },
+    'Vi Altar': { modernImage: miscPath('autel.png'), originalFallbackImage: originalMiscPath('vi_altar.bmp') },
+    'Lever Up': { modernImage: miscPath('levier_haut.png'), originalFallbackImage: originalMiscPath('lever_up.bmp') },
+    'Lever Down': { modernImage: miscPath('levier_bas.png'), originalFallbackImage: originalMiscPath('lever_down.bmp') },
+    'Iron Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('iron_lock.bmp') },
+    'Double Iron Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('double_iron_lock.bmp') },
+    'Square Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('square_lock.bmp') },
+    'Winged Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('winged_lock.bmp') },
+    'Onyx Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('onyx_lock.bmp') },
+    'Stone Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('stone_lock.bmp') },
+    'Cross Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('cross_lock.bmp') },
+    'Topaz Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('topaz_lock.bmp') },
+    'Skeleton Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('skeleton_lock.bmp') },
+    'Gold Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('gold_lock.bmp') },
+    'Tourquoise Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('tourquoise_lock.bmp') },
+    'Emerald Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('emerald_lock.bmp') },
+    'Ruby Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('ruby_lock.bmp') },
+    'Ra Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('ra_lock.bmp') },
+    'Master Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('master_lock.bmp') },
+    'Coin Slot': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('coin_slot.bmp') },
+    'Gem Hole': { modernImage: miscPath('eye.png'), originalFallbackImage: originalMiscPath('gem_hole.bmp') },
+    'Hook': { modernImage: miscPath('wall_hook.png'), originalFallbackImage: originalMiscPath('hook.bmp') },
+    'Wood Ring': { modernImage: miscPath('wall_wood_ring.png'), originalFallbackImage: originalMiscPath('wood_ring.bmp') },
+    'Full Torch Holder': { modernImage: miscPath('wall_torch_holder_full.png'), originalFallbackImage: originalMiscPath('full_torch_holder.bmp') },
+    'Empty Torch Holder': { modernImage: miscPath('wall_torch_holder_empty.png'), originalFallbackImage: originalMiscPath('empty_torch_holder.bmp') },
+    'Square Alcove': { modernImage: miscPath('wall_alcove_square.png'), originalFallbackImage: originalMiscPath('square_alcove.bmp') },
+    'Arched Alcove': { modernImage: miscPath('wall_alcove_arched.png'), originalFallbackImage: originalMiscPath('arched_alcove.bmp') },
+    'Small Switch': { modernImage: miscPath('wall_switch_small.png'), originalFallbackImage: originalMiscPath('small_switch.bmp') },
+    'Tiny Switch': { modernImage: miscPath('wall_switch_tiny.png'), originalFallbackImage: originalMiscPath('tiny_switch.bmp') },
+    'Big Switch In': { modernImage: miscPath('wall_switch_big_in.png'), originalFallbackImage: originalMiscPath('big_switch_in.bmp') },
+    'Big Switch Out': { modernImage: miscPath('wall_switch_big_out.png'), originalFallbackImage: originalMiscPath('big_switch_out.bmp') },
+    'Blue Switch In': { modernImage: miscPath('wall_switch_blue_in.png'), originalFallbackImage: originalMiscPath('blue_switch_in.bmp') },
+    'Blue Switch Out': { modernImage: miscPath('wall_switch_blue_out.png'), originalFallbackImage: originalMiscPath('blue_switch_out.bmp') },
+    'Green Switch In': { modernImage: miscPath('wall_switch_green_in.png'), originalFallbackImage: originalMiscPath('green_switch_in.bmp') },
+    'Green Switch Out': { modernImage: miscPath('wall_switch_green_out.png'), originalFallbackImage: originalMiscPath('green_switch_out.bmp') },
+    'Red Switch In': { modernImage: miscPath('wall_switch_red_in.png'), originalFallbackImage: originalMiscPath('red_switch_in.bmp') },
+    'Red Switch Out': { modernImage: miscPath('wall_switch_red_out.png'), originalFallbackImage: originalMiscPath('red_switch_out.bmp') },
+    'Crack Switch In': { modernImage: miscPath('wall_switch_crack_in.png'), originalFallbackImage: originalMiscPath('crack_switch_in.bmp') },
+    'Crack Switch Out': { modernImage: miscPath('wall_switch_crack_out.png'), originalFallbackImage: originalMiscPath('crack_switch_out.bmp') },
+    'Eye Switch': { modernImage: miscPath('wall_switch_eye.png'), originalFallbackImage: originalMiscPath('eye_switch.bmp') },
+    'Fireball Holes': { modernImage: miscPath('wall_hazard_fireball_holes.png'), originalFallbackImage: originalMiscPath('fireball_holes.bmp') },
+    'Dagger Holes': { modernImage: miscPath('wall_hazard_dagger_holes.png'), originalFallbackImage: originalMiscPath('dagger_holes.bmp') },
+    'Poison Holes': { modernImage: miscPath('wall_hazard_poison_holes.png'), originalFallbackImage: originalMiscPath('poison_holes.bmp') },
+    'Slime Outlet': { modernImage: miscPath('wall_hazard_slime_outlet.png'), originalFallbackImage: originalMiscPath('slime_outlet.bmp') },
+    'Dent 1': { modernImage: miscPath('wall_dent_1.png'), originalFallbackImage: originalMiscPath('dent_1.bmp') },
+    'Slime': { modernImage: miscPath('wall_slime.png'), originalFallbackImage: originalMiscPath('slime.bmp') },
+    'Grate': { modernImage: miscPath('wall_grate.png'), originalFallbackImage: originalMiscPath('grate.bmp') },
+    'Ghoul\'s Head': { modernImage: miscPath('wall_ghouls_head.png'), originalFallbackImage: originalMiscPath('ghouls_head.bmp') },
+    'Scratches': { modernImage: miscPath('wall_scratches.png'), originalFallbackImage: originalMiscPath('scratches.bmp') },
+    'Amalgam (Encased Gem)': { modernImage: miscPath('wall_amalgam_encased_gem.png'), originalFallbackImage: originalMiscPath('amalgam_encased_gem.bmp') },
+    'Amalgam (Free Gem)': { modernImage: miscPath('wall_amalgam_free_gem.png'), originalFallbackImage: originalMiscPath('amalgam_free_gem.bmp') },
+    'Amalgam (Without Gem)': { modernImage: miscPath('wall_amalgam_without_gem.png'), originalFallbackImage: originalMiscPath('amalgam_without_gem.bmp') },
+    'Crack': { modernImage: miscPath('wall_crack.png'), originalFallbackImage: originalMiscPath('crack.bmp') },
+    'Iron Ring': { modernImage: miscPath('wall_iron_ring.png'), originalFallbackImage: originalMiscPath('iron_ring.bmp') },
+    'Manacles': { modernImage: miscPath('wall_manacles.png'), originalFallbackImage: originalMiscPath('manacles.bmp') },
+    'Lord Order (Outside)': { modernImage: miscPath('wall_lord_order_outside.png'), originalFallbackImage: originalMiscPath('lord_order_outside.bmp') },
+};
+
+function resolveOverlayAssetImage(policy: OverlayAssetPolicy): string {
+    return policy.modernImage ?? policy.originalFallbackImage;
 }
 
+function resolveOverlayAssetSource(policy: OverlayAssetPolicy): OverlayAssetSource {
+    return policy.modernImage ? 'modern-remake' : 'original-fallback';
+}
+
+const SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME: Record<string, string> = Object.fromEntries(
+    Object.entries(WALL_OVERLAY_ASSET_POLICY_BY_NAME).map(([name, policy]) => [name, resolveOverlayAssetImage(policy)]),
+);
+
+export const WALL_OVERLAY_ASSET_STATUSES: WallOverlayAssetStatus[] = Object.entries(WALL_OVERLAY_ASSET_POLICY_BY_NAME)
+    .map(([name, policy]) => ({
+        name,
+        image: resolveOverlayAssetImage(policy),
+        source: resolveOverlayAssetSource(policy),
+        modernImage: policy.modernImage,
+        originalFallbackImage: policy.originalFallbackImage,
+        note: policy.note,
+    }))
+    .sort((left, right) => left.name.localeCompare(right.name));
+
+export const WALL_OVERLAY_REMAKE_NOTES = WALL_OVERLAY_ASSET_STATUSES
+    .filter((status) => status.source === 'original-fallback')
+    .map((status) => ({
+        name: status.name,
+        image: status.image,
+        note: status.note ?? ORIGINAL_OVERLAY_REMAKE_NOTE,
+    }));
+
 const VISUALS_BY_NAME: Record<string, OverlayVisual> = {
-    'Fountain': { image: miscPath('wall_foutain_overlay.png'), accent: '#78a8d8', width: 0.8, height: 1.06 },
-    'Vi Altar': { image: miscPath('autel.png'), accent: '#d5b175', width: 1.0, height: 0.94 },
-    'Lever Up': { image: miscPath('levier_haut.png'), accent: '#cda467', width: 0.32, height: 0.84 },
-    'Lever Down': { image: miscPath('levier_bas.png'), accent: '#cda467', width: 0.32, height: 0.84 },
-    'Iron Lock': { image: miscPath('serrure.png'), accent: '#b0a38b', width: 0.42, height: 0.42 },
-    'Double Iron Lock': { image: miscPath('serrure.png'), accent: '#b0a38b', width: 0.42, height: 0.42 },
-    'Square Lock': { image: miscPath('serrure.png'), accent: '#b0a38b', width: 0.42, height: 0.42 },
-    'Winged Lock': { image: miscPath('serrure.png'), accent: '#d3b669', width: 0.42, height: 0.42 },
-    'Onyx Lock': { image: miscPath('serrure.png'), accent: '#8e8c99', width: 0.42, height: 0.42 },
-    'Stone Lock': { image: miscPath('serrure.png'), accent: '#a79a87', width: 0.42, height: 0.42 },
-    'Cross Lock': { image: miscPath('serrure.png'), accent: '#c2b08d', width: 0.42, height: 0.42 },
-    'Topaz Lock': { image: miscPath('serrure.png'), accent: '#d7a84d', width: 0.42, height: 0.42 },
-    'Skeleton Lock': { image: miscPath('serrure.png'), accent: '#d8d0b2', width: 0.42, height: 0.42 },
-    'Gold Lock': { image: miscPath('serrure.png'), accent: '#d9b43f', width: 0.42, height: 0.42 },
-    'Tourquoise Lock': { image: miscPath('serrure.png'), accent: '#56b7be', width: 0.42, height: 0.42 },
-    'Emerald Lock': { image: miscPath('serrure.png'), accent: '#48a664', width: 0.42, height: 0.42 },
-    'Ruby Lock': { image: miscPath('serrure.png'), accent: '#c45454', width: 0.42, height: 0.42 },
-    'Ra Lock': { image: miscPath('serrure.png'), accent: '#e1b862', width: 0.42, height: 0.42 },
-    'Master Lock': { image: miscPath('serrure.png'), accent: '#f1d18a', width: 0.42, height: 0.42 },
-    'Coin Slot': { image: miscPath('serrure.png'), accent: '#ccb173', width: 0.34, height: 0.34 },
-    'Gem Hole': { image: miscPath('serrure.png'), accent: '#5bbad6', width: 0.34, height: 0.34 },
-    'Full Torch Holder': { image: originalOverlayPath('full_torch_holder.bmp'), accent: '#d59a54', width: 0.24, height: 0.92 },
-    'Empty Torch Holder': { image: miscPath('wall_torch_holder_empty.png'), accent: '#7e6c5c', width: 0.42, height: 0.48 },
-    'Square Alcove': { image: miscPath('wall_alcove_square.png'), accent: '#8c7a66', width: 0.72, height: 0.74 },
-    'Arched Alcove': { image: miscPath('wall_alcove_arched.png'), accent: '#92785f', width: 0.74, height: 0.86 },
-    'Small Switch': { image: miscPath('wall_switch_small.png'), accent: '#bea06e', width: 0.42, height: 0.42 },
-    'Tiny Switch': { image: miscPath('wall_switch_tiny.png'), accent: '#bea06e', width: 0.32, height: 0.32 },
-    'Big Switch In': { image: miscPath('wall_switch_big_in.png'), accent: '#c18a5c', width: 0.5, height: 0.5 },
-    'Big Switch Out': { image: miscPath('wall_switch_big_out.png'), accent: '#c18a5c', width: 0.5, height: 0.5 },
-    'Blue Switch In': { image: miscPath('wall_switch_blue_in.png'), accent: '#64a9d9', width: 0.5, height: 0.5 },
-    'Blue Switch Out': { image: miscPath('wall_switch_blue_out.png'), accent: '#64a9d9', width: 0.5, height: 0.5 },
-    'Green Switch In': { image: miscPath('wall_switch_green_in.png'), accent: '#63b06d', width: 0.5, height: 0.5 },
-    'Green Switch Out': { image: miscPath('wall_switch_green_out.png'), accent: '#63b06d', width: 0.5, height: 0.5 },
-    'Red Switch In': { image: miscPath('wall_switch_red_in.png'), accent: '#c86161', width: 0.5, height: 0.5 },
-    'Red Switch Out': { image: miscPath('wall_switch_red_out.png'), accent: '#c86161', width: 0.5, height: 0.5 },
-    'Crack Switch In': { image: miscPath('wall_switch_crack_in.png'), accent: '#9d7d68', width: 0.5, height: 0.5 },
-    'Crack Switch Out': { image: miscPath('wall_switch_crack_out.png'), accent: '#9d7d68', width: 0.5, height: 0.5 },
-    'Eye Switch': { image: miscPath('wall_switch_eye.png'), accent: '#b87e58', width: 0.48, height: 0.48 },
-    'Fireball Holes': { image: miscPath('wall_hazard_fireball_holes.png'), accent: '#bf5b4e', width: 0.68, height: 0.52 },
-    'Dagger Holes': { image: miscPath('wall_hazard_dagger_holes.png'), accent: '#9c9aa4', width: 0.68, height: 0.52 },
-    'Poison Holes': { image: miscPath('wall_hazard_poison_holes.png'), accent: '#65a96c', width: 0.68, height: 0.52 },
-    'Slime Outlet': { image: miscPath('wall_hazard_slime_outlet.png'), accent: '#6ea16a', width: 0.68, height: 0.52 },
-    'Amalgam (Encased Gem)': { image: miscPath('wall_amalgam_encased_gem.png'), accent: '#d1bf81', width: 0.78, height: 0.9 },
-    'Amalgam (Free Gem)': { image: miscPath('wall_amalgam_free_gem.png'), accent: '#d1bf81', width: 0.78, height: 0.9 },
-    'Amalgam (Without Gem)': { image: miscPath('wall_amalgam_without_gem.png'), accent: '#d1bf81', width: 0.78, height: 0.9 },
-    'Crack': { image: miscPath('wall_crack.png'), accent: '#8e8f9b', width: 0.56, height: 0.8 },
-    'Iron Ring': { image: miscPath('wall_iron_ring.png'), accent: '#a0a0a6', width: 0.42, height: 0.58 },
-    'Manacles': { image: miscPath('wall_manacles.png'), accent: '#9c9aa4', width: 0.56, height: 0.66 },
-    'Lord Order (Outside)': { image: miscPath('wall_lord_order_outside.png'), accent: '#bf8b54', width: 0.78, height: 1.0 },
+    'Fountain': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Fountain'], accent: '#78a8d8', width: 0.8, height: 1.06 },
+    'Vi Altar': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Vi Altar'], accent: '#d5b175', width: 1.0, height: 0.94 },
+    'Lever Up': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Lever Up'], accent: '#cda467', width: 0.32, height: 0.84 },
+    'Lever Down': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Lever Down'], accent: '#cda467', width: 0.32, height: 0.84 },
+    'Iron Lock': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Iron Lock'], accent: '#b0a38b', width: 0.42, height: 0.42 },
+    'Double Iron Lock': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Double Iron Lock'], accent: '#b0a38b', width: 0.42, height: 0.42 },
+    'Square Lock': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Square Lock'], accent: '#b0a38b', width: 0.42, height: 0.42 },
+    'Winged Lock': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Winged Lock'], accent: '#d3b669', width: 0.42, height: 0.42 },
+    'Onyx Lock': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Onyx Lock'], accent: '#8e8c99', width: 0.42, height: 0.42 },
+    'Stone Lock': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Stone Lock'], accent: '#a79a87', width: 0.42, height: 0.42 },
+    'Cross Lock': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Cross Lock'], accent: '#c2b08d', width: 0.42, height: 0.42 },
+    'Topaz Lock': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Topaz Lock'], accent: '#d7a84d', width: 0.42, height: 0.42 },
+    'Skeleton Lock': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Skeleton Lock'], accent: '#d8d0b2', width: 0.42, height: 0.42 },
+    'Gold Lock': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Gold Lock'], accent: '#d9b43f', width: 0.42, height: 0.42 },
+    'Tourquoise Lock': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Tourquoise Lock'], accent: '#56b7be', width: 0.42, height: 0.42 },
+    'Emerald Lock': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Emerald Lock'], accent: '#48a664', width: 0.42, height: 0.42 },
+    'Ruby Lock': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Ruby Lock'], accent: '#c45454', width: 0.42, height: 0.42 },
+    'Ra Lock': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Ra Lock'], accent: '#e1b862', width: 0.42, height: 0.42 },
+    'Master Lock': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Master Lock'], accent: '#f1d18a', width: 0.42, height: 0.42 },
+    'Coin Slot': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Coin Slot'], accent: '#ccb173', width: 0.34, height: 0.34 },
+    'Gem Hole': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Gem Hole'], accent: '#5bbad6', width: 0.34, height: 0.34 },
+    'Hook': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Hook'], accent: '#8f826f', width: 0.34, height: 0.48 },
+    'Wood Ring': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Wood Ring'], accent: '#9b7a58', width: 0.38, height: 0.5 },
+    'Full Torch Holder': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Full Torch Holder'], accent: '#d59a54', width: 0.24, height: 0.92 },
+    'Empty Torch Holder': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Empty Torch Holder'], accent: '#7e6c5c', width: 0.42, height: 0.48 },
+    'Square Alcove': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Square Alcove'], accent: '#8c7a66', width: 0.72, height: 0.74 },
+    'Arched Alcove': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Arched Alcove'], accent: '#92785f', width: 0.74, height: 0.86 },
+    'Small Switch': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Small Switch'], accent: '#bea06e', width: 0.42, height: 0.42 },
+    'Tiny Switch': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Tiny Switch'], accent: '#bea06e', width: 0.32, height: 0.32 },
+    'Big Switch In': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Big Switch In'], accent: '#c18a5c', width: 0.5, height: 0.5 },
+    'Big Switch Out': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Big Switch Out'], accent: '#c18a5c', width: 0.5, height: 0.5 },
+    'Blue Switch In': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Blue Switch In'], accent: '#64a9d9', width: 0.5, height: 0.5 },
+    'Blue Switch Out': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Blue Switch Out'], accent: '#64a9d9', width: 0.5, height: 0.5 },
+    'Green Switch In': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Green Switch In'], accent: '#63b06d', width: 0.5, height: 0.5 },
+    'Green Switch Out': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Green Switch Out'], accent: '#63b06d', width: 0.5, height: 0.5 },
+    'Red Switch In': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Red Switch In'], accent: '#c86161', width: 0.5, height: 0.5 },
+    'Red Switch Out': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Red Switch Out'], accent: '#c86161', width: 0.5, height: 0.5 },
+    'Crack Switch In': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Crack Switch In'], accent: '#9d7d68', width: 0.5, height: 0.5 },
+    'Crack Switch Out': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Crack Switch Out'], accent: '#9d7d68', width: 0.5, height: 0.5 },
+    'Eye Switch': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Eye Switch'], accent: '#b87e58', width: 0.48, height: 0.48 },
+    'Fireball Holes': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Fireball Holes'], accent: '#bf5b4e', width: 0.68, height: 0.52 },
+    'Dagger Holes': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Dagger Holes'], accent: '#9c9aa4', width: 0.68, height: 0.52 },
+    'Poison Holes': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Poison Holes'], accent: '#65a96c', width: 0.68, height: 0.52 },
+    'Slime Outlet': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Slime Outlet'], accent: '#6ea16a', width: 0.68, height: 0.52 },
+    'Dent 1': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Dent 1'], accent: '#8a857d', width: 0.44, height: 0.54 },
+    'Slime': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Slime'], accent: '#6c9964', width: 0.72, height: 0.86 },
+    'Grate': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Grate'], accent: '#8c9098', width: 0.78, height: 0.92 },
+    'Ghoul\'s Head': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Ghoul\'s Head'], accent: '#a89572', width: 0.62, height: 0.84 },
+    'Scratches': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Scratches'], accent: '#8c8578', width: 0.58, height: 0.82 },
+    'Amalgam (Encased Gem)': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Amalgam (Encased Gem)'], accent: '#d1bf81', width: 0.78, height: 0.9 },
+    'Amalgam (Free Gem)': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Amalgam (Free Gem)'], accent: '#d1bf81', width: 0.78, height: 0.9 },
+    'Amalgam (Without Gem)': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Amalgam (Without Gem)'], accent: '#d1bf81', width: 0.78, height: 0.9 },
+    'Crack': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Crack'], accent: '#8e8f9b', width: 0.56, height: 0.8 },
+    'Iron Ring': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Iron Ring'], accent: '#a0a0a6', width: 0.42, height: 0.58 },
+    'Manacles': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Manacles'], accent: '#9c9aa4', width: 0.56, height: 0.66 },
+    'Lord Order (Outside)': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Lord Order (Outside)'], accent: '#bf8b54', width: 0.78, height: 1.0 },
 };
+
+export function getOriginalWallOverlayVisual(name: string): OverlayVisual | undefined {
+    return VISUALS_BY_NAME[name];
+}
+
+export function getOriginalWallOverlaySourceImage(name: string): string | undefined {
+    return SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME[name];
+}
+
+export function getOriginalWallOverlayAssetStatus(name: string): WallOverlayAssetStatus | undefined {
+    return WALL_OVERLAY_ASSET_STATUSES.find((status) => status.name === name);
+}
 
 export const ALL_WALL_OVERLAY_IMAGE_PATHS = Array.from(
     new Set(
@@ -258,10 +405,12 @@ export function getOriginalWallOverlaysForMap(
     activeSensors: Set<string>,
     firedSensors?: Set<string>,
 ): OriginalWallOverlayRender[] {
-    const { fixedFaces } = ensureOverlayMapIndex(map.index);
+    const { fixedFaces, resolvedPlacements } = ensureOverlayMapIndex(map.index);
     const faces = fixedFaces;
     const renders: OriginalWallOverlayRender[] = [];
     const runtimeState: OverlayRuntimeState = { activeSensors, firedSensors };
+    const renderedKeys = new Set<string>();
+    const fixedFaceKeys = new Set<string>();
 
     for (const face of faces) {
         const overlayName = chooseOverlayName(map.index, face, runtimeState);
@@ -271,6 +420,10 @@ export function getOriginalWallOverlaysForMap(
         if (!variant) continue;
 
         const visual = getVisual(overlayName, variant.overlayClassification);
+        const faceKey = `${face.x}:${face.y}:${face.face}`;
+        const renderKey = `${face.x}:${face.y}:${face.face}:${overlayName}`;
+        fixedFaceKeys.add(faceKey);
+        renderedKeys.add(renderKey);
         renders.push({
             tileX: face.x,
             tileY: face.y,
@@ -278,9 +431,30 @@ export function getOriginalWallOverlaysForMap(
             image: visual.image,
             label: visual.label,
             accent: visual.accent,
-            width: visual.width,
-            height: visual.height,
+            // Visual definitions store wall-relative ratios; convert them once here
+            // so renderers can consistently work in world units.
+            width: visual.width !== undefined ? visual.width * GRID_SIZE : undefined,
+            height: visual.height !== undefined ? visual.height * WALL_HEIGHT : undefined,
             interactiveSensorIndices: getInteractiveSensorIndices(face),
+        });
+    }
+
+    for (const placement of resolvedPlacements) {
+        if (placement.overlayName === null || OMITTED_OVERLAYS.has(placement.overlayName)) continue;
+        const faceKey = `${placement.x}:${placement.y}:${placement.face}`;
+        if (fixedFaceKeys.has(faceKey)) continue;
+        const renderKey = `${placement.x}:${placement.y}:${placement.face}:${placement.overlayName}`;
+        if (renderedKeys.has(renderKey)) continue;
+        const visual = getVisual(placement.overlayName, placement.overlayClassification ?? 'unclear');
+        renders.push({
+            tileX: placement.x,
+            tileY: placement.y,
+            face: placement.face,
+            image: visual.image,
+            label: visual.label,
+            accent: visual.accent,
+            width: visual.width !== undefined ? visual.width * GRID_SIZE : undefined,
+            height: visual.height !== undefined ? visual.height * WALL_HEIGHT : undefined,
         });
     }
 
@@ -294,6 +468,6 @@ export function hasOriginalWallOverlayAt(
     face: CardinalDir,
     overlayName: string,
 ): boolean {
-    const { fixedFaceNameKeys } = ensureOverlayMapIndex(mapIndex);
-    return fixedFaceNameKeys.has(`${mapIndex}:${x}:${y}:${face}:${overlayName}`);
+    const { overlayNameKeys } = ensureOverlayMapIndex(mapIndex);
+    return overlayNameKeys.has(`${mapIndex}:${x}:${y}:${face}:${overlayName}`);
 }

@@ -38,6 +38,7 @@ type TeleporterStepTransportDeps<
         x: number,
         y: number,
         direction: TState['direction'],
+        transportKind?: 'item' | 'party',
     ) => { level: number; x: number; y: number; direction: TState['direction'] };
     buildSensorStateSnapshot: (state: TState) => TSensorState;
     transitionFloorSensors: (
@@ -90,6 +91,7 @@ export function resolveTeleporterStepTransport<
         nx,
         ny,
         state.direction,
+        'party',
     );
 
     deps.playTeleport();

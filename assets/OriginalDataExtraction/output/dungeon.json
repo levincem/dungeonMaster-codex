@@ -15,6 +15,7 @@
     "checksumWord": 10753,
     "computedChecksum": 10753,
     "checksumValid": true,
+    "ornamentRandomSeed": 99,
     "dungeonId": 99,
     "numMaps": 14,
     "mapDataSize": 12283,

@@ -1,4 +1,5 @@
 import { originalTimerTicksToMs } from '../engine/time';
+import { getOriginalNormalizedLuminanceForPower } from './originalUiSupport';
 
 export type BasicCastSkill = 'fighter' | 'ninja' | 'priest' | 'wizard';
 
@@ -146,7 +147,7 @@ export const ORIGINAL_SPELLS: OriginalSpellDescriptor[] = [
     descriptor('vi,bro', 'Antivenin', '0x00677000', 1, 13, 1, 10, 26),
     descriptor('oh,bro,ros', 'Ros Potion', '0x00687073', 4, 13, 1, 6, 15),
     descriptor('zo,bro,ra', 'Ee Potion', '0x006b7076', 3, 2, 1, 13, 63),
-    descriptor('zo,ven', 'Ven Potion', '0x006b6c76', 2, 19, 1, 3, 30),
+    descriptor('zo,ven', 'Ven Potion', '0x006b6c00', 2, 19, 1, 3, 30),
     descriptor('zo,kath,ra', 'Zokathra', '0x006b6e76', 0, 3, 3, 7, 15),
 ];
 
@@ -231,7 +232,10 @@ export function getOriginalSpellBrightnessSteps(runes: readonly string[]): numbe
 }
 
 export function getOriginalSpellLightContribution(runes: readonly string[]): number {
-    return getOriginalSpellBrightnessSteps(runes) / 12;
+    const brightnessSteps = getOriginalSpellBrightnessSteps(runes);
+    if (brightnessSteps === 0) return 0;
+    const sign = brightnessSteps < 0 ? -1 : 1;
+    return sign * getOriginalNormalizedLuminanceForPower(Math.abs(brightnessSteps));
 }
 
 export function getOriginalShieldStrength(runes: readonly string[]): number | null {
