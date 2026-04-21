@@ -5,6 +5,7 @@ import { getMechanismsAt } from '../../data/mechanisms';
 import type { Mechanism } from '../../data/mechanisms';
 import { hasOriginalWallOverlayAt } from '../../data/originalWallOverlays';
 import { getDisplayedItemName } from '../../data/itemDisplay';
+import { isOriginalConsumableItem } from '../../data/originalItemRules';
 import { isAltarWallFace as isAltarWallFaceSystem } from '../../engine/systems/resurrection';
 import {
     CRITICAL_FOOD_THRESHOLD,
@@ -133,6 +134,7 @@ function getItemName(item: FloorItem, direction?: Direction): string {
 function isConsumable(item: FloorItem): boolean {
     if (isWaterContainer(item)) return canDrinkFromContainer(item);
     if (canDrinkFromContainer(item)) return true;
+    if (!isOriginalConsumableItem(item)) return false;
     if (item.category === 'Potion') return !!getPotionDef(item.typeId, item.rawName)?.drinkable;
     if (item.category === 'Misc') return !!(MISC_TYPES[item.typeId]?.food);
     return false;

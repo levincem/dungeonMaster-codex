@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-04-21T19:15:38.922Z",
+  "generatedAt": "2026-04-21T21:52:30.770Z",
   "summary": {
     "topLevelChecks": 9,
     "topLevelFailures": 0,
-    "runtimeReferencesCompared": 12,
+    "runtimeReferencesCompared": 13,
     "runtimeReferenceFailures": 0,
     "runtimeReferenceSkips": 0,
     "sourceRuntimeDungeonMapsCompared": 14,
@@ -192,6 +192,12 @@
       "label": "runtime reference original_item_rules_runtime.json",
       "expectedPath": "assets/OriginalDataExtraction/reference_exports/original_item_rules_runtime.json",
       "actualPath": "src/assets/runtime/reference/original_item_rules_runtime.json",
+      "matches": true
+    },
+    {
+      "label": "runtime reference original_equipment_bonuses_runtime.json",
+      "expectedPath": "assets/OriginalDataExtraction/reference_exports/original_equipment_bonuses_runtime.json",
+      "actualPath": "src/assets/runtime/reference/original_equipment_bonuses_runtime.json",
       "matches": true
     },
     {

@@ -1,6 +1,6 @@
 # Runtime Fidelity Audit
 
-Etat pose le `2026-04-21`.
+Etat pose le `2026-04-21` et recale apres la passe `equipment bonuses`.
 
 Ce document se limite a une question precise:
 
@@ -57,12 +57,15 @@ References:
 - `assets/OriginalDataExtraction/reference_exports/original_mirror_recruitment_runtime.json -> src/assets/runtime/reference/original_mirror_recruitment_runtime.json`
 - verification de la synchronisation dans le package runtime
 - verification que `getGameMap(level).difficulty` reste aligne avec les multiplicateurs documentes
+- verification que les seuils structures de menace recente (`staleThreatTicks`, `recentThreatTicks`, liste de hidden skills) survivent bien jusqu'au runtime
 - verification que `originalChampionLeveling.ts` applique bien:
   - le multiplicateur de niveau quand il est non nul
   - l'alimentation du skill parent
   - la reduction / acceleration des hidden skills selon la menace recente
+  - la frontiere exacte du cas "au moins 150 ticks sans attaque"
   - les constantes de gain temporaire
   - les branches de growth `fighter`, `ninja`, `priest`, `wizard`
+  - le tirage `antiFire` depuis la table de progression packagee
 - verification que `resurrection.ts` et `storePartyRosterRuntime.ts` respectent les regles documentees de `resurrect`, `reincarnate` et de l'autel `VI`
 
 Nuance importante:
@@ -88,6 +91,15 @@ Les references documentees suivantes sont maintenant synchronisees a l'identique
 - `original_ui_support_runtime.json`
 - `original_champion_progression_runtime.json`
 - `original_mirror_recruitment_runtime.json`
+- `original_equipment_bonuses_runtime.json`
+
+Etat d'audit runtime package courant:
+
+- `Top-level checks: 9/9`
+- `Runtime references: 13/13`
+- `Source -> runtime dungeon maps: 14/14`
+- `Runtime dungeon maps: 14/14`
+- `Runtime wall overlay maps: 14/14`
 
 References:
 
@@ -145,6 +157,9 @@ Ces modules runtime sont verifies contre la donnee extraite ou les slices packag
   - regles de vision
   - regles de passage des objets lances
   - choix d'asset par type de porte
+- `originalItemRules.ts`
+  - export runtime canonique des bits de carry, des slots derives et des regles `pouch/consumable`
+  - consommateurs portes / equipement / UI maintenant raccordes a cette reference au lieu de redecoder localement les bits principaux
 - `originalWallOverlays.ts`
   - priorite aux assets refaits dedies quand ils existent
   - fallback vers le BMP original exact sinon
@@ -156,12 +171,14 @@ Ces modules runtime sont verifies contre la donnee extraite ou les slices packag
   - verification des priorites de starter auto-equip contre ces memes signaux
   - verification que les familles de slots wear/storage explicites ne se perdent pas entre source et runtime
   - verification explicite du seul cas `allowedSlotsMask = 0` encore present: `Zokathra`
+  - familles quiver / pouch / wear maintenant derivees via `originalItemRules.ts`
 - `deathDrops.ts`
   - ordre de drop des possessions aligne sur `originalAtari.i562.dropOrder`
   - verification de la preservation du champ jusqu'a `game_db_items.json`, `items.ts` puis au comportement runtime
 - `items.ts`
   - preservation runtime de l'ensemble du sous-bloc `originalAtari.i562` encore exploitable
   - exposition source-backed des tableaux de support de reincarnation / renommage au runtime
+  - `woundDefenseFactors` initialises depuis la table packagee, sans fallback local arbitraire
 - `originalDoorPanelMetrics.ts`
   - proportions du bandeau de porte a bouton
   - dimensions du bouton de porte
@@ -184,9 +201,21 @@ Ces modules runtime sont verifies contre la donnee extraite ou les slices packag
   - subtype
   - recovery ticks
 - `originalUiSupport.ts`
-  - export runtime des seuils de palette, de la table `luminousPowerToLuminance`, des masques d'injury et des constantes de reincarnation
+  - export runtime des seuils de palette, de la table `luminousPowerToLuminance`, de `torchTypePerChargesCount`, des masques d'injury et des constantes de reincarnation
+- `storeChampionStateRuntime.ts`
+  - traduction des zones de blessure monstres vers les slots de wound maintenant alignee sur `creatureInjuryMasks` via `originalUiSupport.ts`
+  - `hands` reste une extension runtime explicite, car elle n'apparait pas dans la table `item 562`
+- `frontCreatureState.ts`
+  - priorites de ciblage des attaques de monstres maintenant derivees de la table originale `Byte586 / DetermineAttackOrder`
+  - permutations d'attaque packagees via `original_ui_support_runtime.json`
+  - consommation runtime verifiee sur les quatre directions d'approche
 - `originalSpells.ts`
   - contributions de lumiere des sorts calees sur `luminousPowerToLuminance` au lieu d'un ratio local heuristique
+- `itemImages.ts`
+  - etats visuels des torches cales sur `torchTypePerChargesCount` au lieu d'un decoupage runtime arbitraire en tiers
+- `computeLightLevel(...)`
+  - luminance des torches calculee depuis les charges restantes et la table canonique `luminousPowerToLuminance`
+  - quantification de lumiere de scene maintenant alignee sur `paletteBrightnessThresholds`, au lieu d'un niveau continu purement local
 - `champions.ts`
   - preservation des seeds `skills` extraits pour les 24 champions
   - preservation des stats coeur du roster jusqu'au consommateur runtime
@@ -203,6 +232,29 @@ Ces modules runtime sont verifies contre la donnee extraite ou les slices packag
 - `originalChampionLeveling.ts`
   - consommation explicite des references de progression packagees
   - branches de growth testees contre une reference runtime documentee
+  - seuils de menace recente des hidden skills maintenant consommes depuis `original_experience_runtime.json`
+  - frontiere "at least 150 ticks" verrouillee contre la reference documentee
+  - tirage `antiFire` de level-up maintenant aligne sur `antiFireIncreaseMaxExclusive`
+- `originalEquipmentBonuses.ts`
+  - bonus de mastery portes / talismans / Firestaff maintenant packages dans une reference canonique issue de `Character.cpp`
+  - bonus de stats portes / talismans / armes maintenant packages dans cette meme reference
+  - penalite de chance des objets maudits alignee sur la branche source `AdjustStatsForItemCarried`
+- `equipment.ts`
+  - bonus de stats de l'equipement maintenant derives de `original_equipment_bonuses_runtime.json`
+- `storeChampionRuntime.ts`
+  - bonus de mastery d'equipement maintenant derives de `original_equipment_bonuses_runtime.json`
+- `items.ts`
+  - descriptions des bijoux / talismans a bonus maintenant derivees de la reference canonique d'equipement, pour eviter tout drift UI/runtime
+  - faux contenants d'eau legacy `Misc 7 / 40 / 41` retires du runtime actif
+- `waterContainers.ts`, `itemDisplay.ts`, `spellPotionCreation.ts` et `persistence.ts`
+  - runtime actif, affichage, creation de potions et chargement des saves maintenant alignes sur les seuls ids canoniques de flasque / outre
+  - les vieux placeholders `Misc 40 / 41` ne sont plus reintroduits silencieusement par la persistance
+- `ChampionSheet.tsx`
+  - affordance "use" et drop bouche maintenant bornee par la semantique source-backed `Consumable`, pas seulement par un filtrage de categories local
+- `useItemConsumption.ts` et `storeItemRuntime.ts`
+  - consommation directe et son `swallowing` maintenant bornes par le bit canonique `Consumable`, pas seulement par les categories et metadonnees locales
+- `originalExperience.ts`
+  - export runtime explicite des multiplicateurs documentes et des seuils structures de menace recente
 - `skillProgression.ts`
   - `baseExperienceStep` des seuils de niveau maintenant consomme depuis `original_champion_progression_runtime.json`
 - `championState.ts`
@@ -247,6 +299,7 @@ References:
 - [tests/i562-runtime-consumer-fidelity.test.ts](/D:/DungeonMaster-codex/tests/i562-runtime-consumer-fidelity.test.ts)
 - [tests/death-drops.test.ts](/D:/DungeonMaster-codex/tests/death-drops.test.ts)
 - [tests/ui-support-runtime-fidelity.test.ts](/D:/DungeonMaster-codex/tests/ui-support-runtime-fidelity.test.ts)
+- [tests/front-creature-state.test.ts](/D:/DungeonMaster-codex/tests/front-creature-state.test.ts)
 - [tests/champion-runtime-fidelity.test.ts](/D:/DungeonMaster-codex/tests/champion-runtime-fidelity.test.ts)
 - [tests/progression-and-recruitment-reference-consumer-fidelity.test.ts](/D:/DungeonMaster-codex/tests/progression-and-recruitment-reference-consumer-fidelity.test.ts)
 - [WALL_OVERLAY_REMAKE_TODO.md](/D:/DungeonMaster-codex/docs/WALL_OVERLAY_REMAKE_TODO.md)
@@ -256,13 +309,16 @@ References:
 Verification executee:
 
 - audit package runtime vert
-- suite ciblee verte: `681 / 681`
+- suites ciblees vertes: `697 / 697`
+- suites ciblees vertes: `698 / 698`
+- suites ciblees vertes: `709 / 709`
+- suites ciblees vertes: `710 / 710`
 - build vert
 
 Resume courant de l'audit package:
 
 - `Top-level checks: 9/9`
-- `Runtime references: 12/12`
+- `Runtime references: 13/13`
 - `Source -> runtime dungeon maps: 14/14`
 - `Runtime dungeon maps: 14/14`
 - `Runtime wall overlay maps: 14/14`
@@ -299,9 +355,10 @@ Nuance apres ce pass:
 - certains objets a `allowedSlotsMask = 0` restent encore interpretes par des fallbacks runtime de portage / inventaire
   - liste actuelle: [ZERO_SLOT_ITEMS.md](/D:/DungeonMaster-codex/docs/ZERO_SLOT_ITEMS.md)
   - apres ce pass, la liste se reduit a `Misc 51 / Zokathra`
-- `original_ui_support_runtime.json` est maintenant package et verifie a l'octet pres, mais n'a pas encore de couverture consommateur aussi riche que skills/magic/actions
+- `original_ui_support_runtime.json` est maintenant package et verifie a l'octet pres, avec consommateurs explicites pour la luminance des sorts, les torches, les paliers de palette, la reincarnation et l'ordre de ciblage des attaques
 - les seeds de champions, l'XP initiale, les branches de growth et les regles de mirror recruitment sont maintenant verrouilles jusqu'aux consommateurs runtime
-- ce qui reste encore gris dans cette zone concerne surtout la validation long-play et d'eventuelles nuances de version, pas l'absence de reference runtime explicite
+- ce qui reste encore gris dans cette zone concerne surtout la validation long-play et d'eventuelles nuances de version
+- `creatureInjuryMasks` n'est plus seulement package: il aligne maintenant explicitement la traduction `zones de blessure -> wound slots`, mais pas encore toute la logique de selection des patterns de coup
 
 ### Conclusion honnete
 

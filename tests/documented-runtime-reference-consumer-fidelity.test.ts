@@ -7,6 +7,14 @@ import {
     getDoorDefinition,
 } from '../src/data/doors.js';
 import {
+    ORIGINAL_CARRY_LOCATION_BITS,
+    ORIGINAL_CARRY_LOCATION_TO_RUNTIME_SLOTS,
+    ORIGINAL_ITEM_RULE_FLAGS,
+    getOriginalCarryLocationBit,
+    hasOriginalCarryLocation,
+    isOriginalPouchCarriableItem,
+} from '../src/data/originalItemRules.js';
+import {
     MISC_TYPES,
     getSourceItemAllowedSlotsMask,
     resolveItemName,
@@ -241,7 +249,11 @@ test('skill progression runtime mapping stays aligned with the canonical documen
 
 test('door runtime logic stays aligned with the documented pouch and key pass-through item rules', () => {
     const reference = readJson<OriginalItemRulesRuntime>(ORIGINAL_ITEM_RULES_PATH);
+    assert.deepEqual(ORIGINAL_CARRY_LOCATION_BITS, reference.carryLocationBits);
+    assert.deepEqual(ORIGINAL_CARRY_LOCATION_TO_RUNTIME_SLOTS, reference.carryLocationToRuntimeSlots);
+    assert.deepEqual(ORIGINAL_ITEM_RULE_FLAGS, reference.rules);
     assert.equal(reference.carryLocationBits['8'], 'Pouch');
+    assert.equal(getOriginalCarryLocationBit('Pouch'), 8);
     assert.deepEqual(reference.carryLocationToRuntimeSlots.Pouch, ['pocket1', 'pocket2']);
     assert.equal(reference.rules.pouchItemsCanPassThroughSomeDoors, true);
     assert.equal(reference.rules.keysRemainBlockedByDoorPassRuleException, true);
@@ -251,7 +263,8 @@ test('door runtime logic stays aligned with the documented pouch and key pass-th
     assert.equal(doorBlocksThrownItems(grateDoorType), false);
 
     const scroll = createItem('Scroll', 0);
-    assert.ok((getSourceItemAllowedSlotsMask('Scroll', 0) ?? 0) & (1 << 8), 'scroll should remain a pouch-carryable reference item');
+    assert.equal(hasOriginalCarryLocation(getSourceItemAllowedSlotsMask('Scroll', 0), 'Pouch'), true, 'scroll should remain a pouch-carryable reference item');
+    assert.equal(isOriginalPouchCarriableItem(scroll), true, 'scroll should remain pouch-carriable through the canonical rule helper');
     assert.equal(
         doorBlocksThrownPhysicalItem(grateDoorType, scroll),
         false,
@@ -260,10 +273,11 @@ test('door runtime logic stays aligned with the documented pouch and key pass-th
 
     const pouchKeyTypeId = Object.keys(MISC_TYPES)
         .map(Number)
-        .find((typeId) => MISC_TYPES[typeId]?.key && (((getSourceItemAllowedSlotsMask('Misc', typeId) ?? 0) & (1 << 8)) !== 0));
+        .find((typeId) => MISC_TYPES[typeId]?.key && hasOriginalCarryLocation(getSourceItemAllowedSlotsMask('Misc', typeId), 'Pouch'));
     assert.ok(pouchKeyTypeId !== undefined, 'expected at least one pouch-carryable key-like misc item');
 
     const pouchKey = createItem('Misc', pouchKeyTypeId!);
+    assert.equal(isOriginalPouchCarriableItem(pouchKey), true);
     assert.equal(
         doorBlocksThrownPhysicalItem(grateDoorType, pouchKey),
         true,

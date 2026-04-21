@@ -51,6 +51,7 @@ type ResurrectStateLike = {
 };
 
 type StoreUseItemConsumptionDeps = {
+    isOriginalConsumableItem: (item: FloorItem) => boolean;
     isWaterContainer: (item: FloorItem) => boolean;
     consumeWaterContainer: (item: FloorItem) => { nextItem: FloorItem; waterGain: number; staminaGain: number } | null;
     clampFoodWater: (value: number, max: number) => number;
@@ -67,10 +68,11 @@ export function resolveStoreUseItemSound(
     item: FloorItem,
     deps: Pick<
         StoreUseItemConsumptionDeps,
-        'isWaterContainer' | 'getPotionDef' | 'getMiscNutrition'
+        'isOriginalConsumableItem' | 'isWaterContainer' | 'getPotionDef' | 'getMiscNutrition'
     >,
 ): 'swallowing' | null {
     if (deps.isWaterContainer(item)) return 'swallowing';
+    if (!deps.isOriginalConsumableItem(item)) return null;
 
     if (item.category === 'Potion') {
         return deps.getPotionDef(item.typeId, item.rawName)?.drinkable
@@ -135,12 +137,14 @@ export function createStoreUseItemRuntimeDeps(params: {
         normalizeChampionCurrentStats: params.normalizeChampionCurrentStats,
         resolveUseItemSound: (item: FloorItem) =>
             resolveStoreUseItemSound(item, {
+                isOriginalConsumableItem: params.consumptionDeps.isOriginalConsumableItem,
                 isWaterContainer: params.consumptionDeps.isWaterContainer,
                 getPotionDef: params.consumptionDeps.getPotionDef,
                 getMiscNutrition: params.consumptionDeps.getMiscNutrition,
             }),
         resolveUseItemConsumption: (args: Parameters<typeof resolveUseItemConsumptionSystem>[0]) =>
             resolveUseItemConsumptionSystem(args, {
+                isOriginalConsumableItem: params.consumptionDeps.isOriginalConsumableItem,
                 isWaterContainer: params.consumptionDeps.isWaterContainer,
                 consumeWaterContainer: params.consumptionDeps.consumeWaterContainer,
                 clampFoodWater: params.consumptionDeps.clampFoodWater,

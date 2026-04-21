@@ -35,8 +35,20 @@
                                          },
     "rules":  {
                   "halveHiddenFighterOrNinjaExperienceWithoutRecentThreat":  "If improved skill is 04..11 and no creature attacked the party for at least 150 ticks, divide experience by 2.",
+                  "staleThreatHiddenSkills":  [
+                                                   "swing",
+                                                   "thrust",
+                                                   "club",
+                                                   "parry",
+                                                   "steal",
+                                                   "fight",
+                                                   "throw",
+                                                   "shoot"
+                                               ],
+                  "staleThreatTicks":  150,
                   "applyLevelMultiplierWhenNonZero":  "Multiply by current level experience multiplier when it is non-zero.",
                   "doubleHiddenSkillExperienceAfterRecentThreat":  "If improved skill is above 04 and a creature attacked less than 25 ticks ago, multiply experience by 2.",
+                  "recentThreatTicks":  25,
                   "hiddenSkillAlsoFeedsParentBasicSkill":  true
               }
 }

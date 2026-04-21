@@ -512,6 +512,74 @@ test('hydratePersistedGameState normalizes persisted water containers in invento
     }
 });
 
+test('hydratePersistedGameState no longer normalizes legacy misc placeholders into flask runtime items', () => {
+    const now = 41_000;
+    const originalNow = Date.now;
+    Date.now = () => now;
+
+    try {
+        const state = createState(now);
+        const runtime = createRuntimeMaps(now);
+        const persisted = buildPersistedSaveData(state, runtime);
+
+        persisted.floorItems = [
+            {
+                id: 'hellion',
+                category: 'Misc',
+                typeId: 40,
+                rawName: 'The Hellion',
+                waterCharges: 0,
+                mapIndex: 0,
+                x: 4,
+                y: 4,
+                tilePos: 'North',
+            },
+            {
+                id: 'pendant-feral',
+                category: 'Misc',
+                typeId: 41,
+                rawName: 'Pendant Feral',
+                waterCharges: 1,
+                mapIndex: 0,
+                x: 5,
+                y: 5,
+                tilePos: 'East',
+            },
+        ];
+        persisted.championEquipment = {
+            1: {
+                rightHand: {
+                    id: 'equipped-hellion',
+                    category: 'Misc',
+                    typeId: 40,
+                    rawName: 'The Hellion',
+                    waterCharges: 1,
+                    mapIndex: 0,
+                    x: 1,
+                    y: 1,
+                    tilePos: 'North',
+                },
+            },
+        };
+
+        const hydrated = hydratePersistedGameState(persisted, now);
+
+        assert.equal(hydrated.floorItems[0]?.category, 'Misc');
+        assert.equal(hydrated.floorItems[0]?.typeId, 40);
+        assert.equal(hydrated.floorItems[0]?.waterCharges, 0);
+
+        assert.equal(hydrated.floorItems[1]?.category, 'Misc');
+        assert.equal(hydrated.floorItems[1]?.typeId, 41);
+        assert.equal(hydrated.floorItems[1]?.waterCharges, 1);
+
+        assert.equal(hydrated.championEquipment[1]?.rightHand?.category, 'Misc');
+        assert.equal(hydrated.championEquipment[1]?.rightHand?.typeId, 40);
+        assert.equal(hydrated.championEquipment[1]?.rightHand?.waterCharges, 1);
+    } finally {
+        Date.now = originalNow;
+    }
+});
+
 test('hydratePersistedGameState strips disabled teleporter keys from saves', () => {
     const now = 50_000;
     const originalNow = Date.now;

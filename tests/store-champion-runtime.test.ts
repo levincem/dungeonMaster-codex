@@ -132,9 +132,45 @@ test('store champion runtime computes equipment mastery bonuses and permanent pl
             tilePos: 'North',
         },
     });
+    const fighterModifier = getEquipmentSkillLevelModifier('fighter', {
+        rightHand: {
+            id: 'firestaff',
+            category: 'Weapon',
+            typeId: 45,
+            mapIndex: 0,
+            x: 0,
+            y: 0,
+            tilePos: 'North',
+        },
+    });
+    const defendModifier = getEquipmentSkillLevelModifier('defend', {
+        neck: {
+            id: 'cross',
+            category: 'Misc',
+            typeId: 38,
+            mapIndex: 0,
+            x: 0,
+            y: 0,
+            tilePos: 'North',
+        },
+    });
+    const influenceModifier = getEquipmentSkillLevelModifier('influence', {
+        neck: {
+            id: 'moonstone',
+            category: 'Misc',
+            typeId: 39,
+            mapIndex: 0,
+            x: 0,
+            y: 0,
+            tilePos: 'North',
+        },
+    });
 
     assert.equal(wizardModifier, 3);
     assert.equal(healModifier, 1);
+    assert.equal(fighterModifier, 2);
+    assert.equal(defendModifier, 1);
+    assert.equal(influenceModifier, 1);
     assert.ok(
         getChampionSkillLevelFromXP(permanent, temporary, 'wizard', { bonusLevels: wizardModifier }) >
         getChampionSkillLevelFromXP(permanent, temporary, 'wizard'),

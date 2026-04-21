@@ -18,9 +18,8 @@ export function getDisplayedItemName(
     }
     if (
         (item.category === 'Potion' && (item.typeId === 15 || item.typeId === 20))
-        || (item.category === 'Misc' && (item.typeId === 40 || item.typeId === 41))
     ) {
-        return (item.waterCharges ?? (item.typeId === 15 || item.typeId === 41 ? 1 : 0)) > 0 ? 'Water Flask' : 'Empty Flask';
+        return (item.waterCharges ?? (item.typeId === 15 ? 1 : 0)) > 0 ? 'Water Flask' : 'Empty Flask';
     }
     if (item.category !== 'Misc' || item.typeId !== 0 || !direction) return baseName;
     return `${baseName} (${DIRECTION_LABELS[direction]})`;

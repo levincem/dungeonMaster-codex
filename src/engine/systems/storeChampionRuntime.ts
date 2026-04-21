@@ -10,6 +10,7 @@ import type { Champion } from '../../types/champion';
 import type { ChampionEquipment, FloorItem } from '../../types/game';
 import type { ActivePotionBoost, ChampionVitals } from '../runtimeTypes';
 import { createChampionCurrentStats } from './championState';
+import { getOriginalEquipmentSkillLevelModifier } from '../../data/originalEquipmentBonuses';
 
 export const MAX_FOOD = 2048;
 export const MAX_WATER = 2048;
@@ -54,39 +55,7 @@ export function getEquipmentSkillLevelModifier(
     skill: SkillKey,
     equipment: ChampionEquipment | undefined,
 ): number {
-    const actionHand = equipment?.rightHand;
-    const neck = equipment?.neck;
-    let modifier = 0;
-
-    if (actionHand?.category === 'Weapon') {
-        if (actionHand.typeId === 7) {
-            modifier += 1;
-        } else if (actionHand.typeId === 45) {
-            modifier += 2;
-        }
-    }
-
-    if (skill === 'wizard' && neck?.category === 'Misc' && neck.typeId === 41) {
-        modifier += 1;
-    }
-
-    if (skill === 'defend' && neck?.category === 'Misc' && neck.typeId === 38) {
-        modifier += 1;
-    }
-
-    if (skill === 'heal') {
-        const hasGemOfAges = neck?.category === 'Misc' && neck.typeId === 37;
-        const hasSceptreOfLyf = actionHand?.category === 'Weapon' && actionHand.typeId === 42;
-        if (hasGemOfAges || hasSceptreOfLyf) {
-            modifier += 1;
-        }
-    }
-
-    if (skill === 'influence' && neck?.category === 'Misc' && neck.typeId === 39) {
-        modifier += 1;
-    }
-
-    return modifier;
+    return getOriginalEquipmentSkillLevelModifier(skill, equipment);
 }
 
 export function createChampionVitals(

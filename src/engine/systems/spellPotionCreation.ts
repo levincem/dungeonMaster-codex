@@ -23,8 +23,7 @@ type PotionSpellDeps = {
 };
 
 function isEmptyFlask(item: FloorItem | undefined): boolean {
-    return (item?.category === 'Potion' && item.typeId === 20)
-        || (item?.category === 'Misc' && item.typeId === 40);
+    return item?.category === 'Potion' && item.typeId === 20;
 }
 
 export function resolvePotionSpellResult(

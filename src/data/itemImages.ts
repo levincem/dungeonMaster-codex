@@ -5,6 +5,10 @@
 
 import type { FloorItem } from '../types/game';
 import { normalizeLookupName, resolveItemName } from './items';
+import {
+    getOriginalTorchStateIndex,
+    ORIGINAL_TORCH_LIFETIME_MS,
+} from './originalUiSupport';
 import { getWaterContainerState } from './waterContainers';
 import { itemsPath } from './assetPaths';
 import { AVAILABLE_ITEM_IMAGE_FILENAMES } from './itemImageCatalog';
@@ -79,13 +83,9 @@ export function getTorchImage(itemId: string, torchBurnStart: Record<string, num
     const litAt = torchBurnStart[itemId];
     if (litAt === undefined) return ITEM_BASE + 'torch_lit.png';
     const elapsed = Date.now() - litAt;
-    const TORCH_LIFETIME_MS = 15 * 60 * 1000;
-    const TORCH_STATE_MS = 5 * 60 * 1000;
-    let idx: number;
-    if (elapsed >= TORCH_LIFETIME_MS) idx = 0;
-    else if (elapsed >= TORCH_STATE_MS * 2) idx = 1;
-    else if (elapsed >= TORCH_STATE_MS) idx = 2;
-    else idx = 3;
+    const idx = elapsed >= ORIGINAL_TORCH_LIFETIME_MS
+        ? 0
+        : getOriginalTorchStateIndex(elapsed);
     return ITEM_BASE + TORCH_STATE_IMAGES[idx];
 }
 

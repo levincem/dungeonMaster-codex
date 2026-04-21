@@ -56,6 +56,13 @@ import {
 } from '../data/equipment';
 import type { ChampionWoundSlot, ChampionWounds, EquipmentStatBonuses } from '../data/equipment';
 import { hasOriginalWallOverlayAt } from '../data/originalWallOverlays';
+import { isOriginalConsumableItem } from '../data/originalItemRules';
+import {
+    getOriginalPaletteNormalizedBrightnessForLuminance,
+    getOriginalTorchNormalizedLuminance,
+    getOriginalTorchStateIndex,
+    ORIGINAL_TORCH_LIFETIME_MS,
+} from '../data/originalUiSupport';
 import {
     getAttackCooldownSeconds,
     getAttackOptionUnusableReason,
@@ -491,14 +498,12 @@ interface EndgameSequence {
 
 // ─── Torch burn lifecycle ──────────────────────────────────────────────────────
 export const TORCH_LIFETIME_MS  = quantizeMsToOriginalTimerTicks(minutesToMs(15));  // 15 min total
-export const TORCH_STATE_MS     = quantizeMsToOriginalTimerTicks(minutesToMs(5));   // 5 min per visual state
+export const TORCH_STATE_MS     = quantizeMsToOriginalTimerTicks(minutesToMs(5));   // legacy export kept for compatibility
 
 /** Return 0=unlit, 1=used_2, 2=used_1, 3=lit based on ms elapsed since lit */
 export function torchStateIndex(elapsedMs: number): number {
-    if (elapsedMs >= TORCH_LIFETIME_MS)        return 0; // burnt out
-    if (elapsedMs >= TORCH_STATE_MS * 2)       return 1; // used_2
-    if (elapsedMs >= TORCH_STATE_MS)           return 2; // used_1
-    return 3;                                            // fresh lit
+    if (elapsedMs >= ORIGINAL_TORCH_LIFETIME_MS) return 0;
+    return getOriginalTorchStateIndex(elapsedMs);
 }
 
 // ─── Spell lights (torch / light spells) ─────────────────────────────────────
@@ -525,8 +530,10 @@ export function computeLightLevel(
             if (!item || item.category !== 'Weapon' || item.typeId !== 2) continue;
             const litAt = torchBurnStart[item.id];
             if (litAt !== undefined && now - litAt < TORCH_LIFETIME_MS) {
-                torchContrib = 1.0;
-                break outer;
+                torchContrib = Math.max(torchContrib, getOriginalTorchNormalizedLuminance(now - litAt));
+                if (torchContrib >= 1) {
+                    break outer;
+                }
             }
         }
     }
@@ -536,7 +543,9 @@ export function computeLightLevel(
         .filter(l => l.expiresAt > now)
         .reduce((sum, l) => sum + l.lightContrib, 0);
 
-    return Math.max(0, Math.min(1, torchContrib + spellContrib));
+    return getOriginalPaletteNormalizedBrightnessForLuminance(
+        Math.max(0, Math.min(1, torchContrib + spellContrib)),
+    );
 }
 
 // ─── Active projectiles (fireball, lightning, poison, thrown items) ───────────
@@ -1834,6 +1843,7 @@ const storeUseItemRuntimeDeps = createStoreUseItemRuntimeDeps({
     getEffectiveChampionStatsRuntime,
     normalizeChampionCurrentStats,
     consumptionDeps: {
+        isOriginalConsumableItem,
         isWaterContainer,
         consumeWaterContainer,
         clampFoodWater,

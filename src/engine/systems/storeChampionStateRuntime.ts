@@ -9,6 +9,10 @@ import type {
     ChampionXP,
     SkillKey,
 } from '../../data/skillProgression';
+import {
+    mapOriginalCreatureCoverageZonesToWoundSlots,
+    type OriginalCreatureCoverageZone,
+} from '../../data/originalUiSupport';
 import type {
     ActivePotionBoost,
     ChampionVitals,
@@ -35,7 +39,7 @@ type ChampionXpStateLike = {
     lastCreatureAttackGameTick: number;
 };
 
-type ArmorCoverageZone = 'head' | 'torso' | 'legs' | 'feet' | 'hands';
+type ArmorCoverageZone = OriginalCreatureCoverageZone;
 
 type StoreChampionStateRuntimeParams<TIncomingState extends IncomingAttackStateLike> = {
     poisonTickIntervalSec: number;
@@ -78,17 +82,7 @@ type StoreChampionStateRuntimeParams<TIncomingState extends IncomingAttackStateL
 export function chooseChampionWoundSlotsFromZones(
     hitZones: readonly ArmorCoverageZone[] | undefined,
 ): ChampionWoundSlot[] {
-    if (!hitZones || hitZones.length === 0) return ['torso'];
-    const slots = new Set<ChampionWoundSlot>();
-    for (const zone of hitZones) {
-        if (zone === 'hands') {
-            slots.add('rightHand');
-            slots.add('leftHand');
-            continue;
-        }
-        slots.add(zone);
-    }
-    return [...slots];
+    return mapOriginalCreatureCoverageZonesToWoundSlots(hitZones);
 }
 
 export function applyChampionWound(vitals: ChampionVitals, slot: ChampionWoundSlot): ChampionVitals {

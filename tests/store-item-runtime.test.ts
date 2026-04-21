@@ -100,6 +100,7 @@ test('createStoreUseItemRuntimeDeps wires nested consumption deps into the runti
         getEffectiveChampionStatsRuntime: () => ({ stamina: 80, mana: 20, health: 100 }),
         normalizeChampionCurrentStats: (_champion, currentStats) => currentStats,
         consumptionDeps: {
+            isOriginalConsumableItem: () => true,
             isWaterContainer: () => false,
             consumeWaterContainer: () => null,
             clampFoodWater: (value) => value,
@@ -203,6 +204,7 @@ test('resolveStoreUseItemSound only marks source-backed consumables for swallowi
     };
 
     const deps = {
+        isOriginalConsumableItem: (item: FloorItem) => item.category === 'Potion' || (item.category === 'Misc' && item.typeId === 31),
         isWaterContainer: (item: FloorItem) => item.category === 'Misc' && item.typeId === 1,
         getPotionDef: (typeId: number) => typeId === 14
             ? { id: 14, name: 'Vi Potion', effect: 'health' as const, drinkable: true }
@@ -214,6 +216,13 @@ test('resolveStoreUseItemSound only marks source-backed consumables for swallowi
     assert.equal(resolveStoreUseItemSound(potion, deps), 'swallowing');
     assert.equal(resolveStoreUseItemSound(food, deps), 'swallowing');
     assert.equal(resolveStoreUseItemSound(coin, deps), null);
+    assert.equal(
+        resolveStoreUseItemSound(
+            { ...potion, id: 'potion-not-source-backed' },
+            { ...deps, isOriginalConsumableItem: () => false },
+        ),
+        null,
+    );
 });
 
 test('createStoreFillWaterRuntimeDeps and buildStoreFillWaterPatch delegate to the fill-water runtime', () => {

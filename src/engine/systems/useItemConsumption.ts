@@ -13,6 +13,7 @@ type EffectiveConsumableCaps = {
 };
 
 type UseItemConsumptionDeps = {
+    isOriginalConsumableItem: (item: FloorItem) => boolean;
     isWaterContainer: (item: FloorItem) => boolean;
     consumeWaterContainer: (item: FloorItem) => { nextItem: FloorItem; waterGain: number; staminaGain: number } | null;
     clampFoodWater: (value: number, max: number) => number;
@@ -73,6 +74,10 @@ export function resolveUseItemConsumption(
             replacementItem: waterUse.nextItem,
             shouldConsumeOriginal: false,
         };
+    }
+
+    if (!deps.isOriginalConsumableItem(item)) {
+        return { kind: 'unhandled' };
     }
 
     if (item.category === 'Potion') {

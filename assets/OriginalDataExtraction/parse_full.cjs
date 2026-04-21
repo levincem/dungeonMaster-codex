@@ -46,6 +46,7 @@ const REFERENCE_EXPORT_RUNTIME_FILES = [
   'original_champion_progression_runtime.json',
   'original_mirror_recruitment_runtime.json',
   'original_item_rules_runtime.json',
+  'original_equipment_bonuses_runtime.json',
   'original_skills_runtime.json',
   'original_magic_runtime.json',
   'original_actions_runtime.json',

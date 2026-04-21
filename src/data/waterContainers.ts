@@ -38,12 +38,6 @@ export function getWaterContainerState(item: FloorItem): WaterContainerState | n
     if (item.category === 'Misc' && item.typeId === 1) {
         return createWaterContainerState('waterskin', item.waterCharges ?? 0, 4, 'Potion', 24, 'Misc', 1);
     }
-    if (item.category === 'Misc' && (item.typeId === 7 || item.typeId === 41)) {
-        return createWaterContainerState('flask', item.waterCharges ?? 1, 1, 'Misc', 41, 'Misc', 40);
-    }
-    if (item.category === 'Misc' && item.typeId === 40) {
-        return createWaterContainerState('flask', item.waterCharges ?? 0, 1, 'Misc', 41, 'Misc', 40);
-    }
     return null;
 }
 

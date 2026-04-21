@@ -59,6 +59,7 @@ test('resolveUseItemConsumption handles water containers without consuming the i
             now: 1000,
         },
         {
+            isOriginalConsumableItem: () => true,
             isWaterContainer: () => true,
             consumeWaterContainer: () => ({ nextItem, waterGain: 800, staminaGain: 0 }),
             clampFoodWater: (value, max) => Math.min(max, value),
@@ -96,6 +97,7 @@ test('resolveUseItemConsumption delegates drinkable potions to the potion helper
             now: 1000,
         },
         {
+            isOriginalConsumableItem: () => true,
             isWaterContainer: () => false,
             consumeWaterContainer: () => null,
             clampFoodWater: (value) => value,
@@ -130,6 +132,7 @@ test('resolveUseItemConsumption blocks unusable water containers and non-drinkab
             now: 1000,
         },
         {
+            isOriginalConsumableItem: () => true,
             isWaterContainer: () => true,
             consumeWaterContainer: () => null,
             clampFoodWater: (value) => value,
@@ -151,6 +154,7 @@ test('resolveUseItemConsumption blocks unusable water containers and non-drinkab
             now: 1000,
         },
         {
+            isOriginalConsumableItem: () => true,
             isWaterContainer: () => false,
             consumeWaterContainer: () => null,
             clampFoodWater: (value) => value,
@@ -178,6 +182,7 @@ test('resolveUseItemConsumption handles edible misc items and leaves unrelated i
             now: 1000,
         },
         {
+            isOriginalConsumableItem: () => true,
             isWaterContainer: () => false,
             consumeWaterContainer: () => null,
             clampFoodWater: (value, max) => Math.min(max, value),
@@ -199,11 +204,35 @@ test('resolveUseItemConsumption handles edible misc items and leaves unrelated i
             now: 1000,
         },
         {
+            isOriginalConsumableItem: () => false,
             isWaterContainer: () => false,
             consumeWaterContainer: () => null,
             clampFoodWater: (value) => value,
             getPotionDef: () => undefined,
             getMiscNutrition: () => null,
+            resolvePotionConsumption: () => null,
+            maxFood: 2500,
+            maxWater: 2500,
+        },
+    );
+
+    const fakeConsumablePotionResult = resolveUseItemConsumption(
+        {
+            item: createItem({ category: 'Potion', typeId: 14, rawName: 'Vi Potion' }),
+            championId: 1,
+            vitals: createVitals(),
+            effective: { stamina: 70, mana: 50, health: 60 },
+            normalizedStats: createVitals().currentStats,
+            activeShields: [],
+            now: 1000,
+        },
+        {
+            isOriginalConsumableItem: () => false,
+            isWaterContainer: () => false,
+            consumeWaterContainer: () => null,
+            clampFoodWater: (value) => value,
+            getPotionDef: () => ({ id: 14, name: 'Vi Potion', effect: 'health', drinkable: true }),
+            getMiscNutrition: () => 450,
             resolvePotionConsumption: () => null,
             maxFood: 2500,
             maxWater: 2500,
@@ -220,4 +249,5 @@ test('resolveUseItemConsumption handles edible misc items and leaves unrelated i
         shouldConsumeOriginal: true,
     });
     assert.deepEqual(compassResult, { kind: 'unhandled' });
+    assert.deepEqual(fakeConsumablePotionResult, { kind: 'unhandled' });
 });

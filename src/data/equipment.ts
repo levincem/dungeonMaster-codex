@@ -3,6 +3,8 @@ import { getArmorDef, getSourceItemAllowedSlotsMask, getWeaponAllowedSlotsMask, 
 import type { ChampionEquipment, FloorItem } from '../types/game';
 import type { ArmorSlot, EquipSlotKey } from '../types/items';
 import type { WeaponAttackOption } from './weaponAttacks';
+import { getOriginalEquipmentStatBonuses } from './originalEquipmentBonuses';
+import { getOriginalCarryRuntimeSlots, hasOriginalCarryLocation } from './originalItemRules';
 
 export interface EquipmentStatBonuses {
     mana: number;
@@ -59,17 +61,6 @@ export const EXPLICIT_ZERO_SLOT_ITEM_FALLBACKS = {
     },
 } as const;
 
-const ZERO_BONUSES: EquipmentStatBonuses = {
-    mana: 0,
-    strength: 0,
-    dexterity: 0,
-    wisdom: 0,
-    vitality: 0,
-    antiMagic: 0,
-    antiFire: 0,
-    luck: 0,
-};
-
 function pushUniqueSlots(target: EquipSlotKey[], ...entries: EquipSlotKey[]): void {
     for (const entry of entries) {
         if (!target.includes(entry)) target.push(entry);
@@ -82,9 +73,10 @@ function addHandCarrySlots(target: EquipSlotKey[], allowedMask: number): void {
 }
 
 function addSourceStorageSlots(target: EquipSlotKey[], allowedMask: number): void {
-    if (allowedMask & 64) pushUniqueSlots(target, 'quiver1', 'quiver2');
-    if (allowedMask & 128) pushUniqueSlots(target, 'quiver3', 'quiver4');
-    if (allowedMask & 256) pushUniqueSlots(target, 'pocket1', 'pocket2');
+    const runtimeSlots = getOriginalCarryRuntimeSlots(allowedMask);
+    for (const slot of ['quiver1', 'quiver2', 'quiver3', 'quiver4', 'pocket1', 'pocket2'] as const) {
+        if (runtimeSlots.includes(slot)) pushUniqueSlots(target, slot);
+    }
 }
 
 function mapArmorWearSlots(slot: ArmorSlot): EquipSlotKey[] {
@@ -109,11 +101,11 @@ function mapArmorWearSlots(slot: ArmorSlot): EquipSlotKey[] {
 }
 
 function addSourceWearSlots(target: EquipSlotKey[], allowedMask: number): void {
-    if (allowedMask & 2) pushUniqueSlots(target, 'head');
-    if (allowedMask & 4) pushUniqueSlots(target, 'neck');
-    if (allowedMask & 8) pushUniqueSlots(target, 'torso');
-    if (allowedMask & 16) pushUniqueSlots(target, 'legs');
-    if (allowedMask & 32) pushUniqueSlots(target, 'feet');
+    if (hasOriginalCarryLocation(allowedMask, 'Head')) pushUniqueSlots(target, 'head');
+    if (hasOriginalCarryLocation(allowedMask, 'Neck')) pushUniqueSlots(target, 'neck');
+    if (hasOriginalCarryLocation(allowedMask, 'Torso')) pushUniqueSlots(target, 'torso');
+    if (hasOriginalCarryLocation(allowedMask, 'Legs')) pushUniqueSlots(target, 'legs');
+    if (hasOriginalCarryLocation(allowedMask, 'Feet')) pushUniqueSlots(target, 'feet');
 }
 
 function mapExtractedWeaponSlots(typeId: number): EquipSlotKey[] {
@@ -196,7 +188,7 @@ function mapStarterArmorSlots(item: FloorItem): EquipSlotKey[] {
     if (allowedMask == null || allowedMask === 0) return slots;
 
     addSourceWearSlots(slots, allowedMask);
-    if ((allowedMask & 512) !== 0) {
+    if (hasOriginalCarryLocation(allowedMask, 'Hands')) {
         pushUniqueSlots(slots, 'rightHand', 'leftHand');
     }
     return slots;
@@ -332,26 +324,7 @@ export function getTotalWeight(equip: ChampionEquipment, inv: FloorItem[]): numb
 }
 
 export function getEquipmentStatBonuses(equip: ChampionEquipment | undefined): EquipmentStatBonuses {
-    if (!equip) return ZERO_BONUSES;
-
-    const bonuses: EquipmentStatBonuses = { ...ZERO_BONUSES };
-    for (const item of Object.values(equip)) {
-        if (!item) continue;
-
-        if (item.cursed && (item.category === 'Weapon' || item.category === 'Armor')) {
-            bonuses.luck -= 3;
-        }
-
-        if (item.category === 'Misc') {
-            const def = MISC_TYPES[item.typeId];
-            const name = def?.name ?? item.rawName ?? '';
-            if (item.typeId === 2 || /Jewel Symal/i.test(name)) bonuses.antiMagic += 15;
-            if (item.typeId === 39 || /Moonstone/i.test(name)) bonuses.mana += 3;
-            if (item.typeId === 46 || /Rabbit/i.test(name)) bonuses.luck += 10;
-        }
-    }
-
-    return bonuses;
+    return getOriginalEquipmentStatBonuses(equip);
 }
 
 export function getEffectiveChampionStats(champion: Champion, equip: ChampionEquipment | undefined): EffectiveChampionStats {

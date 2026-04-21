@@ -1,7 +1,8 @@
 import payload from '../assets/runtime/reference/original_doors_runtime.json';
 import type { FloorItem } from '../types/game';
 import { miscPath, texturesPath } from './assetPaths';
-import { getSourceItemAllowedSlotsMask, MISC_TYPES, WEAPON_TYPES } from './items';
+import { MISC_TYPES, WEAPON_TYPES } from './items';
+import { isOriginalPouchCarriableItem } from './originalItemRules';
 
 export interface OriginalDoorDefinition {
     id: number;
@@ -15,8 +16,6 @@ export interface OriginalDoorDefinition {
 interface OriginalDoorsPayload {
     doors: OriginalDoorDefinition[];
 }
-
-const POUCH_ALLOWED_SLOTS_MASK = 1 << 8;
 
 export const ORIGINAL_DOOR_DEFS = (payload as OriginalDoorsPayload).doors.reduce<Record<number, OriginalDoorDefinition>>((acc, door) => {
     acc[door.id] = door;
@@ -49,9 +48,7 @@ export function doorBlocksThrownPhysicalItem(
     if (doorBlocksThrownItems(doorType)) return true;
     if (!item) return false;
     if (isKeyLikeItem(item)) return true;
-
-    const allowedSlotsMask = getSourceItemAllowedSlotsMask(item.category, item.typeId);
-    return (((allowedSlotsMask ?? 0) & POUCH_ALLOWED_SLOTS_MASK) === 0);
+    return !isOriginalPouchCarriableItem(item);
 }
 
 export function getDoorTexturePath(doorType: number | undefined): string {

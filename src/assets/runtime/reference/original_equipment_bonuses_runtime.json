@@ -1,0 +1,257 @@
+{
+  "_meta": {
+    "source": "CSBwin source alignment from Character.cpp (AdjustStatsForItemCarried and DetermineMastery)",
+    "status": "source_code_aligned",
+    "generatedAt": "2026-04-21T00:00:00Z",
+    "purpose": "Canonical equipment-carried bonuses that affect mastery and champion statistics."
+  },
+  "masteryBonuses": [
+    {
+      "category": "Weapon",
+      "typeId": 7,
+      "runtimeName": "The Firestaff",
+      "slot": "rightHand",
+      "appliesTo": "all",
+      "bonusLevels": 1,
+      "sourceSymbol": "objNI_TheFirestaff_a"
+    },
+    {
+      "category": "Weapon",
+      "typeId": 45,
+      "runtimeName": "The Firestaff (Complete)",
+      "slot": "rightHand",
+      "appliesTo": "all",
+      "bonusLevels": 2,
+      "sourceSymbol": "objNI_TheFirestaff_b"
+    },
+    {
+      "category": "Misc",
+      "typeId": 41,
+      "runtimeName": "Pendant Feral",
+      "slot": "neck",
+      "appliesTo": [
+        "wizard"
+      ],
+      "bonusLevels": 1,
+      "sourceSymbol": "objNI_PendantFeral"
+    },
+    {
+      "category": "Misc",
+      "typeId": 38,
+      "runtimeName": "Ekkhard Cross",
+      "slot": "neck",
+      "appliesTo": [
+        "defend"
+      ],
+      "bonusLevels": 1,
+      "sourceSymbol": "objNI_EkkhardCross"
+    },
+    {
+      "category": "Misc",
+      "typeId": 37,
+      "runtimeName": "Gem Of Ages",
+      "slot": "neck",
+      "appliesTo": [
+        "heal"
+      ],
+      "bonusLevels": 1,
+      "sourceSymbol": "objNI_GemOfAges"
+    },
+    {
+      "category": "Weapon",
+      "typeId": 42,
+      "runtimeName": "Sceptre Of Lyf",
+      "slot": "rightHand",
+      "appliesTo": [
+        "heal"
+      ],
+      "bonusLevels": 1,
+      "sourceSymbol": "objNI_SceptreOfLyf"
+    },
+    {
+      "category": "Misc",
+      "typeId": 39,
+      "runtimeName": "Moonstone",
+      "slot": "neck",
+      "appliesTo": [
+        "influence"
+      ],
+      "bonusLevels": 1,
+      "sourceSymbol": "objNI_Moonstone"
+    }
+  ],
+  "statBonuses": [
+    {
+      "category": "Misc",
+      "typeId": 46,
+      "runtimeName": "Rabbit's Foot",
+      "slot": "any",
+      "stat": "luck",
+      "amount": 10,
+      "sourceSymbol": "objNI_RabbitsFoot"
+    },
+    {
+      "category": "Weapon",
+      "typeId": 21,
+      "runtimeName": "Mace Of Order",
+      "slot": "rightHand",
+      "stat": "strength",
+      "amount": 5,
+      "sourceSymbol": "objNI_MaceOfOrder"
+    },
+    {
+      "category": "Weapon",
+      "typeId": 4,
+      "runtimeName": "Staff Of Claws",
+      "slot": "rightHand",
+      "stat": "mana",
+      "amount": 4,
+      "sourceSymbol": "objNI_StaffOfClaws_a..c"
+    },
+    {
+      "category": "Weapon",
+      "typeId": 34,
+      "runtimeName": "Staff",
+      "slot": "rightHand",
+      "stat": "mana",
+      "amount": 2,
+      "sourceSymbol": "objNI_Staff"
+    },
+    {
+      "category": "Weapon",
+      "typeId": 35,
+      "runtimeName": "Wand",
+      "slot": "rightHand",
+      "stat": "mana",
+      "amount": 1,
+      "sourceSymbol": "objNI_Wand"
+    },
+    {
+      "category": "Weapon",
+      "typeId": 36,
+      "runtimeName": "Teowand",
+      "slot": "rightHand",
+      "stat": "mana",
+      "amount": 6,
+      "sourceSymbol": "objNI_TeoWand"
+    },
+    {
+      "category": "Weapon",
+      "typeId": 37,
+      "runtimeName": "Yew Staff",
+      "slot": "rightHand",
+      "stat": "mana",
+      "amount": 4,
+      "sourceSymbol": "objNI_YewStaff"
+    },
+    {
+      "category": "Weapon",
+      "typeId": 38,
+      "runtimeName": "Staff Of Manar",
+      "slot": "rightHand",
+      "stat": "mana",
+      "amount": 10,
+      "sourceSymbol": "objNI_StaffOfIrra"
+    },
+    {
+      "category": "Weapon",
+      "typeId": 41,
+      "runtimeName": "Dragon Spit",
+      "slot": "rightHand",
+      "stat": "mana",
+      "amount": 7,
+      "sourceSymbol": "objNI_DragonSpit"
+    },
+    {
+      "category": "Weapon",
+      "typeId": 42,
+      "runtimeName": "Sceptre Of Lyf",
+      "slot": "rightHand",
+      "stat": "mana",
+      "amount": 5,
+      "sourceSymbol": "objNI_SceptreOfLyf"
+    },
+    {
+      "category": "Armor",
+      "typeId": 24,
+      "runtimeName": "Crown Of Nerra",
+      "slot": "head",
+      "stat": "wisdom",
+      "amount": 10,
+      "sourceSymbol": "objNI_CrownOfNerra"
+    },
+    {
+      "category": "Armor",
+      "typeId": 53,
+      "runtimeName": "Dexhelm",
+      "slot": "head",
+      "stat": "dexterity",
+      "amount": 10,
+      "sourceSymbol": "objNI_Dexhelm"
+    },
+    {
+      "category": "Armor",
+      "typeId": 1,
+      "runtimeName": "Cloak Of Night",
+      "slot": "torso",
+      "stat": "dexterity",
+      "amount": 8,
+      "sourceSymbol": "objNI_CloakOfNight"
+    },
+    {
+      "category": "Armor",
+      "typeId": 1,
+      "runtimeName": "Cloak Of Night",
+      "slot": "neck",
+      "stat": "dexterity",
+      "amount": 8,
+      "sourceSymbol": "objNI_CloakOfNight"
+    },
+    {
+      "category": "Armor",
+      "typeId": 54,
+      "runtimeName": "Flamebain",
+      "slot": "torso",
+      "stat": "antiFire",
+      "amount": 12,
+      "sourceSymbol": "objNI_Flamebain"
+    },
+    {
+      "category": "Armor",
+      "typeId": 55,
+      "runtimeName": "Powertowers",
+      "slot": "legs",
+      "stat": "strength",
+      "amount": 10,
+      "sourceSymbol": "objNI_Powertowers"
+    },
+    {
+      "category": "Misc",
+      "typeId": 2,
+      "runtimeName": "Jewel Symal",
+      "slot": "neck",
+      "stat": "antiMagic",
+      "amount": 15,
+      "sourceSymbol": "objNI_JewelSymal_a..b"
+    },
+    {
+      "category": "Misc",
+      "typeId": 39,
+      "runtimeName": "Moonstone",
+      "slot": "neck",
+      "stat": "mana",
+      "amount": 3,
+      "sourceSymbol": "objNI_Moonstone"
+    }
+  ],
+  "cursedLuckPenalty": {
+    "categories": [
+      "Weapon",
+      "Armor"
+    ],
+    "slot": "any",
+    "stat": "luck",
+    "amount": -3,
+    "sourceSymbol": "dbWEAPON/dbCLOTHING cursed branch in AdjustStatsForItemCarried"
+  }
+}

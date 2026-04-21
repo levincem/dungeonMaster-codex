@@ -45,6 +45,21 @@ test('resolvePotionSpellResult reports a missing flask when neither hand contain
     assert.deepEqual(result, { kind: 'missing_flask' });
 });
 
+test('resolvePotionSpellResult no longer accepts legacy misc placeholders as empty flasks', () => {
+    const result = resolvePotionSpellResult(
+        { runes: ['vi'], name: 'Vi Potion' } as never,
+        {
+            rightHand: { id: 'hellion', category: 'Misc', typeId: 40, mapIndex: 0, x: 0, y: 0, tilePos: 'North' },
+        },
+        {
+            randomInt: () => 0,
+            resolvePotionName: () => 'Vi Potion',
+        },
+    );
+
+    assert.deepEqual(result, { kind: 'missing_flask' });
+});
+
 test('resolvePotionSpellResult upgrades the first flask hand into the generated potion', () => {
     const result = resolvePotionSpellResult(
         createSpell(['lo', 'vi']),

@@ -186,6 +186,74 @@ test('selectCreatureAttackTarget uses the attacker position to favor the champio
     assert.equal(leftTarget?.id, 1);
 });
 
+test('selectCreatureAttackTarget follows the original ordered attack table for all four approach directions', () => {
+    const party = [createChampion(1), createChampion(2), createChampion(3), createChampion(4)];
+    const vitals = {
+        1: createVitals(20),
+        2: createVitals(20),
+        3: createVitals(20),
+        4: createVitals(20),
+    };
+
+    const northTarget = selectCreatureAttackTarget(
+        party,
+        vitals,
+        'backLeft',
+        false,
+        false,
+        () => 0,
+        {
+            partyPosition: [5, 5],
+            attackerPosition: { x: 5, y: 4 },
+            partyDirection: 'NORTH',
+        },
+    );
+    const eastTarget = selectCreatureAttackTarget(
+        party,
+        vitals,
+        'frontLeft',
+        false,
+        false,
+        () => 0,
+        {
+            partyPosition: [5, 5],
+            attackerPosition: { x: 6, y: 5 },
+            partyDirection: 'NORTH',
+        },
+    );
+    const southTarget = selectCreatureAttackTarget(
+        party,
+        vitals,
+        'backLeft',
+        false,
+        false,
+        () => 0,
+        {
+            partyPosition: [5, 5],
+            attackerPosition: { x: 5, y: 6 },
+            partyDirection: 'NORTH',
+        },
+    );
+    const westTarget = selectCreatureAttackTarget(
+        party,
+        vitals,
+        'frontLeft',
+        false,
+        false,
+        () => 0,
+        {
+            partyPosition: [5, 5],
+            attackerPosition: { x: 4, y: 5 },
+            partyDirection: 'NORTH',
+        },
+    );
+
+    assert.equal(northTarget?.id, 1);
+    assert.equal(eastTarget?.id, 2);
+    assert.equal(southTarget?.id, 3);
+    assert.equal(westTarget?.id, 1);
+});
+
 test('selectCreatureAttackTarget keeps front attackers on the front row while it is still alive', () => {
     const party = [createChampion(1), createChampion(2), createChampion(3), createChampion(4)];
     const vitals = {

@@ -82,6 +82,7 @@ const ORIGINAL_EXPERIENCE_PATH = `${process.cwd()}\\assets\\OriginalDataExtracti
 const ORIGINAL_CHAMPION_PROGRESSION_PATH = `${process.cwd()}\\assets\\OriginalDataExtraction\\reference_exports\\original_champion_progression_runtime.json`;
 const ORIGINAL_MIRROR_RECRUITMENT_PATH = `${process.cwd()}\\assets\\OriginalDataExtraction\\reference_exports\\original_mirror_recruitment_runtime.json`;
 const ORIGINAL_ITEM_RULES_PATH = `${process.cwd()}\\assets\\OriginalDataExtraction\\reference_exports\\original_item_rules_runtime.json`;
+const ORIGINAL_EQUIPMENT_BONUSES_PATH = `${process.cwd()}\\assets\\OriginalDataExtraction\\reference_exports\\original_equipment_bonuses_runtime.json`;
 const ORIGINAL_SKILLS_PATH = `${process.cwd()}\\assets\\OriginalDataExtraction\\reference_exports\\original_skills_runtime.json`;
 const ORIGINAL_MAGIC_PATH = `${process.cwd()}\\assets\\OriginalDataExtraction\\reference_exports\\original_magic_runtime.json`;
 const ORIGINAL_ACTIONS_PATH = `${process.cwd()}\\assets\\OriginalDataExtraction\\reference_exports\\original_actions_runtime.json`;
@@ -113,6 +114,7 @@ test('runtime creature, door, teleporter and documented reference exports stay b
     const runtimeChampionProgression = readFileSync(`${process.cwd()}\\src\\assets\\runtime\\reference\\original_champion_progression_runtime.json`, 'utf8');
     const runtimeMirrorRecruitment = readFileSync(`${process.cwd()}\\src\\assets\\runtime\\reference\\original_mirror_recruitment_runtime.json`, 'utf8');
     const runtimeItemRules = readFileSync(`${process.cwd()}\\src\\assets\\runtime\\reference\\original_item_rules_runtime.json`, 'utf8');
+    const runtimeEquipmentBonuses = readFileSync(`${process.cwd()}\\src\\assets\\runtime\\reference\\original_equipment_bonuses_runtime.json`, 'utf8');
     const runtimeSkills = readFileSync(`${process.cwd()}\\src\\assets\\runtime\\reference\\original_skills_runtime.json`, 'utf8');
     const runtimeMagic = readFileSync(`${process.cwd()}\\src\\assets\\runtime\\reference\\original_magic_runtime.json`, 'utf8');
     const runtimeActions = readFileSync(`${process.cwd()}\\src\\assets\\runtime\\reference\\original_actions_runtime.json`, 'utf8');
@@ -126,6 +128,7 @@ test('runtime creature, door, teleporter and documented reference exports stay b
     assert.equal(runtimeChampionProgression, readFileSync(ORIGINAL_CHAMPION_PROGRESSION_PATH, 'utf8'));
     assert.equal(runtimeMirrorRecruitment, readFileSync(ORIGINAL_MIRROR_RECRUITMENT_PATH, 'utf8'));
     assert.equal(runtimeItemRules, readFileSync(ORIGINAL_ITEM_RULES_PATH, 'utf8'));
+    assert.equal(runtimeEquipmentBonuses, readFileSync(ORIGINAL_EQUIPMENT_BONUSES_PATH, 'utf8'));
     assert.equal(runtimeSkills, readFileSync(ORIGINAL_SKILLS_PATH, 'utf8'));
     assert.equal(runtimeMagic, readFileSync(ORIGINAL_MAGIC_PATH, 'utf8'));
     assert.equal(runtimeActions, readFileSync(ORIGINAL_ACTIONS_PATH, 'utf8'));

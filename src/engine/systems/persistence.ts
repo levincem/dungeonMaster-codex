@@ -135,16 +135,6 @@ function normalizePersistedItem(item: FloorItem): FloorItem {
     });
     if (flask) return flask;
 
-    const bomb = normalizeChargedPersistedItem(item, {
-        when: (currentItem) =>
-            currentItem.category === 'Misc' && (currentItem.typeId === 40 || currentItem.typeId === 41),
-        clampTo: 1,
-        defaultCharges: item.typeId === 41 ? 1 : 0,
-        resolveCategory: () => 'Misc',
-        resolveTypeId: (charges) => charges > 0 ? 41 : 40,
-    });
-    if (bomb) return bomb;
-
     return item;
 }
 

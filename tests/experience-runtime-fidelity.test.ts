@@ -4,16 +4,27 @@ import { readFileSync } from 'node:fs';
 import { getGameMap } from '../src/data/mapLoader.js';
 import { preloadDungeonData } from '../src/data/dungeonData.js';
 import { createEmptyChampionTemporaryXP, createEmptyChampionXP } from '../src/data/skillProgression.js';
+import {
+    ORIGINAL_EXPERIENCE_LEVEL_MULTIPLIERS,
+    ORIGINAL_EXPERIENCE_RULES,
+    ORIGINAL_RECENT_THREAT_TICKS,
+    ORIGINAL_STALE_THREAT_HIDDEN_SKILLS,
+    ORIGINAL_STALE_THREAT_TICKS,
+} from '../src/data/originalExperience.js';
 import { applyOriginalChampionSkillExperience } from '../src/engine/systems/originalChampionLeveling.js';
 import type { Champion } from '../src/types/champion.js';
+import type { SkillKey } from '../src/data/skillProgression.js';
 
 type OriginalExperienceRuntime = {
     dungeonMasterLevelMultipliers: Record<string, number>;
     chaosStrikesBackLevelMultipliers: Record<string, number>;
     rules: {
         halveHiddenFighterOrNinjaExperienceWithoutRecentThreat: string;
+        staleThreatHiddenSkills: SkillKey[];
+        staleThreatTicks: number;
         applyLevelMultiplierWhenNonZero: string;
         doubleHiddenSkillExperienceAfterRecentThreat: string;
+        recentThreatTicks: number;
         hiddenSkillAlsoFeedsParentBasicSkill: boolean;
     };
 };
@@ -58,6 +69,18 @@ test('runtime experience reference stays byte-identical to the canonical documen
     assert.equal(
         readFileSync(RUNTIME_EXPERIENCE_REFERENCE_PATH, 'utf8'),
         readFileSync(CANONICAL_EXPERIENCE_REFERENCE_PATH, 'utf8'),
+    );
+});
+
+test('originalExperience runtime module stays aligned with the packaged experience reference', () => {
+    const reference = readCanonicalExperienceRuntime();
+    assert.deepEqual(ORIGINAL_EXPERIENCE_LEVEL_MULTIPLIERS, reference.dungeonMasterLevelMultipliers);
+    assert.deepEqual(ORIGINAL_EXPERIENCE_RULES, reference.rules);
+    assert.equal(ORIGINAL_STALE_THREAT_TICKS, reference.rules.staleThreatTicks);
+    assert.equal(ORIGINAL_RECENT_THREAT_TICKS, reference.rules.recentThreatTicks);
+    assert.deepEqual(
+        [...ORIGINAL_STALE_THREAT_HIDDEN_SKILLS].sort(),
+        [...reference.rules.staleThreatHiddenSkills].sort(),
     );
 });
 
@@ -116,6 +139,12 @@ test('runtime champion XP adjustment follows documented stale-threat and recent-
     const reference = readCanonicalExperienceRuntime();
     assert.equal(reference.rules.halveHiddenFighterOrNinjaExperienceWithoutRecentThreat.includes('divide experience by 2'), true);
     assert.equal(reference.rules.doubleHiddenSkillExperienceAfterRecentThreat.includes('multiply experience by 2'), true);
+    assert.equal(reference.rules.staleThreatTicks, 150);
+    assert.equal(reference.rules.recentThreatTicks, 25);
+    assert.deepEqual(
+        reference.rules.staleThreatHiddenSkills,
+        ['swing', 'thrust', 'club', 'parry', 'steal', 'fight', 'throw', 'shoot'],
+    );
 
     const staleHiddenResult = applyOriginalChampionSkillExperience(
         createChampion(),
@@ -126,7 +155,7 @@ test('runtime champion XP adjustment follows documented stale-threat and recent-
         {
             mapDifficulty: 2,
             elapsedGameTimeTicks: 200,
-            lastCreatureAttackGameTick: 0,
+            lastCreatureAttackGameTick: 200 - reference.rules.staleThreatTicks,
         },
         () => 0,
     );
@@ -145,7 +174,7 @@ test('runtime champion XP adjustment follows documented stale-threat and recent-
         {
             mapDifficulty: 2,
             elapsedGameTimeTicks: 200,
-            lastCreatureAttackGameTick: 190,
+            lastCreatureAttackGameTick: 200 - reference.rules.recentThreatTicks + 1,
         },
         () => 0,
     );

@@ -2,14 +2,11 @@ import type { CreatureCell, CreatureInstance } from '../../types/game';
 import type { Champion } from '../../types/champion';
 import type { Direction } from '../runtimeTypes';
 import type { ChampionVitals } from '../runtimeTypes';
+import { ORIGINAL_ORDERED_POSITIONS_TO_ATTACK } from '../../data/originalUiSupport';
 
 export type CreatureColumn = 'left' | 'right' | 'center';
 
-type PartySlotLayout = {
-    x: number;
-    y: number;
-    column: Exclude<CreatureColumn, 'center'>;
-};
+type AttackDirection = 'North' | 'East' | 'South' | 'West';
 
 const CREATURE_CELL_PRIORITY: Record<CreatureCell, number> = {
     center: 0,
@@ -19,12 +16,8 @@ const CREATURE_CELL_PRIORITY: Record<CreatureCell, number> = {
     backRight: 4,
 };
 
-const PARTY_SLOT_LAYOUT: readonly PartySlotLayout[] = [
-    { x: -1, y: -1, column: 'left' },
-    { x: 1, y: -1, column: 'right' },
-    { x: -1, y: 1, column: 'left' },
-    { x: 1, y: 1, column: 'right' },
-];
+const ORIGINAL_ATTACK_ABSOLUTE_POSITION_TO_PARTY_SLOT = [0, 1, 3, 2] as const;
+const DEFAULT_ORIGINAL_ATTACK_ORDER = [0, 1, 3, 2] as const;
 
 function getExposedPartySlotIndexes(
     localTileDelta: { x: number; y: number },
@@ -42,6 +35,49 @@ function getExposedPartySlotIndexes(
         return [1, 3];
     }
     return [0, 1, 2, 3];
+}
+
+function resolveAttackDirection(localTileDelta: { x: number; y: number }): AttackDirection {
+    if (localTileDelta.y < 0 && Math.abs(localTileDelta.y) >= Math.abs(localTileDelta.x)) {
+        return 'North';
+    }
+    if (localTileDelta.x > 0 && Math.abs(localTileDelta.x) > Math.abs(localTileDelta.y)) {
+        return 'East';
+    }
+    if (localTileDelta.y > 0 && Math.abs(localTileDelta.y) >= Math.abs(localTileDelta.x)) {
+        return 'South';
+    }
+    return 'West';
+}
+
+function getOriginalAttackOrderIndex(
+    attackDirection: AttackDirection,
+    cellOffset: { x: number; y: number },
+): number {
+    switch (attackDirection) {
+        case 'North':
+            return cellOffset.x > 0 ? 1 : 0;
+        case 'East':
+            return cellOffset.y > 0 ? 3 : 2;
+        case 'South':
+            return cellOffset.x > 0 ? 5 : 4;
+        case 'West':
+        default:
+            return cellOffset.y > 0 ? 7 : 6;
+    }
+}
+
+function resolveOriginalAttackPriority(
+    localTileDelta: { x: number; y: number },
+    cell: CreatureCell,
+): readonly number[] {
+    const attackDirection = resolveAttackDirection(localTileDelta);
+    const cellOffset = getCreatureCellLocalOffset(cell);
+    const orderIndex = getOriginalAttackOrderIndex(attackDirection, cellOffset);
+    const absolutePositions = ORIGINAL_ORDERED_POSITIONS_TO_ATTACK[orderIndex] ?? DEFAULT_ORIGINAL_ATTACK_ORDER;
+    return absolutePositions.map((absolutePosition) =>
+        ORIGINAL_ATTACK_ABSOLUTE_POSITION_TO_PARTY_SLOT[absolutePosition] ?? absolutePosition,
+    );
 }
 
 export function compareCreatureCells(a: CreatureCell, b: CreatureCell): number {
@@ -147,36 +183,21 @@ export function selectCreatureAttackTarget(
             context.attackerPosition.y - partyY,
             context.partyDirection,
         );
-        const cellOffset = getCreatureCellLocalOffset(cell);
-        const sourceX = (localTileDelta.x * 4) + cellOffset.x;
-        const sourceY = (localTileDelta.y * 4) + cellOffset.y;
-        const preferredColumn = getCreatureColumn(cell);
         const exposedIndexes = new Set(getExposedPartySlotIndexes(localTileDelta));
-
-        const rankedCandidates = party
-            .map((champion, index) => ({ champion, index, slot: PARTY_SLOT_LAYOUT[index] }))
-            .filter(({ champion, slot }) => Boolean(slot) && (vitals[champion.id]?.hp ?? 0) > 0);
-        const exposedCandidates = rankedCandidates.filter(({ index }) => exposedIndexes.has(index));
-        const candidates = exposedCandidates.length > 0 ? exposedCandidates : rankedCandidates;
-
-        const ranked = candidates
-            .sort((a, b) => {
-                const aDistance = ((a.slot!.x - sourceX) ** 2) + ((a.slot!.y - sourceY) ** 2);
-                const bDistance = ((b.slot!.x - sourceX) ** 2) + ((b.slot!.y - sourceY) ** 2);
-                if (aDistance !== bDistance) {
-                    return aDistance - bDistance;
-                }
-
-                const aColumnMatch = a.slot!.column === preferredColumn ? 0 : 1;
-                const bColumnMatch = b.slot!.column === preferredColumn ? 0 : 1;
-                if (aColumnMatch !== bColumnMatch) {
-                    return aColumnMatch - bColumnMatch;
-                }
-
-                return a.index - b.index;
-            });
-
-        return ranked[0]?.champion ?? null;
+        const originalPriority = resolveOriginalAttackPriority(localTileDelta, cell);
+        for (const index of originalPriority) {
+            const champion = party[index];
+            if (!champion || !exposedIndexes.has(index)) continue;
+            if ((vitals[champion.id]?.hp ?? 0) > 0) {
+                return champion;
+            }
+        }
+        for (const index of originalPriority) {
+            const champion = party[index];
+            if (champion && (vitals[champion.id]?.hp ?? 0) > 0) {
+                return champion;
+            }
+        }
     }
 
     const preferredColumn = getCreatureColumn(cell);

@@ -16,6 +16,11 @@ import {
     ORIGINAL_CHAMPION_TEMPORARY_EXPERIENCE,
     getOriginalChampionLevelUpBranch,
 } from '../../data/originalChampionProgression';
+import {
+    ORIGINAL_RECENT_THREAT_TICKS,
+    ORIGINAL_STALE_THREAT_HIDDEN_SKILLS,
+    ORIGINAL_STALE_THREAT_TICKS,
+} from '../../data/originalExperience';
 
 function clampToRange(min: number, value: number, max: number): number {
     return Math.max(min, Math.min(max, value));
@@ -48,7 +53,7 @@ export function buildOriginalLevelUpChampionUpdate(
     }
 
     const nextVitality = champion.vitality + vitalityAmount;
-    const nextAntiFire = champion.antiFire + (randomInt(2) & ~baseSkillLevelAfter);
+    const nextAntiFire = champion.antiFire + (randomInt(rolls.antiFireIncreaseMaxExclusive) & ~baseSkillLevelAfter);
     let nextStrength = champion.strength;
     let nextDexterity = champion.dexterity;
     let nextWisdom = champion.wisdom;
@@ -142,8 +147,8 @@ export function applyOriginalChampionSkillExperience(
     let adjustedExperience = amount;
     if (
         hiddenSkill &&
-        (skill === 'swing' || skill === 'thrust' || skill === 'club' || skill === 'parry' || skill === 'steal' || skill === 'fight' || skill === 'throw' || skill === 'shoot') &&
-        context.lastCreatureAttackGameTick < (context.elapsedGameTimeTicks - 150)
+        ORIGINAL_STALE_THREAT_HIDDEN_SKILLS.has(skill) &&
+        context.lastCreatureAttackGameTick <= (context.elapsedGameTimeTicks - ORIGINAL_STALE_THREAT_TICKS)
     ) {
         adjustedExperience >>= 1;
     }
@@ -152,7 +157,7 @@ export function applyOriginalChampionSkillExperience(
         adjustedExperience *= context.mapDifficulty;
     }
 
-    if (hiddenSkill && context.lastCreatureAttackGameTick > (context.elapsedGameTimeTicks - 25)) {
+    if (hiddenSkill && context.lastCreatureAttackGameTick > (context.elapsedGameTimeTicks - ORIGINAL_RECENT_THREAT_TICKS)) {
         adjustedExperience <<= 1;
     }
 

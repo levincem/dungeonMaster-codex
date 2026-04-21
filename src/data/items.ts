@@ -4,10 +4,8 @@
 import type { WeaponDef, ArmorDef, PotionDef, MiscDef } from '../types/items';
 import packagedGameDbItems from '../assets/runtime/db/game_db_items.json';
 import { getGameDbItemsRawSync } from './gameDbData';
-import {
-    FALLBACK_WOUND_DEFENSE_FACTORS,
-    POTION_NAME_TO_RUNTIME_TYPE_ID,
-} from './itemRuntimeCompatibility';
+import { POTION_NAME_TO_RUNTIME_TYPE_ID } from './itemRuntimeCompatibility';
+import { getOriginalEquipmentBonusDescription } from './originalEquipmentBonuses';
 
 const PLACEHOLDER_NAME_RE = /^([A-Za-z]+_\d+|\(W\d+\))$/;
 
@@ -110,6 +108,9 @@ type ItemsDerivedData = {
 };
 
 const EMPTY_ITEM_TYPE_NAMES: RawItemTypeNames = {};
+const PACKAGED_GAME_DB_ITEMS = packagedGameDbItems as unknown as RawGameDb;
+const PACKAGED_WOUND_DEFENSE_FACTORS =
+    PACKAGED_GAME_DB_ITEMS.originalAtari?.i562?.woundDefenseFactors?.slice(0, 6) ?? [];
 
 let itemsDerivedDataCache: ItemsDerivedData | null = null;
 let itemsSourceDataHydrated = false;
@@ -118,7 +119,7 @@ const weaponTypesTarget: Record<number, WeaponDef> = {};
 const armorTypesTarget: Record<number, ArmorDef> = {};
 const potionTypesTarget: Record<number, PotionDef> = {};
 const miscTypesTarget: Record<number, MiscDef> = {};
-const woundDefenseFactorsTarget: number[] = [...FALLBACK_WOUND_DEFENSE_FACTORS];
+const woundDefenseFactorsTarget: number[] = [...PACKAGED_WOUND_DEFENSE_FACTORS];
 const dropOrderTarget: number[] = [];
 const underscoreCharacterStringTarget: number[] = [];
 const renameChampionInputCharacterStringTarget: number[] = [];
@@ -142,7 +143,7 @@ function syncExportedItemTargets(derived: ItemsDerivedData): void {
     replaceNumberRecord(miscTypesTarget, derived.miscTypes);
     replaceArray(
         woundDefenseFactorsTarget,
-        Array.from({ length: 6 }, (_, index) => derived.i562WoundDefenseFactorsRaw[index] ?? FALLBACK_WOUND_DEFENSE_FACTORS[index] ?? 0),
+        Array.from({ length: 6 }, (_, index) => derived.i562WoundDefenseFactorsRaw[index] ?? PACKAGED_WOUND_DEFENSE_FACTORS[index] ?? 0),
     );
     replaceArray(dropOrderTarget, derived.i562DropOrderRaw);
     replaceArray(underscoreCharacterStringTarget, derived.i562UnderscoreCharacterStringRaw);
@@ -381,6 +382,15 @@ const CANONICAL_MISC_NAMES: Record<number, string> = {
     56: 'Chest',
 };
 
+const ORIGINAL_MISC_EQUIPMENT_BONUS_DESCRIPTIONS = {
+     2: getOriginalEquipmentBonusDescription('Misc', 2),
+    37: getOriginalEquipmentBonusDescription('Misc', 37),
+    38: getOriginalEquipmentBonusDescription('Misc', 38),
+    39: getOriginalEquipmentBonusDescription('Misc', 39),
+    41: getOriginalEquipmentBonusDescription('Misc', 41),
+    46: getOriginalEquipmentBonusDescription('Misc', 46),
+} as const;
+
 const CANONICAL_POTION_NAMES: Record<number, string> = {
      3: 'Ven Potion',
      6: 'Ros Potion',
@@ -535,7 +545,7 @@ const OFFICIAL_POTION_TYPES: Record<number, PotionDef> = {
 const OFFICIAL_MISC_TYPES: Record<number, MiscDef> = {
      0: { id:  0, name: 'Compass',            usable: false, description: 'Shows current direction' },
      1: { id:  1, name: 'Waterskin',          usable: true,  description: 'Restores stamina when filled' },
-     2: { id:  2, name: 'Jewel Symal',        usable: false, description: '+15 Anti-Magic' },
+     2: { id:  2, name: 'Jewel Symal',        usable: false, description: ORIGINAL_MISC_EQUIPMENT_BONUS_DESCRIPTIONS[2] ?? '+15 Anti-Magic' },
      3: { id:  3, name: 'Illumulet',          usable: false, luminous: true, description: 'Produces light when lit' },
      4: { id:  4, name: 'Ashes',              usable: false, description: 'Remains of a champion' },
      5: { id:  5, name: 'Bones',              usable: false, description: 'Can be resurrected at a Vi altar' },
@@ -570,16 +580,16 @@ const OFFICIAL_MISC_TYPES: Record<number, MiscDef> = {
     34: { id: 34, name: 'Worm Round',         usable: true,  food: true, nutrition: 0 },
     35: { id: 35, name: 'Drumstick',          usable: true,  food: true, nutrition: 0 },
     36: { id: 36, name: 'Dragon Steak',       usable: true,  food: true, nutrition: 0 },
-    37: { id: 37, name: 'Gem Of Ages',        usable: false, description: '+1 hidden priest skill' },
-    38: { id: 38, name: 'Ekkhard Cross',      usable: false, description: 'Faster health regeneration' },
-    39: { id: 39, name: 'Moonstone',          usable: false, description: '+3 Mana, +1 hidden priest skill' },
+    37: { id: 37, name: 'Gem Of Ages',        usable: false, description: ORIGINAL_MISC_EQUIPMENT_BONUS_DESCRIPTIONS[37] ?? '+1 hidden priest heal skill' },
+    38: { id: 38, name: 'Ekkhard Cross',      usable: false, description: ORIGINAL_MISC_EQUIPMENT_BONUS_DESCRIPTIONS[38] ?? '+1 hidden priest defend skill' },
+    39: { id: 39, name: 'Moonstone',          usable: false, description: ORIGINAL_MISC_EQUIPMENT_BONUS_DESCRIPTIONS[39] ?? '+3 Mana, +1 hidden priest influence skill' },
     40: { id: 40, name: 'The Hellion',        usable: false, description: 'Quest item' },
-    41: { id: 41, name: 'Pendant Feral',      usable: false, description: '+1 Wizard skill' },
+    41: { id: 41, name: 'Pendant Feral',      usable: false, description: ORIGINAL_MISC_EQUIPMENT_BONUS_DESCRIPTIONS[41] ?? '+1 Wizard skill' },
     42: { id: 42, name: 'Magical Box (Blue)', usable: true,  description: 'Freeze Life item' },
     43: { id: 43, name: 'Magical Box (Green)', usable: true, description: 'Freeze Life item (stronger)' },
     44: { id: 44, name: 'Mirror Of Dawn',     usable: false, description: 'Quest item' },
     45: { id: 45, name: 'Rope',               usable: true,  description: 'Climb down pits' },
-    46: { id: 46, name: "Rabbit's Foot",      usable: false, description: '+10 Luck' },
+    46: { id: 46, name: "Rabbit's Foot",      usable: false, description: ORIGINAL_MISC_EQUIPMENT_BONUS_DESCRIPTIONS[46] ?? '+10 Luck' },
     47: { id: 47, name: 'Corbamite',          usable: false, description: 'Quest item' },
     48: { id: 48, name: 'Choker',             usable: false, description: 'Neck item' },
     49: { id: 49, name: 'Lock Picks',         usable: true,  description: 'Hack-only item' },

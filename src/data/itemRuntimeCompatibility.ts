@@ -12,7 +12,3 @@ export const POTION_NAME_TO_RUNTIME_TYPE_ID: Record<string, number> = {
     'mana potion': 13,
     'health potion': 14,
 };
-
-// Safe fallback kept until the original wound-defense table is guaranteed to be
-// available at every bootstrap point.
-export const FALLBACK_WOUND_DEFENSE_FACTORS = [16, 32, 48, 64, 80, 96];
