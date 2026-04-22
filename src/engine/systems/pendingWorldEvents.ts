@@ -1,11 +1,14 @@
 import type { SensorObject } from '../../types/game';
 
+import type { SensorAction } from '../../types/game';
+
 type DoorSoundTarget = { level: number; x: number; y: number } | null;
 
 type PendingSensorEventLike = {
     level: number;
     sensorIndex: number;
     remaining: number;
+    actionOverride?: SensorAction;
 };
 
 export type PendingGeneratorSpawnEventLike = {
@@ -46,6 +49,12 @@ export type PendingSensorStateLike<TCreature> = {
 type PendingSensorDeps<TSensorState extends PendingSensorStateLike<TCreature>, TCreature> = {
     findSensorByIndex: (level: number, sensorIndex: number) => SensorObject | null;
     computeSensorEffect: (sensor: SensorObject, level: number, ss: TSensorState) => Partial<TSensorState>;
+    dispatchTriggeredSensorEffect: (
+        sensor: SensorObject,
+        level: number,
+        ss: TSensorState,
+        options?: { actionOverride?: SensorAction; ignoreTriggeredDelay?: boolean },
+    ) => Partial<TSensorState>;
     resolveDoorSoundTarget: (sensor: SensorObject, level: number) => DoorSoundTarget;
     playDoorMotion: (target: DoorSoundTarget) => void;
     playPlate: () => void;
@@ -80,7 +89,7 @@ export function processPendingSensorEvents<
     pendingSensorEvents: TPendingSensorEvent[];
 } {
     let cur = ss;
-    const remainingEvents: TPendingSensorEvent[] = [];
+    let remainingEvents: TPendingSensorEvent[] = [];
     let changed = false;
 
     for (const event of pendingSensorEvents) {
@@ -93,7 +102,19 @@ export function processPendingSensorEvents<
         const sensor = deps.findSensorByIndex(event.level, event.sensorIndex);
         if (!sensor) continue;
 
-        const effect = deps.computeSensorEffect(sensor, event.level, cur);
+        const effectState = {
+            ...cur,
+            pendingSensorEvents: remainingEvents,
+        } as TSensorState;
+
+        const effect = event.actionOverride
+            ? deps.dispatchTriggeredSensorEffect(
+                sensor,
+                event.level,
+                effectState,
+                { actionOverride: event.actionOverride },
+            )
+            : deps.computeSensorEffect(sensor, event.level, effectState);
         if (Object.keys(effect).length <= 0) continue;
 
         if (effect.openDoors && effect.openDoors !== cur.openDoors) {
@@ -102,6 +123,8 @@ export function processPendingSensorEvents<
 
         cur = { ...cur, ...effect } as TSensorState;
         changed = true;
+        const nestedPending = (effect as Partial<TSensorState> & { pendingSensorEvents?: TPendingSensorEvent[] }).pendingSensorEvents;
+        remainingEvents = nestedPending ?? remainingEvents;
 
         if (sensor.sound || sensor.type === 6) {
             deps.playPlate();

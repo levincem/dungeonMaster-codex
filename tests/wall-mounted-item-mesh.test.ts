@@ -4,7 +4,7 @@ import { GRID_SIZE, WALL_HEIGHT } from '../src/engine/constants.js';
 import { getWallMountedItemPresentation } from '../src/components/Dungeon/wallMountedItemPresentation.js';
 import type { FloorItem } from '../src/types/game.js';
 
-test('full torch holder faces use the overlay art without re-rendering the mounted torch sprite', () => {
+test('full torch holder faces keep a visible mounted torch sprite for pickup feedback', () => {
     const wallTorch = {
         id: 'wall-torch',
         category: 'Weapon',
@@ -20,10 +20,22 @@ test('full torch holder faces use the overlay art without re-rendering the mount
 
     assert.equal(
         presentation.renderSprite,
-        false,
-        'the full holder overlay already includes the torch and should own the visible art',
+        true,
+        'full torch holders should still surface the torch as a visible mounted pickup',
     );
-    assert.equal(presentation.spriteScale, 1, 'overlay-backed torch holders should not rely on sprite downscaling');
+    assert.ok(
+        Math.abs(presentation.spriteScale - 0.72) < 1e-9,
+        'full torch holders should keep the torch sprite slightly reduced so it sits inside the support art',
+    );
+    assert.ok(
+        Math.abs(presentation.spriteOffsetY - WALL_HEIGHT * 0.08) < 1e-9,
+        'the mounted torch sprite should sit slightly above the holder center line',
+    );
+    assert.match(
+        presentation.spriteImagePath ?? '',
+        /torch_lit\.png$/,
+        'full torch holders should render the mounted torch with the lit torch sprite',
+    );
     assert.ok(
         Math.abs(presentation.pickupPlaneWidth - GRID_SIZE * 0.24) < 1e-9,
         'the hidden pickup plane should follow the calibrated full-holder width',
@@ -53,6 +65,7 @@ test('recessed altar wall items still keep their reduced sprite scale', () => {
         Math.abs(presentation.spriteScale - 0.42) < 1e-9,
         'recessed altar items should keep the calibrated reduced scale',
     );
+    assert.equal(presentation.spriteOffsetY, 0, 'non-holder wall items should keep the default vertical alignment');
 });
 
 test('plain wall-mounted items without a support overlay keep their own sprite presentation', () => {
@@ -71,6 +84,7 @@ test('plain wall-mounted items without a support overlay keep their own sprite p
 
     assert.equal(presentation.renderSprite, true, 'plain wall-mounted items should stay visibly rendered');
     assert.equal(presentation.spriteScale, 1, 'plain wall-mounted items should keep the default scale');
+    assert.equal(presentation.spriteOffsetY, 0, 'plain wall-mounted items should keep the default vertical alignment');
     assert.ok(
         Math.abs(presentation.pickupPlaneWidth - GRID_SIZE * 0.42) < 1e-9,
         'plain wall-mounted items should keep the default pickup width',

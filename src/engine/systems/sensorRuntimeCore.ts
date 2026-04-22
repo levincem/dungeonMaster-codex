@@ -4,6 +4,7 @@ import type {
     FloorItem,
     GameMap,
     GameTile,
+    SensorAction,
     SensorObject,
 } from '../../types/game';
 
@@ -15,6 +16,7 @@ type PendingSensorEventLike = {
     level: number;
     sensorIndex: number;
     remaining: number;
+    actionOverride?: SensorAction;
 };
 
 export function findSensorByIndex(
@@ -58,6 +60,7 @@ type SensorStateSnapshotSource<TCreature, TPendingGeneratorSpawn, TProjectile> =
     projectiles: TProjectile[];
     creatures: TCreature[];
     pendingGeneratorSpawns: TPendingGeneratorSpawn[];
+    pendingSensorEvents: unknown[];
     elapsedGameTimeTicks: number;
 }>;
 
@@ -74,6 +77,7 @@ export type SensorStateSnapshot<TCreature, TPendingGeneratorSpawn, TProjectile> 
     projectiles: TProjectile[];
     creatures: TCreature[];
     pendingGeneratorSpawns: TPendingGeneratorSpawn[];
+    pendingSensorEvents: unknown[];
     currentLevel: number;
     currentPosition: [number, number];
     currentDirection: Direction;
@@ -169,6 +173,7 @@ export function buildSensorStateSnapshot<TCreature, TPendingGeneratorSpawn, TPro
         projectiles: source.projectiles ?? [],
         creatures: source.creatures ?? [],
         pendingGeneratorSpawns: source.pendingGeneratorSpawns ?? [],
+        pendingSensorEvents: source.pendingSensorEvents ?? [],
         currentLevel: source.level ?? 0,
         currentPosition: source.position ?? [0, 0],
         currentDirection: source.direction ?? 'NORTH',
@@ -383,7 +388,11 @@ export function computeSensorEffect<TSensorState>(
             sensor: SensorObject,
             level: number,
             ss: TSensorState,
-            options?: { actionOverride?: SensorObject['action']; updateSourceActive?: boolean },
+            options?: {
+                actionOverride?: SensorObject['action'];
+                updateSourceActive?: boolean;
+                ignoreTriggeredDelay?: boolean;
+            },
         ) => Partial<TSensorState>;
     },
 ): Partial<TSensorState> {
@@ -430,8 +439,10 @@ export function queueOrComputeSensorEffect<TSensorState, TPendingSensorEvent ext
         };
     }
 
+    const sensorChanges = deps.computeSensorEffect(sensor, level, ss);
+    const nestedPending = (sensorChanges as Partial<TSensorState> & { pendingSensorEvents?: TPendingSensorEvent[] }).pendingSensorEvents;
     return {
-        sensorChanges: deps.computeSensorEffect(sensor, level, ss),
-        pendingSensorEvents,
+        sensorChanges,
+        pendingSensorEvents: nestedPending ?? pendingSensorEvents,
     };
 }

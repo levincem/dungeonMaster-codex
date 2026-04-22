@@ -22,6 +22,7 @@ type TorchState = {
 };
 
 export const MAX_CHAMPION_INVENTORY_ITEMS = 17;
+export const MAX_CONTAINER_ITEMS = 8;
 
 export type LocatedChampionItem = {
     inventory: FloorItem[];
@@ -33,6 +34,78 @@ export type LocatedChampionItem = {
 
 export function canChampionInventoryAcceptItem(inventory: FloorItem[]): boolean {
     return inventory.length < MAX_CHAMPION_INVENTORY_ITEMS;
+}
+
+export function isContainerItem(item: FloorItem | undefined): item is FloorItem & { category: 'Container' } {
+    return item?.category === 'Container';
+}
+
+export function getContainerContents(item: FloorItem | undefined): FloorItem[] {
+    return isContainerItem(item) ? [...(item.containerContents ?? [])] : [];
+}
+
+export function canContainerAcceptItem(item: FloorItem | undefined): boolean {
+    return getContainerContents(item).length < MAX_CONTAINER_ITEMS;
+}
+
+function replaceLocatedItem(
+    inventory: FloorItem[],
+    equipment: ChampionEquipment,
+    located: LocatedChampionItem,
+    nextItem: FloorItem,
+): { inventory: FloorItem[]; equipment: ChampionEquipment } {
+    if (located.slotKey === undefined) {
+        return {
+            inventory: inventory.map((entry) => (entry.id === located.item.id ? nextItem : entry)),
+            equipment,
+        };
+    }
+
+    return {
+        inventory,
+        equipment: { ...equipment, [located.slotKey]: nextItem },
+    };
+}
+
+function removeLocatedItem(
+    inventory: FloorItem[],
+    equipment: ChampionEquipment,
+    located: LocatedChampionItem,
+): { inventory: FloorItem[]; equipment: ChampionEquipment } {
+    if (located.slotKey === undefined) {
+        return {
+            inventory: inventory.filter((entry) => entry.id !== located.item.id),
+            equipment,
+        };
+    }
+
+    const nextEquipment = { ...equipment };
+    delete nextEquipment[located.slotKey];
+    return {
+        inventory,
+        equipment: nextEquipment,
+    };
+}
+
+function locateChampionContainerItem(
+    state: InventoryCollectionsState,
+    championId: number,
+    containerItemId: string,
+): LocatedChampionItem | null {
+    const located = locateChampionItem(state, championId, containerItemId);
+    return located && isContainerItem(located.item) ? located : null;
+}
+
+function createContainerPatch(
+    state: InventoryCollectionsState,
+    championId: number,
+    inventory: FloorItem[],
+    equipment: ChampionEquipment,
+): Partial<InventoryCollectionsState> {
+    return {
+        championInventories: { ...state.championInventories, [championId]: inventory },
+        championEquipment: { ...state.championEquipment, [championId]: equipment },
+    };
 }
 
 export function locateChampionItem(
@@ -196,6 +269,153 @@ export function updateChampionItem(
             ...state.championEquipment,
             [championId]: { ...located.equipment, [located.slotKey]: nextItem },
         },
+    };
+}
+
+export function moveChampionItemToContainer(
+    state: InventoryCollectionsState,
+    championId: number,
+    itemId: string,
+    fromSlot: EquipSlotKey | 'inventory',
+    containerItemId: string,
+): Partial<InventoryCollectionsState> | null {
+    if (itemId === containerItemId) return null;
+
+    const source = locateChampionItem(state, championId, itemId, fromSlot);
+    const container = locateChampionContainerItem(state, championId, containerItemId);
+    if (!source || !container || !canContainerAcceptItem(container.item)) return null;
+
+    const withoutSource = removeLocatedItem(source.inventory, source.equipment, source);
+    const nextContainer: FloorItem = {
+        ...container.item,
+        containerContents: [...getContainerContents(container.item), source.item],
+    };
+    const withUpdatedContainer = replaceLocatedItem(
+        withoutSource.inventory,
+        withoutSource.equipment,
+        container,
+        nextContainer,
+    );
+
+    return createContainerPatch(state, championId, withUpdatedContainer.inventory, withUpdatedContainer.equipment);
+}
+
+export function moveContainerItemToChampionInventory(
+    state: InventoryCollectionsState,
+    championId: number,
+    containerItemId: string,
+    itemId: string,
+): Partial<InventoryCollectionsState> | null {
+    const container = locateChampionContainerItem(state, championId, containerItemId);
+    if (!container || !canChampionInventoryAcceptItem(container.inventory)) return null;
+
+    const contents = getContainerContents(container.item);
+    const item = contents.find((entry) => entry.id === itemId);
+    if (!item) return null;
+
+    const nextContainer: FloorItem = {
+        ...container.item,
+        containerContents: contents.filter((entry) => entry.id !== itemId),
+    };
+    const updated = replaceLocatedItem(container.inventory, container.equipment, container, nextContainer);
+    return {
+        championInventories: { ...state.championInventories, [championId]: [...updated.inventory, item] },
+        championEquipment: { ...state.championEquipment, [championId]: updated.equipment },
+    };
+}
+
+export function giveChampionContainerItem(
+    state: InventoryCollectionsState,
+    fromChampionId: number,
+    toChampionId: number,
+    containerItemId: string,
+    itemId: string,
+): Partial<InventoryCollectionsState> | null {
+    const container = locateChampionContainerItem(state, fromChampionId, containerItemId);
+    if (!container) return null;
+
+    const targetInventory = state.championInventories[toChampionId] ?? [];
+    if (!canChampionInventoryAcceptItem(targetInventory)) return null;
+
+    const contents = getContainerContents(container.item);
+    const item = contents.find((entry) => entry.id === itemId);
+    if (!item) return null;
+
+    const nextContainer: FloorItem = {
+        ...container.item,
+        containerContents: contents.filter((entry) => entry.id !== itemId),
+    };
+    const updated = replaceLocatedItem(container.inventory, container.equipment, container, nextContainer);
+    return {
+        championInventories: {
+            ...state.championInventories,
+            [fromChampionId]: updated.inventory,
+            [toChampionId]: [...targetInventory, item],
+        },
+        championEquipment: {
+            ...state.championEquipment,
+            [fromChampionId]: updated.equipment,
+        },
+    };
+}
+
+export function equipChampionContainerItem(
+    state: InventoryCollectionsState,
+    championId: number,
+    containerItemId: string,
+    itemId: string,
+    slotKey: EquipSlotKey,
+): Partial<InventoryCollectionsState> | null {
+    const container = locateChampionContainerItem(state, championId, containerItemId);
+    if (!container || container.slotKey === slotKey) return null;
+
+    const contents = getContainerContents(container.item);
+    const item = contents.find((entry) => entry.id === itemId);
+    if (!item) return null;
+
+    const displaced = container.equipment[slotKey];
+    if (displaced && !canChampionInventoryAcceptItem(container.inventory)) return null;
+
+    const nextContainer: FloorItem = {
+        ...container.item,
+        containerContents: contents.filter((entry) => entry.id !== itemId),
+    };
+    const updated = replaceLocatedItem(container.inventory, container.equipment, container, nextContainer);
+    return {
+        championInventories: {
+            ...state.championInventories,
+            [championId]: displaced ? [...updated.inventory, displaced] : updated.inventory,
+        },
+        championEquipment: {
+            ...state.championEquipment,
+            [championId]: { ...updated.equipment, [slotKey]: item },
+        },
+    };
+}
+
+export function dropChampionContainerItem(
+    state: InventoryCollectionsState & PositionedItemsState,
+    championId: number,
+    containerItemId: string,
+    itemId: string,
+): Partial<InventoryCollectionsState & PositionedItemsState> | null {
+    const [y, x] = state.position;
+    const container = locateChampionContainerItem(state, championId, containerItemId);
+    if (!container) return null;
+
+    const contents = getContainerContents(container.item);
+    const item = contents.find((entry) => entry.id === itemId);
+    if (!item) return null;
+
+    const nextContainer: FloorItem = {
+        ...container.item,
+        containerContents: contents.filter((entry) => entry.id !== itemId),
+    };
+    const updated = replaceLocatedItem(container.inventory, container.equipment, container, nextContainer);
+    return {
+        championInventories: { ...state.championInventories, [championId]: updated.inventory },
+        championEquipment: { ...state.championEquipment, [championId]: updated.equipment },
+        floorItems: [...state.floorItems, { ...item, mapIndex: state.level, x, y, tilePos: 'North' }],
     };
 }
 

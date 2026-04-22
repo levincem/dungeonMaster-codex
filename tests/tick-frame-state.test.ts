@@ -8,6 +8,8 @@ type TestState = {
     party: Array<{ id: number }>;
     deadChampions: Record<number, unknown>;
     sleeping: boolean;
+    paused: boolean;
+    lastMonsterAttackDebug?: unknown | null;
     activeMirrorChampionId: number | null;
     activePartyMemberId: number | null;
     endgameSequence: { id: string } | null;
@@ -27,6 +29,8 @@ function createState(overrides: Partial<TestState> = {}): TestState {
         party: [{ id: 1 }],
         deadChampions: {},
         sleeping: false,
+        paused: false,
+        lastMonsterAttackDebug: null,
         activeMirrorChampionId: 1,
         activePartyMemberId: 1,
         endgameSequence: { id: 'end' },
@@ -79,6 +83,8 @@ test('processTickFrame returns the game over patch immediately when the entry ch
     assert.equal(result.activeMirrorChampionId, null);
     assert.equal(result.activePartyMemberId, null);
     assert.equal(result.sleeping, false);
+    assert.equal(result.paused, false);
+    assert.equal(result.lastMonsterAttackDebug, null);
     assert.deepEqual(result.damageEvents, []);
     assert.deepEqual(result.spellVisualEvents, []);
     assert.equal(result.activeFloorDrag, null);

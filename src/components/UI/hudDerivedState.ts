@@ -35,9 +35,9 @@ export type CombatGridSlotState = {
 export type HudCastState<TSpell> = {
     currentFamilyIdx: number;
     canCast: boolean;
-    selectedChampion: HudChampionLike | undefined;
-    selectedChampionMana: number | undefined;
-    selectedChampionCooldown: number | undefined;
+    casterChampion: HudChampionLike | undefined;
+    casterChampionMana: number | undefined;
+    casterChampionCooldown: number | undefined;
     spell: TSpell | undefined;
 };
 
@@ -49,8 +49,9 @@ export function buildHudFrontStateSummary(args: {
     openDoors: Set<string>;
     openWalls: Set<string>;
     openPits: Set<string>;
+    openTeleporters: Set<string>;
 }): HudFrontStateSummary {
-    const { currentMap, direction, level, openDoors, openPits, openWalls, position } = args;
+    const { currentMap, direction, level, openDoors, openPits, openTeleporters, openWalls, position } = args;
     const frontLocalX = direction === 'EAST' ? position[1] + 1 : direction === 'WEST' ? position[1] - 1 : position[1];
     const frontLocalY = direction === 'NORTH' ? position[0] - 1 : direction === 'SOUTH' ? position[0] + 1 : position[0];
     const frontGlobalX = (currentMap.mapOffset?.x ?? 0) + frontLocalX;
@@ -68,6 +69,8 @@ export function buildHudFrontStateSummary(args: {
                         ? `Door ${openDoors.has(tileKey) ? 'open walk' : 'closed blocked'}`
                         : frontTile.type === 'Pit'
                             ? `Pit ${openPits.has(tileKey) ? 'open blocked' : 'closed walk'}`
+                            : frontTile.type === 'Teleporter'
+                                ? `Teleporter ${openTeleporters.has(tileKey) ? 'active walk' : 'inactive walk'}`
                             : `${frontTile.type} walk`;
 
     return {
@@ -190,7 +193,7 @@ export function buildHudCastState<
     TSpell extends { manaCost: number; name?: string },
 >(args: {
     selectedRunes: string[];
-    selectedChampionIndex: number;
+    activeCasterChampionId: number | null;
     party: C[];
     championVitals: Record<number, { mana: number } | undefined>;
     championCombat: Record<number, { cooldown: number } | undefined>;
@@ -203,24 +206,24 @@ export function buildHudCastState<
         findSpell,
         party,
         runeFamilyCount,
-        selectedChampionIndex,
+        activeCasterChampionId,
         selectedRunes,
     } = args;
-    const selectedChampion = party[selectedChampionIndex];
-    const selectedChampionMana = selectedChampion ? championVitals[selectedChampion.id]?.mana : undefined;
-    const selectedChampionCooldown = selectedChampion ? championCombat[selectedChampion.id]?.cooldown : undefined;
+    const casterChampion = party.find((champion) => champion.id === activeCasterChampionId);
+    const casterChampionMana = casterChampion ? championVitals[casterChampion.id]?.mana : undefined;
+    const casterChampionCooldown = casterChampion ? championCombat[casterChampion.id]?.cooldown : undefined;
     const spell = findSpell(selectedRunes) ?? undefined;
     const canCast = selectedRunes.length >= 2 &&
-        !!selectedChampion &&
-        (selectedChampionCooldown ?? 0) <= 0 &&
-        (spell ? (selectedChampionMana ?? 0) >= spell.manaCost : true);
+        !!casterChampion &&
+        (casterChampionCooldown ?? 0) <= 0 &&
+        (spell ? (casterChampionMana ?? 0) >= spell.manaCost : true);
 
     return {
         currentFamilyIdx: Math.min(selectedRunes.length, Math.max(0, runeFamilyCount - 1)),
         canCast,
-        selectedChampion,
-        selectedChampionMana,
-        selectedChampionCooldown,
+        casterChampion,
+        casterChampionMana,
+        casterChampionCooldown,
         spell,
     };
 }

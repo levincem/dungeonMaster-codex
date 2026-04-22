@@ -155,6 +155,42 @@ test('runtime teleporter reference preserves every canonical teleporter definiti
     assert.deepEqual(actual, expected);
 });
 
+test('creature reference export stays aligned with the source-backed I559 combat subset', () => {
+    const originalCreatures = readOriginalCreatures().creatures;
+    const sourceCreatures = new Map(
+        (readSourceGameDbCreatures().originalAtari?.i559?.creatures ?? []).map((creature) => [creature.index, creature]),
+    );
+    const ORIGINAL_ATTACK_TYPE_BY_ID = [
+        'Unconditional',
+        'Fire',
+        'Impact',
+        'Blunt',
+        'Sharp',
+        'Magic',
+        'Mental',
+        'Blast',
+    ];
+
+    for (const original of originalCreatures) {
+        const source = sourceCreatures.get(original.id);
+        assert.ok(source, `creature ${original.id} missing from source-backed I559 export`);
+
+        assert.equal(original.baseHP, source?.baseHealth ?? original.baseHP, `creature ${original.id} reference baseHP drifted`);
+        assert.equal(original.armor, source?.defense ?? original.armor, `creature ${original.id} reference armor drifted`);
+        assert.equal(original.hitProb, source?.dexterity ?? original.hitProb, `creature ${original.id} reference hitProb drifted`);
+        assert.equal(original.atkSpd, source?.attackTicks ?? original.atkSpd, `creature ${original.id} reference atkSpd drifted`);
+        assert.equal(original.moveSpd, source?.movementTicks ?? original.moveSpd, `creature ${original.id} reference moveSpd drifted`);
+        assert.equal(original.poison, typeof source?.poisonAttack === 'number' ? source.poisonAttack > 0 : original.poison, `creature ${original.id} reference poison flag drifted`);
+        assert.equal(
+            original.attackType,
+            typeof source?.byte22?.[2] === 'number'
+                ? (ORIGINAL_ATTACK_TYPE_BY_ID[source.byte22[2]] ?? original.attackType)
+                : original.attackType,
+            `creature ${original.id} reference attack type drifted`,
+        );
+    }
+});
+
 test('creatures module preserves every source-backed creature characteristic used at runtime', async () => {
     await preloadGameDbCreaturesData();
 

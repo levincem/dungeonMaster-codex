@@ -10,8 +10,8 @@ import { BillboardGroup } from './renderHelpers';
 import { useLoadedTexture } from './useLoadedTexture';
 
 // Default sprite size
-const DEFAULT_W = GRID_SIZE   * 0.65;
-const DEFAULT_H = WALL_HEIGHT * 0.60;
+const DEFAULT_W = GRID_SIZE   * 0.56;
+const DEFAULT_H = WALL_HEIGHT * 0.54;
 
 // Per-typeId world size overrides  (w, h)
 const SPRITE_SIZES: Record<number, [number, number]> = {};
@@ -102,7 +102,7 @@ export const CreatureSprite = ({ creature }: { creature: CreatureInstance }) => 
         return () => { unsub(); };
     }, [id]);
 
-    const billboardY = -GRID_SIZE / 2 + DEFAULT_H / 2 - 0.08;
+    const billboardY = -GRID_SIZE / 2 + DEFAULT_H / 2 - 0.11;
     const [offX, offZ] = getCreatureCellOffsetXZ(direction, cell);
 
     return (

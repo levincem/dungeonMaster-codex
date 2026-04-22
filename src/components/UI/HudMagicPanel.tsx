@@ -99,11 +99,16 @@ const RuneBtn: React.FC<{
 export const HudMagicPanel: React.FC<{
     panelStyle: React.CSSProperties;
     text: Translations['hud'];
+    party: Array<{ id: number; name?: string } | undefined>;
+    activeCasterChampionId: number | null;
+    activeCasterMana?: number;
+    activeCasterCooldown?: number;
     selectedRunes: string[];
     currentFamilyIdx: number;
     spell?: { name?: string; manaCost: number } | null;
     canCast: boolean;
     lastCastResult?: { success: boolean; message: string } | null;
+    onSelectCaster: (championId: number) => void;
     onTruncateRunes: (slotIndex: number) => void;
     onSelectRune: (runeId: string) => void;
     onCast: () => void;
@@ -111,11 +116,16 @@ export const HudMagicPanel: React.FC<{
 }> = ({
     panelStyle,
     text,
+    party,
+    activeCasterChampionId,
+    activeCasterMana,
+    activeCasterCooldown,
     selectedRunes,
     currentFamilyIdx,
     spell,
     canCast,
     lastCastResult,
+    onSelectCaster,
     onTruncateRunes,
     onSelectRune,
     onCast,
@@ -136,9 +146,86 @@ export const HudMagicPanel: React.FC<{
     }, []);
 
     const currentFamily = RUNE_FAMILIES[currentFamilyIdx] ?? RUNE_FAMILIES[0];
+    const activeCaster = party.find((champion) => champion?.id === activeCasterChampionId);
+    const casterStatus = activeCaster
+        ? [
+            activeCasterMana !== undefined ? `${Math.floor(activeCasterMana)} ${text.manaUnit}` : null,
+            activeCasterCooldown && activeCasterCooldown > 0 ? `${activeCasterCooldown.toFixed(1)}s` : null,
+        ].filter(Boolean).join(' · ')
+        : '';
 
     return (
         <div style={panelStyle}>
+            <div style={{ display: 'flex', gap: 4, alignItems: 'stretch', marginBottom: 6 }}>
+                {party.map((champion, index) => {
+                    const isSelected = champion?.id === activeCasterChampionId;
+                    const shortName = champion?.name ? champion.name.slice(0, 2).toUpperCase() : '';
+                    return (
+                        <button
+                            key={champion?.id ?? `slot-${index}`}
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => champion && onSelectCaster(champion.id)}
+                            title={champion ? text.selectActiveCaster(champion.name ?? '') : text.noSpellCaster}
+                            disabled={!champion}
+                            style={{
+                                flex: isSelected ? '1 1 0' : '0 0 30px',
+                                width: isSelected ? 'auto' : 30,
+                                height: 30,
+                                minWidth: 0,
+                                padding: isSelected ? '4px 8px' : 0,
+                                background: champion
+                                    ? isSelected
+                                        ? 'rgba(10,10,10,0.96)'
+                                        : 'rgba(0,0,0,0.94)'
+                                    : 'rgba(0,0,0,0.78)',
+                                border: `1px solid ${champion
+                                    ? isSelected
+                                        ? 'rgba(240,196,96,0.9)'
+                                        : 'rgba(212,184,112,0.62)'
+                                    : 'rgba(212,184,112,0.18)'}`,
+                                borderRadius: 4,
+                                color: champion
+                                    ? isSelected
+                                        ? '#f0d060'
+                                        : '#d8ba76'
+                                    : 'rgba(212,184,112,0.2)',
+                                fontSize: isSelected ? 11 : 9,
+                                fontWeight: 'bold',
+                                letterSpacing: isSelected ? 0.9 : 0.5,
+                                cursor: champion ? 'pointer' : 'default',
+                                boxShadow: isSelected ? 'inset 0 0 12px rgba(255,196,96,0.1)' : 'none',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: isSelected ? 'space-between' : 'center',
+                                gap: isSelected ? 8 : 0,
+                                overflow: 'hidden',
+                            }}
+                        >
+                            {isSelected ? (
+                                <>
+                                    <span
+                                        style={{
+                                            minWidth: 0,
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap',
+                                            textAlign: 'left',
+                                        }}
+                                    >
+                                        {champion?.name?.toUpperCase() ?? text.noSpellCaster}
+                                    </span>
+                                    {casterStatus && (
+                                        <span style={{ fontSize: 9, color: '#bda46a', whiteSpace: 'nowrap' }}>
+                                            {casterStatus}
+                                        </span>
+                                    )}
+                                </>
+                            ) : shortName}
+                        </button>
+                    );
+                })}
+            </div>
+
             <div style={{ display: 'flex', gap: 3, marginBottom: 6 }}>
                 {Array.from({ length: 4 }).map((_, i) => {
                     const runeId = selectedRunes[i];

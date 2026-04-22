@@ -38,6 +38,37 @@ export interface DamageEvent {
     ts: number;
 }
 
+export interface MonsterAttackDebugEntry {
+    attackerName: string;
+    targetName: string;
+    attackMode: 'melee' | 'ranged';
+    attackType: string;
+    quickness: number;
+    requiredQuickness: number;
+    parryMastery: number;
+    rolledAttack: number;
+    finalDamage: number;
+    hpBefore: number;
+    hpAfter: number;
+    hitZones?: string[];
+    woundSlots?: string[];
+    defenseApplied?: number;
+    activeShieldDefense?: number;
+    postMitigationAttack?: number;
+    defenseSlotBreakdown?: Array<{
+        slot: string;
+        vitalityRoll: number;
+        defenseModifier: number;
+        slotArmor: number;
+        slotItemName?: string | null;
+        shieldContribution: number;
+        shieldDetails?: string[];
+        woundPenalty: number;
+        finalDefense: number;
+    }>;
+    ts: number;
+}
+
 export type ProjectileEffect =
     | 'fireball'
     | 'lightning'

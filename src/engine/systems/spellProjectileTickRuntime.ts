@@ -217,6 +217,7 @@ function resolveProjectileImpactOnSquare(
         {
             rollSourceBackedImpact: deps.rollSourceBackedImpact,
             getCreaturePoisonAdjustedAttack: deps.getCreaturePoisonAdjustedAttack,
+            randomInt: deps.randomInt,
             rollRandomProjectileDamage: deps.rollRandomProjectileDamage,
             rollExplosionBurstAttack: deps.rollExplosionBurstAttack,
             isLikelyNonMaterial: deps.isLikelyNonMaterial,

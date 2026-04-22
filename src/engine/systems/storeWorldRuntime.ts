@@ -1,6 +1,8 @@
 import type {
     ChampionEquipment,
+    CreatureObject,
     CreatureInstance,
+    FloorItemObject,
     FloorItem,
     GameMap,
     SensorObject,
@@ -67,6 +69,8 @@ const ITEM_CATEGORIES = new Set<FloorItem['category']>([
     'Container',
 ]);
 
+const MAX_CONTAINER_ITEMS = 8;
+
 function getOriginalGeneratorEffectiveHealthMultiplier(
     level: number,
     hpMultiplier: number,
@@ -76,11 +80,90 @@ function getOriginalGeneratorEffectiveHealthMultiplier(
     return Math.max(1, getMapDifficulty(level));
 }
 
+function getPlacedCreatureHPValues(
+    creature: CreatureObject,
+    fallbackHP: number,
+): number[] {
+    if (Array.isArray(creature.hp) && creature.hp.length > 0) {
+        return creature.hp.map((hp) => (typeof hp === 'number' && hp > 0 ? hp : fallbackHP));
+    }
+
+    if (typeof creature.count === 'number' && creature.count > 1) {
+        const hp = typeof creature.hp === 'number' && creature.hp > 0 ? creature.hp : fallbackHP;
+        return Array.from({ length: creature.count }, () => hp);
+    }
+
+    const singleHP = typeof creature.hp === 'number' && creature.hp > 0 ? creature.hp : fallbackHP;
+    return [singleHP];
+}
+
 export function createStoreWorldRuntime<TSensorState extends SensorStateLike>(
     params: StoreWorldRuntimeParams<TSensorState>,
 ) {
     const randomFraction = params.randomFraction ?? Math.random;
     const now = params.now ?? Date.now;
+
+    const buildRuntimeFloorItem = (
+        map: GameMap,
+        tile: { x: number; y: number },
+        obj: FloorItemObject,
+        id: string,
+    ): FloorItem => {
+        const rawObj = obj as FloorItemObject & {
+            power?: number;
+            name?: string;
+            text?: string;
+            contents?: FloorItemObject[];
+        };
+        const rawText = rawObj.text ?? rawObj.name;
+        const parsedCharges = params.parseItemCharges(rawText);
+        const runtimeItem = params.normaliseWaterContainer({
+            id,
+            category: obj.category as FloorItem['category'],
+            typeId: rawObj.type ?? 0,
+            rawName: params.resolveItemName(
+                obj.category as FloorItem['category'],
+                rawObj.type ?? 0,
+                obj.category === 'Scroll'
+                    ? params.normalizeScrollText(rawText)
+                    : rawText,
+            ),
+            mapIndex: map.index,
+            x: tile.x,
+            y: tile.y,
+            tilePos: obj.tilePos,
+            actionCharges: parsedCharges.charges,
+            actionMaxCharges: parsedCharges.maxCharges,
+            potionPower: obj.category === 'Potion' ? rawObj.power : undefined,
+        });
+
+        if (obj.category !== 'Container') return runtimeItem;
+
+        const nestedItems = (rawObj.contents ?? [])
+            .slice(0, MAX_CONTAINER_ITEMS)
+            .filter((entry): entry is FloorItemObject => ITEM_CATEGORIES.has(entry.category as FloorItem['category']))
+            .map((entry, index) =>
+                buildRuntimeFloorItem(
+                    map,
+                    tile,
+                    entry,
+                    `${id}_contained_${index}_${entry.category}_${entry.index}`,
+                ),
+            );
+        return nestedItems.length > 0
+            ? { ...runtimeItem, containerContents: nestedItems }
+            : runtimeItem;
+    };
+
+    const normalizeRuntimeItemTree = (item: FloorItem): FloorItem => {
+        const normalizedItem = params.normaliseWaterContainer({ ...item });
+        return normalizedItem.containerContents?.length
+            ? {
+                ...normalizedItem,
+                containerContents: normalizedItem.containerContents.map(normalizeRuntimeItemTree),
+            }
+            : normalizedItem;
+    };
 
     const buildCreatureInstancesForMap = (map: GameMap): CreatureInstance[] => {
         const instances: CreatureInstance[] = [];
@@ -93,7 +176,6 @@ export function createStoreWorldRuntime<TSensorState extends SensorStateLike>(
                     if (!definition) continue;
                     const moveSec = definition.moveSpd / 6;
                     const atkSec = definition.atkSpd / 6;
-                    const id = `${map.index}_${tile.x}_${tile.y}_${obj.index}`;
                     const groupId = params.buildRuntimeCreatureGroupId(
                         'init',
                         map.index,
@@ -101,21 +183,27 @@ export function createStoreWorldRuntime<TSensorState extends SensorStateLike>(
                         tile.y,
                         obj.type,
                     );
-                    params.registerCreatureTimers(id, {
-                        mt: randomFraction() * moveSec,
-                        at: randomFraction() * atkSec,
-                    });
-                    instances.push({
-                        id,
-                        groupId,
-                        typeId: obj.type,
-                        mapIndex: map.index,
-                        x: tile.x,
-                        y: tile.y,
-                        currentHP: obj.hp > 0 ? obj.hp : definition.baseHP,
-                        alive: true,
-                        cell: 'center',
-                        carriedItems: [],
+                    const hpValues = getPlacedCreatureHPValues(obj as CreatureObject, definition.baseHP);
+                    hpValues.forEach((currentHP, ordinal) => {
+                        const id = hpValues.length > 1
+                            ? `${map.index}_${tile.x}_${tile.y}_${obj.index}_${ordinal}`
+                            : `${map.index}_${tile.x}_${tile.y}_${obj.index}`;
+                        params.registerCreatureTimers(id, {
+                            mt: randomFraction() * moveSec,
+                            at: randomFraction() * atkSec,
+                        });
+                        instances.push({
+                            id,
+                            groupId,
+                            typeId: obj.type,
+                            mapIndex: map.index,
+                            x: tile.x,
+                            y: tile.y,
+                            currentHP,
+                            alive: true,
+                            cell: 'center',
+                            carriedItems: [],
+                        });
                     });
                 }
             }
@@ -262,33 +350,12 @@ export function createStoreWorldRuntime<TSensorState extends SensorStateLike>(
                 for (const obj of tile.objects) {
                     if (!ITEM_CATEGORIES.has(obj.category as FloorItem['category'])) continue;
                     if (isHallChampionTile) continue;
-                    const rawObj = obj as unknown as {
-                        type: number;
-                        power?: number;
-                        name?: string;
-                        text?: string;
-                    };
-                    const rawText = rawObj.text ?? rawObj.name;
-                    const parsedCharges = params.parseItemCharges(rawText);
-                    items.push(params.normaliseWaterContainer({
-                        id: `${map.index}_${tile.x}_${tile.y}_${obj.category}_${obj.index}`,
-                        category: obj.category as FloorItem['category'],
-                        typeId: rawObj.type ?? 0,
-                        rawName: params.resolveItemName(
-                            obj.category as FloorItem['category'],
-                            rawObj.type ?? 0,
-                            obj.category === 'Scroll'
-                                ? params.normalizeScrollText(rawText)
-                                : rawText,
-                        ),
-                        mapIndex: map.index,
-                        x: tile.x,
-                        y: tile.y,
-                        tilePos: obj.tilePos,
-                        actionCharges: parsedCharges.charges,
-                        actionMaxCharges: parsedCharges.maxCharges,
-                        potionPower: obj.category === 'Potion' ? rawObj.power : undefined,
-                    }));
+                    items.push(buildRuntimeFloorItem(
+                        map,
+                        tile,
+                        obj as FloorItemObject,
+                        `${map.index}_${tile.x}_${tile.y}_${obj.category}_${obj.index}`,
+                    ));
                 }
             }
         }
@@ -311,11 +378,10 @@ export function createStoreWorldRuntime<TSensorState extends SensorStateLike>(
             equipment: Object.fromEntries(
                 Object.entries(loadout.equipment).map(([slot, item]) => [
                     slot,
-                    item ? params.normaliseWaterContainer({ ...item }) : item,
+                    item ? normalizeRuntimeItemTree(item) : item,
                 ]),
             ) as ChampionEquipment,
-            inventory: loadout.inventory.map((item) =>
-                params.normaliseWaterContainer({ ...item })),
+            inventory: loadout.inventory.map((item) => normalizeRuntimeItemTree(item)),
         };
     };
 

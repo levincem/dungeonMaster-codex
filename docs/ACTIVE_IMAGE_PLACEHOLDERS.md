@@ -5,7 +5,8 @@ Liste des placeholders visuels encore vraiment branches dans le runtime.
 Verification de reference faite dans le code runtime le 2026-04-22:
 
 - la dette visuelle restante n'est plus principalement un sujet de bitmap original actif
-- le vrai reliquat assets concerne surtout des images modernes trop generiques, en particulier `serrure.png` et `eye.png`
+- la famille de locks dediee, `Coin Slot` et `Gem Hole` ont maintenant leurs PNG modernes branches individuellement
+- le reliquat visuel est surtout du polish, pas un placeholder generique encore actif
 
 Regle du projet a conserver:
 
@@ -28,33 +29,18 @@ Note de composition runtime:
   - branchement principal: [src/components/Dungeon/Cell.tsx](/D:/DungeonMaster-codex/src/components/Dungeon/Cell.tsx)
   - note: `doorRaOriginal.bmp` peut encore exister comme fallback legacy sur disque, mais ce n'est plus le rendu cible a finir
 
-## Placeholders modernes encore trop generiques
+## Placeholders modernes generiques fermes
 
-Ces assets ne viennent pas du bitmap original, mais restent trop provisoires pour une finition moderne.
+Le bloc suivant n'est plus branche generiquement dans le runtime des overlays muraux:
 
-- `serrure.png`
-  - reutilise pour de nombreuses familles de locks et trous:
-    - `Iron Lock`
-    - `Double Iron Lock`
-    - `Square Lock`
-    - `Winged Lock`
-    - `Onyx Lock`
-    - `Stone Lock`
-    - `Cross Lock`
-    - `Topaz Lock`
-    - `Skeleton Lock`
-    - `Gold Lock`
-    - `Tourquoise Lock`
-    - `Emerald Lock`
-    - `Ruby Lock`
-    - `Ra Lock`
-    - `Master Lock`
-    - `Coin Slot`
-  - branchement: [src/data/originalWallOverlays.ts](/D:/DungeonMaster-codex/src/data/originalWallOverlays.ts)
+- famille `serrure.png`
+- `Gem Hole` via `eye.png`
 
-- `eye.png`
-  - reutilise encore pour `Gem Hole`
-  - branchement: [src/data/originalWallOverlays.ts](/D:/DungeonMaster-codex/src/data/originalWallOverlays.ts)
+Les overlays suivants pointent maintenant chacun vers leur PNG moderne dedie dans [public/game/images/misc](/D:/DungeonMaster-codex/public/game/images/misc):
+
+- toutes les variantes de locks
+- `Coin Slot`
+- `Gem Hole`
 
 ## Prompt pack de refonte
 
@@ -63,13 +49,11 @@ Le CSV de production des prompts image a ete remis a jour ici:
 - [docs/wall_overlay_remake_prompts.csv](/D:/DungeonMaster-codex/docs/wall_overlay_remake_prompts.csv)
 
 Il ne contient plus `Ra Door`, qui sort de la pile `assets a peindre` et de la pile `VFX a finaliser`.
+Le lot genere puis retouche a ete importe depuis [docs/temp_generated_overlays](/D:/DungeonMaster-codex/docs/temp_generated_overlays).
 
 ## Fichiers originaux presents mais pas prioritaires a refaire
 
 Le repertoire [public/game/images/misc/original](/D:/DungeonMaster-codex/public/game/images/misc/original) contient beaucoup d'autres bitmaps extraits.
 
 Dans l'etat actuel du runtime, ils ne sont pas tous utilises activement.
-La priorite de refonte doit donc rester:
-
-1. la famille generique `serrure.png`
-2. `Gem Hole` qui reutilise encore `eye.png`
+La priorite n'est plus la fermeture de placeholders generiques locks/gem hole, qui est maintenant faite.

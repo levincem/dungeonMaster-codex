@@ -1,5 +1,5 @@
 import type { CreatureInstance, ChampionEquipment, FloorItem } from '../../types/game';
-import type { ChampionVitals, Projectile } from '../runtimeTypes';
+import type { ChampionVitals, MonsterAttackDebugEntry, Projectile } from '../runtimeTypes';
 import type { CreatureAttackStateResult } from './creatureAttackState';
 
 type CreatureAttackOutcomeStateArgs<TDamageEvent> = {
@@ -15,6 +15,7 @@ type CreatureAttackOutcomeStateArgs<TDamageEvent> = {
     championVitals: Record<number, ChampionVitals>;
     damageEvents: TDamageEvent[];
     level: number;
+    lastMonsterAttackDebug?: MonsterAttackDebugEntry | null;
 };
 
 type CreatureAttackOutcomeStateDeps<TDamageEvent> = {
@@ -25,6 +26,7 @@ export type CreatureAttackOutcomeStateResult<TDamageEvent> =
     | {
         kind: 'none';
         championVitals?: Record<number, ChampionVitals>;
+        lastMonsterAttackDebug?: MonsterAttackDebugEntry | null;
     }
     | {
         kind: 'projectile';
@@ -44,6 +46,7 @@ export type CreatureAttackOutcomeStateResult<TDamageEvent> =
         championVitals: Record<number, ChampionVitals>;
         damageEvents: TDamageEvent[];
         defeatedChampionId: number | null;
+        lastMonsterAttackDebug: MonsterAttackDebugEntry | null;
     };
 
 export function resolveCreatureAttackOutcomeState<TDamageEvent>(
@@ -109,6 +112,7 @@ export function resolveCreatureAttackOutcomeState<TDamageEvent>(
                 ),
             ],
             defeatedChampionId,
+            lastMonsterAttackDebug: args.attackResult.debug ?? null,
         };
     }
 
@@ -119,6 +123,7 @@ export function resolveCreatureAttackOutcomeState<TDamageEvent>(
                 ...args.championVitals,
                 [args.attackResult.targetChampionId]: args.attackResult.nextVitals,
             },
+            lastMonsterAttackDebug: args.attackResult.debug ?? args.lastMonsterAttackDebug,
         };
     }
 

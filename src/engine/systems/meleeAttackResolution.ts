@@ -32,6 +32,7 @@ type XpCarrier = Pick<
 >;
 
 type AttackXpPatch = {
+    championVitals?: Record<number, ChampionVitals>;
     championXP: Record<number, ChampionXP>;
     championTemporaryXP: Record<number, ChampionTemporaryXP>;
     party?: Champion[];
@@ -67,7 +68,6 @@ export function buildMeleeAttackResolutionPatch(
     totalDmg: number,
     attackSkill: SkillKey,
     newCombat: ChampionCombat,
-    championVitals: Record<number, ChampionVitals>,
     deps: MeleeAttackResolutionDeps,
 ) {
     const newHP = target.currentHP - totalDmg;
@@ -95,6 +95,7 @@ export function buildMeleeAttackResolutionPatch(
     };
     let newChampXP = state.championXP;
     let newChampionTemporaryXP = state.championTemporaryXP;
+    let newChampionVitals = state.championVitals;
     let xpParty = state.party;
 
     const attackerXpPatch = deps.applyChampionSkillExperience(
@@ -104,11 +105,13 @@ export function buildMeleeAttackResolutionPatch(
         totalDmg,
     );
     if (attackerXpPatch) {
+        newChampionVitals = attackerXpPatch.championVitals ?? newChampionVitals;
         newChampXP = attackerXpPatch.championXP;
         newChampionTemporaryXP = attackerXpPatch.championTemporaryXP;
         xpParty = attackerXpPatch.party ?? xpParty;
         xpCarrier = {
             ...xpCarrier,
+            championVitals: newChampionVitals,
             championXP: newChampXP,
             championTemporaryXP: newChampionTemporaryXP,
             party: xpParty,
@@ -128,11 +131,13 @@ export function buildMeleeAttackResolutionPatch(
                     share,
                 );
                 if (!killXpPatch) continue;
+                newChampionVitals = killXpPatch.championVitals ?? newChampionVitals;
                 newChampXP = killXpPatch.championXP;
                 newChampionTemporaryXP = killXpPatch.championTemporaryXP;
                 xpParty = killXpPatch.party ?? xpParty;
                 xpCarrier = {
                     ...xpCarrier,
+                    championVitals: newChampionVitals,
                     championXP: newChampXP,
                     championTemporaryXP: newChampionTemporaryXP,
                     party: xpParty,
@@ -152,7 +157,7 @@ export function buildMeleeAttackResolutionPatch(
     return {
         creatures: newCreatures,
         ...(newFloorItems !== state.floorItems ? { floorItems: newFloorItems } : {}),
-        championVitals,
+        championVitals: newChampionVitals,
         championXP: newChampXP,
         championTemporaryXP: newChampionTemporaryXP,
         ...(xpParty !== state.party ? { party: xpParty } : {}),

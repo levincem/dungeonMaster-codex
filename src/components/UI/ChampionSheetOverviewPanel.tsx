@@ -2,6 +2,7 @@ import React from 'react';
 import type { Champion } from '../../data/champions';
 import { MAX_FOOD, MAX_WATER } from '../../engine/store';
 import { useI18n } from '../../i18n';
+import type { HighlightStatKey } from './championStatHighlights';
 
 const THEME = {
     panelBg: 'rgba(0,0,0,0.84)',
@@ -11,6 +12,9 @@ const THEME = {
     red: '#d83030',
     blue: '#3080c8',
     yellow: '#d4a820',
+    green: '#30b050',
+    greenDim: '#7dc38e',
+    electricBlue: '#39b6ff',
 } as const;
 
 const VitalBar: React.FC<{
@@ -81,6 +85,7 @@ export const ChampionSheetOverviewPanel: React.FC<{
         antiMagic: number;
         antiFire: number;
     };
+    attributeStatuses: Partial<Record<HighlightStatKey, 'levelUp' | 'penalty'>>;
 }> = ({
     champion,
     text,
@@ -95,23 +100,44 @@ export const ChampionSheetOverviewPanel: React.FC<{
     foodFrame,
     waterFrame,
     effectiveStats,
+    attributeStatuses,
 }) => {
+    const resolveAttributeColor = (stat: HighlightStatKey): string => {
+        const status = attributeStatuses[stat];
+        if (status === 'penalty') return THEME.red;
+        if (status === 'levelUp') return THEME.electricBlue;
+        return THEME.green;
+    };
+
     const statRows = [
-        { label: text.statLabels.strength, value: effectiveStats.strength, color: THEME.red },
-        { label: text.statLabels.dexterity, value: effectiveStats.dexterity, color: '#30b050' },
-        { label: text.statLabels.wisdom, value: effectiveStats.wisdom, color: THEME.blue },
-        { label: text.statLabels.vitality, value: effectiveStats.vitality, color: THEME.yellow },
-        { label: text.statLabels.luck, value: effectiveStats.luck, color: THEME.gold },
-        { label: text.statLabels.antiMagic, value: effectiveStats.antiMagic, color: '#60c0a0' },
-        { label: text.statLabels.antiFire, value: effectiveStats.antiFire, color: '#d08030' },
-    ];
+        { key: 'strength', label: text.statLabels.strength, value: effectiveStats.strength },
+        { key: 'dexterity', label: text.statLabels.dexterity, value: effectiveStats.dexterity },
+        { key: 'wisdom', label: text.statLabels.wisdom, value: effectiveStats.wisdom },
+        { key: 'vitality', label: text.statLabels.vitality, value: effectiveStats.vitality },
+        { key: 'luck', label: text.statLabels.luck, value: effectiveStats.luck },
+        { key: 'antiMagic', label: text.statLabels.antiMagic, value: effectiveStats.antiMagic },
+        { key: 'antiFire', label: text.statLabels.antiFire, value: effectiveStats.antiFire },
+    ].map((stat) => ({
+        ...stat,
+        color: resolveAttributeColor(stat.key as HighlightStatKey),
+        labelColor: attributeStatuses[stat.key as HighlightStatKey]
+            ? resolveAttributeColor(stat.key as HighlightStatKey)
+            : THEME.creamDim,
+    }));
+
+    const attributeBarBg = 'rgba(0,0,0,0.4)';
+    const attributeTrackWidth = 50;
+    const attributePanelBorder = `1px solid ${THEME.panelBorder}`;
+
+    const getStatFillPercent = (value: number): number =>
+        Math.max(0, Math.min(100, value));
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignSelf: 'stretch' }}>
             <div
                 style={{
                     background: '#ffffff',
-                    border: `1px solid ${THEME.panelBorder}`,
+                    border: attributePanelBorder,
                     borderRadius: 5,
                     overflow: 'hidden',
                     minHeight: 198,
@@ -132,7 +158,7 @@ export const ChampionSheetOverviewPanel: React.FC<{
                 />
             </div>
 
-            <div style={{ background: THEME.panelBg, border: `1px solid ${THEME.panelBorder}`, borderRadius: 5, padding: '10px 12px' }}>
+            <div style={{ background: THEME.panelBg, border: attributePanelBorder, borderRadius: 5, padding: '10px 12px' }}>
                 <VitalBar label={text.health} value={hp} max={champion.health} color={THEME.red} />
                 <VitalBar
                     label={text.stamina}
@@ -147,26 +173,46 @@ export const ChampionSheetOverviewPanel: React.FC<{
                 <VitalBar label={text.mana} value={mana} max={effectiveMana} color={THEME.blue} />
             </div>
 
-            <div style={{ background: THEME.panelBg, border: `1px solid ${THEME.panelBorder}`, borderRadius: 5, padding: '10px 12px' }}>
+            <div style={{ background: THEME.panelBg, border: attributePanelBorder, borderRadius: 5, padding: '10px 12px' }}>
                 <div style={{ fontSize: 10, letterSpacing: 3, color: THEME.gold, marginBottom: 8 }}>{text.attributes}</div>
                 {statRows.map((stat) => (
                     <div
                         key={stat.label}
                         style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}
                     >
-                        <span style={{ fontSize: 12, color: THEME.creamDim }}>{stat.label}</span>
+                        <span
+                            style={{
+                                fontSize: 12,
+                                color: stat.labelColor,
+                                textShadow: attributeStatuses[stat.key as HighlightStatKey]
+                                    ? `0 0 8px ${stat.color}55`
+                                    : undefined,
+                            }}
+                        >
+                            {stat.label}
+                        </span>
                         <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
-                            <div style={{ width: 50, height: 3, background: 'rgba(0,0,0,0.4)', borderRadius: 2, overflow: 'hidden' }}>
+                            <div style={{ width: attributeTrackWidth, height: 3, background: attributeBarBg, borderRadius: 2, overflow: 'hidden' }}>
                                 <div
                                     style={{
                                         height: '100%',
-                                        width: `${Math.max(0, Math.min(100, stat.value))}%`,
+                                        width: `${getStatFillPercent(stat.value)}%`,
                                         background: stat.color,
                                         borderRadius: 2,
+                                        boxShadow: `0 0 8px ${stat.color}66`,
                                     }}
                                 />
                             </div>
-                            <span style={{ fontSize: 13, fontWeight: 'bold', color: stat.color, minWidth: 24, textAlign: 'right' }}>
+                            <span
+                                style={{
+                                    fontSize: 13,
+                                    fontWeight: 'bold',
+                                    color: stat.color,
+                                    minWidth: 24,
+                                    textAlign: 'right',
+                                    textShadow: `0 0 8px ${stat.color}55`,
+                                }}
+                            >
                                 {stat.value}
                             </span>
                         </div>

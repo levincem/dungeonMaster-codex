@@ -83,7 +83,7 @@ type CreatureAttackStateDeps = {
 };
 
 export type CreatureAttackStateResult =
-    | { kind: 'none'; targetChampionId?: number; nextVitals?: ChampionVitals }
+    | { kind: 'none'; targetChampionId?: number; nextVitals?: ChampionVitals; debug?: MonsterAttackResolution['debug'] }
     | { kind: 'projectile'; projectile: Projectile }
     | {
         kind: 'steal';
@@ -99,6 +99,7 @@ export type CreatureAttackStateResult =
         targetChampionId: number;
         damage: number;
         nextVitals: ChampionVitals;
+        debug?: MonsterAttackResolution['debug'];
     };
 
 export function resolveCreatureAttackState(
@@ -194,6 +195,7 @@ export function resolveCreatureAttackState(
             kind: 'none',
             targetChampionId: targetChampion.id,
             nextVitals: attackResolution.nextVitals,
+            ...(attackResolution.debug ? { debug: attackResolution.debug } : {}),
         };
     }
 
@@ -202,5 +204,6 @@ export function resolveCreatureAttackState(
         targetChampionId: targetChampion.id,
         damage: Math.max(1, attackResolution.damage),
         nextVitals: attackResolution.nextVitals,
+        ...(attackResolution.debug ? { debug: attackResolution.debug } : {}),
     };
 }

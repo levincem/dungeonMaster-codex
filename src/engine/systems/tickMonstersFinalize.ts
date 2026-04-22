@@ -24,6 +24,8 @@ type TickMonstersFinalizeState = {
     selectedChampionIndex: number;
     floorItems: FloorItem[];
     deadChampions: DeadChampionsState;
+    lastMonsterAttackDebug?: unknown;
+    baseLastMonsterAttackDebug?: unknown;
 };
 
 export function buildTickMonstersPatch(
@@ -36,6 +38,7 @@ export function buildTickMonstersPatch(
     const championInventoriesChanged = state.championInventories !== state.baseChampionInventories;
     const championEquipmentChanged = state.championEquipment !== state.baseChampionEquipment;
     const lastCreatureAttackChanged = state.lastCreatureAttackGameTick !== state.baseLastCreatureAttackGameTick;
+    const lastMonsterAttackDebugChanged = state.lastMonsterAttackDebug !== state.baseLastMonsterAttackDebug;
     const partyChanged = state.party !== state.baseParty;
     const anyChange =
         creaturesChanged ||
@@ -45,6 +48,7 @@ export function buildTickMonstersPatch(
         championInventoriesChanged ||
         championEquipmentChanged ||
         lastCreatureAttackChanged ||
+        lastMonsterAttackDebugChanged ||
         partyChanged;
 
     if (!anyChange) return null;
@@ -62,6 +66,9 @@ export function buildTickMonstersPatch(
         ...(championEquipmentChanged ? { championEquipment: state.championEquipment } : {}),
         ...(lastCreatureAttackChanged
             ? { lastCreatureAttackGameTick: state.lastCreatureAttackGameTick }
+            : {}),
+        ...(lastMonsterAttackDebugChanged
+            ? { lastMonsterAttackDebug: state.lastMonsterAttackDebug }
             : {}),
         ...(partyChanged
             ? {

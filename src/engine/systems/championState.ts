@@ -29,12 +29,12 @@ export function normalizeChampionCurrentStats(
     const fallback = createChampionCurrentStats(champion);
     return {
         luck: currentStats?.luck ?? fallback.luck,
-        strength: currentStats?.strength ?? fallback.strength,
-        dexterity: currentStats?.dexterity ?? fallback.dexterity,
-        wisdom: currentStats?.wisdom ?? fallback.wisdom,
-        vitality: currentStats?.vitality ?? fallback.vitality,
-        antiMagic: currentStats?.antiMagic ?? fallback.antiMagic,
-        antiFire: currentStats?.antiFire ?? fallback.antiFire,
+        strength: Math.max(fallback.strength, currentStats?.strength ?? fallback.strength),
+        dexterity: Math.max(fallback.dexterity, currentStats?.dexterity ?? fallback.dexterity),
+        wisdom: Math.max(fallback.wisdom, currentStats?.wisdom ?? fallback.wisdom),
+        vitality: Math.max(fallback.vitality, currentStats?.vitality ?? fallback.vitality),
+        antiMagic: Math.max(fallback.antiMagic, currentStats?.antiMagic ?? fallback.antiMagic),
+        antiFire: Math.max(fallback.antiFire, currentStats?.antiFire ?? fallback.antiFire),
     };
 }
 

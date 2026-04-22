@@ -10,14 +10,16 @@ import {
     VI_ALTAR_RESURRECTION_MESSAGE,
     isSelfRevealingWallTile,
 } from '../../engine/store';
+import { CREATURE_TYPES } from '../../data/creatures';
 import { getMapMechanisms, getMechanismsAt } from '../../data/mechanisms';
-import { getOriginalWallOverlaysForMap, type OriginalWallOverlayRender } from '../../data/originalWallOverlays';
+import { getOriginalWallOverlaysForMap, hasEffectiveOriginalWallOverlayAt, type OriginalWallOverlayRender } from '../../data/originalWallOverlays';
 import type { Direction } from '../../engine/runtimeTypes';
 import { computeLightLevel } from '../../engine/store';
 import { getGameMap } from '../../data/mapLoader';
 import type { GameMap, GameTile, TeleporterObject, CardinalDir, DoorObject } from '../../types/game';
 import type { Champion } from '../../data/champions';
 import type { EquipSlotKey } from '../../types/items';
+import { canFillWaterContainer } from '../../data/waterContainers';
 import { Cell, PressurePlate } from './Cell';
 import type { CellRenderType } from './Cell';
 import { InstancedTiles } from './InstancedTiles';
@@ -66,6 +68,7 @@ import {
 } from './DungeonSceneRuntimeLayers';
 import { SpellImpactLayer } from './DungeonSpellImpactLayer';
 import { useTemporalFlag, useWallClock } from './useWallClock';
+import { creaturesInFront } from '../../engine/systems/frontCreatureState';
 
 const HALF = GRID_SIZE / 2;
 const BASE_FOG_NEAR = GRID_SIZE * 2;
@@ -485,10 +488,11 @@ const DarknessOverlay: React.FC = () => {
 
 type WallDropPlacement = 'front' | 'left' | 'right';
 
-const WallMechanismDropTarget = ({ kind, placement = 'front', onUseItem, activeFloorDragItemId, selectedChampionId, onUseFloorItem }: {
-    kind: 'wall-lock' | 'alcove' | 'object-exchanger' | 'altar';
+const WallMechanismDropTarget = ({ kind, placement = 'front', onUseItem, onActivate, activeFloorDragItemId, selectedChampionId, onUseFloorItem }: {
+    kind: 'wall-lock' | 'alcove' | 'object-exchanger' | 'altar' | 'fountain';
     placement?: WallDropPlacement;
     onUseItem: (championId: number, itemId: string, fromSlot: EquipSlotKey | 'inventory') => boolean;
+    onActivate?: (championId: number) => void;
     activeFloorDragItemId?: string | null;
     selectedChampionId?: number | null;
     onUseFloorItem?: (itemId: string, championId: number) => boolean;
@@ -498,6 +502,7 @@ const WallMechanismDropTarget = ({ kind, placement = 'front', onUseItem, activeF
     const isLock = kind === 'wall-lock';
     const isAlcove = kind === 'alcove';
     const isAltar = kind === 'altar';
+    const isFountain = kind === 'fountain';
     const placementStyle: React.CSSProperties = placement === 'front'
         ? {
             left: '50%',
@@ -542,6 +547,15 @@ const WallMechanismDropTarget = ({ kind, placement = 'front', onUseItem, activeF
                     background: 'linear-gradient(180deg, rgba(72,46,18,0.9), rgba(22,14,6,0.98))',
                     boxShadow: over ? '0 0 16px rgba(242, 210, 127, 0.32)' : 'inset 0 0 14px rgba(0,0,0,0.78)',
                 }
+            : isFountain
+                ? {
+                    width: 40,
+                    height: 40,
+                    borderRadius: '50%',
+                    border: `2px solid ${over ? '#a8e6ff' : '#4b90bf'}`,
+                    background: 'radial-gradient(circle at 45% 30%, rgba(210,245,255,0.92), rgba(70,150,210,0.78) 42%, rgba(6,24,42,0.96) 78%)',
+                    boxShadow: over ? '0 0 18px rgba(122, 211, 255, 0.38)' : 'inset 0 0 14px rgba(0,0,0,0.62)',
+                }
             : {
                 width: 68,
                 height: 16,
@@ -571,7 +585,12 @@ const WallMechanismDropTarget = ({ kind, placement = 'front', onUseItem, activeF
                 setOver(false);
                 const payload = getDragPayload(event);
                 if (!payload) return;
+                if (payload.fromSlot === 'container') return;
                 onUseItem(payload.fromChampionId, payload.itemId, payload.fromSlot);
+            }}
+            onClick={() => {
+                if (!isFountain || selectedChampionId == null) return;
+                onActivate?.(selectedChampionId);
             }}
             onMouseEnter={() => {
                 if (activeFloorDragItemId) setOver(true);
@@ -586,8 +605,8 @@ const WallMechanismDropTarget = ({ kind, placement = 'front', onUseItem, activeF
             }}
             style={{
                 position: 'absolute',
-                width: isLock ? 96 : isAlcove ? 132 : isAltar ? 172 : 124,
-                minHeight: isAltar ? 92 : 78,
+                width: isLock ? 96 : isAlcove ? 132 : isAltar ? 172 : isFountain ? 148 : 124,
+                minHeight: isAltar ? 92 : isFountain ? 88 : 78,
                 padding: isAltar ? '10px 12px' : '8px 10px',
                 borderRadius: 12,
                 border: `2px solid ${over ? 'rgba(240,207,122,0.88)' : 'rgba(138,106,42,0.28)'}`,
@@ -616,7 +635,15 @@ const WallMechanismDropTarget = ({ kind, placement = 'front', onUseItem, activeF
                 <div style={apertureStyle} />
             </div>
             <div style={{ color: over ? '#f4dda1' : '#b8995d', fontSize: 10, fontFamily: '"Courier New", monospace', textAlign: 'center' }}>
-                {isLock ? text.dropKeyHere : isAlcove ? text.placeItemHere : isAltar ? text.dropBonesHere : text.offerItemHere}
+                {isLock
+                    ? text.dropKeyHere
+                    : isAlcove
+                        ? text.placeItemHere
+                        : isAltar
+                            ? text.dropBonesHere
+                            : isFountain
+                                ? text.drinkOrFillHere
+                                : text.offerItemHere}
             </div>
         </div>
     );
@@ -640,6 +667,8 @@ const DungeonSceneDragOverlay: React.FC<{
     const applyFloorItemOnFrontWall = useStore(s => s.useFloorItemOnFrontWall);
     const applyItemOnViAltar = useStore(s => s.useItemOnViAltar);
     const applyFloorItemOnViAltar = useStore(s => s.useFloorItemOnViAltar);
+    const drinkFromFountain = useStore(s => s.drinkFromFountain);
+    const fillWaterContainer = useStore(s => s.fillWaterContainer);
 
     const selectedChampionId = party[selectedChampionIndex]?.id ?? party[0]?.id ?? null;
     const draggedFloorItem = useMemo(
@@ -660,6 +689,7 @@ const DungeonSceneDragOverlay: React.FC<{
             position,
             direction,
             openWalls,
+            hasEffectiveOriginalWallOverlayAt,
             isSelfRevealingWallTile,
             getMechanismsAtFace: (targetLevel, tileX, tileY, face) => getMechanismsAt(targetLevel, tileX, tileY, face),
         }),
@@ -712,13 +742,28 @@ const DungeonSceneDragOverlay: React.FC<{
                     }
                 />
             ))}
-            {frontWallInteractionKind && altarDropTargets.every((target) => target.placement !== 'front') && shouldShowWallDropTargets && (
+            {frontWallInteractionKind && altarDropTargets.every((target) => target.placement !== 'front') && (shouldShowWallDropTargets || frontWallInteractionKind === 'fountain') && (
                 <WallMechanismDropTarget
                     kind={frontWallInteractionKind}
-                    onUseItem={applyItemOnFrontWall}
+                    onUseItem={(championId, itemId, fromSlot) => {
+                        if (frontWallInteractionKind === 'fountain') {
+                            if (fromSlot !== 'inventory' && fromSlot !== 'leftHand' && fromSlot !== 'rightHand') return false;
+                            const state = useStore.getState();
+                            const inventoryItem = fromSlot === 'inventory'
+                                ? state.championInventories[championId]?.find((item) => item.id === itemId)
+                                : state.championEquipment[championId]?.[fromSlot];
+                            if (!inventoryItem || !canFillWaterContainer(inventoryItem)) return false;
+                            fillWaterContainer(championId, itemId);
+                            return true;
+                        }
+                        return applyItemOnFrontWall(championId, itemId, fromSlot);
+                    }}
+                    onActivate={frontWallInteractionKind === 'fountain'
+                        ? (championId) => drinkFromFountain(championId)
+                        : undefined}
                     activeFloorDragItemId={activeFloorDrag?.itemId ?? null}
                     selectedChampionId={selectedChampionId}
-                    onUseFloorItem={applyFloorItemOnFrontWall}
+                    onUseFloorItem={frontWallInteractionKind === 'fountain' ? undefined : applyFloorItemOnFrontWall}
                 />
             )}
         </>
@@ -857,11 +902,15 @@ export const DungeonScene = () => {
     const level          = useStore(s => s.level);
     const position       = useStore(s => s.position);
     const direction      = useStore(s => s.direction);
+    const gamePhase      = useStore(s => s.gamePhase);
+    const paused         = useStore(s => s.paused);
     const openDoors      = useStore(s => s.openDoors);
     const brokenDoors    = useStore(s => s.brokenDoors);
     const crushingDoors  = useStore(s => s.crushingDoors);
     const openWalls      = useStore(s => s.openWalls);
+    const openPits       = useStore(s => s.openPits);
     const openTeleporters = useStore(s => s.openTeleporters);
+    const movementCooldown = useStore(s => s.movementCooldown);
     const openMirror     = useStore(s => s.openMirror);
     const toggleDoor     = useStore(s => s.toggleDoor);
     const activateWallSensor = useStore(s => s.activateWallSensor);
@@ -871,6 +920,8 @@ export const DungeonScene = () => {
     const firedSensors   = useStore(s => s.firedSensors);
     const party          = useStore(s => s.party);
     const activePartyMemberId = useStore(s => s.activePartyMemberId);
+    const creatures = useStore(s => s.creatures);
+    const lastMonsterAttackDebug = useStore(s => s.lastMonsterAttackDebug);
 
     const map = getGameMap(level);
     const recruitedIds = useMemo(() => new Set(party.map(c => c.id)), [party]);
@@ -981,6 +1032,84 @@ export const DungeonScene = () => {
         [level, map, openTeleporters],
     );
 
+    const frontCreatureDebugLines = useMemo(() => {
+        if (!RENDER_DEBUG_ENABLED) return [];
+        const frontCreatures = creaturesInFront(level, position, direction, creatures);
+        if (frontCreatures.length === 0) {
+            return ['Front creatures: none'];
+        }
+
+        return [
+            `Front creatures (${frontCreatures.length})`,
+            ...frontCreatures.map((creature, index) => {
+                const def = CREATURE_TYPES[creature.typeId];
+                const label = def?.name ?? `Creature ${creature.typeId}`;
+                return `${index + 1}. ${label} [${creature.cell}] HP ${creature.currentHP}/${def?.baseHP ?? '?'} | ATK ${def?.rawAttack ?? '?'} | ARM ${def?.armor ?? '?'} | HIT ${def?.hitProb ?? '?'} | ASPD ${def?.atkSpd ?? '?'} | MSPD ${def?.moveSpd ?? '?'}${def?.absorbMissiles ? ' | ABSORB' : ''}`;
+            }),
+        ];
+    }, [creatures, direction, level, position]);
+
+    const forwardMoveDebugLines = useMemo(() => {
+        if (!RENDER_DEBUG_ENABLED) return [];
+
+        const [currentY, currentX] = position;
+        const targetX = direction === 'EAST' ? currentX + 1 : direction === 'WEST' ? currentX - 1 : currentX;
+        const targetY = direction === 'NORTH' ? currentY - 1 : direction === 'SOUTH' ? currentY + 1 : currentY;
+        const currentTile = map.tiles[currentY]?.[currentX];
+        const targetTile = map.tiles[targetY]?.[targetX];
+        const targetKey = `${level},${targetY},${targetX}`;
+        const forwardBlockedByTerrain =
+            !targetTile ||
+            targetTile.type === 'Wall' ||
+            (targetTile.type === 'TrickWall' && !openWalls.has(targetKey)) ||
+            (targetTile.type === 'Door' && !openDoors.has(targetKey)) ||
+            (targetTile.type === 'Pit' && openPits.has(targetKey));
+        const targetCreatures = creatures.filter((creature) =>
+            creature.alive &&
+            creature.mapIndex === level &&
+            creature.x === targetX &&
+            creature.y === targetY,
+        );
+        const currentKey = `${level},${currentY},${currentX}`;
+        const phaseAllowsMovement = gamePhase === 'exploration' && !paused;
+        const shouldMoveForward =
+            phaseAllowsMovement &&
+            (!Number.isFinite(movementCooldown) || movementCooldown <= 0) &&
+            !forwardBlockedByTerrain &&
+            targetCreatures.length === 0;
+
+        return [
+            'Forward move debug',
+            `from [${currentX},${currentY}] ${currentTile?.type ?? 'void'}${currentTile?.type === 'TrickWall' ? ` (${openWalls.has(currentKey) ? 'open' : 'closed'})` : ''} -> [${targetX},${targetY}] ${targetTile?.type ?? 'void'}${targetTile?.type === 'TrickWall' ? ` (${openWalls.has(targetKey) ? 'open' : 'closed'})` : ''}${targetTile?.type === 'Door' ? ` (${openDoors.has(targetKey) ? 'open' : 'closed'})` : ''}${targetTile?.type === 'Pit' ? ` (${openPits.has(targetKey) ? 'open' : 'closed'})` : ''}`,
+            `phase ${gamePhase}${paused ? ' (paused)' : ''}`,
+            `cooldown ${Number.isFinite(movementCooldown) ? movementCooldown.toFixed(3) : String(movementCooldown)} | teleporter ${openTeleporters.has(targetKey) ? 'target-open' : 'target-off'} | should move ${shouldMoveForward ? 'YES' : 'NO'}`,
+            targetCreatures.length > 0
+                ? `target creatures: ${targetCreatures.map((creature) => {
+                    const def = CREATURE_TYPES[creature.typeId];
+                    return `${def?.name ?? `Creature ${creature.typeId}`} [${creature.cell}] HP ${creature.currentHP}`;
+                }).join(' | ')}`
+                : 'target creatures: none',
+        ];
+    }, [creatures, direction, gamePhase, level, map, movementCooldown, openDoors, openPits, openTeleporters, openWalls, paused, position]);
+
+    const lastMonsterAttackDebugLines = useMemo(() => {
+        if (!RENDER_DEBUG_ENABLED) return [];
+        if (!lastMonsterAttackDebug) {
+            return ['Last monster hit: none'];
+        }
+        return [
+            'Last monster hit',
+            `${lastMonsterAttackDebug.attackerName} -> ${lastMonsterAttackDebug.targetName} | ${lastMonsterAttackDebug.attackMode} ${lastMonsterAttackDebug.attackType}`,
+            `QCK ${lastMonsterAttackDebug.quickness}/${lastMonsterAttackDebug.requiredQuickness} | PARRY ${lastMonsterAttackDebug.parryMastery} | ROLL ${lastMonsterAttackDebug.rolledAttack}`,
+            `DEF ${lastMonsterAttackDebug.defenseApplied ?? '-'} | SHIELD ${lastMonsterAttackDebug.activeShieldDefense ?? 0} | POST ${lastMonsterAttackDebug.postMitigationAttack ?? '-'} | DMG ${lastMonsterAttackDebug.finalDamage} | HP ${lastMonsterAttackDebug.hpBefore}->${lastMonsterAttackDebug.hpAfter}`,
+            `HIT ${lastMonsterAttackDebug.hitZones?.join(', ') ?? '-'} | WOUND ${lastMonsterAttackDebug.woundSlots?.join(', ') ?? '-'}`,
+            ...(lastMonsterAttackDebug.defenseSlotBreakdown ?? []).map((entry) =>
+                `${entry.slot}: vit ${entry.vitalityRoll} + pose ${entry.defenseModifier} + arm ${entry.slotArmor}${entry.slotItemName ? ` (${entry.slotItemName})` : ''} + shield ${entry.shieldContribution} - wound ${entry.woundPenalty} => ${entry.finalDefense}`),
+            ...(lastMonsterAttackDebug.defenseSlotBreakdown ?? []).flatMap((entry) =>
+                (entry.shieldDetails ?? []).map((detail) => `  ${entry.slot} shield: ${detail}`)),
+        ];
+    }, [lastMonsterAttackDebug]);
+
     const handleCellClick = useCallback((
         e: ThreeEvent<MouseEvent>, renderType: CellRenderType, x: number, y: number,
     ) => {
@@ -1061,16 +1190,19 @@ export const DungeonScene = () => {
 
         if (shouldUseWallTarget) {
             for (const target of altarDropTargets) {
+                if (payload.fromSlot === 'container') break;
                 if (state.useItemOnViAltar(payload.fromChampionId, payload.itemId, payload.fromSlot, target.wallX, target.wallY, target.face)) {
                     return;
                 }
             }
         }
 
+        if (payload.fromSlot === 'container') return;
+        const carriedFromSlot = payload.fromSlot;
         performDungeonDragDropAction(destination, {
-            throwItem: () => state.throwCarriedItem(payload.fromChampionId, payload.itemId, payload.fromSlot),
-            dropFront: () => dropCarriedItemInFront(payload.fromChampionId, payload.itemId, payload.fromSlot),
-            dropCurrent: () => state.dropCarriedItem(payload.fromChampionId, payload.itemId, payload.fromSlot),
+            throwItem: () => state.throwCarriedItem(payload.fromChampionId, payload.itemId, carriedFromSlot),
+            dropFront: () => dropCarriedItemInFront(payload.fromChampionId, payload.itemId, carriedFromSlot),
+            dropCurrent: () => state.dropCarriedItem(payload.fromChampionId, payload.itemId, carriedFromSlot),
         });
     }, [dropCarriedItemInFront]);
 
@@ -1182,10 +1314,10 @@ export const DungeonScene = () => {
             {RENDER_DEBUG_ENABLED && (
                 <div
                     style={{
-                        position: 'absolute',
+                        position: 'fixed',
                         top: 14,
                         left: 14,
-                        zIndex: 150,
+                        zIndex: 340,
                         padding: '8px 10px',
                         borderRadius: 8,
                         background: 'rgba(10, 10, 10, 0.72)',
@@ -1194,12 +1326,89 @@ export const DungeonScene = () => {
                         fontFamily: '"Courier New", monospace',
                         fontSize: 11,
                         lineHeight: 1.35,
-                        pointerEvents: 'none',
-                        userSelect: 'none',
+                        pointerEvents: 'auto',
+                        userSelect: 'text',
+                        cursor: 'text',
                         whiteSpace: 'pre-line',
                     }}
+                    data-debug-overlay="true"
                 >
                     {text.debugRenderState(renderDebug)}
+                </div>
+            )}
+            {RENDER_DEBUG_ENABLED && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 102,
+                        left: 14,
+                        zIndex: 340,
+                        padding: '8px 10px',
+                        borderRadius: 8,
+                        background: 'rgba(10, 10, 10, 0.72)',
+                        border: '1px solid rgba(197, 164, 106, 0.28)',
+                        color: '#d8c48f',
+                        fontFamily: '"Courier New", monospace',
+                        fontSize: 11,
+                        lineHeight: 1.35,
+                        pointerEvents: 'auto',
+                        userSelect: 'text',
+                        cursor: 'text',
+                        whiteSpace: 'pre-line',
+                    }}
+                    data-debug-overlay="true"
+                >
+                    {frontCreatureDebugLines.join('\n')}
+                </div>
+            )}
+            {RENDER_DEBUG_ENABLED && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 206,
+                        left: 14,
+                        zIndex: 340,
+                        padding: '8px 10px',
+                        borderRadius: 8,
+                        background: 'rgba(10, 10, 10, 0.72)',
+                        border: '1px solid rgba(197, 164, 106, 0.28)',
+                        color: '#d8c48f',
+                        fontFamily: '"Courier New", monospace',
+                        fontSize: 11,
+                        lineHeight: 1.35,
+                        pointerEvents: 'auto',
+                        userSelect: 'text',
+                        cursor: 'text',
+                        whiteSpace: 'pre-line',
+                    }}
+                    data-debug-overlay="true"
+                >
+                    {lastMonsterAttackDebugLines.join('\n')}
+                </div>
+            )}
+            {RENDER_DEBUG_ENABLED && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 382,
+                        left: 14,
+                        zIndex: 340,
+                        padding: '8px 10px',
+                        borderRadius: 8,
+                        background: 'rgba(10, 10, 10, 0.72)',
+                        border: '1px solid rgba(197, 164, 106, 0.28)',
+                        color: '#d8c48f',
+                        fontFamily: '"Courier New", monospace',
+                        fontSize: 11,
+                        lineHeight: 1.35,
+                        pointerEvents: 'auto',
+                        userSelect: 'text',
+                        cursor: 'text',
+                        whiteSpace: 'pre-line',
+                    }}
+                    data-debug-overlay="true"
+                >
+                    {forwardMoveDebugLines.join('\n')}
                 </div>
             )}
             <DarknessOverlay />

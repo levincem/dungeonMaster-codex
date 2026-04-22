@@ -206,6 +206,8 @@ test('key modern wall overlay visuals stay aligned with the shared 3D decal comp
         'Slime',
         'Grate',
         'Ghoul\'s Head',
+        'Coin Slot',
+        'Gem Hole',
         'Small Switch',
         'Big Switch In',
         'Eye Switch',
@@ -224,6 +226,8 @@ test('key modern wall overlay visuals stay aligned with the shared 3D decal comp
 test('lock and random-capable wall ornament presets keep the intended reduced ratios', () => {
     const expectedRatios = [
         ['Iron Lock', 0.2, 0.2],
+        ['Coin Slot', 0.34, 0.34],
+        ['Gem Hole', 0.34, 0.34],
         ['Full Torch Holder', 0.24, 0.92],
         ['Empty Torch Holder', 0.42, 0.48],
         ['Hook', 0.15, 0.15],

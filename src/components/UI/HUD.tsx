@@ -2,7 +2,7 @@ import React, { Suspense, lazy, useEffect, useRef, useState, useCallback } from 
 import {
     useStore,
 } from '../../engine/store';
-import { playStep, playWallBump, onSoundPlayed } from '../../engine/sounds';
+import { playStep, playWallBump } from '../../engine/sounds';
 import type { ChampionCombat, ChampionTemporaryXP, ChampionXP, GameAction } from '../../engine/runtimeTypes';
 import { getDisplayedItemName } from '../../data/itemDisplay';
 import { WEAPON_TYPES, resolveItemName } from '../../data/items';
@@ -32,6 +32,7 @@ import {
     didPartyTakeSingleStep,
     selectHudRunes,
 } from './hudDerivedState';
+import { recordChampionStatHighlights, type HighlightStatKey } from './championStatHighlights';
 
 const ManualModal = lazy(() =>
     import('./ManualModal').then((module) => ({ default: module.ManualModal })),
@@ -285,6 +286,7 @@ type RebindingTarget = { action: GameAction; slot: 0 | 1 };
 type HeldMovementKey = 'fwd' | 'bck' | 'sl' | 'sr';
 
 const HELD_MOVEMENT_REPEAT_MS = 60;
+const LEVEL_UP_HIGHLIGHT_MS = 30_000;
 
 function isTextEntryTarget(target: EventTarget | null): boolean {
     const element = target as HTMLElement | null;
@@ -309,7 +311,7 @@ export const HUD = () => {
         championXP, championTemporaryXP, championCombat, attackFront, championEquipment, gameOptions,
         damageEvents, optionsModalOpen, openOptionsModal, closeOptionsModal, setGameOptions,
         activeFloorDrag, pickupItemToChampion, endFloorDrag, giveItem, giveEquippedItem, equipItem,
-        openDoors, openWalls, openPits,
+        openDoors, openWalls, openPits, openTeleporters, paused,
     } = useStore();
     const currentMap = getGameMap(level);
     const keybindings = gameOptions.keybindings;
@@ -329,16 +331,12 @@ export const HUD = () => {
         openDoors,
         openWalls,
         openPits,
+        openTeleporters,
     });
     const recentDamageByChampionId = buildChampionRecentDamageMap({
         party,
         damageEvents,
     });
-    // Sound debug
-    const [lastSound, setLastSound] = useState<string>('');
-    useEffect(() => {
-        return onSoundPlayed((name, file) => setLastSound(`${name} (${file})`));
-    }, []);
     // Flash
     const [flashKey, setFlashKey] = useState<string | null>(null);
     const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -355,6 +353,7 @@ export const HUD = () => {
     const [activeManualSectionId, setActiveManualSectionId] = useState<string | null>(manual.sections[0]?.id ?? null);
     const [levelUpChampionIds, setLevelUpChampionIds] = useState<number[]>([]);
     const previousBasicSkillLevelsRef = useRef<Record<number, number[]>>({});
+    const previousChampionStatsRef = useRef<Record<number, Record<HighlightStatKey, number>>>({});
     const levelUpTimeoutsRef = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
     const handleCloseOptionsModal = useCallback(() => {
         setRebindingTarget(null);
@@ -375,7 +374,17 @@ export const HUD = () => {
 
     useEffect(() => {
         const nextBasicSkillLevels: Record<number, number[]> = {};
+        const nextChampionStats: Record<number, Record<HighlightStatKey, number>> = {};
         const levelUpsThisTick: number[] = [];
+        const statKeys: HighlightStatKey[] = [
+            'strength',
+            'dexterity',
+            'wisdom',
+            'vitality',
+            'luck',
+            'antiMagic',
+            'antiFire',
+        ];
 
         for (const champion of party) {
             const basicLevels = BASIC_SKILL_KEYS.map((skill) =>
@@ -387,12 +396,25 @@ export const HUD = () => {
                 ),
             );
             const previousBasicLevels = previousBasicSkillLevelsRef.current[champion.id];
+            const currentChampionStats = {
+                strength: champion.strength,
+                dexterity: champion.dexterity,
+                wisdom: champion.wisdom,
+                vitality: champion.vitality,
+                luck: champion.luck,
+                antiMagic: champion.antiMagic,
+                antiFire: champion.antiFire,
+            };
+            const previousChampionStats = previousChampionStatsRef.current[champion.id];
 
             if (
                 previousBasicLevels &&
                 basicLevels.some((value, index) => value > (previousBasicLevels[index] ?? 0))
             ) {
                 levelUpsThisTick.push(champion.id);
+                const increasedStats = statKeys.filter((stat) =>
+                    currentChampionStats[stat] > (previousChampionStats?.[stat] ?? currentChampionStats[stat]));
+                recordChampionStatHighlights(champion.id, increasedStats, LEVEL_UP_HIGHLIGHT_MS);
                 const existingTimeout = levelUpTimeoutsRef.current[champion.id];
                 if (existingTimeout) {
                     clearTimeout(existingTimeout);
@@ -404,6 +426,7 @@ export const HUD = () => {
             }
 
             nextBasicSkillLevels[champion.id] = basicLevels;
+            nextChampionStats[champion.id] = currentChampionStats;
         }
 
         if (levelUpsThisTick.length > 0) {
@@ -416,6 +439,7 @@ export const HUD = () => {
         }
 
         previousBasicSkillLevelsRef.current = nextBasicSkillLevels;
+        previousChampionStatsRef.current = nextChampionStats;
     }, [party, championXP, championTemporaryXP]);
 
     const flash = useCallback((key: string, action: () => void) => {
@@ -427,6 +451,7 @@ export const HUD = () => {
 
     // Like flash but also plays wall-bump feedback for blocked movement actions
     const move = useCallback((key: string, action: () => void) => {
+        if (useStore.getState().paused) return;
         const cooldown = useStore.getState().movementCooldown;
         if (Number.isFinite(cooldown) && cooldown > 0) return;
         const posBefore = useStore.getState().position;
@@ -526,6 +551,7 @@ export const HUD = () => {
 
     useEffect(() => {
         const handleKey = (e: KeyboardEvent) => {
+            if (paused) return;
             if (optionsModalOpen || tutorialModalOpen) return;
             if (isTextEntryTarget(e.target)) return;
             const heldMovementKey = resolveHeldMovementKey(e.key);
@@ -561,6 +587,7 @@ export const HUD = () => {
         flash,
         gameOptions,
         optionsModalOpen,
+        paused,
         resolveHeldMovementKey,
         runHeldMovement,
         setHeldMovementPressed,
@@ -625,6 +652,7 @@ export const HUD = () => {
     const [dragOver, setDragOver] = useState<number | null>(null);
     const [itemDropOver, setItemDropOver] = useState<number | null>(null);
     const [handDropOver, setHandDropOver] = useState<string | null>(null);
+    const [activeSpellCasterId, setActiveSpellCasterId] = useState<number | null>(() => party[selectedChampionIndex]?.id ?? party[0]?.id ?? null);
 
     useEffect(() => {
         const clearItemDropState = () => {
@@ -640,19 +668,22 @@ export const HUD = () => {
     }, []);
     // Rune state
     const [selectedRunes, setSelectedRunes] = useState<string[]>([]);
+    const resolvedActiveSpellCasterId = party.some((champion) => champion.id === activeSpellCasterId)
+        ? activeSpellCasterId
+        : (party[selectedChampionIndex]?.id ?? party[0]?.id ?? null);
 
     const selectRune = (runeId: string) => {
         setSelectedRunes((prev) => selectHudRunes(prev, runeId));
     };
     const handleCast = () => {
-        if (!castState.selectedChampion) return;
-        storeCastSpell(castState.selectedChampion.id, selectedRunes);
+        if (!castState.casterChampion) return;
+        storeCastSpell(castState.casterChampion.id, selectedRunes);
         setSelectedRunes([]);
     };
     const clearRunes = () => setSelectedRunes([]);
     const castState = buildHudCastState({
         selectedRunes,
-        selectedChampionIndex,
+        activeCasterChampionId: resolvedActiveSpellCasterId,
         party,
         championVitals,
         championCombat,
@@ -762,11 +793,16 @@ export const HUD = () => {
             <HudMagicPanel
                 panelStyle={panel}
                 text={text}
+                party={party}
+                activeCasterChampionId={resolvedActiveSpellCasterId}
+                activeCasterMana={castState.casterChampionMana}
+                activeCasterCooldown={castState.casterChampionCooldown}
                 selectedRunes={selectedRunes}
                 currentFamilyIdx={castState.currentFamilyIdx}
                 spell={spell}
                 canCast={canCast}
                 lastCastResult={lastCastResult}
+                onSelectCaster={setActiveSpellCasterId}
                 onTruncateRunes={(slotIndex) => setSelectedRunes((prev) => prev.slice(0, slotIndex))}
                 onSelectRune={selectRune}
                 onCast={handleCast}
@@ -826,12 +862,6 @@ export const HUD = () => {
                     currentMap.mapOffset?.y ?? 0,
                 )}
             </div>
-            {lastSound && (
-                <div style={{ fontSize: 9, color: '#cc8833', fontFamily: 'monospace', textAlign: 'center', opacity: 0.7, marginTop: 2 }}>
-                    {text.debugSound(lastSound)}
-                </div>
-            )}
-
             <Suspense fallback={null}>
                 <HudOptionsModal
                     open={optionsModalOpen}

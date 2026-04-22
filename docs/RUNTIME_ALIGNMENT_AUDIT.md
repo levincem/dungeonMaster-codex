@@ -114,6 +114,9 @@ Points a considerer comme clos sauf regression constatee en jeu:
   - les groupes de `3-4` creatures peuvent donc enfin occuper une vraie disposition `2x2`
   - le ciblage melee preserve la priorite "meme colonne avant, sinon autre case avant" au lieu de frapper dans le vide
   - les petites creatures melee placees en back row sur une case adjacente peuvent maintenant avancer vers une sous-case de contact au lieu de rester bloquees derriere leur propre groupe
+  - le bootstrap des creatures deja posees dans les maps n'ecrase plus un groupe extrait `count + hp[]` en un seul monstre:
+    - chaque membre est maintenant materialise avec ses propres HP initiaux
+    - ce correctif touche largement le bestiaire pose, pas seulement les `Screamers`
 - Les fixed possessions de creatures ne reposent plus sur un override manuel:
   - le runtime relit maintenant la vraie table `creatureDroppings` extraite de `I559`
   - les drops fixes de `Skeleton`, `Stone Golem`, `Trolin`, `Animated Armour`, `Rockpile`, `Pain Rat`, `Screamer`, `Magenta Worm` et `Red Dragon` suivent a nouveau les quantites et flags aleatoires d'origine

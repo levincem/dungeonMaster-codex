@@ -196,18 +196,21 @@ export function buildChampionSheetFrontWallContext<TMechanism>(args: {
     direction: Direction;
     firedSensors: Set<string>;
     getTileAt: (level: number, tileX: number, tileY: number) => GameTile | undefined;
-    hasOriginalWallOverlayAt: (level: number, tileX: number, tileY: number, face: CardinalDir, overlayName: string) => boolean;
+    hasEffectiveOriginalWallOverlayAt: (level: number, tileX: number, tileY: number, face: CardinalDir, overlayName: string) => boolean;
     isAltarWallFace: (level: number, tileX: number, tileY: number, face: CardinalDir, getTileAt: (level: number, tileX: number, tileY: number) => GameTile | undefined) => boolean;
     getMechanismsAtFace: (level: number, tileX: number, tileY: number, face: CardinalDir) => TMechanism[];
     isFrontWallMechanism: (mechanism: TMechanism) => boolean;
 }): ChampionSheetFrontWallContext<TMechanism> {
-    const { direction, firedSensors, getMechanismsAtFace, getTileAt, hasOriginalWallOverlayAt, isAltarWallFace, isFrontWallMechanism, level, position } = args;
+    const { direction, firedSensors, getMechanismsAtFace, getTileAt, hasEffectiveOriginalWallOverlayAt, isAltarWallFace, isFrontWallMechanism, level, position } = args;
     const frontTileY = direction === 'NORTH' ? position[0] - 1 : direction === 'SOUTH' ? position[0] + 1 : position[0];
     const frontTileX = direction === 'EAST' ? position[1] + 1 : direction === 'WEST' ? position[1] - 1 : position[1];
     const frontWallFace: CardinalDir = direction === 'NORTH' ? 'South' : direction === 'SOUTH' ? 'North' : direction === 'EAST' ? 'West' : 'East';
     const frontTile = getTileAt(level, frontTileX, frontTileY);
     const isFrontWall = !!frontTile && (frontTile.type === 'Wall' || frontTile.type === 'TrickWall');
-    const facingFountain = isFrontWall && hasOriginalWallOverlayAt(level, frontTileX, frontTileY, frontWallFace, 'Fountain');
+    // Fountain interaction is keyed by the authoritative wall-overlay export.
+    // Relying only on tile lookup can miss valid cases when a consumer has not
+    // resolved the front wall tile yet, especially for random-resolved faces.
+    const facingFountain = hasEffectiveOriginalWallOverlayAt(level, frontTileX, frontTileY, frontWallFace, 'Fountain');
     const facingAltar = isFrontWall && isAltarWallFace(level, frontTileX, frontTileY, frontWallFace, getTileAt);
     const frontWallItemMechanism = isFrontWall
         ? getMechanismsAtFace(level, frontTileX, frontTileY, frontWallFace).find((mechanism) => isFrontWallMechanism(mechanism)) ?? null

@@ -8,7 +8,7 @@ import type {
     GameTile,
     TeleporterObject,
 } from '../../types/game';
-import type { ActivePotionBoost, ChampionVitals, DamageEvent, Direction, Projectile } from '../runtimeTypes';
+import type { ActivePotionBoost, ChampionVitals, DamageEvent, Direction, MonsterAttackDebugEntry, Projectile } from '../runtimeTypes';
 import type { CreatureMovementStateResult } from './creatureMovementState';
 import { resolveMonsterAttackTurn } from './monsterAttackTurn';
 import { resolveMonsterDestinationTurn } from './monsterDestinationTurn';
@@ -50,6 +50,7 @@ type MonsterSingleTurnArgs = {
     damageEvents: DamageEvent[];
     partySleeping: boolean;
     groupMovementPlans: Map<string, CreatureMovementStateResult>;
+    lastMonsterAttackDebug?: MonsterAttackDebugEntry | null;
 };
 
 type MonsterSingleTurnDeps = {
@@ -137,6 +138,7 @@ export type MonsterSingleTurnResult = {
     shouldPlayChampionWounded: boolean;
     frightenedUntilMs?: number;
     defeatedChampionId?: number | null;
+    lastMonsterAttackDebug?: MonsterAttackDebugEntry | null;
 };
 
 export function resolveMonsterSingleTurn(
@@ -181,6 +183,7 @@ export function resolveMonsterSingleTurn(
     let shouldPlayChampionWounded = false;
     let frightenedUntilMs: number | undefined;
     let defeatedChampionId: number | null | undefined;
+    let lastMonsterAttackDebug = args.lastMonsterAttackDebug;
 
     const perception = turnState.perception;
     const runtimeState = turnState.runtimeState;
@@ -232,6 +235,7 @@ export function resolveMonsterSingleTurn(
             notifyAttack,
             attackWindowExpiresAt,
             shouldPlayChampionWounded,
+            lastMonsterAttackDebug,
         };
     }
 
@@ -272,6 +276,7 @@ export function resolveMonsterSingleTurn(
             level: args.level,
             levelDifficulty: args.levelDifficulty,
             partySleeping: args.partySleeping,
+            lastMonsterAttackDebug,
         },
         {
             randomInt: deps.randomInt,
@@ -314,6 +319,7 @@ export function resolveMonsterSingleTurn(
             notifyAttack,
             attackWindowExpiresAt,
             shouldPlayChampionWounded,
+            lastMonsterAttackDebug,
         };
     }
 
@@ -339,6 +345,7 @@ export function resolveMonsterSingleTurn(
             notifyAttack,
             attackWindowExpiresAt,
             shouldPlayChampionWounded,
+            lastMonsterAttackDebug,
         };
     }
 
@@ -367,6 +374,7 @@ export function resolveMonsterSingleTurn(
             attackWindowExpiresAt,
             shouldPlayChampionWounded,
             frightenedUntilMs,
+            lastMonsterAttackDebug,
         };
     }
 
@@ -375,8 +383,10 @@ export function resolveMonsterSingleTurn(
         damageEvents = attackTurn.damageEvents ?? damageEvents;
         defeatedChampionId = attackTurn.defeatedChampionId;
         shouldPlayChampionWounded = true;
+        lastMonsterAttackDebug = attackTurn.lastMonsterAttackDebug ?? lastMonsterAttackDebug;
     } else if (attackTurn.kind === 'none' && attackTurn.championVitals) {
         championVitals = attackTurn.championVitals;
+        lastMonsterAttackDebug = attackTurn.lastMonsterAttackDebug ?? lastMonsterAttackDebug;
     }
 
     const destinationTurn = resolveMonsterDestinationTurn(
@@ -419,5 +429,6 @@ export function resolveMonsterSingleTurn(
         shouldPlayChampionWounded,
         frightenedUntilMs,
         defeatedChampionId,
+        lastMonsterAttackDebug,
     };
 }

@@ -83,6 +83,7 @@ type IncomingState = {
 type ChampionXpState = {
     level: number;
     party: Champion[];
+    championVitals?: Record<number, ChampionVitals>;
     championXP: Record<number, ChampionXP>;
     championTemporaryXP: Record<number, ChampionTemporaryXP>;
     elapsedGameTimeTicks: number;
@@ -143,11 +144,25 @@ test('store champion state runtime delegates champion XP growth and level-up pat
     const currentXP = createEmptyChampionXP();
     currentXP.swing = 490;
     currentXP.fighter = 490;
+    const championVitals = {
+        7: createVitals({
+            currentStats: {
+                luck: champion.luck,
+                strength: champion.strength,
+                dexterity: champion.dexterity,
+                wisdom: champion.wisdom,
+                vitality: champion.vitality,
+                antiMagic: champion.antiMagic,
+                antiFire: champion.antiFire,
+            },
+        }),
+    };
 
     const patch = runtime.buildChampionSkillExperiencePatchOriginal(
         {
             level: 3,
             party: [champion],
+            championVitals,
             championXP: { 7: currentXP },
             championTemporaryXP: { 7: createEmptyChampionTemporaryXP() },
             elapsedGameTimeTicks: 10,
@@ -162,6 +177,7 @@ test('store champion state runtime delegates champion XP growth and level-up pat
     assert.equal(patch?.championXP[7]?.swing, 530);
     assert.equal(patch?.championXP[7]?.fighter, 530);
     assert.equal(patch?.party?.[0]?.strength, 21);
+    assert.equal(patch?.championVitals?.[7]?.currentStats.strength, 21);
 });
 
 test('store champion state runtime resolves incoming attacks through the extracted wrapper', () => {

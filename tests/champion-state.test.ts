@@ -73,6 +73,30 @@ test('normalizeChampionVitalsForChampion restores missing current stats from cha
     });
 });
 
+test('normalizeChampionVitalsForChampion clamps non-luck current stats back to the champion base values', () => {
+    const champion = createChampion(1);
+    const vitals = createVitals();
+    vitals.currentStats = {
+        luck: champion.luck - 5,
+        strength: champion.strength - 3,
+        dexterity: champion.dexterity - 2,
+        wisdom: champion.wisdom - 4,
+        vitality: champion.vitality - 6,
+        antiMagic: champion.antiMagic - 1,
+        antiFire: champion.antiFire - 2,
+    };
+
+    assert.deepEqual(normalizeChampionVitalsForChampion(champion, vitals).currentStats, {
+        luck: champion.luck - 5,
+        strength: champion.strength,
+        dexterity: champion.dexterity,
+        wisdom: champion.wisdom,
+        vitality: champion.vitality,
+        antiMagic: champion.antiMagic,
+        antiFire: champion.antiFire,
+    });
+});
+
 test('isLegacyChampionXPForChampion detects old basic-only initial XP and rejects hidden XP progress', () => {
     const champion = createChampion(2);
     const legacyXP = {

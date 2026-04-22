@@ -1,7 +1,7 @@
 import type { CreatureDef } from '../../data/creatures';
 import type { Champion } from '../../types/champion';
 import type { ChampionEquipment, CreatureInstance, FloorItem, GameMap } from '../../types/game';
-import type { ActivePotionBoost, ChampionVitals, DamageEvent, Direction, Projectile } from '../runtimeTypes';
+import type { ActivePotionBoost, ChampionVitals, DamageEvent, Direction, MonsterAttackDebugEntry, Projectile } from '../runtimeTypes';
 import type { CreatureMovementStateResult } from './creatureMovementState';
 import { processMonsterTickChampionDeaths } from './monsterDeathProcessing';
 import { resolveMonsterSingleTurn } from './monsterSingleTurn';
@@ -33,6 +33,7 @@ type MonsterTickRuntimeState = {
     floorItems: FloorItem[];
     deadChampions: Record<number, Champion>;
     selectedChampionIndex: number;
+    lastMonsterAttackDebug?: MonsterAttackDebugEntry | null;
 };
 
 type MonsterTickRuntimeDeps = {
@@ -139,6 +140,7 @@ export function runMonsterTickRuntime(
     let championEquipment = state.championEquipment;
     let projectiles = state.projectiles;
     let lastCreatureAttackGameTick = state.lastCreatureAttackGameTick;
+    let lastMonsterAttackDebug = state.lastMonsterAttackDebug;
     const newlyDead: number[] = [];
     const groupMovementPlans = new Map<string, CreatureMovementStateResult>();
 
@@ -181,6 +183,7 @@ export function runMonsterTickRuntime(
                 damageEvents,
                 partySleeping: state.sleeping,
                 groupMovementPlans,
+                lastMonsterAttackDebug,
             },
             {
                 randomFraction: deps.randomFraction,
@@ -224,6 +227,7 @@ export function runMonsterTickRuntime(
         championEquipment = turn.championEquipment;
         championVitals = turn.championVitals;
         damageEvents = turn.damageEvents;
+        lastMonsterAttackDebug = turn.lastMonsterAttackDebug;
 
         deps.setCreatureTimers(creature.id, { mt: turn.moveTimer, at: turn.attackTimer });
 
@@ -307,5 +311,7 @@ export function runMonsterTickRuntime(
         selectedChampionIndex: state.selectedChampionIndex,
         floorItems,
         deadChampions,
+        lastMonsterAttackDebug,
+        baseLastMonsterAttackDebug: state.lastMonsterAttackDebug,
     });
 }

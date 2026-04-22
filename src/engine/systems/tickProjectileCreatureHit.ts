@@ -1,6 +1,9 @@
 import type { CreatureInstance, FloorItem } from '../../types/game';
 import type { ActivePoisonCloud, DamageEvent, Projectile, SpellVisualEvent } from '../runtimeTypes';
 import { buildProjectileDroppedItem } from './projectileDroppedItem';
+import { rollOriginalPhysicalProjectileCreatureDamage } from './originalPhysicalProjectileImpact';
+
+const ABSORBABLE_MISSILE_WEAPON_TYPE_IDS = new Set([8, 27, 28, 31, 32]);
 
 type RolledSpellImpact = {
     damage: number;
@@ -23,6 +26,7 @@ type TickProjectileCreatureHitState = {
 type TickProjectileCreatureHitDeps = {
     rollSourceBackedImpact: (projectile: Projectile) => RolledSpellImpact | null;
     getCreaturePoisonAdjustedAttack: (creatureTypeId: number, poisonAttack: number) => number;
+    randomInt: (maxExclusive: number) => number;
     rollRandomProjectileDamage: (projectile: Projectile) => number;
     rollExplosionBurstAttack: (effect: 'disrupt_nonmaterial' | 'poison_cloud' | 'fireball' | 'lightning', attack: number) => number;
     isLikelyNonMaterial: (creature: CreatureInstance) => boolean;
@@ -104,41 +108,23 @@ export function applyProjectileCreatureHit(
         };
     }
 
-    if (projectile.effect === 'physical' && hitAbsorbsMissiles) {
-        if (projectile.physicalItem) {
-            if (creatures === state.creatures) creatures = [...creatures];
-            const idx = creatures.findIndex((creature) => creature.id === hit.id);
-            if (idx >= 0) {
-                const currentTarget = creatures[idx]!;
-                creatures[idx] = {
-                    ...currentTarget,
-                    carriedItems: [
-                        ...(currentTarget.carriedItems ?? []),
-                        deps.buildDroppedItem(projectile.physicalItem, projectileLevel, x, y),
-                    ],
-                };
-            }
-        }
-        return {
-            creatures,
-            floorItems,
-            damageEvents,
-            spellVisualEvents,
-            activePoisonClouds,
-        };
-    }
-
     const sourceBackedImpact = deps.rollSourceBackedImpact(projectile);
     const poisonDamage = sourceBackedImpact?.poisonStrength
         ? deps.getCreaturePoisonAdjustedAttack(hit.typeId, sourceBackedImpact.poisonStrength)
         : 0;
     const rolledDamage = projectile.effect === 'physical'
-        ? Math.max(1, Math.round(projectile.remainingAttack ?? projectile.damage[1]))
+        ? rollOriginalPhysicalProjectileCreatureDamage(projectile, hit.typeId, deps.randomInt)
         : sourceBackedImpact
             ? sourceBackedImpact.damage + poisonDamage
             : deps.rollRandomProjectileDamage(projectile);
 
     let totalDamage = 0;
+    const canAbsorbPhysicalMissile =
+        projectile.effect === 'physical' &&
+        hitAbsorbsMissiles &&
+        projectile.physicalItem?.category === 'Weapon' &&
+        ABSORBABLE_MISSILE_WEAPON_TYPE_IDS.has(projectile.physicalItem.typeId);
+    let absorbedPhysicalMissile = false;
 
     if (projectile.effect === 'disrupt_nonmaterial') {
         const disruptExplosionAttack = deps.rollExplosionBurstAttack(
@@ -206,7 +192,23 @@ export function applyProjectileCreatureHit(
         const killed = newHP <= 0;
         if (creatures === state.creatures) creatures = [...creatures];
         const idx = creatures.findIndex((creature) => creature.id === hit.id);
-        if (idx >= 0) creatures[idx] = { ...creatures[idx], currentHP: newHP, alive: !killed };
+        if (idx >= 0) {
+            const currentTarget = creatures[idx]!;
+            creatures[idx] = {
+                ...currentTarget,
+                currentHP: newHP,
+                alive: !killed,
+                ...(!killed && canAbsorbPhysicalMissile && projectile.physicalItem
+                    ? {
+                        carriedItems: [
+                            ...(currentTarget.carriedItems ?? []),
+                            deps.buildDroppedItem(projectile.physicalItem, projectileLevel, x, y),
+                        ],
+                    }
+                    : {}),
+            };
+            absorbedPhysicalMissile = !killed && canAbsorbPhysicalMissile;
+        }
         if (killed) {
             const dropped = deps.dropCreatureCarriedItems(creatures, floorItems, hit.id);
             creatures = dropped.creatures;
@@ -253,7 +255,7 @@ export function applyProjectileCreatureHit(
         );
     }
 
-    if (projectile.effect === 'physical' && projectile.physicalItem && !projectile.explosionOnImpact) {
+    if (projectile.effect === 'physical' && projectile.physicalItem && !projectile.explosionOnImpact && !absorbedPhysicalMissile) {
         if (floorItems === state.floorItems) floorItems = [...floorItems];
         floorItems.push(
             buildProjectileDroppedItem(

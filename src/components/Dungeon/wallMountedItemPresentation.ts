@@ -1,5 +1,6 @@
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import type { FloorItem } from '../../types/game';
+import { itemsPath } from '../../data/assetPaths';
 import { getOriginalWallOverlayVisual, hasOriginalWallOverlayAt } from '../../data/originalWallOverlays';
 
 const ITEM_MAX_W = GRID_SIZE * 0.42;
@@ -10,10 +11,15 @@ const FULL_TORCH_HOLDER_OVERLAY = 'Full Torch Holder';
 const FULL_TORCH_HOLDER_VISUAL = getOriginalWallOverlayVisual(FULL_TORCH_HOLDER_OVERLAY);
 const FULL_TORCH_HOLDER_PICKUP_PLANE_W = GRID_SIZE * (FULL_TORCH_HOLDER_VISUAL?.width ?? 0.24);
 const FULL_TORCH_HOLDER_PICKUP_PLANE_H = WALL_HEIGHT * (FULL_TORCH_HOLDER_VISUAL?.height ?? 0.92);
+const FULL_TORCH_HOLDER_SPRITE_SCALE = 0.72;
+const FULL_TORCH_HOLDER_SPRITE_OFFSET_Y = WALL_HEIGHT * 0.08;
+const FULL_TORCH_HOLDER_SPRITE_IMAGE = itemsPath('torch_lit.png');
 
 export type WallMountedItemPresentation = {
     renderSprite: boolean;
     spriteScale: number;
+    spriteOffsetY: number;
+    spriteImagePath?: string;
     pickupPlaneWidth: number;
     pickupPlaneHeight: number;
 };
@@ -33,8 +39,10 @@ export function getWallMountedItemPresentation(level: number, item: FloorItem): 
 
     if (isFullTorchHolderFace && isWallMountedTorch(item)) {
         return {
-            renderSprite: false,
-            spriteScale: 1,
+            renderSprite: true,
+            spriteScale: FULL_TORCH_HOLDER_SPRITE_SCALE,
+            spriteOffsetY: FULL_TORCH_HOLDER_SPRITE_OFFSET_Y,
+            spriteImagePath: FULL_TORCH_HOLDER_SPRITE_IMAGE,
             pickupPlaneWidth: FULL_TORCH_HOLDER_PICKUP_PLANE_W,
             pickupPlaneHeight: FULL_TORCH_HOLDER_PICKUP_PLANE_H,
         };
@@ -49,6 +57,8 @@ export function getWallMountedItemPresentation(level: number, item: FloorItem): 
     return {
         renderSprite: true,
         spriteScale,
+        spriteOffsetY: 0,
+        spriteImagePath: undefined,
         pickupPlaneWidth: ITEM_MAX_W * spriteScale,
         pickupPlaneHeight: ITEM_MAX_H * spriteScale,
     };

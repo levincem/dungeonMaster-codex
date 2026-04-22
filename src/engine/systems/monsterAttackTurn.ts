@@ -1,7 +1,7 @@
 import type { CreatureDef } from '../../data/creatures';
 import type { Champion } from '../../types/champion';
 import type { ChampionEquipment, CreatureCell, CreatureInstance, FloorItem } from '../../types/game';
-import type { ActivePotionBoost, ChampionVitals, DamageEvent, Direction, Projectile } from '../runtimeTypes';
+import type { ActivePotionBoost, ChampionVitals, DamageEvent, Direction, MonsterAttackDebugEntry, Projectile } from '../runtimeTypes';
 import { resolveCreatureAttackOpportunity } from './creatureAttackOpportunity';
 import { resolveCreatureAttackOutcomeState } from './creatureAttackOutcomeState';
 import { resolveCreatureAttackStartState } from './creatureAttackStartState';
@@ -36,6 +36,7 @@ type MonsterAttackTurnArgs = {
     level: number;
     levelDifficulty: number;
     partySleeping: boolean;
+    lastMonsterAttackDebug?: MonsterAttackDebugEntry | null;
 };
 
 type MonsterAttackTurnDeps = {
@@ -86,6 +87,7 @@ export type MonsterAttackTurnResult = {
     damageEvents?: DamageEvent[];
     defeatedChampionId?: number | null;
     shouldFlee?: boolean;
+    lastMonsterAttackDebug?: MonsterAttackDebugEntry | null;
 };
 
 export function resolveMonsterAttackTurn(
@@ -135,6 +137,7 @@ export function resolveMonsterAttackTurn(
             nextAttackTimer: attackOpportunity.nextAttackTimer,
             nextMoveTimer: contactAdvance.nextMoveTimer,
             targetCell: contactAdvance.targetCell,
+            lastMonsterAttackDebug: args.lastMonsterAttackDebug,
         };
     }
 
@@ -151,6 +154,7 @@ export function resolveMonsterAttackTurn(
         return {
             kind: attackStart.kind,
             nextAttackTimer: attackStart.nextAttackTimer,
+            lastMonsterAttackDebug: args.lastMonsterAttackDebug,
         };
     }
 
@@ -188,6 +192,7 @@ export function resolveMonsterAttackTurn(
             kind: 'none',
             nextAttackTimer: attackStart.nextAttackTimer,
             attackWindowExpiresAt: attackStart.attackWindowExpiresAt,
+            lastMonsterAttackDebug: args.lastMonsterAttackDebug,
         };
     }
 
@@ -248,6 +253,7 @@ export function resolveMonsterAttackTurn(
             championVitals: args.championVitals,
             damageEvents: args.damageEvents,
             level: args.level,
+            lastMonsterAttackDebug: args.lastMonsterAttackDebug,
         },
         {
             buildChampionDamageEvent: deps.buildChampionDamageEvent,
@@ -260,6 +266,7 @@ export function resolveMonsterAttackTurn(
             nextAttackTimer: attackStart.nextAttackTimer,
             attackWindowExpiresAt: attackStart.attackWindowExpiresAt,
             projectiles: attackOutcome.projectiles,
+            lastMonsterAttackDebug: args.lastMonsterAttackDebug,
         };
     }
 
@@ -273,6 +280,7 @@ export function resolveMonsterAttackTurn(
             championEquipment: attackOutcome.championEquipment,
             championVitals: attackOutcome.championVitals,
             shouldFlee: attackOutcome.shouldFlee,
+            lastMonsterAttackDebug: args.lastMonsterAttackDebug,
         };
     }
 
@@ -284,6 +292,7 @@ export function resolveMonsterAttackTurn(
             championVitals: attackOutcome.championVitals,
             damageEvents: attackOutcome.damageEvents,
             defeatedChampionId: attackOutcome.defeatedChampionId,
+            lastMonsterAttackDebug: attackOutcome.lastMonsterAttackDebug,
         };
     }
 
@@ -292,5 +301,6 @@ export function resolveMonsterAttackTurn(
         nextAttackTimer: attackStart.nextAttackTimer,
         attackWindowExpiresAt: attackStart.attackWindowExpiresAt,
         championVitals: attackOutcome.championVitals,
+        lastMonsterAttackDebug: attackOutcome.lastMonsterAttackDebug,
     };
 }

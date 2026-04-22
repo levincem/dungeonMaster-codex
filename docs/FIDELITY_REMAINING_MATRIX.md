@@ -158,8 +158,7 @@ Il reste des ecarts visuels qui ne remettent pas en cause la logique gameplay, m
 Exemples:
 
 - aliases / fallbacks d'images d'items
-- famille generique `serrure.png`
-- `Gem Hole` qui reutilise encore `eye.png`
+- derniers ecarts de presentation a polir selon retour playtest, plutot que des placeholders generiques encore actifs
 
 Nuance recente:
 

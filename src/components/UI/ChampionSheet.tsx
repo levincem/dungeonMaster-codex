@@ -1,9 +1,10 @@
-﻿import React, { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import type { Champion } from '../../data/champions';
 import { getGameMap } from '../../data/mapLoader';
 import { getMechanismsAt } from '../../data/mechanisms';
 import type { Mechanism } from '../../data/mechanisms';
-import { hasOriginalWallOverlayAt } from '../../data/originalWallOverlays';
+import { hasEffectiveOriginalWallOverlayAt } from '../../data/originalWallOverlays';
 import { getDisplayedItemName } from '../../data/itemDisplay';
 import { isOriginalConsumableItem } from '../../data/originalItemRules';
 import { isAltarWallFace as isAltarWallFaceSystem } from '../../engine/systems/resurrection';
@@ -23,9 +24,13 @@ import type { EquipSlotKey } from '../../types/items';
 import type { FloorItem, ChampionEquipment } from '../../types/game';
 import { getEquippedItemImage, getInventoryItemImage } from '../../data/itemImages';
 import { canDrinkFromContainer, canFillWaterContainer, getWaterContainerState, isWaterContainer } from '../../data/waterContainers';
-import { miscPath } from '../../data/assetPaths';
+import { itemsPath, miscPath } from '../../data/assetPaths';
 import { playPlate } from '../../engine/sounds';
-import { MAX_CHAMPION_INVENTORY_ITEMS } from '../../engine/systems/inventoryState';
+import {
+    getContainerContents,
+    MAX_CHAMPION_INVENTORY_ITEMS,
+    MAX_CONTAINER_ITEMS,
+} from '../../engine/systems/inventoryState';
 import { getDragPayload, setDragPayload, type DragPayload } from './dragPayload';
 import { useI18n } from '../../i18n';
 import {
@@ -43,6 +48,11 @@ import {
     getFirstEquipTargetSlot,
 } from './championSheetDerivedState';
 import { ChampionSheetOverviewPanel } from './ChampionSheetOverviewPanel';
+import {
+    getChampionStatHighlightSnapshot,
+    subscribeChampionStatHighlights,
+    type HighlightStatKey,
+} from './championStatHighlights';
 
 // Slot highlight animation
 const PULSE_STYLE = `
@@ -84,6 +94,16 @@ const T = {
     slotBorder:  '#5a3e10',
     text:        '#f4dfa0',
 };
+
+const ATTRIBUTE_STAT_KEYS: HighlightStatKey[] = [
+    'strength',
+    'dexterity',
+    'wisdom',
+    'vitality',
+    'luck',
+    'antiMagic',
+    'antiFire',
+];
 
 function acceptDrag(event: React.DragEvent, onOver?: () => void): void {
     event.preventDefault();
@@ -320,9 +340,10 @@ const PartyMemberDropTarget: React.FC<{
     other: Champion;
     onGiveInventory: (targetId: number, itemId: string) => void;
     onGiveEquipped: (targetId: number, slot: EquipSlotKey) => void;
+    onGiveContainerItem: (targetId: number, containerItemId: string, itemId: string) => void;
     onOpen: (targetId: number) => void;
     title: string;
-}> = ({ championId, other, onGiveInventory, onGiveEquipped, onOpen, title }) => {
+}> = ({ championId, other, onGiveInventory, onGiveEquipped, onGiveContainerItem, onOpen, title }) => {
     const [over, setOver] = useState(false);
 
     return (
@@ -337,6 +358,7 @@ const PartyMemberDropTarget: React.FC<{
                 const p = getDragPayload(e);
                 if (!p || p.fromChampionId !== championId) return;
                 if (p.fromSlot === 'inventory') onGiveInventory(other.id, p.itemId);
+                else if (p.fromSlot === 'container' && p.fromContainerItemId) onGiveContainerItem(other.id, p.fromContainerItemId, p.itemId);
                 else onGiveEquipped(other.id, p.fromSlot as EquipSlotKey);
             }}
         >
@@ -402,6 +424,138 @@ const BackpackGrid: React.FC<{
     </div>
 );
 
+const ContainerGrid: React.FC<{
+    containerItem: FloorItem;
+    handLabel: string;
+    champion: Champion;
+    onStoreItem: (itemId: string, fromSlot: EquipSlotKey | 'inventory') => void;
+    onTakeToInventory: (itemId: string) => void;
+    onItemDragStart: (p: DragPayload) => void;
+    onItemDragEnd: () => void;
+    direction: Direction;
+    text: ReturnType<typeof useI18n>['championSheet'];
+}> = ({ containerItem, handLabel, champion, onStoreItem, onTakeToInventory, onItemDragStart, onItemDragEnd, direction, text }) => {
+    const contents = getContainerContents(containerItem);
+    const openedChestImage = itemsPath('chest_opened.png');
+
+    return (
+        <div
+            style={{
+                background: 'linear-gradient(180deg, rgba(0,0,0,0.9), rgba(23,18,10,0.94))',
+                border: `1px solid ${T.panelBorder}`,
+                borderRadius: 6,
+                padding: 10,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 8,
+                boxSizing: 'border-box',
+            }}
+            onDragOver={(event) => {
+                const payload = getDragPayload(event);
+                if (!payload || payload.fromChampionId !== champion.id) return;
+                if (payload.fromSlot === 'container') return;
+                event.preventDefault();
+            }}
+            onDrop={(event) => {
+                event.preventDefault();
+                const payload = getDragPayload(event);
+                if (!payload || payload.fromChampionId !== champion.id) return;
+                if (payload.fromSlot === 'container') return;
+                onStoreItem(payload.itemId, payload.fromSlot);
+            }}
+        >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <img
+                        src={openedChestImage}
+                        alt=""
+                        draggable={false}
+                        style={{ width: 34, height: 34, objectFit: 'contain', imageRendering: 'crisp-edges' }}
+                    />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                        <span style={{ fontSize: 10, letterSpacing: 3, color: T.gold }}>{text.container}</span>
+                        <span style={{ fontSize: 11, color: T.creamDim }}>
+                            {getItemName(containerItem, direction)} · {handLabel}
+                        </span>
+                    </div>
+                </div>
+                <span style={{ color: T.creamDim, fontSize: 10 }}>{contents.length}/{MAX_CONTAINER_ITEMS}</span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4 }}>
+                {Array.from({ length: MAX_CONTAINER_ITEMS }).map((_, index) => {
+                    const item = contents[index];
+                    if (!item) {
+                        return (
+                            <div
+                                key={`empty-${index}`}
+                                style={{
+                                    aspectRatio: '1',
+                                    border: `1px dashed ${T.slotBorder}`,
+                                    borderRadius: 3,
+                                    background: 'rgba(255,255,255,0.06)',
+                                    opacity: 0.75,
+                                }}
+                            />
+                        );
+                    }
+
+                    return (
+                        <div
+                            key={item.id}
+                            draggable
+                            onDragStart={(event) => {
+                                const payload: DragPayload = {
+                                    itemId: item.id,
+                                    fromChampionId: champion.id,
+                                    fromSlot: 'container',
+                                    fromContainerItemId: containerItem.id,
+                                };
+                                setDragPayload(event, payload);
+                                onItemDragStart(payload);
+                            }}
+                            onDragEnd={onItemDragEnd}
+                            title={getItemName(item, direction)}
+                            style={{
+                                aspectRatio: '1',
+                                border: `1px solid ${T.slotBorder}`,
+                                borderRadius: 3,
+                                background: T.slotBg,
+                                cursor: 'grab',
+                                position: 'relative',
+                                overflow: 'hidden',
+                            }}
+                            onDoubleClick={() => onTakeToInventory(item.id)}
+                        >
+                            <ItemThumb item={item} size={66} />
+                            <div style={{
+                                position: 'absolute',
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                padding: '2px 3px',
+                                background: 'linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.92))',
+                            }}>
+                                <div style={{
+                                    fontSize: 8,
+                                    color: T.cream,
+                                    textAlign: 'center',
+                                    lineHeight: 1.1,
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    textShadow: '0 1px 2px rgba(0,0,0,0.85)',
+                                }}>
+                                    {getItemName(item, direction).substring(0, 12)}
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
 // Main
 export const ChampionSheet: React.FC = () => {
     const text = useI18n().championSheet;
@@ -410,7 +564,8 @@ export const ChampionSheet: React.FC = () => {
         activePartyMemberId, party, level, position, direction,
         closePartyMember, openPartyMember, removeFromParty,
         championInventories, championEquipment, championVitals, championXP, firedSensors,
-        equipItem, unequipItem, dropItem, giveItem, giveEquippedItem, sleeping,
+        equipItem, unequipItem, dropItem, giveItem, giveEquippedItem,
+        storeItemInContainer, takeContainerItem, giveContainerItem, equipContainerItem, sleeping,
         useItem: consumeItem, drinkFromFountain, fillWaterContainer, sleep, saveGame, showTransientMessage, useItemOnFrontWall: frontWallItemAction,
     } = useStore();
     const activePotionBoosts = useStore((s) => s.activePotionBoosts);
@@ -422,13 +577,16 @@ export const ChampionSheet: React.FC = () => {
 
     const validSlots = new Set<EquipSlotKey>(draggingItem ? getEquippableSlots(draggingItem) : []);
     const highlightEye   = draggingItem?.category === 'Scroll' || (draggingItem ? isWaterContainer(draggingItem) : false);
-    const highlightMouth = draggingItem ? isConsumable(draggingItem) : false;
-    const highlightFountain = draggingItem ? canFillWaterContainer(draggingItem) : false;
 
     const handleDragBegin = (p: DragPayload, localEquip: ChampionEquipment, localInv: FloorItem[]) => {
         const item = p.fromSlot === 'inventory'
             ? localInv.find(i => i.id === p.itemId)
-            : localEquip[p.fromSlot as EquipSlotKey];
+            : p.fromSlot === 'container'
+                ? getContainerContents(
+                    localInv.find((entry) => entry.id === p.fromContainerItemId)
+                    ?? Object.values(localEquip).find((entry) => entry?.id === p.fromContainerItemId),
+                ).find((entry) => entry.id === p.itemId)
+                : localEquip[p.fromSlot as EquipSlotKey];
         setDraggingItem(item ?? null);
     };
     const clearDragState = () => setDraggingItem(null);
@@ -444,6 +602,12 @@ export const ChampionSheet: React.FC = () => {
     };
 
     const champion = findActivePartyChampion(party, activePartyMemberId);
+    const highlightedChampionId = champion?.id ?? -1;
+    const levelUpHighlights = useSyncExternalStore(
+        subscribeChampionStatHighlights,
+        () => getChampionStatHighlightSnapshot(highlightedChampionId),
+        () => getChampionStatHighlightSnapshot(highlightedChampionId),
+    );
     if (!champion) return null;
 
     const inv        = championInventories[champion.id] ?? [];
@@ -478,13 +642,20 @@ export const ChampionSheet: React.FC = () => {
     const water = vitalsSummary.water;
     const foodFrame = vitalsSummary.foodSeverity === 'critical' ? '#b83a30' : vitalsSummary.foodSeverity === 'warning' ? 'rgba(212, 168, 32, 0.7)' : undefined;
     const waterFrame = vitalsSummary.waterSeverity === 'critical' ? '#b83a30' : vitalsSummary.waterSeverity === 'warning' ? 'rgba(212, 168, 32, 0.7)' : undefined;
+    const attributeStatuses = Object.fromEntries(
+        ATTRIBUTE_STAT_KEYS.map((stat) => {
+            if (effectiveStats[stat] < champion[stat]) return [stat, 'penalty'];
+            if (levelUpHighlights[stat]) return [stat, 'levelUp'];
+            return [stat, undefined];
+        }).filter((entry): entry is [HighlightStatKey, 'levelUp' | 'penalty'] => entry[1] !== undefined),
+    ) as Partial<Record<HighlightStatKey, 'levelUp' | 'penalty'>>;
     const frontWallContext = buildChampionSheetFrontWallContext<Mechanism>({
         level,
         position,
         direction,
         firedSensors,
         getTileAt: (mapLevel, tileX, tileY) => getGameMap(mapLevel).tiles[tileY]?.[tileX],
-        hasOriginalWallOverlayAt,
+        hasEffectiveOriginalWallOverlayAt,
         isAltarWallFace: isAltarWallFaceSystem,
         getMechanismsAtFace: (mapLevel, tileX, tileY, face) => getMechanismsAt(mapLevel, tileX, tileY, face),
         isFrontWallMechanism: (mechanism) =>
@@ -494,25 +665,44 @@ export const ChampionSheet: React.FC = () => {
     const facingAltar = frontWallContext.facingAltar;
     const frontWallItemMechanism = frontWallContext.frontWallItemMechanism;
     const canDismissChampion = frontWallContext.canDismissChampion;
-    const getDraggedItem = (payload: DragPayload) => (
-        payload.fromSlot === 'inventory'
-            ? inv.find((item) => item.id === payload.itemId)
-            : equip[payload.fromSlot as EquipSlotKey]
-    );
+    const highlightMouth = draggingItem
+        ? isConsumable(draggingItem) || (facingFountain && canFillWaterContainer(draggingItem))
+        : false;
+    const getDraggedItem = (payload: DragPayload) => {
+        if (payload.fromSlot === 'inventory') {
+            return inv.find((item) => item.id === payload.itemId);
+        }
+        if (payload.fromSlot === 'container') {
+            const containerItem =
+                inv.find((item) => item.id === payload.fromContainerItemId)
+                ?? Object.values(equip).find((item) => item?.id === payload.fromContainerItemId);
+            return getContainerContents(containerItem).find((item) => item.id === payload.itemId);
+        }
+        return equip[payload.fromSlot as EquipSlotKey];
+    };
     const canDropConsumableOnMouth = (payload: DragPayload) => {
+        if (payload.fromSlot === 'container') return false;
         const item = getDraggedItem(payload);
         return !!item && isConsumable(item);
     };
     const canDropInspectableOnEye = (payload: DragPayload) => {
+        if (payload.fromSlot === 'container') return false;
         const item = getDraggedItem(payload);
         return !!item && (item.category === 'Scroll' || isWaterContainer(item));
     };
     const canDropContainerOnFountain = (payload: DragPayload) => {
+        if (payload.fromSlot === 'container') return false;
         const item = getDraggedItem(payload);
         return !!item && canFillWaterContainer(item);
     };
 
     const handleDropOnSlot = (payload: DragPayload, targetSlot: EquipSlotKey) => {
+        if (payload.fromSlot === 'container') {
+            if (!payload.fromContainerItemId) return;
+            equipContainerItem(champion.id, payload.fromContainerItemId, payload.itemId, targetSlot);
+            clearDragState();
+            return;
+        }
         if (payload.fromChampionId !== champion.id) {
             giveItem(payload.fromChampionId, champion.id, payload.itemId);
             clearDragState();
@@ -537,7 +727,14 @@ export const ChampionSheet: React.FC = () => {
     const handleUnequipToInventory = (e: React.DragEvent) => {
         e.preventDefault();
         const p = getDragPayload(e);
-        if (!p || p.fromChampionId !== champion.id || p.fromSlot === 'inventory') return;
+        if (!p || p.fromChampionId !== champion.id) return;
+        if (p.fromSlot === 'container') {
+            if (!p.fromContainerItemId) return;
+            takeContainerItem(champion.id, p.fromContainerItemId, p.itemId);
+            clearDragState();
+            return;
+        }
+        if (p.fromSlot === 'inventory') return;
         unequipItem(champion.id, p.fromSlot as EquipSlotKey);
         clearDragState();
     };
@@ -547,7 +744,14 @@ export const ChampionSheet: React.FC = () => {
         if (slot) equipItem(champion.id, slot, item.id);
     };
 
-    const handleConsume = (payload: DragPayload) => {
+    const handleConsumeOrFountainDrop = (payload: DragPayload) => {
+        if (payload.fromSlot === 'container') return;
+        const item = getDraggedItem(payload);
+        if (facingFountain && item && canFillWaterContainer(item)) {
+            fillWaterContainer(champion.id, payload.itemId);
+            clearDragState();
+            return;
+        }
         consumeItem(champion.id, payload.itemId, payload.fromSlot);
         clearDragState();
     };
@@ -561,18 +765,13 @@ export const ChampionSheet: React.FC = () => {
         }
     };
 
-    const handleFillAtFountain = (payload: DragPayload) => {
-        if (!facingFountain) return;
-        fillWaterContainer(champion.id, payload.itemId);
-        clearDragState();
-    };
-
     const handleDrinkAtFountain = () => {
         if (!facingFountain) return;
         drinkFromFountain(champion.id);
     };
 
     const handleUseOnWallMechanism = (payload: DragPayload) => {
+        if (payload.fromSlot === 'container') return;
         const used = frontWallItemAction(payload.fromChampionId, payload.itemId, payload.fromSlot);
         if (used) clearDragState();
     };
@@ -599,6 +798,10 @@ export const ChampionSheet: React.FC = () => {
     };
 
     const otherMembers = party.filter(c => c.id !== champion.id);
+    const heldContainers = (['rightHand', 'leftHand'] as const)
+        .map((slot) => ({ slot, item: equip[slot] }))
+        .filter((entry): entry is { slot: 'rightHand' | 'leftHand'; item: FloorItem } => entry.item?.category === 'Container');
+    const activeHeldContainer = heldContainers[0] ?? null;
 
     return (
         <div onClick={closePartyMember} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.82)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, fontFamily: '"Courier New", Courier, monospace' }}>
@@ -692,6 +895,7 @@ export const ChampionSheet: React.FC = () => {
                         foodFrame={foodFrame}
                         waterFrame={waterFrame}
                         effectiveStats={effectiveStats}
+                        attributeStatuses={attributeStatuses}
                     />
 
                     {/* COL 2: Equipment silhouette */}
@@ -726,26 +930,7 @@ export const ChampionSheet: React.FC = () => {
                                 />
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'center', minHeight: 48 }}>
-                                {facingFountain ? (
-                                    <DropZone
-                                        icon={wallContextGlyphs.fountain}
-                                        label={text.fountain}
-                                        title={text.fountainTitle}
-                                        borderColor="#3aa0d8"
-                                        highlight={highlightFountain}
-                                        canAccept={canDropContainerOnFountain}
-                                        onClick={handleDrinkAtFountain}
-                                        onDrop={handleFillAtFountain}
-                                    />
-                                ) : facingAltar ? (
-                                    <DropZone
-                                        icon={wallContextGlyphs.altar}
-                                        label={text.altar}
-                                        title={text.altarTitle}
-                                        borderColor="#d4a840"
-                                        onDrop={handleUseOnWallMechanism}
-                                    />
-                                ) : frontWallItemMechanism ? (
+                                {frontWallItemMechanism ? (
                                     <DropZone
                                         icon={frontWallItemMechanism.trigger === 'alcove'
                                             ? wallContextGlyphs.alcove
@@ -761,17 +946,26 @@ export const ChampionSheet: React.FC = () => {
                                         borderColor="#d4a840"
                                         onDrop={handleUseOnWallMechanism}
                                     />
+                                ) : facingAltar ? (
+                                    <DropZone
+                                        icon={wallContextGlyphs.altar}
+                                        label={text.altar}
+                                        title={text.altarTitle}
+                                        borderColor="#d4a840"
+                                        onDrop={handleUseOnWallMechanism}
+                                    />
                                 ) : null}
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'flex-end', paddingRight: 18 }}>
                                 <DropZone
                                     icon={<img src={miscPath('mouth.png')} alt="" draggable={false} style={{ width: 22, height: 22, objectFit: 'contain', imageRendering: 'crisp-edges' }} />}
                                     label={text.eat}
-                                    title={text.eatTitle}
-                                    borderColor="#d04040"
+                                    title={facingFountain ? text.fountainTitle : text.eatTitle}
+                                    borderColor={facingFountain ? '#3aa0d8' : '#d04040'}
                                     highlight={highlightMouth}
-                                    canAccept={canDropConsumableOnMouth}
-                                    onDrop={handleConsume}
+                                    canAccept={(payload) => canDropConsumableOnMouth(payload) || (facingFountain && canDropContainerOnFountain(payload))}
+                                    onClick={facingFountain ? handleDrinkAtFountain : undefined}
+                                    onDrop={handleConsumeOrFountainDrop}
                                 />
                             </div>
                         </div>
@@ -839,52 +1033,72 @@ export const ChampionSheet: React.FC = () => {
                             direction={direction}
                             text={text}
                         />
-
-                        <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 6, padding: '12px 14px' }}>
-                            <div style={{ fontSize: 13, letterSpacing: 3, color: T.gold, marginBottom: 10 }}>{text.classes}</div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 18px' }}>
-                                {skills.map(({ key, label }) => {
-                                    const skillXP = xp?.[key] ?? 0;
-                                    const name = getSkillLevelName(skillXP, text.skillLevelNames);
-                                    const color = SKILL_COLORS[key];
-                                    if (name === text.skillLevelNames[0]) return null;
-                                    return (
-                                        <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 2 }}>
-                                            <span style={{ fontSize: 14, color: T.creamDim }}>{label}</span>
-                                            <span style={{ fontSize: 14, fontWeight: 'bold', color }}>{name}</span>
+                        <div style={{ position: 'relative', minHeight: otherMembers.length > 0 ? 286 : 160 }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 6, padding: '12px 14px' }}>
+                                    <div style={{ fontSize: 13, letterSpacing: 3, color: T.gold, marginBottom: 10 }}>{text.classes}</div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 18px' }}>
+                                        {skills.map(({ key, label }) => {
+                                            const skillXP = xp?.[key] ?? 0;
+                                            const name = getSkillLevelName(skillXP, text.skillLevelNames);
+                                            const color = SKILL_COLORS[key];
+                                            if (name === text.skillLevelNames[0]) return null;
+                                            return (
+                                                <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 2 }}>
+                                                    <span style={{ fontSize: 14, color: T.creamDim }}>{label}</span>
+                                                    <span style={{ fontSize: 14, fontWeight: 'bold', color }}>{name}</span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                    {skills.every(({ key }) => (xp?.[key] ?? 0) === 0) && (
+                                        <div style={{ fontSize: 14, color: T.goldDim, fontStyle: 'italic' }}>{text.beginner}</div>
+                                    )}
+                                </div>
+                                {otherMembers.length > 0 && (
+                                    <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 6, padding: '10px 12px', minHeight: 118, display: 'flex', alignItems: 'center' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 84px)', gap: 10, alignItems: 'start', width: '100%', justifyContent: 'space-between' }}>
+                                            {otherMembers.map(other => (
+                                                <PartyMemberDropTarget
+                                                    key={other.id}
+                                                    championId={champion.id}
+                                                    other={other}
+                                                    onGiveInventory={(targetId, itemId) => giveItem(champion.id, targetId, itemId)}
+                                                    onGiveEquipped={(targetId, slot) => giveEquippedItem(champion.id, slot, targetId)}
+                                                    onGiveContainerItem={(targetId, containerItemId, itemId) => giveContainerItem(champion.id, targetId, containerItemId, itemId)}
+                                                    onOpen={openPartyMember}
+                                                    title={text.giveTo(other.name)}
+                                                />
+                                            ))}
+                                            <DungeonHandoffTarget
+                                                championId={champion.id}
+                                                label={text.dungeon}
+                                                title={text.dungeonDropTitle}
+                                                onHandoff={closePartyMember}
+                                            />
                                         </div>
-                                    );
-                                })}
+                                    </div>
+                                )}
                             </div>
-                            {skills.every(({ key }) => (xp?.[key] ?? 0) === 0) && (
-                                <div style={{ fontSize: 14, color: T.goldDim, fontStyle: 'italic' }}>{text.beginner}</div>
+
+                            {activeHeldContainer && (
+                                <div style={{ position: 'absolute', inset: 0, zIndex: 5, display: 'flex', alignItems: 'flex-start', pointerEvents: 'none' }}>
+                                    <div style={{ width: '100%', pointerEvents: 'auto' }}>
+                                        <ContainerGrid
+                                            containerItem={activeHeldContainer.item}
+                                            handLabel={activeHeldContainer.slot === 'rightHand' ? text.slotLabels.rightHand : text.slotLabels.leftHand}
+                                            champion={champion}
+                                            onStoreItem={(itemId, fromSlot) => storeItemInContainer(champion.id, itemId, fromSlot, activeHeldContainer.item.id)}
+                                            onTakeToInventory={(itemId) => takeContainerItem(champion.id, activeHeldContainer.item.id, itemId)}
+                                            onItemDragStart={(p) => handleDragBegin(p, equip, inv)}
+                                            onItemDragEnd={handleDragEnd}
+                                            direction={direction}
+                                            text={text}
+                                        />
+                                    </div>
+                                </div>
                             )}
                         </div>
-                        {otherMembers.length > 0 && (
-                            <div style={{ background: T.panelBg, border: `1px solid ${T.panelBorder}`, borderRadius: 6, padding: '10px 12px', minHeight: 118, display: 'flex', alignItems: 'center' }}>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 84px)', gap: 10, alignItems: 'start', width: '100%', justifyContent: 'space-between' }}>
-                                    {otherMembers.map(other => (
-                                        <PartyMemberDropTarget
-                                            key={other.id}
-                                            championId={champion.id}
-                                            other={other}
-                                            onGiveInventory={(targetId, itemId) => giveItem(champion.id, targetId, itemId)}
-                                            onGiveEquipped={(targetId, slot) => giveEquippedItem(champion.id, slot, targetId)}
-                                            onOpen={openPartyMember}
-                                            title={text.giveTo(other.name)}
-                                        />
-                                    ))}
-                                    <DungeonHandoffTarget
-                                        label={text.dungeon}
-                                        title={text.dungeonDropTitle}
-                                        onHandoff={() => {
-                                            clearDragState();
-                                            closePartyMember();
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
 
@@ -904,17 +1118,21 @@ export const ChampionSheet: React.FC = () => {
 };
 
 const DungeonHandoffTarget: React.FC<{
+    championId: number;
     label: string;
     title: string;
     onHandoff: () => void;
-}> = ({ label, title, onHandoff }) => {
+}> = ({ championId, label, title, onHandoff }) => {
     const [over, setOver] = useState(false);
+    const [hasHandedOff, setHasHandedOff] = useState(false);
 
     const triggerHandoff = (e: React.DragEvent) => {
         const payload = getDragPayload(e);
-        if (!payload) return;
+        if (!payload || payload.fromChampionId !== championId) return;
         e.preventDefault();
         setOver(true);
+        if (hasHandedOff) return;
+        setHasHandedOff(true);
         onHandoff();
     };
 
@@ -935,7 +1153,15 @@ const DungeonHandoffTarget: React.FC<{
             }}
             onDragEnter={triggerHandoff}
             onDragOver={triggerHandoff}
-            onDragLeave={() => setOver(false)}
+            onDragLeave={() => {
+                setOver(false);
+                setHasHandedOff(false);
+            }}
+            onDrop={(event) => {
+                event.preventDefault();
+                setOver(false);
+                setHasHandedOff(false);
+            }}
         >
             <div style={{
                 width: 84,

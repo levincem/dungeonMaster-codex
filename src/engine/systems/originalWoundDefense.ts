@@ -43,6 +43,18 @@ type ComputeOriginalChampionWoundDefenseArgs = {
     woundDefenseFactors: readonly number[];
 };
 
+export type OriginalChampionWoundDefenseDebug = {
+    slot: ChampionWoundSlot;
+    vitalityRoll: number;
+    defenseModifier: number;
+    slotArmor: number;
+    slotItemName?: string | null;
+    shieldContribution: number;
+    shieldDetails: string[];
+    woundPenalty: number;
+    finalDefense: number;
+};
+
 function clampToRange(min: number, value: number, max: number): number {
     return Math.max(min, Math.min(max, value));
 }
@@ -127,6 +139,14 @@ export function computeOriginalChampionWoundDefense(
     randomInt: (maxExclusive: number) => number,
     deps: OriginalWoundDefenseDeps,
 ): number {
+    return computeOriginalChampionWoundDefenseWithDebug(args, randomInt, deps).value;
+}
+
+export function computeOriginalChampionWoundDefenseWithDebug(
+    args: ComputeOriginalChampionWoundDefenseArgs,
+    randomInt: (maxExclusive: number) => number,
+    deps: OriginalWoundDefenseDeps,
+): { value: number; debug: OriginalChampionWoundDefenseDebug } {
     const effective = deps.getEffectiveChampionStatsWithBonuses(
         args.champion,
         args.equip ?? {},
@@ -136,20 +156,27 @@ export function computeOriginalChampionWoundDefense(
     if (args.useSharpDefense) {
         woundDefense = Math.floor(woundDefense / 2);
     }
+    const vitalityRoll = woundDefense;
     woundDefense += args.defenseModifier;
+    let slotArmor = 0;
+    let slotItemName: string | null | undefined = undefined;
 
     if (args.woundSlot !== 'rightHand' && args.woundSlot !== 'leftHand') {
         const slotItem = args.equip?.[args.woundSlot];
+        slotItemName = slotItem?.rawName ?? null;
         if (slotItem?.category === 'Armor') {
-            woundDefense += getOriginalArmorDefense(
+            slotArmor = getOriginalArmorDefense(
                 slotItem.typeId,
                 slotItem.rawName,
                 args.useSharpDefense,
                 deps,
             );
+            woundDefense += slotArmor;
         }
     }
 
+    let shieldContribution = 0;
+    const shieldDetails: string[] = [];
     for (const handSlot of ['rightHand', 'leftHand'] as const) {
         const item = args.equip?.[handSlot];
         if (!item || item.category !== 'Armor') continue;
@@ -173,12 +200,33 @@ export function computeOriginalChampionWoundDefense(
         );
         const factor = getOriginalWoundSlotFactor(args.woundSlot, args.woundDefenseFactors);
         const shift = handSlot === args.woundSlot ? 4 : 5;
-        woundDefense += Math.floor(((shieldStrength + shieldArmorDefense) * factor) / (1 << shift));
+        const contribution = Math.floor(((shieldStrength + shieldArmorDefense) * factor) / (1 << shift));
+        shieldContribution += contribution;
+        shieldDetails.push(
+            `${handSlot}:${item.rawName ?? 'shield'} str ${shieldStrength} + arm ${shieldArmorDefense} * f${factor} / ${1 << shift} = ${contribution}`,
+        );
+        woundDefense += contribution;
     }
 
+    let woundPenalty = 0;
     if (args.currentVitals?.wounds[args.woundSlot]) {
-        woundDefense -= 8 + randomInt(4);
+        woundPenalty = 8 + randomInt(4);
+        woundDefense -= woundPenalty;
     }
 
-    return clampToRange(0, Math.floor(woundDefense / 2), 100);
+    const finalDefense = clampToRange(0, Math.floor(woundDefense / 2), 100);
+    return {
+        value: finalDefense,
+        debug: {
+            slot: args.woundSlot,
+            vitalityRoll,
+            defenseModifier: args.defenseModifier,
+            slotArmor,
+            slotItemName,
+            shieldContribution,
+            shieldDetails,
+            woundPenalty,
+            finalDefense,
+        },
+    };
 }

@@ -137,12 +137,14 @@ function GameRoot() {
   const text = useI18n().gameRoot;
   const gamePhase = useStore((state) => state.gamePhase);
   const level = useStore((state) => state.level);
+  const paused = useStore((state) => state.paused);
   const activePartyMemberId = useStore((state) => state.activePartyMemberId);
   const enterDungeon = useStore((state) => state.enterDungeon);
   const loadGame = useStore((state) => state.loadGame);
   const closeMirror = useStore((state) => state.closeMirror);
   const closePartyMember = useStore((state) => state.closePartyMember);
   const wakeUp = useStore((state) => state.wakeUp);
+  const togglePause = useStore((state) => state.togglePause);
   const [titleTransitionMessage, setTitleTransitionMessage] = useState<string | null>(null);
 
   const lastTimeRef = useRef<number | null>(null);
@@ -210,13 +212,15 @@ function GameRoot() {
       try {
         const state = useStore.getState();
         if (lastTimeRef.current !== null && state.gamePhase !== 'title' && state.gamePhase !== 'victory' && state.gamePhase !== 'game_over') {
-          const delta = clampFrameDeltaSeconds((now - lastTimeRef.current) / 1000);
-          const wallClockNow = Date.now();
-          state.tickFrame(delta, wallClockNow);
-          if ((state.gamePhase === 'exploration' || state.gamePhase === 'mirror_open') && !state.sleeping) {
-            state.tickMonsters(delta);
-            state.tickDoors(delta);
-            state.tickSpells(wallClockNow);
+          if (!state.paused) {
+            const delta = clampFrameDeltaSeconds((now - lastTimeRef.current) / 1000);
+            const wallClockNow = Date.now();
+            state.tickFrame(delta, wallClockNow);
+            if ((state.gamePhase === 'exploration' || state.gamePhase === 'mirror_open') && !state.sleeping) {
+              state.tickMonsters(delta);
+              state.tickDoors(delta);
+              state.tickSpells(wallClockNow);
+            }
           }
         }
 
@@ -370,19 +374,33 @@ function GameRoot() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      wakeUp();
+      const state = useStore.getState();
       if (e.key === 'Escape') {
+        if (state.optionsModalOpen) return;
         e.preventDefault();
-        closeMirror();
-        closePartyMember();
+        if (state.paused) {
+          togglePause();
+          return;
+        }
+        if (state.activeMirrorChampionId !== null || state.activePartyMemberId !== null) {
+          closeMirror();
+          closePartyMember();
+          return;
+        }
+        togglePause();
+        return;
       }
+      if (state.paused) return;
+      wakeUp();
     };
 
     const handlePointerDown = (event: PointerEvent) => {
+      const state = useStore.getState();
       const target = event.target;
       if (target instanceof Element && target.closest('[data-sleep-toggle="true"]')) {
         return;
       }
+      if (state.paused) return;
       wakeUp();
     };
 
@@ -392,7 +410,7 @@ function GameRoot() {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('pointerdown', handlePointerDown);
     };
-  }, [closeMirror, closePartyMember, wakeUp]);
+  }, [closeMirror, closePartyMember, togglePause, wakeUp]);
 
   return (
     <div className="app">
@@ -457,6 +475,33 @@ function GameRoot() {
               <Suspense fallback={null}>
                 <ChampionSheet />
               </Suspense>
+            )}
+            {paused && (
+              <div
+                style={{
+                  position: 'fixed',
+                  inset: 0,
+                  background: 'rgba(0, 0, 0, 0.74)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 180,
+                  pointerEvents: 'all',
+                }}
+              >
+                <div
+                  style={{
+                    color: '#f0d060',
+                    fontFamily: '"Courier New", monospace',
+                    fontSize: 40,
+                    letterSpacing: 6,
+                    textTransform: 'uppercase',
+                    textShadow: '0 0 18px rgba(0,0,0,0.7)',
+                  }}
+                >
+                  Pause
+                </div>
+              </div>
             )}
           </>
         </Suspense>

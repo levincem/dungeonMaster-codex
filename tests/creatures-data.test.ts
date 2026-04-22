@@ -28,3 +28,17 @@ test('CREATURE_TYPES decode direct attack type and poison flags from I559 payloa
     assert.equal(screamer.originalAttackType, 'Mental');
     assert.equal(screamer.poison, false);
 });
+
+test('CREATURE_TYPES keep the source-backed mummy combat profile from the extracted runtime DB', () => {
+    const mummy = CREATURE_TYPES[10];
+
+    assert.ok(mummy);
+    assert.equal(mummy.baseHP, 33);
+    assert.equal(mummy.armor, 25);
+    assert.equal(mummy.hitProb, 40);
+    assert.equal(mummy.atkSpd, 12);
+    assert.equal(mummy.moveSpd, 17);
+    assert.equal(mummy.rawAttack, 20);
+    assert.equal(mummy.dexterity, 40);
+    assert.equal(mummy.attackRange, 1);
+});

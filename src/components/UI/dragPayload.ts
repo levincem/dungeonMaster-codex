@@ -4,7 +4,8 @@ import type { EquipSlotKey } from '../../types/items';
 export interface DragPayload {
     itemId: string;
     fromChampionId: number;
-    fromSlot: EquipSlotKey | 'inventory';
+    fromSlot: EquipSlotKey | 'inventory' | 'container';
+    fromContainerItemId?: string;
 }
 
 let activeDragPayload: DragPayload | null = null;

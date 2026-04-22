@@ -158,6 +158,60 @@ test('store world runtime builds initial creatures with timer registration and n
     });
 });
 
+test('store world runtime expands placed creature groups with per-member HP values from map data', () => {
+    const maps = [
+        createMap(0, 2, [[{
+            x: 3,
+            y: 4,
+            type: 'Floor',
+            objects: [{
+                category: 'Creature',
+                index: 2,
+                tilePos: 'North',
+                type: 7,
+                hp: [21, 32],
+                count: 2,
+                positions: 255,
+            }],
+        }]]),
+    ];
+    const { runtime, registeredTimers } = createRuntime(maps);
+
+    const creatures = runtime.buildCreatureInstances();
+
+    assert.equal(creatures.length, 2);
+    assert.deepEqual(
+        creatures.map((creature) => ({
+            id: creature.id,
+            groupId: creature.groupId,
+            currentHP: creature.currentHP,
+            cell: creature.cell,
+        })),
+        [
+            {
+                id: '0_3_4_2_0',
+                groupId: 'init:0:3:4:7',
+                currentHP: 21,
+                cell: 'frontLeft',
+            },
+            {
+                id: '0_3_4_2_1',
+                groupId: 'init:0:3:4:7',
+                currentHP: 32,
+                cell: 'center',
+            },
+        ],
+    );
+    assert.deepEqual(registeredTimers.get('0_3_4_2_0'), {
+        mt: 1,
+        at: 1.5,
+    });
+    assert.deepEqual(registeredTimers.get('0_3_4_2_1'), {
+        mt: 1,
+        at: 1.5,
+    });
+});
+
 test('store world runtime can build creatures and floor items for a single level only', () => {
     const maps = [
         createMap(0, 1, [[{
@@ -253,6 +307,50 @@ test('store world runtime builds floor items while skipping the hall champion ti
     assert.equal(items[1]?.id, '0_1_0_Container_3');
     assert.equal(items[1]?.waterCharges, 1);
     assert.equal(items[1]?.waterMaxCharges, 1);
+});
+
+test('store world runtime preserves nested contents for dungeon chests', () => {
+    const maps = [
+        createMap(1, 1, [[{
+            x: 4,
+            y: 6,
+            type: 'Floor',
+            objects: [
+                {
+                    category: 'Container',
+                    index: 9,
+                    tilePos: 'West',
+                    type: 0,
+                    name: 'Chest',
+                    contents: [
+                        {
+                            category: 'Misc',
+                            index: 10,
+                            tilePos: 'North',
+                            type: 35,
+                            name: 'Drumstick',
+                        },
+                        {
+                            category: 'Weapon',
+                            index: 11,
+                            tilePos: 'North',
+                            type: 3,
+                            name: 'Dagger',
+                        },
+                    ],
+                } as unknown as WallTextObject,
+            ],
+        }]]),
+    ];
+    const { runtime } = createRuntime(maps);
+
+    const items = runtime.buildFloorItems();
+    const chest = items[0];
+
+    assert.equal(chest?.category, 'Container');
+    assert.equal(chest?.containerContents?.length, 2);
+    assert.equal(chest?.containerContents?.[0]?.rawName, 'Misc:35:Drumstick');
+    assert.equal(chest?.containerContents?.[1]?.rawName, 'Weapon:3:Dagger');
 });
 
 test('store world runtime forwards generator reservation checks and difficulty-based creature spawning', () => {

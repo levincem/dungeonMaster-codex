@@ -16,6 +16,19 @@ function createWeapon(id: string, typeId: number): FloorItem {
     };
 }
 
+function createChest(id: string, contents: FloorItem[] = []): FloorItem {
+    return {
+        id,
+        category: 'Container',
+        typeId: 0,
+        mapIndex: 0,
+        x: 0,
+        y: 0,
+        tilePos: 'North',
+        containerContents: contents,
+    };
+}
+
 function createState() {
     const sword = createWeapon('sword', 1);
     const torch = createWeapon('torch', 2);
@@ -218,6 +231,113 @@ test('updateChampionItem updates either inventory or equipped containers', async
         fillItem,
     );
     assert.equal(equipmentPatch?.championEquipment?.[1]?.rightHand?.waterCharges, 1);
+});
+
+test('moveChampionItemToContainer stores an inventory item inside a carried chest', async () => {
+    const { moveChampionItemToContainer } = await loadInventoryStateModule();
+    const dagger = createWeapon('dagger', 3);
+    const chest = createChest('chest');
+
+    const patch = moveChampionItemToContainer(
+        {
+            championInventories: { 1: [dagger] },
+            championEquipment: { 1: { rightHand: chest } },
+        },
+        1,
+        dagger.id,
+        'inventory',
+        chest.id,
+    );
+
+    assert.deepEqual(patch?.championInventories?.[1], []);
+    assert.deepEqual(patch?.championEquipment?.[1]?.rightHand?.containerContents?.map((item) => item.id), [dagger.id]);
+});
+
+test('moveContainerItemToChampionInventory removes a chest item and appends it to the backpack', async () => {
+    const { moveContainerItemToChampionInventory } = await loadInventoryStateModule();
+    const dagger = createWeapon('dagger', 3);
+    const chest = createChest('chest', [dagger]);
+
+    const patch = moveContainerItemToChampionInventory(
+        {
+            championInventories: { 1: [] },
+            championEquipment: { 1: { leftHand: chest } },
+        },
+        1,
+        chest.id,
+        dagger.id,
+    );
+
+    assert.deepEqual(patch?.championInventories?.[1]?.map((item) => item.id), [dagger.id]);
+    assert.deepEqual(patch?.championEquipment?.[1]?.leftHand?.containerContents, []);
+});
+
+test('giveChampionContainerItem transfers a nested chest item to another champion inventory', async () => {
+    const { giveChampionContainerItem } = await loadInventoryStateModule();
+    const dagger = createWeapon('dagger', 3);
+    const chest = createChest('chest', [dagger]);
+
+    const patch = giveChampionContainerItem(
+        {
+            championInventories: { 1: [], 2: [] },
+            championEquipment: { 1: { rightHand: chest }, 2: {} },
+        },
+        1,
+        2,
+        chest.id,
+        dagger.id,
+    );
+
+    assert.deepEqual(patch?.championInventories?.[2]?.map((item) => item.id), [dagger.id]);
+    assert.deepEqual(patch?.championEquipment?.[1]?.rightHand?.containerContents, []);
+});
+
+test('equipChampionContainerItem equips a nested chest item into a valid slot', async () => {
+    const { equipChampionContainerItem } = await loadInventoryStateModule();
+    const dagger = createWeapon('dagger', 3);
+    const chest = createChest('chest', [dagger]);
+
+    const patch = equipChampionContainerItem(
+        {
+            championInventories: { 1: [] },
+            championEquipment: { 1: { leftHand: chest } },
+        },
+        1,
+        chest.id,
+        dagger.id,
+        'rightHand',
+    );
+
+    assert.equal(patch?.championEquipment?.[1]?.rightHand?.id, dagger.id);
+    assert.deepEqual(patch?.championEquipment?.[1]?.leftHand?.containerContents, []);
+});
+
+test('dropChampionContainerItem drops a nested chest item onto the current tile', async () => {
+    const { dropChampionContainerItem } = await loadInventoryStateModule();
+    const dagger = createWeapon('dagger', 3);
+    const chest = createChest('chest', [dagger]);
+
+    const patch = dropChampionContainerItem(
+        {
+            championInventories: { 1: [] },
+            championEquipment: { 1: { rightHand: chest } },
+            level: 2,
+            position: [7, 8],
+            floorItems: [],
+        },
+        1,
+        chest.id,
+        dagger.id,
+    );
+
+    assert.deepEqual(patch?.championEquipment?.[1]?.rightHand?.containerContents, []);
+    assert.deepEqual(patch?.floorItems?.[0], {
+        ...dagger,
+        mapIndex: 2,
+        x: 8,
+        y: 7,
+        tilePos: 'North',
+    });
 });
 
 test('locateChampionItem resolves inventory and preferred equipment sources consistently', async () => {

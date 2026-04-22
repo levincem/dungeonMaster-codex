@@ -4,6 +4,8 @@ type TickFrameStateBase = {
     party: unknown[];
     deadChampions: Record<number, unknown>;
     sleeping: boolean;
+    paused: boolean;
+    lastMonsterAttackDebug?: unknown | null;
     activeMirrorChampionId: number | null;
     activePartyMemberId: number | null;
     endgameSequence: unknown | null;
@@ -59,6 +61,8 @@ function buildGameOverPatch<TState extends TickFrameStateBase>(): Partial<TState
         activeMirrorChampionId: null,
         activePartyMemberId: null,
         sleeping: false,
+        paused: false,
+        lastMonsterAttackDebug: null,
         optionsModalOpen: false,
         endgameSequence: null,
         lastCastResult: null,

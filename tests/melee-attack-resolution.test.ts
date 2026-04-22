@@ -132,6 +132,7 @@ function createXpDeps() {
         applyChampionSkillExperience: (
             carrier: {
                 party: Champion[];
+                championVitals: Record<number, ChampionVitals>;
                 championXP: Record<number, ChampionXP>;
                 championTemporaryXP: Record<number, ChampionTemporaryXP>;
             },
@@ -154,6 +155,16 @@ function createXpDeps() {
                 },
             };
             return {
+                championVitals: {
+                    ...carrier.championVitals,
+                    [championId]: {
+                        ...carrier.championVitals[championId],
+                        currentStats: {
+                            ...carrier.championVitals[championId]!.currentStats,
+                            strength: carrier.championVitals[championId]!.currentStats.strength + 1,
+                        },
+                    },
+                },
                 championXP: nextChampionXP,
                 championTemporaryXP: nextChampionTemporaryXP,
                 party: carrier.party,
@@ -188,7 +199,6 @@ function createXpDeps() {
 
 test('buildMeleeAttackResolutionPatch applies damage without kill rewards when the creature survives', () => {
     const state = createState();
-    const championVitals = state.championVitals;
     const patch = buildMeleeAttackResolutionPatch(
         state,
         1,
@@ -196,7 +206,6 @@ test('buildMeleeAttackResolutionPatch applies damage without kill rewards when t
         15,
         'swing',
         createCombat(),
-        championVitals,
         createXpDeps(),
     );
 
@@ -206,6 +215,7 @@ test('buildMeleeAttackResolutionPatch applies damage without kill rewards when t
     assert.equal(patch.spellVisualEvents, undefined);
     assert.equal(patch.championXP[1]?.swing, 15);
     assert.equal(patch.championXP[1]?.fighter, 0);
+    assert.equal(patch.championVitals[1]?.currentStats.strength, 11);
 });
 
 test('buildMeleeAttackResolutionPatch shares kill XP, drops loot and adds death visuals on kill', () => {
@@ -220,7 +230,6 @@ test('buildMeleeAttackResolutionPatch shares kill XP, drops loot and adds death 
         30,
         'swing',
         createCombat(),
-        state.championVitals,
         createXpDeps(),
     );
 

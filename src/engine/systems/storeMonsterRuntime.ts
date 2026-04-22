@@ -78,6 +78,7 @@ export function createStoreMonsterTickRuntimeState<TState extends MonsterTickRun
         floorItems: state.floorItems,
         deadChampions: state.deadChampions,
         selectedChampionIndex: state.selectedChampionIndex,
+        lastMonsterAttackDebug: state.lastMonsterAttackDebug,
     };
 }
 

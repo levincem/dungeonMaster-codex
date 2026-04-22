@@ -22,6 +22,13 @@ type WakeUpStateLike = {
     sleeping: boolean;
 };
 
+type PauseStateLike = {
+    gamePhase: string;
+    sleeping: boolean;
+    paused: boolean;
+    lastCastResult: unknown | null;
+};
+
 type KillChampionStateLike = {
     level: number;
     position: [number, number];
@@ -120,4 +127,19 @@ export function buildToggleSleepPatch<TState extends SleepStateLike>(
 
 export function buildWakeUpPatch<TState extends WakeUpStateLike>(state: TState) {
     return state.sleeping ? { sleeping: false } : null;
+}
+
+export function buildTogglePausePatch<TState extends PauseStateLike>(state: TState) {
+    if (
+        state.gamePhase !== 'exploration' &&
+        state.gamePhase !== 'mirror_open' &&
+        state.gamePhase !== 'endgame'
+    ) {
+        return null;
+    }
+    if (state.sleeping) return null;
+    return {
+        paused: !state.paused,
+        lastCastResult: null,
+    };
 }

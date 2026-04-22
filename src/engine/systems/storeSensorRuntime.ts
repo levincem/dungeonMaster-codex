@@ -55,6 +55,7 @@ type PendingSensorEventLike = {
     level: number;
     sensorIndex: number;
     remaining: number;
+    actionOverride?: SensorAction;
 };
 
 export type StoreSensorState<TProjectile, TCreature, TPendingGeneratorSpawn> = {
@@ -298,7 +299,7 @@ export function createStoreSensorRuntime<
 
     const buildSensorStateSnapshot = (
         source: SensorSnapshotSource<TProjectile, TCreature, TPendingGeneratorSpawn>,
-    ): TState => buildSensorStateSnapshotSystem(source) as TState;
+    ): TState => buildSensorStateSnapshotSystem(source) as unknown as TState;
 
     const resolveDoorSoundTarget = (sensor: SensorObject, level: number) =>
         resolveDoorSoundTargetSystem(sensor, level, params.mapResolver);
@@ -383,13 +384,28 @@ export function createStoreSensorRuntime<
         face: CardinalDir,
     ) => revealSelfWallMountedItemsSystem(floorItems, level, x, y, face);
 
-    const diffSensorState = (before: TState, after: TState) => diffStoreSensorState(before, after);
+    const diffSensorState = (before: TState, after: TState) => {
+        const patch = diffStoreSensorState(before, after);
+        const beforePending = (before as TState & { pendingSensorEvents?: TPendingSensorEvent[] }).pendingSensorEvents;
+        const afterPending = (after as TState & { pendingSensorEvents?: TPendingSensorEvent[] }).pendingSensorEvents;
+        if (afterPending !== beforePending) {
+            return {
+                ...patch,
+                pendingSensorEvents: afterPending,
+            } as unknown as Partial<TState>;
+        }
+        return patch;
+    };
 
     const dispatchTriggeredSensorEffect = (
         sensor: SensorObject,
         level: number,
         state: TState,
-        options?: { actionOverride?: SensorAction; updateSourceActive?: boolean },
+        options?: {
+            actionOverride?: SensorAction;
+            updateSourceActive?: boolean;
+            ignoreTriggeredDelay?: boolean;
+        },
     ): Partial<TState> => dispatchTriggeredSensorEffectSystem(sensor, level, state, {
         getTile,
         applyToSet: applySensorActionToSet,
@@ -402,6 +418,26 @@ export function createStoreSensorRuntime<
         now: params.now ?? Date.now,
         triggerGeneratorSensor,
         isGeneratorSensor: params.isGeneratorSensor,
+        queueDelayedTriggeredSensorEffect: (sensor, sensorLevel, state, actionOverride) => {
+            const currentPending = (state as TState & { pendingSensorEvents?: TPendingSensorEvent[] }).pendingSensorEvents ?? [];
+            const alreadyQueued = currentPending.some((event) =>
+                event.level === sensorLevel &&
+                event.sensorIndex === sensor.index &&
+                event.actionOverride === actionOverride,
+            );
+            if (alreadyQueued) return null;
+            return {
+                pendingSensorEvents: [
+                    ...currentPending,
+                    {
+                        level: sensorLevel,
+                        sensorIndex: sensor.index,
+                        remaining: params.originalTimerTicksToSeconds(sensor.delay),
+                        actionOverride,
+                    } as unknown as TPendingSensorEvent,
+                ],
+            } as unknown as Partial<TState>;
+        },
         readWallSensorRuntimeData,
         writeWallSensorRuntimeData,
         hasWallFaceLocalRotationEffect,

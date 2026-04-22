@@ -14,6 +14,7 @@ type TestState = {
     party: Array<{ id: number }>;
     deadChampions: Record<number, unknown>;
     sleeping: boolean;
+    paused: boolean;
     activeMirrorChampionId: number | null;
     activePartyMemberId: number | null;
     endgameSequence: { id: string } | null;
@@ -68,6 +69,7 @@ function createState(overrides: Partial<TestState> = {}): TestState {
         party: [{ id: 1 }],
         deadChampions: {},
         sleeping: false,
+        paused: false,
         activeMirrorChampionId: 1,
         activePartyMemberId: 1,
         endgameSequence: { id: 'end' },

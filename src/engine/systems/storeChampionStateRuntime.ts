@@ -33,11 +33,46 @@ type IncomingAttackStateLike = {
 type ChampionXpStateLike = {
     level: number;
     party: Champion[];
+    championVitals?: Record<number, ChampionVitals>;
     championXP: Record<number, ChampionXP>;
     championTemporaryXP: Record<number, ChampionTemporaryXP>;
     elapsedGameTimeTicks: number;
     lastCreatureAttackGameTick: number;
 };
+
+const LEVEL_UP_CURRENT_STAT_KEYS = [
+    'strength',
+    'dexterity',
+    'wisdom',
+    'vitality',
+    'antiMagic',
+    'antiFire',
+] as const satisfies ReadonlyArray<keyof ChampionVitals['currentStats']>;
+
+function applyChampionLevelUpCurrentStatDeltas(
+    previousChampion: Champion,
+    leveledChampion: Champion,
+    currentVitals: ChampionVitals | undefined,
+): ChampionVitals | null {
+    if (!currentVitals) return null;
+
+    const nextCurrentStats = { ...currentVitals.currentStats };
+    let changed = false;
+
+    for (const stat of LEVEL_UP_CURRENT_STAT_KEYS) {
+        const delta = leveledChampion[stat] - previousChampion[stat];
+        if (delta === 0) continue;
+        nextCurrentStats[stat] = Math.max(0, nextCurrentStats[stat] + delta);
+        changed = true;
+    }
+
+    if (!changed) return null;
+
+    return {
+        ...currentVitals,
+        currentStats: nextCurrentStats,
+    };
+}
 
 type ArmorCoverageZone = OriginalCreatureCoverageZone;
 
@@ -58,6 +93,27 @@ type StoreChampionStateRuntimeParams<TIncomingState extends IncomingAttackStateL
         woundSlot: ChampionWoundSlot,
         useSharpDefense: boolean,
     ) => number;
+    computeChampionWoundDefenseWithDebug?: (
+        state: TIncomingState,
+        championId: number,
+        champion: Champion,
+        vitals: ChampionVitals,
+        woundSlot: ChampionWoundSlot,
+        useSharpDefense: boolean,
+    ) => {
+        value: number;
+        debug: {
+            slot: ChampionWoundSlot;
+            vitalityRoll: number;
+            defenseModifier: number;
+            slotArmor: number;
+            slotItemName?: string | null;
+            shieldContribution: number;
+            shieldDetails?: string[];
+            woundPenalty: number;
+            finalDefense: number;
+        };
+    };
     getChampionAdjustedAttackFromResistance: (
         champion: Champion,
         equip: ChampionEquipment | undefined,
@@ -144,6 +200,7 @@ export function createStoreChampionStateRuntime<
         skill: SkillKey,
         amount: number,
     ): {
+        championVitals?: Record<number, ChampionVitals>;
         championXP: Record<number, ChampionXP>;
         championTemporaryXP: Record<number, ChampionTemporaryXP>;
         party?: Champion[];
@@ -169,9 +226,21 @@ export function createStoreChampionStateRuntime<
         if (!result) return null;
 
         let nextParty: Champion[] | undefined;
+        let nextChampionVitals: Record<number, ChampionVitals> | undefined;
         if (result.leveledChampion) {
             nextParty = [...state.party];
             nextParty[championIndex] = result.leveledChampion;
+            const nextVitals = applyChampionLevelUpCurrentStatDeltas(
+                champion,
+                result.leveledChampion,
+                state.championVitals?.[championId],
+            );
+            if (nextVitals) {
+                nextChampionVitals = {
+                    ...state.championVitals,
+                    [championId]: nextVitals,
+                };
+            }
         }
 
         return {
@@ -183,6 +252,7 @@ export function createStoreChampionStateRuntime<
                 ...state.championTemporaryXP,
                 [championId]: result.championTemporaryXP,
             },
+            ...(nextChampionVitals ? { championVitals: nextChampionVitals } : {}),
             ...(nextParty ? { party: nextParty } : {}),
         };
     };
@@ -224,6 +294,23 @@ export function createStoreChampionStateRuntime<
                     woundSlot,
                     useSharpDefense,
                 ),
+                computeChampionWoundDefenseWithDebug: params.computeChampionWoundDefenseWithDebug
+                    ? (
+                        attackState,
+                        championId,
+                        incomingChampion,
+                        vitals,
+                        woundSlot,
+                        useSharpDefense,
+                    ) => params.computeChampionWoundDefenseWithDebug!(
+                        attackState as TIncomingState,
+                        championId,
+                        incomingChampion,
+                        vitals,
+                        woundSlot,
+                        useSharpDefense,
+                    )
+                    : undefined,
                 getPsychicAdjustedAttack: getOriginalPsychicAdjustedAttack,
                 getChampionAdjustedAttackFromResistance: params.getChampionAdjustedAttackFromResistance,
                 getActiveShieldDefense: params.getActiveShieldDefense,

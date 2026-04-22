@@ -638,19 +638,11 @@ export const HudPartyPanel: React.FC<{
     giveEquippedItem,
     equipItem,
 }) => {
-    const selectedChampion = party[selectedChampionIndex];
-    const selectedVitals = selectedChampion ? championVitals[selectedChampion.id] : undefined;
-    const selectedChampionClass = selectedChampion?.class ?? '';
-    const selectedChampionColor = selectedChampionClass ? HUD_CLASS_COLORS[selectedChampionClass] : '#d8d0b8';
-    const selectedChampionClassLabel = selectedChampionClass
-        ? HUD_TEXT.classLabels[selectedChampionClass.toLowerCase() as keyof typeof HUD_TEXT.classLabels]
-        : '';
-
     return (
         <div style={panelStyle}>
             <style>{LEVEL_UP_STYLE}</style>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'stretch' }}>
-                <div style={{ flex: '0 0 80%', display: 'flex', gap: 6, minWidth: 0 }}>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'stretch' }}>
+                <div style={{ flex: '0 0 80%', display: 'flex', gap: 4, minWidth: 0 }}>
                     {[0, 1, 2, 3].map((index) => (
                         <div key={index} style={{ flex: '1 1 20%', minWidth: 0, display: 'flex', justifyContent: 'center' }}>
                             <ChampionCard
@@ -685,6 +677,7 @@ export const HudPartyPanel: React.FC<{
                                     if (!targetChampion) return;
                                     const payload = getDragPayload(event);
                                     if (!payload) return;
+                                    if (payload.fromSlot === 'container') return;
                                     if (payload.fromChampionId === targetChampion.id && payload.fromSlot !== 'inventory') return;
                                     if (payload.fromSlot === 'inventory') {
                                         giveItem(payload.fromChampionId, targetChampion.id, payload.itemId);
@@ -722,6 +715,7 @@ export const HudPartyPanel: React.FC<{
                                     if (!targetChampion) return;
                                     const payload = getDragPayload(event);
                                     if (!payload) return;
+                                    if (payload.fromSlot === 'container') return;
                                     const state = useStore.getState();
                                     const sourceItem = payload.fromSlot === 'inventory'
                                         ? (state.championInventories[payload.fromChampionId] ?? []).find((item) => item.id === payload.itemId)
@@ -796,31 +790,6 @@ export const HudPartyPanel: React.FC<{
                     ))}
                 </div>
             </div>
-
-            {selectedChampion && (
-                <div
-                    style={{
-                        marginTop: 7,
-                        paddingTop: 6,
-                        borderTop: '1px solid rgba(255,255,255,0.08)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                    }}
-                >
-                    <span style={{ fontSize: 14, fontWeight: 'bold', letterSpacing: 1, color: selectedChampionColor }}>
-                        {selectedChampion.name ?? ''}
-                    </span>
-                    <span style={{ fontSize: 10, color: '#887878', letterSpacing: 1 }}>
-                        {selectedChampionClassLabel}
-                        {selectedVitals && (
-                            <span style={{ color: '#5080c0', marginLeft: 7 }}>
-                                {Math.floor(selectedVitals.mana)}/{selectedChampion.mana} {HUD_TEXT.manaUnit}
-                            </span>
-                        )}
-                    </span>
-                </div>
-            )}
         </div>
     );
 };

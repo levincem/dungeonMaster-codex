@@ -18,6 +18,7 @@ type StoreFrameStateBase = {
     party: unknown[];
     deadChampions: Record<number, unknown>;
     sleeping: boolean;
+    paused: boolean;
     activeMirrorChampionId: number | null;
     activePartyMemberId: number | null;
     endgameSequence: unknown | null;

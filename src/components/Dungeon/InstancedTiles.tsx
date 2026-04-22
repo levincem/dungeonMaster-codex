@@ -5,6 +5,7 @@ import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import { MIRROR_WALL_MAP, getSelfRevealingWallFace, isSelfRevealingWallTile, useStore } from '../../engine/store';
 import type { GameMap } from '../../types/game';
 import { texturesPath } from '../../data/assetPaths';
+import { buildInstancedTileLayout, type CavityFace } from './instancedTileLayout';
 
 const HALF = GRID_SIZE / 2;
 
@@ -12,8 +13,6 @@ interface Props {
     map: GameMap;
     openWalls: Set<string>;
 }
-
-type CavityFace = 'North' | 'South' | 'East' | 'West';
 
 const CAVITY_BACK_DEPTH = GRID_SIZE * 0.18;
 const CAVITY_INSET = GRID_SIZE * 0.41;
@@ -32,8 +31,6 @@ const CAVITY_BACK_SCALE: Record<CavityFace, [number, number, number]> = {
     West: [CAVITY_BACK_DEPTH / GRID_SIZE, 1, 1],
 };
 
-const PIT_INNER_SIZE = GRID_SIZE * 0.82;
-const PIT_WALL_THICKNESS = GRID_SIZE * 0.08;
 const PIT_SHAFT_DEPTH = 1.6;
 const PIT_WALL_Y = -HALF - (PIT_SHAFT_DEPTH / 2) - 0.12;
 
@@ -51,51 +48,14 @@ export const InstancedTiles = ({ map, openWalls }: Props) => {
         t.repeat.set(1, 1);
     });
 
-    // Classify tiles once per map — wallEntries includes TrickWalls (closed by default)
-    const { floorPositions, ceilPositions, wallEntries, cavityEntries, pitPositions, pitWallEntries } = useMemo(() => {
-        const floorPositions: [number, number][] = [];
-        const ceilPositions:  [number, number][] = [];
-        // [wx, wz, tileKey] — tileKey is "level,y,x" for TrickWall, "" for regular Wall
-        const wallEntries: [number, number, string][] = [];
-        const cavityEntries: [number, number, string, CavityFace][] = [];
-        const pitPositions: [number, number][] = [];
-        const pitWallEntries: [number, number, number, number][] = [];
-
-        for (const row of map.tiles) {
-            for (const tile of row) {
-                const wx = tile.x * GRID_SIZE;
-                const wz = tile.y * GRID_SIZE;
-                ceilPositions.push([wx, wz]);
-                if (tile.type === 'Wall') {
-                    if (!MIRROR_WALL_MAP.has(`${map.index},${tile.x},${tile.y}`)) {
-                        const selfRevealFace = getSelfRevealingWallFace(map.index, tile.x, tile.y);
-                        if (selfRevealFace) {
-                            floorPositions.push([wx, wz]);
-                            cavityEntries.push([wx, wz, `${map.index},${tile.y},${tile.x}`, selfRevealFace]);
-                        }
-                        wallEntries.push([
-                            wx,
-                            wz,
-                            isSelfRevealingWallTile(map.index, tile.x, tile.y) ? `${map.index},${tile.y},${tile.x}` : '',
-                        ]);
-                    }
-                } else if (tile.type === 'TrickWall') {
-                    wallEntries.push([wx, wz, `${map.index},${tile.y},${tile.x}`]);
-                } else if (tile.type === 'Pit' && openPits.has(`${map.index},${tile.y},${tile.x}`)) {
-                    pitPositions.push([wx, wz]);
-                    pitWallEntries.push(
-                        [wx, wz - (PIT_INNER_SIZE / 2), GRID_SIZE * 0.78, PIT_WALL_THICKNESS],
-                        [wx, wz + (PIT_INNER_SIZE / 2), GRID_SIZE * 0.78, PIT_WALL_THICKNESS],
-                        [wx - (PIT_INNER_SIZE / 2), wz, PIT_WALL_THICKNESS, GRID_SIZE * 0.78],
-                        [wx + (PIT_INNER_SIZE / 2), wz, PIT_WALL_THICKNESS, GRID_SIZE * 0.78],
-                    );
-                } else {
-                    floorPositions.push([wx, wz]);
-                }
-            }
-        }
-        return { floorPositions, ceilPositions, wallEntries, cavityEntries, pitPositions, pitWallEntries };
-    }, [map, openPits]);
+    const { floorPositions, ceilPositions, wallEntries, cavityEntries, pitPositions, pitWallEntries } = useMemo(
+        () => buildInstancedTileLayout(map, openPits, {
+            isMirrorWall: (level, x, y) => MIRROR_WALL_MAP.has(`${level},${x},${y}`),
+            getSelfRevealingWallFace,
+            isSelfRevealingWallTile,
+        }),
+        [map, openPits],
+    );
 
     const floorRef = useRef<THREE.InstancedMesh>(null);
     const ceilRef  = useRef<THREE.InstancedMesh>(null);

@@ -84,6 +84,12 @@ type SensorSnapshotDeps<TState, TSensorState> = {
 
 type PendingSensorDepsLike<TSensorState> = {
     findSensorByIndex: (level: number, sensorIndex: number) => SensorObject | null;
+    dispatchTriggeredSensorEffect: (
+        sensor: SensorObject,
+        level: number,
+        ss: TSensorState,
+        options?: { actionOverride?: SensorAction; ignoreTriggeredDelay?: boolean },
+    ) => Partial<TSensorState>;
 } & SensorEffectDeps<TSensorState> & DoorMotionDeps & PlateFeedbackDeps & SensorStateDiffDeps<TSensorState>;
 
 type MovementSensorDepsLike<TSensorState, TPendingSensorEvent extends PendingSensorEventLike> = {
@@ -300,6 +306,12 @@ type StoreSensorRuntimeDepsBundleParams<
         floorItems: FloorItem[],
     ) => boolean;
     computeSensorEffect: (sensor: SensorObject, level: number, ss: TSensorState) => Partial<TSensorState>;
+    dispatchTriggeredSensorEffect: (
+        sensor: SensorObject,
+        level: number,
+        ss: TSensorState,
+        options?: { actionOverride?: SensorAction; ignoreTriggeredDelay?: boolean },
+    ) => Partial<TSensorState>;
     triggerGeneratorSensor: (level: number, sensor: SensorObject, ss: TSensorState) => TSensorState;
     queueOrComputeSensorEffect: (
         sensor: SensorObject,
@@ -384,6 +396,7 @@ export function createPendingWorldEventDeps<TSensorState>(
     return {
         findSensorByIndex: params.findSensorByIndex,
         computeSensorEffect: params.computeSensorEffect,
+        dispatchTriggeredSensorEffect: params.dispatchTriggeredSensorEffect,
         resolveDoorSoundTarget: params.resolveDoorSoundTarget,
         playDoorMotion: params.playDoorMotion,
         playPlate: params.playPlate,
@@ -608,6 +621,7 @@ export function createStoreSensorRuntimeDepsBundle<
 
     const buildPendingWorldEventDeps = () => createPendingWorldEventDeps<TSensorState>({
         findSensorByIndex: params.findSensorByIndex,
+        dispatchTriggeredSensorEffect: params.dispatchTriggeredSensorEffect,
         ...sensorStateDeps,
         ...sensorFeedbackDeps,
     });

@@ -139,23 +139,23 @@ const WALL_OVERLAY_ASSET_POLICY_BY_NAME: Record<string, OverlayAssetPolicy> = {
     'Vi Altar': { modernImage: miscPath('autel.png'), originalFallbackImage: originalMiscPath('vi_altar.bmp') },
     'Lever Up': { modernImage: miscPath('levier_haut.png'), originalFallbackImage: originalMiscPath('lever_up.bmp') },
     'Lever Down': { modernImage: miscPath('levier_bas.png'), originalFallbackImage: originalMiscPath('lever_down.bmp') },
-    'Iron Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('iron_lock.bmp') },
-    'Double Iron Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('double_iron_lock.bmp') },
-    'Square Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('square_lock.bmp') },
-    'Winged Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('winged_lock.bmp') },
-    'Onyx Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('onyx_lock.bmp') },
-    'Stone Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('stone_lock.bmp') },
-    'Cross Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('cross_lock.bmp') },
-    'Topaz Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('topaz_lock.bmp') },
-    'Skeleton Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('skeleton_lock.bmp') },
-    'Gold Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('gold_lock.bmp') },
-    'Tourquoise Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('tourquoise_lock.bmp') },
-    'Emerald Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('emerald_lock.bmp') },
-    'Ruby Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('ruby_lock.bmp') },
-    'Ra Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('ra_lock.bmp') },
-    'Master Lock': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('master_lock.bmp') },
-    'Coin Slot': { modernImage: miscPath('serrure.png'), originalFallbackImage: originalMiscPath('coin_slot.bmp') },
-    'Gem Hole': { modernImage: miscPath('eye.png'), originalFallbackImage: originalMiscPath('gem_hole.bmp') },
+    'Iron Lock': { modernImage: miscPath('wall_lock_iron.png'), originalFallbackImage: originalMiscPath('iron_lock.bmp') },
+    'Double Iron Lock': { modernImage: miscPath('wall_lock_double_iron.png'), originalFallbackImage: originalMiscPath('double_iron_lock.bmp') },
+    'Square Lock': { modernImage: miscPath('wall_lock_square.png'), originalFallbackImage: originalMiscPath('square_lock.bmp') },
+    'Winged Lock': { modernImage: miscPath('wall_lock_winged.png'), originalFallbackImage: originalMiscPath('winged_lock.bmp') },
+    'Onyx Lock': { modernImage: miscPath('wall_lock_onyx.png'), originalFallbackImage: originalMiscPath('onyx_lock.bmp') },
+    'Stone Lock': { modernImage: miscPath('wall_lock_stone.png'), originalFallbackImage: originalMiscPath('stone_lock.bmp') },
+    'Cross Lock': { modernImage: miscPath('wall_lock_cross.png'), originalFallbackImage: originalMiscPath('cross_lock.bmp') },
+    'Topaz Lock': { modernImage: miscPath('wall_lock_topaz.png'), originalFallbackImage: originalMiscPath('topaz_lock.bmp') },
+    'Skeleton Lock': { modernImage: miscPath('wall_lock_skeleton.png'), originalFallbackImage: originalMiscPath('skeleton_lock.bmp') },
+    'Gold Lock': { modernImage: miscPath('wall_lock_gold.png'), originalFallbackImage: originalMiscPath('gold_lock.bmp') },
+    'Tourquoise Lock': { modernImage: miscPath('wall_lock_tourquoise.png'), originalFallbackImage: originalMiscPath('tourquoise_lock.bmp') },
+    'Emerald Lock': { modernImage: miscPath('wall_lock_emerald.png'), originalFallbackImage: originalMiscPath('emerald_lock.bmp') },
+    'Ruby Lock': { modernImage: miscPath('wall_lock_ruby.png'), originalFallbackImage: originalMiscPath('ruby_lock.bmp') },
+    'Ra Lock': { modernImage: miscPath('wall_lock_ra.png'), originalFallbackImage: originalMiscPath('ra_lock.bmp') },
+    'Master Lock': { modernImage: miscPath('wall_lock_master.png'), originalFallbackImage: originalMiscPath('master_lock.bmp') },
+    'Coin Slot': { modernImage: miscPath('wall_coin_slot.png'), originalFallbackImage: originalMiscPath('coin_slot.bmp') },
+    'Gem Hole': { modernImage: miscPath('wall_gem_hole.png'), originalFallbackImage: originalMiscPath('gem_hole.bmp') },
     'Hook': { modernImage: miscPath('wall_hook.png'), originalFallbackImage: originalMiscPath('hook.bmp') },
     'Wood Ring': { modernImage: miscPath('wall_wood_ring.png'), originalFallbackImage: originalMiscPath('wood_ring.bmp') },
     'Full Torch Holder': { modernImage: miscPath('wall_torch_holder_full.png'), originalFallbackImage: originalMiscPath('full_torch_holder.bmp') },
@@ -543,4 +543,20 @@ export function hasOriginalWallOverlayAt(
 ): boolean {
     const { overlayNameKeys } = ensureOverlayMapIndex(mapIndex);
     return overlayNameKeys.has(`${mapIndex}:${x}:${y}:${face}:${overlayName}`);
+}
+
+export function hasEffectiveOriginalWallOverlayAt(
+    mapIndex: number,
+    x: number,
+    y: number,
+    face: CardinalDir,
+    overlayName: string,
+): boolean {
+    const { resolvedPlacements } = ensureOverlayMapIndex(mapIndex);
+    return resolvedPlacements.some((placement) =>
+        placement.x === x
+        && placement.y === y
+        && placement.face === face
+        && placement.overlayName === overlayName,
+    );
 }

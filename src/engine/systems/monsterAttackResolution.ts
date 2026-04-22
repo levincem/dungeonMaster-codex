@@ -2,8 +2,9 @@ import type { CreatureDef, OriginalAttackType } from '../../data/creatures';
 import type { ChampionWoundSlot, EquipmentStatBonuses } from '../../data/equipment';
 import type { Champion } from '../../types/champion';
 import type { ChampionEquipment, FloorItem } from '../../types/game';
-import type { ActivePotionBoost, ChampionVitals } from '../runtimeTypes';
+import type { ActivePotionBoost, ChampionVitals, MonsterAttackDebugEntry } from '../runtimeTypes';
 import { applyOriginalLuckCheck } from './originalLuck';
+import type { IncomingAttackDebug } from './incomingAttackState';
 
 export type MonsterDamageClass = 'physical' | 'fire' | 'magic' | 'mental';
 export type ArmorCoverageZone = 'head' | 'torso' | 'legs' | 'feet' | 'hands';
@@ -76,10 +77,11 @@ type ResolveMonsterAttackAgainstChampionDeps = {
         attackType: OriginalAttackType,
         allowedSlots: readonly ChampionWoundSlot[],
         nowMs: number,
-    ) => { damage: number; nextVitals: ChampionVitals };
+    ) => { damage: number; nextVitals: ChampionVitals; debug?: IncomingAttackDebug };
     clampVital: (value: number, max: number) => number;
     adjustByAttribute: (value: number, currentAttribute: number) => number;
     applyPoison: (vitals: ChampionVitals, poisonStrength: number) => ChampionVitals;
+    getParryMastery: (champion: Champion) => number;
 };
 
 export type MonsterAttackResolution = {
@@ -87,6 +89,7 @@ export type MonsterAttackResolution = {
     hitZones?: readonly ArmorCoverageZone[];
     damageClass: MonsterDamageClass;
     nextVitals: ChampionVitals;
+    debug?: MonsterAttackDebugEntry;
 };
 
 function getMonsterBaseDamageClass(originalAttackType: OriginalAttackType): MonsterDamageClass {
@@ -148,28 +151,87 @@ export function resolveMonsterAttackAgainstChampion(
         args.partySleeping ?? false,
     );
     const requiredQuickness = deps.randomInt(32) + args.attackerDef.hitProb + args.levelDifficulty - 16;
+    const parryMastery = deps.getParryMastery(args.targetChampion);
+
+    const buildDebugEntry = (
+        rolledAttack: number,
+        damage: number,
+        nextVitals: ChampionVitals,
+        incomingDebug?: IncomingAttackDebug,
+    ): MonsterAttackDebugEntry => ({
+        attackerName: args.attackerDef.name,
+        targetName: args.targetChampion.name,
+        attackMode: args.attackMode,
+        attackType: resolvedAttackType,
+        quickness,
+        requiredQuickness,
+        parryMastery,
+        rolledAttack,
+        finalDamage: damage,
+        hpBefore: args.targetVitals.hp,
+        hpAfter: nextVitals.hp,
+        hitZones: hitZones ? [...hitZones] : undefined,
+        woundSlots: incomingDebug?.allowedSlots ? [...incomingDebug.allowedSlots] : undefined,
+        defenseApplied: incomingDebug?.defenseApplied,
+        activeShieldDefense: incomingDebug?.activeShieldDefense,
+        postMitigationAttack: incomingDebug?.postMitigationAttack,
+        defenseSlotBreakdown: incomingDebug?.defenseSlotBreakdown?.map((entry) => ({
+            slot: entry.slot,
+            vitalityRoll: entry.vitalityRoll,
+            defenseModifier: entry.defenseModifier,
+            slotArmor: entry.slotArmor,
+            slotItemName: entry.slotItemName,
+            shieldContribution: entry.shieldContribution,
+            shieldDetails: entry.shieldDetails ? [...entry.shieldDetails] : undefined,
+            woundPenalty: entry.woundPenalty,
+            finalDefense: entry.finalDefense,
+        })),
+        ts: args.nowMs,
+    });
 
     if (quickness >= requiredQuickness && deps.randomInt(4) !== 0) {
-        return { damage: 0, hitZones, damageClass, nextVitals: args.targetVitals };
+        return {
+            damage: 0,
+            hitZones,
+            damageClass,
+            nextVitals: args.targetVitals,
+            debug: buildDebugEntry(0, 0, args.targetVitals),
+        };
     }
 
     const luckCheck = applyOriginalLuckCheck(args.targetChampion, args.targetVitals, 60, deps.randomInt);
     if (luckCheck.success) {
-        return { damage: 0, hitZones, damageClass, nextVitals: luckCheck.nextVitals };
+        return {
+            damage: 0,
+            hitZones,
+            damageClass,
+            nextVitals: luckCheck.nextVitals,
+            debug: buildDebugEntry(0, 0, luckCheck.nextVitals),
+        };
     }
 
-    let attackValue = args.levelDifficulty + deps.randomInt(16) + Math.max(1, Math.floor(args.attackerDef.rawAttack / 16));
+    let attackValue =
+        args.levelDifficulty
+        + deps.randomInt(16)
+        + args.attackerDef.rawAttack
+        - (2 * parryMastery);
 
     if (attackValue <= 1) {
-        if (deps.randomInt(2) !== 0) return { damage: 0, hitZones, damageClass, nextVitals: luckCheck.nextVitals };
+        if (deps.randomInt(2) !== 0) {
+            return {
+                damage: 0,
+                hitZones,
+                damageClass,
+                nextVitals: luckCheck.nextVitals,
+                debug: buildDebugEntry(0, 0, luckCheck.nextVitals),
+            };
+        }
         attackValue = deps.randomInt(4) + 2;
     }
 
-    const firstSpread = attackValue > 0 ? deps.randomInt(attackValue) : 0;
-    attackValue += firstSpread + deps.randomInt(4);
-    if (attackValue > 0) {
-        attackValue += deps.randomInt(attackValue);
-    }
+    attackValue = Math.floor(attackValue / 2);
+    attackValue += deps.randomInt(Math.max(1, attackValue)) + deps.randomInt(4);
+    attackValue += deps.randomInt(Math.max(1, attackValue));
     attackValue = Math.floor(attackValue / 4);
     attackValue += deps.randomInt(4) + 1;
 
@@ -193,6 +255,7 @@ export function resolveMonsterAttackAgainstChampion(
             hitZones,
             damageClass,
             nextVitals: resolved.nextVitals,
+            debug: buildDebugEntry(Math.max(0, attackValue), 0, resolved.nextVitals, resolved.debug),
         };
     }
 
@@ -230,5 +293,6 @@ export function resolveMonsterAttackAgainstChampion(
         hitZones,
         damageClass,
         nextVitals,
+        debug: buildDebugEntry(Math.max(0, attackValue), resolved.damage, nextVitals, resolved.debug),
     };
 }

@@ -310,7 +310,7 @@ test('buildTickSpellsRuntimePatch drops a thrown physical weapon on the creature
         mapIndex: 0,
         x: 1,
         y: 0,
-        currentHP: 5,
+        currentHP: 2,
         alive: true,
         cell: 'frontLeft',
     };
@@ -333,8 +333,8 @@ test('buildTickSpellsRuntimePatch drops a thrown physical weapon on the creature
         effect: 'physical',
         damage: [6, 6],
         nextMoveAt: 1000,
-        remainingRange: 4,
-        remainingAttack: 6,
+        remainingRange: 24,
+        remainingAttack: 40,
         physicalItem: dagger,
     };
     const state = createState({
@@ -442,7 +442,7 @@ test('buildTickSpellsRuntimePatch preserves a thrown physical weapon on the crea
     assert.equal(patch.floorItems?.length, 1);
     assert.deepEqual(patch.floorItems?.[0], { ...dagger, mapIndex: 0, x: 1, y: 0, tilePos: 'West', projectileDropped: true });
     assert.equal(patch.creatures?.[0]?.alive, true);
-    assert.equal(patch.creatures?.[0]?.currentHP, 4);
+    assert.equal(patch.creatures?.[0]?.currentHP, 5);
 });
 
 test('buildTickSpellsRuntimePatch keeps a thrown physical weapon on a missile-absorbing creature instead of deleting it', () => {
@@ -494,6 +494,16 @@ test('buildTickSpellsRuntimePatch keeps a thrown physical weapon on a missile-ab
             now,
             getMap: () => map,
             buildDroppedItem: (item, level, x, y) => ({ ...item, mapIndex: level, x, y, tilePos: 'North' }),
+            buildCreatureDamageEvent: (level, x, y, amount, creatureId) => ({
+                id: 'damage-absorber',
+                level,
+                target: 'creature',
+                x,
+                y,
+                amount,
+                creatureId,
+                ts: now,
+            }),
             hitCreatureAbsorbsMissiles: () => true,
         }),
         footprintLifetimeMs: 100,
@@ -502,7 +512,9 @@ test('buildTickSpellsRuntimePatch keeps a thrown physical weapon on a missile-ab
 
     assert.deepEqual(patch.projectiles, []);
     assert.equal(patch.floorItems, undefined);
-    assert.equal(patch.creatures?.[0]?.currentHP, 8);
+    assert.equal(patch.creatures?.[0]?.currentHP, 5);
+    assert.equal(patch.damageEvents?.length, 1);
+    assert.equal(patch.damageEvents?.[0]?.amount, 3);
     assert.deepEqual(patch.creatures?.[0]?.carriedItems, [
         {
             ...dagger,

@@ -174,7 +174,7 @@ test('buildChampionSheetFrontWallContext resolves fountain, altar, wall mechanis
         direction: 'NORTH',
         firedSensors: new Set(),
         getTileAt: (_level, tileX, tileY) => (tileX === 5 && tileY === 4 ? wallTile : undefined),
-        hasOriginalWallOverlayAt: (_level, tileX, tileY, face, overlayName) =>
+        hasEffectiveOriginalWallOverlayAt: (_level, tileX, tileY, face, overlayName) =>
             tileX === 5 && tileY === 4 && face === 'South' && overlayName === 'Fountain',
         isAltarWallFace: () => false,
         getMechanismsAtFace: () => [frontMechanism, { trigger: 'other' }],
@@ -194,7 +194,7 @@ test('buildChampionSheetFrontWallContext resolves fountain, altar, wall mechanis
         direction: 'EAST',
         firedSensors: new Set(['0_64']),
         getTileAt: () => wallTile,
-        hasOriginalWallOverlayAt: () => false,
+        hasEffectiveOriginalWallOverlayAt: () => false,
         isAltarWallFace: () => true,
         getMechanismsAtFace: () => [],
         isFrontWallMechanism: () => true,
@@ -203,6 +203,25 @@ test('buildChampionSheetFrontWallContext resolves fountain, altar, wall mechanis
     assert.equal(blockedDismiss.facingAltar, true);
     assert.equal(blockedDismiss.frontWallItemMechanism, null);
     assert.equal(blockedDismiss.canDismissChampion, false);
+});
+
+test('buildChampionSheetFrontWallContext keeps fountain interaction when the front tile lookup is temporarily unavailable', () => {
+    const context = buildChampionSheetFrontWallContext<TestMechanism>({
+        level: 1,
+        position: [7, 5],
+        direction: 'WEST',
+        firedSensors: new Set(),
+        getTileAt: () => undefined,
+        hasEffectiveOriginalWallOverlayAt: (_level, tileX, tileY, face, overlayName) =>
+            tileX === 4 && tileY === 7 && face === 'East' && overlayName === 'Fountain',
+        isAltarWallFace: () => false,
+        getMechanismsAtFace: () => [],
+        isFrontWallMechanism: () => false,
+    });
+
+    assert.equal(context.facingFountain, true);
+    assert.equal(context.facingAltar, false);
+    assert.equal(context.frontWallItemMechanism, null);
 });
 
 test('getFirstEquipTargetSlot prefers an empty valid slot before falling back to the first slot', () => {

@@ -66,7 +66,7 @@ export function resolveRightWallTarget(
 
 type FacingFountainDeps = {
     getTile: (level: number, x: number, y: number) => GameTile | undefined;
-    hasOriginalWallOverlayAt: (
+    hasEffectiveOriginalWallOverlayAt: (
         level: number,
         x: number,
         y: number,
@@ -82,10 +82,7 @@ export function isFacingFountain(
     deps: FacingFountainDeps,
 ): boolean {
     const { wallX, wallY, face } = resolveFrontWallTarget(position, direction);
+    const hasFountainOverlay = deps.hasEffectiveOriginalWallOverlayAt(level, wallX, wallY, face, 'Fountain');
     const tile = deps.getTile(level, wallX, wallY);
-    return Boolean(
-        tile &&
-        (tile.type === 'Wall' || tile.type === 'TrickWall') &&
-        deps.hasOriginalWallOverlayAt(level, wallX, wallY, face, 'Fountain'),
-    );
+    return hasFountainOverlay && (!tile || tile.type === 'Wall' || tile.type === 'TrickWall');
 }

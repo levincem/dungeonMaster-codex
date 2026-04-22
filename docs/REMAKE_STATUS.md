@@ -148,6 +148,7 @@ Travail ferme dans cette session:
 
 - chantier `generateurs / groupes actifs` boucle cote code
 - correction globale des faux `Compass` sur les `floor type 3`
+- correction globale des fausses dalles visibles sur les `floor type 3`
 - audit multi-levels refait pour les sensors de sol / mur
 - `0696.RAW1` recale comme conteneur de composition/layout plutot que comme bloc stats cache
 - `creatures.ts` recale sur les champs directs `I559` quand leur semantique est prouvee

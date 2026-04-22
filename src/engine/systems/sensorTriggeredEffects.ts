@@ -43,6 +43,12 @@ type SensorTriggeredDeps<TState extends SensorTriggeredState<TProjectile>, TProj
     now: () => number;
     triggerGeneratorSensor: (level: number, sensor: SensorObject, state: TState) => TState;
     isGeneratorSensor: (sensor: SensorObject) => boolean;
+    queueDelayedTriggeredSensorEffect?: (
+        sensor: SensorObject,
+        level: number,
+        state: TState,
+        actionOverride: SensorAction,
+    ) => Partial<TState> | null;
     readWallSensorRuntimeData: (level: number, sensor: SensorObject, state: TState) => number;
     writeWallSensorRuntimeData: (
         level: number,
@@ -66,7 +72,13 @@ export function dispatchTriggeredSensorEffect<TState extends SensorTriggeredStat
     level: number,
     state: TState,
     deps: SensorTriggeredDeps<TState, TProjectile>,
-    options?: { actionOverride?: SensorAction; updateSourceActive?: boolean },
+    options?: {
+        actionOverride?: SensorAction;
+        updateSourceActive?: boolean;
+        allowWallSquareTargeting?: boolean;
+        wallSquareVisitKeys?: Set<string>;
+        ignoreTriggeredDelay?: boolean;
+    },
 ): Partial<TState> {
     const applyDirectSensorTargetAction = (
         directSensor: SensorObject,
@@ -131,6 +143,7 @@ export function dispatchTriggeredSensorEffect<TState extends SensorTriggeredStat
         sourceLevel: number,
         current: TState,
         sourceAction: SensorAction,
+        wallSquareVisitKeys?: Set<string>,
     ): Partial<TState> => {
         const targetTile = deps.getTile(sourceLevel, sourceSensor.targetX, sourceSensor.targetY);
         if (!targetTile || (targetTile.type !== 'Wall' && targetTile.type !== 'TrickWall')) {
@@ -206,12 +219,33 @@ export function dispatchTriggeredSensorEffect<TState extends SensorTriggeredStat
                     : (conditionMet ? targetSensor.action : null);
                 if (!effectiveAction) continue;
 
+                if (!options?.ignoreTriggeredDelay && targetSensor.delay > 1 && deps.queueDelayedTriggeredSensorEffect) {
+                    const delayedEffect = deps.queueDelayedTriggeredSensorEffect(
+                        targetSensor,
+                        sourceLevel,
+                        nextState,
+                        effectiveAction,
+                    );
+                    if (delayedEffect && Object.keys(delayedEffect).length > 0) {
+                        nextState = { ...nextState, ...delayedEffect } as TState;
+                        changed = true;
+                    }
+                    if (deps.hasWallFaceLocalRotationEffect(targetSensor)) {
+                        pendingLocalRotationFace = targetSensor.tilePos;
+                    }
+                    continue;
+                }
+
                 const gateEffect = dispatchTriggeredSensorEffect(
                     targetSensor,
                     sourceLevel,
                     nextState,
                     deps,
-                    { actionOverride: effectiveAction },
+                    {
+                        actionOverride: effectiveAction,
+                        wallSquareVisitKeys,
+                        ignoreTriggeredDelay: options?.ignoreTriggeredDelay,
+                    },
                 );
                 if (Object.keys(gateEffect).length > 0) {
                     nextState = { ...nextState, ...gateEffect } as TState;
@@ -240,12 +274,33 @@ export function dispatchTriggeredSensorEffect<TState extends SensorTriggeredStat
                     : (nextData === 0 ? targetSensor.action : null);
                 if (!effectiveAction) continue;
 
+                if (!options?.ignoreTriggeredDelay && targetSensor.delay > 1 && deps.queueDelayedTriggeredSensorEffect) {
+                    const delayedEffect = deps.queueDelayedTriggeredSensorEffect(
+                        targetSensor,
+                        sourceLevel,
+                        nextState,
+                        effectiveAction,
+                    );
+                    if (delayedEffect && Object.keys(delayedEffect).length > 0) {
+                        nextState = { ...nextState, ...delayedEffect } as TState;
+                        changed = true;
+                    }
+                    if (deps.hasWallFaceLocalRotationEffect(targetSensor)) {
+                        pendingLocalRotationFace = targetSensor.tilePos;
+                    }
+                    continue;
+                }
+
                 const countdownEffect = dispatchTriggeredSensorEffect(
                     targetSensor,
                     sourceLevel,
                     nextState,
                     deps,
-                    { actionOverride: effectiveAction },
+                    {
+                        actionOverride: effectiveAction,
+                        wallSquareVisitKeys,
+                        ignoreTriggeredDelay: options?.ignoreTriggeredDelay,
+                    },
                 );
                 if (Object.keys(countdownEffect).length > 0) {
                     nextState = { ...nextState, ...countdownEffect } as TState;
@@ -317,8 +372,17 @@ export function dispatchTriggeredSensorEffect<TState extends SensorTriggeredStat
     if (!targetTile) return deps.diffSensorState(state, current);
 
     let targetPatch: Partial<TState>;
-    if (targetTile.type === 'Wall' || targetTile.type === 'TrickWall') {
-        targetPatch = processWallSquareEvent(sensor, level, current, action);
+    if ((targetTile.type === 'Wall' || targetTile.type === 'TrickWall') && options?.allowWallSquareTargeting !== false) {
+        const wallSquareVisitKey = `${level},${sensor.targetY},${sensor.targetX},${sensor.targetDir},${action}`;
+        if (options?.wallSquareVisitKeys?.has(wallSquareVisitKey)) {
+            return deps.diffSensorState(state, current);
+        }
+        const nextWallSquareVisitKeys = new Set(options?.wallSquareVisitKeys ?? []);
+        nextWallSquareVisitKeys.add(wallSquareVisitKey);
+        targetPatch = processWallSquareEvent(sensor, level, current, action, nextWallSquareVisitKeys);
+        if (Object.keys(targetPatch).length <= 0) {
+            targetPatch = applyDirectSensorTargetAction(sensor, level, current, action);
+        }
     } else if (targetTile.type === 'Floor') {
         targetPatch = processFloorSquareEvent(sensor, level, current, action);
     } else {

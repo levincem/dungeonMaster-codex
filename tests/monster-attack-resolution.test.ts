@@ -142,6 +142,7 @@ test('resolveMonsterAttackAgainstChampion returns zero when the target dodges th
             clampVital: (value, max) => Math.max(0, Math.min(max, value)),
             adjustByAttribute: (value) => value,
             applyPoison: (vitals) => vitals,
+            getParryMastery: () => 0,
         },
     );
 
@@ -192,6 +193,7 @@ test('resolveMonsterAttackAgainstChampion applies stamina drain and poison after
                 hp: vitals.hp - 1,
                 poisonEntries: [...vitals.poisonEntries, { remaining: strength, nextTickIn: 4 }],
             }),
+            getParryMastery: () => 0,
         },
     );
 
@@ -243,6 +245,7 @@ test('resolveMonsterAttackAgainstChampion resolves ranged magical attacks withou
             clampVital: (value, max) => Math.max(0, Math.min(max, value)),
             adjustByAttribute: (value) => value,
             applyPoison: (vitals) => vitals,
+            getParryMastery: () => 0,
         },
     );
 
@@ -283,6 +286,7 @@ test('resolveMonsterAttackAgainstChampion forwards the party sleeping flag into 
             clampVital: (value, max) => Math.max(0, Math.min(max, value)),
             adjustByAttribute: (value) => value,
             applyPoison: (vitals) => vitals,
+            getParryMastery: () => 0,
         },
     );
 
@@ -323,10 +327,138 @@ test('resolveMonsterAttackAgainstChampion mutates luck before resolving a failed
             clampVital: (value, max) => Math.max(0, Math.min(max, value)),
             adjustByAttribute: (value) => value,
             applyPoison: (vitals) => vitals,
+            getParryMastery: () => 0,
         },
     );
 
     assert.equal(capturedLuck, 14);
     assert.equal(resolution.nextVitals.currentStats.luck, 14);
     assert.equal(resolution.nextVitals.hp, 27);
+});
+
+test('resolveMonsterAttackAgainstChampion preserves the original melee damage spread between Screamer and Mummy', () => {
+    let capturedScreamerRawAttack = -1;
+    let capturedMummyRawAttack = -1;
+
+    resolveMonsterAttackAgainstChampion(
+        {
+            targetChampion,
+            targetVitals: createVitals(),
+            targetEquipment,
+            targetInventory,
+            activePotionBoosts,
+            attackerDef: createCreatureDef({
+                name: 'Screamer',
+                rawAttack: 5,
+            }),
+            attackMode: 'melee',
+            levelDifficulty: 0,
+            nowMs: 1000,
+        },
+        {
+            randomInt: ((rolls: number[]) => () => rolls.shift() ?? 0)([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+            computeQuickness: () => -1,
+            getRuntimeBonuses: () => ({}),
+            getEffectiveChampionStats: () => ({ luck: 12, stamina: 30, vitality: 22 }),
+            chooseChampionWoundSlots: () => ['torso'],
+            resolveIncomingAttack: (_champion, currentVitals, rawAttack) => {
+                capturedScreamerRawAttack = rawAttack;
+                return {
+                    damage: rawAttack,
+                    nextVitals: {
+                        ...currentVitals,
+                        hp: currentVitals.hp - rawAttack,
+                    },
+                };
+            },
+            clampVital: (value, max) => Math.max(0, Math.min(max, value)),
+            adjustByAttribute: (value) => value,
+            applyPoison: (vitals) => vitals,
+            getParryMastery: () => 0,
+        },
+    );
+
+    resolveMonsterAttackAgainstChampion(
+        {
+            targetChampion,
+            targetVitals: createVitals(),
+            targetEquipment,
+            targetInventory,
+            activePotionBoosts,
+            attackerDef: createCreatureDef({
+                name: 'Mummy',
+                rawAttack: 20,
+            }),
+            attackMode: 'melee',
+            levelDifficulty: 0,
+            nowMs: 1000,
+        },
+        {
+            randomInt: ((rolls: number[]) => () => rolls.shift() ?? 0)([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+            computeQuickness: () => -1,
+            getRuntimeBonuses: () => ({}),
+            getEffectiveChampionStats: () => ({ luck: 12, stamina: 30, vitality: 22 }),
+            chooseChampionWoundSlots: () => ['torso'],
+            resolveIncomingAttack: (_champion, currentVitals, rawAttack) => {
+                capturedMummyRawAttack = rawAttack;
+                return {
+                    damage: rawAttack,
+                    nextVitals: {
+                        ...currentVitals,
+                        hp: currentVitals.hp - rawAttack,
+                    },
+                };
+            },
+            clampVital: (value, max) => Math.max(0, Math.min(max, value)),
+            adjustByAttribute: (value) => value,
+            applyPoison: (vitals) => vitals,
+            getParryMastery: () => 0,
+        },
+    );
+
+    assert.equal(capturedScreamerRawAttack, 1);
+    assert.equal(capturedMummyRawAttack, 3);
+});
+
+test('resolveMonsterAttackAgainstChampion reduces melee damage by the target parry mastery before armor resolution', () => {
+    let capturedRawAttack = -1;
+
+    resolveMonsterAttackAgainstChampion(
+        {
+            targetChampion,
+            targetVitals: createVitals(),
+            targetEquipment,
+            targetInventory,
+            activePotionBoosts,
+            attackerDef: createCreatureDef({
+                rawAttack: 20,
+            }),
+            attackMode: 'melee',
+            levelDifficulty: 0,
+            nowMs: 1000,
+        },
+        {
+            randomInt: ((rolls: number[]) => () => rolls.shift() ?? 0)([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+            computeQuickness: () => -1,
+            getRuntimeBonuses: () => ({}),
+            getEffectiveChampionStats: () => ({ luck: 12, stamina: 30, vitality: 22 }),
+            chooseChampionWoundSlots: () => ['torso'],
+            resolveIncomingAttack: (_champion, currentVitals, rawAttack) => {
+                capturedRawAttack = rawAttack;
+                return {
+                    damage: rawAttack,
+                    nextVitals: {
+                        ...currentVitals,
+                        hp: currentVitals.hp - rawAttack,
+                    },
+                };
+            },
+            clampVital: (value, max) => Math.max(0, Math.min(max, value)),
+            adjustByAttribute: (value) => value,
+            applyPoison: (vitals) => vitals,
+            getParryMastery: () => 4,
+        },
+    );
+
+    assert.equal(capturedRawAttack, 2);
 });

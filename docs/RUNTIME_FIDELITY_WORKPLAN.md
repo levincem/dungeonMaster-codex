@@ -118,7 +118,7 @@ Pour pouvoir dire "fondations fidelite vraiment solides", le reliquat utile est 
 
 - rejouer les cas rares `teleport / pit / changement de niveau / repop tardif / endgame`
 - garder explicites et testes les derniers reliquats interpretes du runtime
-- finir la presentation restante (`locks`, `Gem Hole`)
+- finir les dernieres finitions visuelles qui remonteront au playtest, plutot qu'un bloc generique `locks / Gem Hole` maintenant ferme
 - refaire ensuite une passe d'audit global pour verifier que la documentation reste alignee avec le code reel
 
 ## Bugs a reprendre
@@ -131,7 +131,7 @@ Pour pouvoir dire "fondations fidelite vraiment solides", le reliquat utile est 
   - statut: traite
   - correction: les ratios de composition utiles sont maintenant centralises dans `src/data/wallDecalPresets.ts`, puis reutilises a la fois par `originalWallOverlays.ts` et par `WallDecal.tsx`
   - note: cela evite que les tailles runtime et la composition 3D redivergent silencieusement
-  - recalage courant: locks ramenes a `0.20`; `Hook`, `Wood Ring`, `Slime` et `Grate` redescendus a un gabarit carre `0.15 x 0.15` via ce meme preset partage; `Ghoul's Head` conserve son remake dedie actuel; la fontaine reste volontairement a part
+  - recalage courant: locks ramenes a `0.20`; `Coin Slot` et `Gem Hole` gardent maintenant leurs propres PNG modernes dedies avec preset partage; `Hook`, `Wood Ring`, `Slime` et `Grate` redescendus a un gabarit carre `0.15 x 0.15` via ce meme preset partage; `Ghoul's Head` conserve son remake dedie actuel; la fontaine reste volontairement a part
 - porte-torche plein/vide:
   - statut: traite
   - attendu: pouvoir prendre la torche sur le mur et alterner proprement entre `Full Torch Holder` et `Empty Torch Holder`

@@ -87,6 +87,7 @@ test('buildHudFrontStateSummary reports closed and opened obstacle states with l
         openDoors: new Set(),
         openWalls: new Set(),
         openPits: new Set(),
+        openTeleporters: new Set(),
     });
 
     assert.deepEqual(closed, {
@@ -105,9 +106,39 @@ test('buildHudFrontStateSummary reports closed and opened obstacle states with l
         openDoors: new Set(['0,1,2']),
         openWalls: new Set(),
         openPits: new Set(),
+        openTeleporters: new Set(),
     });
 
     assert.equal(open.frontState, 'Door open walk');
+});
+
+test('buildHudFrontStateSummary reports teleporter activity from runtime openTeleporters state', () => {
+    const map = createMap(3, 3);
+    map.tiles[1][2] = createTile(2, 1, 'Teleporter');
+
+    const inactive = buildHudFrontStateSummary({
+        currentMap: map,
+        level: 0,
+        position: [1, 1],
+        direction: 'EAST',
+        openDoors: new Set(),
+        openWalls: new Set(),
+        openPits: new Set(),
+        openTeleporters: new Set(),
+    });
+    assert.equal(inactive.frontState, 'Teleporter inactive walk');
+
+    const active = buildHudFrontStateSummary({
+        currentMap: map,
+        level: 0,
+        position: [1, 1],
+        direction: 'EAST',
+        openDoors: new Set(),
+        openWalls: new Set(),
+        openPits: new Set(),
+        openTeleporters: new Set(['0,1,2']),
+    });
+    assert.equal(active.frontState, 'Teleporter active walk');
 });
 
 test('buildChampionRecentDamageMap keeps only the latest recent damage entries for current party members', () => {
@@ -251,7 +282,7 @@ test('buildHudCastState derives selected champion, active family, and cast avail
 
     const readyState = buildHudCastState({
         selectedRunes: ['FUL', 'IR'],
-        selectedChampionIndex: 1,
+        activeCasterChampionId: 2,
         party,
         championVitals: {
             2: { mana: 18 },
@@ -264,12 +295,12 @@ test('buildHudCastState derives selected champion, active family, and cast avail
     });
 
     assert.equal(readyState.currentFamilyIdx, 2);
-    assert.equal(readyState.selectedChampion?.id, 2);
+    assert.equal(readyState.casterChampion?.id, 2);
     assert.equal(readyState.canCast, true);
 
     const blockedState = buildHudCastState({
         selectedRunes: ['FUL', 'IR'],
-        selectedChampionIndex: 0,
+        activeCasterChampionId: 1,
         party,
         championVitals: {
             1: { mana: 5 },
@@ -282,4 +313,28 @@ test('buildHudCastState derives selected champion, active family, and cast avail
     });
 
     assert.equal(blockedState.canCast, false);
+});
+
+test('buildHudCastState allows the active spell caster to differ from the selected portrait', () => {
+    const party = [createChampion(1, 'Alex'), createChampion(2, 'Tiggy')];
+
+    const state = buildHudCastState({
+        selectedRunes: ['FUL', 'BRO'],
+        activeCasterChampionId: 2,
+        party,
+        championVitals: {
+            1: { mana: 40 },
+            2: { mana: 14 },
+        },
+        championCombat: {
+            1: { cooldown: 0 },
+            2: { cooldown: 0 },
+        },
+        findSpell: () => ({ manaCost: 12 }),
+        runeFamilyCount: 4,
+    });
+
+    assert.equal(state.casterChampion?.id, 2);
+    assert.equal(state.casterChampionMana, 14);
+    assert.equal(state.canCast, true);
 });

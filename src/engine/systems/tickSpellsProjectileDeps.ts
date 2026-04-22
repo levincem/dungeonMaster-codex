@@ -6,6 +6,7 @@ import type { CreatureInstance } from '../../types/game';
 import type { ActivePoisonCloud, Projectile, ProjectileEffect } from '../runtimeTypes';
 import { GRID_SIZE } from '../constants';
 import { PHYSICAL_PROJECTILE_STEP_MS, PROJECTILE_STEP_MS } from '../time';
+import { rollOriginalPhysicalProjectileBaseDamage } from './originalPhysicalProjectileImpact';
 import { rollOriginalProjectileImpactAttack, type OriginalProjectileIncomingAttackType } from './originalProjectileImpact';
 import type { TickSpellsProjectileDeps } from './tickSpellsRuntime';
 
@@ -121,7 +122,7 @@ export function resolveRuntimeProjectileImpact(
     const sourceSpell = projectile.spellRunes ? findSpell(projectile.spellRunes) : null;
     if (projectile.effect === 'physical') {
         return {
-            damage: Math.max(1, Math.round(projectile.remainingAttack ?? projectile.damage[1])),
+            damage: rollOriginalPhysicalProjectileBaseDamage(projectile, randomInt),
             attackType: 'Blunt',
             poisonAttack: 0,
         };

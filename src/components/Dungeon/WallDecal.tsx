@@ -5,7 +5,11 @@ import * as THREE from 'three';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import type { CardinalDir } from '../../types/game';
 import { miscPath } from '../../data/assetPaths';
-import { getWallDecalPresetForImage, type WallDecalPreset } from '../../data/wallDecalPresets';
+import {
+    getWallDecalPresetForImage,
+    resolveWallDecalScatterOffset,
+    type WallDecalPreset,
+} from '../../data/wallDecalPresets';
 const NO_RAYCAST: THREE.Mesh['raycast'] = () => {};
 
 // ─── Face positioning (same convention as WallSensor / Cell FACE_CONFIGS) ─────
@@ -264,6 +268,7 @@ export const WallDecal = ({
                 ? PLATE_DEPTH * 0.02
                 : PLATE_DEPTH * 0.16
     );
+    const scatterOffset = resolveWallDecalScatterOffset(image, tileX, tileY, face);
     const fallbackImage =
         image === LEVER_UP_IMAGE
             ? LEVER_DOWN_IMAGE
@@ -273,7 +278,7 @@ export const WallDecal = ({
 
     return (
         <group
-            position={[tileX * GRID_SIZE + faceX, preset.y, tileY * GRID_SIZE + faceZ]}
+            position={[tileX * GRID_SIZE + faceX, preset.y + scatterOffset.y, tileY * GRID_SIZE + faceZ]}
             rotation={[rx, ry, rz]}
             frustumCulled={false}
             onClick={onClick ? (e: ThreeEvent<MouseEvent>) => {
@@ -281,43 +286,45 @@ export const WallDecal = ({
                 onClick();
             } : undefined}
         >
-            {onClick && (
-                <mesh position={[0, 0, contentDepth + 0.002]} frustumCulled={false}>
-                    <planeGeometry args={[Math.max(decalWidth, GRID_SIZE * 0.42), Math.max(decalHeight, WALL_HEIGHT * 0.32)]} />
-                    <meshBasicMaterial transparent opacity={0} side={THREE.DoubleSide} depthWrite={false} />
-                </mesh>
-            )}
-            {preset.hasBacking && (
-                <>
-                    <mesh position={[0, 0, -PLATE_DEPTH * 0.55]} frustumCulled={false} renderOrder={1} raycast={NO_RAYCAST}>
-                        <boxGeometry args={[plateWidth, plateHeight, PLATE_DEPTH]} />
-                        <meshBasicMaterial color={preset.plateColor} />
+            <group position={[scatterOffset.x, 0, 0]}>
+                {onClick && (
+                    <mesh position={[0, 0, contentDepth + 0.002]} frustumCulled={false}>
+                        <planeGeometry args={[Math.max(decalWidth, GRID_SIZE * 0.42), Math.max(decalHeight, WALL_HEIGHT * 0.32)]} />
+                        <meshBasicMaterial transparent opacity={0} side={THREE.DoubleSide} depthWrite={false} />
                     </mesh>
-                </>
-            )}
-            {preset.hasGlow && (
-                <mesh position={[0, 0, -PLATE_DEPTH * 0.04]} frustumCulled={false} renderOrder={2} raycast={NO_RAYCAST}>
-                    <planeGeometry args={[decalWidth * 1.1, decalHeight * 1.1]} />
-                    <meshBasicMaterial
-                        color={accent}
-                        transparent
-                        opacity={0.12}
-                        side={THREE.DoubleSide}
-                        depthWrite={false}
-                        depthTest={true}
-                        polygonOffset
-                        polygonOffsetFactor={-2}
-                        polygonOffsetUnits={-2}
-                        toneMapped={false}
-                    />
-                </mesh>
-            )}
-            <group position={[0, 0, contentDepth]}>
-                {image ? (
-                    <DecalSprite image={image} fallbackImage={fallbackImage} width={decalWidth} height={decalHeight} />
-                ) : label ? (
-                    <LabelSprite label={label} accent={accent} width={decalWidth} height={decalHeight} />
-                ) : null}
+                )}
+                {preset.hasBacking && (
+                    <>
+                        <mesh position={[0, 0, -PLATE_DEPTH * 0.55]} frustumCulled={false} renderOrder={1} raycast={NO_RAYCAST}>
+                            <boxGeometry args={[plateWidth, plateHeight, PLATE_DEPTH]} />
+                            <meshBasicMaterial color={preset.plateColor} />
+                        </mesh>
+                    </>
+                )}
+                {preset.hasGlow && (
+                    <mesh position={[0, 0, -PLATE_DEPTH * 0.04]} frustumCulled={false} renderOrder={2} raycast={NO_RAYCAST}>
+                        <planeGeometry args={[decalWidth * 1.1, decalHeight * 1.1]} />
+                        <meshBasicMaterial
+                            color={accent}
+                            transparent
+                            opacity={0.12}
+                            side={THREE.DoubleSide}
+                            depthWrite={false}
+                            depthTest={true}
+                            polygonOffset
+                            polygonOffsetFactor={-2}
+                            polygonOffsetUnits={-2}
+                            toneMapped={false}
+                        />
+                    </mesh>
+                )}
+                <group position={[0, 0, contentDepth]}>
+                    {image ? (
+                        <DecalSprite image={image} fallbackImage={fallbackImage} width={decalWidth} height={decalHeight} />
+                    ) : label ? (
+                        <LabelSprite label={label} accent={accent} width={decalWidth} height={decalHeight} />
+                    ) : null}
+                </group>
             </group>
         </group>
     );

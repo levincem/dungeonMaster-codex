@@ -16,6 +16,26 @@ type IncomingAttackType =
     | 'Unconditional';
 type DamageClass = 'physical' | 'fire' | 'magic' | 'mental';
 
+export type IncomingAttackDefenseSlotDebug = {
+    slot: ChampionWoundSlot;
+    vitalityRoll: number;
+    defenseModifier: number;
+    slotArmor: number;
+    slotItemName?: string | null;
+    shieldContribution: number;
+    shieldDetails?: string[];
+    woundPenalty: number;
+    finalDefense: number;
+};
+
+export type IncomingAttackDebug = {
+    defenseApplied?: number;
+    activeShieldDefense?: number;
+    postMitigationAttack?: number;
+    allowedSlots: ChampionWoundSlot[];
+    defenseSlotBreakdown?: IncomingAttackDefenseSlotDebug[];
+};
+
 type IncomingAttackState = {
     championEquipment: Record<number, ChampionEquipment>;
     activePotionBoosts: ActivePotionBoost[];
@@ -39,6 +59,17 @@ type IncomingAttackDeps = {
         woundSlot: ChampionWoundSlot,
         useSharpDefense: boolean,
     ) => number;
+    computeChampionWoundDefenseWithDebug?: (
+        state: IncomingAttackState,
+        championId: number,
+        champion: Champion,
+        vitals: ChampionVitals,
+        woundSlot: ChampionWoundSlot,
+        useSharpDefense: boolean,
+    ) => {
+        value: number;
+        debug: IncomingAttackDefenseSlotDebug;
+    };
     getPsychicAdjustedAttack: (attack: number, wisdom: number) => number;
     getChampionAdjustedAttackFromResistance: (
         champion: Champion,
@@ -98,29 +129,56 @@ export function resolveChampionIncomingAttack(
     allowedSlots: readonly ChampionWoundSlot[],
     nowMs: number,
     deps: IncomingAttackDeps,
-): { damage: number; nextVitals: ChampionVitals } {
-    if (rawAttack <= 0) return { damage: 0, nextVitals: currentVitals };
+): { damage: number; nextVitals: ChampionVitals; debug: IncomingAttackDebug } {
+    if (rawAttack <= 0) {
+        return {
+            damage: 0,
+            nextVitals: currentVitals,
+            debug: {
+                allowedSlots: [...allowedSlots],
+            },
+        };
+    }
 
     const equip = state.championEquipment[champion.id] ?? {};
     const bonuses = deps.getChampionRuntimeBonuses(champion, currentVitals, state.activePotionBoosts);
     let attack = rawAttack;
+    let defenseApplied: number | undefined;
+    let activeShieldDefense: number | undefined;
+    let postMitigationAttack: number | undefined;
+    let defenseSlotBreakdown: IncomingAttackDebug['defenseSlotBreakdown'] | undefined;
 
     if (attackType !== 'Normal') {
         let defense = 0;
         if (allowedSlots.length > 0) {
+            defenseSlotBreakdown = [];
             for (const woundSlot of allowedSlots) {
-                defense += deps.computeChampionWoundDefense(
-                    state,
-                    champion.id,
-                    champion,
-                    currentVitals,
-                    woundSlot,
-                    attackType === 'Sharp',
-                );
+                if (deps.computeChampionWoundDefenseWithDebug) {
+                    const detailed = deps.computeChampionWoundDefenseWithDebug(
+                        state,
+                        champion.id,
+                        champion,
+                        currentVitals,
+                        woundSlot,
+                        attackType === 'Sharp',
+                    );
+                    defense += detailed.value;
+                    defenseSlotBreakdown.push(detailed.debug);
+                } else {
+                    defense += deps.computeChampionWoundDefense(
+                        state,
+                        champion.id,
+                        champion,
+                        currentVitals,
+                        woundSlot,
+                        attackType === 'Sharp',
+                    );
+                }
             }
             defense = Math.floor(defense / allowedSlots.length);
         }
-        defense += deps.getActiveShieldDefense(state.activeShields, nowMs, 'physical', champion.id);
+        activeShieldDefense = deps.getActiveShieldDefense(state.activeShields, nowMs, 'physical', champion.id);
+        defense += activeShieldDefense;
 
         switch (attackType) {
             case 'Mental':
@@ -148,15 +206,53 @@ export function resolveChampionIncomingAttack(
                 break;
         }
 
-        if (attack <= 0) return { damage: 0, nextVitals: currentVitals };
-        if (attackType !== 'Magic' && attackType !== 'Mental') {
-            attack = deps.scaleOriginalAttack(attack, 6, Math.max(0, 130 - defense));
+        if (attack <= 0) {
+            return {
+                damage: 0,
+                nextVitals: currentVitals,
+                debug: {
+                    defenseApplied: defense,
+                    activeShieldDefense,
+                    postMitigationAttack: 0,
+                    allowedSlots: [...allowedSlots],
+                    defenseSlotBreakdown,
+                },
+            };
         }
-        if (attack <= 0) return { damage: 0, nextVitals: currentVitals };
+        if (attackType !== 'Magic' && attackType !== 'Mental') {
+            defenseApplied = defense;
+            attack = deps.scaleOriginalAttack(attack, 6, Math.max(0, 130 - defense));
+            postMitigationAttack = attack;
+        }
+        if (attack <= 0) {
+            return {
+                damage: 0,
+                nextVitals: currentVitals,
+                debug: {
+                    defenseApplied,
+                    activeShieldDefense,
+                    postMitigationAttack: 0,
+                    allowedSlots: [...allowedSlots],
+                    defenseSlotBreakdown,
+                },
+            };
+        }
     }
 
     const damage = Math.max(0, attack);
-    if (damage <= 0) return { damage: 0, nextVitals: currentVitals };
+    if (damage <= 0) {
+        return {
+            damage: 0,
+            nextVitals: currentVitals,
+            debug: {
+                defenseApplied,
+                activeShieldDefense,
+                postMitigationAttack,
+                allowedSlots: [...allowedSlots],
+                defenseSlotBreakdown,
+            },
+        };
+    }
 
     let nextVitals: ChampionVitals = {
         ...currentVitals,
@@ -177,5 +273,12 @@ export function resolveChampionIncomingAttack(
     return {
         damage: Math.max(0, currentVitals.hp - nextVitals.hp),
         nextVitals,
+            debug: {
+                defenseApplied,
+                activeShieldDefense,
+                postMitigationAttack: postMitigationAttack ?? damage,
+                allowedSlots: [...allowedSlots],
+                defenseSlotBreakdown,
+            },
     };
 }

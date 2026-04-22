@@ -7,6 +7,7 @@ import {
     buildKillCreaturePatch,
     buildSetGameOptionsPatch,
     buildStoreKillChampionPatch,
+    buildTogglePausePatch,
     buildToggleSleepPatch,
     buildWakeUpPatch,
 } from '../src/engine/systems/storeStateRuntime.js';
@@ -200,4 +201,18 @@ test('buildToggleSleepPatch toggles sleep, clears cast result, and blocks invali
 test('buildWakeUpPatch only returns a patch while sleeping', () => {
     assert.deepEqual(buildWakeUpPatch({ sleeping: true }), { sleeping: false });
     assert.equal(buildWakeUpPatch({ sleeping: false }), null);
+});
+
+test('buildTogglePausePatch toggles pause only during active gameplay phases', () => {
+    const state = {
+        gamePhase: 'exploration',
+        sleeping: false,
+        paused: false,
+        lastCastResult: { message: 'old' },
+    };
+
+    assert.deepEqual(buildTogglePausePatch(state), { paused: true, lastCastResult: null });
+    assert.deepEqual(buildTogglePausePatch({ ...state, paused: true }), { paused: false, lastCastResult: null });
+    assert.equal(buildTogglePausePatch({ ...state, sleeping: true }), null);
+    assert.equal(buildTogglePausePatch({ ...state, gamePhase: 'title' }), null);
 });

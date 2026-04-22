@@ -64,6 +64,7 @@ test('processPendingSensorEvents triggers elapsed events and keeps future ones q
         {
             findSensorByIndex: (_level, sensorIndex) => (sensorIndex === 5 ? createSensor() : null),
             computeSensorEffect: () => ({ openDoors: new Set(['3,1,2']) }),
+            dispatchTriggeredSensorEffect: () => ({ openDoors: new Set(['3,1,2']) }),
             resolveDoorSoundTarget: () => ({ level: 3, x: 2, y: 1 }),
             playDoorMotion: (target) => {
                 playedDoors.push(target);
@@ -79,6 +80,41 @@ test('processPendingSensorEvents triggers elapsed events and keeps future ones q
     assert.deepEqual(result.pendingSensorEvents, [{ level: 3, sensorIndex: 6, remaining: 1 }]);
     assert.deepEqual(playedDoors, [{ level: 3, x: 2, y: 1 }]);
     assert.equal(plateCount, 1);
+});
+
+test('processPendingSensorEvents replays delayed triggered effects through dispatch for gate sensors', () => {
+    const state: TestSensorState = {
+        openDoors: new Set<string>(),
+        creatures: [],
+    };
+    let dispatchedAction: SensorObject['action'] | null = null;
+    let dispatchedOverride: SensorObject['action'] | null = null;
+
+    const result = processPendingSensorEvents(
+        1,
+        [{ level: 3, sensorIndex: 5, remaining: 0.25, actionOverride: 'Toggle' }],
+        state,
+        {
+            findSensorByIndex: () => createSensor({ type: 5, action: 'Clear' }),
+            computeSensorEffect: () => {
+                throw new Error('computeSensorEffect should not run for delayed triggered gate effects');
+            },
+            dispatchTriggeredSensorEffect: (sensor, _level, _state, options) => {
+                dispatchedAction = sensor.action;
+                dispatchedOverride = options?.actionOverride ?? null;
+                return { openDoors: new Set(['3,1,2']) };
+            },
+            resolveDoorSoundTarget: () => ({ level: 3, x: 2, y: 1 }),
+            playDoorMotion: () => undefined,
+            playPlate: () => undefined,
+            diffSensorState: (_before, after) => ({ openDoors: after.openDoors }),
+        },
+    );
+
+    assert.equal(dispatchedAction, 'Clear');
+    assert.equal(dispatchedOverride, 'Toggle');
+    assert.deepEqual([...result.sensorChanges.openDoors!], ['3,1,2']);
+    assert.deepEqual(result.pendingSensorEvents, []);
 });
 
 test('processPendingGeneratorSpawns retries blocked spawns and appends successful groups', () => {

@@ -124,6 +124,8 @@ export function triggerFloorSensors<
                 if (Object.keys(effect).length > 0) {
                     cur = { ...cur, ...effect } as TSensorState;
                     changed = true;
+                    const nestedPending = (effect as Partial<TSensorState> & { pendingSensorEvents?: TPendingSensorEvent[] }).pendingSensorEvents;
+                    nextPending = nestedPending ?? nextPending;
                 }
                 continue;
             }
@@ -139,6 +141,8 @@ export function triggerFloorSensors<
             if (Object.keys(effect).length > 0) {
                 cur = { ...cur, ...effect } as TSensorState;
                 changed = true;
+                const nestedPending = (effect as Partial<TSensorState> & { pendingSensorEvents?: TPendingSensorEvent[] }).pendingSensorEvents;
+                nextPending = nestedPending ?? nextPending;
             }
             continue;
         }

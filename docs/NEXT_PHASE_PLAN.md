@@ -102,6 +102,13 @@ Definition de fini:
 - aucun bug visuel ou de wiring evident sur les zones touchees
 - les cas sensibles sont rejoues une fois proprement
 
+Point note pour reprise de playtest:
+
+- objets au sol partiellement masques par un groupe de creatures sur la meme case
+  - a verifier en presentation / interaction: il faut pouvoir mieux voir, cibler et ramasser les items presents sous ou derriere un groupe
+  - piste a tester: leger recul camera / meilleur framing de la case / priorite visuelle pickup sur la case occupee
+  - ne pas traiter ca comme un bug de donnee ou de logique item tant que le rendu / ciblage n'a pas ete rejoue proprement
+
 ## 3. Profilage / optimisation
 
 Statut:
@@ -137,6 +144,7 @@ Statut:
 Pourquoi ce n'est pas fini:
 
 - le coeur gameplay est solide, mais les cas rares n'ont pas encore tous ete rejoues et verifies jusqu'au bout
+- la semantique des mecanismes courants est maintenant largement decryptee, mais les combinaisons rares `delay / gate / local wall effects / countdowns` demandent encore du playtest cible pour confirmer qu'on couvre bien tout le long tail sans regressions
 
 Cible:
 

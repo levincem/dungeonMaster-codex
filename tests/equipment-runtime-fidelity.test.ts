@@ -121,7 +121,7 @@ function createItem(category: FloorItem['category'], typeId: number): FloorItem 
 
 function getObjectInfoAllowedSlots(
     source: SourceGameDb,
-    category: 'Armor' | 'Potion' | 'Misc' | 'Scroll',
+    category: 'Armor' | 'Potion' | 'Misc' | 'Scroll' | 'Container',
     typeId: number,
 ): SourceAllowedSlots | undefined {
     const offset = SOURCE_ITEM_OBJECT_INDEX_OFFSETS[category];
@@ -281,6 +281,16 @@ test('equipment runtime preserves source-backed slot semantics for equippable it
             'scroll equippable slots drifted from source-backed semantics',
         );
     }
+
+    const container = createItem('Container', 0);
+    const containerAllowed = getObjectInfoAllowedSlots(source, 'Container', 0);
+    if (hasExplicitSourceSlotSignal(containerAllowed)) {
+        assert.deepEqual(
+            getEquippableSlots(container),
+            expectedConsumableEquippableSlots(containerAllowed),
+            'container equippable slots drifted from source-backed semantics',
+        );
+    }
 });
 
 test('starter auto-equip preserves source-backed priority and never invents extra slot families', () => {
@@ -333,6 +343,15 @@ test('starter auto-equip preserves source-backed priority and never invents extr
             getStarterAutoEquipSlots(createItem('Scroll', 0)),
             expectedStarterConsumableSlots(scrollAllowed),
             'scroll starter auto-equip slots drifted from source-backed semantics',
+        );
+    }
+
+    const containerAllowed = getObjectInfoAllowedSlots(source, 'Container', 0);
+    if (hasExplicitSourceSlotSignal(containerAllowed)) {
+        assert.deepEqual(
+            getStarterAutoEquipSlots(createItem('Container', 0)),
+            expectedStarterConsumableSlots(containerAllowed),
+            'container starter auto-equip slots drifted from source-backed semantics',
         );
     }
 });

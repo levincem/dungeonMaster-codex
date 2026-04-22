@@ -93,7 +93,9 @@ export interface CreatureObject {
     globalX?: number;
     globalY?: number;
     type: number;   // creature type id from extracted original data
-    hp: number;
+    hp: number | number[];
+    count?: number;
+    positions?: number;
 }
 
 export interface WeaponObject {
@@ -151,7 +153,16 @@ export interface ContainerObject {
     globalX?: number;
     globalY?: number;
     type: number;
+    contents?: FloorItemObject[];
 }
+
+export type FloorItemObject =
+    | WeaponObject
+    | ArmorObject
+    | PotionObject
+    | ScrollObject
+    | MiscObject
+    | ContainerObject;
 
 export type TileObject =
     | DoorObject
@@ -245,6 +256,8 @@ export interface FloorItem {
     championId?: number;
     /** Set when the item has just fallen from a projectile impact, to bias its floor presentation. */
     projectileDropped?: boolean;
+    /** Nested items stored inside carried containers such as chests. */
+    containerContents?: FloorItem[];
 }
 
 /** Per-champion equipped items, keyed by slot. */

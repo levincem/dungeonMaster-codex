@@ -165,6 +165,16 @@ function mapExtractedConsumableSlots(category: 'Potion' | 'Scroll', typeId: numb
     return slots;
 }
 
+function mapExtractedContainerSlots(typeId: number): EquipSlotKey[] {
+    const allowedMask = getSourceItemAllowedSlotsMask('Container', typeId);
+    if (allowedMask == null || allowedMask === 0) return ['rightHand', 'leftHand'];
+
+    const slots: EquipSlotKey[] = [];
+    addSourceStorageSlots(slots, allowedMask);
+    addHandCarrySlots(slots, allowedMask);
+    return slots.length > 0 ? slots : ['rightHand', 'leftHand'];
+}
+
 function mapFallbackArmorSlots(item: FloorItem): EquipSlotKey[] {
     const def = getArmorDef(item.typeId, item.rawName);
     if (!def) return [];
@@ -259,6 +269,8 @@ export function getEquippableSlots(item: FloorItem): EquipSlotKey[] {
             if (extractedSlots.length > 0) return extractedSlots;
             return ['pocket1', 'pocket2', 'rightHand', 'leftHand'];
         }
+        case 'Container':
+            return mapExtractedContainerSlots(item.typeId);
         default:
             return [];
     }
@@ -285,6 +297,8 @@ export function getStarterAutoEquipSlots(item: FloorItem): EquipSlotKey[] {
             return mapStarterConsumableSlots('Potion', item.typeId);
         case 'Scroll':
             return mapStarterConsumableSlots('Scroll', item.typeId);
+        case 'Container':
+            return mapExtractedContainerSlots(item.typeId);
         default:
             return [];
     }

@@ -29,10 +29,12 @@ const WallItemSprite = ({
     imagePath,
     onClick,
     scale = 1,
+    positionY = 0,
 }: {
     imagePath: string;
     onClick: () => void;
     scale?: number;
+    positionY?: number;
 }) => {
     const baseTex = useLoadedTexture(imagePath);
     const tex = useMemo(() => {
@@ -53,6 +55,7 @@ const WallItemSprite = ({
             onClick={(event) => { event.stopPropagation(); onClick(); }}
             frustumCulled={false}
             renderOrder={16}
+            position={[0, positionY, 0]}
         >
             <planeGeometry args={[width, height]} />
             <meshBasicMaterial
@@ -75,11 +78,11 @@ export const WallMountedItemMesh = ({ item, onPickup }: { item: FloorItem; onPic
     const level = useStore(s => s.level);
     const [ox, oy, oz] = FACE_POS[item.tilePos];
     const [rx, ry, rz] = FACE_ROT[item.tilePos];
-    const imagePath = getFloorItemImage(item);
     const presentation = useMemo(
         () => getWallMountedItemPresentation(level, item),
         [item, level],
     );
+    const imagePath = presentation.spriteImagePath ?? getFloorItemImage(item);
 
     return (
         <group
@@ -105,6 +108,7 @@ export const WallMountedItemMesh = ({ item, onPickup }: { item: FloorItem; onPic
                         imagePath={imagePath}
                         onClick={onPickup}
                         scale={presentation.spriteScale}
+                        positionY={presentation.spriteOffsetY}
                     />
                 ) : null}
             </Suspense>

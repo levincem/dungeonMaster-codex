@@ -477,7 +477,6 @@ export function buildStoreAttackFrontRuntimePatch<TState extends StoreAttackFron
                             totalDmg,
                             attackSkill,
                             newCombat,
-                            championVitals,
                             {
                                 applyChampionSkillExperience: (currentState, currentChampionId, skill, amount) =>
                                     deps.buildChampionSkillExperiencePatch(

@@ -27,7 +27,7 @@ type MapMechanismEntry = {
     sensorType: number;
     face: CardinalDir;
 };
-export type FrontWallInteractionKind = 'wall-lock' | 'alcove' | 'object-exchanger';
+export type FrontWallInteractionKind = 'wall-lock' | 'alcove' | 'object-exchanger' | 'fountain';
 export type AltarDropTarget = {
     placement: WallDropPlacement;
     wallX: number;
@@ -134,10 +134,18 @@ export function resolveFrontWallInteractionKind(args: {
     direction: Direction;
     openWalls: Set<string>;
     getMechanismsAtFace?: (level: number, tileX: number, tileY: number, face: CardinalDir) => MechanismEntry[];
+    hasEffectiveOriginalWallOverlayAt?: (
+        level: number,
+        tileX: number,
+        tileY: number,
+        face: CardinalDir,
+        overlayName: string,
+    ) => boolean;
     isSelfRevealingWallTile?: (level: number, tileX: number, tileY: number) => boolean;
 }): FrontWallInteractionKind | null {
     const { direction, level, map, openWalls, position } = args;
     const mechanismLookup = args.getMechanismsAtFace ?? (() => []);
+    const hasWallOverlayAt = args.hasEffectiveOriginalWallOverlayAt ?? (() => false);
     const selfRevealingWallTile = args.isSelfRevealingWallTile ?? (() => false);
     const frontTileY = direction === 'NORTH' ? position[0] - 1 : direction === 'SOUTH' ? position[0] + 1 : position[0];
     const frontTileX = direction === 'EAST' ? position[1] + 1 : direction === 'WEST' ? position[1] - 1 : position[1];
@@ -150,6 +158,9 @@ export function resolveFrontWallInteractionKind(args: {
     if (!tile || (tile.type !== 'Wall' && tile.type !== 'TrickWall')) return null;
     if (selfRevealingWallTile(level, frontTileX, frontTileY) && openWalls.has(`${level},${frontTileY},${frontTileX}`)) {
         return null;
+    }
+    if (hasWallOverlayAt(level, frontTileX, frontTileY, frontFace, 'Fountain')) {
+        return 'fountain';
     }
     const mechanism = mechanismLookup(level, frontTileX, frontTileY, frontFace).find((entry) =>
         entry.trigger === 'wall-lock' || entry.trigger === 'alcove' || entry.trigger === 'object-exchanger',
@@ -312,7 +323,9 @@ export function collectDungeonScenePressurePlates(args: {
     for (const mech of mechanisms) {
         if (mech.support !== 'Floor') continue;
         if (mech.trigger !== 'floor-pressure' && mech.trigger !== 'object-pressure') continue;
-        if (![1, 2, 3, 4, 7].includes(mech.sensorType)) continue;
+        // Floor sensor type 3 is an invisible party/orientation trigger in the
+        // original runtime, not a visible pressure plate slab.
+        if (![1, 2, 4, 7].includes(mech.sensorType)) continue;
         const tile = map.tiles[mech.y]?.[mech.x];
         if (!tile || tile.type === 'Wall' || tile.type === 'Door' || tile.type === 'Teleporter') continue;
         const key = `${mech.x},${mech.y}`;
@@ -362,7 +375,7 @@ export function collectDungeonSceneTeleporters(args: {
     for (const row of args.map.tiles) {
         for (const tile of row) {
             if (tile.type !== 'Teleporter') continue;
-            if (!tile.open && !args.openTeleporters.has(`${args.level},${tile.y},${tile.x}`)) continue;
+            if (!args.openTeleporters.has(`${args.level},${tile.y},${tile.x}`)) continue;
             out.push({ tileX: tile.x, tileY: tile.y });
         }
     }

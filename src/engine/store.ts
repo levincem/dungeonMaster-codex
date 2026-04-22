@@ -19,7 +19,7 @@ import {
 import type {
     GameMap, GameTile,
     CreatureInstance, FloorItem,
-    SensorObject, CardinalDir,
+    SensorObject, SensorAction, CardinalDir,
     ChampionEquipment,
 } from '../types/game';
 import type { GeneratedCreatureGroupPlanEntry } from './systems/generatedCreatureGroups';
@@ -55,7 +55,7 @@ import {
     getTotalWeight,
 } from '../data/equipment';
 import type { ChampionWoundSlot, ChampionWounds, EquipmentStatBonuses } from '../data/equipment';
-import { hasOriginalWallOverlayAt } from '../data/originalWallOverlays';
+import { hasEffectiveOriginalWallOverlayAt } from '../data/originalWallOverlays';
 import { isOriginalConsumableItem } from '../data/originalItemRules';
 import {
     getOriginalPaletteNormalizedBrightnessForLuminance,
@@ -100,7 +100,7 @@ import {
     playWarCry,
 } from './sounds';
 import { readBestPersistedSave, writePersistedSave } from './saveGame';
-import type { GameOptions } from './runtimeTypes';
+import type { GameOptions, MonsterAttackDebugEntry } from './runtimeTypes';
 import {
     tryParsePersistedSaveData as tryParsePersistedSaveDataSystem,
 } from './systems/persistence';
@@ -110,11 +110,16 @@ import {
     normalizeChampionVitalsForChampion,
 } from './systems/championState';
 import {
+    dropChampionContainerItem,
+    equipChampionContainerItem,
     dropChampionCarriedItem,
     equipChampionInventoryItem,
+    giveChampionContainerItem,
     giveChampionEquippedItem,
     giveChampionInventoryItem,
     locateChampionItem,
+    moveChampionItemToContainer,
+    moveContainerItemToChampionInventory,
     seedTorchBurnStartFromEquipment,
     throwChampionCarriedItem,
     unequipChampionItem,
@@ -160,6 +165,7 @@ import {
     buildKillCreaturePatch,
     buildSetGameOptionsPatch,
     buildStoreKillChampionPatch,
+    buildTogglePausePatch,
     buildToggleSleepPatch,
     buildWakeUpPatch,
 } from './systems/storeStateRuntime';
@@ -210,7 +216,7 @@ import {
     getOriginalMonsterMoveDelaySeconds,
 } from './systems/originalMonsterTiming';
 import { getOriginalActiveShieldDefense, getOriginalPartyShieldKind } from './systems/originalShieldDefense';
-import { computeOriginalChampionWoundDefense } from './systems/originalWoundDefense';
+import { computeOriginalChampionWoundDefense, computeOriginalChampionWoundDefenseWithDebug } from './systems/originalWoundDefense';
 import { runStoreMovementAction } from './systems/storePartyMoveRuntime';
 import {
     buildStoreExplorationRegenPatch as buildStoreExplorationRegenPatchSystem,
@@ -732,6 +738,35 @@ function computeChampionWoundDefenseOriginal(
     );
 }
 
+function computeChampionWoundDefenseOriginalWithDebug(
+    state: GameState,
+    championId: number,
+    champion: Champion,
+    currentVitals: ChampionVitals | undefined,
+    woundSlot: ChampionWoundSlot,
+    useSharpDefense: boolean,
+) {
+    const equip = state.championEquipment[championId] ?? {};
+    return computeOriginalChampionWoundDefenseWithDebug(
+        {
+            champion,
+            equip,
+            currentVitals,
+            woundSlot,
+            useSharpDefense,
+            defenseModifier: state.championCombat[championId]?.defenseModifier ?? 0,
+            runtimeBonuses: getChampionRuntimeBonuses(champion, currentVitals, state.activePotionBoosts),
+            woundDefenseFactors: I562_WOUND_DEFENSE_FACTORS,
+        },
+        randomInt,
+        {
+            getArmorDef,
+            getEffectiveChampionStatsWithBonuses,
+            getChampionMaxLoad,
+        },
+    );
+}
+
 function getChampionAdjustedAttackFromResistanceOriginal(
     champion: Champion,
     equip: ChampionEquipment | undefined,
@@ -777,6 +812,7 @@ interface PendingSensorEvent {
     level: number;
     sensorIndex: number;
     remaining: number;
+    actionOverride?: SensorAction;
 }
 
 interface PendingGeneratorSpawnEvent {
@@ -1000,6 +1036,7 @@ const {
     applyToSet,
     buildSensorStateSnapshot,
     computeSensorEffect,
+    dispatchTriggeredSensorEffect,
     diffSensorState,
     findSensorByIndex,
     getSelfRevealingWallSensor,
@@ -1139,6 +1176,21 @@ const {
         woundSlot,
         useSharpDefense,
     ),
+    computeChampionWoundDefenseWithDebug: (
+        state,
+        championId,
+        champion,
+        vitals,
+        woundSlot,
+        useSharpDefense,
+    ) => computeChampionWoundDefenseOriginalWithDebug(
+        state,
+        championId,
+        champion,
+        vitals,
+        woundSlot,
+        useSharpDefense,
+    ),
     getChampionAdjustedAttackFromResistance: getChampionAdjustedAttackFromResistanceOriginal,
     getActiveShieldDefense: getActiveShieldDefenseOriginal,
     getChampionRuntimeBonuses,
@@ -1266,6 +1318,7 @@ const {
     partyHasRequiredItem,
     tileHasRequiredFloorItem,
     computeSensorEffect,
+    dispatchTriggeredSensorEffect,
     triggerGeneratorSensor,
     queueOrComputeSensorEffect,
     resolveDoorSoundTarget,
@@ -1583,6 +1636,8 @@ interface GameState {
     lastPartyMoveGameTick: number;
     movementCooldown: number;
     sleeping: boolean;
+    paused: boolean;
+    lastMonsterAttackDebug: MonsterAttackDebugEntry | null;
     endgameSequence: EndgameSequence | null;
     /** Result of the most recent spell cast attempt */
     lastCastResult: CastResult | null;
@@ -1673,6 +1728,11 @@ interface GameState {
     unequipItem: (championId: number, slotKey: EquipSlotKey) => void;
     giveItem: (fromChampionId: number, toChampionId: number, itemId: string) => void;
     giveEquippedItem: (fromChampionId: number, slotKey: EquipSlotKey, toChampionId: number) => void;
+    storeItemInContainer: (championId: number, itemId: string, fromSlot: EquipSlotKey | 'inventory', containerItemId: string) => void;
+    takeContainerItem: (championId: number, containerItemId: string, itemId: string) => void;
+    giveContainerItem: (fromChampionId: number, toChampionId: number, containerItemId: string, itemId: string) => void;
+    equipContainerItem: (championId: number, containerItemId: string, itemId: string, slotKey: EquipSlotKey) => void;
+    dropContainerItem: (championId: number, containerItemId: string, itemId: string) => void;
     killChampion: (championId: number) => void;
     resurrectChampion: (bonesItemId: string) => void;
     useItem: (championId: number, itemId: string, fromSlot?: EquipSlotKey | 'inventory') => void;
@@ -1680,6 +1740,7 @@ interface GameState {
     fillWaterContainer: (championId: number, itemId: string) => void;
     sleep: () => void;
     wakeUp: () => void;
+    togglePause: () => void;
     enterDungeon: () => void;
     saveGame: () => boolean;
     loadGame: () => boolean;
@@ -1873,7 +1934,7 @@ const storeFillWaterRuntimeDeps = createStoreFillWaterRuntimeDeps({
         currentState.direction,
         {
             getTile: (level, x, y) => getMap(level).tiles[y]?.[x],
-            hasOriginalWallOverlayAt,
+            hasEffectiveOriginalWallOverlayAt,
         },
     ),
     canFillWaterContainer,
@@ -1887,7 +1948,7 @@ const storeDrinkFromFountainRuntimeDeps = createStoreDrinkFromFountainRuntimeDep
         currentState.direction,
         {
             getTile: (level, x, y) => getMap(level).tiles[y]?.[x],
-            hasOriginalWallOverlayAt,
+            hasEffectiveOriginalWallOverlayAt,
         },
     ),
     clampWater: (value) => clampFoodWater(value, MAX_WATER),
@@ -2304,6 +2365,7 @@ const runStoreMonsterTickActionBase = createStoreMonsterTickAction<GameState>((s
                 clampVital,
                 adjustByAttribute: adjustOriginalAttackByAttribute,
                 applyPoison: applyPoisonCharacterOriginal,
+                getParryMastery: (champion) => getChampionMasteryLevel(currentState as GameState, champion.id, 'parry'),
             }),
             resolveCreatureTeleporterTransportSystem,
             buildTerrainTransportDeps,
@@ -2913,6 +2975,29 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         }) ?? state,
     ),
 
+    storeItemInContainer: (championId, itemId, fromSlot, containerItemId) => set((state) =>
+        moveChampionItemToContainer(state, championId, itemId, fromSlot, containerItemId) ?? state,
+    ),
+
+    takeContainerItem: (championId, containerItemId, itemId) => set((state) =>
+        moveContainerItemToChampionInventory(state, championId, containerItemId, itemId) ?? state,
+    ),
+
+    giveContainerItem: (fromChampionId, toChampionId, containerItemId, itemId) => set((state) =>
+        giveChampionContainerItem(state, fromChampionId, toChampionId, containerItemId, itemId) ?? state,
+    ),
+
+    equipContainerItem: (championId, containerItemId, itemId, slotKey) => set((state) => {
+        const containerItem = locateChampionItem(state, championId, containerItemId)?.item;
+        const nestedItem = containerItem?.containerContents?.find((entry) => entry.id === itemId);
+        if (!nestedItem || !canEquipItemInSlot(nestedItem, slotKey)) return state;
+        return equipChampionContainerItem(state, championId, containerItemId, itemId, slotKey) ?? state;
+    }),
+
+    dropContainerItem: (championId, containerItemId, itemId) => set((state) =>
+        dropChampionContainerItem(state, championId, containerItemId, itemId) ?? state,
+    ),
+
     resurrectChampion: (bonesItemId) => set((state) =>
         buildStoreResurrectChampionPatch(state, bonesItemId, storeResurrectChampionRuntimeDeps) ?? state
     ),
@@ -2955,6 +3040,8 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
     ),
 
     wakeUp: () => set((state) => buildWakeUpPatch(state) ?? state),
+
+    togglePause: () => set((state) => buildTogglePausePatch(state) ?? state),
 
     // ─── Potion rune → typeId mapping (spell runes without power rune) ──────────
     // Source: canonical runtime potion table in src/data/items.ts

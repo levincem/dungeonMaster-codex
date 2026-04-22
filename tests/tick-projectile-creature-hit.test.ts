@@ -58,9 +58,24 @@ function createState(overrides: Partial<{
 }
 
 test('applyProjectileCreatureHit damages a creature, drops loot on kill, and emits visuals', () => {
-    const hit = createCreature({ currentHP: 6 });
+    const dagger: FloorItem = {
+        id: 'dagger-kill',
+        category: 'Weapon',
+        typeId: 8,
+        rawName: 'Dagger',
+        mapIndex: 0,
+        x: 0,
+        y: 0,
+        tilePos: 'North',
+    };
+    const hit = createCreature({ currentHP: 2 });
     const result = applyProjectileCreatureHit(
-        createProjectile({ effect: 'physical', remainingAttack: 6, physicalItem: { id: 'rock', category: 'Misc', typeId: 1, mapIndex: 0, x: 2, y: 2, tilePos: 'North' } }),
+        createProjectile({
+            effect: 'physical',
+            remainingRange: 24,
+            remainingAttack: 40,
+            physicalItem: dagger,
+        }),
         hit,
         [hit],
         false,
@@ -73,6 +88,7 @@ test('applyProjectileCreatureHit damages a creature, drops loot on kill, and emi
         {
             rollSourceBackedImpact: () => null,
             getCreaturePoisonAdjustedAttack: (_typeId, attack) => attack,
+            randomInt: () => 0,
             rollRandomProjectileDamage: () => 0,
             rollExplosionBurstAttack: () => 0,
             isLikelyNonMaterial: () => false,
@@ -132,7 +148,8 @@ test('applyProjectileCreatureHit keeps a thrown physical weapon on the creature 
     const result = applyProjectileCreatureHit(
         createProjectile({
             effect: 'physical',
-            remainingAttack: 4,
+            remainingRange: 24,
+            remainingAttack: 40,
             physicalItem: dagger,
             direction: 'EAST',
         }),
@@ -148,6 +165,7 @@ test('applyProjectileCreatureHit keeps a thrown physical weapon on the creature 
         {
             rollSourceBackedImpact: () => null,
             getCreaturePoisonAdjustedAttack: (_typeId, attack) => attack,
+            randomInt: () => 0,
             rollRandomProjectileDamage: () => 0,
             rollExplosionBurstAttack: () => 0,
             isLikelyNonMaterial: () => false,
@@ -183,7 +201,7 @@ test('applyProjectileCreatureHit keeps a thrown physical weapon on the creature 
     );
 
     assert.equal(result.creatures[0]?.alive, true);
-    assert.equal(result.creatures[0]?.currentHP, 8);
+    assert.equal(result.creatures[0]?.currentHP, 9);
     assert.equal(result.floorItems.length, 1);
     assert.deepEqual(result.floorItems[0], {
         ...dagger,
@@ -211,7 +229,8 @@ test('applyProjectileCreatureHit stores a thrown physical weapon on missile-abso
     const result = applyProjectileCreatureHit(
         createProjectile({
             effect: 'physical',
-            remainingAttack: 4,
+            remainingRange: 24,
+            remainingAttack: 40,
             physicalItem: dagger,
             direction: 'EAST',
         }),
@@ -227,6 +246,7 @@ test('applyProjectileCreatureHit stores a thrown physical weapon on missile-abso
         {
             rollSourceBackedImpact: () => null,
             getCreaturePoisonAdjustedAttack: (_typeId, attack) => attack,
+            randomInt: () => 0,
             rollRandomProjectileDamage: () => 0,
             rollExplosionBurstAttack: () => 0,
             isLikelyNonMaterial: () => false,
@@ -262,8 +282,9 @@ test('applyProjectileCreatureHit stores a thrown physical weapon on missile-abso
     );
 
     assert.equal(result.floorItems.length, 0);
-    assert.equal(result.damageEvents.length, 0);
-    assert.equal(result.creatures[0]?.currentHP, 12);
+    assert.equal(result.damageEvents.length, 1);
+    assert.equal(result.damageEvents[0]?.amount, 3);
+    assert.equal(result.creatures[0]?.currentHP, 9);
     assert.deepEqual(result.creatures[0]?.carriedItems, [
         {
             ...dagger,
@@ -292,6 +313,7 @@ test('applyProjectileCreatureHit handles disrupt_nonmaterial as an area hit on n
         {
             rollSourceBackedImpact: () => null,
             getCreaturePoisonAdjustedAttack: (_typeId, attack) => attack,
+            randomInt: () => 0,
             rollRandomProjectileDamage: () => 0,
             rollExplosionBurstAttack: () => 6,
             isLikelyNonMaterial: () => true,
@@ -334,7 +356,7 @@ test('applyProjectileCreatureHit handles disrupt_nonmaterial as an area hit on n
 });
 
 test('applyProjectileCreatureHit creates poison clouds from poison impacts and lingering explosions', () => {
-    const hit = createCreature({ currentHP: 12 });
+    const hit = createCreature({ currentHP: 20 });
     const result = applyProjectileCreatureHit(
         createProjectile({
             effect: 'physical',
@@ -354,6 +376,7 @@ test('applyProjectileCreatureHit creates poison clouds from poison impacts and l
         {
             rollSourceBackedImpact: () => null,
             getCreaturePoisonAdjustedAttack: (_typeId, attack) => attack,
+            randomInt: () => 0,
             rollRandomProjectileDamage: () => 0,
             rollExplosionBurstAttack: () => 5,
             isLikelyNonMaterial: () => false,
@@ -405,6 +428,6 @@ test('applyProjectileCreatureHit creates poison clouds from poison impacts and l
     assert.equal(result.activePoisonClouds.length, 1);
     assert.equal(result.damageEvents[0]?.creatureId, 'creature-1');
     assert.equal(result.activePoisonClouds[0]?.remainingAttack, 5);
-    assert.equal(result.damageEvents[0]?.amount, 9);
+    assert.equal(result.damageEvents[0]?.amount, 17);
     assert.equal(result.spellVisualEvents[0]?.effect, 'poison_cloud');
 });
