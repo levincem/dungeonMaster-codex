@@ -1,0 +1,85 @@
+{
+  "manual": {
+    "title": "Guide Du Joueur",
+    "sections": [
+      {
+        "id": "team",
+        "title": "Composez Votre Equipe",
+        "blocks": [
+          "Choisissez jusqu a 4 champions.",
+          "Chaque personnage a des statistiques et des competences differentes.",
+          "Une equipe equilibree est essentielle pour survivre.",
+          "Vous pouvez reincarner un champion pour obtenir de meilleures statistiques."
+        ]
+      },
+      {
+        "id": "leader",
+        "title": "Chef Du Groupe",
+        "blocks": [
+          "Le personnage selectionne est le chef du groupe.",
+          "Il represente l equipe dans certaines interactions.",
+          "Changez de chef selon la situation."
+        ]
+      },
+      {
+        "id": "controls",
+        "title": "Deplacement Et Interaction",
+        "blocks": [
+          "Le deplacement se fait case par case.",
+          "Tournez a gauche ou a droite pour changer de direction.",
+          "Cliquez sur les objets et les murs pour interagir.",
+          "Explorez chaque zone avec attention."
+        ]
+      },
+      {
+        "id": "combat",
+        "title": "Combat En Temps Reel",
+        "blocks": [
+          "Les combats se deroulent en temps reel.",
+          "Chaque personnage peut attaquer avec ses mains ou ses armes.",
+          "Les actions consomment de l endurance.",
+          "Le placement est vital pour survivre."
+        ]
+      },
+      {
+        "id": "progression",
+        "title": "Progression",
+        "blocks": [
+          "Les competences progressent par l usage.",
+          "Combattre, lancer des sorts et agir fait monter les aptitudes.",
+          "Il n y a pas de systeme de niveaux traditionnel."
+        ]
+      },
+      {
+        "id": "magic",
+        "title": "Magie",
+        "blocks": [
+          "Les sorts sont crees a l aide de runes.",
+          "Combinez puissance, element et forme.",
+          "Les sorts plus puissants consomment davantage de mana.",
+          "Experimenter permet de decouvrir de nouveaux effets."
+        ]
+      },
+      {
+        "id": "inventory",
+        "title": "Inventaire",
+        "blocks": [
+          "Chaque personnage possede son propre inventaire.",
+          "Le poids transporte influence les performances.",
+          "Rangez vos objets pour rester efficace.",
+          "Equipez armes et armures pour mieux survivre."
+        ]
+      },
+      {
+        "id": "exploration",
+        "title": "Exploration",
+        "blocks": [
+          "Cherchez les boutons caches et les passages secrets.",
+          "Observez attentivement les murs et le sol.",
+          "Resolvez les enigmes pour progresser.",
+          "Essayez plusieurs actions si vous etes bloque."
+        ]
+      }
+    ]
+  }
+}

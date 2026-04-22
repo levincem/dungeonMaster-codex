@@ -97,6 +97,24 @@ export const en = {
             slot: (index: number) => `Slot ${index}`,
             levelUp: 'Level up',
         },
+        debugPrimary: (
+            globalX: number,
+            globalY: number,
+            direction: string,
+            level: number,
+            frontGlobalX: number,
+            frontGlobalY: number,
+            frontLocalX: number,
+            frontLocalY: number,
+            frontState: string,
+        ) => `[g:${globalX},${globalY}] ${direction} · LVL ${level} · front [g:${frontGlobalX},${frontGlobalY} / l:${frontLocalX},${frontLocalY}] · ${frontState}`,
+        debugSecondary: (
+            localX: number,
+            localY: number,
+            offsetX: number,
+            offsetY: number,
+        ) => `local [l:${localX},${localY}] · offset [${offsetX},${offsetY}]`,
+        debugSound: (sound: string) => `\u266a ${sound}`,
     },
     manual: helpEn.manual,
     dungeonScene: {
@@ -115,6 +133,11 @@ export const en = {
         placeItemHere: 'Place item here',
         dropBonesHere: 'Drop bones here',
         offerItemHere: 'Offer item here',
+        debugRenderState: (state: { wallTexts: boolean; wallDecals: boolean; wallButtons: boolean }) => `Debug render
+Alt+Shift+T texts: ${state.wallTexts ? 'on' : 'off'}
+Alt+Shift+D decals: ${state.wallDecals ? 'on' : 'off'}
+Alt+Shift+B buttons: ${state.wallButtons ? 'on' : 'off'}
+Alt+Shift+R reset`,
     },
     runePanel: {
         familyLabels: {
@@ -250,6 +273,13 @@ export const en = {
         inspectDropZoneTitle: 'Drop a scroll or waterskin here to inspect it',
         fountain: 'FOUNTAIN',
         fountainTitle: 'Click to drink, or drop a flask or waterskin here to fill it',
+        wallContextGlyphs: {
+            fountain: 'H2O',
+            altar: 'VI',
+            alcove: 'AL',
+            receptacle: 'RC',
+            lock: 'LK',
+        },
         alcove: 'ALCOVE',
         receptacle: 'RECEPTACLE',
         altar: 'ALTAR',
@@ -305,6 +335,7 @@ export const en = {
         chooseAdventurer: 'Choose at least one adventurer, four is better!',
         doorYields: 'The door gives way.',
         doorResists: 'The door resists.',
+        potionRequiresEmptyFlask: 'An empty flask must be in hand.',
     },
     spells: spellsEn,
 };

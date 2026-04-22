@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 
 test('runtime package consistency audit stays green, including synced runtime references', () => {
     const auditModulePath = path.join(
@@ -9,7 +10,8 @@ test('runtime package consistency audit stays green, including synced runtime re
         'OriginalDataExtraction',
         'audit_runtime_package_consistency.cjs',
     );
-    const { runAudit } = require(auditModulePath) as {
+    const loadModule = createRequire(__filename);
+    const { runAudit } = loadModule(auditModulePath) as {
         runAudit: () => {
             summary: {
                 topLevelFailures: number;

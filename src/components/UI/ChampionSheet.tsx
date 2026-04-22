@@ -405,6 +405,7 @@ const BackpackGrid: React.FC<{
 // Main
 export const ChampionSheet: React.FC = () => {
     const text = useI18n().championSheet;
+    const wallContextGlyphs = text.wallContextGlyphs;
     const {
         activePartyMemberId, party, level, position, direction,
         closePartyMember, openPartyMember, removeFromParty,
@@ -727,7 +728,7 @@ export const ChampionSheet: React.FC = () => {
                             <div style={{ display: 'flex', justifyContent: 'center', minHeight: 48 }}>
                                 {facingFountain ? (
                                     <DropZone
-                                        icon="H2O"
+                                        icon={wallContextGlyphs.fountain}
                                         label={text.fountain}
                                         title={text.fountainTitle}
                                         borderColor="#3aa0d8"
@@ -738,7 +739,7 @@ export const ChampionSheet: React.FC = () => {
                                     />
                                 ) : facingAltar ? (
                                     <DropZone
-                                        icon="VI"
+                                        icon={wallContextGlyphs.altar}
                                         label={text.altar}
                                         title={text.altarTitle}
                                         borderColor="#d4a840"
@@ -746,7 +747,11 @@ export const ChampionSheet: React.FC = () => {
                                     />
                                 ) : frontWallItemMechanism ? (
                                     <DropZone
-                                        icon={frontWallItemMechanism.trigger === 'alcove' ? 'AL' : frontWallItemMechanism.trigger === 'object-exchanger' ? 'RC' : 'LK'}
+                                        icon={frontWallItemMechanism.trigger === 'alcove'
+                                            ? wallContextGlyphs.alcove
+                                            : frontWallItemMechanism.trigger === 'object-exchanger'
+                                                ? wallContextGlyphs.receptacle
+                                                : wallContextGlyphs.lock}
                                         label={frontWallItemMechanism.trigger === 'alcove' ? text.alcove : frontWallItemMechanism.trigger === 'object-exchanger' ? text.receptacle : text.lock}
                                         title={frontWallItemMechanism.trigger === 'alcove'
                                             ? text.alcoveTitle

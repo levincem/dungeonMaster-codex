@@ -1,6 +1,6 @@
 # Next Phase Plan
 
-Etat revu le `2026-04-20`.
+Etat revu le `2026-04-22`.
 
 Ce document ne doit contenir que des sujets encore ouverts.
 
@@ -28,14 +28,22 @@ Regle simple:
   - dalles `Hold + revert`, poids `party / objet / creature`, et pits relies corriges
   - artefact visuel `wallButtons` du puzzle boulder/dalle corrige
   - porte a deux leviers et leviers `up/down` recales
+- passe fidelite runtime
+  - fermee cote recollage code/source pour les domaines critiques utiles au runtime
+  - le reliquat fidelity n'est plus un chantier de reimplementation, mais surtout du playtest cible et quelques finitions visuelles
+- passe `i18n / labels`
+  - fermee sur le runtime/UI visible
+  - manuel francais dedie ajoute et labels debug/runtime restants reroutes dans les fichiers de langue
+- rendu `Ra Door`
+  - ferme cote presentation cible
+  - le rendu visible passe maintenant par un panneau energetique procedural + rideau `photons2`
 
 ## Ordre recommande
 
 1. playtest cible `generateurs / transitions de niveau`
-2. passe `i18n / labels`
+2. mecanismes rares et endgame
 3. verification visuelle `HUD / ChampionSheet / DungeonScene`
 4. profilage / optimisation
-5. mecanismes rares et endgame
 
 ## 1. Playtest cible generateurs / transitions
 
@@ -65,31 +73,7 @@ Support:
 
 - [PLAYTEST_CHECKLIST_TRANSITIONS_ENDGAME.md](/D:/DungeonMaster-codex/docs/PLAYTEST_CHECKLIST_TRANSITIONS_ENDGAME.md)
 
-## 2. Passe i18n / labels
-
-Statut:
-
-- ouvert
-
-Pourquoi ce n'est pas fini:
-
-- il reste des labels melanges `EN / FR`
-- certains noms debug ou mecanismes ont ete corriges localement mais pas encore nettoyes de facon homogene
-
-Cible:
-
-- libelles runtime visibles
-- panneaux UI principaux
-- messages les plus frequents
-- debug labels encore trompeurs
-
-Definition de fini:
-
-- plus de libelles manifestement incoherents dans les ecrans principaux
-- pas de mojibake
-- pas de regression sur les tests et le build
-
-## 3. Verification visuelle HUD / ChampionSheet / DungeonScene
+## 2. Verification visuelle HUD / ChampionSheet / DungeonScene
 
 Statut:
 
@@ -118,7 +102,7 @@ Definition de fini:
 - aucun bug visuel ou de wiring evident sur les zones touchees
 - les cas sensibles sont rejoues une fois proprement
 
-## 4. Profilage / optimisation
+## 3. Profilage / optimisation
 
 Statut:
 
@@ -128,6 +112,7 @@ Pourquoi ce n'est pas fini:
 
 - le boot prod est acceptable, mais la pile runtime / rendu reste lourde
 - le mode `dev` reste lent a froid, meme si ce n'est pas le sujet prioritaire
+- le warm-up title/gameplay est deja plus progressif qu'avant, mais les gros chunks `three` et `map-*` restent la vraie masse a surveiller
 
 Priorites:
 
@@ -136,13 +121,14 @@ Priorites:
 - preload des donnees runtime
 - warm-up title / gameplay
 - rerenders evitables dans `DungeonScene`
+- garder le preload coeur limite aux assets / modules a rendement immediat
 
 Definition de fini:
 
 - on identifie 2 ou 3 gains concrets a fort rendement
 - on applique seulement ceux qui ne compliquent pas le runtime inutilement
 
-## 5. Mecanismes rares et endgame
+## 4. Mecanismes rares et endgame
 
 Statut:
 

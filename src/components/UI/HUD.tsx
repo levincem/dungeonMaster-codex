@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { Suspense, lazy, useEffect, useRef, useState, useCallback } from 'react';
 import {
     useStore,
 } from '../../engine/store';
@@ -15,9 +15,7 @@ import { formatKeybinding, matchesKeybinding, normalizeBindingKey } from '../../
 import { findSpell } from '../../data/runes';
 import { itemsPath } from '../../data/assetPaths';
 import { useI18n } from '../../i18n';
-import { ManualModal } from './ManualModal';
 import { HudMagicPanel } from './HudMagicPanel';
-import { HudOptionsModal } from './HudOptionsModal';
 import { HudPartyPanel } from './HudPartyPanel';
 import {
     getAttackOptionUnusableReason,
@@ -34,6 +32,14 @@ import {
     didPartyTakeSingleStep,
     selectHudRunes,
 } from './hudDerivedState';
+
+const ManualModal = lazy(() =>
+    import('./ManualModal').then((module) => ({ default: module.ManualModal })),
+);
+
+const HudOptionsModal = lazy(() =>
+    import('./HudOptionsModal').then((module) => ({ default: module.HudOptionsModal })),
+);
 
 // Combat grid
 const CombatGrid: React.FC<{
@@ -276,12 +282,19 @@ const MoveBtn: React.FC<{
 );
 
 type RebindingTarget = { action: GameAction; slot: 0 | 1 };
+type HeldMovementKey = 'fwd' | 'bck' | 'sl' | 'sr';
+
+const HELD_MOVEMENT_REPEAT_MS = 60;
 
 function isTextEntryTarget(target: EventTarget | null): boolean {
     const element = target as HTMLElement | null;
     if (!element) return false;
     if (element.isContentEditable) return true;
     return ['INPUT', 'TEXTAREA', 'SELECT'].includes(element.tagName);
+}
+
+function removeHeldMovementKey(keys: HeldMovementKey[], key: HeldMovementKey): HeldMovementKey[] {
+    return keys.filter((entry) => entry !== key);
 }
 
 export const HUD = () => {
@@ -329,6 +342,10 @@ export const HUD = () => {
     // Flash
     const [flashKey, setFlashKey] = useState<string | null>(null);
     const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const heldMovementKeysRef = useRef<HeldMovementKey[]>([]);
+    const heldMovementFrameRef = useRef<number | null>(null);
+    const heldMovementLastAttemptAtRef = useRef(0);
+    const processHeldMovementFrameRef = useRef<(now: number) => void>(() => {});
     const previousPartyStepRef = useRef<{ level: number; position: [number, number] } | null>({
         level,
         position,
@@ -342,7 +359,7 @@ export const HUD = () => {
     const handleCloseOptionsModal = useCallback(() => {
         setRebindingTarget(null);
         closeOptionsModal();
-    }, [closeOptionsModal]);
+    }, [closeOptionsModal, setRebindingTarget]);
     useEffect(() => {
         const previousStep = previousPartyStepRef.current;
         if (didPartyTakeSingleStep({
@@ -358,6 +375,7 @@ export const HUD = () => {
 
     useEffect(() => {
         const nextBasicSkillLevels: Record<number, number[]> = {};
+        const levelUpsThisTick: number[] = [];
 
         for (const champion of party) {
             const basicLevels = BASIC_SKILL_KEYS.map((skill) =>
@@ -374,7 +392,7 @@ export const HUD = () => {
                 previousBasicLevels &&
                 basicLevels.some((value, index) => value > (previousBasicLevels[index] ?? 0))
             ) {
-                setLevelUpChampionIds((current) => current.includes(champion.id) ? current : [...current, champion.id]);
+                levelUpsThisTick.push(champion.id);
                 const existingTimeout = levelUpTimeoutsRef.current[champion.id];
                 if (existingTimeout) {
                     clearTimeout(existingTimeout);
@@ -388,14 +406,17 @@ export const HUD = () => {
             nextBasicSkillLevels[champion.id] = basicLevels;
         }
 
+        if (levelUpsThisTick.length > 0) {
+            queueMicrotask(() => {
+                setLevelUpChampionIds((current) => {
+                    const additions = levelUpsThisTick.filter((id) => !current.includes(id));
+                    return additions.length > 0 ? [...current, ...additions] : current;
+                });
+            });
+        }
+
         previousBasicSkillLevelsRef.current = nextBasicSkillLevels;
     }, [party, championXP, championTemporaryXP]);
-
-    useEffect(() => () => {
-        for (const timeoutId of Object.values(levelUpTimeoutsRef.current)) {
-            clearTimeout(timeoutId);
-        }
-    }, []);
 
     const flash = useCallback((key: string, action: () => void) => {
         action();
@@ -418,21 +439,147 @@ export const HUD = () => {
         flashTimer.current = setTimeout(() => setFlashKey(null), 150);
     }, []);
 
+    const runHeldMovement = useCallback((key: HeldMovementKey) => {
+        switch (key) {
+            case 'fwd':
+                move('fwd', moveForward);
+                return;
+            case 'bck':
+                move('bck', moveBackward);
+                return;
+            case 'sl':
+                move('sl', strafeLeft);
+                return;
+            case 'sr':
+                move('sr', strafeRight);
+                return;
+        }
+    }, [move, moveBackward, moveForward, strafeLeft, strafeRight]);
+
+    const stopHeldMovementLoop = useCallback(() => {
+        if (heldMovementFrameRef.current !== null) {
+            window.cancelAnimationFrame(heldMovementFrameRef.current);
+            heldMovementFrameRef.current = null;
+        }
+    }, []);
+
+    const clearHeldMovementState = useCallback(() => {
+        heldMovementKeysRef.current = [];
+        stopHeldMovementLoop();
+    }, [stopHeldMovementLoop]);
+
+    const processHeldMovementFrame = useCallback((now: number) => {
+        const activeKey = heldMovementKeysRef.current[heldMovementKeysRef.current.length - 1];
+        if (!activeKey) {
+            heldMovementFrameRef.current = null;
+            return;
+        }
+
+        const cooldown = useStore.getState().movementCooldown;
+        if (
+            (!Number.isFinite(cooldown) || cooldown <= 0) &&
+            now - heldMovementLastAttemptAtRef.current >= HELD_MOVEMENT_REPEAT_MS
+        ) {
+            heldMovementLastAttemptAtRef.current = now;
+            runHeldMovement(activeKey);
+        }
+
+        heldMovementFrameRef.current = window.requestAnimationFrame((nextNow) => {
+            processHeldMovementFrameRef.current(nextNow);
+        });
+    }, [runHeldMovement]);
+
+    useEffect(() => {
+        processHeldMovementFrameRef.current = processHeldMovementFrame;
+    }, [processHeldMovementFrame]);
+
+    const ensureHeldMovementLoop = useCallback(() => {
+        if (heldMovementFrameRef.current !== null) return;
+        heldMovementFrameRef.current = window.requestAnimationFrame((now) => {
+            processHeldMovementFrameRef.current(now);
+        });
+    }, []);
+
+    const setHeldMovementPressed = useCallback((key: HeldMovementKey, pressed: boolean) => {
+        const currentKeys = heldMovementKeysRef.current;
+        heldMovementKeysRef.current = pressed
+            ? [...removeHeldMovementKey(currentKeys, key), key]
+            : removeHeldMovementKey(currentKeys, key);
+
+        if (heldMovementKeysRef.current.length === 0) {
+            stopHeldMovementLoop();
+            return;
+        }
+
+        if (pressed) {
+            ensureHeldMovementLoop();
+        }
+    }, [ensureHeldMovementLoop, stopHeldMovementLoop]);
+
+    const resolveHeldMovementKey = useCallback((key: string): HeldMovementKey | null => {
+        if (matchesKeybinding(keybindings.moveForward, key)) return 'fwd';
+        if (matchesKeybinding(keybindings.moveBackward, key)) return 'bck';
+        if (matchesKeybinding(keybindings.strafeLeft, key)) return 'sl';
+        if (matchesKeybinding(keybindings.strafeRight, key)) return 'sr';
+        return null;
+    }, [keybindings.moveBackward, keybindings.moveForward, keybindings.strafeLeft, keybindings.strafeRight]);
+
     useEffect(() => {
         const handleKey = (e: KeyboardEvent) => {
             if (optionsModalOpen || tutorialModalOpen) return;
             if (isTextEntryTarget(e.target)) return;
+            const heldMovementKey = resolveHeldMovementKey(e.key);
+            if (heldMovementKey) {
+                e.preventDefault();
+                if (heldMovementKeysRef.current.includes(heldMovementKey)) return;
+                setHeldMovementPressed(heldMovementKey, true);
+                heldMovementLastAttemptAtRef.current = performance.now();
+                runHeldMovement(heldMovementKey);
+                return;
+            }
+
             const { keybindings } = gameOptions;
-            if (matchesKeybinding(keybindings.moveForward, e.key)) { e.preventDefault(); move('fwd', moveForward); return; }
-            if (matchesKeybinding(keybindings.moveBackward, e.key)) { e.preventDefault(); move('bck', moveBackward); return; }
             if (matchesKeybinding(keybindings.turnLeft, e.key)) { e.preventDefault(); flash('tl', turnLeft); return; }
             if (matchesKeybinding(keybindings.turnRight, e.key)) { e.preventDefault(); flash('tr', turnRight); return; }
-            if (matchesKeybinding(keybindings.strafeLeft, e.key)) { e.preventDefault(); move('sl', strafeLeft); return; }
-            if (matchesKeybinding(keybindings.strafeRight, e.key)) { e.preventDefault(); move('sr', strafeRight); }
+        };
+
+        const handleKeyUp = (e: KeyboardEvent) => {
+            const heldMovementKey = resolveHeldMovementKey(e.key);
+            if (!heldMovementKey) return;
+            setHeldMovementPressed(heldMovementKey, false);
         };
         window.addEventListener('keydown', handleKey);
-        return () => window.removeEventListener('keydown', handleKey);
-    }, [flash, gameOptions, move, moveForward, moveBackward, optionsModalOpen, tutorialModalOpen, turnLeft, turnRight, strafeLeft, strafeRight]);
+        window.addEventListener('keyup', handleKeyUp);
+        window.addEventListener('blur', clearHeldMovementState);
+        return () => {
+            window.removeEventListener('keydown', handleKey);
+            window.removeEventListener('keyup', handleKeyUp);
+            window.removeEventListener('blur', clearHeldMovementState);
+        };
+    }, [
+        clearHeldMovementState,
+        flash,
+        gameOptions,
+        optionsModalOpen,
+        resolveHeldMovementKey,
+        runHeldMovement,
+        setHeldMovementPressed,
+        tutorialModalOpen,
+        turnLeft,
+        turnRight,
+    ]);
+
+    useEffect(() => {
+        if (!optionsModalOpen && !tutorialModalOpen) return;
+        clearHeldMovementState();
+    }, [clearHeldMovementState, optionsModalOpen, tutorialModalOpen]);
+
+    useEffect(() => () => {
+        clearHeldMovementState();
+        for (const timeoutId of Object.values(levelUpTimeoutsRef.current)) {
+            clearTimeout(timeoutId);
+        }
+    }, [clearHeldMovementState]);
 
     useEffect(() => {
         if (!optionsModalOpen) return;
@@ -659,37 +806,56 @@ export const HUD = () => {
 
             {/* Debug */}
             <div style={{ fontSize: 10, color: '#993322', fontFamily: 'monospace', textAlign: 'center', opacity: 0.6 }}>
-                [g:{globalX},{globalY}] {direction} {'\u00b7'} LVL {level} {'\u00b7'} front [g:{frontGlobalX},{frontGlobalY} / l:{frontLocalX},{frontLocalY}] {'\u00b7'} {frontState}
+                {text.debugPrimary(
+                    globalX,
+                    globalY,
+                    direction,
+                    level,
+                    frontGlobalX,
+                    frontGlobalY,
+                    frontLocalX,
+                    frontLocalY,
+                    frontState,
+                )}
             </div>
             <div style={{ fontSize: 9, color: '#7a4a24', fontFamily: 'monospace', textAlign: 'center', opacity: 0.5, marginTop: 2 }}>
-                local [l:{position[1]},{position[0]}] {'\u00b7'} offset [{currentMap.mapOffset?.x ?? 0},{currentMap.mapOffset?.y ?? 0}]
+                {text.debugSecondary(
+                    position[1],
+                    position[0],
+                    currentMap.mapOffset?.x ?? 0,
+                    currentMap.mapOffset?.y ?? 0,
+                )}
             </div>
             {lastSound && (
                 <div style={{ fontSize: 9, color: '#cc8833', fontFamily: 'monospace', textAlign: 'center', opacity: 0.7, marginTop: 2 }}>
-                    {'\u266a'} {lastSound}
+                    {text.debugSound(lastSound)}
                 </div>
             )}
 
-            <HudOptionsModal
-                open={optionsModalOpen}
-                text={text}
-                keybindings={gameOptions.keybindings}
-                rebindingTarget={rebindingTarget}
-                onClose={handleCloseOptionsModal}
-                onToggleBinding={(target) => {
-                    setRebindingTarget((current) =>
-                        current?.action === target.action && current.slot === target.slot ? null : target,
-                    );
-                }}
-            />
-            {tutorialModalOpen && (
-                <ManualModal
-                    manual={manual}
+            <Suspense fallback={null}>
+                <HudOptionsModal
+                    open={optionsModalOpen}
                     text={text}
-                    activeSectionId={activeManualSectionId}
-                    onSelectSection={setActiveManualSectionId}
-                    onClose={() => setTutorialModalOpen(false)}
+                    keybindings={gameOptions.keybindings}
+                    rebindingTarget={rebindingTarget}
+                    onClose={handleCloseOptionsModal}
+                    onToggleBinding={(target) => {
+                        setRebindingTarget((current) =>
+                            current?.action === target.action && current.slot === target.slot ? null : target,
+                        );
+                    }}
                 />
+            </Suspense>
+            {tutorialModalOpen && (
+                <Suspense fallback={null}>
+                    <ManualModal
+                        manual={manual}
+                        text={text}
+                        activeSectionId={activeManualSectionId}
+                        onSelectSection={setActiveManualSectionId}
+                        onClose={() => setTutorialModalOpen(false)}
+                    />
+                </Suspense>
             )}
         </div>
     );

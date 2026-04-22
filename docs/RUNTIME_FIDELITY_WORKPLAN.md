@@ -37,8 +37,8 @@ Etat:
 
 Reste a etendre au meme niveau de couverture consommateur:
 
-- le reliquat de `original_ui_support_runtime.json` hors luminance, torches, palettes, reincarnation, injury-mask mapping et ordre de ciblage deja raccordes
-- les regles de progression / training encore hors du bloc de growth et d'XP initiale maintenant references
+- pas de nouveau bloc prioritaire detecte ici dans le runtime courant
+- le reliquat utile n'est plus un manque de raccord majeur, mais surtout de la verification en jeu sur les cas rares
 
 ## Phase 2 - Tables gameplay runtime
 
@@ -56,7 +56,7 @@ Continuer a transformer les zones encore exprimees en glue runtime vers des tabl
   - growth des quatre branches maintenant reference et verifie jusqu'a `originalChampionLeveling.ts`
   - tirage `antiFire` de level-up maintenant consomme depuis la reference de progression au lieu d'un `2` local
   - seuil de niveau `baseExperienceStep` maintenant consomme explicitement par `skillProgression.ts` et la detection legacy de `championState.ts`
-  - reste a sortir les autres regles / formules de training de plus long terme dans une reference packagee explicite
+  - le coeur utile runtime est maintenant reference et teste; le reliquat n'est plus un blocker fidelity central
 - resurrect / reincarnate
   - regles de mirror recruitment et de l'autel `VI` maintenant referencees et verifiees jusqu'aux consommateurs runtime
 - consommation / regles d'objet
@@ -84,18 +84,11 @@ Pour chaque module critique:
 
 Priorite suivante:
 
-- regles de consommation et d'usage d'objets
-- training / progression encore hors growth et XP initiale deja verifies
-- couverture consommateur de `original_ui_support_runtime.json`
-  - coherence croisee des constantes de reincarnation avec le bloc `i562` maintenant verifiee
-  - luminance des sorts et torches maintenant source-backed
-  - paliers de palette maintenant consommes explicitement par le calcul de lumiere de scene
-  - mapping des zones de blessure maintenant source-backed via `creatureInjuryMasks`
-  - ordre de ciblage des attaques maintenant aligne sur `DetermineAttackOrder / Byte586`
-- support UI / panneaux `0696` quand ils pilotent encore des heuristiques visibles
-- derniers blocs encore peu references cote consommateurs:
-  - le reste de `original_ui_support_runtime.json` hors luminance / torches / palettes / reincarnation / injury-mask mapping / ordre de ciblage deja raccordes
-  - les regles de training / progression qui ne passent pas encore par les references de progression packagees
+- verification gameplay en jeu des transitions / transport / endgame
+- maintien explicite des derniers reliquats interpretes:
+  - `items.ts` comme couche d'agregation/compatibilite
+  - `creatures.ts` pour la traduction runtime explicite des `attackTypes`
+- passe de presentation finale sur les placeholders visuels encore connus
 
 ## Phase 4 - Assets et presentation
 
@@ -123,15 +116,24 @@ Une zone n'est consideree comme "verrouillee" que si:
 
 Pour pouvoir dire "fondations fidelite vraiment solides", le reliquat utile est maintenant:
 
-- finir la couverture consommateur du reliquat de `original_ui_support_runtime.json`
-- sortir le long tail des regles de training / progression encore codees localement vers des references packagees explicites
-- continuer a traquer les dernieres regles de combat / defense encore exprimees en glue runtime plutot qu'en table canonique unique
-- clarifier ce qui reste semantiquement non decode dans `0696` quand cela pilote encore des heuristiques visibles
-- refaire ensuite une passe d'audit global pour verifier qu'il ne reste plus de constantes/fallbacks locaux masques
+- rejouer les cas rares `teleport / pit / changement de niveau / repop tardif / endgame`
+- garder explicites et testes les derniers reliquats interpretes du runtime
+- finir la presentation restante (`locks`, `Gem Hole`)
+- refaire ensuite une passe d'audit global pour verifier que la documentation reste alignee avec le code reel
 
 ## Bugs a reprendre
 
 - fontaine:
-  - symptome: quand on clique sur la fontaine sans contenant, le heros selectionne ne semble pas boire
-  - attendu: clic direct sur la fontaine => gain d'eau pour le heros selectionne, comme l'indique deja l'UI
-  - note: ne pas patcher au cas par cas; revalider la chaine complete `front wall context -> action runtime -> patch store -> vitals`
+  - statut: traite
+  - correction: la chaine `front wall context -> action runtime -> patch store -> vitals` est maintenant reverifiee et verrouillee par tests runtime/UI dedies
+  - note: le bloc hydratation est aussi recale sur les valeurs source-backed `flask +800 / waterskin +1600`
+- overlays muraux modernes trop grands:
+  - statut: traite
+  - correction: les ratios de composition utiles sont maintenant centralises dans `src/data/wallDecalPresets.ts`, puis reutilises a la fois par `originalWallOverlays.ts` et par `WallDecal.tsx`
+  - note: cela evite que les tailles runtime et la composition 3D redivergent silencieusement
+  - recalage courant: locks ramenes a `0.20`; `Hook`, `Wood Ring`, `Slime` et `Grate` redescendus a un gabarit carre `0.15 x 0.15` via ce meme preset partage; `Ghoul's Head` conserve son remake dedie actuel; la fontaine reste volontairement a part
+- porte-torche plein/vide:
+  - statut: traite
+  - attendu: pouvoir prendre la torche sur le mur et alterner proprement entre `Full Torch Holder` et `Empty Torch Holder`
+  - correction: le rendu ne superpose plus un sprite de torche par-dessus `Full Torch Holder`; l'image du holder plein porte seule la torche visible, et une zone de pickup invisible conserve l'interaction de ramassage
+  - note: les deux porte-torches passent maintenant aussi par le preset partage de composition mural, ce qui evite une nouvelle derive entre data runtime, decal 3D et item mural cliquable

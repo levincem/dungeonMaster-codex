@@ -108,7 +108,7 @@ const ORIGINAL_ATTACK_TYPE_BY_ID: readonly OriginalAttackType[] = [
     'Blast',
 ];
 
-const BASE_ATTACK_TYPE_MAP: Record<OriginalAttackType, AttackType[]> = {
+export const ORIGINAL_CREATURE_BASE_ATTACK_TYPE_MAP: Record<OriginalAttackType, AttackType[]> = {
     Unconditional: ['Physical'],
     Fire: ['Fire'],
     Impact: ['Physical'],
@@ -119,7 +119,7 @@ const BASE_ATTACK_TYPE_MAP: Record<OriginalAttackType, AttackType[]> = {
     Blast: ['Physical'],
 };
 
-const ATTACK_TYPE_OVERRIDES: Partial<Record<number, AttackType[]>> = {
+export const ORIGINAL_CREATURE_ATTACK_TYPE_INTERPRETATIONS: Partial<Record<number, AttackType[]>> = {
     2: ['Physical', 'Steal'],
     5: ['Physical', 'Rust'],
     8: ['StaminaDrain'],
@@ -287,7 +287,7 @@ function buildCreatureTypes(rawGameDb: unknown): Record<number, CreatureDef> {
                 exp: creature.exp,
                 poison: typeof original?.poisonAttack === 'number' ? original.poisonAttack > 0 : creature.poison,
                 originalAttackType,
-                attackTypes: ATTACK_TYPE_OVERRIDES[creature.id] ?? BASE_ATTACK_TYPE_MAP[originalAttackType] ?? ['Physical'],
+                attackTypes: ORIGINAL_CREATURE_ATTACK_TYPE_INTERPRETATIONS[creature.id] ?? ORIGINAL_CREATURE_BASE_ATTACK_TYPE_MAP[originalAttackType] ?? ['Physical'],
                 drops: fixedDrops.map((drop) => drop.rawName),
                 fixedDrops,
                 rawAttack: original?.attack ?? 0,

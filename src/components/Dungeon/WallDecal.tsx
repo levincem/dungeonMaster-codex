@@ -4,13 +4,8 @@ import type { ThreeEvent } from '@react-three/fiber';
 import * as THREE from 'three';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import type { CardinalDir } from '../../types/game';
-import { itemsPath, miscPath } from '../../data/assetPaths';
-import {
-    getOriginalStairsDownFrontHeightRatio,
-    getOriginalStairsDownFrontWidthRatio,
-    getOriginalStairsUpFrontHeightRatio,
-    getOriginalStairsUpFrontWidthRatio,
-} from '../../data/originalStairPanelMetrics';
+import { miscPath } from '../../data/assetPaths';
+import { getWallDecalPresetForImage, type WallDecalPreset } from '../../data/wallDecalPresets';
 const NO_RAYCAST: THREE.Mesh['raycast'] = () => {};
 
 // ─── Face positioning (same convention as WallSensor / Cell FACE_CONFIGS) ─────
@@ -35,18 +30,7 @@ const FACE_ROT: Record<CardinalDir, [number, number, number]> = {
     West:  [0,  Math.PI / 2, 0],
 };
 
-export type DecalPreset = {
-    width: number;
-    height: number;
-    y: number;
-    hasBacking: boolean;
-    hasGlow: boolean;
-    plateColor: string;
-    faceInset?: number;
-    contentDepth?: number;
-};
-
-const DEFAULT_PRESET: DecalPreset = {
+const DEFAULT_PRESET: WallDecalPreset = {
     width: GRID_SIZE,
     height: WALL_HEIGHT,
     y: 0,
@@ -56,85 +40,8 @@ const DEFAULT_PRESET: DecalPreset = {
     faceInset: 0,
 };
 
-const LOCK_IMAGE = miscPath('serrure.png');
 const LEVER_UP_IMAGE = miscPath('levier_haut.png');
 const LEVER_DOWN_IMAGE = miscPath('levier_bas.png');
-const ALTAR_IMAGE = miscPath('autel.png');
-const TORCH_IMAGE = itemsPath('torch_unlit.png');
-const FOUNTAIN_IMAGE = miscPath('wall_foutain_overlay.png');
-const STAIRS_UP_IMAGE = miscPath('stairs_up.png');
-const STAIRS_DOWN_IMAGE = miscPath('stairs_down.png');
-
-const DECAL_PRESETS: Record<string, DecalPreset> = {
-    [LOCK_IMAGE]: {
-        width: GRID_SIZE * 0.38,
-        height: WALL_HEIGHT * 0.38,
-        y: -WALL_HEIGHT * 0.02,
-        hasBacking: false,
-        hasGlow: true,
-        plateColor: '#3a2b1d',
-    },
-    [LEVER_UP_IMAGE]: {
-        width: GRID_SIZE * 0.28,
-        height: WALL_HEIGHT * 0.46,
-        y: 0,
-        hasBacking: false,
-        hasGlow: false,
-        plateColor: '#3a2b1d',
-    },
-    [LEVER_DOWN_IMAGE]: {
-        width: GRID_SIZE * 0.28,
-        height: WALL_HEIGHT * 0.46,
-        y: 0,
-        hasBacking: false,
-        hasGlow: false,
-        plateColor: '#3a2b1d',
-    },
-    [ALTAR_IMAGE]: {
-        width: GRID_SIZE * 0.56,
-        height: WALL_HEIGHT * 0.42,
-        y: -WALL_HEIGHT * 0.03,
-        hasBacking: false,
-        hasGlow: false,
-        plateColor: '#3a2b1d',
-    },
-    [TORCH_IMAGE]: {
-        width: GRID_SIZE * 0.18,
-        height: WALL_HEIGHT * 0.5,
-        y: 0,
-        hasBacking: false,
-        hasGlow: true,
-        plateColor: '#3a2b1d',
-    },
-    [FOUNTAIN_IMAGE]: {
-        width: GRID_SIZE * 0.72,
-        height: WALL_HEIGHT * 0.92,
-        y: -WALL_HEIGHT * 0.02,
-        hasBacking: false,
-        hasGlow: true,
-        plateColor: '#1b2b39',
-    },
-    [STAIRS_UP_IMAGE]: {
-        width: GRID_SIZE * getOriginalStairsUpFrontWidthRatio(),
-        height: WALL_HEIGHT * getOriginalStairsUpFrontHeightRatio(),
-        y: 0,
-        hasBacking: false,
-        hasGlow: false,
-        plateColor: '#3a2b1d',
-    },
-    [STAIRS_DOWN_IMAGE]: {
-        width: GRID_SIZE * getOriginalStairsDownFrontWidthRatio(),
-        height: WALL_HEIGHT * getOriginalStairsDownFrontHeightRatio(),
-        y: 0,
-        hasBacking: false,
-        hasGlow: false,
-        plateColor: '#3a2b1d',
-    },
-};
-
-export function getWallDecalPresetForImage(image?: string): DecalPreset | undefined {
-    return image ? DECAL_PRESETS[image] : undefined;
-}
 
 // ─── Inner sprite (loads texture) ─────────────────────────────────────────────
 
@@ -333,7 +240,7 @@ export const WallDecal = ({
     const [ox, , oz] = FACE_POS[face];
     const [rx, ry, rz] = FACE_ROT[face];
     const preset = image
-        ? (DECAL_PRESETS[image] ?? DEFAULT_PRESET)
+        ? (getWallDecalPresetForImage(image) ?? DEFAULT_PRESET)
         : {
             ...DEFAULT_PRESET,
             hasBacking: true,

@@ -145,8 +145,8 @@ export function activateWallSensor<
             }
             : deps.queueOrComputeSensorEffect(effectiveFaceSensor, mapIndex, withVisualState, nextPending);
 
-        const { activeSensors: _ignoredQueuedActiveSensors, ...queuedSensorChanges } =
-            queued.sensorChanges as Partial<TSensorState>;
+        const queuedSensorChanges = { ...(queued.sensorChanges as Partial<TSensorState>) };
+        delete (queuedSensorChanges as Partial<SensorStateLike>).activeSensors;
         const nextState = { ...withVisualState, ...queuedSensorChanges } as TSensorState;
 
         if ((faceSensor.sound || faceSensor.type === 1 || faceSensor.type === 2) && Object.keys(queuedSensorChanges).length > 0) {

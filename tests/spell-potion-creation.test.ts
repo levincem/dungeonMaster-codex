@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { getTranslations } from '../src/i18n/index.js';
 import {
     buildPotionSpellPatch,
     resolvePotionSpellResult,
@@ -121,7 +122,7 @@ test('buildPotionSpellPatch reports the missing flask message', () => {
         championVitals: { 3: { hp: 9 } },
         lastCastResult: {
             success: false,
-            message: 'Il faut une flasque vide dans la main.',
+            message: getTranslations().runtime.potionRequiresEmptyFlask,
             ts: 200,
         },
     });

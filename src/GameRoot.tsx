@@ -19,7 +19,6 @@ import {
 } from './data/dungeonData';
 import { preloadGameDbData } from './data/gameDbData';
 import {
-  preloadOriginalWallOverlayData,
   preloadOriginalWallOverlayMapData,
   preloadOriginalWallOverlayMapNeighborhoodData,
 } from './data/originalWallOverlayData';
@@ -29,7 +28,10 @@ import {
   preloadGameplayRenderCoreModules,
   preloadGameplayRenderModules,
 } from './preload/gameplayModulePreload';
-import { preloadGameplayVisualAssets } from './preload/gameplayVisualPreload';
+import {
+  preloadGameplayCoreVisualAssets,
+  preloadGameplaySecondaryVisualAssets,
+} from './preload/gameplayVisualPreload';
 import { useI18n } from './i18n';
 import './App.css';
 
@@ -78,6 +80,14 @@ function getSortedDungeonPreloadQueue(currentLevel: number): number[] {
     });
 }
 
+const BACKGROUND_GAMEPLAY_PRELOAD_LIMIT = IS_DEV ? 2 : 4;
+
+function getBackgroundGameplayPreloadQueue(currentLevel: number): number[] {
+  return getSortedDungeonPreloadQueue(currentLevel)
+    .filter((mapIndex) => Math.abs(mapIndex - currentLevel) > 1)
+    .slice(0, BACKGROUND_GAMEPLAY_PRELOAD_LIMIT);
+}
+
 function waitForTimeout(delayMs: number): Promise<void> {
   return new Promise((resolve) => {
     window.setTimeout(resolve, delayMs);
@@ -107,11 +117,11 @@ async function preloadGameplayLevelNeighborhood(level: number): Promise<void> {
   ]);
 }
 
-async function preloadRemainingGameplayLevels(
+async function preloadBackgroundGameplayLevels(
   level: number,
   shouldContinue?: () => boolean,
 ): Promise<void> {
-  for (const mapIndex of getSortedDungeonPreloadQueue(level)) {
+  for (const mapIndex of getBackgroundGameplayPreloadQueue(level)) {
     if (shouldContinue && !shouldContinue()) {
       return;
     }
@@ -143,7 +153,7 @@ function GameRoot() {
     if (titleTransitionMessage !== null) return;
 
     setTitleTransitionMessage(text.preparingDungeon);
-    void preloadGameplayVisualAssets().catch(() => {});
+    void preloadGameplayCoreVisualAssets().catch(() => {});
     void Promise.all([
       preloadGameplayLevelNeighborhood(0),
       preloadGameDbData(),
@@ -161,7 +171,7 @@ function GameRoot() {
 
     const inspection = inspectPersistedSaveData(readBestPersistedSave());
     setTitleTransitionMessage(text.preparingSavedGame);
-    void preloadGameplayVisualAssets().catch(() => {});
+    void preloadGameplayCoreVisualAssets().catch(() => {});
     const preload = Promise.all([
       inspection.status === 'compatible'
         ? preloadGameplayLevelNeighborhood(inspection.data.level)
@@ -237,7 +247,7 @@ function GameRoot() {
 
     const cancelVisualWarmup = scheduleIdleWarmup(() => {
       if (cancelled) return;
-      void preloadGameplayVisualAssets().catch(() => {});
+      void preloadGameplayCoreVisualAssets().catch(() => {});
     }, IS_DEV ? 1_400 : 600);
 
     const cancelDataWarmup = scheduleIdleWarmup(() => {
@@ -246,7 +256,7 @@ function GameRoot() {
         ? preloadGameDbData()
         : Promise.all([
             preloadGameDbData(),
-            preloadOriginalWallOverlayData(),
+            preloadOriginalWallOverlayMapNeighborhoodData(0, 1),
           ]).then(() => {});
       void dataWarmup.catch(() => {});
     }, IS_DEV ? 2_400 : 1_200);
@@ -256,12 +266,17 @@ function GameRoot() {
       void preloadGameplayRenderCoreModules().catch(() => {});
     }, IS_DEV ? 3_000 : 2_000);
 
+    const cancelSecondaryVisualWarmup = scheduleIdleWarmup(() => {
+      if (cancelled) return;
+      void preloadGameplaySecondaryVisualAssets().catch(() => {});
+    }, IS_DEV ? 4_200 : 2_600);
+
     const delayedFullWarmup = IS_DEV ? null : window.setTimeout(() => {
       if (cancelled) return;
       void Promise.all([
-        preloadGameplayVisualAssets(),
+        preloadGameplaySecondaryVisualAssets(),
         preloadGameDbData(),
-        preloadOriginalWallOverlayData(),
+        preloadOriginalWallOverlayMapNeighborhoodData(0, 1),
         preloadGameplayRenderCoreModules(),
       ]).catch(() => {});
     }, 3_200);
@@ -271,6 +286,7 @@ function GameRoot() {
       cancelVisualWarmup();
       cancelDataWarmup();
       cancelRenderWarmup();
+      cancelSecondaryVisualWarmup();
       if (delayedFullWarmup !== null) {
         window.clearTimeout(delayedFullWarmup);
       }
@@ -286,13 +302,22 @@ function GameRoot() {
       preloadAllSounds();
     }, 1_000);
 
+    const cancelSecondaryVisualWarmup = scheduleIdleWarmup(() => {
+      if (cancelled) return;
+      void preloadGameplaySecondaryVisualAssets().catch(() => {});
+    }, 1_400);
+
+    const cancelSecondaryModuleWarmup = scheduleIdleWarmup(() => {
+      if (cancelled) return;
+      void preloadGameplayRenderModules().catch(() => {});
+    }, 1_800);
+
     void preloadGameplayLevelNeighborhood(level).catch(() => {});
-    void preloadGameplayRenderModules().catch(() => {});
     void (async () => {
       try {
         await waitForTimeout(60);
         await preloadDungeonBootstrapData();
-        await preloadRemainingGameplayLevels(level, () => !cancelled);
+        await preloadBackgroundGameplayLevels(level, () => !cancelled);
       } catch {
         // Keep gameplay responsive even if a background warm-up fails.
       }
@@ -301,6 +326,8 @@ function GameRoot() {
     return () => {
       cancelled = true;
       cancelSoundWarmup();
+      cancelSecondaryVisualWarmup();
+      cancelSecondaryModuleWarmup();
     };
   }, [gamePhase, level]);
 

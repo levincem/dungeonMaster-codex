@@ -403,6 +403,80 @@ function makeBrokenDoorTexture(texture: THREE.Texture): THREE.Texture {
     return next;
 }
 
+function makeRaDoorTexture(): THREE.Texture {
+    const width = 256;
+    const height = 512;
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        const fallback = new THREE.CanvasTexture(canvas);
+        fallback.colorSpace = THREE.SRGBColorSpace;
+        return fallback;
+    }
+
+    ctx.clearRect(0, 0, width, height);
+
+    const coreGradient = ctx.createLinearGradient(0, 0, width, 0);
+    coreGradient.addColorStop(0, 'rgba(2, 8, 20, 0)');
+    coreGradient.addColorStop(0.12, 'rgba(14, 42, 78, 0.28)');
+    coreGradient.addColorStop(0.24, 'rgba(24, 96, 168, 0.58)');
+    coreGradient.addColorStop(0.5, 'rgba(178, 246, 255, 0.94)');
+    coreGradient.addColorStop(0.76, 'rgba(28, 118, 196, 0.6)');
+    coreGradient.addColorStop(0.88, 'rgba(12, 38, 72, 0.24)');
+    coreGradient.addColorStop(1, 'rgba(2, 8, 20, 0)');
+    ctx.fillStyle = coreGradient;
+    ctx.fillRect(0, 0, width, height);
+
+    const verticalGlow = ctx.createLinearGradient(0, 0, 0, height);
+    verticalGlow.addColorStop(0, 'rgba(208, 248, 255, 0.12)');
+    verticalGlow.addColorStop(0.18, 'rgba(92, 214, 255, 0.22)');
+    verticalGlow.addColorStop(0.5, 'rgba(32, 118, 255, 0.1)');
+    verticalGlow.addColorStop(0.82, 'rgba(92, 214, 255, 0.22)');
+    verticalGlow.addColorStop(1, 'rgba(208, 248, 255, 0.12)');
+    ctx.fillStyle = verticalGlow;
+    ctx.fillRect(0, 0, width, height);
+
+    for (let index = 0; index < 7; index += 1) {
+        const bandX = width * (0.12 + index * 0.12);
+        ctx.strokeStyle = `rgba(${index % 2 === 0 ? '170, 244, 255' : '96, 206, 255'}, ${index % 2 === 0 ? '0.26' : '0.16'})`;
+        ctx.lineWidth = index % 3 === 0 ? 4 : 2;
+        ctx.beginPath();
+        ctx.moveTo(bandX, 0);
+        for (let step = 0; step <= 8; step += 1) {
+            const y = (height / 8) * step;
+            const sway = Math.sin((step * 0.9) + index * 0.65) * (6 + index * 0.55);
+            ctx.lineTo(bandX + sway, y);
+        }
+        ctx.stroke();
+    }
+
+    for (let index = 0; index < 18; index += 1) {
+        const x = width * (0.08 + ((index * 0.17) % 0.84));
+        const y = height * (0.06 + ((index * 0.11) % 0.84));
+        const radius = 2 + (index % 3);
+        const burst = ctx.createRadialGradient(x, y, 0, x, y, radius * 4);
+        burst.addColorStop(0, 'rgba(255,255,255,0.95)');
+        burst.addColorStop(0.34, 'rgba(198,248,255,0.72)');
+        burst.addColorStop(0.68, 'rgba(92,214,255,0.22)');
+        burst.addColorStop(1, 'rgba(92,214,255,0)');
+        ctx.fillStyle = burst;
+        ctx.beginPath();
+        ctx.arc(x, y, radius * 4, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    ctx.strokeStyle = 'rgba(220, 252, 255, 0.38)';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(width * 0.14, height * 0.03, width * 0.72, height * 0.94);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.needsUpdate = true;
+    return texture;
+}
+
 function getTextureAspectRatio(texture: THREE.Texture | null): number | null {
     const image = texture?.image as { width?: number; height?: number } | undefined;
     const width = image?.width ?? 0;
@@ -426,6 +500,7 @@ const DoorMeshInner: React.FC<{
     const baseWallTex = useLoadedTexture(`${texturesPath('wall.png')}?v=2`);
     const doorLift = useMemo(() => getDoorLift(doorType), [doorType]);
     const effectiveOpen = open || broken;
+    const raDoorTex = useMemo(() => (doorType === 3 ? makeRaDoorTexture() : null), [doorType]);
     const buttonTexturePath = effectiveOpen
         ? miscPath('wall_switch_small_in.png')
         : miscPath('wall_switch_small_out.png');
@@ -474,16 +549,22 @@ const DoorMeshInner: React.FC<{
     const doorW   = renderButtonStrip ? DOOR_W_BTN : GRID_SIZE;
     const doorOff = renderButtonStrip ? DOOR_OFF_X * buttonSideSign : 0;
     const buttonStripWidth = BTN_W;
+    const doorTextureSource = raDoorTex ?? baseDoorTex;
     const tex = useMemo(
-        () => cloneTexture(baseDoorTex, next => {
+        () => cloneTexture(doorTextureSource, next => {
             next.colorSpace = THREE.SRGBColorSpace;
+            if (doorType === 3) {
+                next.wrapS = THREE.ClampToEdgeWrapping;
+                next.wrapT = THREE.ClampToEdgeWrapping;
+                return;
+            }
             if (doorType !== 0) {
                 next.wrapS = THREE.RepeatWrapping;
                 next.wrapT = THREE.RepeatWrapping;
                 next.repeat.set(1, WALL_HEIGHT / doorW);
             }
         }),
-        [baseDoorTex, doorType, doorW],
+        [doorTextureSource, doorType, doorW],
     );
     const wallTex = useMemo(
         () => cloneTexture(baseWallTex, next => {
@@ -509,9 +590,10 @@ const DoorMeshInner: React.FC<{
     const buttonAspectRatio = getTextureAspectRatio(buttonTex) ?? DOOR_BUTTON_ASPECT_RATIO;
     const buttonRenderHeight = BTN_RENDER_W * buttonAspectRatio;
     const brokenDoorTex = useMemo(
-        () => (broken ? makeBrokenDoorTexture(baseDoorTex) : null),
-        [baseDoorTex, broken],
+        () => (broken ? makeBrokenDoorTexture(doorTextureSource) : null),
+        [broken, doorTextureSource],
     );
+    useEffect(() => () => raDoorTex?.dispose(), [raDoorTex]);
     useEffect(() => () => tex.dispose(), [tex]);
     useEffect(() => () => wallTex.dispose(), [wallTex]);
     useEffect(() => () => buttonTex?.dispose(), [buttonTex]);
@@ -539,7 +621,7 @@ const DoorMeshInner: React.FC<{
                 <group ref={groupRef}>
                     {doorType === 3 && (
                         <group position={[doorOff, 0, RA_DOOR_CURTAIN_Z * buttonFaceSign]}>
-                            <PhotonsRaDoorCurtain scaleX={doorW * 0.96} scaleY={WALL_HEIGHT * 0.58} />
+                            <PhotonsRaDoorCurtain scaleX={doorW * 0.94} scaleY={WALL_HEIGHT * 0.78} />
                         </group>
                     )}
                     <mesh position={[doorOff, 0, 0]}>

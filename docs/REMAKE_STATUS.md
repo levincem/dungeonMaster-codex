@@ -1,6 +1,6 @@
 # Dungeon Master Remake - Etat du projet
 
-Etat revu le `2026-04-20`.
+Etat revu le `2026-04-22`.
 
 Ce document est un journal d'etat compact.
 
@@ -25,11 +25,12 @@ Lecture honnete du projet aujourd'hui:
 - l'extraction utile au runtime principal est consideree comme fiable
 - le coeur gameplay est largement `source-backed`
 - le `store` n'est plus le gros chantier prioritaire
-- les restes ouverts sont surtout du playtest cible, de la fidelite sur cas rares, des labels/UX et de l'optimisation
+- les restes ouverts sont surtout du playtest cible, de la fidelite sur cas rares, de quelques placeholders visuels et de l'optimisation
 
 Validation locale la plus recente:
 
-- `npm.cmd test` : `608` tests verts
+- `npm.cmd test` : `721` tests verts
+- `npm.cmd run lint` : vert
 - `npm.cmd run build` : vert
 
 ## Aide debug locale
@@ -89,13 +90,57 @@ Point utile deja confirme:
 Le detail ordonne vit dans [docs/NEXT_PHASE_PLAN.md](/D:/DungeonMaster-codex/docs/NEXT_PHASE_PLAN.md), mais en resume:
 
 - playtest cible `generateurs / transitions de niveau`
-- passe `i18n / labels`
 - verification visuelle des zones UI remaniees
 - profilage / optimisation
 - mecanismes rares et endgame
-- quelques couches runtime/data encore hybrides et quelques placeholders de presentation
+- surtout du playtest cible sur cas rares, puis quelques placeholders de presentation
 
 ## Checkpoints recents
+
+### 2026-04-22
+
+Travail ferme dans cette session:
+
+- input clavier de deplacement maintenu recale dans `HUD`
+  - le maintien d'une touche ne depend plus du repeat OS
+  - le rythme suit maintenant le `movementCooldown` runtime au lieu d'un ressenti artificiellement ralenti
+- warm-up runtime encore adouci
+  - le preload visuel gameplay est maintenant fractionne `coeur / secondaire`
+  - les icones d'items ne partent plus en rafale sur le chemin immediat d'entree en partie
+  - les overlays muraux decoratifs et rares ont aussi quitte le preload coeur
+  - les modules UI secondaires (`MirrorPopup`, `ChampionSheet`, `VictoryScreen`) ne se rechauffent plus qu'en idle pendant le gameplay
+  - les effets `PhotonsFireball` ne bloquent plus le preload coeur d'entree
+- passe `i18n / labels` runtime/UI refermee
+  - les derniers labels visibles du runtime/UI sont maintenant reroutes dans `src/i18n/en.ts` et `src/i18n/fr.ts`
+  - le manuel francais existe maintenant en propre via `src/i18n/help.fr.json`
+  - la langue par defaut suit maintenant la locale du navigateur (`fr` / `en`)
+- correctif fidelity sur les porte-torches muraux
+  - `Full Torch Holder` n'affiche plus une torche en surimpression
+  - l'overlay plein porte seul l'image visible de la torche
+  - une zone de pickup invisible conserve le ramassage de la torche sur le mur
+- rendu `Ra Door` recale
+  - le rendu visible passe maintenant par un panneau energetique procedural + rideau `photons2`
+  - ce point sort de la pile `asset a peindre` et de la pile `VFX a finaliser`
+- les presets muraux partages couvrent maintenant aussi `Full Torch Holder` et `Empty Torch Holder`
+- docs de fidelite remises a jour pour refleter l'etat reel des overlays muraux et des placeholders actifs
+- dernier reliquat interprete cote creatures maintenant borne explicitement
+  - la traduction runtime des `attackTypes` speciaux vit maintenant dans une table exportee et testee
+  - les cas sans interpretation speciale retombent explicitement sur la table de base `originalAttackType -> attackTypes`
+- relecture des notes de fidelite
+  - `items.ts` et `equipment.ts` ne sont plus traites comme gros trous fidelity
+  - le reliquat utile est maintenant recentre sur le playtest `transitions / endgame` et les derniers placeholders visuels
+
+Impact:
+
+- le ressenti de deplacement clavier est plus propre sans changer encore la formule brute du cooldown
+- le demarrage et la reprise evitent mieux les grosses rafales de decode d'images non critiques
+- l'entree en partie ne bloque plus sur les VFX projectile ni sur les overlays decoratifs peu frequents
+- les labels runtime/UI ne trainent plus de reliquat visible en dur hors contenu de jeu volontaire
+- la locale francaise dispose maintenant de son manuel et suit enfin une resolution automatique coherente
+- le bug visuel le plus visible sur les overlays stateful de porte-torche est ferme
+- la `Ra Door` a maintenant un rendu energie finalisable sans dependre d'un repaint bitmap
+- le dernier reliquat interprete cote creatures est maintenant explicite, borne et verrouille par tests
+- la memoire projet recolle de nouveau avec l'etat reel du runtime et des validations locales
 
 ### 2026-04-20
 

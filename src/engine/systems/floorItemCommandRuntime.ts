@@ -129,7 +129,7 @@ type ThrowFloorItemRuntimeDeps<
 function clearActiveFloorDragForItem<TState extends { activeFloorDrag?: { itemId: string } | null }>(
     state: TState,
     itemId: string,
-): Pick<TState, 'activeFloorDrag'> | {} {
+): Partial<Pick<TState, 'activeFloorDrag'>> {
     return state.activeFloorDrag?.itemId === itemId
         ? { activeFloorDrag: null }
         : {};
@@ -366,7 +366,7 @@ export function buildMoveFloorItemToTileRuntimePatch<
 export function buildThrowFloorItemRuntimePatch<
     TState extends ThrowFloorItemRuntimeState,
     TSensorPatch extends Partial<TState>,
-    TXpPatch extends object = {},
+    TXpPatch extends object = Record<string, never>,
 >(
     state: TState,
     itemId: string,

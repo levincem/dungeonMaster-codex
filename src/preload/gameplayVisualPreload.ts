@@ -1,5 +1,8 @@
 import { ALL_ITEM_IMAGE_PATHS } from '../data/itemImageCatalog';
-import { ALL_WALL_OVERLAY_IMAGE_PATHS } from '../data/originalWallOverlays';
+import {
+    CORE_WALL_OVERLAY_IMAGE_PATHS,
+    SECONDARY_WALL_OVERLAY_IMAGE_PATHS,
+} from '../data/originalWallOverlays';
 import { miscPath, runesPath, spritesPath, texturesPath } from '../data/assetPaths';
 
 const RUNE_IDS = [
@@ -15,23 +18,34 @@ const TITLE_IMAGE_ASSETS: string[] = [
     miscPath('cadre_entree.png'),
     miscPath('porte_entree_droite.png'),
     miscPath('porte_entree_gauche.png'),
-];
-
-const GAMEPLAY_IMAGE_ASSETS: string[] = [
-    ...RUNE_IDS.map(id => runesPath(`${id}.png`)),
-    ...CREATURE_IDS.map(id => spritesPath(`creatures/creature_${id}.png`)),
-    ...ALL_ITEM_IMAGE_PATHS,
-    ...ALL_WALL_OVERLAY_IMAGE_PATHS,
     miscPath('wall_switch_green_out.png'),
     miscPath('wall_switch_red_out.png'),
+    texturesPath('wall.png'),
+];
+
+const GAMEPLAY_CORE_IMAGE_ASSETS: string[] = [
+    ...RUNE_IDS.map(id => runesPath(`${id}.png`)),
+    ...CREATURE_IDS.map(id => spritesPath(`creatures/creature_${id}.png`)),
+    ...CORE_WALL_OVERLAY_IMAGE_PATHS,
     texturesPath('wall.png'),
     texturesPath('floor.png'),
     texturesPath('ceiling.png'),
     texturesPath('door.png'),
+    texturesPath('doorWood.png'),
+    texturesPath('doorIron.png'),
 ];
+
+const GAMEPLAY_SECONDARY_IMAGE_ASSETS: string[] = [
+    ...ALL_ITEM_IMAGE_PATHS,
+    ...SECONDARY_WALL_OVERLAY_IMAGE_PATHS,
+];
+
+const PRELOAD_BATCH_SIZE = 12;
 
 const imagePromiseCache = new Map<string, Promise<void>>();
 let titleVisualPromise: Promise<void> | null = null;
+let gameplayCoreVisualPromise: Promise<void> | null = null;
+let gameplaySecondaryVisualPromise: Promise<void> | null = null;
 let gameplayVisualPromise: Promise<void> | null = null;
 
 function preloadImage(src: string): Promise<void> {
@@ -48,16 +62,49 @@ function preloadImage(src: string): Promise<void> {
     return promise;
 }
 
+function waitForNextTask(): Promise<void> {
+    return new Promise((resolve) => {
+        window.setTimeout(resolve, 0);
+    });
+}
+
+async function preloadImageList(sources: readonly string[]): Promise<void> {
+    const uniqueSources = Array.from(new Set(sources));
+
+    for (let index = 0; index < uniqueSources.length; index += PRELOAD_BATCH_SIZE) {
+        const batch = uniqueSources.slice(index, index + PRELOAD_BATCH_SIZE);
+        await Promise.all(batch.map(preloadImage));
+        if (index + PRELOAD_BATCH_SIZE < uniqueSources.length) {
+            await waitForNextTask();
+        }
+    }
+}
+
 export function preloadTitleVisualAssets(): Promise<void> {
     if (!titleVisualPromise) {
-        titleVisualPromise = Promise.all(TITLE_IMAGE_ASSETS.map(preloadImage)).then(() => {});
+        titleVisualPromise = preloadImageList(TITLE_IMAGE_ASSETS);
     }
     return titleVisualPromise;
 }
 
+export function preloadGameplayCoreVisualAssets(): Promise<void> {
+    if (!gameplayCoreVisualPromise) {
+        gameplayCoreVisualPromise = preloadImageList(GAMEPLAY_CORE_IMAGE_ASSETS);
+    }
+    return gameplayCoreVisualPromise;
+}
+
+export function preloadGameplaySecondaryVisualAssets(): Promise<void> {
+    if (!gameplaySecondaryVisualPromise) {
+        gameplaySecondaryVisualPromise = preloadImageList(GAMEPLAY_SECONDARY_IMAGE_ASSETS);
+    }
+    return gameplaySecondaryVisualPromise;
+}
+
 export function preloadGameplayVisualAssets(): Promise<void> {
     if (!gameplayVisualPromise) {
-        gameplayVisualPromise = Promise.all(GAMEPLAY_IMAGE_ASSETS.map(preloadImage)).then(() => {});
+        gameplayVisualPromise = preloadGameplayCoreVisualAssets()
+            .then(() => preloadGameplaySecondaryVisualAssets());
     }
     return gameplayVisualPromise;
 }

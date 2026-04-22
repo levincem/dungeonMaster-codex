@@ -3,6 +3,7 @@ import {
     getOriginalPotionStrengthRange,
     getOriginalSpellDescriptorForRunes,
 } from '../../data/originalSpells';
+import { getTranslations } from '../../i18n';
 import type { ChampionEquipment, FloorItem } from '../../types/game';
 import type { ChampionVitals } from '../runtimeTypes';
 
@@ -93,7 +94,7 @@ export function buildPotionSpellPatch({
             championVitals,
             lastCastResult: {
                 success: false,
-                message: 'Il faut une flasque vide dans la main.',
+                message: getTranslations().runtime.potionRequiresEmptyFlask,
                 ts: now,
             },
         };

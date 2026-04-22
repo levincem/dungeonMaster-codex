@@ -15,7 +15,7 @@ import {
     getOriginalStairsUpFrontHeightRatio,
     getOriginalStairsUpFrontWidthRatio,
 } from '../src/data/originalStairPanelMetrics.js';
-import { getWallDecalPresetForImage } from '../src/components/Dungeon/WallDecal.js';
+import { getWallDecalPresetForImage } from '../src/data/wallDecalPresets.js';
 
 type GraphicsDbEntry = {
     description?: string | null;

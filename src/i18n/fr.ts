@@ -1,4 +1,4 @@
-import helpEn from './help.en.json';
+import helpFr from './help.fr.json';
 import { spellsFr } from './spells.fr';
 
 export const fr = {
@@ -97,8 +97,26 @@ export const fr = {
             slot: (index: number) => `Emplacement ${index}`,
             levelUp: 'Niveau +1',
         },
+        debugPrimary: (
+            globalX: number,
+            globalY: number,
+            direction: string,
+            level: number,
+            frontGlobalX: number,
+            frontGlobalY: number,
+            frontLocalX: number,
+            frontLocalY: number,
+            frontState: string,
+        ) => `[g:${globalX},${globalY}] ${direction} · NIV ${level} · devant [g:${frontGlobalX},${frontGlobalY} / l:${frontLocalX},${frontLocalY}] · ${frontState}`,
+        debugSecondary: (
+            localX: number,
+            localY: number,
+            offsetX: number,
+            offsetY: number,
+        ) => `local [l:${localX},${localY}] · decalage [${offsetX},${offsetY}]`,
+        debugSound: (sound: string) => `\u266a ${sound}`,
     },
-    manual: helpEn.manual,
+    manual: helpFr.manual,
     dungeonScene: {
         dropRequiredItemOn: (label: string) => `Deposer l objet requis sur ${label.toLowerCase()}`,
         dropSpecificItemOn: (requirement: string, label: string) => `Deposer ${requirement} sur ${label.toLowerCase()}`,
@@ -115,6 +133,11 @@ export const fr = {
         placeItemHere: 'Deposer l objet ici',
         dropBonesHere: 'Deposer les os ici',
         offerItemHere: 'Offrir l objet ici',
+        debugRenderState: (state: { wallTexts: boolean; wallDecals: boolean; wallButtons: boolean }) => `Rendu debug
+Alt+Maj+T textes : ${state.wallTexts ? 'on' : 'off'}
+Alt+Maj+D decals : ${state.wallDecals ? 'on' : 'off'}
+Alt+Maj+B boutons : ${state.wallButtons ? 'on' : 'off'}
+Alt+Maj+R reset`,
     },
     runePanel: {
         familyLabels: {
@@ -250,6 +273,13 @@ export const fr = {
         inspectDropZoneTitle: 'Deposer un parchemin ou une outre ici pour l examiner',
         fountain: 'FONTAINE',
         fountainTitle: 'Cliquer pour boire, ou deposer une flasque ou une outre ici pour la remplir',
+        wallContextGlyphs: {
+            fountain: 'H2O',
+            altar: 'VI',
+            alcove: 'AL',
+            receptacle: 'RC',
+            lock: 'LK',
+        },
         alcove: 'ALCOVE',
         receptacle: 'RECEPTACLE',
         altar: 'AUTEL',
@@ -305,6 +335,7 @@ export const fr = {
         chooseAdventurer: 'Choisissez au moins un aventurier, quatre c est mieux !',
         doorYields: 'La porte cede.',
         doorResists: 'La porte resiste.',
+        potionRequiresEmptyFlask: 'Il faut une flasque vide dans la main.',
     },
     spells: spellsFr,
 };

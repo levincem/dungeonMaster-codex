@@ -1,6 +1,6 @@
 # Fidelity Remaining Matrix
 
-Etat recale le `2026-04-20`.
+Etat recale le `2026-04-22`.
 
 Ce document ne sert plus d'historique long. Il repond a une seule question:
 
@@ -8,9 +8,9 @@ Ce document ne sert plus d'historique long. Il repond a une seule question:
 
 ## Resume court
 
-Le projet est tres avance, mais il reste encore trois familles de sujet:
+Le projet est tres avance, mais le reliquat fidelite est maintenant plus borne:
 
-1. quelques couches runtime / data encore hybrides ou avec fallback
+1. une petite couche de compatibilite / interpretation encore explicite et testee
 2. de la validation gameplay a finir sur les cas rares, transitions de niveau et endgame
 3. quelques ecarts de presentation / placeholders
 
@@ -111,32 +111,29 @@ Sources:
 
 ## Ce qui reste vraiment ouvert
 
-### 1. Couches runtime / data encore hybrides
+### 1. Couche de compatibilite / interpretation encore explicite
 
-Le moteur est beaucoup plus source-backed que ne le disent certains anciens audits, mais il reste des zones non totalement "source-only".
+Le moteur n'a plus de gros bloc fidelity "gris". Le reliquat code est maintenant borne, explicite et sous test.
 
-Les principales:
+Ce qu'il reste vraiment:
 
 - [items.ts](/D:/DungeonMaster-codex/src/data/items.ts)
-  - beaucoup de champs sont recales sur les donnees extraites
-  - la couche ne depend plus d'un preload implicite pour lire les slices source-backed packagees
-  - les starters specifiques passent maintenant par une resolution par nom centralisee, sans duplication d'ids dans les loadouts
-  - les alias de potions ont ete reduits aux seuls vrais libelles alternatifs
-  - le Hall recroise maintenant `24 / 24` champions sans table manuelle `slot -> champion`, avec match complet sur les noms d'items Hall, y compris les armures
-  - le recroisement contre la table DM a revele un melange `DM / CSB` sur quelques noms d'armure Hall
-  - `Barbarian Hide`, `Robe (Body)` et `Robe (Legs)` sont maintenant restaures comme noms canoniques DM pour les ids concernes
-  - les anciens shims d'armure a ids negatifs ont ete retires de la couche runtime
-  - mais des tables squelette / compatibilite / semantiques runtime restent codees
+  - reste une couche d'agregation runtime pratique
+  - elle garde encore quelques noms canoniques, descriptions et fixups de compatibilite visibles
+  - ce n'est plus une zone opaque de gameplay
 - [equipment.ts](/D:/DungeonMaster-codex/src/data/equipment.ts)
-  - priorite aux masques extraits
-  - les slots d'objets consommables passent maintenant bien par les masques packagees sans preload
-  - les starters synthetiques retombent maintenant proprement sur `getArmorDef` au lieu d'un mapping de slots duplique
-  - mais des fallbacks de slots existent encore
+  - les semantiques de slots sont maintenant source-backed sur tous les cas avec signal extrait
+  - l'exception zero-slot restante est explicite et unique: `Zokathra`
 - [creatures.ts](/D:/DungeonMaster-codex/src/data/creatures.ts)
-  - les champs coeur directement prouvables par `I559` sont maintenant lus depuis la payload source-backed
-  - il reste surtout `exp`, `attackTypes` et quelques tags de commodite encore interpretatifs
+  - les champs coeur utilises au runtime sont packages depuis `I559`
+  - le seul reliquat volontairement interprete encore utile est la traduction runtime des `attackTypes`
+  - cette interpretation est maintenant bornee par une table explicite `ORIGINAL_CREATURE_ATTACK_TYPE_INTERPRETATIONS`
 
-Ce point ne bloque pas le jeu courant, mais il bloque encore un claim `100% source-only`.
+Conclusion pratique:
+
+- on n'a plus ici un chantier de rebranchement massif
+- on a surtout un petit reliquat de compatibilite assumee, explicite et verifiee
+- ce point ne bloque plus le socle fidelite; il bloque seulement un claim litteral `100% source-only`
 
 ### 2. Validation gameplay des cas rares
 
@@ -161,14 +158,15 @@ Il reste des ecarts visuels qui ne remettent pas en cause la logique gameplay, m
 Exemples:
 
 - aliases / fallbacks d'images d'items
-- placeholders de portes / overlays
-- quelques fallbacks visuels de rendu
+- famille generique `serrure.png`
+- `Gem Hole` qui reutilise encore `eye.png`
 
 Nuance recente:
 
 - plusieurs aliases redondants de potions canoniques ont ete supprimes
 - les aliases redondants de `The Firestaff (Complete)` ont aussi ete retires
 - plusieurs fallbacks legacy d'images (`weapons`, `armor`, `misc`, `container`) ont encore ete retires quand le nom canonique ou un alias suffisait deja
+- les labels runtime/UI residuels ont ete reroutes dans l'i18n, avec manuel francais dedie et detection locale navigateur
 - le Hall est maintenant recroise sur tout le roster pour les noms d'items complets, y compris les armures
 - les starters Hall problematiques sont maintenant recales sur les noms DM attendus (`Barbarian Hide`, `Robe (Body)`, `Robe (Legs)`)
 - les anciens shims d'armure Hall ont ete retires de la couche runtime; il reste surtout un petit reliquat de vieux ids d'images
@@ -185,7 +183,7 @@ Formulation solide aujourd'hui:
 
 `Le contenu canonique du donjon DM et les principales tables gameplay utiles sont extraits, croises et packages de facon tres fiable.`
 
-`Le moteur est maintenant largement source-backed. Les gros chantiers structurels cote generateurs / groupes actifs et le bornage semantique de 0696.RAW1 sont fermes. Les stats coeur des creatures ne reposent plus sur une vieille table normalisee. Il reste surtout quelques couches hybrides, la validation finale des cas rares et quelques ecarts de presentation.`
+`Le moteur est maintenant largement source-backed. Les gros chantiers structurels cote generateurs / groupes actifs et le bornage semantique de 0696.RAW1 sont fermes. Les stats coeur des creatures ne reposent plus sur une vieille table normalisee. Le reliquat code est maintenant surtout borne a quelques compatibilites explicites, puis a la validation finale des cas rares et a quelques ecarts de presentation.`
 
 ## Definition de fini
 

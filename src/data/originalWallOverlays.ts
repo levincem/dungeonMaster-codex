@@ -2,6 +2,7 @@ import type { CardinalDir, GameMap } from '../types/game';
 import { miscPath, originalMiscPath } from './assetPaths';
 import { getOriginalWallOverlayMapDataSync } from './originalWallOverlayData';
 import { GRID_SIZE, WALL_HEIGHT } from '../engine/constants';
+import { getWallOverlayImageRatios } from './wallDecalPresets';
 
 type OverlayClassification = 'interactive' | 'stateful' | 'hazard' | 'decorative' | 'unclear';
 
@@ -282,6 +283,13 @@ const VISUALS_BY_NAME: Record<string, OverlayVisual> = {
     'Lord Order (Outside)': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Lord Order (Outside)'], accent: '#bf8b54', width: 0.78, height: 1.0 },
 };
 
+for (const visual of Object.values(VISUALS_BY_NAME)) {
+    const sharedRatios = getWallOverlayImageRatios(visual.image);
+    if (!sharedRatios) continue;
+    visual.width = sharedRatios.width;
+    visual.height = sharedRatios.height;
+}
+
 export function getOriginalWallOverlayVisual(name: string): OverlayVisual | undefined {
     return VISUALS_BY_NAME[name];
 }
@@ -301,6 +309,71 @@ export const ALL_WALL_OVERLAY_IMAGE_PATHS = Array.from(
             .filter((image): image is string => Boolean(image)),
     ),
 ).sort();
+
+const CORE_WALL_OVERLAY_NAMES = [
+    'Fountain',
+    'Vi Altar',
+    'Lever Up',
+    'Lever Down',
+    'Iron Lock',
+    'Double Iron Lock',
+    'Square Lock',
+    'Winged Lock',
+    'Onyx Lock',
+    'Stone Lock',
+    'Cross Lock',
+    'Topaz Lock',
+    'Skeleton Lock',
+    'Gold Lock',
+    'Tourquoise Lock',
+    'Emerald Lock',
+    'Ruby Lock',
+    'Ra Lock',
+    'Master Lock',
+    'Coin Slot',
+    'Gem Hole',
+    'Full Torch Holder',
+    'Empty Torch Holder',
+    'Square Alcove',
+    'Arched Alcove',
+    'Small Switch',
+    'Tiny Switch',
+    'Big Switch In',
+    'Big Switch Out',
+    'Blue Switch In',
+    'Blue Switch Out',
+    'Green Switch In',
+    'Green Switch Out',
+    'Red Switch In',
+    'Red Switch Out',
+    'Crack Switch In',
+    'Crack Switch Out',
+    'Eye Switch',
+    'Fireball Holes',
+    'Dagger Holes',
+    'Poison Holes',
+    'Slime Outlet',
+    'Amalgam (Encased Gem)',
+    'Amalgam (Free Gem)',
+    'Amalgam (Without Gem)',
+] as const;
+
+function buildOverlayImagePathList(names: readonly string[]): string[] {
+    return Array.from(
+        new Set(
+            names
+                .map((name) => getOriginalWallOverlaySourceImage(name))
+                .filter((image): image is string => Boolean(image)),
+        ),
+    ).sort();
+}
+
+export const CORE_WALL_OVERLAY_IMAGE_PATHS = buildOverlayImagePathList(CORE_WALL_OVERLAY_NAMES);
+
+const CORE_WALL_OVERLAY_IMAGE_PATH_SET = new Set(CORE_WALL_OVERLAY_IMAGE_PATHS);
+
+export const SECONDARY_WALL_OVERLAY_IMAGE_PATHS = ALL_WALL_OVERLAY_IMAGE_PATHS
+    .filter((image) => !CORE_WALL_OVERLAY_IMAGE_PATH_SET.has(image));
 
 function getPreferredStateVariants(face: FixedFace): FixedVariant[] {
     const sensorVariants = face.variants.filter(

@@ -6,6 +6,7 @@ import { preloadDungeonData } from '../src/data/dungeonData.js';
 import { getGameMap } from '../src/data/mapLoader.js';
 import { preloadOriginalWallOverlayMapData } from '../src/data/originalWallOverlayData.js';
 import { getOriginalWallOverlayVisual, getOriginalWallOverlaysForMap } from '../src/data/originalWallOverlays.js';
+import { getWallOverlayImageRatios } from '../src/data/wallDecalPresets.js';
 import type { GameMap } from '../src/types/game.js';
 
 type OverlaySupportData = {
@@ -189,4 +190,59 @@ test('stateful fixed wall faces own their render slot and do not also emit dupli
         getOriginalWallOverlayVisual('Lever Down')?.image,
         'the rendered lever state should follow the fixed-face stateful resolution, not an extra duplicate placement',
     );
+});
+
+test('key modern wall overlay visuals stay aligned with the shared 3D decal composition presets', () => {
+    const cases = [
+        'Fountain',
+        'Vi Altar',
+        'Iron Lock',
+        'Lever Up',
+        'Lever Down',
+        'Full Torch Holder',
+        'Empty Torch Holder',
+        'Hook',
+        'Wood Ring',
+        'Slime',
+        'Grate',
+        'Ghoul\'s Head',
+        'Small Switch',
+        'Big Switch In',
+        'Eye Switch',
+    ] as const;
+
+    for (const overlayName of cases) {
+        const visual = getOriginalWallOverlayVisual(overlayName);
+        assert.ok(visual?.image, `${overlayName} should expose a concrete overlay image`);
+        const sharedRatios = getWallOverlayImageRatios(visual?.image);
+        assert.ok(sharedRatios, `${overlayName} should reuse a shared decal composition preset`);
+        assert.equal(visual?.width, sharedRatios?.width, `${overlayName} width should stay aligned with the shared decal preset`);
+        assert.equal(visual?.height, sharedRatios?.height, `${overlayName} height should stay aligned with the shared decal preset`);
+    }
+});
+
+test('lock and random-capable wall ornament presets keep the intended reduced ratios', () => {
+    const expectedRatios = [
+        ['Iron Lock', 0.2, 0.2],
+        ['Full Torch Holder', 0.24, 0.92],
+        ['Empty Torch Holder', 0.42, 0.48],
+        ['Hook', 0.15, 0.15],
+        ['Wood Ring', 0.15, 0.15],
+        ['Slime', 0.15, 0.15],
+        ['Grate', 0.15, 0.15],
+        ['Ghoul\'s Head', 0.4, 0.54],
+        ['Fountain', 0.72, 0.92],
+    ] as const;
+
+    for (const [overlayName, width, height] of expectedRatios) {
+        const visual = getOriginalWallOverlayVisual(overlayName);
+        assert.ok(
+            visual?.width !== undefined && Math.abs(visual.width - width) < 1e-9,
+            `${overlayName} width ratio should match the calibrated runtime preset`,
+        );
+        assert.ok(
+            visual?.height !== undefined && Math.abs(visual.height - height) < 1e-9,
+            `${overlayName} height ratio should match the calibrated runtime preset`,
+        );
+    }
 });

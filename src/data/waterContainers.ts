@@ -86,7 +86,7 @@ export function consumeWaterContainer(item: FloorItem): { nextItem: FloorItem; w
 
     return {
         nextItem,
-        waterGain: state.kind === 'flask' ? 1600 : 800,
+        waterGain: state.kind === 'flask' ? 800 : 1600,
         staminaGain: 0,
     };
 }

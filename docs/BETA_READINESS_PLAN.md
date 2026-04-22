@@ -190,9 +190,6 @@ Ce qui doit etre ferme avant de parler beta:
 
 ## Bugs notes a reprendre
 
-- portes ecrasantes / rebond sur monstre:
-  - symptome: quand une porte se referme sur un monstre, remonte, puis redescend, la hauteur de blocage descend un peu plus bas a chaque cycle
-  - comportement attendu: la porte doit remonter puis redescendre jusqu'au meme point de blocage a chaque fois, sans derive cumulative de hauteur
 - organisation des assets de portes:
   - `grille_metal.png` vit encore dans `misc` alors qu'elle fait partie des trois textures de porte
   - a realigner plus tard vers `textures` pour avoir une famille d'assets coherente

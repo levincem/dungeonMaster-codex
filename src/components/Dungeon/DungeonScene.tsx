@@ -1199,11 +1199,7 @@ export const DungeonScene = () => {
                         whiteSpace: 'pre-line',
                     }}
                 >
-                    {`Debug render
-Alt+Shift+T texts: ${renderDebug.wallTexts ? 'on' : 'off'}
-Alt+Shift+D decals: ${renderDebug.wallDecals ? 'on' : 'off'}
-Alt+Shift+B buttons: ${renderDebug.wallButtons ? 'on' : 'off'}
-Alt+Shift+R reset`}
+                    {text.debugRenderState(renderDebug)}
                 </div>
             )}
             <DarknessOverlay />

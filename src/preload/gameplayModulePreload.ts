@@ -21,7 +21,6 @@ export function preloadGameplayRenderCoreModules(): Promise<void> {
             .then(() => Promise.all([
                 import('../components/Dungeon/DungeonScene'),
                 import('../components/UI/HUD'),
-                import('../components/Dungeon/PhotonsFireball'),
             ]))
             .then(() => {
                 gameplayRenderCoreReady = true;
@@ -35,6 +34,7 @@ export function preloadGameplayRenderModules(): Promise<void> {
     if (!gameplayRenderFullPromise) {
         gameplayRenderFullPromise = Promise.all([
             preloadGameplayRenderCoreModules(),
+            import('../components/Dungeon/PhotonsFireball'),
             import('../components/UI/MirrorPopup'),
             import('../components/UI/ChampionSheet'),
             import('../components/UI/VictoryScreen'),

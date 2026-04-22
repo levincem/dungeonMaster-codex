@@ -852,6 +852,7 @@ export function getSourceItemAllowedSlotsMask(
     typeId: number,
     _rawName?: string,
 ): number | undefined {
+    void _rawName;
     if (typeId < 0) return undefined;
     const offset = SOURCE_ITEM_OBJECT_INDEX_OFFSETS[category];
     return getItemsDerivedData().i559ObjectInfo[offset + typeId]?.allowedSlotsMask;
@@ -862,6 +863,7 @@ export function getSourceItemAttackClass(
     typeId: number,
     _rawName?: string,
 ): number | undefined {
+    void _rawName;
     if (typeId < 0) return undefined;
     const offset = SOURCE_ITEM_OBJECT_INDEX_OFFSETS[category];
     return getItemsDerivedData().i559ObjectInfo[offset + typeId]?.attackClass;

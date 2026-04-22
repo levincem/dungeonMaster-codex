@@ -3,9 +3,9 @@ import * as THREE from 'three';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import type { FloorItem, CardinalDir } from '../../types/game';
 import { getFloorItemImage } from '../../data/itemImages';
-import { hasOriginalWallOverlayAt } from '../../data/originalWallOverlays';
 import { useStore } from '../../engine/store';
 import { useLoadedTexture } from './useLoadedTexture';
+import { getWallMountedItemPresentation } from './wallMountedItemPresentation';
 
 const FACE_OFFSET = GRID_SIZE / 2 + 0.04;
 const FACE_POS: Record<CardinalDir, [number, number, number]> = {
@@ -24,8 +24,6 @@ const FACE_ROT: Record<CardinalDir, [number, number, number]> = {
 
 const ITEM_MAX_W = GRID_SIZE * 0.42;
 const ITEM_MAX_H = WALL_HEIGHT * 0.42;
-const RECESSED_SUPPORT_ITEM_SCALE = 0.42;
-const RECESSED_SUPPORT_OVERLAYS = ['Vi Altar'] as const;
 
 const WallItemSprite = ({
     imagePath,
@@ -78,25 +76,37 @@ export const WallMountedItemMesh = ({ item, onPickup }: { item: FloorItem; onPic
     const [ox, oy, oz] = FACE_POS[item.tilePos];
     const [rx, ry, rz] = FACE_ROT[item.tilePos];
     const imagePath = getFloorItemImage(item);
-    const itemScale = useMemo(() => (
-        RECESSED_SUPPORT_OVERLAYS.some((overlayName) =>
-            hasOriginalWallOverlayAt(level, item.x, item.y, item.tilePos, overlayName)
-        )
-            ? RECESSED_SUPPORT_ITEM_SCALE
-            : 1
-    ), [item.tilePos, item.x, item.y, level]);
+    const presentation = useMemo(
+        () => getWallMountedItemPresentation(level, item),
+        [item, level],
+    );
 
     return (
         <group
             position={[item.x * GRID_SIZE + ox, oy, item.y * GRID_SIZE + oz]}
             rotation={[rx, ry, rz]}
         >
-            <Suspense fallback={null}>
-                <WallItemSprite
-                    imagePath={imagePath}
-                    onClick={onPickup}
-                    scale={itemScale}
+            <mesh
+                onClick={(event) => { event.stopPropagation(); onPickup(); }}
+                frustumCulled={false}
+                renderOrder={15}
+            >
+                <planeGeometry args={[presentation.pickupPlaneWidth, presentation.pickupPlaneHeight]} />
+                <meshBasicMaterial
+                    transparent
+                    opacity={0}
+                    side={THREE.DoubleSide}
+                    depthWrite={false}
                 />
+            </mesh>
+            <Suspense fallback={null}>
+                {presentation.renderSprite ? (
+                    <WallItemSprite
+                        imagePath={imagePath}
+                        onClick={onPickup}
+                        scale={presentation.spriteScale}
+                    />
+                ) : null}
             </Suspense>
         </group>
     );

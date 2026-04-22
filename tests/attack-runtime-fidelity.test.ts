@@ -158,7 +158,8 @@ function buildChampionSkillExperiencePatch<TState extends ReturnType<typeof crea
     };
 }
 
-function createDeps<TState extends ReturnType<typeof createState>>(_state: TState) {
+function createDeps<TState extends ReturnType<typeof createState>>(state: TState) {
+    void state;
     return {
         getWeaponAttackOptions: (item: FloorItem | null | undefined) => item ? getWeaponAttackOptions(item) : [],
         getRequiredAmmoRawClass: (item: FloorItem | undefined) => item ? getRequiredAmmoRawClass(item) : null,
