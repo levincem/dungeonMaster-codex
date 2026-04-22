@@ -6,11 +6,11 @@ Goal: rebuild the original dungeon, systems, and feel as faithfully as possible 
 
 Live build: [dungeon-master.fr](https://dungeon-master.fr/)
 
-Current local version: `v0.6.0-alpha.4`
+Current local version: `v0.7.0-alpha.0`
 
 ## Status
 
-This is a desktop-first alpha.
+This is a desktop-first alpha focused on PC DOS gameplay fidelity first, then presentation polish.
 
 Already in place:
 
@@ -25,8 +25,8 @@ Still open:
 
 - targeted play validation from early game to endgame
 - rare mechanism and timing edge-case checks
-- label / UX cleanup
-- performance work, especially around dev cold start and the Three.js stack
+- a smaller pass of UX and visual polish
+- selective performance work where playtests show real pain
 
 ## Run Locally
 

@@ -108,6 +108,9 @@ Point note pour reprise de playtest:
   - a verifier en presentation / interaction: il faut pouvoir mieux voir, cibler et ramasser les items presents sous ou derriere un groupe
   - piste a tester: leger recul camera / meilleur framing de la case / priorite visuelle pickup sur la case occupee
   - ne pas traiter ca comme un bug de donnee ou de logique item tant que le rendu / ciblage n'a pas ete rejoue proprement
+- cooldown de deplacement trop bas quand le groupe est vide au tout debut
+  - probablement normalise trop agressivement par la formule de mouvement quand `party.length === 0`
+  - a recaler demain pour garder un comportement propre meme avant recrutement
 
 ## 3. Profilage / optimisation
 

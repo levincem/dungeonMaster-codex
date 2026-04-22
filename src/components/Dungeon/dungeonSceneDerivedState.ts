@@ -25,6 +25,7 @@ type MapMechanismEntry = {
     support: string;
     trigger: string;
     sensorType: number;
+    graphic?: number;
     face: CardinalDir;
 };
 export type FrontWallInteractionKind = 'wall-lock' | 'alcove' | 'object-exchanger' | 'fountain';
@@ -323,9 +324,10 @@ export function collectDungeonScenePressurePlates(args: {
     for (const mech of mechanisms) {
         if (mech.support !== 'Floor') continue;
         if (mech.trigger !== 'floor-pressure' && mech.trigger !== 'object-pressure') continue;
-        // Floor sensor type 3 is an invisible party/orientation trigger in the
-        // original runtime, not a visible pressure plate slab.
-        if (![1, 2, 4, 7].includes(mech.sensorType)) continue;
+        // Floor sensor type 3 can be either a hidden passage/orientation trigger
+        // or a visible pressure plate, depending on its original graphic id.
+        if (![1, 2, 3, 4, 7].includes(mech.sensorType)) continue;
+        if (mech.sensorType === 3 && (mech.graphic ?? 0) === 0) continue;
         const tile = map.tiles[mech.y]?.[mech.x];
         if (!tile || tile.type === 'Wall' || tile.type === 'Door' || tile.type === 'Teleporter') continue;
         const key = `${mech.x},${mech.y}`;

@@ -33,6 +33,7 @@ export type MechanismTrigger =
 export interface Mechanism {
     sensorIndex: number;
     sensorType: number;
+    graphic: number;
     trigger: MechanismTrigger;
     x: number;
     y: number;
@@ -150,6 +151,7 @@ function buildMechanismMap(map: RawMap): Mechanism[] {
             mechanisms.push({
                 sensorIndex: object.index,
                 sensorType: object.type,
+                graphic: object.graphic,
                 trigger: getMechanismTrigger(tile.type, object.type),
                 x: tile.x,
                 y: tile.y,

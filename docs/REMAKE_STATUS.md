@@ -148,7 +148,7 @@ Travail ferme dans cette session:
 
 - chantier `generateurs / groupes actifs` boucle cote code
 - correction globale des faux `Compass` sur les `floor type 3`
-- correction globale des fausses dalles visibles sur les `floor type 3`
+- correction globale des fausses dalles visibles sur les `floor type 3` caches
 - audit multi-levels refait pour les sensors de sol / mur
 - `0696.RAW1` recale comme conteneur de composition/layout plutot que comme bloc stats cache
 - `creatures.ts` recale sur les champs directs `I559` quand leur semantique est prouvee
@@ -173,7 +173,9 @@ Travail ferme dans cette session:
 - le recroisement contre la table de reference DM a confirme un melange `DM / CSB` sur quelques noms d'armure Hall
 - `Barbarian Hide`, `Robe (Body)` et `Robe (Legs)` ont ete restaures comme noms canoniques DM pour les ids concernes
 - les anciens shims d'armure a ids negatifs ont ete retires de la couche runtime
-- les dalles `floor type 3` de passage/orientation reapparaissent maintenant dans le rendu des plaques de sol
+- les `floor type 3` ne sont plus traites en bloc:
+  - les variantes cachees sans graphisme de dalle restent invisibles
+  - les variantes avec vrai graphisme de dalle reapparaissent correctement dans le rendu
 - une animation de montee de niveau champion a ete ajoutee dans le HUD
 - checklist ciblee ecrite pour `transitions / generateurs / endgame`
 - clarification documentaire ajoutee sur `graphics_db` :

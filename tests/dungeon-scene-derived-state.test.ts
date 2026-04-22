@@ -145,16 +145,22 @@ test('collectDungeonScene helpers keep only actionable plates, closed trick wall
         level: 0,
         map,
         mechanisms: [
-            { support: 'Floor', trigger: 'floor-pressure', sensorType: 3, kind: 'Capteur de passage (party)', x: 1, y: 1 } as never,
-            { support: 'Floor', trigger: 'floor-pressure', sensorType: 3, kind: 'Capteur de passage (party)', x: 1, y: 1 } as never,
+            { support: 'Floor', trigger: 'floor-pressure', sensorType: 3, graphic: 0, kind: 'Capteur de passage (party)', x: 1, y: 1 } as never,
+            { support: 'Floor', trigger: 'floor-pressure', sensorType: 3, graphic: 4, kind: 'Capteur de passage (party)', x: 1, y: 1 } as never,
             { support: 'Floor', trigger: 'object-pressure', sensorType: 4, kind: 'Dalle de pression (objet specifique)', x: 2, y: 1 } as never,
             { support: 'Floor', trigger: 'floor-pressure', sensorType: 5, kind: 'Dalle d escalier', x: 3, y: 1 } as never,
             { support: 'Floor', trigger: 'floor-pressure', sensorType: 1, kind: 'Dalle de pression (tout)', x: 0, y: 2 } as never,
-            { support: 'Wall', trigger: 'floor-pressure', sensorType: 3, kind: 'Capteur de passage (party)', x: 0, y: 0 } as never,
+            { support: 'Wall', trigger: 'floor-pressure', sensorType: 3, graphic: 0, kind: 'Capteur de passage (party)', x: 0, y: 0 } as never,
         ],
     });
 
-    assert.deepEqual(pressurePlates, [{ tileX: 0, tileY: 2, face: undefined }]);
+    assert.deepEqual(
+        pressurePlates,
+        [
+            { tileX: 1, tileY: 1, face: undefined },
+            { tileX: 0, tileY: 2, face: undefined },
+        ],
+    );
     assert.deepEqual(collectDungeonSceneTrickWalls({ level: 0, map, openWalls: new Set() }), [{ tileX: 1, tileY: 0 }]);
     assert.deepEqual(
         collectDungeonSceneTrickWalls({ level: 0, map, openWalls: new Set(['0,0,1']) }),
