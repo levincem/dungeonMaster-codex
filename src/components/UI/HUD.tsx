@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect, useRef, useState, useCallback } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import {
     useStore,
@@ -13,6 +13,7 @@ import type { ChampionEquipment } from '../../types/game';
 import { getEquippedItemImage } from '../../data/itemImages';
 import { getPreferredCombatItem } from '../../data/equipment';
 import { formatKeybinding, matchesKeybinding, normalizeBindingKey } from '../../engine/options';
+import { importPersistedSave } from '../../engine/saveGame';
 import { findSpell } from '../../data/runes';
 import { itemsPath } from '../../data/assetPaths';
 import { useI18n } from '../../i18n';
@@ -43,6 +44,186 @@ const HudOptionsModal = lazy(() =>
     import('./HudOptionsModal').then((module) => ({ default: module.HudOptionsModal })),
 );
 
+const DEV_PERF_PANEL_ENABLED = import.meta.env.DEV;
+
+type DevPerformanceSnapshot = {
+    fps: number | null;
+    frameMs: number | null;
+    heapUsedMb: number | null;
+};
+
+const DevPerformancePanel: React.FC = () => {
+    const {
+        level,
+        creatures,
+        floorItems,
+        projectiles,
+        activePoisonClouds,
+        hydratedLevels,
+        pendingGeneratorSpawns,
+        gamePhase,
+        paused,
+    } = useStore(useShallow((state) => ({
+        level: state.level,
+        creatures: state.creatures,
+        floorItems: state.floorItems,
+        projectiles: state.projectiles,
+        activePoisonClouds: state.activePoisonClouds,
+        hydratedLevels: state.hydratedLevels,
+        pendingGeneratorSpawns: state.pendingGeneratorSpawns,
+        gamePhase: state.gamePhase,
+        paused: state.paused,
+    })));
+
+    const [snapshot, setSnapshot] = useState<DevPerformanceSnapshot>({
+        fps: null,
+        frameMs: null,
+        heapUsedMb: null,
+    });
+
+    useEffect(() => {
+        let rafId = 0;
+        let cancelled = false;
+        let lastTs: number | null = null;
+        let lastCommitTs = 0;
+        const samples: number[] = [];
+        const MAX_SAMPLES = 45;
+
+        const readHeapUsedMb = () => {
+            type PerformanceWithMemory = Performance & {
+                memory?: {
+                    usedJSHeapSize?: number;
+                };
+            };
+            const memory = (performance as PerformanceWithMemory).memory;
+            const bytes = memory?.usedJSHeapSize;
+            return typeof bytes === 'number' ? Math.round((bytes / (1024 * 1024)) * 10) / 10 : null;
+        };
+
+        const tick = (ts: number) => {
+            if (cancelled) return;
+
+            if (lastTs !== null) {
+                const deltaMs = ts - lastTs;
+                if (Number.isFinite(deltaMs) && deltaMs > 0) {
+                    samples.push(deltaMs);
+                    if (samples.length > MAX_SAMPLES) samples.shift();
+                }
+            }
+            lastTs = ts;
+
+            if ((ts - lastCommitTs) >= 500) {
+                const averageFrameMs = samples.length > 0
+                    ? samples.reduce((sum, value) => sum + value, 0) / samples.length
+                    : null;
+                setSnapshot({
+                    frameMs: averageFrameMs !== null ? Math.round(averageFrameMs * 10) / 10 : null,
+                    fps: averageFrameMs !== null && averageFrameMs > 0
+                        ? Math.round((1000 / averageFrameMs) * 10) / 10
+                        : null,
+                    heapUsedMb: readHeapUsedMb(),
+                });
+                lastCommitTs = ts;
+            }
+
+            rafId = window.requestAnimationFrame(tick);
+        };
+
+        rafId = window.requestAnimationFrame(tick);
+        return () => {
+            cancelled = true;
+            window.cancelAnimationFrame(rafId);
+        };
+    }, []);
+
+    const counts = useMemo(() => {
+        let aliveCreatures = 0;
+        let creaturesOnLevel = 0;
+        let aliveCreaturesOnLevel = 0;
+        for (const creature of creatures) {
+            if (creature.alive) aliveCreatures += 1;
+            if (creature.mapIndex !== level) continue;
+            creaturesOnLevel += 1;
+            if (creature.alive) aliveCreaturesOnLevel += 1;
+        }
+
+        let floorItemsOnLevel = 0;
+        for (const item of floorItems) {
+            if (item.mapIndex === level) floorItemsOnLevel += 1;
+        }
+
+        let projectilesOnLevel = 0;
+        for (const projectile of projectiles) {
+            if (projectile.level === level) projectilesOnLevel += 1;
+        }
+
+        let poisonCloudsOnLevel = 0;
+        for (const cloud of activePoisonClouds) {
+            if (cloud.level === level) poisonCloudsOnLevel += 1;
+        }
+
+        let pendingSpawnsOnLevel = 0;
+        for (const spawn of pendingGeneratorSpawns) {
+            if (
+                spawn &&
+                typeof spawn === 'object' &&
+                'level' in spawn &&
+                typeof spawn.level === 'number' &&
+                spawn.level === level
+            ) {
+                pendingSpawnsOnLevel += 1;
+            }
+        }
+
+        const hydratedLevelList = [...hydratedLevels].sort((left, right) => left - right);
+        return {
+            aliveCreatures,
+            creaturesOnLevel,
+            aliveCreaturesOnLevel,
+            floorItemsOnLevel,
+            projectilesOnLevel,
+            poisonCloudsOnLevel,
+            pendingSpawnsOnLevel,
+            hydratedLevelList,
+        };
+    }, [activePoisonClouds, creatures, floorItems, hydratedLevels, level, pendingGeneratorSpawns, projectiles]);
+
+    return (
+        <div
+            style={{
+                position: 'fixed',
+                top: 12,
+                right: 12,
+                zIndex: 420,
+                minWidth: 220,
+                padding: '8px 10px',
+                borderRadius: 8,
+                background: 'rgba(8, 10, 14, 0.82)',
+                border: '1px solid rgba(186, 162, 108, 0.35)',
+                color: '#d9c89a',
+                fontFamily: '"Courier New", monospace',
+                fontSize: 11,
+                lineHeight: 1.35,
+                whiteSpace: 'pre-line',
+                pointerEvents: 'none',
+                userSelect: 'text',
+                boxShadow: '0 6px 20px rgba(0,0,0,0.28)',
+            }}
+        >
+            {[
+                `DEV PERF | lvl ${level} | ${gamePhase}${paused ? ' (paused)' : ''}`,
+                `fps ${snapshot.fps?.toFixed(1) ?? '--'} | frame ${snapshot.frameMs?.toFixed(1) ?? '--'} ms | heap ${snapshot.heapUsedMb?.toFixed(1) ?? '--'} MB`,
+                `creatures ${counts.aliveCreatures}/${creatures.length} alive | here ${counts.aliveCreaturesOnLevel}/${counts.creaturesOnLevel}`,
+                `floor items ${floorItems.length} total | here ${counts.floorItemsOnLevel}`,
+                `projectiles ${projectiles.length} total | here ${counts.projectilesOnLevel}`,
+                `poison clouds ${activePoisonClouds.length} total | here ${counts.poisonCloudsOnLevel}`,
+                `pending spawns ${pendingGeneratorSpawns.length} total | here ${counts.pendingSpawnsOnLevel}`,
+                `hydrated ${hydratedLevels.size}: [${counts.hydratedLevelList.join(', ')}]`,
+            ].join('\n')}
+        </div>
+    );
+};
+
 // Combat grid
 const CombatGrid: React.FC<{
     party: Champion[];
@@ -56,8 +237,11 @@ const CombatGrid: React.FC<{
     const [flash, setFlash] = useState([false, false, false, false]);
     const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null);
     const torchBurnStart = useStore((s) => s.torchBurnStart);
+    const paused = useStore((s) => s.paused);
+    const pausedAt = useStore((s) => s.pausedAt ?? null);
     const direction = useStore((s) => s.direction);
     const emptyWeaponImage = itemsPath('hands_1.png');
+    const weaponImageNow = paused && typeof pausedAt === 'number' ? pausedAt : Date.now();
 
     const triggerAttack = (i: number, champ: Champion, attackType?: number) => {
         attackFront(champ.id, attackType);
@@ -110,7 +294,7 @@ const CombatGrid: React.FC<{
                             getWeaponAttackOptions,
                             isThrowAttack: (attack) => attack?.enumName === 'Throw',
                         })?.item;
-                        return weapon ? getEquippedItemImage(weapon, torchBurnStart) : emptyWeaponImage;
+                        return weapon ? getEquippedItemImage(weapon, torchBurnStart, weaponImageNow) : emptyWeaponImage;
                     },
                     resolveWeaponName: (_championId, equipment, facingDirection) => {
                         const weapon = getPreferredCombatItem(equipment, {
@@ -288,6 +472,22 @@ type HeldMovementKey = 'fwd' | 'bck' | 'sl' | 'sr';
 
 const HELD_MOVEMENT_REPEAT_MS = 60;
 const LEVEL_UP_HIGHLIGHT_MS = 30_000;
+const MAX_IMPORTED_SAVE_BYTES = 512 * 1024;
+
+function buildExportedSaveFilename(): string {
+    const now = new Date();
+    const iso = [
+        now.getFullYear().toString().padStart(4, '0'),
+        (now.getMonth() + 1).toString().padStart(2, '0'),
+        now.getDate().toString().padStart(2, '0'),
+    ].join('-');
+    const time = [
+        now.getHours().toString().padStart(2, '0'),
+        now.getMinutes().toString().padStart(2, '0'),
+        now.getSeconds().toString().padStart(2, '0'),
+    ].join('-');
+    return `dungeon-master-remastered-save-${iso}_${time}.dmsave.json`;
+}
 
 function isTextEntryTarget(target: EventTarget | null): boolean {
     const element = target as HTMLElement | null;
@@ -311,6 +511,7 @@ export const HUD = () => {
         championVitals, castSpell: storeCastSpell, lastCastResult,
         championXP, championTemporaryXP, championCombat, attackFront, championEquipment, gameOptions,
         damageEvents, optionsModalOpen, openOptionsModal, closeOptionsModal, setGameOptions,
+        buildSaveExportPayload,
         activeFloorDrag, inventoryFullFeedback, pickupItemToChampion, endFloorDrag, giveItem, giveEquippedItem, equipItem,
         openDoors, openWalls, openPits, openTeleporters, paused, tutorialOverlayActive,
     } = useStore(useShallow((state) => ({
@@ -342,6 +543,7 @@ export const HUD = () => {
         openOptionsModal: state.openOptionsModal,
         closeOptionsModal: state.closeOptionsModal,
         setGameOptions: state.setGameOptions,
+        buildSaveExportPayload: state.buildSaveExportPayload,
         activeFloorDrag: state.activeFloorDrag,
         inventoryFullFeedback: state.inventoryFullFeedback,
         pickupItemToChampion: state.pickupItemToChampion,
@@ -402,6 +604,58 @@ export const HUD = () => {
         setRebindingTarget(null);
         closeOptionsModal();
     }, [closeOptionsModal, setRebindingTarget]);
+    const handleExportSave = useCallback(async () => {
+        try {
+            const payload = buildSaveExportPayload();
+            if (!payload) {
+                return { success: false, message: text.exportSaveUnavailable };
+            }
+            const blob = new Blob([payload], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = buildExportedSaveFilename();
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.setTimeout(() => window.URL.revokeObjectURL(url), 0);
+            return { success: true, message: text.exportSaveSuccess };
+        } catch {
+            return { success: false, message: text.exportSaveUnavailable };
+        }
+    }, [buildSaveExportPayload, text.exportSaveSuccess, text.exportSaveUnavailable]);
+    const handleImportSave = useCallback(async (file: File) => {
+        try {
+            if (file.size > MAX_IMPORTED_SAVE_BYTES) {
+                return {
+                    success: false,
+                    message: text.importSaveTooLarge(Math.round(MAX_IMPORTED_SAVE_BYTES / 1024)),
+                };
+            }
+            const payload = await file.text();
+            const result = importPersistedSave(payload);
+            if (result.kind === 'success') {
+                return { success: true, message: text.importSaveSuccess };
+            }
+            if (result.kind === 'incompatible') {
+                return {
+                    success: false,
+                    message: text.importSaveIncompatible(
+                        result.savedBuildVersion,
+                        result.savedSchemaVersion,
+                        result.currentBuildVersion,
+                        result.currentSchemaVersion,
+                    ),
+                };
+            }
+            return {
+                success: false,
+                message: result.kind === 'storage_failed' ? text.importSaveStorageFailed : text.importSaveCorrupt,
+            };
+        } catch {
+            return { success: false, message: text.importSaveCorrupt };
+        }
+    }, [text]);
     useEffect(() => {
         const previousStep = previousPartyStepRef.current;
         if (didPartyTakeSingleStep({
@@ -890,6 +1144,8 @@ export const HUD = () => {
 
             <div style={{ flex: 1 }} />
 
+            {DEV_PERF_PANEL_ENABLED && <DevPerformancePanel />}
+
             {/* Debug */}
             <div style={{ fontSize: 10, color: '#993322', fontFamily: 'monospace', textAlign: 'center', opacity: 0.6 }}>
                 {text.debugPrimary(
@@ -919,6 +1175,8 @@ export const HUD = () => {
                     keybindings={gameOptions.keybindings}
                     rebindingTarget={rebindingTarget}
                     onClose={handleCloseOptionsModal}
+                    onExportSave={handleExportSave}
+                    onImportSave={handleImportSave}
                     onToggleBinding={(target) => {
                         setRebindingTarget((current) =>
                             current?.action === target.action && current.slot === target.slot ? null : target,

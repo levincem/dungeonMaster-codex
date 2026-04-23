@@ -31,6 +31,7 @@ import { buildAttackMeleeStatePatch as buildAttackMeleeStatePatchSystem } from '
 import { buildPhysicalProjectileAttackPatch } from './attackPhysicalState';
 import { buildMeleeAttackResolutionPatch } from './meleeAttackResolution';
 import { determineMeleeDamage } from './meleeDamage';
+import { getOriginalThrownObjectExperience } from './originalThrownObjectExperience';
 import { tryBreakFrontDoor as tryBreakFrontDoorSystem } from './frontDoorBreak';
 import { buildSupportedUtilityAttackPatch } from './utilityAttackOrchestration';
 import type { FearUtilityActionResult } from './fearUtilityActions';
@@ -285,12 +286,13 @@ export function buildStoreAttackFrontRuntimePatch<TState extends StoreAttackFron
                         currentEquip,
                         deps.getRequiredAmmoRawClass(currentRightHand ?? undefined),
                     ),
-                    buildAttackXpPatch: () => buildChampionSkillExperiencePatch(
+                    buildAttackXpPatch: (amount) => buildChampionSkillExperiencePatch(
                         targetChampionId,
                         selectedSkill,
-                        selectedAttack.attack.experienceForAttacking,
+                        amount,
                     ),
                     buildAttackResultMessage: deps.buildAttackResultMessage,
+                    getOriginalThrownObjectExperience,
                 },
             ),
             buildSupportedUtilityAttackPatch: ({
@@ -485,7 +487,6 @@ export function buildStoreAttackFrontRuntimePatch<TState extends StoreAttackFron
                                         skill,
                                         amount,
                                     ),
-                                getCreatureKillXp: (typeId: number) => deps.getCreatureDef(typeId)?.exp ?? 0,
                                 dropCreatureCarriedItems: deps.dropCreatureCarriedItems,
                                 buildCreatureDamageEvent: deps.buildCreatureDamageEvent,
                                 buildDeathDustEvent: deps.buildDeathDustEvent,

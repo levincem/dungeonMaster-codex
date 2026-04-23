@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ageTimedEffectsState } from '../src/engine/systems/timedEffectsState.js';
+import { ageTimedEffectsState, shiftRealtimeLightEffectsState } from '../src/engine/systems/timedEffectsState.js';
 
 test('ageTimedEffectsState shifts timers back and prunes expired entries', () => {
     const patch = ageTimedEffectsState(
@@ -35,4 +35,21 @@ test('ageTimedEffectsState shifts timers back and prunes expired entries', () =>
     assert.equal(patch.magicVisionUntil, 300);
     assert.equal(patch.seeThroughWallsUntil, 200);
     assert.equal(patch.footprintsUntil, 100);
+});
+
+test('shiftRealtimeLightEffectsState moves torch and spell-light timers forward after a pause', () => {
+    const patch = shiftRealtimeLightEffectsState(
+        {
+            torchBurnStart: { torch: 1000 },
+            spellLights: [
+                { id: 'light', lightContrib: 1, expiresAt: 3000 },
+            ],
+        },
+        750,
+    );
+
+    assert.deepEqual(patch.torchBurnStart, { torch: 1750 });
+    assert.deepEqual(patch.spellLights, [
+        { id: 'light', lightContrib: 1, expiresAt: 3750 },
+    ]);
 });

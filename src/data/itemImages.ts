@@ -79,10 +79,10 @@ export const TORCH_STATE_IMAGES = [
  * Return the correct torch image for a given item id and the torchBurnStart map.
  * Falls back to torch_lit if the torch has not been lit yet.
  */
-export function getTorchImage(itemId: string, torchBurnStart: Record<string, number>): string {
+export function getTorchImage(itemId: string, torchBurnStart: Record<string, number>, now = Date.now()): string {
     const litAt = torchBurnStart[itemId];
     if (litAt === undefined) return ITEM_BASE + 'torch_lit.png';
-    const elapsed = Date.now() - litAt;
+    const elapsed = now - litAt;
     const idx = elapsed >= ORIGINAL_TORCH_LIFETIME_MS
         ? 0
         : getOriginalTorchStateIndex(elapsed);
@@ -94,8 +94,8 @@ export function getInventoryItemImage(item: FloorItem): string {
     return getFloorItemImage(item);
 }
 
-export function getEquippedItemImage(item: FloorItem, torchBurnStart: Record<string, number>): string {
-    if (isTorchItem(item)) return getTorchImage(item.id, torchBurnStart);
+export function getEquippedItemImage(item: FloorItem, torchBurnStart: Record<string, number>, now = Date.now()): string {
+    if (isTorchItem(item)) return getTorchImage(item.id, torchBurnStart, now);
     return getFloorItemImage(item);
 }
 

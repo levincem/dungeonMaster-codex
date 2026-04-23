@@ -132,3 +132,47 @@ test('buildSleepFramePatch forwards the frame time to timed-effects aging', () =
 
     assert.equal(capturedNow, 4321);
 });
+
+test('buildSleepFramePatch feeds the advanced state into later sleep-frame stages', () => {
+    const state: SleepTestState = {
+        sleeping: true,
+        pendingSensorEvents: [],
+        pendingGeneratorSpawns: [],
+        championVitals: { 1: { hp: 10 }, 2: { hp: 20 } },
+        championTemporaryXP: { 1: { wizard: 1 }, 2: { wizard: 0 } },
+    };
+
+    const patch = buildSleepFramePatch(
+        state,
+        1000,
+        {
+            advanceSurvivalTime: () => ({
+                championVitals: { 1: { hp: 12 }, 2: { hp: 24 } },
+                championTemporaryXP: { 1: { wizard: 0 }, 2: { wizard: 0 } },
+                elapsedGameTimeTicks: 5,
+                lastSurvivalEffectGameTick: 4,
+                freezeLifeRemainingTicks: 2,
+                advancedMs: 1000,
+            }),
+            ageTimedEffectsByMs: () => ({}),
+            processPendingSensorEvents: (_deltaSeconds, sleepState) => {
+                assert.deepEqual(sleepState.championVitals, { 1: { hp: 12 }, 2: { hp: 23 } });
+                return { sensorChanges: {}, pendingSensorEvents: [] };
+            },
+            processPendingGeneratorSpawns: () => ({
+                sensorChanges: {},
+                pendingGeneratorSpawns: [],
+            }),
+            applyCombatTick: (sleepState) => ({
+                championVitals: {
+                    ...sleepState.championVitals,
+                    2: { hp: sleepState.championVitals[2]!.hp - 1 },
+                },
+            }),
+            isPartyRested: () => false,
+        },
+    );
+
+    assert.ok(patch);
+    assert.deepEqual(patch?.championVitals, { 1: { hp: 12 }, 2: { hp: 23 } });
+});

@@ -193,12 +193,14 @@ export const FootprintLayer: React.FC = () => {
 export const CreaturesLayer: React.FC = () => {
     const creatures = useStore((state) => state.creatures);
     const level = useStore((state) => state.level);
+    const visibleCreatures = useMemo(
+        () => creatures.filter((creature) => creature.alive && creature.mapIndex === level),
+        [creatures, level],
+    );
 
     return (
         <>
-            {creatures
-                .filter((creature) => creature.alive && creature.mapIndex === level)
-                .map((creature) => <CreatureSprite key={creature.id} creature={creature} />)}
+            {visibleCreatures.map((creature) => <CreatureSprite key={creature.id} creature={creature} />)}
         </>
     );
 };
@@ -209,6 +211,15 @@ export const DamageLayer: React.FC = () => {
     const creatures = useStore((state) => state.creatures);
     const direction = useStore((state) => state.direction);
     const now = useWallClock(33);
+    const currentLevelCreatureById = useMemo(() => {
+        const byId = new Map<string, typeof creatures[number]>();
+        for (const creature of creatures) {
+            if (creature.alive && creature.mapIndex === level) {
+                byId.set(creature.id, creature);
+            }
+        }
+        return byId;
+    }, [creatures, level]);
 
     return (
         <>
@@ -222,7 +233,7 @@ export const DamageLayer: React.FC = () => {
                     }
                     const progress = Math.min(1, Math.max(0, now - event.ts) / DAMAGE_EVENT_LIFETIME_MS);
                     const creature = event.creatureId
-                        ? creatures.find((entry) => entry.alive && entry.mapIndex === level && entry.id === event.creatureId)
+                        ? currentLevelCreatureById.get(event.creatureId)
                         : undefined;
                     const [offsetX, offsetZ]: [number, number] = creature
                         ? getCreatureCellOffsetXZ(direction, creature.cell)
@@ -261,13 +272,16 @@ export const FloorItemsLayer: React.FC = () => {
     const party = useStore((state) => state.party);
     const selectedChampionId = party[selectedChampionIndex]?.id ?? party[0]?.id ?? null;
     const map = getGameMap(level);
+    const currentLevelCreatureKeys = useMemo(
+        () => creatures.filter((creature) => creature.alive && creature.mapIndex === level),
+        [creatures, level],
+    );
     const occupiedFloorKeys = useMemo(
         () => new Set(
-            creatures
-                .filter((creature) => creature.alive && creature.mapIndex === level)
+            currentLevelCreatureKeys
                 .map((creature) => `${creature.x},${creature.y}`),
         ),
-        [creatures, level],
+        [currentLevelCreatureKeys],
     );
 
     const isMirrorTile = (item: FloorItem) => MIRROR_WALL_MAP.has(`${level},${item.x},${item.y}`);

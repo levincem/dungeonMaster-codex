@@ -112,6 +112,7 @@ export function createStoreCreatureSpatialRuntime(
         map: GameMap,
         level: number,
         openDoors: Set<string>,
+        openWalls: Set<string>,
         ax: number,
         ay: number,
         bx: number,
@@ -126,7 +127,8 @@ export function createStoreCreatureSpatialRuntime(
             const cx = Math.round(ax + ((dx * i) / steps));
             const cy = Math.round(ay + ((dy * i) / steps));
             const tile = map.tiles[cy]?.[cx];
-            if (!tile || tile.type === 'Wall' || tile.type === 'TrickWall') return false;
+            if (!tile || tile.type === 'Wall') return false;
+            if (tile.type === 'TrickWall' && !openWalls.has(`${level},${cy},${cx}`)) return false;
             if (tile.type !== 'Door') continue;
             if (openDoors.has(`${level},${cy},${cx}`)) continue;
             if (doorBlocksVision(getDoorObject(tile)?.doorType)) return false;

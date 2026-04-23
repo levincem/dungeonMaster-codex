@@ -42,20 +42,51 @@ export function buildSleepFramePatch<TState extends SleepFrameStateBase>(
     if (!state.sleeping) return null;
 
     const advanced = deps.advanceSurvivalTime(state, 1);
-    const timedEffects = deps.ageTimedEffectsByMs(state, advanced.advancedMs, now);
-    const pendingPatch = deps.processPendingSensorEvents(advanced.advancedMs / 1000, state);
-    const generatorPatch = deps.processPendingGeneratorSpawns(advanced.advancedMs / 1000, state);
-    const hasPendingPatch =
-        Object.keys(pendingPatch.sensorChanges).length > 0 ||
-        pendingPatch.pendingSensorEvents !== state.pendingSensorEvents;
-    const hasGeneratorPatch =
-        Object.keys(generatorPatch.sensorChanges).length > 0 ||
-        generatorPatch.pendingGeneratorSpawns !== state.pendingGeneratorSpawns;
-    const combatPatch = deps.applyCombatTick(state, 0, now);
-    const restedState = {
+    const advancedState = {
         ...state,
         championVitals: advanced.championVitals,
         championTemporaryXP: advanced.championTemporaryXP,
+        elapsedGameTimeTicks: advanced.elapsedGameTimeTicks,
+        lastSurvivalEffectGameTick: advanced.lastSurvivalEffectGameTick,
+        freezeLifeRemainingTicks: advanced.freezeLifeRemainingTicks,
+    };
+    const timedEffects = deps.ageTimedEffectsByMs(advancedState as TState, advanced.advancedMs, now);
+    const afterTimedEffects = {
+        ...advancedState,
+        ...timedEffects,
+    };
+    const combatPatch = deps.applyCombatTick(afterTimedEffects as TState, 0, now);
+    const afterCombat = combatPatch
+        ? {
+            ...afterTimedEffects,
+            ...combatPatch,
+        }
+        : afterTimedEffects;
+    const pendingPatch = deps.processPendingSensorEvents(advanced.advancedMs / 1000, afterCombat as TState);
+    const afterPending = {
+        ...afterCombat,
+        ...(Object.keys(pendingPatch.sensorChanges).length > 0
+            ? pendingPatch.sensorChanges
+            : {}),
+        ...(pendingPatch.pendingSensorEvents !== afterCombat.pendingSensorEvents
+            ? { pendingSensorEvents: pendingPatch.pendingSensorEvents }
+            : {}),
+    };
+    const generatorPatch = deps.processPendingGeneratorSpawns(advanced.advancedMs / 1000, afterPending as TState);
+    const hasPendingPatch =
+        Object.keys(pendingPatch.sensorChanges).length > 0 ||
+        pendingPatch.pendingSensorEvents !== afterCombat.pendingSensorEvents;
+    const hasGeneratorPatch =
+        Object.keys(generatorPatch.sensorChanges).length > 0 ||
+        generatorPatch.pendingGeneratorSpawns !== afterPending.pendingGeneratorSpawns;
+    const restedState = {
+        ...afterPending,
+        ...(hasGeneratorPatch
+            ? {
+                ...generatorPatch.sensorChanges,
+                pendingGeneratorSpawns: generatorPatch.pendingGeneratorSpawns,
+            }
+            : {}),
     };
 
     return {

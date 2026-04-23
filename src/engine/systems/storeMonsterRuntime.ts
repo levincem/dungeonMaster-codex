@@ -71,6 +71,7 @@ export function createStoreMonsterTickRuntimeState<TState extends MonsterTickRun
         openDoors: state.openDoors,
         openPits: state.openPits,
         openTeleporters: state.openTeleporters,
+        openWalls: state.openWalls,
         sleeping: state.sleeping,
         freezeLifeRemainingTicks: state.freezeLifeRemainingTicks,
         lastCreatureAttackGameTick: state.lastCreatureAttackGameTick,

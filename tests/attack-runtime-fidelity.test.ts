@@ -31,6 +31,7 @@ import type {
 } from '../src/engine/runtimeTypes.js';
 import { createEmptyStatBonuses } from '../src/engine/systems/championRuntimeBonuses.js';
 import { buildStoreAttackFrontRuntimePatch } from '../src/engine/systems/storeAttackFrontRuntime.js';
+import { getOriginalThrownObjectExperience } from '../src/engine/systems/originalThrownObjectExperience.js';
 
 function createChampion(id: number): Champion {
     return {
@@ -238,6 +239,7 @@ function createDeps<TState extends ReturnType<typeof createState>>(state: TState
             maxLoad: 0,
         }),
         randomInt: () => 0,
+        getOriginalThrownObjectExperience,
         isCharacterLuckyOriginal: () => false,
         computeOriginalQuicknessRuntime: () => 16,
         isLikelyNonMaterial: () => false,
@@ -253,8 +255,8 @@ test('store attack runtime preserves source-backed throw XP and skill through th
     const patch = buildStoreAttackFrontRuntimePatch(state, 1, undefined, createDeps(state));
 
     assert.ok(patch, 'expected a projectile patch for Throwing Star');
-    assert.equal(patch?.championXP?.[1]?.throw, 5);
-    assert.equal(patch?.championTemporaryXP?.[1]?.throw, 5);
+    assert.equal(patch?.championXP?.[1]?.throw, 21);
+    assert.equal(patch?.championTemporaryXP?.[1]?.throw, 21);
     assert.equal(patch?.projectiles?.length, 1, 'throwing attack should still create a projectile');
 });
 

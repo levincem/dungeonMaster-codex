@@ -100,6 +100,20 @@ function createCreature(): CreatureInstance {
     };
 }
 
+function createDeadCreature(): CreatureInstance {
+    return {
+        id: 'creature-dead',
+        groupId: 'group-dead',
+        typeId: 2,
+        mapIndex: 0,
+        x: 7,
+        y: 8,
+        currentHP: 0,
+        alive: false,
+        cell: 'backRight',
+    };
+}
+
 function createProjectile(nextMoveAt: number, physicalItem: FloorItem): Projectile {
     return {
         id: 'projectile-1',
@@ -327,6 +341,27 @@ test('buildPersistedSaveData serializes runtime state in a stable shape', () => 
     }
 });
 
+test('buildPersistedSaveData compacts dead creatures and their timers out of saves', () => {
+    const now = 11_000;
+    const originalNow = Date.now;
+    Date.now = () => now;
+
+    try {
+        const state = createState(now);
+        state.creatures = [...state.creatures, createDeadCreature()];
+        const runtime = createRuntimeMaps(now);
+        runtime.creatureTimers.set('creature-dead', { mt: 5, at: 6 });
+        runtime.creatureAttackWindows.set('creature-dead', now + 700);
+
+        const persisted = buildPersistedSaveData(state, runtime);
+
+        assert.deepEqual(persisted.creatures.map((creature) => creature.id), ['creature-1']);
+        assert.equal(persisted.creatureTimers['creature-dead'], undefined);
+    } finally {
+        Date.now = originalNow;
+    }
+});
+
 test('inspectPersistedSaveData rejects saves with invalid integrity', () => {
     const raw = JSON.stringify({
         version: 2,
@@ -406,6 +441,50 @@ test('restoreExternalCreatureRuntimeFromSave rebuilds creature runtime maps', ()
             y: 13,
             expiresAt: now + 5500,
         });
+    } finally {
+        Date.now = originalNow;
+    }
+});
+
+test('hydratePersistedGameState and runtime restore drop dead creatures from older saves', () => {
+    const now = 21_000;
+    const originalNow = Date.now;
+    Date.now = () => now;
+
+    try {
+        const state = createState(now);
+        const runtime = createRuntimeMaps(now);
+        const persisted = buildPersistedSaveData(state, runtime);
+        persisted.creatures = [...persisted.creatures, createDeadCreature()];
+        persisted.creatureTimers['creature-dead'] = {
+            moveRemaining: 5,
+            attackRemaining: 6,
+            attackWindowRemainingMs: 700,
+            confusedRemainingMs: 0,
+            fluxcageRemainingMs: 0,
+            frightenedRemainingMs: 0,
+            lastSeenPartyX: 1,
+            lastSeenPartyY: 2,
+            lastSeenPartyRemainingMs: 900,
+        };
+
+        const hydrated = hydratePersistedGameState(persisted, now);
+        assert.deepEqual(hydrated.creatures.map((creature) => creature.id), ['creature-1']);
+
+        const restored: CreatureRuntimeMaps = {
+            creatureTimers: new Map(),
+            creatureAttackWindows: new Map(),
+            creatureConfusedUntil: new Map(),
+            creatureFluxcageUntil: new Map(),
+            creatureFrightenedUntil: new Map(),
+            creatureLastSeenPartyPos: new Map(),
+        };
+
+        restoreExternalCreatureRuntimeFromSave(persisted, restored);
+
+        assert.equal(restored.creatureTimers.has('creature-dead'), false);
+        assert.equal(restored.creatureAttackWindows.has('creature-dead'), false);
+        assert.equal(restored.creatureLastSeenPartyPos.has('creature-dead'), false);
     } finally {
         Date.now = originalNow;
     }

@@ -67,6 +67,7 @@ export type StoreBootstrapState = {
     movementCooldown: number;
     sleeping: boolean;
     paused: boolean;
+    pausedAt?: number | null;
     lastMonsterAttackDebug: null;
     endgameSequence: null;
     lastCastResult: null;
@@ -155,6 +156,7 @@ export function createStoreBootstrapRuntime(
         movementCooldown: 0,
         sleeping: false,
         paused: false,
+        pausedAt: null,
         lastMonsterAttackDebug: null,
         endgameSequence: null,
         lastCastResult: null,

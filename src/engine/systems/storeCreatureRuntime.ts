@@ -51,3 +51,20 @@ export function clearCreatureControlStatuses(): void {
     creatureConfusedUntil.clear();
     creatureFrightenedUntil.clear();
 }
+
+export function pruneExternalCreatureRuntimeState(livingCreatureIds: ReadonlySet<string>): void {
+    const pruneMap = <T>(map: Map<string, T>) => {
+        for (const id of map.keys()) {
+            if (!livingCreatureIds.has(id)) {
+                map.delete(id);
+            }
+        }
+    };
+
+    pruneMap(creatureTimers);
+    pruneMap(creatureAttackWindows);
+    pruneMap(creatureConfusedUntil);
+    pruneMap(creatureFluxcageUntil);
+    pruneMap(creatureFrightenedUntil);
+    pruneMap(creatureLastSeenPartyPos);
+}

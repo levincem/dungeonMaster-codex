@@ -82,23 +82,24 @@ docs/
 
 ## Credits
 
-Original game:
+Thanks to:
 
-- FTL Games
-- Doug Bell
-- Wayne Holder
-- Nancy Holder
-- Dennis Walker
-- Mike Newton
-- Tsukasa Tawada
-- Andrew Jaros
+The original team:
 
-Preservation / reverse-engineering references:
+- Publisher: FTL Games
+- Director: Doug Bell
+- Producer: Wayne Holder
+- Designer: Doug Bell
+- Programmers: Doug Bell, Dennis Walker, Mike Newton
+- Artist: Andrew Jaros
+- Composer: Wayne Holder
+
+The fans and preservation community:
 
 - the [Dungeon Master community](https://www.dungeon-master.com/forum/)
 - the [Dungeon Master Encyclopaedia](http://dmweb.free.fr/)
 - the [ReDMCSB](https://github.com/gondur/ReDMCSB_Release2) project by Christophe Fontanel
-- the [Dungeon Master: Swoosh Construction Kit by Pierre Monnot](http://greatstone.free.fr)
+- the Swoosh Construction Kit ecosystem and related reverse-engineering tools
 
 ## Intent
 

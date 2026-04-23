@@ -55,11 +55,8 @@ export function buildStoreToggleDoorPatch<
 ): Partial<TState> | TState {
     const key = `${state.level},${y},${x}`;
     if (state.brokenDoors.has(key)) return state;
+    if (!deps.hasDoorButton(state.level, x, y)) return state;
     const next = new Set(state.openDoors);
-
-    if (!deps.hasDoorButton(state.level, x, y) && deps.isDoorControlledByMechanism(state.level, x, y)) {
-        return state;
-    }
 
     if (!next.has(key)) {
         if (deps.isDoorLockedByWallSensor(state.level, x, y)) {

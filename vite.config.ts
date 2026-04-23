@@ -4,7 +4,13 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  optimizeDeps: {
+    // Keep Photons2 out of the dev prebundle so its `three` import goes
+    // through the same alias/dedupe path as the rest of the app.
+    exclude: ['photons2'],
+  },
   resolve: {
+    dedupe: ['three'],
     alias: [
       {
         find: /^three$/,
@@ -19,14 +25,6 @@ export default defineConfig({
           const normalizedId = id.replace(/\\/g, '/')
 
           if (normalizedId.includes('/node_modules/')) {
-            if (
-              normalizedId.includes('/react/') ||
-              normalizedId.includes('/react-dom/') ||
-              normalizedId.includes('/scheduler/')
-            ) {
-              return 'react-vendor'
-            }
-
             if (
               normalizedId.includes('/three/')
             ) {

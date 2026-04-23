@@ -5,6 +5,7 @@ import type { ChampionEquipment, CreatureInstance, FloorItem } from '../src/type
 import type { ChampionVitals, GameOptions } from '../src/engine/runtimeTypes.js';
 import {
     buildKillCreaturePatch,
+    buildPruneDeadCreaturesPatch,
     buildSetGameOptionsPatch,
     buildStoreKillChampionPatch,
     buildTogglePausePatch,
@@ -131,6 +132,31 @@ test('buildKillCreaturePatch marks the creature dead and returns dropped items',
     assert.deepEqual(patch.floorItems, [
         { id: 'loot', category: 'Weapon', typeId: 1, mapIndex: 0, x: 0, y: 0, tilePos: 'North' },
     ]);
+});
+
+test('buildPruneDeadCreaturesPatch drops dead creatures once their gameplay effects are resolved', () => {
+    const state = {
+        creatures: [
+            { id: 'creature-1', alive: true } as CreatureInstance,
+            { id: 'creature-2', alive: false } as CreatureInstance,
+            { id: 'creature-3', alive: true } as CreatureInstance,
+        ],
+        floorItems: [] as FloorItem[],
+    };
+
+    assert.deepEqual(buildPruneDeadCreaturesPatch(state), {
+        creatures: [
+            { id: 'creature-1', alive: true },
+            { id: 'creature-3', alive: true },
+        ],
+    });
+    assert.equal(
+        buildPruneDeadCreaturesPatch({
+            ...state,
+            creatures: state.creatures.filter((creature) => creature.alive),
+        }),
+        null,
+    );
 });
 
 test('buildStoreKillChampionPatch only delegates for champions already at zero hp', () => {

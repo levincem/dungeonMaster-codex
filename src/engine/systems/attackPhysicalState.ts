@@ -74,8 +74,9 @@ type PhysicalAttackDeps = {
     buildDroppedItem: (item: FloorItem, level: number, x: number, y: number) => FloorItem;
     randomInt: (maxExclusive: number) => number;
     findAmmo: (equip: ChampionEquipment, rightHand: FloorItem | null | undefined) => AmmoMatch;
-    buildAttackXpPatch: () => ProjectileAttackXpPatch | null;
+    buildAttackXpPatch: (amount: number) => ProjectileAttackXpPatch | null;
     buildAttackResultMessage: (message: string, success?: boolean) => AttackResultMessage;
+    getOriginalThrownObjectExperience: (item: FloorItem, descriptor: WeaponDescriptor) => number;
 };
 
 export function buildPhysicalProjectileAttackPatch(
@@ -91,6 +92,7 @@ export function buildPhysicalProjectileAttackPatch(
 ) {
     if (deps.isThrowAttack(action) && attackItem && attackItemSlot) {
         const descriptor = deps.getOriginalWeaponReference(attackItem);
+        const thrownObjectExperience = deps.getOriginalThrownObjectExperience(attackItem, descriptor);
         const projectile = buildThrownAttackProjectile(
             {
                 champion,
@@ -120,7 +122,7 @@ export function buildPhysicalProjectileAttackPatch(
             championVitals: state.championVitals,
             championEquipment: state.championEquipment,
             nextEquip: { ...equip, [attackItemSlot]: undefined },
-            attackXpPatch: deps.buildAttackXpPatch(),
+            attackXpPatch: deps.buildAttackXpPatch(action.attack.experienceForAttacking + thrownObjectExperience),
             projectiles: state.projectiles,
             projectile,
             displayName: action.displayName,
@@ -160,7 +162,7 @@ export function buildPhysicalProjectileAttackPatch(
         championVitals: state.championVitals,
         championEquipment: state.championEquipment,
         nextEquip: { ...equip, [ammo.slot]: undefined },
-        attackXpPatch: deps.buildAttackXpPatch(),
+        attackXpPatch: deps.buildAttackXpPatch(action.attack.experienceForAttacking),
         projectiles: state.projectiles,
         projectile,
         displayName: action.displayName,

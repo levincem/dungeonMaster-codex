@@ -183,6 +183,11 @@ export function resolveProjectileTeleporterTransport(
         if (visited.has(loopKey)) break;
         visited.add(loopKey);
 
+        const destinationIsTeleporterTarget =
+            nextLevel === teleporter.destMap &&
+            nextX === teleporter.destX &&
+            nextY === teleporter.destY;
+
         nextDirection = getTeleporterRotationDirection(
             nextLevel,
             nextX,
@@ -194,6 +199,8 @@ export function resolveProjectileTeleporterTransport(
         nextLevel = teleporter.destMap;
         nextX = teleporter.destX;
         nextY = teleporter.destY;
+
+        if (destinationIsTeleporterTarget) break;
     }
 
     return {
@@ -239,6 +246,11 @@ export function resolveCreatureTeleporterTransport(
         if (visited.has(loopKey)) break;
         visited.add(loopKey);
 
+        const destinationIsTeleporterTarget =
+            nextLevel === teleporter.destMap &&
+            nextX === teleporter.destX &&
+            nextY === teleporter.destY;
+
         const turns = getTeleporterRotationQuarterTurns(
             nextLevel,
             nextX,
@@ -259,6 +271,8 @@ export function resolveCreatureTeleporterTransport(
         nextLevel = teleporter.destMap;
         nextX = teleporter.destX;
         nextY = teleporter.destY;
+
+        if (destinationIsTeleporterTarget) break;
     }
 
     return {

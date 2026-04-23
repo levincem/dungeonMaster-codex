@@ -170,7 +170,6 @@ function createXpDeps() {
                 party: carrier.party,
             };
         },
-        getCreatureKillXp: () => 20,
         dropCreatureCarriedItems: (creatures: CreatureInstance[], floorItems: FloorItem[], creatureId: string) => ({
             creatures,
             floorItems: [...floorItems, { ...droppedItem, id: `drop_${creatureId}` }],
@@ -218,7 +217,7 @@ test('buildMeleeAttackResolutionPatch applies damage without kill rewards when t
     assert.equal(patch.championVitals[1]?.currentStats.strength, 11);
 });
 
-test('buildMeleeAttackResolutionPatch shares kill XP, drops loot and adds death visuals on kill', () => {
+test('buildMeleeAttackResolutionPatch drops loot and adds death visuals on kill without shared kill XP', () => {
     const state = createState();
     const target = createCreature({ currentHP: 25 });
     state.creatures = [target];
@@ -239,6 +238,6 @@ test('buildMeleeAttackResolutionPatch shares kill XP, drops loot and adds death 
     assert.equal(patch.damageEvents.length, 1);
     assert.equal(patch.spellVisualEvents?.length, 1);
     assert.equal(patch.championXP[1]?.swing, 30);
-    assert.equal(patch.championXP[1]?.fighter, 10);
-    assert.equal(patch.championXP[2]?.fighter, 10);
+    assert.equal(patch.championXP[1]?.fighter, 0);
+    assert.equal(patch.championXP[2]?.fighter, 0);
 });

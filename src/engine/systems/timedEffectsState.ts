@@ -11,6 +11,30 @@ type TimedEffectsState = {
     footprintsUntil: number;
 };
 
+type LightTimedEffectsState = Pick<TimedEffectsState, 'torchBurnStart' | 'spellLights'>;
+
+export function shiftRealtimeLightEffectsState<TState extends LightTimedEffectsState>(
+    state: TState,
+    shiftMs: number,
+): Pick<LightTimedEffectsState, 'torchBurnStart' | 'spellLights'> {
+    if (shiftMs <= 0) {
+        return {
+            torchBurnStart: state.torchBurnStart,
+            spellLights: state.spellLights,
+        };
+    }
+
+    return {
+        torchBurnStart: Object.fromEntries(
+            Object.entries(state.torchBurnStart).map(([itemId, litAt]) => [itemId, litAt + shiftMs]),
+        ),
+        spellLights: state.spellLights.map((light) => ({
+            ...light,
+            expiresAt: light.expiresAt + shiftMs,
+        })),
+    };
+}
+
 export function ageTimedEffectsState(
     state: TimedEffectsState,
     advanceMs: number,

@@ -83,6 +83,15 @@ export function buildKillCreaturePatch<TState extends KillCreatureStateLike>(
     };
 }
 
+export function buildPruneDeadCreaturesPatch<TState extends KillCreatureStateLike>(
+    state: TState,
+): Pick<TState, 'creatures'> | null {
+    const livingCreatures = state.creatures.filter((creature) => creature.alive);
+    return livingCreatures.length === state.creatures.length
+        ? null
+        : { creatures: livingCreatures };
+}
+
 export function buildStoreKillChampionPatch<
     TState extends KillChampionStateLike,
     TPatch,

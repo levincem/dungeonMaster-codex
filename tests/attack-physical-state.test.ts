@@ -5,6 +5,7 @@ import type { ChampionEquipment, FloorItem } from '../src/types/game.js';
 import type { ChampionCombat, ChampionVitals } from '../src/engine/runtimeTypes.js';
 import type { WeaponAttackOption } from '../src/data/weaponAttacks.js';
 import { buildPhysicalProjectileAttackPatch } from '../src/engine/systems/attackPhysicalState.js';
+import { getOriginalThrownObjectExperience } from '../src/engine/systems/originalThrownObjectExperience.js';
 
 function createChampion(): Champion {
     return {
@@ -151,6 +152,7 @@ const baseDeps = {
     findAmmo: () => null,
     buildAttackXpPatch: () => ({ championXP: { ok: true } }),
     buildAttackResultMessage: (message: string, success = false) => ({ success, message, ts: 1 }),
+    getOriginalThrownObjectExperience,
 };
 
 test('buildPhysicalProjectileAttackPatch resolves throw attacks into a success patch', () => {

@@ -158,12 +158,14 @@ import {
     buildUnequipItemRuntimePatch,
 } from './systems/itemTransferCommandRuntime';
 import {
+    buildStorePersistedSavePayload,
     buildStoreReturnToTitlePatch,
     loadStoreGamePatch,
     saveStoreGame,
 } from './systems/storePersistenceRuntime';
 import {
     buildKillCreaturePatch,
+    buildPruneDeadCreaturesPatch,
     buildSetGameOptionsPatch,
     buildStoreKillChampionPatch,
     buildTogglePausePatch,
@@ -203,7 +205,7 @@ import {
     buildTryOpenGatePatch,
     buildUpdateFloorDragPatch,
 } from './systems/storeUiRuntime';
-import { ageTimedEffectsState } from './systems/timedEffectsState';
+import { ageTimedEffectsState, shiftRealtimeLightEffectsState } from './systems/timedEffectsState';
 import { isOriginalLuckSuccessful } from './systems/originalLuck';
 import { computeOriginalQuickness } from './systems/originalQuickness';
 import {
@@ -237,6 +239,7 @@ import {
     notifyCreatureAction,
     notifyPlateActivated,
     onCreatureAction as onCreatureActionRuntime,
+    pruneExternalCreatureRuntimeState,
     resetExternalCreatureRuntimeState,
     subscribePlateActivated as subscribePlateActivatedRuntime,
 } from './systems/storeCreatureRuntime';
@@ -359,12 +362,14 @@ import {
     updateEquippedItemCharges,
 } from './systems/storeCombatRuntime';
 import type { MonsterDamageClass } from './systems/storeCombatRuntime';
+import { getOriginalThrownObjectExperience } from './systems/originalThrownObjectExperience';
 import {
     applyChampionStaminaDeltaOriginal,
     chooseChampionWoundSlotsFromZones,
     computeOriginalTimeCriteria,
     createStoreChampionStateRuntime,
 } from './systems/storeChampionStateRuntime';
+import { getOriginalWeaponReference } from '../data/weaponAttacks';
 import { createStoreBootstrapRuntime } from './systems/storeBootstrapRuntime';
 import { createStoreCreatureSpatialRuntime } from './systems/storeCreatureSpatialRuntime';
 import { createStoreEndgameRuntime } from './systems/storeEndgameRuntime';
@@ -526,9 +531,8 @@ export function computeLightLevel(
     spellLights: SpellLight[],
     torchBurnStart: Record<string, number>,
     championEquipment: Record<number, import('../types/game').ChampionEquipment>,
+    now = Date.now(),
 ): number {
-    const now = Date.now();
-
     // Torch in any champion's hand that hasn't burnt out
     let torchContrib = 0;
     outer: for (const equip of Object.values(championEquipment)) {
@@ -1639,6 +1643,7 @@ interface GameState {
     movementCooldown: number;
     sleeping: boolean;
     paused: boolean;
+    pausedAt?: number | null;
     lastMonsterAttackDebug: MonsterAttackDebugEntry | null;
     endgameSequence: EndgameSequence | null;
     /** Result of the most recent spell cast attempt */
@@ -1749,6 +1754,7 @@ interface GameState {
     togglePause: () => void;
     enterDungeon: () => void;
     saveGame: () => boolean;
+    buildSaveExportPayload: () => string;
     loadGame: () => boolean;
     returnToTitle: () => void;
     useItemOnFrontWall: (championId: number, itemId: string, fromSlot: EquipSlotKey | 'inventory') => boolean;
@@ -2232,8 +2238,15 @@ function applyFloorItemTeleporterEffects(
                 direction,
                 buildTerrainTransportDeps(),
                 transportKind,
-            ),
+        ),
     });
+}
+
+function applyWallInteractionTeleporterEffects(
+    state: GameState,
+    patch: Partial<GameState> | GameState,
+): Partial<GameState> | GameState {
+    return applyFloorItemTeleporterEffects(state, patch) ?? patch;
 }
 
 const runStoreTickSpellsAction = (state: GameState, now: number) => {
@@ -2694,40 +2707,47 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
     ),
 
     activateWallSensor: (mapIndex, x, y, sensorIndex) => set((state) =>
-        runStoreWallSensorActivationAction<GameState, SensorState, PendingSensorEvent, Partial<GameState>>(
+        applyWallInteractionTeleporterEffects(
             state,
-            mapIndex,
-            x,
-            y,
-            sensorIndex,
-            buildWallSensorActivationDeps,
+            runStoreWallSensorActivationAction<GameState, SensorState, PendingSensorEvent, Partial<GameState>>(
+                state,
+                mapIndex,
+                x,
+                y,
+                sensorIndex,
+                buildWallSensorActivationDeps,
+            ) as Partial<GameState>,
         )
     ),
 
-    useItemOnFrontWall: (championId, itemId, fromSlot) =>
-        runStoreChampionItemOnFrontWallAction<GameState, SensorState, Partial<GameState>>(
-            get(),
+    useItemOnFrontWall: (championId, itemId, fromSlot) => {
+        const state = get();
+        return runStoreChampionItemOnFrontWallAction<GameState, SensorState, Partial<GameState>>(
+            state,
             championId,
             itemId,
             fromSlot,
             buildFrontWallInteractionDeps,
             {
-                applyPatch: (patch) => set(patch),
+                applyPatch: (patch) => set(applyWallInteractionTeleporterEffects(state, patch)),
                 playPlate,
             },
-        ),
+        );
+    },
 
-    useFloorItemOnFrontWall: (itemId, championId) =>
-        runStoreFloorItemOnFrontWallAction<GameState, SensorState, Partial<GameState>>(
-            get(),
+    useFloorItemOnFrontWall: (itemId, championId) => {
+        const state = get();
+        return runStoreFloorItemOnFrontWallAction<GameState, SensorState, Partial<GameState>>(
+            state,
             itemId,
             championId,
             buildFrontWallInteractionDeps,
             {
-                applyPatch: (patch) => set(patch),
+                applyPatch: (patch) => set(applyWallInteractionTeleporterEffects(state, patch)),
                 playPlate,
             },
-        ),
+        );
+    },
 
     useItemOnViAltar: (championId, itemId, fromSlot, altarX, altarY, altarFace) =>
         runStoreOptionalPatchAction(
@@ -2897,8 +2917,21 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 itemId,
                 fromSlot,
                 {
-                    buildThrowXpPatch: (currentState, targetChampionId) =>
-                        buildChampionSkillExperiencePatchOriginal(currentState, targetChampionId, 'throw', 5),
+                    buildThrowXpPatch: (currentState, targetChampionId) => {
+                        const thrownItem = fromSlot === 'inventory'
+                            ? currentState.championInventories[targetChampionId]?.find((entry) => entry.id === itemId)
+                            : currentState.championEquipment[targetChampionId]?.[fromSlot];
+                        if (!thrownItem) return null;
+                        return buildChampionSkillExperiencePatchOriginal(
+                            currentState,
+                            targetChampionId,
+                            'throw',
+                            getOriginalThrownObjectExperience(
+                                thrownItem,
+                                getOriginalWeaponReference(thrownItem),
+                            ),
+                        );
+                    },
                     throwChampionCarriedItem,
                     buildProjectile: (currentState, championId, champion, item) =>
                         buildDragThrowProjectile(currentState, championId, champion, item, {
@@ -2979,8 +3012,19 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                             nowMs: () => Date.now(),
                             getChampionRuntimeBonuses,
                         }),
-                    buildThrowXpPatch: (currentState, targetChampionId) =>
-                        buildChampionSkillExperiencePatchOriginal(currentState, targetChampionId, 'throw', 5),
+                    buildThrowXpPatch: (currentState, targetChampionId) => {
+                        const thrownItem = currentState.floorItems.find((entry) => entry.id === itemId);
+                        if (!thrownItem) return null;
+                        return buildChampionSkillExperiencePatchOriginal(
+                            currentState,
+                            targetChampionId,
+                            'throw',
+                            getOriginalThrownObjectExperience(
+                                thrownItem,
+                                getOriginalWeaponReference(thrownItem),
+                            ),
+                        );
+                    },
                 }),
             (patch) => set(patch),
         ),
@@ -3076,7 +3120,29 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
 
     wakeUp: () => set((state) => buildWakeUpPatch(state) ?? state),
 
-    togglePause: () => set((state) => buildTogglePausePatch(state) ?? state),
+    togglePause: () => set((state) => {
+        const patch = buildTogglePausePatch(state);
+        if (!patch) return state;
+
+        if (!state.paused) {
+            return {
+                ...state,
+                ...patch,
+                pausedAt: Date.now(),
+            };
+        }
+
+        const now = Date.now();
+        const pausedAt = state.pausedAt ?? now;
+        const pausedDurationMs = Math.max(0, now - pausedAt);
+
+        return {
+            ...state,
+            ...patch,
+            ...shiftRealtimeLightEffectsState(state, pausedDurationMs),
+            pausedAt: null,
+        };
+    }),
 
     // ─── Potion rune → typeId mapping (spell runes without power rune) ──────────
     // Source: canonical runtime potion table in src/data/items.ts
@@ -3092,6 +3158,11 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
     saveGame: (): boolean => {
         const state: GameState = get();
         return saveStoreGame(state, buildStorePersistenceRuntimeMaps(), writePersistedSave);
+    },
+
+    buildSaveExportPayload: (): string => {
+        const state: GameState = get();
+        return buildStorePersistedSavePayload(state, buildStorePersistenceRuntimeMaps());
     },
 
     loadGame: (): boolean =>
@@ -3156,6 +3227,12 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 ) as Partial<GameState> | null | undefined,
             );
             nextState = applyPatch(nextState, runStoreTickSpellsAction(nextState, now));
+        }
+
+        const pruneDeadCreaturesPatch = buildPruneDeadCreaturesPatch(nextState);
+        if (pruneDeadCreaturesPatch) {
+            nextState = applyPatch(nextState, pruneDeadCreaturesPatch);
+            pruneExternalCreatureRuntimeState(new Set(nextState.creatures.map((creature) => creature.id)));
         }
 
         return nextState;

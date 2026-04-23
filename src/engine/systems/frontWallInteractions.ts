@@ -132,6 +132,21 @@ function hasSensorChanges(sensorChanges: Record<string, unknown>): boolean {
     return Object.keys(sensorChanges).length > 0;
 }
 
+function isWallFaceOccupied(
+    floorItems: FloorItem[],
+    level: number,
+    wallX: number,
+    wallY: number,
+    face: CardinalDir,
+): boolean {
+    return floorItems.some((item) =>
+        item.mapIndex === level &&
+        item.x === wallX &&
+        item.y === wallY &&
+        item.tilePos === face,
+    );
+}
+
 function tryResolveViAltarResurrectionOnFrontWall<
     TState extends FrontWallStateLike,
     TSensorState,
@@ -216,6 +231,10 @@ export function tryUseChampionItemOnFrontWall<
             patch: deps.applyImmediateTransportSquareEffects(state, anyObjectResult.sensorChanges),
             shouldPlayPlate: hasSensorChanges(anyObjectResult.sensorChanges),
         };
+    }
+
+    if (isWallFaceOccupied(state.floorItems, state.level, wallX, wallY, face)) {
+        return { matched: false, patch: null, shouldPlayPlate: false };
     }
 
     const alcoveResult = deps.triggerAlcoveDepositSensor(
@@ -349,6 +368,10 @@ export function tryUseFloorItemOnFrontWall<
             }),
             shouldPlayPlate: hasSensorChanges(lockResult.sensorChanges),
         };
+    }
+
+    if (isWallFaceOccupied(state.floorItems, state.level, wallX, wallY, face)) {
+        return { matched: false, patch: null, shouldPlayPlate: false };
     }
 
     const alcoveResult = deps.triggerAlcoveDepositSensor(

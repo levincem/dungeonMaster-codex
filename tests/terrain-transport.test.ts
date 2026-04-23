@@ -100,6 +100,26 @@ test('resolveProjectileTeleporterTransport follows open teleporter chains', () =
     assert.deepEqual(result, { level: 2, x: 4, y: 5, direction: 'SOUTH' });
 });
 
+test('resolveProjectileTeleporterTransport applies self-target teleporter rotation only once', () => {
+    const tiles = new Map<string, GameTile>([
+        ['0,1,1', createTeleporterTile(1, 1, { index: 11, rotationType: 0, rotation: 'East', destMap: 0, destX: 1, destY: 1 })],
+    ]);
+
+    const result = resolveProjectileTeleporterTransport(
+        { openTeleporters: new Set(['0,1,1']) },
+        0,
+        1,
+        1,
+        'NORTH',
+        {
+            getTile: (level, x, y) => tiles.get(`${level},${y},${x}`),
+            getOriginalTeleporterRuntime: () => null,
+        },
+    );
+
+    assert.deepEqual(result, { level: 0, x: 1, y: 1, direction: 'EAST' });
+});
+
 test('resolveCreatureTeleporterTransport rotates both direction and creature cell', () => {
     const tiles = new Map<string, GameTile>([
         ['0,1,1', createTeleporterTile(1, 1, { index: 30, rotationType: 0, rotation: 'East', destMap: 0, destX: 2, destY: 2 })],
@@ -122,6 +142,33 @@ test('resolveCreatureTeleporterTransport rotates both direction and creature cel
         level: 0,
         x: 2,
         y: 2,
+        direction: 'EAST',
+        cell: 'frontRight',
+    });
+});
+
+test('resolveCreatureTeleporterTransport applies self-target teleporter rotation only once', () => {
+    const tiles = new Map<string, GameTile>([
+        ['0,1,1', createTeleporterTile(1, 1, { index: 31, rotationType: 0, rotation: 'East', destMap: 0, destX: 1, destY: 1 })],
+    ]);
+
+    const result = resolveCreatureTeleporterTransport(
+        { openTeleporters: new Set(['0,1,1']) },
+        0,
+        1,
+        1,
+        'NORTH',
+        'frontLeft',
+        {
+            getTile: (level, x, y) => tiles.get(`${level},${y},${x}`),
+            getOriginalTeleporterRuntime: () => null,
+        },
+    );
+
+    assert.deepEqual(result, {
+        level: 0,
+        x: 1,
+        y: 1,
         direction: 'EAST',
         cell: 'frontRight',
     });

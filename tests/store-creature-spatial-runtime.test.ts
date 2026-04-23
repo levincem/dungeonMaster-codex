@@ -166,7 +166,30 @@ test('store creature spatial runtime line of sight respects walls and closed vis
         createFloorTile(2, 0),
     ]]);
 
-    assert.equal(runtime.hasLineOfSight(mapWithDoor, 0, new Set<string>(), 0, 0, 2, 0), false);
-    assert.equal(runtime.hasLineOfSight(mapWithDoor, 0, new Set<string>(['0,0,1']), 0, 0, 2, 0), true);
-    assert.equal(runtime.hasLineOfSight(mapWithWall, 0, new Set<string>(), 0, 0, 2, 0), false);
+    assert.equal(runtime.hasLineOfSight(mapWithDoor, 0, new Set<string>(), new Set<string>(), 0, 0, 2, 0), false);
+    assert.equal(
+        runtime.hasLineOfSight(mapWithDoor, 0, new Set<string>(['0,0,1']), new Set<string>(), 0, 0, 2, 0),
+        true,
+    );
+    assert.equal(runtime.hasLineOfSight(mapWithWall, 0, new Set<string>(), new Set<string>(), 0, 0, 2, 0), false);
+});
+
+test('store creature spatial runtime line of sight respects closed and opened trick walls', () => {
+    const runtime = createStoreCreatureSpatialRuntime({
+        creatureTypes: {},
+    });
+    const mapWithTrickWall = createMap([[
+        createFloorTile(0, 0),
+        { ...createFloorTile(1, 0), type: 'TrickWall' },
+        createFloorTile(2, 0),
+    ]]);
+
+    assert.equal(
+        runtime.hasLineOfSight(mapWithTrickWall, 0, new Set<string>(), new Set<string>(), 0, 0, 2, 0),
+        false,
+    );
+    assert.equal(
+        runtime.hasLineOfSight(mapWithTrickWall, 0, new Set<string>(), new Set<string>(['0,0,1']), 0, 0, 2, 0),
+        true,
+    );
 });

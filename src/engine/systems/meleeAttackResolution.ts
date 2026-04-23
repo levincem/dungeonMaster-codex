@@ -45,7 +45,6 @@ type MeleeAttackResolutionDeps = {
         skill: SkillKey,
         amount: number,
     ) => AttackXpPatch | null;
-    getCreatureKillXp: (typeId: number) => number;
     dropCreatureCarriedItems: (
         creatures: CreatureInstance[],
         floorItems: FloorItem[],
@@ -116,34 +115,6 @@ export function buildMeleeAttackResolutionPatch(
             championTemporaryXP: newChampionTemporaryXP,
             party: xpParty,
         };
-    }
-
-    if (killed) {
-        const killXP = deps.getCreatureKillXp(target.typeId);
-        const living = xpParty.filter((champion) => (state.championVitals[champion.id]?.hp ?? 0) > 0);
-        const share = living.length > 0 ? Math.floor(killXP / living.length) : 0;
-        if (share > 0) {
-            for (const champion of living) {
-                const killXpPatch = deps.applyChampionSkillExperience(
-                    xpCarrier,
-                    champion.id,
-                    'fighter',
-                    share,
-                );
-                if (!killXpPatch) continue;
-                newChampionVitals = killXpPatch.championVitals ?? newChampionVitals;
-                newChampXP = killXpPatch.championXP;
-                newChampionTemporaryXP = killXpPatch.championTemporaryXP;
-                xpParty = killXpPatch.party ?? xpParty;
-                xpCarrier = {
-                    ...xpCarrier,
-                    championVitals: newChampionVitals,
-                    championXP: newChampXP,
-                    championTemporaryXP: newChampionTemporaryXP,
-                    party: xpParty,
-                };
-            }
-        }
     }
 
     const damageEvent = deps.buildCreatureDamageEvent(

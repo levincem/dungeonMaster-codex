@@ -26,6 +26,7 @@ type MonsterTickRuntimeState = {
     openDoors: Set<string>;
     openPits: Set<string>;
     openTeleporters: Set<string>;
+    openWalls: Set<string>;
     sleeping: boolean;
     freezeLifeRemainingTicks: number;
     lastCreatureAttackGameTick: number;
@@ -54,6 +55,7 @@ type MonsterTickRuntimeDeps = {
         map: GameMap,
         level: number,
         openDoors: Set<string>,
+        openWalls: Set<string>,
         fromX: number,
         fromY: number,
         toX: number,
@@ -127,7 +129,8 @@ export function runMonsterTickRuntime(
         const levelMap = deps.getMap(level);
         if (y < 0 || y >= levelMap.height || x < 0 || x >= levelMap.width) return false;
         const tile = levelMap.tiles[y]?.[x];
-        if (!tile || tile.type === 'Wall' || tile.type === 'TrickWall') return false;
+        if (!tile || tile.type === 'Wall') return false;
+        if (tile.type === 'TrickWall') return state.openWalls.has(`${level},${y},${x}`);
         if (tile.type === 'Door') return state.openDoors.has(`${level},${y},${x}`);
         if (tile.type === 'Pit') return !state.openPits.has(`${level},${y},${x}`);
         return true;
@@ -189,7 +192,16 @@ export function runMonsterTickRuntime(
                 randomFraction: deps.randomFraction,
                 randomInt: deps.randomInt,
                 hasLineOfSight: () =>
-                    deps.hasLineOfSight(map, state.level, state.openDoors, creature.x, creature.y, px, py),
+                    deps.hasLineOfSight(
+                        map,
+                        state.level,
+                        state.openDoors,
+                        state.openWalls,
+                        creature.x,
+                        creature.y,
+                        px,
+                        py,
+                    ),
                 nextMonsterMoveDelaySeconds: deps.nextMonsterMoveDelaySeconds,
                 nextMonsterAttackDelaySeconds: deps.nextMonsterAttackDelaySeconds,
                 monsterWalkable,

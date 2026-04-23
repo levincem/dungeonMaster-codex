@@ -269,6 +269,7 @@ Ces points sont consideres comme acquis et n'ont plus besoin d'etre repetes part
 Pour eviter de reperdre le fil:
 
 - `README` reste court et public
+- ne jamais modifier, reduire ou reformuler la section `Credits` du `README` sans validation explicite de l'utilisateur
 - `NEXT_PHASE_PLAN` ne contient que des sujets ouverts
 - `REMAKE_STATUS` garde seulement l'etat courant et quelques checkpoints utiles
 - un sujet ferme sort du plan courant au lieu d'y survivre en statut ambigu

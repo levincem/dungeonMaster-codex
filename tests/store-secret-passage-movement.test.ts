@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { preloadDungeonData } from '../src/data/dungeonData.js';
+import { creatureLastSeenPartyPos, creatureTimers } from '../src/engine/systems/storeCreatureRuntime.js';
 
 function enterDungeonForTest<TState extends { enterDungeon: () => void }>(
     useStore: { getState: () => TState },
@@ -157,6 +158,63 @@ test('level 2 secret-passage flasher turns the return teleporter off, then back 
         useStore.getState().tickFrame(1, Date.now());
         afterMove = useStore.getState();
         assert.equal(afterMove.openTeleporters.has('2,28,4'), false);
+    } finally {
+        useStore.setState(initialState, true);
+    }
+});
+
+test('level 2 mummies behind the opened Mirror Of Dawn secret passage can move toward the party', async () => {
+    await preloadDungeonData();
+    const { useStore } = await import('../src/engine/store.js');
+    const initialState = enterDungeonForTest(useStore);
+
+    try {
+        useStore.getState().goToLevel(2, [24, 7], 'NORTH');
+
+        useStore.setState({
+            gamePhase: 'exploration',
+            paused: false,
+            sleeping: false,
+            optionsModalOpen: false,
+            movementCooldown: 0,
+            position: [24, 7],
+            direction: 'NORTH',
+            party: [{ id: 1 } as never],
+            openWalls: new Set<string>(['2,23,7']),
+            pendingSensorEvents: [],
+            damageEvents: [],
+            spellVisualEvents: [],
+            activeFloorDrag: null,
+            lastMonsterAttackDebug: null,
+        });
+
+        const mummyIds = useStore.getState().creatures
+            .filter((creature) =>
+                creature.alive &&
+                creature.mapIndex === 2 &&
+                creature.typeId === 10 &&
+                creature.x === 7 &&
+                creature.y === 22,
+            )
+            .map((creature) => creature.id);
+
+        assert.equal(mummyIds.length, 2, 'expected the two mummies behind the secret passage');
+
+        for (const id of mummyIds) {
+            creatureTimers.set(id, { mt: 0, at: 999 });
+            creatureLastSeenPartyPos.delete(id);
+        }
+
+        withAudioStub(() => {
+            useStore.getState().tickMonsters(0.1);
+        });
+
+        const afterMummies = useStore.getState().creatures.filter((creature) => mummyIds.includes(creature.id));
+        assert.equal(
+            afterMummies.some((creature) => creature.y === 23 && creature.x === 7),
+            true,
+            'expected at least one mummy to step through the opened trick wall',
+        );
     } finally {
         useStore.setState(initialState, true);
     }

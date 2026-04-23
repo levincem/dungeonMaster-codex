@@ -55,6 +55,29 @@ export type WallDecalRender = {
     interactiveSensorIndices?: number[];
 };
 
+function isWallMountedItemHolderFace(tile: GameTile | undefined, face: CardinalDir): boolean {
+    if (!tile || (tile.type !== 'Wall' && tile.type !== 'TrickWall')) return false;
+    const hasMountedItem = tile.objects.some((object) =>
+        object.category !== 'Sensor'
+        && (object.category === 'Weapon'
+            || object.category === 'Armor'
+            || object.category === 'Potion'
+            || object.category === 'Scroll'
+            || object.category === 'Misc'
+            || object.category === 'Container')
+        && (object as { tilePos?: CardinalDir }).tilePos === face,
+    );
+    if (!hasMountedItem) return false;
+
+    return tile.objects.some((object) =>
+        object.category === 'Sensor'
+        && (object as SensorObject).tilePos === face
+        && (((object as SensorObject).type === 1) || ((object as SensorObject).type === 2))
+        && (object as SensorObject).action === 'Hold'
+        && !(object as SensorObject).revert,
+    );
+}
+
 function wallFaceAnchor(tileX: number, tileY: number, face: CardinalDir): { x: number; y: number } {
     const step = WALL_FACE_VECTORS[face];
     return { x: tileX + step.dx, y: tileY + step.dy };
@@ -166,7 +189,9 @@ export function resolveFrontWallInteractionKind(args: {
     const mechanism = mechanismLookup(level, frontTileX, frontTileY, frontFace).find((entry) =>
         entry.trigger === 'wall-lock' || entry.trigger === 'alcove' || entry.trigger === 'object-exchanger',
     );
-    if (!mechanism) return null;
+    if (!mechanism) {
+        return isWallMountedItemHolderFace(tile, frontFace) ? 'alcove' : null;
+    }
     if (mechanism.trigger === 'alcove') return 'alcove';
     if (mechanism.trigger === 'object-exchanger') return 'object-exchanger';
     return 'wall-lock';
@@ -378,6 +403,7 @@ export function collectDungeonSceneTeleporters(args: {
         for (const tile of row) {
             if (tile.type !== 'Teleporter') continue;
             if (!args.openTeleporters.has(`${args.level},${tile.y},${tile.x}`)) continue;
+            if (tile.visible === false) continue;
             out.push({ tileX: tile.x, tileY: tile.y });
         }
     }

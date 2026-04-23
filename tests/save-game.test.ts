@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
+    importPersistedSave,
     SAVE_BACKUP_STORAGE_KEY,
     SAVE_STORAGE_KEY,
     clearPersistedSave,
@@ -155,5 +156,39 @@ test('clearPersistedSave removes both primary and backup slots', () => {
         assert.equal(storage.getItem(SAVE_BACKUP_STORAGE_KEY), null);
         assert.equal(hasPersistedSave(), false);
         assert.deepEqual(getPersistedSaveStatus(), { kind: 'none' });
+    });
+});
+
+test('importPersistedSave accepts compatible saves and rotates the previous primary to backup', () => {
+    withMockWindow((storage) => {
+        const previous = createValidSavePayload(6, 3);
+        const imported = createValidSavePayload(7, 8);
+        storage.setItem(SAVE_STORAGE_KEY, previous);
+
+        assert.deepEqual(importPersistedSave(imported), { kind: 'success' });
+        assert.equal(storage.getItem(SAVE_STORAGE_KEY), imported);
+        assert.equal(storage.getItem(SAVE_BACKUP_STORAGE_KEY), previous);
+    });
+});
+
+test('importPersistedSave rejects corrupt and incompatible saves', () => {
+    withMockWindow(() => {
+        assert.deepEqual(importPersistedSave('not-json'), { kind: 'corrupt' });
+
+        const incompatible = JSON.stringify({
+            version: 999,
+            buildVersion: '9.9.9',
+            position: [0, 0],
+            party: [],
+            creatures: [],
+            floorItems: [],
+        });
+
+        const result = importPersistedSave(incompatible);
+        assert.equal(result.kind, 'incompatible');
+        if (result.kind === 'incompatible') {
+            assert.equal(result.savedBuildVersion, '9.9.9');
+            assert.equal(result.savedSchemaVersion, 999);
+        }
     });
 });

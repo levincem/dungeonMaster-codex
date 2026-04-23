@@ -33,9 +33,9 @@ export const SpellImpactLayer: React.FC = () => {
     const poisonMaterial = useMemo(() => createPulseMaterial('#8cff8b', 0.32), []);
     const poisonCoreMaterial = useMemo(() => createPulseMaterial('#d6ff9f', 0.56), []);
     const poisonMistMaterial = useMemo(() => createPulseMaterial('#6fdb75', 0.28), []);
-    const openMaterial = useMemo(() => createPulseMaterial('#8cf1ff', 0.28), []);
-    const openCoreMaterial = useMemo(() => createPulseMaterial('#fff6c8', 0.5), []);
-    const openSparkMaterial = useMemo(() => createPulseMaterial('#b9ffff', 0.34), []);
+    const openMaterial = useMemo(() => createPulseMaterial('#8cf1ff', 0.42), []);
+    const openCoreMaterial = useMemo(() => createPulseMaterial('#fff6c8', 0.72), []);
+    const openSparkMaterial = useMemo(() => createPulseMaterial('#b9ffff', 0.56), []);
     const disruptMaterial = useMemo(() => createPulseMaterial('#aeefff', 0.3), []);
     const disruptCoreMaterial = useMemo(() => createPulseMaterial('#f3ffff', 0.52), []);
     const disruptShardMaterial = useMemo(() => createPulseMaterial('#8dd8ff', 0.34), []);
@@ -351,38 +351,46 @@ const OpenDoorImpactBurst: React.FC<{
 }> = ({ event, ringGeometry, material, coreMaterial, sparkMaterial }) => {
     const ringRef = useRef<THREE.Mesh>(null);
     const coreRef = useRef<THREE.Mesh>(null);
+    const haloRef = useRef<THREE.Mesh>(null);
     const lightRef = useRef<THREE.PointLight>(null);
     const sparks = useMemo(
-        () => Array.from({ length: 6 }, (_, index) => ({
-            angle: (index / 6) * Math.PI * 2,
-            radius: 0.18 + (index % 2) * 0.05,
-            rise: 0.06 + (index % 3) * 0.025,
+        () => Array.from({ length: 8 }, (_, index) => ({
+            angle: (index / 8) * Math.PI * 2,
+            radius: 0.22 + (index % 2) * 0.07,
+            rise: 0.11 + (index % 3) * 0.045,
         })),
         [],
     );
 
     useFrame(() => {
         const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / 520));
-        const visualScale = event.visualScale ?? 1;
+        const t = Math.max(0, Math.min(1, age / 720));
+        const visualScale = (event.visualScale ?? 1) * 1.28;
 
         if (ringRef.current) {
-            ringRef.current.scale.setScalar((0.55 + t * 1.25) * visualScale);
+            ringRef.current.scale.setScalar((0.78 + t * 1.7) * visualScale);
             ringRef.current.rotation.z = t * Math.PI * 0.9;
-            (ringRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.34;
+            (ringRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.52;
             ringRef.current.visible = t < 1;
         }
 
         if (coreRef.current) {
-            coreRef.current.scale.setScalar((0.18 + Math.sin(Math.PI * t) * 0.5) * visualScale);
+            coreRef.current.scale.setScalar((0.28 + Math.sin(Math.PI * t) * 0.72) * visualScale);
             coreRef.current.rotation.y = t * Math.PI * 1.4;
-            (coreRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.46;
+            (coreRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.64;
             coreRef.current.visible = t < 1;
         }
 
+        if (haloRef.current) {
+            haloRef.current.scale.setScalar((0.52 + Math.sin(Math.PI * t) * 0.95) * visualScale);
+            haloRef.current.rotation.z = t * Math.PI * 0.65;
+            (haloRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.48;
+            haloRef.current.visible = t < 1;
+        }
+
         if (lightRef.current) {
-            lightRef.current.intensity = Math.max(0, (1 - t) * 1.1 * Math.max(1, visualScale * 0.85));
-            lightRef.current.distance = GRID_SIZE * (1.25 + visualScale * 0.4);
+            lightRef.current.intensity = Math.max(0, (1 - t) * 1.85 * Math.max(1, visualScale));
+            lightRef.current.distance = GRID_SIZE * (1.7 + visualScale * 0.65);
         }
     });
 
@@ -390,7 +398,7 @@ const OpenDoorImpactBurst: React.FC<{
         <group
             position={[
                 event.x * GRID_SIZE + (event.offsetX ?? 0),
-                event.height ?? GRID_SIZE * 0.07,
+                event.height ?? GRID_SIZE * 0.11,
                 event.y * GRID_SIZE + (event.offsetZ ?? 0),
             ]}
         >
@@ -398,10 +406,13 @@ const OpenDoorImpactBurst: React.FC<{
             <mesh ref={coreRef} material={coreMaterial} frustumCulled={false}>
                 <torusGeometry args={[0.18, 0.03, 8, 24]} />
             </mesh>
+            <mesh ref={haloRef} material={material} frustumCulled={false} position={[0, GRID_SIZE * 0.18, 0]}>
+                <torusGeometry args={[0.28, 0.045, 8, 28]} />
+            </mesh>
             {sparks.map((spark, index) => (
                 <OpenDoorImpactSpark key={`open_spark_${index}`} event={event} material={sparkMaterial} spark={spark} />
             ))}
-            <pointLight ref={lightRef} color="#a8f8ff" intensity={0} distance={GRID_SIZE * 1.25} decay={2} position={[0, GRID_SIZE * 0.12, 0]} />
+            <pointLight ref={lightRef} color="#a8f8ff" intensity={0} distance={GRID_SIZE * 1.7} decay={2} position={[0, GRID_SIZE * 0.24, 0]} />
         </group>
     );
 };
@@ -415,19 +426,19 @@ const OpenDoorImpactSpark: React.FC<{
     useFrame(() => {
         if (!sparkRef.current) return;
         const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / 520));
-        const visualScale = event.visualScale ?? 1;
-        sparkRef.current.position.x = Math.cos(spark.angle) * spark.radius * (0.45 + t * 0.95) * visualScale;
-        sparkRef.current.position.z = Math.sin(spark.angle) * spark.radius * (0.45 + t * 0.95) * visualScale;
-        sparkRef.current.position.y = spark.rise * Math.sin(Math.PI * t) * visualScale;
+        const t = Math.max(0, Math.min(1, age / 720));
+        const visualScale = (event.visualScale ?? 1) * 1.2;
+        sparkRef.current.position.x = Math.cos(spark.angle) * spark.radius * (0.45 + t * 1.2) * visualScale;
+        sparkRef.current.position.z = Math.sin(spark.angle) * spark.radius * (0.45 + t * 1.2) * visualScale;
+        sparkRef.current.position.y = (GRID_SIZE * 0.06) + spark.rise * Math.sin(Math.PI * t) * visualScale;
         sparkRef.current.rotation.y = spark.angle;
         sparkRef.current.rotation.z = Math.PI / 4 + t * Math.PI * 0.5;
         sparkRef.current.scale.set(
-            (0.06 + (1 - t) * 0.02) * visualScale,
-            (0.22 + Math.sin(Math.PI * t) * 0.12) * visualScale,
-            (0.06 + (1 - t) * 0.02) * visualScale,
+            (0.08 + (1 - t) * 0.03) * visualScale,
+            (0.32 + Math.sin(Math.PI * t) * 0.18) * visualScale,
+            (0.08 + (1 - t) * 0.03) * visualScale,
         );
-        (sparkRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.42;
+        (sparkRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.58;
         sparkRef.current.visible = t < 1;
     });
 

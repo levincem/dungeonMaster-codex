@@ -133,6 +133,49 @@ test('resolveFrontWallInteractionKind treats a front fountain overlay as an inte
     assert.equal(interaction, 'fountain');
 });
 
+test('resolveFrontWallInteractionKind treats hold wall niches with mounted items as alcove-like drop targets', () => {
+    const map = createMap(4, 3);
+    map.tiles[1][2] = createTile(2, 1, 'Wall', [
+        {
+            category: 'Sensor',
+            index: 9,
+            tilePos: 'West',
+            type: 1,
+            data: 0,
+            graphic: 7,
+            isLocal: false,
+            delay: 0,
+            sound: true,
+            revert: false,
+            action: 'Hold',
+            onceOnly: false,
+            targetY: 2,
+            targetX: 2,
+            targetDir: 'North',
+        },
+        {
+            category: 'Misc',
+            index: 26,
+            tilePos: 'West',
+            type: 7,
+            name: 'Silver Coin',
+            doNotDiscard: true,
+            highBits: 0,
+        },
+    ] as GameTile['objects']);
+
+    const interaction = resolveFrontWallInteractionKind({
+        level: 0,
+        map,
+        position: [1, 1],
+        direction: 'EAST',
+        openWalls: new Set(),
+        getMechanismsAtFace: () => [],
+    });
+
+    assert.equal(interaction, 'alcove');
+});
+
 test('collectDungeonScene helpers keep only actionable plates, closed trick walls, and pits', () => {
     const map = createMap(4, 3);
     map.tiles[0][0] = createTile(0, 0, 'Pit');
@@ -169,10 +212,10 @@ test('collectDungeonScene helpers keep only actionable plates, closed trick wall
     assert.deepEqual(collectDungeonScenePits({ map }), [{ tileX: 0, tileY: 0 }]);
 });
 
-test('collectDungeonSceneTeleporters keeps active teleporters, including runtime-opened hidden ones', () => {
+test('collectDungeonSceneTeleporters keeps only active visible teleporters', () => {
     const map = createMap(3, 2);
     map.tiles[0][1] = { ...createTile(1, 0, 'Teleporter'), open: true, visible: false };
-    map.tiles[1][1] = { ...createTile(1, 1, 'Teleporter'), open: false, visible: false };
+    map.tiles[1][1] = { ...createTile(1, 1, 'Teleporter'), open: true, visible: true };
 
     assert.deepEqual(
         collectDungeonSceneTeleporters({
@@ -181,7 +224,6 @@ test('collectDungeonSceneTeleporters keeps active teleporters, including runtime
             openTeleporters: new Set(['0,0,1', '0,1,1']),
         }),
         [
-            { tileX: 1, tileY: 0 },
             { tileX: 1, tileY: 1 },
         ],
     );

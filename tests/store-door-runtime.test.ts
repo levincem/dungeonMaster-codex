@@ -36,6 +36,35 @@ test('buildStoreToggleDoorPatch opens a closed door and clears an existing crush
     assert.deepEqual(motions, [{ duration: 1000, volume: 0.5 }]);
 });
 
+test('buildStoreToggleDoorPatch ignores clicks on doors without a button', () => {
+    const motions: Array<{ duration: number; volume: number }> = [];
+    const state = {
+        level: 0,
+        brokenDoors: new Set<string>(),
+        openDoors: new Set<string>(),
+        crushingDoors: {},
+        creatures: [],
+    };
+
+    const result = buildStoreToggleDoorPatch(
+        state,
+        6,
+        5,
+        {
+            hasDoorButton: () => false,
+            isDoorControlledByMechanism: () => false,
+            isDoorLockedByWallSensor: () => false,
+            playDoorMotion: (duration, volume) => motions.push({ duration, volume }),
+            getDoorSoundVolume: () => 0.5,
+            doorToggleSoundDurationMs: 1000,
+            doorCloseDurationSeconds: 1,
+        },
+    );
+
+    assert.equal(result, state);
+    assert.deepEqual(motions, []);
+});
+
 test('buildStoreTickDoorsPatch delegates door crush progress and emits damage', () => {
     const bumps: number[] = [];
     const result = buildStoreTickDoorsPatch(

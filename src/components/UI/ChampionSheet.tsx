@@ -165,8 +165,11 @@ function isConsumable(item: FloorItem): boolean {
 // Item thumbnail
 const ItemThumb: React.FC<{ item: FloorItem; size?: number; equipped?: boolean }> = ({ item, size = 32, equipped = false }) => {
     const torchBurnStart = useStore(s => s.torchBurnStart);
+    const paused = useStore(s => s.paused);
+    const pausedAt = useStore(s => s.pausedAt ?? null);
+    const imageNow = paused && typeof pausedAt === 'number' ? pausedAt : Date.now();
     const src = equipped
-        ? getEquippedItemImage(item, torchBurnStart)
+        ? getEquippedItemImage(item, torchBurnStart, imageNow)
         : getInventoryItemImage(item);
     return (
         <img

@@ -26,6 +26,7 @@ const welcomePanelStyle = {
   color: '#dcc48b',
   fontFamily: '"Times New Roman", serif',
   padding: '22px 26px 24px',
+  fontSize: 17,
 };
 
 const closeButtonStyle = {
@@ -196,10 +197,10 @@ function App() {
             >
               X
             </button>
-            <div style={{ fontSize: 24, letterSpacing: 0.8, marginBottom: 18, color: '#f1d9a1' }}>
+            <div style={{ fontSize: 26, letterSpacing: 0.8, marginBottom: 18, color: '#f1d9a1', textAlign: 'center' as const }}>
               {text.welcome.title}
             </div>
-            <div style={{ fontSize: 16, lineHeight: 1.6, color: '#dcc48b' }}>
+            <div style={{ fontSize: 17, lineHeight: 1.65, color: '#dcc48b' }}>
               <p style={{ margin: '0 0 12px' }}>
                 {text.welcome.intro}
               </p>
@@ -255,7 +256,7 @@ function App() {
                     : 'linear-gradient(180deg, #8b6324, #5f4215)',
                   color: '#f6e3b3',
                   fontFamily: '"Times New Roman", serif',
-                  fontSize: 17,
+                  fontSize: 18,
                   cursor: 'pointer',
                   boxShadow: welcomePressedButton === 'continue'
                     ? '0 4px 10px rgba(0,0,0,0.22), inset 0 2px 6px rgba(0,0,0,0.22)'

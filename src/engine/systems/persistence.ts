@@ -197,6 +197,10 @@ export type PersistedSaveInspection =
 
 type PersistedSaveDataWithoutIntegrity = Omit<PersistedSaveData, 'integrity'>;
 
+function getPersistableLivingCreatures(creatures: readonly CreatureInstance[]): CreatureInstance[] {
+    return creatures.filter((creature) => creature.alive);
+}
+
 function stripIntegrity(data: PersistedSaveData): PersistedSaveDataWithoutIntegrity {
     const { integrity, ...rest } = data;
     void integrity;
@@ -221,13 +225,15 @@ export function buildPersistedSaveData(
     runtime: CreatureRuntimeMaps,
 ): PersistedSaveData {
     const now = Date.now();
+    const livingCreatures = getPersistableLivingCreatures(state.creatures);
+    const livingCreatureIds = new Set(livingCreatures.map((creature) => creature.id));
     const timerIds = new Set<string>([
-        ...state.creatures.map((creature) => creature.id),
-        ...runtime.creatureTimers.keys(),
-        ...runtime.creatureAttackWindows.keys(),
-        ...runtime.creatureConfusedUntil.keys(),
-        ...runtime.creatureFluxcageUntil.keys(),
-        ...runtime.creatureFrightenedUntil.keys(),
+        ...livingCreatureIds,
+        ...[...runtime.creatureTimers.keys()].filter((id) => livingCreatureIds.has(id)),
+        ...[...runtime.creatureAttackWindows.keys()].filter((id) => livingCreatureIds.has(id)),
+        ...[...runtime.creatureConfusedUntil.keys()].filter((id) => livingCreatureIds.has(id)),
+        ...[...runtime.creatureFluxcageUntil.keys()].filter((id) => livingCreatureIds.has(id)),
+        ...[...runtime.creatureFrightenedUntil.keys()].filter((id) => livingCreatureIds.has(id)),
     ]);
     const serializedCreatureTimers: Record<string, PersistedCreatureTimers> = {};
     for (const id of timerIds) {
@@ -268,7 +274,7 @@ export function buildPersistedSaveData(
         visibleTexts: [...state.visibleTexts],
         pendingSensorEvents: state.pendingSensorEvents,
         pendingGeneratorSpawns: state.pendingGeneratorSpawns,
-        creatures: state.creatures,
+        creatures: livingCreatures,
         floorItems: state.floorItems,
         championInventories: state.championInventories,
         championEquipment: state.championEquipment,
@@ -358,6 +364,7 @@ export function hydratePersistedGameState(
     data: PersistedSaveData,
     now = Date.now(),
 ): PersistableGameState {
+    const creatures = getPersistableLivingCreatures(data.creatures);
     const normalizedFloorItems = normalizePersistedItems(data.floorItems);
     const normalizedChampionInventories = normalizePersistedInventories(data.championInventories);
     const normalizedChampionEquipment = normalizePersistedEquipment(data.championEquipment);
@@ -397,7 +404,7 @@ export function hydratePersistedGameState(
         visibleTexts: new Set<string>(data.visibleTexts ?? [...buildDefaultVisibleTexts()]),
         pendingSensorEvents: data.pendingSensorEvents ?? [],
         pendingGeneratorSpawns: data.pendingGeneratorSpawns ?? [],
-        creatures: data.creatures,
+        creatures,
         floorItems: normalizedFloorItems,
         championInventories: normalizedChampionInventories,
         championEquipment: normalizedChampionEquipment,
@@ -463,6 +470,7 @@ export function restoreExternalCreatureRuntimeFromSave(
     runtime: CreatureRuntimeMaps,
 ): void {
     const now = Date.now();
+    const livingCreatureIds = new Set(getPersistableLivingCreatures(data.creatures).map((creature) => creature.id));
     runtime.creatureTimers.clear();
     runtime.creatureAttackWindows.clear();
     runtime.creatureConfusedUntil.clear();
@@ -471,6 +479,7 @@ export function restoreExternalCreatureRuntimeFromSave(
     runtime.creatureLastSeenPartyPos.clear();
 
     for (const [id, timers] of Object.entries(data.creatureTimers)) {
+        if (!livingCreatureIds.has(id)) continue;
         runtime.creatureTimers.set(id, {
             mt: Math.max(0, timers.moveRemaining),
             at: Math.max(0, timers.attackRemaining),

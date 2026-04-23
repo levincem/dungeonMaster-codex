@@ -18,6 +18,18 @@ export type PersistedSaveStatus =
         currentSchemaVersion: number;
     };
 
+export type ImportPersistedSaveResult =
+    | { kind: 'success' }
+    | { kind: 'corrupt' }
+    | {
+        kind: 'incompatible';
+        savedBuildVersion?: string;
+        savedSchemaVersion?: number;
+        currentBuildVersion: string;
+        currentSchemaVersion: number;
+    }
+    | { kind: 'storage_failed' };
+
 function readPersistedSaveFromKey(storageKey: string): string | null {
     try {
         return typeof window !== 'undefined' ? window.localStorage.getItem(storageKey) : null;
@@ -78,6 +90,28 @@ export function writePersistedSave(payload: string): boolean {
         return true;
     } catch {
         return false;
+    }
+}
+
+export function importPersistedSave(payload: string): ImportPersistedSaveResult {
+    try {
+        if (typeof window === 'undefined') return { kind: 'storage_failed' };
+        const inspection = inspectPersistedSaveData(payload);
+        if (inspection.status === 'compatible') {
+            return writePersistedSave(payload) ? { kind: 'success' } : { kind: 'storage_failed' };
+        }
+        if (inspection.status === 'incompatible') {
+            return {
+                kind: 'incompatible',
+                savedBuildVersion: inspection.buildVersion,
+                savedSchemaVersion: inspection.foundVersion,
+                currentBuildVersion: APP_VERSION,
+                currentSchemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
+            };
+        }
+        return { kind: 'corrupt' };
+    } catch {
+        return { kind: 'storage_failed' };
     }
 }
 

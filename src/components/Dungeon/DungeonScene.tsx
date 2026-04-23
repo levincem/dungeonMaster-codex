@@ -429,6 +429,7 @@ const LevelName = ({ level }: { level: number }) => {
 
 const LightController: React.FC = () => {
     const levelIndex = useStore(s => s.level);
+    const paused = useStore(s => s.paused);
     const spellLights      = useStore(s => s.spellLights);
     const torchBurnStart   = useStore(s => s.torchBurnStart);
     const championEquipment = useStore(s => s.championEquipment);
@@ -436,6 +437,7 @@ const LightController: React.FC = () => {
 
     useFrame(() => {
         if (!lightRef.current) return;
+        if (paused) return;
         if (levelIndex === 0) {
             lightRef.current.intensity += (1.15 - lightRef.current.intensity) * 0.04;
             lightRef.current.color.lerp(DUNGEON_AMBIENT_COLOR, 0.04);
@@ -472,17 +474,20 @@ function getDoorButtonFaceSignForView(
 
 const DarknessOverlay: React.FC = () => {
     const levelIndex = useStore(s => s.level);
+    const paused = useStore(s => s.paused);
+    const pausedAt = useStore(s => s.pausedAt ?? null);
     const spellLights = useStore(s => s.spellLights);
     const torchBurnStart = useStore(s => s.torchBurnStart);
     const championEquipment = useStore(s => s.championEquipment);
-    useWallClock(250);
+    const wallClockNow = useWallClock(250);
+    const effectiveNow = paused && typeof pausedAt === 'number' ? pausedAt : wallClockNow;
     const opacity = useMemo(() => {
         if (levelIndex === 0) {
             return 0;
         }
-        const level = computeLightLevel(spellLights, torchBurnStart, championEquipment);
+        const level = computeLightLevel(spellLights, torchBurnStart, championEquipment, effectiveNow);
         return Math.max(0, 0.84 - level * 0.84);
-    }, [championEquipment, levelIndex, spellLights, torchBurnStart]);
+    }, [championEquipment, effectiveNow, levelIndex, spellLights, torchBurnStart]);
 
     return (
         <div
@@ -659,6 +664,196 @@ const WallMechanismDropTarget = ({ kind, placement = 'front', onUseItem, onActiv
                                 : text.offerItemHere}
             </div>
         </div>
+    );
+};
+
+const DungeonSceneDebugOverlay: React.FC<{
+    renderDebug: RenderDebugState;
+    level: number;
+    position: [number, number];
+    direction: Direction;
+    map: GameMap;
+    openDoors: Set<string>;
+    openPits: Set<string>;
+    openTeleporters: Set<string>;
+    openWalls: Set<string>;
+}> = ({ renderDebug, level, position, direction, map, openDoors, openPits, openTeleporters, openWalls }) => {
+    const text = useI18n().dungeonScene;
+    const gamePhase = useStore((s) => s.gamePhase);
+    const paused = useStore((s) => s.paused);
+    const movementCooldown = useStore((s) => s.movementCooldown);
+    const creatures = useStore((s) => s.creatures);
+    const lastMonsterAttackDebug = useStore((s) => s.lastMonsterAttackDebug);
+
+    const frontCreatureDebugLines = useMemo(() => {
+        const frontCreatures = creaturesInFront(level, position, direction, creatures);
+        if (frontCreatures.length === 0) {
+            return ['Front creatures: none'];
+        }
+
+        return [
+            `Front creatures (${frontCreatures.length})`,
+            ...frontCreatures.map((creature, index) => {
+                const def = CREATURE_TYPES[creature.typeId];
+                const label = def?.name ?? `Creature ${creature.typeId}`;
+                return `${index + 1}. ${label} [${creature.cell}] HP ${creature.currentHP}/${def?.baseHP ?? '?'} | ATK ${def?.rawAttack ?? '?'} | ARM ${def?.armor ?? '?'} | HIT ${def?.hitProb ?? '?'} | ASPD ${def?.atkSpd ?? '?'} | MSPD ${def?.moveSpd ?? '?'}${def?.absorbMissiles ? ' | ABSORB' : ''}`;
+            }),
+        ];
+    }, [creatures, direction, level, position]);
+
+    const forwardMoveDebugLines = useMemo(() => {
+        const [currentY, currentX] = position;
+        const targetX = direction === 'EAST' ? currentX + 1 : direction === 'WEST' ? currentX - 1 : currentX;
+        const targetY = direction === 'NORTH' ? currentY - 1 : direction === 'SOUTH' ? currentY + 1 : currentY;
+        const currentTile = map.tiles[currentY]?.[currentX];
+        const targetTile = map.tiles[targetY]?.[targetX];
+        const targetKey = `${level},${targetY},${targetX}`;
+        const forwardBlockedByTerrain =
+            !targetTile ||
+            targetTile.type === 'Wall' ||
+            (targetTile.type === 'TrickWall' && !openWalls.has(targetKey)) ||
+            (targetTile.type === 'Door' && !openDoors.has(targetKey)) ||
+            (targetTile.type === 'Pit' && openPits.has(targetKey));
+        const targetCreatures = creatures.filter((creature) =>
+            creature.alive &&
+            creature.mapIndex === level &&
+            creature.x === targetX &&
+            creature.y === targetY,
+        );
+        const currentKey = `${level},${currentY},${currentX}`;
+        const phaseAllowsMovement = gamePhase === 'exploration' && !paused;
+        const shouldMoveForward =
+            phaseAllowsMovement &&
+            (!Number.isFinite(movementCooldown) || movementCooldown <= 0) &&
+            !forwardBlockedByTerrain &&
+            targetCreatures.length === 0;
+
+        return [
+            'Forward move debug',
+            `from [${currentX},${currentY}] ${currentTile?.type ?? 'void'}${currentTile?.type === 'TrickWall' ? ` (${openWalls.has(currentKey) ? 'open' : 'closed'})` : ''} -> [${targetX},${targetY}] ${targetTile?.type ?? 'void'}${targetTile?.type === 'TrickWall' ? ` (${openWalls.has(targetKey) ? 'open' : 'closed'})` : ''}${targetTile?.type === 'Door' ? ` (${openDoors.has(targetKey) ? 'open' : 'closed'})` : ''}${targetTile?.type === 'Pit' ? ` (${openPits.has(targetKey) ? 'open' : 'closed'})` : ''}`,
+            `phase ${gamePhase}${paused ? ' (paused)' : ''}`,
+            `cooldown ${Number.isFinite(movementCooldown) ? movementCooldown.toFixed(3) : String(movementCooldown)} | teleporter ${openTeleporters.has(targetKey) ? 'target-open' : 'target-off'} | should move ${shouldMoveForward ? 'YES' : 'NO'}`,
+            targetCreatures.length > 0
+                ? `target creatures: ${targetCreatures.map((creature) => {
+                    const def = CREATURE_TYPES[creature.typeId];
+                    return `${def?.name ?? `Creature ${creature.typeId}`} [${creature.cell}] HP ${creature.currentHP}`;
+                }).join(' | ')}`
+                : 'target creatures: none',
+        ];
+    }, [creatures, direction, gamePhase, level, map, movementCooldown, openDoors, openPits, openTeleporters, openWalls, paused, position]);
+
+    const lastMonsterAttackDebugLines = useMemo(() => {
+        if (!lastMonsterAttackDebug) {
+            return ['Last monster hit: none'];
+        }
+        return [
+            'Last monster hit',
+            `${lastMonsterAttackDebug.attackerName} -> ${lastMonsterAttackDebug.targetName} | ${lastMonsterAttackDebug.attackMode} ${lastMonsterAttackDebug.attackType}`,
+            `QCK ${lastMonsterAttackDebug.quickness}/${lastMonsterAttackDebug.requiredQuickness} | PARRY ${lastMonsterAttackDebug.parryMastery} | ROLL ${lastMonsterAttackDebug.rolledAttack}`,
+            `DEF ${lastMonsterAttackDebug.defenseApplied ?? '-'} | SHIELD ${lastMonsterAttackDebug.activeShieldDefense ?? 0} | POST ${lastMonsterAttackDebug.postMitigationAttack ?? '-'} | DMG ${lastMonsterAttackDebug.finalDamage} | HP ${lastMonsterAttackDebug.hpBefore}->${lastMonsterAttackDebug.hpAfter}`,
+            `HIT ${lastMonsterAttackDebug.hitZones?.join(', ') ?? '-'} | WOUND ${lastMonsterAttackDebug.woundSlots?.join(', ') ?? '-'}`,
+            ...(lastMonsterAttackDebug.defenseSlotBreakdown ?? []).map((entry) =>
+                `${entry.slot}: vit ${entry.vitalityRoll} + pose ${entry.defenseModifier} + arm ${entry.slotArmor}${entry.slotItemName ? ` (${entry.slotItemName})` : ''} + shield ${entry.shieldContribution} - wound ${entry.woundPenalty} => ${entry.finalDefense}`),
+            ...(lastMonsterAttackDebug.defenseSlotBreakdown ?? []).flatMap((entry) =>
+                (entry.shieldDetails ?? []).map((detail) => `  ${entry.slot} shield: ${detail}`)),
+        ];
+    }, [lastMonsterAttackDebug]);
+
+    return (
+        <>
+            <div
+                style={{
+                    position: 'fixed',
+                    top: 14,
+                    left: 14,
+                    zIndex: 340,
+                    padding: '8px 10px',
+                    borderRadius: 8,
+                    background: 'rgba(10, 10, 10, 0.72)',
+                    border: '1px solid rgba(197, 164, 106, 0.28)',
+                    color: '#d8c48f',
+                    fontFamily: '"Courier New", monospace',
+                    fontSize: 11,
+                    lineHeight: 1.35,
+                    pointerEvents: 'auto',
+                    userSelect: 'text',
+                    cursor: 'text',
+                    whiteSpace: 'pre-line',
+                }}
+                data-debug-overlay="true"
+            >
+                {text.debugRenderState(renderDebug)}
+            </div>
+            <div
+                style={{
+                    position: 'fixed',
+                    top: 102,
+                    left: 14,
+                    zIndex: 340,
+                    padding: '8px 10px',
+                    borderRadius: 8,
+                    background: 'rgba(10, 10, 10, 0.72)',
+                    border: '1px solid rgba(197, 164, 106, 0.28)',
+                    color: '#d8c48f',
+                    fontFamily: '"Courier New", monospace',
+                    fontSize: 11,
+                    lineHeight: 1.35,
+                    pointerEvents: 'auto',
+                    userSelect: 'text',
+                    cursor: 'text',
+                    whiteSpace: 'pre-line',
+                }}
+                data-debug-overlay="true"
+            >
+                {frontCreatureDebugLines.join('\n')}
+            </div>
+            <div
+                style={{
+                    position: 'fixed',
+                    top: 206,
+                    left: 14,
+                    zIndex: 340,
+                    padding: '8px 10px',
+                    borderRadius: 8,
+                    background: 'rgba(10, 10, 10, 0.72)',
+                    border: '1px solid rgba(197, 164, 106, 0.28)',
+                    color: '#d8c48f',
+                    fontFamily: '"Courier New", monospace',
+                    fontSize: 11,
+                    lineHeight: 1.35,
+                    pointerEvents: 'auto',
+                    userSelect: 'text',
+                    cursor: 'text',
+                    whiteSpace: 'pre-line',
+                }}
+                data-debug-overlay="true"
+            >
+                {lastMonsterAttackDebugLines.join('\n')}
+            </div>
+            <div
+                style={{
+                    position: 'fixed',
+                    top: 382,
+                    left: 14,
+                    zIndex: 340,
+                    padding: '8px 10px',
+                    borderRadius: 8,
+                    background: 'rgba(10, 10, 10, 0.72)',
+                    border: '1px solid rgba(197, 164, 106, 0.28)',
+                    color: '#d8c48f',
+                    fontFamily: '"Courier New", monospace',
+                    fontSize: 11,
+                    lineHeight: 1.35,
+                    pointerEvents: 'auto',
+                    userSelect: 'text',
+                    cursor: 'text',
+                    whiteSpace: 'pre-line',
+                }}
+                data-debug-overlay="true"
+            >
+                {forwardMoveDebugLines.join('\n')}
+            </div>
+        </>
     );
 };
 
@@ -915,15 +1110,12 @@ export const DungeonScene = () => {
     const level          = useStore(s => s.level);
     const position       = useStore(s => s.position);
     const direction      = useStore(s => s.direction);
-    const gamePhase      = useStore(s => s.gamePhase);
-    const paused         = useStore(s => s.paused);
     const openDoors      = useStore(s => s.openDoors);
     const brokenDoors    = useStore(s => s.brokenDoors);
     const crushingDoors  = useStore(s => s.crushingDoors);
     const openWalls      = useStore(s => s.openWalls);
     const openPits       = useStore(s => s.openPits);
     const openTeleporters = useStore(s => s.openTeleporters);
-    const movementCooldown = useStore(s => s.movementCooldown);
     const openMirror     = useStore(s => s.openMirror);
     const toggleDoor     = useStore(s => s.toggleDoor);
     const activateWallSensor = useStore(s => s.activateWallSensor);
@@ -933,8 +1125,6 @@ export const DungeonScene = () => {
     const firedSensors   = useStore(s => s.firedSensors);
     const party          = useStore(s => s.party);
     const activePartyMemberId = useStore(s => s.activePartyMemberId);
-    const creatures = useStore(s => s.creatures);
-    const lastMonsterAttackDebug = useStore(s => s.lastMonsterAttackDebug);
 
     const map = getGameMap(level);
     const recruitedIds = useMemo(() => new Set(party.map(c => c.id)), [party]);
@@ -1044,84 +1234,6 @@ export const DungeonScene = () => {
         () => collectDungeonSceneTeleporters({ level, map, openTeleporters }),
         [level, map, openTeleporters],
     );
-
-    const frontCreatureDebugLines = useMemo(() => {
-        if (!RENDER_DEBUG_ENABLED) return [];
-        const frontCreatures = creaturesInFront(level, position, direction, creatures);
-        if (frontCreatures.length === 0) {
-            return ['Front creatures: none'];
-        }
-
-        return [
-            `Front creatures (${frontCreatures.length})`,
-            ...frontCreatures.map((creature, index) => {
-                const def = CREATURE_TYPES[creature.typeId];
-                const label = def?.name ?? `Creature ${creature.typeId}`;
-                return `${index + 1}. ${label} [${creature.cell}] HP ${creature.currentHP}/${def?.baseHP ?? '?'} | ATK ${def?.rawAttack ?? '?'} | ARM ${def?.armor ?? '?'} | HIT ${def?.hitProb ?? '?'} | ASPD ${def?.atkSpd ?? '?'} | MSPD ${def?.moveSpd ?? '?'}${def?.absorbMissiles ? ' | ABSORB' : ''}`;
-            }),
-        ];
-    }, [creatures, direction, level, position]);
-
-    const forwardMoveDebugLines = useMemo(() => {
-        if (!RENDER_DEBUG_ENABLED) return [];
-
-        const [currentY, currentX] = position;
-        const targetX = direction === 'EAST' ? currentX + 1 : direction === 'WEST' ? currentX - 1 : currentX;
-        const targetY = direction === 'NORTH' ? currentY - 1 : direction === 'SOUTH' ? currentY + 1 : currentY;
-        const currentTile = map.tiles[currentY]?.[currentX];
-        const targetTile = map.tiles[targetY]?.[targetX];
-        const targetKey = `${level},${targetY},${targetX}`;
-        const forwardBlockedByTerrain =
-            !targetTile ||
-            targetTile.type === 'Wall' ||
-            (targetTile.type === 'TrickWall' && !openWalls.has(targetKey)) ||
-            (targetTile.type === 'Door' && !openDoors.has(targetKey)) ||
-            (targetTile.type === 'Pit' && openPits.has(targetKey));
-        const targetCreatures = creatures.filter((creature) =>
-            creature.alive &&
-            creature.mapIndex === level &&
-            creature.x === targetX &&
-            creature.y === targetY,
-        );
-        const currentKey = `${level},${currentY},${currentX}`;
-        const phaseAllowsMovement = gamePhase === 'exploration' && !paused;
-        const shouldMoveForward =
-            phaseAllowsMovement &&
-            (!Number.isFinite(movementCooldown) || movementCooldown <= 0) &&
-            !forwardBlockedByTerrain &&
-            targetCreatures.length === 0;
-
-        return [
-            'Forward move debug',
-            `from [${currentX},${currentY}] ${currentTile?.type ?? 'void'}${currentTile?.type === 'TrickWall' ? ` (${openWalls.has(currentKey) ? 'open' : 'closed'})` : ''} -> [${targetX},${targetY}] ${targetTile?.type ?? 'void'}${targetTile?.type === 'TrickWall' ? ` (${openWalls.has(targetKey) ? 'open' : 'closed'})` : ''}${targetTile?.type === 'Door' ? ` (${openDoors.has(targetKey) ? 'open' : 'closed'})` : ''}${targetTile?.type === 'Pit' ? ` (${openPits.has(targetKey) ? 'open' : 'closed'})` : ''}`,
-            `phase ${gamePhase}${paused ? ' (paused)' : ''}`,
-            `cooldown ${Number.isFinite(movementCooldown) ? movementCooldown.toFixed(3) : String(movementCooldown)} | teleporter ${openTeleporters.has(targetKey) ? 'target-open' : 'target-off'} | should move ${shouldMoveForward ? 'YES' : 'NO'}`,
-            targetCreatures.length > 0
-                ? `target creatures: ${targetCreatures.map((creature) => {
-                    const def = CREATURE_TYPES[creature.typeId];
-                    return `${def?.name ?? `Creature ${creature.typeId}`} [${creature.cell}] HP ${creature.currentHP}`;
-                }).join(' | ')}`
-                : 'target creatures: none',
-        ];
-    }, [creatures, direction, gamePhase, level, map, movementCooldown, openDoors, openPits, openTeleporters, openWalls, paused, position]);
-
-    const lastMonsterAttackDebugLines = useMemo(() => {
-        if (!RENDER_DEBUG_ENABLED) return [];
-        if (!lastMonsterAttackDebug) {
-            return ['Last monster hit: none'];
-        }
-        return [
-            'Last monster hit',
-            `${lastMonsterAttackDebug.attackerName} -> ${lastMonsterAttackDebug.targetName} | ${lastMonsterAttackDebug.attackMode} ${lastMonsterAttackDebug.attackType}`,
-            `QCK ${lastMonsterAttackDebug.quickness}/${lastMonsterAttackDebug.requiredQuickness} | PARRY ${lastMonsterAttackDebug.parryMastery} | ROLL ${lastMonsterAttackDebug.rolledAttack}`,
-            `DEF ${lastMonsterAttackDebug.defenseApplied ?? '-'} | SHIELD ${lastMonsterAttackDebug.activeShieldDefense ?? 0} | POST ${lastMonsterAttackDebug.postMitigationAttack ?? '-'} | DMG ${lastMonsterAttackDebug.finalDamage} | HP ${lastMonsterAttackDebug.hpBefore}->${lastMonsterAttackDebug.hpAfter}`,
-            `HIT ${lastMonsterAttackDebug.hitZones?.join(', ') ?? '-'} | WOUND ${lastMonsterAttackDebug.woundSlots?.join(', ') ?? '-'}`,
-            ...(lastMonsterAttackDebug.defenseSlotBreakdown ?? []).map((entry) =>
-                `${entry.slot}: vit ${entry.vitalityRoll} + pose ${entry.defenseModifier} + arm ${entry.slotArmor}${entry.slotItemName ? ` (${entry.slotItemName})` : ''} + shield ${entry.shieldContribution} - wound ${entry.woundPenalty} => ${entry.finalDefense}`),
-            ...(lastMonsterAttackDebug.defenseSlotBreakdown ?? []).flatMap((entry) =>
-                (entry.shieldDetails ?? []).map((detail) => `  ${entry.slot} shield: ${detail}`)),
-        ];
-    }, [lastMonsterAttackDebug]);
 
     const handleCellClick = useCallback((
         e: ThreeEvent<MouseEvent>, renderType: CellRenderType, x: number, y: number,
@@ -1326,104 +1438,17 @@ export const DungeonScene = () => {
             )}
             <LevelName key={level} level={level} />
             {RENDER_DEBUG_ENABLED && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: 14,
-                        left: 14,
-                        zIndex: 340,
-                        padding: '8px 10px',
-                        borderRadius: 8,
-                        background: 'rgba(10, 10, 10, 0.72)',
-                        border: '1px solid rgba(197, 164, 106, 0.28)',
-                        color: '#d8c48f',
-                        fontFamily: '"Courier New", monospace',
-                        fontSize: 11,
-                        lineHeight: 1.35,
-                        pointerEvents: 'auto',
-                        userSelect: 'text',
-                        cursor: 'text',
-                        whiteSpace: 'pre-line',
-                    }}
-                    data-debug-overlay="true"
-                >
-                    {text.debugRenderState(renderDebug)}
-                </div>
-            )}
-            {RENDER_DEBUG_ENABLED && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: 102,
-                        left: 14,
-                        zIndex: 340,
-                        padding: '8px 10px',
-                        borderRadius: 8,
-                        background: 'rgba(10, 10, 10, 0.72)',
-                        border: '1px solid rgba(197, 164, 106, 0.28)',
-                        color: '#d8c48f',
-                        fontFamily: '"Courier New", monospace',
-                        fontSize: 11,
-                        lineHeight: 1.35,
-                        pointerEvents: 'auto',
-                        userSelect: 'text',
-                        cursor: 'text',
-                        whiteSpace: 'pre-line',
-                    }}
-                    data-debug-overlay="true"
-                >
-                    {frontCreatureDebugLines.join('\n')}
-                </div>
-            )}
-            {RENDER_DEBUG_ENABLED && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: 206,
-                        left: 14,
-                        zIndex: 340,
-                        padding: '8px 10px',
-                        borderRadius: 8,
-                        background: 'rgba(10, 10, 10, 0.72)',
-                        border: '1px solid rgba(197, 164, 106, 0.28)',
-                        color: '#d8c48f',
-                        fontFamily: '"Courier New", monospace',
-                        fontSize: 11,
-                        lineHeight: 1.35,
-                        pointerEvents: 'auto',
-                        userSelect: 'text',
-                        cursor: 'text',
-                        whiteSpace: 'pre-line',
-                    }}
-                    data-debug-overlay="true"
-                >
-                    {lastMonsterAttackDebugLines.join('\n')}
-                </div>
-            )}
-            {RENDER_DEBUG_ENABLED && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: 382,
-                        left: 14,
-                        zIndex: 340,
-                        padding: '8px 10px',
-                        borderRadius: 8,
-                        background: 'rgba(10, 10, 10, 0.72)',
-                        border: '1px solid rgba(197, 164, 106, 0.28)',
-                        color: '#d8c48f',
-                        fontFamily: '"Courier New", monospace',
-                        fontSize: 11,
-                        lineHeight: 1.35,
-                        pointerEvents: 'auto',
-                        userSelect: 'text',
-                        cursor: 'text',
-                        whiteSpace: 'pre-line',
-                    }}
-                    data-debug-overlay="true"
-                >
-                    {forwardMoveDebugLines.join('\n')}
-                </div>
+                <DungeonSceneDebugOverlay
+                    renderDebug={renderDebug}
+                    level={level}
+                    position={position}
+                    direction={direction}
+                    map={map}
+                    openDoors={openDoors}
+                    openPits={openPits}
+                    openTeleporters={openTeleporters}
+                    openWalls={openWalls}
+                />
             )}
             <DarknessOverlay />
 

@@ -150,6 +150,49 @@ test('triggerAnyObjectWallSensor treats hold sensors as set when applying the ef
     assert.deepEqual(Array.from(result.sensorChanges.openDoors ?? []), ['door-b']);
 });
 
+test('triggerAlcoveDepositSensor supports hold wall niches backed by a mounted item', () => {
+    const sensor = {
+        category: 'Sensor',
+        index: 7,
+        type: 1,
+        revert: false,
+        action: 'Hold',
+        tilePos: 'West',
+    } as const;
+    const coin = {
+        id: 'coin-1',
+        category: 'Misc' as const,
+        typeId: 7,
+        mapIndex: 0,
+        x: 0,
+        y: 0,
+        tilePos: 'West' as const,
+    };
+    const dagger = createWeapon('dagger-2', 3);
+    const deps = createDeps({
+        getTile: () => ({ x: 8, y: 9, type: 'Wall' as const, objects: [sensor, coin] }),
+        getWallFaceSensorsInRuntimeOrder: () => [sensor],
+        computeSensorEffect: () => ({ openDoors: new Set(['door-c']) }),
+    });
+
+    const result = triggerAlcoveDepositSensor(
+        2,
+        8,
+        9,
+        'West',
+        createState(),
+        { 3: [dagger] },
+        {} as Record<number, ChampionEquipment>,
+        { championId: 3, itemId: dagger.id, fromSlot: 'inventory' },
+        deps,
+    );
+
+    assert.equal(result.matched, true);
+    assert.deepEqual(result.newInventories, { 3: [] });
+    assert.deepEqual(result.depositedItem, { ...dagger, mapIndex: 2, x: 8, y: 9, tilePos: 'West' });
+    assert.deepEqual(Array.from(result.sensorChanges.openDoors ?? []), ['door-c']);
+});
+
 test('triggerObjectExchangerSensor skips the Firestaff exchange until the Zokathra unlock has fired', () => {
     const zokathraSensor = { category: 'Sensor', index: 30, type: 17, tilePos: 'South' } as const;
     const firestaffSensor = { category: 'Sensor', index: 31, type: 16, tilePos: 'South' } as const;
@@ -199,6 +242,30 @@ test('clearAlcoveStateOnPickup clears the active sensor flag and rotates the fac
 
     assert.deepEqual(Array.from(result.activeSensors ?? []), []);
     assert.deepEqual(result.sensorRotationOffsets, { north: 1 });
+});
+
+test('clearAlcoveStateOnPickup releases hold wall niches when the last mounted item is removed', () => {
+    const holderSensor = {
+        category: 'Sensor',
+        index: 21,
+        type: 1,
+        revert: false,
+        action: 'Hold',
+        tilePos: 'North',
+    } as const;
+    const item = { ...createWeapon('item-2', 5), mapIndex: 6, x: 7, y: 8, tilePos: 'North' as const };
+    const deps = createDeps({
+        getTile: () => ({ x: 7, y: 8, type: 'Wall' as const, objects: [holderSensor, item] }),
+        getWallFaceSensorsInRuntimeOrder: () => [holderSensor],
+        computeSensorEffect: (entry: { action: string }) => ({ openDoors: new Set([`effect-${entry.action}`]) }),
+    });
+
+    const result = clearAlcoveStateOnPickup(item, {
+        ...createState(),
+        floorItems: [item],
+    }, deps);
+
+    assert.deepEqual(Array.from(result.openDoors ?? []), ['effect-Clear']);
 });
 
 test('applyFirestaffExchangerReward upgrades the base Firestaff and removes the wall reward', () => {

@@ -104,6 +104,23 @@ function isWallTile(tile: GameTile | undefined): tile is GameTile {
     return Boolean(tile && (tile.type === 'Wall' || tile.type === 'TrickWall'));
 }
 
+function isItemCategory(category: unknown): category is FloorItem['category'] {
+    return category === 'Weapon'
+        || category === 'Armor'
+        || category === 'Potion'
+        || category === 'Scroll'
+        || category === 'Misc'
+        || category === 'Container';
+}
+
+function hasOriginalWallMountedItemAtFace(tile: GameTile, face: CardinalDir): boolean {
+    return tile.objects.some((object) =>
+        object.category !== 'Sensor'
+        && isItemCategory(object.category)
+        && (object as { tilePos?: CardinalDir }).tilePos === face,
+    );
+}
+
 export function triggerLockSensors<
     TSensorState extends SensorStateLike,
     TState,
@@ -301,6 +318,41 @@ export function triggerAlcoveDepositSensor<
         };
     }
 
+    const supportsMountedWallItem = hasOriginalWallMountedItemAtFace(tile, face);
+    if (supportsMountedWallItem) {
+        for (const sensor of faceSensors) {
+            if ((sensor.type !== 1 && sensor.type !== 2) || sensor.revert || sensor.action !== 'Hold') continue;
+
+            let newInventories: Record<number, FloorItem[]> | null = null;
+            let newEquipment: Record<number, ChampionEquipment> | null = null;
+            if (fromEquip) {
+                newEquipment = { ...equipment };
+                const equip = { ...(newEquipment[selectedItem.championId] ?? equipment[selectedItem.championId] ?? {}) };
+                delete equip[selectedItem.fromSlot as EquipSlotKey];
+                newEquipment[selectedItem.championId] = equip;
+            } else {
+                newInventories = { ...inventories };
+                const inv = newInventories[selectedItem.championId] ?? inventories[selectedItem.championId] ?? [];
+                newInventories[selectedItem.championId] = inv.filter((item) => item.id !== selectedItem.itemId);
+            }
+
+            const effectiveSensor = { ...sensor, action: 'Set' as SensorAction };
+            const effect = deps.computeSensorEffect(effectiveSensor, level, ss);
+            if (effect.openDoors && effect.openDoors !== ss.openDoors) {
+                deps.playDoorMotion(deps.resolveDoorSoundTarget(effectiveSensor, level));
+            }
+            const nextState = { ...ss, ...effect } as TSensorState;
+
+            return {
+                sensorChanges: deps.diffSensorState(ss, nextState),
+                newInventories,
+                newEquipment,
+                depositedItem: { ...candidate, mapIndex: level, x: wx, y: wy, tilePos: sensor.tilePos },
+                matched: true,
+            };
+        }
+    }
+
     return { sensorChanges: {}, newInventories: null, newEquipment: null, depositedItem: null, matched: false };
 }
 
@@ -458,6 +510,32 @@ export function clearAlcoveStateOnPickup<
             sensorRotationOffsets: deps.rotateWallFaceSensors(item.mapIndex, item.x, item.y, item.tilePos, nextState.sensorRotationOffsets),
         };
         return deps.diffSensorState(ss, nextState);
+    }
+
+    if (hasOriginalWallMountedItemAtFace(tile, item.tilePos)) {
+        const remainingMountedItems = ((state as { floorItems?: FloorItem[] }).floorItems ?? []).some((entry) =>
+            entry.id !== item.id
+            && entry.mapIndex === item.mapIndex
+            && entry.x === item.x
+            && entry.y === item.y
+            && entry.tilePos === item.tilePos,
+        );
+        if (remainingMountedItems) return {};
+
+        for (const sensor of faceSensors) {
+            if ((sensor.type !== 1 && sensor.type !== 2) || sensor.action !== 'Hold') continue;
+            const ss = deps.buildSensorStateSnapshot(state);
+            const effectiveSensor = {
+                ...sensor,
+                action: (sensor.revert ? 'Set' : 'Clear') as SensorAction,
+            };
+            const effect = deps.computeSensorEffect(effectiveSensor, item.mapIndex, ss);
+            if (effect.openDoors && effect.openDoors !== ss.openDoors) {
+                deps.playDoorMotion(deps.resolveDoorSoundTarget(effectiveSensor, item.mapIndex));
+            }
+            const nextState = { ...ss, ...effect } as TSensorState;
+            return deps.diffSensorState(ss, nextState);
+        }
     }
     return {};
 }

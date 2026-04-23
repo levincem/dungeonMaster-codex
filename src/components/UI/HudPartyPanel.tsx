@@ -166,7 +166,10 @@ const HandSlot: React.FC<{
     onFloorDrop,
 }) => {
     const torchBurnStart = useStore((state) => state.torchBurnStart);
-    const imageSrc = item ? getEquippedItemImage(item, torchBurnStart) : null;
+    const paused = useStore((state) => state.paused);
+    const pausedAt = useStore((state) => state.pausedAt ?? null);
+    const imageNow = paused && typeof pausedAt === 'number' ? pausedAt : Date.now();
+    const imageSrc = item ? getEquippedItemImage(item, torchBurnStart, imageNow) : null;
     const emptyHandImageSrc = !item ? EMPTY_HAND_IMAGES[slotKey] : null;
 
     return (
