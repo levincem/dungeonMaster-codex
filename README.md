@@ -6,11 +6,11 @@ Goal: rebuild the original dungeon, systems, and feel as faithfully as possible 
 
 Live build: [dungeon-master.fr](https://dungeon-master.fr/)
 
-Current local version: `v0.7.0-alpha.0`
+Current local version: `v0.7.0-beta.0`
 
 ## Status
 
-This is a desktop-first alpha focused on PC DOS gameplay fidelity first, then presentation polish.
+This is now a desktop-first beta focused on gameplay validation from the early dungeon through endgame, while keeping PC DOS fidelity first and presentation polish second.
 
 Already in place:
 
@@ -24,9 +24,15 @@ Already in place:
 Still open:
 
 - targeted play validation from early game to endgame
-- rare mechanism and timing edge-case checks
+- rare mechanisms, transitions, and timing edge-case checks
 - a smaller pass of UX and visual polish
-- selective performance work where playtests show real pain
+- selective performance work where long play sessions show real pain
+
+Before a release candidate:
+
+- replay the remaining generator / transition / endgame cases
+- confirm the last presentation edge cases around occupied tiles and pickups
+- keep fixing only issues found in real play, not by reopening solved subsystems
 
 ## Run Locally
 
@@ -81,8 +87,10 @@ Original game:
 - FTL Games
 - Doug Bell
 - Wayne Holder
+- Nancy Holder
 - Dennis Walker
 - Mike Newton
+- Tsukasa Tawada
 - Andrew Jaros
 
 Preservation / reverse-engineering references:
@@ -90,6 +98,7 @@ Preservation / reverse-engineering references:
 - the [Dungeon Master community](https://www.dungeon-master.com/forum/)
 - the [Dungeon Master Encyclopaedia](http://dmweb.free.fr/)
 - the [ReDMCSB](https://github.com/gondur/ReDMCSB_Release2) project by Christophe Fontanel
+- the [Dungeon Master: Swoosh Construction Kit by Pierre Monnot](http://greatstone.free.fr)
 
 ## Intent
 

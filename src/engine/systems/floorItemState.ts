@@ -53,6 +53,21 @@ export function canPartyReachFloorItem(
     return item.x === frontTile.x && item.y === frontTile.y;
 }
 
+export function isFloorItemPickupBlockedByFullInventory(
+    state: FloorPickupState,
+    id: string,
+    championId: number,
+): boolean {
+    const item = state.floorItems.find((entry) => entry.id === id);
+    if (!item) return false;
+
+    const champion = state.party.find((entry) => entry.id === championId);
+    if (!champion) return false;
+    if (!canPartyReachFloorItem(state, item)) return false;
+
+    return !canChampionInventoryAcceptItem(state.championInventories[championId] ?? []);
+}
+
 export function buildFloorItemPickupPatch<TSensorPatch extends object>(
     state: FloorPickupState,
     item: FloorItem,

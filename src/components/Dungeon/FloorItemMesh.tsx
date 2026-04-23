@@ -1,32 +1,15 @@
 import { Suspense, useEffect, useMemo, useRef } from 'react';
 import type { ThreeEvent } from '@react-three/fiber';
 import * as THREE from 'three';
-import { GRID_SIZE } from '../../engine/constants';
+import type { Direction } from '../../engine/runtimeTypes';
 import type { FloorItem } from '../../types/game';
 import { getFloorItemImage } from '../../data/itemImages';
 import { BillboardGroup } from './renderHelpers';
 import { useLoadedTexture } from './useLoadedTexture';
+import { FLOOR_ITEM_SIZE, resolveFloorItemPresentation } from './floorItemPresentation';
 
 // ─── Layout ───────────────────────────────────────────────────────────────────
 
-// Item floats just above floor, centered vertically so it's clearly visible
-const FLOOR_Y  = -GRID_SIZE / 2;
-const ITEM_SIZE = GRID_SIZE * 0.38;   // square billboard
-const ITEM_Y    = FLOOR_Y + ITEM_SIZE * 0.22; // resting near floor
-
-const TILEPOS_OFFSET: Record<string, [number, number]> = {
-    North: [ 0,    -0.30],
-    South: [ 0,     0.30],
-    East:  [ 0.30,  0   ],
-    West:  [-0.30,  0   ],
-};
-
-const PROJECTILE_TILEPOS_OFFSET: Record<string, [number, number]> = {
-    North: [ 0,    -0.43],
-    South: [ 0,     0.43],
-    East:  [ 0.43,  0   ],
-    West:  [-0.43,  0   ],
-};
 
 // ─── Inner sprite (uses texture) ──────────────────────────────────────────────
 
@@ -56,8 +39,8 @@ const ItemSprite = ({
 
     const image = tex.image as { width: number; height: number } | undefined;
     const aspect = image ? (image.width / image.height) : 1;
-    const w = ITEM_SIZE;
-    const h = ITEM_SIZE / aspect;
+    const w = FLOOR_ITEM_SIZE;
+    const h = FLOOR_ITEM_SIZE / aspect;
 
     useEffect(() => () => {
         if (timerRef.current !== null) window.clearTimeout(timerRef.current);
@@ -102,7 +85,7 @@ const ItemSprite = ({
     };
 
     return (
-        <mesh onPointerDown={handlePointerDown}>
+        <mesh onPointerDown={handlePointerDown} renderOrder={5}>
             <planeGeometry args={[w, h]} />
             <meshBasicMaterial
                 map={tex}
@@ -124,7 +107,7 @@ const ItemFallback = ({ category }: { category: string }) => {
     };
     return (
         <mesh>
-            <planeGeometry args={[ITEM_SIZE * 0.7, ITEM_SIZE * 0.7]} />
+            <planeGeometry args={[FLOOR_ITEM_SIZE * 0.7, FLOOR_ITEM_SIZE * 0.7]} />
             <meshBasicMaterial color={colors[category] ?? '#d4af37'} side={THREE.DoubleSide} />
         </mesh>
     );
@@ -138,36 +121,33 @@ interface Props {
     onStartDrag: (item: FloorItem, imagePath: string, pointerX: number, pointerY: number) => void;
     onUpdateDrag: (pointerX: number, pointerY: number) => void;
     onEndDrag: (pointerX: number, pointerY: number) => void;
+    direction: Direction;
+    occupiedByCreature: boolean;
 }
 
-export const FloorItemMesh = ({ item, onPickup, onStartDrag, onUpdateDrag, onEndDrag }: Props) => {
-    const offsetMap = item.projectileDropped ? PROJECTILE_TILEPOS_OFFSET : TILEPOS_OFFSET;
-    const offset = offsetMap[item.tilePos] ?? [0, 0];
-    const worldPos: [number, number, number] = [
-        item.x * GRID_SIZE + offset[0],
-        ITEM_Y + (item.projectileDropped ? GRID_SIZE * 0.03 : 0),
-        item.y * GRID_SIZE + offset[1],
-    ];
-
+export const FloorItemMesh = ({ item, onPickup, onStartDrag, onUpdateDrag, onEndDrag, direction, occupiedByCreature }: Props) => {
     const imagePath = getFloorItemImage(item);
+    const presentation = resolveFloorItemPresentation(item, direction, occupiedByCreature);
 
     return (
         <BillboardGroup
-            position={worldPos}
+            position={presentation.position}
             follow={true}
             lockX={true}
             lockY={false}
             lockZ={true}
         >
-            <Suspense fallback={<ItemFallback category={item.category} />}>
-                <ItemSprite
-                    imagePath={imagePath}
-                    onClick={onPickup}
-                    onStartDrag={(pointerX, pointerY) => onStartDrag(item, imagePath, pointerX, pointerY)}
-                    onUpdateDrag={onUpdateDrag}
-                    onEndDrag={onEndDrag}
-                />
-            </Suspense>
+            <group scale={[presentation.scale, presentation.scale, 1]}>
+                <Suspense fallback={<ItemFallback category={item.category} />}>
+                    <ItemSprite
+                        imagePath={imagePath}
+                        onClick={onPickup}
+                        onStartDrag={(pointerX, pointerY) => onStartDrag(item, imagePath, pointerX, pointerY)}
+                        onUpdateDrag={onUpdateDrag}
+                        onEndDrag={onEndDrag}
+                    />
+                </Suspense>
+            </group>
         </BillboardGroup>
     );
 };

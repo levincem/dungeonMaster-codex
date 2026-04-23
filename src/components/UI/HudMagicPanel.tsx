@@ -42,36 +42,57 @@ const RuneBtn: React.FC<{
                 minWidth: 0,
                 boxShadow: selected ? '0 0 10px rgba(255,170,48,0.55), inset 0 0 10px rgba(255,196,96,0.18)' : undefined,
                 position: 'relative',
-                overflow: 'hidden',
+                overflow: 'visible',
             }}
         >
             {selected && (
-                <>
+                <span
+                    style={{
+                        position: 'absolute',
+                        inset: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        pointerEvents: 'none',
+                    }}
+                >
                     <span
                         style={{
                             position: 'absolute',
-                            inset: '6% 12%',
+                            width: '118%',
+                            height: '118%',
                             borderRadius: '50%',
-                            background: `radial-gradient(circle, ${auraColor} 0%, rgba(166,120,255,0.14) 42%, rgba(166,120,255,0) 74%)`,
-                            filter: 'blur(5px)',
-                            opacity: 0.95,
-                            pointerEvents: 'none',
+                            background: `radial-gradient(circle, ${auraColor} 0%, rgba(166,120,255,0.22) 34%, rgba(166,120,255,0.08) 58%, rgba(166,120,255,0) 78%)`,
+                            filter: 'blur(8px)',
+                            opacity: 1,
                         }}
                         className="rune-arcane-aura"
                     />
                     <span
                         style={{
                             position: 'absolute',
-                            inset: '18% 22%',
+                            width: '92%',
+                            height: '92%',
                             borderRadius: '50%',
-                            border: '1px solid rgba(198,164,255,0.34)',
-                            boxShadow: '0 0 10px rgba(176,120,255,0.22)',
-                            opacity: 0.8,
-                            pointerEvents: 'none',
+                            border: '1px solid rgba(214,186,255,0.52)',
+                            boxShadow: '0 0 16px rgba(176,120,255,0.34)',
+                            opacity: 0.92,
                         }}
                         className="rune-arcane-ring"
                     />
-                </>
+                    <span
+                        style={{
+                            position: 'absolute',
+                            width: '108%',
+                            height: '44%',
+                            transform: 'translateY(18%)',
+                            borderRadius: '50%',
+                            background: 'radial-gradient(circle, rgba(228,188,255,0.28) 0%, rgba(180,120,255,0.16) 46%, rgba(180,120,255,0) 76%)',
+                            filter: 'blur(6px)',
+                            opacity: 0.95,
+                        }}
+                    />
+                </span>
             )}
             <img
                 src={getRuneImagePath(runeId)}
@@ -156,7 +177,10 @@ export const HudMagicPanel: React.FC<{
 
     return (
         <div style={panelStyle}>
-            <div style={{ display: 'flex', gap: 4, alignItems: 'stretch', marginBottom: 6 }}>
+            <div
+                style={{ display: 'flex', gap: 4, alignItems: 'stretch', marginBottom: 6 }}
+                data-tutorial-zone="magic-caster-row"
+            >
                 {party.map((champion, index) => {
                     const isSelected = champion?.id === activeCasterChampionId;
                     const shortName = champion?.name ? champion.name.slice(0, 2).toUpperCase() : '';
@@ -226,8 +250,9 @@ export const HudMagicPanel: React.FC<{
                 })}
             </div>
 
-            <div style={{ display: 'flex', gap: 3, marginBottom: 6 }}>
-                {Array.from({ length: 4 }).map((_, i) => {
+            <div data-tutorial-zone="magic-spell-composer">
+                <div style={{ display: 'flex', gap: 3, marginBottom: 6 }}>
+                    {Array.from({ length: 4 }).map((_, i) => {
                     const runeId = selectedRunes[i];
                     const rune = runeId ? RUNES_BY_ID[runeId] : undefined;
                     return (
@@ -253,7 +278,7 @@ export const HudMagicPanel: React.FC<{
                                 padding: 1,
                                 boxShadow: runeId ? '0 0 10px rgba(255,160,32,0.42), inset 0 0 10px rgba(255,196,96,0.16)' : undefined,
                                 position: 'relative',
-                                overflow: 'hidden',
+                                overflow: 'visible',
                             }}
                         >
                             {runeId ? (
@@ -261,27 +286,50 @@ export const HudMagicPanel: React.FC<{
                                     <span
                                         style={{
                                             position: 'absolute',
-                                            inset: '8% 16%',
-                                            borderRadius: '50%',
-                                            background: 'radial-gradient(circle, rgba(176,120,255,0.34) 0%, rgba(166,112,255,0.14) 44%, rgba(166,112,255,0) 74%)',
-                                            filter: 'blur(6px)',
-                                            opacity: 0.95,
+                                            inset: 0,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
                                             pointerEvents: 'none',
                                         }}
-                                        className="rune-arcane-aura"
-                                    />
-                                    <span
-                                        style={{
-                                            position: 'absolute',
-                                            inset: '22% 28%',
-                                            borderRadius: '50%',
-                                            border: '1px solid rgba(196,158,255,0.3)',
-                                            boxShadow: '0 0 10px rgba(164,116,255,0.18)',
-                                            opacity: 0.75,
-                                            pointerEvents: 'none',
-                                        }}
-                                        className="rune-arcane-ring"
-                                    />
+                                    >
+                                        <span
+                                            style={{
+                                                position: 'absolute',
+                                                width: '126%',
+                                                height: '112%',
+                                                borderRadius: '50%',
+                                                background: 'radial-gradient(circle, rgba(192,138,255,0.38) 0%, rgba(176,120,255,0.24) 34%, rgba(166,112,255,0.1) 56%, rgba(166,112,255,0) 78%)',
+                                                filter: 'blur(9px)',
+                                                opacity: 1,
+                                            }}
+                                            className="rune-arcane-aura"
+                                        />
+                                        <span
+                                            style={{
+                                                position: 'absolute',
+                                                width: '98%',
+                                                height: '88%',
+                                                borderRadius: '50%',
+                                                border: '1px solid rgba(210,176,255,0.42)',
+                                                boxShadow: '0 0 14px rgba(164,116,255,0.24)',
+                                                opacity: 0.88,
+                                            }}
+                                            className="rune-arcane-ring"
+                                        />
+                                        <span
+                                            style={{
+                                                position: 'absolute',
+                                                width: '116%',
+                                                height: '46%',
+                                                transform: 'translateY(22%)',
+                                                borderRadius: '50%',
+                                                background: 'radial-gradient(circle, rgba(220,180,255,0.24) 0%, rgba(184,126,255,0.18) 38%, rgba(166,112,255,0) 74%)',
+                                                filter: 'blur(7px)',
+                                                opacity: 0.95,
+                                            }}
+                                        />
+                                    </span>
                                     <img
                                         src={getRuneImagePath(runeId)}
                                         alt=""
@@ -308,68 +356,72 @@ export const HudMagicPanel: React.FC<{
                         </div>
                     );
                 })}
-            </div>
-
-            <div style={{ display: 'flex', gap: 5, alignItems: 'center', marginBottom: 6 }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                    {spell ? (
-                        <div style={{ fontSize: 12, color: '#f0d060', fontWeight: 'bold', letterSpacing: 0.5 }}>
-                            {spell.name}
-                            <span style={{ color: '#d4b870', fontWeight: 'normal', fontSize: 10, marginLeft: 5 }}>
-                                {spell.manaCost} {text.manaUnit}
-                            </span>
-                        </div>
-                    ) : selectedRunes.length > 0 ? (
-                        <div style={{ fontSize: 10, color: '#8a7650', fontStyle: 'italic' }}>{text.unknownCombination}</div>
-                    ) : (
-                        <div style={{ fontSize: 10, color: '#8a7650', fontStyle: 'italic' }}>{text.selectRunes}</div>
-                    )}
                 </div>
-                <button
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={onCast}
-                    disabled={!canCast}
-                    style={{
-                        padding: '4px 9px',
-                        background: canCast ? 'rgba(0,0,0,0.95)' : 'rgba(0,0,0,0.82)',
-                        border: `1px solid ${canCast ? 'rgba(212,184,112,0.82)' : 'rgba(212,184,112,0.28)'}`,
-                        borderRadius: 4,
-                        color: canCast ? '#f0d060' : 'rgba(212,184,112,0.34)',
-                        fontSize: 11,
-                        letterSpacing: 1,
-                        cursor: canCast ? 'pointer' : 'default',
-                        fontFamily: '"Courier New", monospace',
-                        whiteSpace: 'nowrap',
-                    }}
-                >
-                    {'\u2726'} {text.cast}
-                </button>
-                <button
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={onClear}
-                    disabled={selectedRunes.length === 0}
-                    title={runeText.clearSelection}
-                    style={{
-                        padding: '4px 7px',
-                        background: selectedRunes.length > 0 ? 'rgba(0,0,0,0.95)' : 'rgba(0,0,0,0.82)',
-                        border: `1px solid ${selectedRunes.length > 0 ? 'rgba(212,184,112,0.72)' : 'rgba(212,184,112,0.22)'}`,
-                        borderRadius: 4,
-                        color: selectedRunes.length > 0 ? '#d8ba76' : 'rgba(212,184,112,0.34)',
-                        fontSize: 11,
-                        cursor: selectedRunes.length > 0 ? 'pointer' : 'default',
-                        fontFamily: '"Courier New", monospace',
-                        boxShadow: selectedRunes.length > 0 ? 'inset 0 0 10px rgba(212,184,112,0.08)' : 'none',
-                    }}
-                >
-                    {'\u2715'}
-                </button>
+
+                <div style={{ display: 'flex', gap: 5, alignItems: 'center', marginBottom: 6 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                        {spell ? (
+                            <div style={{ fontSize: 12, color: '#f0d060', fontWeight: 'bold', letterSpacing: 0.5 }}>
+                                {spell.name}
+                                <span style={{ color: '#d4b870', fontWeight: 'normal', fontSize: 10, marginLeft: 5 }}>
+                                    {spell.manaCost} {text.manaUnit}
+                                </span>
+                            </div>
+                        ) : selectedRunes.length > 0 ? (
+                            <div style={{ fontSize: 10, color: '#8a7650', fontStyle: 'italic' }}>{text.unknownCombination}</div>
+                        ) : (
+                            <div style={{ fontSize: 10, color: '#8a7650', fontStyle: 'italic' }}>{text.selectRunes}</div>
+                        )}
+                    </div>
+                    <button
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={onCast}
+                        disabled={!canCast}
+                        style={{
+                            padding: '4px 9px',
+                            background: canCast ? 'rgba(0,0,0,0.95)' : 'rgba(0,0,0,0.82)',
+                            border: `1px solid ${canCast ? 'rgba(212,184,112,0.82)' : 'rgba(212,184,112,0.28)'}`,
+                            borderRadius: 4,
+                            color: canCast ? '#f0d060' : 'rgba(212,184,112,0.34)',
+                            fontSize: 11,
+                            letterSpacing: 1,
+                            cursor: canCast ? 'pointer' : 'default',
+                            fontFamily: '"Courier New", monospace',
+                            whiteSpace: 'nowrap',
+                        }}
+                    >
+                        {'\u2726'} {text.cast}
+                    </button>
+                    <button
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={onClear}
+                        disabled={selectedRunes.length === 0}
+                        title={runeText.clearSelection}
+                        style={{
+                            padding: '4px 7px',
+                            background: selectedRunes.length > 0 ? 'rgba(0,0,0,0.95)' : 'rgba(0,0,0,0.82)',
+                            border: `1px solid ${selectedRunes.length > 0 ? 'rgba(212,184,112,0.72)' : 'rgba(212,184,112,0.22)'}`,
+                            borderRadius: 4,
+                            color: selectedRunes.length > 0 ? '#d8ba76' : 'rgba(212,184,112,0.34)',
+                            fontSize: 11,
+                            cursor: selectedRunes.length > 0 ? 'pointer' : 'default',
+                            fontFamily: '"Courier New", monospace',
+                            boxShadow: selectedRunes.length > 0 ? 'inset 0 0 10px rgba(212,184,112,0.08)' : 'none',
+                        }}
+                    >
+                        {'\u2715'}
+                    </button>
+                </div>
             </div>
 
             <div style={{ fontSize: 9, letterSpacing: 2, marginBottom: 3, fontWeight: 'bold', color: '#e0b850' }}>
                 {text.runeFamilyLabels[currentFamily]}
             </div>
 
-            <div style={{ display: 'flex', gap: 1, background: 'rgba(0,0,0,0.9)', padding: 2, borderRadius: 5, border: '1px solid rgba(212,184,112,0.24)' }}>
+            <div
+                style={{ display: 'flex', gap: 1, background: 'rgba(0,0,0,0.9)', padding: 2, borderRadius: 5, border: '1px solid rgba(212,184,112,0.24)' }}
+                data-tutorial-zone="magic-rune-grid"
+            >
                 {RUNES_BY_FAMILY[currentFamily].map((rune) => (
                     <RuneBtn
                         key={rune.id}

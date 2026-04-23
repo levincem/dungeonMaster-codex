@@ -78,7 +78,18 @@ type RenderDebugState = {
     wallDecals: boolean;
     wallButtons: boolean;
 };
-const RENDER_DEBUG_ENABLED = import.meta.env.DEV;
+
+function isDungeonRenderDebugEnabled(): boolean {
+    if (!import.meta.env.DEV) return false;
+    if (typeof window === 'undefined') return false;
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('dungeonDebug') === '1') return true;
+
+    return window.localStorage.getItem('dm_dungeon_debug') === '1';
+}
+
+const RENDER_DEBUG_ENABLED = isDungeonRenderDebugEnabled();
 
 const DEFAULT_RENDER_DEBUG_STATE: RenderDebugState = {
     wallTexts: true,
@@ -89,8 +100,9 @@ const DEFAULT_RENDER_DEBUG_STATE: RenderDebugState = {
 const DUNGEON_AMBIENT_COLOR = new THREE.Color('#f4e2ba');
 const DUNGEON_DARK_AMBIENT_COLOR = new THREE.Color('#8ea0c0');
 const CAMERA_HEIGHT_OFFSET = 0;
-const CAMERA_FORWARD_OFFSET = 0;
+const CAMERA_FORWARD_OFFSET = -GRID_SIZE * 0.28;
 const CAMERA_LATERAL_OFFSET = 0;
+const CAMERA_FOV = 80;
 const CAMERA_ROTATION_MAP = { NORTH: 0, EAST: -Math.PI / 2, SOUTH: Math.PI, WEST: Math.PI / 2 };
 const CAMERA_FORWARD_VECTOR_MAP = {
     NORTH: new THREE.Vector3(0, 0, -1),
@@ -277,6 +289,7 @@ const CameraController = () => {
         const camera = cameraRef.current;
         if (!camera) return;
 
+        camera.fov = CAMERA_FOV;
         camera.aspect = Math.max(1, size.width) / Math.max(1, size.height);
         camera.updateProjectionMatrix();
     }, [size.height, size.width]);
@@ -321,7 +334,7 @@ const CameraController = () => {
             ref={cameraRef}
             position={initialCameraPosition}
             rotation={initialCameraRotation}
-            fov={75}
+            fov={CAMERA_FOV}
         />
     );
 };
@@ -1242,6 +1255,7 @@ export const DungeonScene = () => {
                 handleRootDrop(event);
             }}
             style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', background: '#000', overflow: 'hidden' }}
+            data-tutorial-zone="dungeon-canvas-host"
         >
             {dungeonDragPreview && (
                 <div

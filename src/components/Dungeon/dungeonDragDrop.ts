@@ -12,8 +12,8 @@ type DungeonDragDropActionHandlers = {
     throwItem: () => boolean | void;
 };
 
-const CURRENT_TILE_DROP_RATIO = 0.72;
-const FRONT_TILE_DROP_RATIO = 0.42;
+const CURRENT_TILE_DROP_RATIO = 0.73;
+const FRONT_TILE_DROP_RATIO = 0.45;
 
 export const DUNGEON_DRAG_DROP_BANDS: DungeonDragDropBand[] = [
     { destination: 'throw', startRatio: 0, endRatio: FRONT_TILE_DROP_RATIO },

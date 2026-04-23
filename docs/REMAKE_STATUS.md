@@ -1,6 +1,6 @@
 # Dungeon Master Remake - Etat du projet
 
-Etat revu le `2026-04-22`.
+Etat revu le `2026-04-23`.
 
 Ce document est un journal d'etat compact.
 
@@ -8,7 +8,7 @@ Pour la liste des sujets encore ouverts et ordonnes, lire [docs/NEXT_PHASE_PLAN.
 
 ## Resume actuel
 
-Le projet est maintenant une alpha desktop-first jouable et serieuse.
+Le projet est maintenant une beta desktop-first jouable et serieuse.
 
 Ce qui est solidement en place:
 
@@ -25,13 +25,29 @@ Lecture honnete du projet aujourd'hui:
 - l'extraction utile au runtime principal est consideree comme fiable
 - le coeur gameplay est largement `source-backed`
 - le `store` n'est plus le gros chantier prioritaire
-- les restes ouverts sont surtout du playtest cible, de la fidelite sur cas rares, de quelques placeholders visuels et de l'optimisation
+- les restes ouverts sont surtout du playtest cible, des cas rares, quelques ecarts de presentation et de l'optimisation
+- on n'est pas encore en `release candidate`, mais on n'est plus dans une logique d'alpha fragile
 
 Validation locale la plus recente:
 
 - `npm.cmd test` : `721` tests verts
 - `npm.cmd run lint` : vert
 - `npm.cmd run build` : vert
+
+## Lecture beta
+
+Ce que veut dire `beta` ici:
+
+- le debut du jeu est maintenant jouable de facon suivie sans bug bloquant evident
+- le coeur du runtime tient en conditions normales de playtest
+- les regressions restantes attendues sont plutot des cas rares, du tuning ou du polish que des ruptures structurelles
+
+Ce qu'il reste avant une release plus large:
+
+- rejouer explicitement `generateurs / transitions / endgame`
+- verifier les mecanismes rares et les timings tardifs
+- confirmer les derniers cas de presentation / pickup sur case occupee
+- continuer a surveiller les performances sur longues sessions, surtout en `dev`
 
 ## Aide debug locale
 
@@ -90,10 +106,10 @@ Point utile deja confirme:
 Le detail ordonne vit dans [docs/NEXT_PHASE_PLAN.md](/D:/DungeonMaster-codex/docs/NEXT_PHASE_PLAN.md), mais en resume:
 
 - playtest cible `generateurs / transitions de niveau`
-- verification visuelle des zones UI remaniees
+- presentation / interaction des items sur case occupee
 - profilage / optimisation
 - mecanismes rares et endgame
-- surtout du playtest cible sur cas rares, puis quelques placeholders de presentation
+- surtout du playtest cible sur cas rares, puis quelques ecarts de presentation
 
 ## Checkpoints recents
 

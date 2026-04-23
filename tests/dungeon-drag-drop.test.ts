@@ -9,7 +9,7 @@ import {
 
 test('resolveDungeonDragDropDestination splits the viewport into throw, front and current bands', () => {
     assert.equal(resolveDungeonDragDropDestination(120, 1000), 'throw');
-    assert.equal(resolveDungeonDragDropDestination(540, 1000), 'front');
+    assert.equal(resolveDungeonDragDropDestination(520, 1000), 'front');
     assert.equal(resolveDungeonDragDropDestination(860, 1000), 'current');
 });
 

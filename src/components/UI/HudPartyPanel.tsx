@@ -78,6 +78,11 @@ const LEVEL_UP_STYLE = `
     18% { opacity: 0.98; }
     100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; }
 }
+@keyframes hud-pickup-full-flash {
+    0% { opacity: 0; transform: scale(0.96); }
+    16% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.02); }
+}
 `;
 
 function getPortraitStyle(size: number): React.CSSProperties {
@@ -305,6 +310,7 @@ const ChampionCard: React.FC<{
     equip: ChampionEquipment;
     recentDamage: number[];
     levelUp: boolean;
+    inventoryFullFlash: boolean;
     slotIndex: number;
     selected: boolean;
     isDragOver: boolean;
@@ -327,6 +333,7 @@ const ChampionCard: React.FC<{
     equip,
     recentDamage,
     levelUp,
+    inventoryFullFlash,
     slotIndex,
     selected,
     isDragOver,
@@ -516,6 +523,36 @@ const ChampionCard: React.FC<{
                                 -{amount}
                             </div>
                         ))}
+                        {inventoryFullFlash && (
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    inset: 0,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    background: 'linear-gradient(180deg, rgba(120,10,10,0.12), rgba(168,12,12,0.34) 45%, rgba(86,4,4,0.2))',
+                                    animation: 'hud-pickup-full-flash 0.52s ease-out 1',
+                                    pointerEvents: 'none',
+                                }}
+                            >
+                                <span
+                                    style={{
+                                        padding: '3px 10px',
+                                        borderRadius: 999,
+                                        background: 'rgba(86,6,6,0.94)',
+                                        border: '1px solid rgba(255,186,186,0.82)',
+                                        boxShadow: '0 4px 14px rgba(0,0,0,0.42)',
+                                        color: '#fff1e8',
+                                        fontSize: 10,
+                                        fontWeight: 900,
+                                        letterSpacing: 1.2,
+                                    }}
+                                >
+                                    FULL
+                                </span>
+                            </div>
+                        )}
                     </div>
                     {vitals ? (
                         <VitalsStrip
@@ -594,6 +631,7 @@ export const HudPartyPanel: React.FC<{
     championEquipment: Record<number, ChampionEquipment>;
     recentDamageByChampionId: Record<number, number[]>;
     levelUpChampionIds: number[];
+    inventoryFullFeedback: { championId: number; ts: number } | null;
     selectedChampionIndex: number;
     activeFloorDrag: ActiveFloorDrag;
     dragFrom: number | null;
@@ -607,7 +645,7 @@ export const HudPartyPanel: React.FC<{
     selectChampion: (index: number) => void;
     openPartyMember: (championId: number) => void;
     reorderParty: (from: number, to: number) => void;
-    pickupItemToChampion: (itemId: string, championId: number) => void;
+    pickupItemToChampion: (itemId: string, championId: number) => boolean;
     endFloorDrag: () => void;
     giveItem: (fromChampionId: number, toChampionId: number, itemId: string) => void;
     giveEquippedItem: (fromChampionId: number, fromSlot: EquipSlotKey, toChampionId: number) => void;
@@ -619,6 +657,7 @@ export const HudPartyPanel: React.FC<{
     championEquipment,
     recentDamageByChampionId,
     levelUpChampionIds,
+    inventoryFullFeedback,
     selectedChampionIndex,
     activeFloorDrag,
     dragFrom,
@@ -638,11 +677,32 @@ export const HudPartyPanel: React.FC<{
     giveEquippedItem,
     equipItem,
 }) => {
+    const [activeInventoryFullChampionId, setActiveInventoryFullChampionId] = React.useState<number | null>(null);
+    const inventoryFullTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    React.useEffect(() => {
+        if (!inventoryFullFeedback) return;
+        setActiveInventoryFullChampionId(inventoryFullFeedback.championId);
+        if (inventoryFullTimeoutRef.current) clearTimeout(inventoryFullTimeoutRef.current);
+        inventoryFullTimeoutRef.current = setTimeout(() => {
+            setActiveInventoryFullChampionId((current) =>
+                current === inventoryFullFeedback.championId ? null : current,
+            );
+            inventoryFullTimeoutRef.current = null;
+        }, Math.max(0, inventoryFullFeedback.ts - Date.now()));
+        return () => {
+            if (inventoryFullTimeoutRef.current) {
+                clearTimeout(inventoryFullTimeoutRef.current);
+                inventoryFullTimeoutRef.current = null;
+            }
+        };
+    }, [inventoryFullFeedback]);
+
     return (
-        <div style={panelStyle}>
+        <div style={panelStyle} data-tutorial-zone="party-panel">
             <style>{LEVEL_UP_STYLE}</style>
             <div style={{ display: 'flex', gap: 6, alignItems: 'stretch' }}>
-                <div style={{ flex: '0 0 80%', display: 'flex', gap: 4, minWidth: 0 }}>
+                <div style={{ flex: '0 0 80%', display: 'flex', gap: 4, minWidth: 0 }} data-tutorial-zone="party-portraits">
                     {[0, 1, 2, 3].map((index) => (
                         <div key={index} style={{ flex: '1 1 20%', minWidth: 0, display: 'flex', justifyContent: 'center' }}>
                             <ChampionCard
@@ -651,6 +711,7 @@ export const HudPartyPanel: React.FC<{
                                 equip={party[index] ? (championEquipment[party[index].id] ?? {}) : {}}
                                 recentDamage={party[index] ? (recentDamageByChampionId[party[index].id] ?? []) : []}
                                 levelUp={party[index] ? levelUpChampionIds.includes(party[index].id) : false}
+                                inventoryFullFlash={party[index] ? activeInventoryFullChampionId === party[index].id : false}
                                 slotIndex={index}
                                 selected={selectedChampionIndex === index && !!party[index]}
                                 isDragOver={itemDropOver === index}
@@ -688,8 +749,8 @@ export const HudPartyPanel: React.FC<{
                                 onFloorDrop={() => {
                                     const targetChampion = party[index];
                                     if (!activeFloorDrag || !targetChampion) return;
-                                    pickupItemToChampion(activeFloorDrag.itemId, targetChampion.id);
-                                    endFloorDrag();
+                                    const pickedUp = pickupItemToChampion(activeFloorDrag.itemId, targetChampion.id);
+                                    if (pickedUp) endFloorDrag();
                                 }}
                                 onHandNativeItemDragOver={(slotKey, event) => {
                                     const targetChampion = party[index];
@@ -745,7 +806,8 @@ export const HudPartyPanel: React.FC<{
                                     const state = useStore.getState();
                                     const floorItem = state.floorItems.find((item) => item.id === activeFloorDrag.itemId);
                                     if (!floorItem || !canEquipItemInSlot(floorItem, slotKey)) return;
-                                    pickupItemToChampion(activeFloorDrag.itemId, targetChampion.id);
+                                    const pickedUp = pickupItemToChampion(activeFloorDrag.itemId, targetChampion.id);
+                                    if (!pickedUp) return;
                                     equipItem(targetChampion.id, slotKey, activeFloorDrag.itemId);
                                     endFloorDrag();
                                     setHandDropOver(null);
@@ -765,6 +827,7 @@ export const HudPartyPanel: React.FC<{
                         justifyItems: 'center',
                         minWidth: 0,
                     }}
+                    data-tutorial-zone="party-formation"
                 >
                     {[0, 1, 2, 3].map((index) => (
                         <FormationSilhouette

@@ -246,6 +246,8 @@ export const DamageLayer: React.FC = () => {
 export const FloorItemsLayer: React.FC = () => {
     const floorItems = useStore((state) => state.floorItems);
     const level = useStore((state) => state.level);
+    const creatures = useStore((state) => state.creatures);
+    const direction = useStore((state) => state.direction);
     const openWalls = useStore((state) => state.openWalls);
     const pickupItem = useStore((state) => state.pickupItem);
     const beginFloorDrag = useStore((state) => state.beginFloorDrag);
@@ -259,6 +261,14 @@ export const FloorItemsLayer: React.FC = () => {
     const party = useStore((state) => state.party);
     const selectedChampionId = party[selectedChampionIndex]?.id ?? party[0]?.id ?? null;
     const map = getGameMap(level);
+    const occupiedFloorKeys = useMemo(
+        () => new Set(
+            creatures
+                .filter((creature) => creature.alive && creature.mapIndex === level)
+                .map((creature) => `${creature.x},${creature.y}`),
+        ),
+        [creatures, level],
+    );
 
     const isMirrorTile = (item: FloorItem) => MIRROR_WALL_MAP.has(`${level},${item.x},${item.y}`);
     const isWallMounted = (item: FloorItem) => {
@@ -283,6 +293,8 @@ export const FloorItemsLayer: React.FC = () => {
                             <FloorItemMesh
                                 key={item.id}
                                 item={item}
+                                direction={direction}
+                                occupiedByCreature={occupiedFloorKeys.has(`${item.x},${item.y}`)}
                                 onPickup={() => pickupItem(item.id)}
                                 onStartDrag={(draggedItem, _imagePath, pointerX, pointerY) =>
                                     beginFloorDrag(draggedItem.id, pointerX, pointerY)}

@@ -8,6 +8,7 @@ import {
 } from './analytics';
 import { TitleScreen } from './components/UI/TitleScreen';
 import { GameOverScreen } from './components/UI/GameOverScreen';
+import { GameplayTutorialOverlay } from './components/UI/GameplayTutorialOverlay';
 import { useStore } from './engine/store';
 import { preloadAllSounds } from './engine/sounds';
 import { clampFrameDeltaSeconds } from './engine/time';
@@ -139,12 +140,14 @@ function GameRoot() {
   const level = useStore((state) => state.level);
   const paused = useStore((state) => state.paused);
   const activePartyMemberId = useStore((state) => state.activePartyMemberId);
+  const tutorialOverlayActive = useStore((state) => state.tutorialOverlayActive);
   const enterDungeon = useStore((state) => state.enterDungeon);
   const loadGame = useStore((state) => state.loadGame);
   const closeMirror = useStore((state) => state.closeMirror);
   const closePartyMember = useStore((state) => state.closePartyMember);
   const wakeUp = useStore((state) => state.wakeUp);
   const togglePause = useStore((state) => state.togglePause);
+  const tickGameplayFrame = useStore((state) => state.tickGameplayFrame);
   const [titleTransitionMessage, setTitleTransitionMessage] = useState<string | null>(null);
 
   const lastTimeRef = useRef<number | null>(null);
@@ -210,18 +213,10 @@ function GameRoot() {
 
       tickInFlightRef.current = true;
       try {
-        const state = useStore.getState();
-        if (lastTimeRef.current !== null && state.gamePhase !== 'title' && state.gamePhase !== 'victory' && state.gamePhase !== 'game_over') {
-          if (!state.paused) {
-            const delta = clampFrameDeltaSeconds((now - lastTimeRef.current) / 1000);
-            const wallClockNow = Date.now();
-            state.tickFrame(delta, wallClockNow);
-            if ((state.gamePhase === 'exploration' || state.gamePhase === 'mirror_open') && !state.sleeping) {
-              state.tickMonsters(delta);
-              state.tickDoors(delta);
-              state.tickSpells(wallClockNow);
-            }
-          }
+        if (lastTimeRef.current !== null) {
+          const delta = clampFrameDeltaSeconds((now - lastTimeRef.current) / 1000);
+          const wallClockNow = Date.now();
+          tickGameplayFrame(delta, wallClockNow);
         }
 
         lastTimeRef.current = now;
@@ -239,7 +234,7 @@ function GameRoot() {
       tickInFlightRef.current = false;
       lastTimeRef.current = null;
     };
-  }, []);
+  }, [tickGameplayFrame]);
 
   useEffect(() => {
     if (gamePhase !== 'title') return;
@@ -375,6 +370,9 @@ function GameRoot() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const state = useStore.getState();
+      if (state.tutorialOverlayActive) {
+        return;
+      }
       if (e.key === 'Escape') {
         if (state.optionsModalOpen) return;
         e.preventDefault();
@@ -396,6 +394,7 @@ function GameRoot() {
 
     const handlePointerDown = (event: PointerEvent) => {
       const state = useStore.getState();
+      if (state.tutorialOverlayActive) return;
       const target = event.target;
       if (target instanceof Element && target.closest('[data-sleep-toggle="true"]')) {
         return;
@@ -410,7 +409,7 @@ function GameRoot() {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('pointerdown', handlePointerDown);
     };
-  }, [closeMirror, closePartyMember, togglePause, wakeUp]);
+  }, [closeMirror, closePartyMember, togglePause, wakeUp, tutorialOverlayActive]);
 
   return (
     <div className="app">
@@ -470,6 +469,7 @@ function GameRoot() {
           <>
             <DungeonScene />
             <HUD />
+            <GameplayTutorialOverlay />
             {gamePhase === 'mirror_open' && <MirrorPopup />}
             {activePartyMemberId !== null && (
               <Suspense fallback={null}>

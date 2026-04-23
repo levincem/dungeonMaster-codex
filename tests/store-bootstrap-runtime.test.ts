@@ -65,6 +65,7 @@ test('store bootstrap runtime builds a fresh exploration-ready dungeon state', (
     assert.equal(state.sleeping, false);
     assert.equal(state.endgameSequence, null);
     assert.equal(state.activeFloorDrag, null);
+    assert.equal(state.tutorialOverlayActive, false);
 });
 
 test('store bootstrap runtime keeps title boot lightweight until world hydration is needed', () => {
@@ -108,6 +109,7 @@ test('store bootstrap runtime keeps title boot lightweight until world hydration
     assert.deepEqual([...state.visibleTexts], []);
     assert.deepEqual(state.creatures, []);
     assert.deepEqual(state.floorItems, []);
+    assert.equal(state.tutorialOverlayActive, false);
     assert.equal(openPitsCalls, 0);
     assert.equal(openTeleportersCalls, 0);
     assert.equal(visibleTextsCalls, 0);

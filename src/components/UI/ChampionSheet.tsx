@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useSyncExternalStore } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import type { Champion } from '../../data/champions';
 import { getGameMap } from '../../data/mapLoader';
 import { getMechanismsAt } from '../../data/mechanisms';
@@ -567,7 +568,38 @@ export const ChampionSheet: React.FC = () => {
         equipItem, unequipItem, dropItem, giveItem, giveEquippedItem,
         storeItemInContainer, takeContainerItem, giveContainerItem, equipContainerItem, sleeping,
         useItem: consumeItem, drinkFromFountain, fillWaterContainer, sleep, saveGame, showTransientMessage, useItemOnFrontWall: frontWallItemAction,
-    } = useStore();
+    } = useStore(useShallow((state) => ({
+        activePartyMemberId: state.activePartyMemberId,
+        party: state.party,
+        level: state.level,
+        position: state.position,
+        direction: state.direction,
+        closePartyMember: state.closePartyMember,
+        openPartyMember: state.openPartyMember,
+        removeFromParty: state.removeFromParty,
+        championInventories: state.championInventories,
+        championEquipment: state.championEquipment,
+        championVitals: state.championVitals,
+        championXP: state.championXP,
+        firedSensors: state.firedSensors,
+        equipItem: state.equipItem,
+        unequipItem: state.unequipItem,
+        dropItem: state.dropItem,
+        giveItem: state.giveItem,
+        giveEquippedItem: state.giveEquippedItem,
+        storeItemInContainer: state.storeItemInContainer,
+        takeContainerItem: state.takeContainerItem,
+        giveContainerItem: state.giveContainerItem,
+        equipContainerItem: state.equipContainerItem,
+        sleeping: state.sleeping,
+        useItem: state.useItem,
+        drinkFromFountain: state.drinkFromFountain,
+        fillWaterContainer: state.fillWaterContainer,
+        sleep: state.sleep,
+        saveGame: state.saveGame,
+        showTransientMessage: state.showTransientMessage,
+        useItemOnFrontWall: state.useItemOnFrontWall,
+    })));
     const activePotionBoosts = useStore((s) => s.activePotionBoosts);
 
     const [inspectedItem, setInspectedItem] = useState<FloorItem | null>(null);

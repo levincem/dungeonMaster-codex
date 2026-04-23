@@ -127,6 +127,7 @@ import {
 import {
     buildFloorItemPickupPatch,
     canPartyReachFloorItem,
+    isFloorItemPickupBlockedByFullInventory,
 } from './systems/floorItemState';
 import {
     buildDropInventoryItemRuntimePatch,
@@ -196,6 +197,7 @@ import {
     buildOpenPartyMemberPatch,
     buildReorderPartyPatch,
     buildSelectChampionPatch,
+    buildSetTutorialOverlayActivePatch,
     buildTurnLeftPatch,
     buildTurnRightPatch,
     buildTryOpenGatePatch,
@@ -1678,7 +1680,9 @@ interface GameState {
     /** Champions who have died — preserved for resurrection, keyed by champion.id */
     deadChampions: Record<number, Champion>;
     activeFloorDrag: { itemId: string; pointerX: number; pointerY: number } | null;
+    inventoryFullFeedback: { championId: number; ts: number } | null;
     lastCreatureAttackGameTick: number;
+    tutorialOverlayActive: boolean;
 
     moveForward: () => void;
     moveBackward: () => void;
@@ -1704,8 +1708,10 @@ interface GameState {
     setGameOptions: (updater: Partial<GameOptions>) => void;
     openOptionsModal: () => void;
     closeOptionsModal: () => void;
+    setTutorialOverlayActive: (active: boolean) => void;
     reorderParty: (fromIndex: number, toIndex: number) => void;
     castSpell: (championId: number, runeIds: string[]) => void;
+    tickGameplayFrame: (delta: number, now: number) => void;
     tickFrame: (delta: number, now: number) => void;
     regenTick: (delta: number) => void;
     gainXP: (championId: number, skill: SkillKey, amount: number) => void;
@@ -2467,6 +2473,22 @@ const runStoreMonsterTickAction = (state: GameState, delta: number) =>
         runStoreMonsterTickActionBase(state, delta) as Partial<GameState> | null,
     );
 
+const PICKUP_FULL_FEEDBACK_LIFETIME_MS = 520;
+
+function buildInventoryFullFeedbackPatch(
+    state: GameState,
+    itemId: string,
+    championId: number,
+) {
+    if (!isFloorItemPickupBlockedByFullInventory(state, itemId, championId)) return null;
+    return {
+        inventoryFullFeedback: {
+            championId,
+            ts: Date.now() + PICKUP_FULL_FEEDBACK_LIFETIME_MS,
+        },
+    };
+}
+
 function buildStorePickupItemPatch(
     state: GameState,
     itemId: string,
@@ -2772,22 +2794,35 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
 
     openOptionsModal: () => set(buildOpenOptionsModalPatch()),
     closeOptionsModal: () => set(buildCloseOptionsModalPatch()),
+    setTutorialOverlayActive: (active) => set(buildSetTutorialOverlayActivePatch(active)),
 
     reorderParty: (fromIndex, toIndex) => set((state) =>
         buildReorderPartyPatch(state, fromIndex, toIndex) ?? state
     ),
 
-    pickupItem: (id) => set((state) =>
-        buildStoreSelectedChampionPickupPatch(state, id, {
+    pickupItem: (id) => set((state) => {
+        const pickupPatch = buildStoreSelectedChampionPickupPatch(state, id, {
             buildPickupPatch: buildStorePickupItemPatch,
-        }) ?? state
-    ),
+        });
+        if (pickupPatch) return pickupPatch;
 
-    pickupItemToChampion: (id, championId) =>
-        runStoreOptionalPatchAction(
+        const activeChampion = state.party[state.selectedChampionIndex];
+        return activeChampion
+            ? (buildInventoryFullFeedbackPatch(state, id, activeChampion.id) ?? state)
+            : state;
+    }),
+
+    pickupItemToChampion: (id, championId) => {
+        const applied = runStoreOptionalPatchAction(
             () => buildStorePickupItemPatch(get(), id, championId),
             (patch) => set(patch),
-        ),
+        );
+        if (!applied) {
+            const feedbackPatch = buildInventoryFullFeedbackPatch(get(), id, championId);
+            if (feedbackPatch) set(feedbackPatch);
+        }
+        return applied;
+    },
 
     dropItem: (itemId, championId) => {
         const state = get();
@@ -3079,6 +3114,52 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         set(patch);
         playSpellVisualImpactSounds(state.spellVisualEvents, patch.spellVisualEvents);
     },
+
+    tickGameplayFrame: (delta, now) => set((state) => {
+        const shouldRunRealtimeTicks =
+            !state.optionsModalOpen &&
+            !state.paused &&
+            state.gamePhase !== 'title' &&
+            state.gamePhase !== 'victory' &&
+            state.gamePhase !== 'game_over';
+
+        if (!shouldRunRealtimeTicks) {
+            return state;
+        }
+
+        const applyPatch = (
+            baseState: GameState,
+            patch: GameState | Partial<GameState> | null | undefined,
+        ): GameState => {
+            if (!patch) return baseState;
+            return { ...baseState, ...patch } as GameState;
+        };
+
+        let nextState = applyPatch(state, buildStoreTickFramePatch(state, delta, now));
+        const shouldRunExplorationTicks =
+            (state.gamePhase === 'exploration' || state.gamePhase === 'mirror_open') &&
+            !state.sleeping;
+
+        if (shouldRunExplorationTicks) {
+            nextState = applyPatch(nextState, runStoreMonsterTickAction(nextState, delta));
+            nextState = applyPatch(
+                nextState,
+                buildStoreTickDoorsPatch(
+                    nextState,
+                    delta,
+                    {
+                        doorReboundDurationSeconds: DOOR_REBOUND_DURATION_SECONDS,
+                        doorRecloseDurationSeconds: DOOR_RECLOSE_DURATION_SECONDS,
+                        buildCreatureDamageEvent,
+                        playWallBump,
+                    },
+                ) as Partial<GameState> | null | undefined,
+            );
+            nextState = applyPatch(nextState, runStoreTickSpellsAction(nextState, now));
+        }
+
+        return nextState;
+    }),
 
     tickFrame: (delta, now) => set((state) => buildStoreTickFramePatch(state, delta, now) ?? state),
 

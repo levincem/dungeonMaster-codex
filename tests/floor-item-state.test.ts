@@ -6,6 +6,7 @@ import {
     buildFloorItemPickupPatch,
     canPartyReachFloorItem,
     hasHiddenFirestaffPickupRestriction,
+    isFloorItemPickupBlockedByFullInventory,
     transferFloorItemToChampionState,
 } from '../src/engine/systems/floorItemState.js';
 
@@ -268,4 +269,43 @@ test('transferFloorItemToChampionState returns null when the target backpack is 
     );
 
     assert.equal(patch, null);
+});
+
+test('isFloorItemPickupBlockedByFullInventory only reports reachable full-backpack failures', async () => {
+    const { MAX_CHAMPION_INVENTORY_ITEMS } = await import('../src/engine/systems/inventoryState.js');
+    const item = createFloorItem('floor-item', 1);
+    const fullInventory = Array.from({ length: MAX_CHAMPION_INVENTORY_ITEMS }, (_, index) =>
+        createFloorItem(`inv-${index}`, index + 10),
+    );
+
+    const blocked = isFloorItemPickupBlockedByFullInventory(
+        {
+            level: 0,
+            position: [0, 0],
+            direction: 'NORTH',
+            floorItems: [item],
+            party: [createChampion(1)],
+            championInventories: { 1: fullInventory },
+            activeFloorDrag: null,
+        },
+        item.id,
+        1,
+    );
+
+    const notBlockedWhenDistant = isFloorItemPickupBlockedByFullInventory(
+        {
+            level: 0,
+            position: [5, 5],
+            direction: 'NORTH',
+            floorItems: [createFloorItem('far', 1, { x: 5, y: 2 })],
+            party: [createChampion(1)],
+            championInventories: { 1: fullInventory },
+            activeFloorDrag: null,
+        },
+        'far',
+        1,
+    );
+
+    assert.equal(blocked, true);
+    assert.equal(notBlockedWhenDistant, false);
 });

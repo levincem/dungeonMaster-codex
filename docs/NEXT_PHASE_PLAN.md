@@ -1,8 +1,13 @@
 # Next Phase Plan
 
-Etat revu le `2026-04-22`.
+Etat revu le `2026-04-23`.
 
 Ce document ne doit contenir que des sujets encore ouverts.
+
+Lecture actuelle:
+
+- le projet est entre en phase `beta`
+- ce plan ne liste plus des chantiers d'alpha, mais surtout ce qu'il reste a valider avant une release plus large
 
 Regle simple:
 
@@ -38,11 +43,11 @@ Regle simple:
   - ferme cote presentation cible
   - le rendu visible passe maintenant par un panneau energetique procedural + rideau `photons2`
 
-## Ordre recommande
+## Ordre recommande avant release
 
 1. playtest cible `generateurs / transitions de niveau`
 2. mecanismes rares et endgame
-3. verification visuelle `HUD / ChampionSheet / DungeonScene`
+3. presentation / interaction des items sur case occupee
 4. profilage / optimisation
 
 ## 1. Playtest cible generateurs / transitions
@@ -73,7 +78,7 @@ Support:
 
 - [PLAYTEST_CHECKLIST_TRANSITIONS_ENDGAME.md](/D:/DungeonMaster-codex/docs/PLAYTEST_CHECKLIST_TRANSITIONS_ENDGAME.md)
 
-## 2. Verification visuelle HUD / ChampionSheet / DungeonScene
+## 2. Presentation / interaction des items sur case occupee
 
 Statut:
 
@@ -81,36 +86,18 @@ Statut:
 
 Pourquoi ce n'est pas fini:
 
-- ces zones ont ete beaucoup remaniees, mais la verification a surtout ete structurelle et testee, pas encore assez jouee visuellement
+- un cas de presentation / ciblage reste a confirmer quand un groupe de creatures partage la case d'objets au sol
 
 A verifier:
 
-- HUD combat / runes / drag and drop
-- ChampionSheet inventaire / fontaine / autel / front wall
-- DungeonScene interactions visibles, decals, pits, overlays, trick walls
-- si un artefact `DungeonScene` reapparait, utiliser d'abord le mini mode debug local :
-  - `Alt+Shift+T` textes muraux
-  - `Alt+Shift+D` decals muraux
-  - `Alt+Shift+B` boutons/capteurs muraux
-  - `Alt+Shift+R` reset
-  - actif uniquement en dev, pas dans la build
-- cas deja observe:
-  - sur le puzzle `LVL 1` boulder/dalle, un rectangle brun flottant venait de la couche `wallButtons`
+- objets au sol partiellement masques par un groupe de creatures sur la meme case
+- visibilite du pickup quand un item est sous ou derriere un groupe
+- priorite de ciblage / ramassage sur la case occupee sans casser la lisibilite des creatures
 
 Definition de fini:
 
-- aucun bug visuel ou de wiring evident sur les zones touchees
-- les cas sensibles sont rejoues une fois proprement
-
-Point note pour reprise de playtest:
-
-- objets au sol partiellement masques par un groupe de creatures sur la meme case
-  - a verifier en presentation / interaction: il faut pouvoir mieux voir, cibler et ramasser les items presents sous ou derriere un groupe
-  - piste a tester: leger recul camera / meilleur framing de la case / priorite visuelle pickup sur la case occupee
-  - ne pas traiter ca comme un bug de donnee ou de logique item tant que le rendu / ciblage n'a pas ete rejoue proprement
-- cooldown de deplacement trop bas quand le groupe est vide au tout debut
-  - probablement normalise trop agressivement par la formule de mouvement quand `party.length === 0`
-  - a recaler demain pour garder un comportement propre meme avant recrutement
+- les items au sol restent visibles et ramassables meme quand un groupe occupe la case
+- le comportement retenu est rejoue une fois proprement en playtest
 
 ## 3. Profilage / optimisation
 
@@ -172,6 +159,10 @@ Support:
   - non prioritaires
   - le gros travail utile est deja fait
   - on n'en relance pas sans raison nette
+- polish HUD `combat`
+  - a revoir plus tard
+  - si une seule action est disponible, ne pas ouvrir de sous-menu
+  - masquer les actions indisponibles au lieu de les afficher en grise
 
 ## Discipline de mise a jour
 

@@ -27,14 +27,7 @@ test('item image aliases keep only friendly potion labels that do not match ship
 });
 
 test('legacy image maps keep only ids that still cannot be resolved by canonical names or aliases', () => {
-    assert.equal(Object.hasOwn(LEGACY_WEAPON_TYPE_IMAGE_MAP, 0), false);
-    assert.equal(Object.hasOwn(LEGACY_WEAPON_TYPE_IMAGE_MAP, 2), false);
-    assert.equal(Object.hasOwn(LEGACY_WEAPON_TYPE_IMAGE_MAP, 13), false);
-    assert.equal(Object.hasOwn(LEGACY_WEAPON_TYPE_IMAGE_MAP, 63), false);
-    assert.deepEqual(
-        Object.keys(LEGACY_WEAPON_TYPE_IMAGE_MAP).sort(),
-        ['33', '48', '49', '50', '56'],
-    );
+    assert.deepEqual(LEGACY_WEAPON_TYPE_IMAGE_MAP, {});
 
     assert.deepEqual(LEGACY_ARMOR_TYPE_IMAGE_MAP, {});
 

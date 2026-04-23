@@ -96,20 +96,147 @@ export const ProjectileRenderer: React.FC = () => {
 
 export const TeleporterLayer: React.FC<{
     teleporters: Array<{ tileX: number; tileY: number }>;
-}> = ({ teleporters }) => (
-    <>
-        {teleporters.map(({ tileX, tileY }) => (
-            <group
-                key={`teleporter_${tileX}_${tileY}`}
-                position={[tileX * GRID_SIZE, GRID_SIZE * 0.02, tileY * GRID_SIZE]}
-            >
-                <Suspense fallback={null}>
-                    <LazyPhotonsTeleporterCloud scale={0.9} />
-                </Suspense>
-            </group>
-        ))}
-    </>
-);
+}> = ({ teleporters }) => {
+    const outerRingGeometry = useMemo(() => new THREE.TorusGeometry(GRID_SIZE * 0.34, 0.042, 18, 56), []);
+    const innerRingGeometry = useMemo(() => new THREE.TorusGeometry(GRID_SIZE * 0.22, 0.024, 14, 42), []);
+    const discGeometry = useMemo(() => new THREE.CircleGeometry(GRID_SIZE * 0.42, 40), []);
+    const columnGeometry = useMemo(() => new THREE.CylinderGeometry(0.026, 0.05, GRID_SIZE * 0.72, 10, 1, true), []);
+    const outerRingMaterial = useMemo(() => createPulseMaterial('#6fe8ff', 0.34), []);
+    const innerRingMaterial = useMemo(() => createPulseMaterial('#d1fbff', 0.42), []);
+    const discMaterial = useMemo(() => createPulseMaterial('#58d9ff', 0.16), []);
+    const columnMaterial = useMemo(() => createPulseMaterial('#8feaff', 0.18), []);
+
+    useEffect(() => () => {
+        outerRingGeometry.dispose();
+        innerRingGeometry.dispose();
+        discGeometry.dispose();
+        columnGeometry.dispose();
+        outerRingMaterial.dispose();
+        innerRingMaterial.dispose();
+        discMaterial.dispose();
+        columnMaterial.dispose();
+    }, [outerRingGeometry, innerRingGeometry, discGeometry, columnGeometry, outerRingMaterial, innerRingMaterial, discMaterial, columnMaterial]);
+
+    return (
+        <>
+            {teleporters.map(({ tileX, tileY }) => (
+                <TeleporterVisual
+                    key={`teleporter_${tileX}_${tileY}`}
+                    tileX={tileX}
+                    tileY={tileY}
+                    outerRingGeometry={outerRingGeometry}
+                    innerRingGeometry={innerRingGeometry}
+                    discGeometry={discGeometry}
+                    columnGeometry={columnGeometry}
+                    outerRingMaterial={outerRingMaterial}
+                    innerRingMaterial={innerRingMaterial}
+                    discMaterial={discMaterial}
+                    columnMaterial={columnMaterial}
+                />
+            ))}
+        </>
+    );
+};
+
+const TeleporterVisual: React.FC<{
+    tileX: number;
+    tileY: number;
+    outerRingGeometry: THREE.TorusGeometry;
+    innerRingGeometry: THREE.TorusGeometry;
+    discGeometry: THREE.CircleGeometry;
+    columnGeometry: THREE.CylinderGeometry;
+    outerRingMaterial: THREE.MeshBasicMaterial;
+    innerRingMaterial: THREE.MeshBasicMaterial;
+    discMaterial: THREE.MeshBasicMaterial;
+    columnMaterial: THREE.MeshBasicMaterial;
+}> = ({
+    tileX,
+    tileY,
+    outerRingGeometry,
+    innerRingGeometry,
+    discGeometry,
+    columnGeometry,
+    outerRingMaterial,
+    innerRingMaterial,
+    discMaterial,
+    columnMaterial,
+}) => {
+    const outerRingRef = useRef<THREE.Mesh>(null);
+    const innerRingRef = useRef<THREE.Mesh>(null);
+    const discRef = useRef<THREE.Mesh>(null);
+    const columnRef = useRef<THREE.Mesh>(null);
+    const lightRef = useRef<THREE.PointLight>(null);
+    const phaseRef = useRef((tileX * 0.73) + (tileY * 0.41));
+
+    useFrame((_, delta) => {
+        phaseRef.current += delta * 2.4;
+        const phase = phaseRef.current;
+        const widePulse = 1 + Math.sin(phase) * 0.08;
+        const tightPulse = 1 + Math.cos(phase * 1.7) * 0.12;
+
+        if (outerRingRef.current) {
+            outerRingRef.current.rotation.x = -Math.PI / 2;
+            outerRingRef.current.rotation.z += delta * 0.55;
+            outerRingRef.current.scale.setScalar(widePulse);
+        }
+        if (innerRingRef.current) {
+            innerRingRef.current.rotation.x = -Math.PI / 2;
+            innerRingRef.current.rotation.z -= delta * 0.85;
+            innerRingRef.current.scale.setScalar(tightPulse);
+        }
+        if (discRef.current) {
+            discRef.current.scale.set(widePulse * 1.04, widePulse * 1.04, 1);
+        }
+        if (columnRef.current) {
+            columnRef.current.scale.set(1, 0.88 + Math.sin(phase * 1.3) * 0.12, 1);
+            columnRef.current.position.y = GRID_SIZE * 0.34 + Math.sin(phase * 1.1) * 0.04;
+        }
+        if (lightRef.current) {
+            lightRef.current.intensity = 0.7 + ((Math.sin(phase * 1.5) + 1) * 0.22);
+        }
+    });
+
+    return (
+        <group position={[tileX * GRID_SIZE, GRID_SIZE * 0.02, tileY * GRID_SIZE]}>
+            <mesh
+                ref={discRef}
+                geometry={discGeometry}
+                material={discMaterial}
+                rotation={[-Math.PI / 2, 0, 0]}
+                position={[0, 0.006, 0]}
+            />
+            <mesh
+                ref={outerRingRef}
+                geometry={outerRingGeometry}
+                material={outerRingMaterial}
+                position={[0, 0.02, 0]}
+            />
+            <mesh
+                ref={innerRingRef}
+                geometry={innerRingGeometry}
+                material={innerRingMaterial}
+                position={[0, GRID_SIZE * 0.04, 0]}
+            />
+            <mesh
+                ref={columnRef}
+                geometry={columnGeometry}
+                material={columnMaterial}
+                position={[0, GRID_SIZE * 0.34, 0]}
+            />
+            <Suspense fallback={null}>
+                <LazyPhotonsTeleporterCloud scale={1.18} />
+            </Suspense>
+            <pointLight
+                ref={lightRef}
+                color="#74e8ff"
+                intensity={0.88}
+                distance={GRID_SIZE * 2.3}
+                decay={2}
+                position={[0, GRID_SIZE * 0.42, 0]}
+            />
+        </group>
+    );
+};
 
 const ProjectileOrb: React.FC<{
     projectile: { x: number; y: number; effect: MagicProjectileEffect; direction?: Direction; visualScale?: number };

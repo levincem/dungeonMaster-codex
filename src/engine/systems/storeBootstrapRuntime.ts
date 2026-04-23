@@ -89,7 +89,9 @@ export type StoreBootstrapState = {
     footprintHistory: StoreBootstrapFootprintEntry[];
     deadChampions: Record<number, Champion>;
     activeFloorDrag: { itemId: string; pointerX: number; pointerY: number } | null;
+    inventoryFullFeedback: { championId: number; ts: number } | null;
     lastCreatureAttackGameTick: number;
+    tutorialOverlayActive: boolean;
 };
 
 type StoreBootstrapRuntimeParams = {
@@ -175,7 +177,9 @@ export function createStoreBootstrapRuntime(
         footprintHistory: [],
         deadChampions: {},
         activeFloorDrag: null,
+        inventoryFullFeedback: null,
         lastCreatureAttackGameTick: 0,
+        tutorialOverlayActive: false,
     };
     };
 

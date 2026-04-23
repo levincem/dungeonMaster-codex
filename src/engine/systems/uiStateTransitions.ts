@@ -14,6 +14,7 @@ export function buildLoadedGameUiResetPatch<T extends object>(hydrated: T) {
         damageEvents: [],
         spellVisualEvents: [],
         activeFloorDrag: null,
+        inventoryFullFeedback: null,
     };
 }
 
@@ -29,5 +30,6 @@ export function buildReturnToTitlePatch() {
         lastCastResult: null,
         damageEvents: [],
         spellVisualEvents: [],
+        inventoryFullFeedback: null,
     };
 }

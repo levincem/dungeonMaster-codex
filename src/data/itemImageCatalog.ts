@@ -15,7 +15,7 @@ export const AVAILABLE_ITEM_IMAGE_FILENAMES = [
     'etoile.png', 'eye_of_time_empty.png', 'eye_of_time_full.png', 'falchion.png', 'fine_robe_body.png',
     'fine_robe_legs.png', 'flamebain.png', 'flamitt_empty.png', 'flamitt_full.png', 'foot_plate.png',
     'ful_bomb.png', 'ful_potion.png', 'fury_empty.png', 'fury_full.png', 'gauntlets.png',
-    'gem_of_ages.png', 'ghi.png', 'ghi_trousers.png', 'gloves.png', 'gold_coin.png',
+    'gem_of_ages.png', 'ghi.png', 'ghi_trousers.png', 'gloves.png', 'gold_coin.png', 'gold_key.png',
     'greave_of_darc.png', 'greave_of_lyte.png', 'green_gem.png', 'gunna.png', 'halter.png',
     'hardcleave.png', 'helmet.png', 'helm_of_darc.png', 'helm_of_lyte.png', 'hide_shield.png',
     'horn_of_fear.png', 'hosen.png', 'illumulet_lit.png', 'illumulet_unlit.png', 'iron_key.png',

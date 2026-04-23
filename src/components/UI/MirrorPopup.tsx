@@ -1,4 +1,5 @@
 import React from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { CHAMPIONS } from '../../data/champions';
 import type { Champion, ChampionClass } from '../../data/champions';
 import { useStore } from '../../engine/store';
@@ -77,7 +78,13 @@ export const MirrorPopup: React.FC = () => {
         closeMirror,
         addToParty,
         removeFromParty,
-    } = useStore();
+    } = useStore(useShallow((state) => ({
+        activeMirrorChampionId: state.activeMirrorChampionId,
+        party: state.party,
+        closeMirror: state.closeMirror,
+        addToParty: state.addToParty,
+        removeFromParty: state.removeFromParty,
+    })));
 
     if (activeMirrorChampionId === null) return null;
 

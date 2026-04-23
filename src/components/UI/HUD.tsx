@@ -1,4 +1,5 @@
 import React, { Suspense, lazy, useEffect, useRef, useState, useCallback } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import {
     useStore,
 } from '../../engine/store';
@@ -145,7 +146,7 @@ const CombatGrid: React.FC<{
                             position: 'relative', overflow: 'hidden',
                             background: isFlash
                                 ? 'rgba(220,180,60,0.28)'
-                                : champ ? (ready ? 'rgba(0,0,0,0.92)' : 'rgba(0,0,0,0.78)') : 'rgba(0,0,0,0.55)',
+                                : champ ? 'rgba(0,0,0,0.92)' : 'rgba(0,0,0,0.55)',
                             border: `1px solid ${isFlash ? 'rgba(220,180,60,0.7)' : champ ? 'rgba(212,184,112,0.62)' : 'rgba(212,184,112,0.24)'}`,
                             borderRadius: 4,
                             cursor: champ && ready ? 'pointer' : 'default',
@@ -165,7 +166,7 @@ const CombatGrid: React.FC<{
                                             height: 100,
                                             borderRadius: 8,
                                             border: '2px solid rgba(212,184,112,0.92)',
-                                            background: ready ? 'rgba(255,255,255,1)' : 'rgba(232,232,232,0.78)',
+                                            background: 'rgba(255,255,255,1)',
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
@@ -186,7 +187,7 @@ const CombatGrid: React.FC<{
                                                 }}
                                             />
                                         ) : (
-                                            <span style={{ fontSize: 42, color: ready ? '#8a5c18' : '#6a5840', lineHeight: 1 }}>?</span>
+                                            <span style={{ fontSize: 42, color: '#8a5c18', lineHeight: 1 }}>?</span>
                                         )}
                                     </div>
                                 </div>
@@ -310,9 +311,51 @@ export const HUD = () => {
         championVitals, castSpell: storeCastSpell, lastCastResult,
         championXP, championTemporaryXP, championCombat, attackFront, championEquipment, gameOptions,
         damageEvents, optionsModalOpen, openOptionsModal, closeOptionsModal, setGameOptions,
-        activeFloorDrag, pickupItemToChampion, endFloorDrag, giveItem, giveEquippedItem, equipItem,
-        openDoors, openWalls, openPits, openTeleporters, paused,
-    } = useStore();
+        activeFloorDrag, inventoryFullFeedback, pickupItemToChampion, endFloorDrag, giveItem, giveEquippedItem, equipItem,
+        openDoors, openWalls, openPits, openTeleporters, paused, tutorialOverlayActive,
+    } = useStore(useShallow((state) => ({
+        party: state.party,
+        level: state.level,
+        position: state.position,
+        direction: state.direction,
+        selectedChampionIndex: state.selectedChampionIndex,
+        selectChampion: state.selectChampion,
+        openPartyMember: state.openPartyMember,
+        reorderParty: state.reorderParty,
+        moveForward: state.moveForward,
+        moveBackward: state.moveBackward,
+        strafeLeft: state.strafeLeft,
+        strafeRight: state.strafeRight,
+        turnLeft: state.turnLeft,
+        turnRight: state.turnRight,
+        championVitals: state.championVitals,
+        castSpell: state.castSpell,
+        lastCastResult: state.lastCastResult,
+        championXP: state.championXP,
+        championTemporaryXP: state.championTemporaryXP,
+        championCombat: state.championCombat,
+        attackFront: state.attackFront,
+        championEquipment: state.championEquipment,
+        gameOptions: state.gameOptions,
+        damageEvents: state.damageEvents,
+        optionsModalOpen: state.optionsModalOpen,
+        openOptionsModal: state.openOptionsModal,
+        closeOptionsModal: state.closeOptionsModal,
+        setGameOptions: state.setGameOptions,
+        activeFloorDrag: state.activeFloorDrag,
+        inventoryFullFeedback: state.inventoryFullFeedback,
+        pickupItemToChampion: state.pickupItemToChampion,
+        endFloorDrag: state.endFloorDrag,
+        giveItem: state.giveItem,
+        giveEquippedItem: state.giveEquippedItem,
+        equipItem: state.equipItem,
+        openDoors: state.openDoors,
+        openWalls: state.openWalls,
+        openPits: state.openPits,
+        openTeleporters: state.openTeleporters,
+        paused: state.paused,
+        tutorialOverlayActive: state.tutorialOverlayActive,
+    })));
     const currentMap = getGameMap(level);
     const keybindings = gameOptions.keybindings;
     const globalX = (currentMap.mapOffset?.x ?? 0) + position[1];
@@ -451,10 +494,11 @@ export const HUD = () => {
 
     // Like flash but also plays wall-bump feedback for blocked movement actions
     const move = useCallback((key: string, action: () => void) => {
-        if (useStore.getState().paused) return;
-        const cooldown = useStore.getState().movementCooldown;
+        const runtimeState = useStore.getState();
+        if (runtimeState.paused || runtimeState.tutorialOverlayActive) return;
+        const cooldown = runtimeState.movementCooldown;
         if (Number.isFinite(cooldown) && cooldown > 0) return;
-        const posBefore = useStore.getState().position;
+        const posBefore = runtimeState.position;
         action();
         const posAfter = useStore.getState().position;
         const moved = posAfter[0] !== posBefore[0] || posAfter[1] !== posBefore[1];
@@ -551,7 +595,7 @@ export const HUD = () => {
 
     useEffect(() => {
         const handleKey = (e: KeyboardEvent) => {
-            if (paused) return;
+            if (paused || tutorialOverlayActive) return;
             if (optionsModalOpen || tutorialModalOpen) return;
             if (isTextEntryTarget(e.target)) return;
             const heldMovementKey = resolveHeldMovementKey(e.key);
@@ -591,15 +635,16 @@ export const HUD = () => {
         resolveHeldMovementKey,
         runHeldMovement,
         setHeldMovementPressed,
+        tutorialOverlayActive,
         tutorialModalOpen,
         turnLeft,
         turnRight,
     ]);
 
     useEffect(() => {
-        if (!optionsModalOpen && !tutorialModalOpen) return;
+        if (!optionsModalOpen && !tutorialModalOpen && !tutorialOverlayActive) return;
         clearHeldMovementState();
-    }, [clearHeldMovementState, optionsModalOpen, tutorialModalOpen]);
+    }, [clearHeldMovementState, optionsModalOpen, tutorialModalOpen, tutorialOverlayActive]);
 
     useEffect(() => () => {
         clearHeldMovementState();
@@ -709,7 +754,9 @@ export const HUD = () => {
             fontFamily: '"Courier New", Courier, monospace',
             color: '#d8d0b8', zIndex: 100,
             overflow: 'hidden',
-        }}>
+        }}
+        data-tutorial-zone="hud-root"
+        >
             <button
                 onClick={() => {
                     setActiveManualSectionId((current) => current ?? manual.sections[0]?.id ?? null);
@@ -770,6 +817,7 @@ export const HUD = () => {
                 championEquipment={championEquipment}
                 recentDamageByChampionId={recentDamageByChampionId}
                 levelUpChampionIds={levelUpChampionIds}
+                inventoryFullFeedback={inventoryFullFeedback}
                 selectedChampionIndex={selectedChampionIndex}
                 activeFloorDrag={activeFloorDrag}
                 dragFrom={dragFrom}
@@ -811,7 +859,7 @@ export const HUD = () => {
             {/* Combat */}
             <div style={panel}>
                 <div style={{ display: 'flex', gap: 10, alignItems: 'stretch' }}>
-                    <div style={{ flex: '1 1 auto', minWidth: 0 }}>
+                    <div style={{ flex: '1 1 auto', minWidth: 0 }} data-tutorial-zone="combat-grid">
                         <CombatGrid
                             party={party}
                             championCombat={championCombat}
@@ -827,7 +875,9 @@ export const HUD = () => {
                         gridTemplateColumns: 'repeat(3, 1fr)',
                         gap: 10,
                         alignContent: 'center',
-                    }}>
+                    }}
+                    data-tutorial-zone="movement-grid"
+                    >
                         <MoveBtn label={'\u21ba'} flash={flashKey === 'tl'}  title={`${text.actionLabels.turnLeft} (${formatKeybinding(gameOptions.keybindings.turnLeft)})`} onClick={() => flash('tl',  turnLeft)} />
                         <MoveBtn label={'\u2191'} flash={flashKey === 'fwd'} title={`${text.actionLabels.moveForward} (${formatKeybinding(gameOptions.keybindings.moveForward)})`} onClick={() => move('fwd', moveForward)} />
                         <MoveBtn label={'\u21bb'} flash={flashKey === 'tr'}  title={`${text.actionLabels.turnRight} (${formatKeybinding(gameOptions.keybindings.turnRight)})`} onClick={() => flash('tr',  turnRight)} />

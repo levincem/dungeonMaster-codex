@@ -12,6 +12,7 @@ import {
     buildOpenPartyMemberPatch,
     buildReorderPartyPatch,
     buildSelectChampionPatch,
+    buildSetTutorialOverlayActivePatch,
     buildTurnLeftPatch,
     buildTurnRightPatch,
     buildTryOpenGatePatch,
@@ -38,6 +39,12 @@ test('store UI panel patches open and close the mirror, party sheet and options 
     });
     assert.deepEqual(buildCloseOptionsModalPatch(), {
         optionsModalOpen: false,
+    });
+    assert.deepEqual(buildSetTutorialOverlayActivePatch(true), {
+        tutorialOverlayActive: true,
+    });
+    assert.deepEqual(buildSetTutorialOverlayActivePatch(false), {
+        tutorialOverlayActive: false,
     });
 });
 

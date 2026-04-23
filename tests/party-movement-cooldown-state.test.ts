@@ -102,3 +102,22 @@ test('computePartyMovementCooldownSeconds uses the slowest champion', () => {
     assert.ok(cooldown > 0.42);
     assert.ok(cooldown < 0.43);
 });
+
+test('computePartyMovementCooldownSeconds keeps a small cooldown when the party is empty', () => {
+    const cooldown = computePartyMovementCooldownSeconds(
+        {
+            party: [],
+            championVitals: {},
+            championEquipment: {},
+            championInventories: {},
+            activePotionBoosts: [],
+        },
+        {
+            getTotalWeight: () => 0,
+            getChampionMaxLoad: () => 10,
+            getChampionRuntimeBonuses: () => ({}),
+        },
+    );
+
+    assert.equal(cooldown, 0.2);
+});

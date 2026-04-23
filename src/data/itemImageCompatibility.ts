@@ -14,7 +14,8 @@ export const ITEM_IMAGE_NAME_ALIASES: Record<string, string> = {
     illumulet: 'illumulet_unlit.png',
     waterskin: 'waterskin_empty.png',
     'waterskin (water)': 'water_waterskin_full.png',
-    'gold key': 'solid_key.png',
+    'gold key': 'gold_key.png',
+    "rabbit's foot": 'rabbits_foot.png',
     'health potion': 'vi_potion.png',
     'stamina potion': 'mon_potion.png',
     'mana potion': 'ee_potion_mana.png',
@@ -31,15 +32,9 @@ export const ITEM_IMAGE_NAME_ALIASES: Record<string, string> = {
     'cross of neta': 'cross_key.png',
 };
 
-// Legacy typeId -> filename maps are still needed as a last resort for items
-// whose runtime names do not yet match the shipped asset filenames 1:1.
-export const LEGACY_WEAPON_TYPE_IMAGE_MAP: Record<number, string> = {
-    33: 'falchion.png',
-    48: 'rock.png',
-    49: 'poison_dart.png',
-    50: 'throwing_star.png',
-    56: 'sling.png',
-};
+// Legacy typeId -> filename maps are last-resort shims for categories that
+// still expose a few non-canonical runtime names.
+export const LEGACY_WEAPON_TYPE_IMAGE_MAP: Record<number, string> = {};
 
 export const LEGACY_ARMOR_TYPE_IMAGE_MAP: Record<number, string> = {};
 

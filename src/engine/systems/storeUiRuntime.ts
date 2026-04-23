@@ -62,6 +62,12 @@ export function buildCloseOptionsModalPatch() {
     };
 }
 
+export function buildSetTutorialOverlayActivePatch(active: boolean) {
+    return {
+        tutorialOverlayActive: active,
+    };
+}
+
 export function buildTryOpenGatePatch(
     partySize: number,
     maxPartySize: number,

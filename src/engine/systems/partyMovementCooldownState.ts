@@ -28,6 +28,8 @@ type PartyMovementCooldownDeps = {
     ) => Partial<EquipmentStatBonuses>;
 };
 
+const EMPTY_PARTY_MOVEMENT_COOLDOWN_SECONDS = 0.2;
+
 export function computeChampionMovementTicks(
     champion: Champion,
     vitals: ChampionVitals | undefined,
@@ -71,6 +73,10 @@ export function computePartyMovementCooldownSeconds(
     state: PartyMovementCooldownState,
     deps: PartyMovementCooldownDeps,
 ): number {
+    if (state.party.length === 0) {
+        return EMPTY_PARTY_MOVEMENT_COOLDOWN_SECONDS;
+    }
+
     let ticks = 1;
     for (const champion of state.party) {
         ticks = Math.max(
