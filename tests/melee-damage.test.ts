@@ -201,6 +201,27 @@ test('determineMeleeDamage produces positive damage on a successful standard hit
     assert.ok(damage > 0);
 });
 
+test('determineMeleeDamage doubles and adds 10 when the mastery roll succeeds', () => {
+    const damage = determineMeleeDamage(
+        {
+            champion: createChampion(),
+            equip: { rightHand: createItem('Ordinary Sword') } as ChampionEquipment,
+            inventory: [],
+            currentVitals: createVitals(),
+            currentStamina: 60,
+            attackOption: createAttack('Hack', 48),
+            target: createCreature(),
+            levelDifficulty: 0,
+        },
+        {
+            ...baseDeps,
+            getAttackMastery: () => 64,
+        },
+    );
+
+    assert.equal(damage, 14);
+});
+
 test('determineMeleeDamage halves vorpal damage against material targets', () => {
     const baseDamage = determineMeleeDamage(
         {

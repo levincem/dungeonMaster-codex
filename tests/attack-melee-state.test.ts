@@ -157,6 +157,8 @@ test('buildAttackMeleeStatePatch returns the base patch when there is no target 
             tryBreakFrontDoor: () => null,
             determineMeleeDamage: () => 0,
             getAttackSkill: () => 'fighter',
+            applyMeleeActionOutcomeVitals: (vitals) => vitals,
+            buildMeleeActionExperiencePatch: () => null,
             buildMeleeAttackResolution: () => {
                 throw new Error('should not resolve melee');
             },
@@ -188,6 +190,8 @@ test('buildAttackMeleeStatePatch applies the break-door result when no target is
             }),
             determineMeleeDamage: () => 0,
             getAttackSkill: () => 'fighter',
+            applyMeleeActionOutcomeVitals: (vitals) => vitals,
+            buildMeleeActionExperiencePatch: () => null,
             buildMeleeAttackResolution: () => {
                 throw new Error('should not resolve melee');
             },
@@ -219,6 +223,8 @@ test('buildAttackMeleeStatePatch returns the base patch when melee damage is zer
             tryBreakFrontDoor: () => null,
             determineMeleeDamage: () => 0,
             getAttackSkill: () => 'fighter',
+            applyMeleeActionOutcomeVitals: (vitals) => vitals,
+            buildMeleeActionExperiencePatch: () => null,
             buildMeleeAttackResolution: () => {
                 throw new Error('should not resolve melee');
             },
@@ -229,6 +235,59 @@ test('buildAttackMeleeStatePatch returns the base patch when melee damage is zer
         championCombat: { 1: createCombat() },
         championVitals: state.championVitals,
     });
+});
+
+test('buildAttackMeleeStatePatch applies miss stamina and half action experience', () => {
+    const state = createState();
+    const missVitals = {
+        ...state.championVitals,
+        1: {
+            ...state.championVitals[1]!,
+            stamina: 67,
+        },
+    };
+    let observedAmount = 0;
+    let observedVitals: Record<number, ChampionVitals> | null = null;
+
+    const patch = buildAttackMeleeStatePatch(
+        state,
+        createChampion(),
+        {} as ChampionEquipment,
+        [],
+        createAttack(),
+        state.creatures[0]!,
+        createCombat(),
+        'fighter',
+        {
+            tryBreakFrontDoor: () => null,
+            determineMeleeDamage: () => 0,
+            getAttackSkill: () => 'swing',
+            applyMeleeActionOutcomeVitals: () => missVitals,
+            buildMeleeActionExperiencePatch: (xpState, _championId, skill, amount) => {
+                observedAmount = amount;
+                observedVitals = xpState.championVitals;
+                return {
+                    championVitals: xpState.championVitals,
+                    championXP: {
+                        ...xpState.championXP,
+                        1: {
+                            ...xpState.championXP[1]!,
+                            [skill]: amount,
+                        },
+                    },
+                    championTemporaryXP: xpState.championTemporaryXP,
+                };
+            },
+            buildMeleeAttackResolution: () => {
+                throw new Error('should not resolve melee');
+            },
+        },
+    );
+
+    assert.equal(patch.championVitals[1]?.stamina, 67);
+    assert.equal(observedAmount, 2);
+    assert.equal(observedVitals, missVitals);
+    assert.equal(patch.championXP?.[1]?.swing, 2);
 });
 
 test('buildAttackMeleeStatePatch merges the melee resolution into the full championCombat map', () => {
@@ -255,6 +314,8 @@ test('buildAttackMeleeStatePatch merges the melee resolution into the full champ
             tryBreakFrontDoor: () => null,
             determineMeleeDamage: () => 12,
             getAttackSkill: () => 'swing',
+            applyMeleeActionOutcomeVitals: (vitals) => vitals,
+            buildMeleeActionExperiencePatch: () => null,
             buildMeleeAttackResolution: () => ({
                 creatures: state.creatures,
                 championVitals: state.championVitals,

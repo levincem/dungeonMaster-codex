@@ -148,7 +148,7 @@ export function resolveChampionIncomingAttack(
     let postMitigationAttack: number | undefined;
     let defenseSlotBreakdown: IncomingAttackDebug['defenseSlotBreakdown'] | undefined;
 
-    if (attackType !== 'Normal') {
+    if (attackType !== 'Normal' && attackType !== 'Unconditional') {
         let defense = 0;
         if (allowedSlots.length > 0) {
             defenseSlotBreakdown = [];
@@ -202,7 +202,6 @@ export function resolveChampionIncomingAttack(
             case 'Sharp':
             case 'Blast':
             case 'Lightning':
-            case 'Unconditional':
                 break;
         }
 
@@ -258,7 +257,7 @@ export function resolveChampionIncomingAttack(
         ...currentVitals,
         hp: Math.max(0, currentVitals.hp - damage),
     };
-    if (nextVitals.hp > 0 && attackType !== 'Normal') {
+    if (nextVitals.hp > 0 && attackType !== 'Normal' && attackType !== 'Unconditional') {
         nextVitals = applyWoundsFromIncomingAttack(
             nextVitals,
             champion,

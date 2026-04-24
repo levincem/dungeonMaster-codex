@@ -176,3 +176,34 @@ test('resolveChampionIncomingAttack applies physical shields through the wound-d
     assert.equal(withoutShield.damage, 20);
     assert.equal(withShield.damage, 14);
 });
+
+test('resolveChampionIncomingAttack applies unconditional damage without armor, shields, or wounds', () => {
+    const result = resolveChampionIncomingAttack(
+        {
+            ...baseState,
+            activeShields: [{ id: 'party-shield', expiresAt: 2000, defense: 80, kind: 'physical' }],
+        },
+        createChampion(1),
+        createVitals(),
+        12,
+        'Unconditional',
+        ['torso'],
+        1000,
+        {
+            ...baseDeps,
+            computeChampionWoundDefense: () => {
+                throw new Error('unconditional attacks should not use wound defense');
+            },
+            getActiveShieldDefense: () => {
+                throw new Error('unconditional attacks should not use shields');
+            },
+            scaleOriginalAttack: () => {
+                throw new Error('unconditional attacks should not scale through armor');
+            },
+        },
+    );
+
+    assert.equal(result.damage, 12);
+    assert.equal(result.nextVitals.hp, 28);
+    assert.equal(result.nextVitals.wounds.torso, false);
+});

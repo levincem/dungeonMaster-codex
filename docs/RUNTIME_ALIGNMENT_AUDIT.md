@@ -376,6 +376,8 @@ Reste explicitement en attente cote mecanismes rares:
   - distribution des `12` increments aleatoires documentes par la source
 - Les branches d'XP specifiques sont maintenant recalees aussi:
   - melee sur creature dans `GROUP2.C`: `((damage * experienceClass) >> 4) + 3`
+  - action melee dans `MENUS.C`: XP d'action complete sur touche, demi-XP sur rate, en plus de l'XP de degats creature
+  - drain d'endurance melee post-resolution dans `GROUP2.C`: `random(4)+4` sur touche, `random(2)+2` sur rate
   - `Parry` defensif contre une attaque melee de creature: `experienceClass`, applique avant la resolution defensive
   - lancer d'objet dans `CHAMPION.C`: base `8`, puis bonus source-backed selon l'objet / son energie cinetique
   - sorts dans `MENUS.C`: formule complete originale, y compris l'XP reduite sur echec par manque de pratique

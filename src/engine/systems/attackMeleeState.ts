@@ -57,6 +57,13 @@ type MeleeResolutionPatch = {
     spellVisualEvents?: SpellVisualEvent[];
 };
 
+type MeleeActionXpPatch = {
+    championVitals?: Record<number, ChampionVitals>;
+    championXP: Record<number, ChampionXP>;
+    championTemporaryXP: Record<number, ChampionTemporaryXP>;
+    party?: Champion[];
+};
+
 type AttackMeleeStateDeps = {
     tryBreakFrontDoor: (
         state: Pick<MeleeAttackState, 'level' | 'position' | 'direction' | 'openDoors' | 'brokenDoors' | 'championVitals'>,
@@ -69,7 +76,22 @@ type AttackMeleeStateDeps = {
         target: CreatureInstance,
     ) => number;
     getAttackSkill: (attackOption: WeaponAttackOption | null, fallbackSkill: SkillKey) => SkillKey;
+    applyMeleeActionOutcomeVitals: (
+        championVitals: Record<number, ChampionVitals>,
+        championId: number,
+        hit: boolean,
+    ) => Record<number, ChampionVitals>;
+    buildMeleeActionExperiencePatch: (
+        state: Pick<
+            MeleeAttackState,
+            'level' | 'party' | 'championVitals' | 'championXP' | 'championTemporaryXP' | 'elapsedGameTimeTicks' | 'lastCreatureAttackGameTick'
+        >,
+        championId: number,
+        skill: SkillKey,
+        amount: number,
+    ) => MeleeActionXpPatch | null;
     buildMeleeAttackResolution: (
+        resolutionState: MeleeAttackState,
         attackSkill: SkillKey,
         target: CreatureInstance,
         totalDmg: number,
@@ -87,6 +109,48 @@ export function buildAttackMeleeStatePatch(
     fallbackSkill: SkillKey,
     deps: AttackMeleeStateDeps,
 ) {
+    const applyActionExperience = <TPatch extends {
+        championVitals: Record<number, ChampionVitals>;
+        championXP?: Record<number, ChampionXP>;
+        championTemporaryXP?: Record<number, ChampionTemporaryXP>;
+        party?: Champion[];
+    }>(
+        patch: TPatch,
+        carrierState: MeleeAttackState,
+        attackSkill: SkillKey,
+        amount: number,
+    ): TPatch & {
+        championXP?: Record<number, ChampionXP>;
+        championTemporaryXP?: Record<number, ChampionTemporaryXP>;
+        party?: Champion[];
+    } => {
+        if (amount <= 0) return patch;
+
+        const xpPatch = deps.buildMeleeActionExperiencePatch(
+            {
+                level: carrierState.level,
+                party: patch.party ?? carrierState.party,
+                championVitals: patch.championVitals,
+                championXP: patch.championXP ?? carrierState.championXP,
+                championTemporaryXP: patch.championTemporaryXP ?? carrierState.championTemporaryXP,
+                elapsedGameTimeTicks: carrierState.elapsedGameTimeTicks,
+                lastCreatureAttackGameTick: carrierState.lastCreatureAttackGameTick,
+            },
+            state.championId,
+            attackSkill,
+            amount,
+        );
+        if (!xpPatch) return patch;
+
+        return {
+            ...patch,
+            championVitals: xpPatch.championVitals ?? patch.championVitals,
+            championXP: xpPatch.championXP,
+            championTemporaryXP: xpPatch.championTemporaryXP,
+            ...(xpPatch.party ? { party: xpPatch.party } : {}),
+        };
+    };
+
     const basePatch = {
         championCombat: { ...state.championCombat, [state.championId]: newCombat },
         championVitals: state.championVitals,
@@ -113,19 +177,53 @@ export function buildAttackMeleeStatePatch(
     }
 
     const totalDmg = deps.determineMeleeDamage(target);
+    const attackSkill = deps.getAttackSkill(selectedAttack, fallbackSkill);
+    const actionExperience = selectedAttack?.attack.experienceForAttacking ?? 0;
+
     if (totalDmg <= 0) {
-        return basePatch;
+        const missVitals = deps.applyMeleeActionOutcomeVitals(
+            state.championVitals,
+            state.championId,
+            false,
+        );
+        const missState = {
+            ...state,
+            championVitals: missVitals,
+        };
+        return applyActionExperience(
+            {
+                ...basePatch,
+                championVitals: missVitals,
+            },
+            missState,
+            attackSkill,
+            Math.floor(actionExperience / 2),
+        );
     }
 
-    const attackSkill = deps.getAttackSkill(selectedAttack, fallbackSkill);
+    const hitVitals = deps.applyMeleeActionOutcomeVitals(
+        state.championVitals,
+        state.championId,
+        true,
+    );
+    const hitState = {
+        ...state,
+        championVitals: hitVitals,
+    };
     const resolution = deps.buildMeleeAttackResolution(
+        hitState,
         attackSkill,
         target,
         totalDmg,
     );
 
-    return {
-        ...resolution,
-        championCombat: { ...state.championCombat, ...resolution.championCombat },
-    };
+    return applyActionExperience(
+        {
+            ...resolution,
+            championCombat: { ...state.championCombat, ...resolution.championCombat },
+        },
+        hitState,
+        attackSkill,
+        actionExperience,
+    );
 }

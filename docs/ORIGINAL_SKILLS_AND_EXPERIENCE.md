@@ -114,6 +114,18 @@ That covers standard actions such as:
 - throw / shoot actions through their action table and runtime projectile path
 - utility actions such as `Climb Down`
 
+For melee actions, the original engine combines two related awards:
+
+- action XP from the selected action metadata:
+  - full amount when the melee attack lands
+  - half amount when the melee attack misses
+- creature-hit XP from `GROUP2.C`, only when a creature is actually damaged
+
+`GROUP2.C` also adds a small post-resolution stamina drain for melee contact:
+
+- hit: `random(4) + 4`
+- miss: `random(2) + 2`
+
 ### Throw XP
 
 Throwing also has an original special-case award in `CHAMPION.C`:

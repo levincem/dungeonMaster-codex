@@ -522,9 +522,41 @@ export function buildStoreAttackFrontRuntimePatch<TState extends StoreAttackFron
                     getAttackSkill: (attackOption, currentFallbackSkill) => attackOption
                         ? mapOriginalSkillNumberToSkillKey(attackOption.attack.skillNumber)
                         : currentFallbackSkill,
-                    buildMeleeAttackResolution: (attackSkill, currentTarget, totalDmg) =>
+                    applyMeleeActionOutcomeVitals: (currentChampionVitals, currentChampionId, hit) => {
+                        const currentVitals = currentChampionVitals[currentChampionId];
+                        if (!currentVitals) return currentChampionVitals;
+
+                        const effective = deps.getEffectiveChampionStatsRuntime(
+                            champion,
+                            equip,
+                            attackState.activePotionBoosts,
+                            currentVitals,
+                        );
+                        const staminaCost = hit
+                            ? deps.randomInt(4) + 4
+                            : deps.randomInt(2) + 2;
+                        const nextVitals = {
+                            ...currentVitals,
+                            stamina: Math.max(
+                                0,
+                                Math.min(effective.stamina, currentVitals.stamina - staminaCost),
+                            ),
+                        };
+                        return {
+                            ...currentChampionVitals,
+                            [currentChampionId]: nextVitals,
+                        };
+                    },
+                    buildMeleeActionExperiencePatch: (currentState, currentChampionId, skill, amount) =>
+                        deps.buildChampionSkillExperiencePatch(
+                            currentState as TState,
+                            currentChampionId,
+                            skill,
+                            amount,
+                        ),
+                    buildMeleeAttackResolution: (resolutionState, attackSkill, currentTarget, totalDmg) =>
                         buildMeleeAttackResolutionPatch(
-                            state,
+                            resolutionState,
                             targetChampionId,
                             currentTarget,
                             totalDmg,

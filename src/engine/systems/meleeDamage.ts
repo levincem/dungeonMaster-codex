@@ -163,7 +163,7 @@ export function determineMeleeDamage(
 
     const mastery = deps.getAttackMastery(args.attackOption);
     if (deps.randomInt(64) < mastery) {
-        attackValue += 10;
+        attackValue += attackValue + 10;
     }
 
     return Math.max(0, attackValue);
