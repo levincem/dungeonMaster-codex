@@ -145,16 +145,19 @@ test('buildChampionRecentDamageMap keeps only the latest recent damage entries f
     const party = [createChampion(1, 'Tiggy'), createChampion(2, 'Halk')];
     const damageEvents: DamageEvent[] = [
         { id: 'a', level: 0, target: 'champion', championId: 1, amount: 4, ts: 1 },
-        { id: 'b', level: 0, target: 'champion', championId: 2, amount: 7, ts: 2 },
+        { id: 'b', level: 0, target: 'champion', championId: 2, amount: 7, kind: 'poison', ts: 2 },
         { id: 'c', level: 0, target: 'champion', championId: 1, amount: 9, ts: 3 },
         { id: 'd', level: 0, target: 'creature', creatureId: 'x', amount: 12, ts: 4 },
-        { id: 'e', level: 0, target: 'champion', championId: 1, amount: 11, ts: 5 },
+        { id: 'e', level: 0, target: 'champion', championId: 1, amount: 11, kind: 'poison', ts: 5 },
         { id: 'f', level: 0, target: 'champion', championId: 999, amount: 13, ts: 6 },
     ];
 
     assert.deepEqual(buildChampionRecentDamageMap({ party, damageEvents }), {
-        1: [9, 11],
-        2: [7],
+        1: [
+            { amount: 9, kind: 'normal' },
+            { amount: 11, kind: 'poison' },
+        ],
+        2: [{ amount: 7, kind: 'poison' }],
     });
 });
 
@@ -186,7 +189,7 @@ test('buildCombatGridSlotState derives readiness, images, names, and usable atta
     assert.equal(state.cooldownRatio, 0);
     assert.equal(state.weaponImage, 'axe.png');
     assert.equal(state.weaponName, 'Execution Axe');
-    assert.deepEqual(state.allAttacks, [jab, cleave]);
+    assert.deepEqual(state.allAttacks, [jab]);
     assert.deepEqual(state.usableAttacks, [jab]);
 });
 

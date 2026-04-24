@@ -125,3 +125,40 @@ test('prepareSpellCast builds the ready cast payload with mana, cooldown and cas
     assert.equal(result.basePatch.lastCastResult.success, true);
     assert.equal(result.basePatch.championXP[1]?.wizard, 99);
 });
+
+test('prepareSpellCast shifts original spell XP down on low-skill failure', () => {
+    let awardedXp = -1;
+    const spell = {
+        runes: ['lo', 'ful'],
+        name: 'Torch',
+        effect: 'light',
+        manaCost: 5,
+        manaBase: 1,
+        castSkill: 'wizard',
+        description: 'Torch',
+    } as SpellDef;
+
+    const result = prepareSpellCast(
+        {
+            championId: 1,
+            spell,
+            vitals: createVitals(),
+            currentChampionCombat: {},
+            now: 4000,
+        },
+        {
+            getSkillLevel: () => 1,
+            rollCastCheck: () => ({ success: false, requiredSkillLevel: 3, missingSkillLevels: 2, successChance: 0.25 }),
+            applySkillXp: (_skill, amount) => {
+                awardedXp = amount;
+                return null;
+            },
+            originalTimerTicksToSeconds: (ticks) => ticks,
+            createChampionCombatState: (cooldown, defenseModifier = 0) => ({ cooldown, cooldownMax: cooldown || 1, defenseModifier }),
+            randomInt: () => 0,
+        },
+    );
+
+    assert.equal(result.kind, 'ready');
+    assert.equal(awardedXp, 9);
+});

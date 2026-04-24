@@ -2,10 +2,12 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import type { Champion } from '../src/types/champion.js';
 import type { FloorItem } from '../src/types/game.js';
+import { getGameMap } from '../src/data/mapLoader.js';
 import {
     buildViAltarResurrectionPatch,
     createReincarnatedChampion,
     createViAltarRevivedChampion,
+    isAltarWallFace,
     isAltarTile,
 } from '../src/engine/systems/resurrection.js';
 
@@ -100,25 +102,17 @@ test('createViAltarRevivedChampion applies the altar health reduction floor', ()
     assert.equal(createViAltarRevivedChampion({ ...champion, health: 20 }).health, 25);
 });
 
-test('isAltarTile detects altar text objects only', () => {
-    const getTile = (_level: number, x: number, y: number) => (
-        x === 4 && y === 7
-            ? {
-                x,
-                y,
-                type: 'Floor' as const,
-                objects: [{ category: 'Text' as const, text: 'VI ALTAR', index: 1, tilePos: 'North' as const, visible: true }],
-            }
-            : {
-                x,
-                y,
-                type: 'Floor' as const,
-                objects: [{ category: 'Text' as const, text: 'NOTHING', index: 2, tilePos: 'North' as const, visible: true }],
-            }
-    );
+test('level 2 vi altar is detected from the actual wall overlay, not the nearby inscription', () => {
+    const map = getGameMap(2);
+    const getTile = (level: number, x: number, y: number) =>
+        getGameMap(level).tiles[y]?.[x];
 
-    assert.equal(isAltarTile(0, 4, 7, getTile), true);
-    assert.equal(isAltarTile(0, 1, 1, getTile), false);
+    assert.equal(isAltarWallFace(2, 28, 30, 'West', getTile), true);
+    assert.equal(isAltarWallFace(2, 28, 29, 'West', getTile), false);
+    assert.equal(isAltarTile(2, 27, 30, getTile), true);
+    assert.equal(isAltarTile(2, 27, 29, getTile), false);
+    assert.equal(map.tiles[30]?.[27]?.globalX, 32);
+    assert.equal(map.tiles[30]?.[27]?.globalY, 40);
 });
 
 test('buildViAltarResurrectionPatch revives the champion and consumes carried bones', () => {

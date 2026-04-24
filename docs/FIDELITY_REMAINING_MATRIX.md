@@ -6,6 +6,13 @@ Ce document ne sert plus d'historique long. Il repond a une seule question:
 
 `qu'est-ce qui empeche encore de dire extraction complete et moteur totalement recale ?`
 
+Cadre de lecture:
+
+- cible gameplay du projet: `Dungeon Master` original
+- cible prioritaire quand il faut trancher une divergence: `DM` PC DOS
+- verite de recoupement pour les tables et les comportements tres proches: Atari ST
+- aide technique seulement: `CSB` et les sources/outils derives du moteur partage
+
 ## Resume court
 
 Le projet est tres avance, mais le reliquat fidelite est maintenant plus borne:
@@ -61,19 +68,24 @@ Source:
 
 ### Generateurs / groupes actifs
 
-Ce point n'est plus a classer comme "approximation structurelle ouverte" dans le code courant.
+Ce point n'est plus un gros chantier code ouvert.
+En revanche, il ne faut pas encore le presenter comme une reproduction litterale complete de la structure FTL `GROUP/ACTIVE_GROUP`.
 
-Ce qui est maintenant ferme:
+Ce qui est maintenant ferme cote gameplay utile:
 
 - separation explicite `active` / `dormant`
-- limite `ACTIVE_GROUP 60/5` appliquee seulement a la map courante de la party
+- gate runtime `60 / 5` recale sur la map courante de la party
+- distinction plus nette entre nouveaux groupes et groupes deja reserves
 - groupe genere fige avant rematerialisation differree
 - retries `move later` sans reroll du groupe
 - faux capteurs `COMPASS` sur les floor sensors `type 3` corriges globalement
 
-Ce qui reste:
+Ce qui reste borne mais reel:
 
-- playtest cible `teleport / pit / changement de niveau / repop tardif / retour sur niveau quitte`
+- la structure transitoire FTL exacte `ACTIVE_GROUP` n'est pas encore reproduite litteralement
+- le remake n'a pas encore tous les champs/etats internes FTL (`Cells` alias, `LastMoveTime`, `DelayFleeingFromTarget`, `Prior/Home`, `Aspect`, etc.)
+- la definition exacte de ce qui doit encore compter comme groupe `actif` dans tous les cas limites (`teleport`, `pit`, changement de niveau, retour sur map, repop tardif) reste donc une question de fidelite fine
+- cela ne remet plus en cause le decodage des generateurs, mais garde un petit reliquat structurel sur la saturation et la rehydratation
 
 Sources:
 
@@ -128,6 +140,9 @@ Ce qu'il reste vraiment:
   - les champs coeur utilises au runtime sont packages depuis `I559`
   - le seul reliquat volontairement interprete encore utile est la traduction runtime des `attackTypes`
   - cette interpretation est maintenant bornee par une table explicite `ORIGINAL_CREATURE_ATTACK_TYPE_INTERPRETATIONS`
+  - `wariness` n'est plus un point code ouvert:
+  - sa seule utilisation source-backed retrouvee concerne l'entree dans certains teleporters creatures/groupes
+  - le runtime applique maintenant ce garde-fou cible, sans extrapoler ce champ a une aggression generale
 
 Conclusion pratique:
 
@@ -182,7 +197,7 @@ Formulation solide aujourd'hui:
 
 `Le contenu canonique du donjon DM et les principales tables gameplay utiles sont extraits, croises et packages de facon tres fiable.`
 
-`Le moteur est maintenant largement source-backed. Les gros chantiers structurels cote generateurs / groupes actifs et le bornage semantique de 0696.RAW1 sont fermes. Les stats coeur des creatures ne reposent plus sur une vieille table normalisee. Le reliquat code est maintenant surtout borne a quelques compatibilites explicites, puis a la validation finale des cas rares et a quelques ecarts de presentation.`
+`Le moteur est maintenant largement source-backed. Les gros chantiers de rebranchement cote generateurs / groupes actifs et le bornage semantique de 0696.RAW1 sont fermes. Les stats coeur des creatures ne reposent plus sur une vieille table normalisee. Le reliquat code est maintenant surtout borne a quelques compatibilites explicites, a un petit reliquat structurel sur la representation exacte de `ACTIVE_GROUP`, puis a la validation finale des cas rares et a quelques ecarts de presentation.`
 
 ## Definition de fini
 

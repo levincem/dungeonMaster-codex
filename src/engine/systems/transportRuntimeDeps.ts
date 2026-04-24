@@ -50,6 +50,8 @@ type TerrainTransportDeps = {
         y: number,
         index: number,
     ) => TeleporterRuntimeMeta;
+    isCreatureAllowedOnMap: (mapIndex: number, creatureTypeId: number) => boolean;
+    getCreatureWariness: (creatureTypeId: number) => number;
 };
 
 type TransportRuntimeState<TPendingSensorEvent extends PendingSensorEventLike> = {
@@ -94,6 +96,7 @@ type TerrainEffectsDeps<TGameState extends TransportRuntimeState<PendingSensorEv
         y: number,
         direction: Direction,
         cell: CreatureCell,
+        creatureTypeId: number,
     ) => CreatureTeleportResult;
     dropCreatureCarriedItems: (
         creatures: CreatureInstance[],
@@ -188,6 +191,8 @@ type TransportRuntimeDepsParams<
         y: number,
         index: number,
     ) => TeleporterRuntimeMeta;
+    isCreatureAllowedOnMap: (mapIndex: number, creatureTypeId: number) => boolean;
+    getCreatureWariness: (creatureTypeId: number) => number;
     getTeleporter: (tile: GameTile) => TeleporterObject | undefined;
     resolvePitLanding: (
         level: number,
@@ -220,9 +225,12 @@ type TransportRuntimeDepsParams<
         y: number,
         direction: Direction,
         cell: CreatureCell,
+        creatureTypeId: number,
         deps: {
             getTile: (level: number, x: number, y: number) => GameTile | undefined;
             getOriginalTeleporterRuntime: TransportRuntimeDepsParams<TGameState, TSensorState, TPendingSensorEvent>['getOriginalTeleporterRuntime'];
+            isCreatureAllowedOnMap: TransportRuntimeDepsParams<TGameState, TSensorState, TPendingSensorEvent>['isCreatureAllowedOnMap'];
+            getCreatureWariness: TransportRuntimeDepsParams<TGameState, TSensorState, TPendingSensorEvent>['getCreatureWariness'];
         },
     ) => CreatureTeleportResult;
     applyPartyTelefragAtSquare: (
@@ -288,6 +296,26 @@ type TransportRuntimeDepsParams<
             ) => CreatureInstance[];
         },
     ) => Pick<TGameState, 'creatures' | 'floorItems' | 'damageEvents' | 'spellVisualEvents'> | null;
+    applyFloorItemsStandingOnOpenPit: (
+        state: Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors' | 'openWalls' | 'openPits'>,
+        level: number,
+        x: number,
+        y: number,
+        deps: {
+            resolvePitLanding: (
+                level: number,
+                y: number,
+                x: number,
+                openDoors: Set<string>,
+                openWalls: Set<string>,
+                openPits: Set<string>,
+            ) => PitLanding;
+            buildLevelHydrationPatch: (
+                state: Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems'>,
+                level: number,
+            ) => Partial<TGameState> | null;
+        },
+    ) => Pick<TGameState, 'creatures' | 'floorItems'> | null;
     applyCreaturesStandingOnOpenTeleporter: (
         state: Pick<TGameState, 'level' | 'position' | 'hydratedLevels' | 'creatures' | 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters'>,
         level: number,
@@ -303,6 +331,7 @@ type TransportRuntimeDepsParams<
                 y: number,
                 direction: Direction,
                 cell: CreatureCell,
+                creatureTypeId: number,
             ) => CreatureTeleportResult;
             isWalkable: TransportRuntimeDepsParams<TGameState, TSensorState, TPendingSensorEvent>['isWalkable'];
             canCreatureShareTile: (
@@ -437,6 +466,8 @@ export function createTransportRuntimeDeps<
     const terrainTransportDeps: TerrainTransportDeps = {
         getTile: params.getTile,
         getOriginalTeleporterRuntime: params.getOriginalTeleporterRuntime,
+        isCreatureAllowedOnMap: params.isCreatureAllowedOnMap,
+        getCreatureWariness: params.getCreatureWariness,
     };
 
     const resolvePitLanding = (
@@ -480,6 +511,7 @@ export function createTransportRuntimeDeps<
         y: number,
         direction: Direction,
         cell: CreatureCell,
+        creatureTypeId: number,
     ) => params.resolveCreatureTeleporterTransport(
         state,
         level,
@@ -487,6 +519,7 @@ export function createTransportRuntimeDeps<
         y,
         direction,
         cell,
+        creatureTypeId,
         terrainTransportDeps,
     );
 
@@ -514,6 +547,7 @@ export function createTransportRuntimeDeps<
     const buildTerrainEffectsDeps = () => terrainEffectsDeps;
 
     const buildOpenedTeleporterEffectsDeps = () => {
+        const movementSensorDeps = params.buildMovementSensorDeps();
         return {
             getTile: params.getTile,
             getTeleporter: params.getTeleporter,
@@ -531,6 +565,46 @@ export function createTransportRuntimeDeps<
                 x: number,
                 y: number,
             ) => params.applyCreaturesStandingOnOpenTeleporter(state, level, x, y, terrainEffectsDeps),
+            triggerFloorSensorsOnOpenedPartyTeleporter: (
+                state: Pick<
+                    TGameState,
+                    | 'level'
+                    | 'position'
+                    | 'direction'
+                    | 'openDoors'
+                    | 'openWalls'
+                    | 'openPits'
+                    | 'openTeleporters'
+                    | 'championInventories'
+                    | 'championEquipment'
+                    | 'floorItems'
+                    | 'pendingSensorEvents'
+                >,
+                level: number,
+                x: number,
+                y: number,
+            ) => {
+                const ss = params.buildSensorStateSnapshot(state as TGameState);
+                const result = params.triggerFloorSensors(
+                    level,
+                    x,
+                    y,
+                    ss,
+                    state.championInventories,
+                    state.championEquipment,
+                    state.floorItems,
+                    state.pendingSensorEvents,
+                    movementSensorDeps,
+                    'enter',
+                );
+                if (Object.keys(result.sensorChanges).length === 0 && result.pendingSensorEvents === state.pendingSensorEvents) {
+                    return null;
+                }
+                return {
+                    ...(result.sensorChanges as unknown as Pick<TGameState, 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters'>),
+                    pendingSensorEvents: result.pendingSensorEvents,
+                };
+            },
         };
     };
 
@@ -551,6 +625,15 @@ export function createTransportRuntimeDeps<
                 x: number,
                 y: number,
             ) => params.applyCreaturesStandingOnOpenPit(state, level, x, y, terrainEffectsDeps),
+            applyFloorItemsStandingOnOpenPit: (
+                state: Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors' | 'openWalls' | 'openPits'>,
+                level: number,
+                x: number,
+                y: number,
+            ) => params.applyFloorItemsStandingOnOpenPit(state, level, x, y, {
+                resolvePitLanding,
+                buildLevelHydrationPatch,
+            }),
         };
     };
 

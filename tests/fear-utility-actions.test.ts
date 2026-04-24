@@ -38,6 +38,7 @@ test('resolveFearUtilityAction frightens eligible front creatures and clears the
     );
 
     assert.equal(result.sound, null);
+    assert.equal(result.testedCreatureCount, 2);
     assert.deepEqual(result.clearLastSeenIds, ['mummy']);
     assert.deepEqual(result.frightenedCreatures, [{ id: 'mummy', expiresAt: 1565 }]);
 });
@@ -57,6 +58,7 @@ test('resolveFearUtilityAction keeps Blow Horn sound feedback separate from the 
     );
 
     assert.equal(result.sound, 'horn');
+    assert.equal(result.testedCreatureCount, 1);
     assert.deepEqual(result.frightenedCreatures, []);
     assert.deepEqual(result.clearLastSeenIds, []);
 });
@@ -88,5 +90,7 @@ test('resolveFearUtilityAction uses the horn sound for War Cry when the Horn of 
     );
 
     assert.equal(hornResult.sound, 'horn');
+    assert.equal(hornResult.testedCreatureCount, 0);
     assert.equal(voiceResult.sound, 'war-cry');
+    assert.equal(voiceResult.testedCreatureCount, 0);
 });

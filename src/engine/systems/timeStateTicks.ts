@@ -3,6 +3,7 @@ import type { ChampionVitals, ChampionTemporaryXP } from '../runtimeTypes';
 type AdvanceSurvivalResult = {
     championVitals: Record<number, ChampionVitals>;
     championTemporaryXP: Record<number, ChampionTemporaryXP>;
+    damageEvents?: unknown[];
     elapsedGameTimeTicks: number;
     lastSurvivalEffectGameTick: number;
     freezeLifeRemainingTicks: number;

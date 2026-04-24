@@ -30,6 +30,7 @@ type DamageEventLike = {
     x?: number;
     y?: number;
     amount: number;
+    kind?: 'normal' | 'poison';
     ts: number;
 };
 
@@ -119,6 +120,7 @@ export function buildChampionDamageEvent(
     level: number,
     championId: number,
     amount: number,
+    kind: 'normal' | 'poison' = 'normal',
 ): DamageEventLike {
     return {
         id: `champ_dmg_${Date.now()}_${Math.random().toString(36).slice(2)}`,
@@ -126,6 +128,7 @@ export function buildChampionDamageEvent(
         target: 'champion',
         championId,
         amount,
+        kind,
         ts: Date.now(),
     };
 }

@@ -100,6 +100,20 @@ type OpenedPitLoopDeps = {
         x: number,
         y: number,
     ) => Partial<Pick<OpenedPitLoopState, 'creatures' | 'floorItems' | 'damageEvents' | 'spellVisualEvents'>> | null;
+    applyFloorItemsStandingOnOpenPit: (
+        state: Pick<
+            OpenedPitLoopState,
+            | 'hydratedLevels'
+            | 'creatures'
+            | 'floorItems'
+            | 'openDoors'
+            | 'openWalls'
+            | 'openPits'
+        >,
+        level: number,
+        x: number,
+        y: number,
+    ) => Partial<Pick<OpenedPitLoopState, 'creatures' | 'floorItems'>> | null;
 };
 
 type OpenedPitLoopResult = Pick<
@@ -212,6 +226,25 @@ export function applyOpenedPitEffects(
                 position = [landing.y, landing.x];
                 changed = true;
             }
+        }
+
+        const floorItemFallPatch = deps.applyFloorItemsStandingOnOpenPit(
+            {
+                hydratedLevels: state.hydratedLevels,
+                creatures,
+                floorItems,
+                openDoors: state.openDoors,
+                openWalls: state.openWalls,
+                openPits: state.openPits,
+            },
+            pitLevel,
+            pitX,
+            pitY,
+        );
+        if (floorItemFallPatch) {
+            creatures = floorItemFallPatch.creatures ?? creatures;
+            floorItems = floorItemFallPatch.floorItems ?? floorItems;
+            changed = true;
         }
 
         const creatureFallPatch = deps.applyCreaturesStandingOnOpenPit(

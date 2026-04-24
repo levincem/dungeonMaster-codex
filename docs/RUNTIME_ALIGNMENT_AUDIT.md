@@ -13,6 +13,9 @@ Reference prioritaire de fidelite gameplay:
 
 - version PC DOS `DM12/DM13` quand une divergence existe entre branches source
 - version Atari ST comme source de recoupement utile sur les donnees et comportements tres proches, pas comme cible prioritaire du remake
+- `CSB` et les outils derives (`ReDMCSB`, `CSBwin`) servent seulement d'aide technique pour retrouver des formules, des structures et des intentions du moteur partage
+- `CSB` ne doit pas devenir une cible gameplay parallele:
+  - si un comportement est propre a `CSB` ou n'est pas confirme pour `DM`, il ne doit pas etre importe dans le runtime DM par defaut
 
 ## Fermetures recentes - 2026-04-17
 
@@ -167,6 +170,16 @@ Point restant ouvert mais borne:
   - la limite de saturation des generateurs est maintenant recalee sur l'esprit FTL, y compris la distinction entre nouveaux groupes et groupes deja reserves, mais pas encore sur une representation interne complete des groupes source
 - quelques comportements de creatures restent encore partiellement manuels.
   - les projectiles des vrais lanceurs de sorts (`Wizard Eye`, `Vexirk`, `Materializer`, `Demon`, `Red Dragon`, `Lord Chaos`) sont maintenant recales directement sur `GROUP1.C`
+  - le champ exporte `behaviorAfterAttack` ne doit plus etre lu comme un "id de comportement":
+    - la source FTL montre qu'il correspond en realite au low nibble `M62` de `AnimationTicks`
+    - il pilote le delai avant la prochaine `behavior update` d'une creature apres une attaque, avec un petit spread aleatoire, et non une personnalite IA codee `2..7`
+    - le runtime aligne maintenant ce delai post-attaque au lieu d'inventer une enum de comportement a partir de ce nom historique trompeur
+  - `wariness` ne doit pas etre relu comme un simple niveau d'agressivite:
+    - la seule utilisation source-backed retrouvee a ce stade est dans `GROUP1.C`, lors du test d'entree dans un teleporter ouvert
+    - pour `wariness >= 10`, FTL verifie si le type de creature est autorise sur la map cible avant d'accepter le teleporter quand sa portee inclut les creatures/groupes
+    - le commentaire bug FTL sur les groupes hors map confirme cette lecture ciblee
+    - le runtime consomme maintenant ce champ pour ce garde-fou cible autour des teleporters de creatures
+    - il ne doit toujours pas etre etendu a une aggression generale ou a la poursuite sans nouvelle preuve source
   - `Giggler -> steal` ne repose plus sur un simple tirage aleatoire dans le backpack:
     - le runtime suit maintenant un ordre de tentatives de slots beaucoup plus proche de `F193_xxxx_GROUP_StealFromChampion` (`neck`, `pouch`, `backpack`, `quiver`, etc.)
     - un Giggler peut desormais voler aussi depuis certains slots equipes, pas seulement depuis l'inventaire
@@ -361,6 +374,14 @@ Reste explicitement en attente cote mecanismes rares:
   - remise a zero des skills
   - reduction des statistiques / maxima recalee sur `CHAMPION.C`
   - distribution des `12` increments aleatoires documentes par la source
+- Les branches d'XP specifiques sont maintenant recalees aussi:
+  - melee sur creature dans `GROUP2.C`: `((damage * experienceClass) >> 4) + 3`
+  - `Parry` defensif contre une attaque melee de creature: `experienceClass`, applique avant la resolution defensive
+  - lancer d'objet dans `CHAMPION.C`: base `8`, puis bonus source-backed selon l'objet / son energie cinetique
+  - sorts dans `MENUS.C`: formule complete originale, y compris l'XP reduite sur echec par manque de pratique
+  - actions de peur / `Influence` dans `MENUS.C`: awards speciaux et version demi-XP si la peur echoue
+- Le moteur original contient aussi un effet local de sensor `ADD_EXPERIENCE` dans `SENSOR.C`, mais il ne ressort pas comme mecanisme actif du donjon DM extrait courant.
+- Il n'y a toujours pas de "kill XP" partagee au groupe dans les sources originales verifiees: l'XP reste attribuee par action / contexte au champion concerne.
 - `Vi Altar` recale de nouveau la resurrection sur `F283_CHAMPION_ViAltarRebirth`:
   - consommation des vrais `Bones` (`Misc typeId 5`)
   - baisse permanente du maximum de sante
@@ -511,7 +532,7 @@ Maintenant:
   - derniers cas limites de transports en chaine
 - finir les derniers cas rares de mecanismes
 - verifier quelques familles creatures encore sensibles
-- reduire encore les couches de compatibilite quand elles ne servent plus
+  - reduire encore les couches de compatibilite quand elles ne servent plus
 
 ### Priorite moyenne
 

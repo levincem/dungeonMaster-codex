@@ -18,8 +18,8 @@ Regle simple:
 ## Ferme recemment
 
 - `GROUP / ACTIVE_GROUP / generateurs`
-  - ferme cote code
-  - il reste seulement un playtest cible, pas un nouveau chantier moteur
+  - ferme cote rebranchement gameplay principal
+  - il reste surtout du playtest cible; le reliquat exact sur la structure interne `ACTIVE_GROUP` est documente comme point de fidelite borne, pas comme nouveau chantier moteur prioritaire
 - faux requirement `Compass` sur les `floor type 3`
   - ferme
   - l'extraction et le runtime traitent maintenant correctement ces cases comme des capteurs `party / orientation`

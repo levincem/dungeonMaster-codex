@@ -1,4 +1,7 @@
 export type DungeonDragDropDestination = 'current' | 'front' | 'throw';
+export type DungeonWallDropTarget =
+    | { kind: 'altar'; wallX: number; wallY: number; wallFace: 'North' | 'East' | 'South' | 'West' }
+    | { kind: 'front-wall' };
 
 export type DungeonDragDropBand = {
     destination: DungeonDragDropDestination;
@@ -52,4 +55,25 @@ export function performDungeonDragDropAction(
         return true;
     }
     return handlers.dropCurrent() !== false;
+}
+
+export function resolveDungeonWallDropTarget(element: Element | null): DungeonWallDropTarget | null {
+    const wallDrop = element?.closest?.('[data-dm-wall-drop="true"]') as { dataset?: Record<string, string | undefined> } | null;
+    if (!wallDrop?.dataset) return null;
+
+    const kind = wallDrop.dataset.dmWallDropKind;
+    if (kind === 'altar') {
+        const wallX = Number(wallDrop.dataset.dmWallDropX);
+        const wallY = Number(wallDrop.dataset.dmWallDropY);
+        const wallFace = wallDrop.dataset.dmWallDropFace;
+        if (
+            Number.isFinite(wallX) &&
+            Number.isFinite(wallY) &&
+            (wallFace === 'North' || wallFace === 'East' || wallFace === 'South' || wallFace === 'West')
+        ) {
+            return { kind: 'altar', wallX, wallY, wallFace };
+        }
+    }
+
+    return { kind: 'front-wall' };
 }

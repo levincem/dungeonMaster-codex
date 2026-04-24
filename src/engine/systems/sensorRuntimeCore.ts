@@ -430,12 +430,24 @@ export function queueOrComputeSensorEffect<TSensorState, TPendingSensorEvent ext
         const nextFired = sensor.onceOnly && !firedSensors.has(sensorKey)
             ? new Set([...firedSensors, sensorKey])
             : firedSensors;
-        const alreadyQueued = pendingSensorEvents.some((event) => event.level === level && event.sensorIndex === sensor.index);
+        const alreadyQueued = pendingSensorEvents.some((event) =>
+            event.level === level &&
+            event.sensorIndex === sensor.index &&
+            event.actionOverride === sensor.action,
+        );
         return {
             sensorChanges: nextFired !== firedSensors ? deps.setFiredSensors(ss, nextFired) : {},
             pendingSensorEvents: alreadyQueued
                 ? pendingSensorEvents
-                : [...pendingSensorEvents, { level, sensorIndex: sensor.index, remaining: deps.originalTimerTicksToSeconds(sensor.delay) } as TPendingSensorEvent],
+                : [
+                    ...pendingSensorEvents,
+                    {
+                        level,
+                        sensorIndex: sensor.index,
+                        remaining: deps.originalTimerTicksToSeconds(sensor.delay),
+                        actionOverride: sensor.action,
+                    } as TPendingSensorEvent,
+                ],
         };
     }
 

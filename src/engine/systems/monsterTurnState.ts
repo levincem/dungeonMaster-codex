@@ -66,6 +66,7 @@ export function resolveMonsterTurnState(
             nowMs: args.nowMs,
             invisibleUntil: args.invisibleUntil,
             sightRange: args.creatureDef.sightRange ?? 8,
+            smellRange: args.creatureDef.smellRange ?? 0,
             seeInvisible: args.creatureDef.seeInvisible,
             lastSeen: args.lastSeen,
         },

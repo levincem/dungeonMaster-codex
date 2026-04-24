@@ -42,15 +42,12 @@ export function buildSleepFramePatch<TState extends SleepFrameStateBase>(
     if (!state.sleeping) return null;
 
     const advanced = deps.advanceSurvivalTime(state, 1);
+    const { advancedMs, ...advancedPatch } = advanced as AdvancedSleepState<TState> & Partial<TState>;
     const advancedState = {
         ...state,
-        championVitals: advanced.championVitals,
-        championTemporaryXP: advanced.championTemporaryXP,
-        elapsedGameTimeTicks: advanced.elapsedGameTimeTicks,
-        lastSurvivalEffectGameTick: advanced.lastSurvivalEffectGameTick,
-        freezeLifeRemainingTicks: advanced.freezeLifeRemainingTicks,
+        ...advancedPatch,
     };
-    const timedEffects = deps.ageTimedEffectsByMs(advancedState as TState, advanced.advancedMs, now);
+    const timedEffects = deps.ageTimedEffectsByMs(advancedState as TState, advancedMs, now);
     const afterTimedEffects = {
         ...advancedState,
         ...timedEffects,
@@ -62,7 +59,7 @@ export function buildSleepFramePatch<TState extends SleepFrameStateBase>(
             ...combatPatch,
         }
         : afterTimedEffects;
-    const pendingPatch = deps.processPendingSensorEvents(advanced.advancedMs / 1000, afterCombat as TState);
+    const pendingPatch = deps.processPendingSensorEvents(advancedMs / 1000, afterCombat as TState);
     const afterPending = {
         ...afterCombat,
         ...(Object.keys(pendingPatch.sensorChanges).length > 0
@@ -72,7 +69,7 @@ export function buildSleepFramePatch<TState extends SleepFrameStateBase>(
             ? { pendingSensorEvents: pendingPatch.pendingSensorEvents }
             : {}),
     };
-    const generatorPatch = deps.processPendingGeneratorSpawns(advanced.advancedMs / 1000, afterPending as TState);
+    const generatorPatch = deps.processPendingGeneratorSpawns(advancedMs / 1000, afterPending as TState);
     const hasPendingPatch =
         Object.keys(pendingPatch.sensorChanges).length > 0 ||
         pendingPatch.pendingSensorEvents !== afterCombat.pendingSensorEvents;
@@ -90,11 +87,7 @@ export function buildSleepFramePatch<TState extends SleepFrameStateBase>(
     };
 
     return {
-        championVitals: advanced.championVitals,
-        championTemporaryXP: advanced.championTemporaryXP,
-        elapsedGameTimeTicks: advanced.elapsedGameTimeTicks,
-        lastSurvivalEffectGameTick: advanced.lastSurvivalEffectGameTick,
-        freezeLifeRemainingTicks: advanced.freezeLifeRemainingTicks,
+        ...advancedPatch,
         regenTickRemainder: 0,
         ...timedEffects,
         ...(combatPatch ?? {}),

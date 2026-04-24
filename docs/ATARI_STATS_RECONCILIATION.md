@@ -22,6 +22,70 @@ We now have a proven original Atari stat payload decoded from `0559.RAW1`.
 
 That gives us a much stronger baseline than the previously derived `game_db.json`.
 
+## Target Hierarchy
+
+This audit should be read with the following fidelity target in mind:
+
+- gameplay target: original `Dungeon Master` first, with PC DOS as the primary shipped target of the remake
+- cross-check truth source for core gameplay tables: Atari ST
+- technical helper only: `CSB` and later source-derived tooling when they help explain a shared engine structure or formula
+
+So this document does not treat `CSB` as an equal gameplay target.
+If a `CSB`-side interpretation conflicts with `DM`, `DM` wins for remake behavior.
+
+## Experience Audit Update
+
+The creature-side experience field has now been clarified:
+
+- the original source-backed gameplay field is `experienceClass` from `i559`
+- it is used by the original runtime for:
+  - melee-hit XP against creatures
+  - defensive `Parry` XP when creatures attack champions in melee
+- it is not a shared kill reward and not a generic creature bounty field
+
+The older remake-facing `exp` field should therefore be treated as a legacy derived compatibility field, not as the authoritative original training value.
+
+## Creature Behavior Timing Audit Update
+
+One other creature-side field needed reinterpretation:
+
+- the packaged extracted JSON still exposes a field named `behaviorAfterAttack`
+- in the original FTL source, this is not a behavior id or an AI profile enum
+- it is the low nibble of `CREATURE_INFO.AnimationTicks`, read through `M62_NEXT_BEHAVIOR_UPDATE_AFTER_ATTACK_TICKS(animationticks)` in `DEFS.H`
+- the original runtime uses it as the delay before the next creature behavior update after an attack, with an added `+ random(2)` spread
+
+So the correct gameplay meaning is:
+
+- not "behavior 2..7 after attacking"
+- but "post-attack behavior-update delay"
+
+This also means the actual group behavior modes still live elsewhere in the original runtime (`wander`, `approach`, `attack`, `flee`) and should not be inferred from this mislabeled export field.
+
+## Creature Wariness Audit Update
+
+Another creature-side field is now better understood:
+
+- the original source exposes `wariness` through `M59_WARINESS(properties)` in `DEFS.H`
+- the only clear gameplay use recovered so far is not a generic aggression or pursuit formula
+- in `GROUP1.C`, when a group considers moving into an open teleporter, creatures with `wariness >= 10` trigger an additional safety check:
+  - if the teleporter scope includes creatures/groups
+  - the engine verifies whether that creature type is allowed on the destination map
+  - if not, the move is rejected
+
+The original source bug note for off-party-map groups confirms the same meaning: a missing current-group binding can make high-wariness creatures incorrectly enter or refuse a teleporter because the destination-map allowance check is evaluated against the wrong group.
+
+So the safest current reading is:
+
+- not "general AI aggression"
+- not "how hard the monster chases the party"
+- but a targeted movement-caution flag, especially around creature/group teleporters
+
+The remake runtime now consumes `wariness` for this narrow original rule:
+
+- high-wariness creatures (`>= 10`) can refuse a creature/group teleporter when the destination map does not allow that creature type
+
+So this is no longer an open broad AI unknown; it is now a narrowly integrated teleporter rule with a bounded scope.
+
 ## What Has Already Been Reconciled
 
 Food values are now aligned with the original Atari payload in [src/assets/data/game_db.json](D:\DungeonMaster-codex\src\assets\data\game_db.json):
@@ -105,7 +169,6 @@ Examples:
   - the remake still models damage as hand-authored ranges
 
 - derived gameplay fields
-  - `exp`
   - `attackTypes`
   - inferred booleans such as poison/special behavior tags outside the raw tables
 
@@ -118,9 +181,10 @@ Examples:
    - remake damage ranges
 
 2. Revisit remaining derived monster fields:
-   - `exp`
+   - legacy compatibility aliases such as `behaviorAfterAttack`, whose current export name does not match its real original meaning
    - `attackTypes`
    - convenience booleans
+   - any leftover compatibility aliases that still shadow source-backed fields such as `experienceClass`
 
 ## Important Caution
 
@@ -143,8 +207,8 @@ Fields that still need interpretation:
 
 - weapon damage ranges
 - attack class to remake UI/gameplay mapping
-- `exp`
 - modern convenience tags like `attackTypes`
+- legacy export labels such as `behaviorAfterAttack` when they do not reflect the original source semantics directly
 - some poison or special-effect booleans that are currently inferred rather than directly modeled
 
 

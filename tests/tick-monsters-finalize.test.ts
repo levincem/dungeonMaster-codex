@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { createEmptyChampionTemporaryXP, createEmptyChampionXP } from '../src/data/skillProgression.js';
 import type { Champion } from '../src/types/champion.js';
 import { buildTickMonstersPatch } from '../src/engine/systems/tickMonstersFinalize.js';
 
@@ -40,6 +41,8 @@ test('buildTickMonstersPatch returns null when nothing changed', () => {
     const sharedDamageEvents: never[] = [];
     const sharedChampionInventories = {};
     const sharedChampionEquipment = {};
+    const sharedChampionXP = { 1: createEmptyChampionXP() };
+    const sharedChampionTemporaryXP = { 1: createEmptyChampionTemporaryXP() };
     const patch = buildTickMonstersPatch({
         creatures: sharedCreatures,
         baseCreatures: sharedCreatures,
@@ -55,6 +58,10 @@ test('buildTickMonstersPatch returns null when nothing changed', () => {
         baseChampionEquipment: sharedChampionEquipment,
         lastCreatureAttackGameTick: 0,
         baseLastCreatureAttackGameTick: 0,
+        championXP: sharedChampionXP,
+        baseChampionXP: sharedChampionXP,
+        championTemporaryXP: sharedChampionTemporaryXP,
+        baseChampionTemporaryXP: sharedChampionTemporaryXP,
         party: sharedParty,
         baseParty: sharedParty,
         selectedChampionIndex: 0,
@@ -81,6 +88,10 @@ test('buildTickMonstersPatch includes updated party payload and clamps selected 
         baseChampionEquipment: {},
         lastCreatureAttackGameTick: 0,
         baseLastCreatureAttackGameTick: 0,
+        championXP: { 2: createEmptyChampionXP() },
+        baseChampionXP: { 1: createEmptyChampionXP(), 2: createEmptyChampionXP() },
+        championTemporaryXP: { 2: createEmptyChampionTemporaryXP() },
+        baseChampionTemporaryXP: { 1: createEmptyChampionTemporaryXP(), 2: createEmptyChampionTemporaryXP() },
         party: [createChampion(2, 'Tiggy')],
         baseParty: [createChampion(1, 'Halk'), createChampion(2, 'Tiggy')],
         selectedChampionIndex: 3,

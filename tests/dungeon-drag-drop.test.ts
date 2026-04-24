@@ -5,6 +5,7 @@ import {
     isPointerInsideDungeonViewport,
     performDungeonDragDropAction,
     resolveDungeonDragDropDestination,
+    resolveDungeonWallDropTarget,
 } from '../src/components/Dungeon/dungeonDragDrop.js';
 
 test('resolveDungeonDragDropDestination splits the viewport into throw, front and current bands', () => {
@@ -56,4 +57,37 @@ test('performDungeonDragDropAction falls back from front to current and delegate
         },
     });
     assert.deepEqual(calls, ['throw']);
+});
+
+test('resolveDungeonWallDropTarget distinguishes altar targets from generic front-wall drops', () => {
+    const altar = {
+        dataset: {
+            dmWallDrop: 'true',
+            dmWallDropKind: 'altar',
+            dmWallDropX: '28',
+            dmWallDropY: '30',
+            dmWallDropFace: 'West',
+        },
+    };
+    const altarChild = {
+        closest: () => altar,
+    } as unknown as Element;
+
+    const wall = {
+        closest: () => ({
+            dataset: {
+                dmWallDrop: 'true',
+                dmWallDropKind: 'alcove',
+            },
+        }),
+    } as unknown as Element;
+
+    assert.deepEqual(resolveDungeonWallDropTarget(altarChild), {
+        kind: 'altar',
+        wallX: 28,
+        wallY: 30,
+        wallFace: 'West',
+    });
+    assert.deepEqual(resolveDungeonWallDropTarget(wall), { kind: 'front-wall' });
+    assert.equal(resolveDungeonWallDropTarget(null), null);
 });

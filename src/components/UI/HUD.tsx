@@ -20,9 +20,7 @@ import { useI18n } from '../../i18n';
 import { HudMagicPanel } from './HudMagicPanel';
 import { HudPartyPanel } from './HudPartyPanel';
 import {
-    getAttackOptionUnusableReason,
     getWeaponAttackOptions,
-    isAttackOptionUsableAtMastery,
     type WeaponAttackOption,
 } from '../../data/weaponAttacks';
 import { BASIC_SKILL_KEYS, getChampionSkillLevel, mapOriginalSkillNumberToSkillKey } from '../../data/skillProgression';
@@ -396,37 +394,30 @@ const CombatGrid: React.FC<{
                                         zIndex: 2,
                                     }}>
                                         {allAttacks.map((attack) => {
-                                            const masteryLevel = champ ? getMasteryForAttack(champ.id, attack) : 0;
-                                            const usable = isAttackOptionUsableAtMastery(attack, masteryLevel);
-                                            const unusableReason = getAttackOptionUnusableReason(attack, masteryLevel);
                                             return (
                                                 <button
                                                     key={attack.attackType}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        if (!usable) return;
                                                         triggerAttack(i, champ, attack.attackType);
                                                     }}
                                                     style={{
                                                         flex: 1,
                                                         minHeight: 0,
-                                                        background: usable ? 'rgba(0,0,0,0.94)' : 'rgba(0,0,0,0.82)',
-                                                        border: `1px solid ${usable ? 'rgba(212,184,112,0.68)' : 'rgba(212,184,112,0.3)'}`,
-                                                        color: usable ? '#e4c684' : 'rgba(228,198,132,0.52)',
+                                                        background: 'rgba(0,0,0,0.94)',
+                                                        border: '1px solid rgba(212,184,112,0.68)',
+                                                        color: '#e4c684',
                                                         borderRadius: 3,
                                                         fontSize: 9,
                                                         fontWeight: 'bold',
                                                         letterSpacing: 0.5,
-                                                        cursor: usable ? 'pointer' : 'default',
+                                                        cursor: 'pointer',
                                                         padding: '2px 4px',
                                                         textAlign: 'center',
                                                     }}
-                                                    title={usable
-                                                        ? `${attack.displayName} \u00b7 ${text.fatigue} ${attack.attack.staminaCost} \u00b7 ${text.speed} ${attack.attack.disableTime}/6s`
-                                                        : `${attack.displayName} \u00b7 ${unusableReason ?? text.attackUnavailable}`}
+                                                    title={`${attack.displayName} \u00b7 ${text.fatigue} ${attack.attack.staminaCost} \u00b7 ${text.speed} ${attack.attack.disableTime}/6s`}
                                                 >
                                                     {attack.displayName}
-                                                    {!usable && attack.masteryThreshold > 0 ? ` [${attack.masteryThreshold}]` : ''}
                                                 </button>
                                             );
                                         })}

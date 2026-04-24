@@ -1,19 +1,31 @@
 import type { Champion } from '../../types/champion';
-import type { CardinalDir, ChampionEquipment, FloorItem, GameTile, WallTextObject } from '../../types/game';
+import type { CardinalDir, ChampionEquipment, FloorItem, GameTile } from '../../types/game';
+import { hasOriginalWallOverlayAt } from '../../data/originalWallOverlays';
 import {
     ORIGINAL_MIRROR_RECRUITMENT_RULES,
     ORIGINAL_VI_ALTAR_RESURRECTION_RULES,
 } from '../../data/originalMirrorRecruitment';
 
-function hasAltarText(entry: unknown): entry is WallTextObject {
-    return Boolean(
-        entry &&
-        typeof entry === 'object' &&
-        'category' in entry &&
-        (entry as WallTextObject).category === 'Text' &&
-        typeof (entry as WallTextObject).text === 'string' &&
-        (entry as WallTextObject).text!.includes('ALTAR'),
-    );
+const VI_ALTAR_OVERLAY_NAME = 'Vi Altar';
+
+const ALTAR_TILE_NEIGHBORS: ReadonlyArray<{
+    dx: number;
+    dy: number;
+    face: CardinalDir;
+}> = [
+    { dx: 1, dy: 0, face: 'West' },
+    { dx: -1, dy: 0, face: 'East' },
+    { dx: 0, dy: -1, face: 'South' },
+    { dx: 0, dy: 1, face: 'North' },
+];
+
+function hasViAltarOverlay(
+    level: number,
+    x: number,
+    y: number,
+    face: CardinalDir,
+): boolean {
+    return hasOriginalWallOverlayAt(level, x, y, face, VI_ALTAR_OVERLAY_NAME);
 }
 
 export function createReincarnatedChampion(
@@ -75,7 +87,13 @@ export function isAltarTile(
     getTile: (level: number, x: number, y: number) => GameTile | undefined,
 ): boolean {
     const tile = getTile(level, x, y);
-    return Boolean(tile?.objects.some(hasAltarText));
+    if (tile?.type === 'Wall' || tile?.type === 'TrickWall') {
+        return false;
+    }
+
+    return ALTAR_TILE_NEIGHBORS.some(({ dx, dy, face }) =>
+        hasViAltarOverlay(level, x + dx, y + dy, face),
+    );
 }
 
 export function isAltarWallFace(
@@ -87,9 +105,7 @@ export function isAltarWallFace(
 ): boolean {
     const tile = getTile(level, x, y);
     if (!tile) return false;
-    return tile.objects.some(
-        (entry) => hasAltarText(entry) && entry.tilePos === face,
-    );
+    return hasViAltarOverlay(level, x, y, face);
 }
 
 type ResurrectionState<TChampionVitals> = {

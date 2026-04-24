@@ -109,4 +109,11 @@ test('buildUtilityRuntimeActionPatch returns fear updates and sound feedback for
     assert.equal(result.fearResult?.sound, 'horn');
     assert.equal(result.fearResult?.frightenedCreatures.length, 1);
     assert.deepEqual(result.fearResult?.clearLastSeenIds, ['mummy']);
+    assert.deepEqual(result.influenceExperience, {
+        action: 'War Cry',
+        fullAwards: 1,
+        halfAwards: 0,
+        fullAmount: 12,
+        halfAmount: 6,
+    });
 });

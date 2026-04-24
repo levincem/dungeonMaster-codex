@@ -61,6 +61,7 @@ type TerrainEffectsDeps = {
         y: number,
         direction: 'NORTH' | 'EAST' | 'SOUTH' | 'WEST',
         cell: CreatureInstance['cell'],
+        creatureTypeId: number,
     ) => { level: number; x: number; y: number; direction: 'NORTH' | 'EAST' | 'SOUTH' | 'WEST'; cell: CreatureInstance['cell'] };
     buildLevelHydrationPatch: (
         state: Pick<TerrainCreatureState, 'hydratedLevels' | 'creatures' | 'floorItems'>,
@@ -220,6 +221,64 @@ export function applyCreaturesStandingOnOpenPit(
     };
 }
 
+export function applyFloorItemsStandingOnOpenPit(
+    state: Pick<TerrainCreatureState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors' | 'openWalls' | 'openPits'>,
+    level: number,
+    x: number,
+    y: number,
+    deps: Pick<TerrainEffectsDeps, 'resolvePitLanding' | 'buildLevelHydrationPatch'>,
+): Pick<TerrainCreatureState, 'creatures' | 'floorItems'> | null {
+    const fallers = state.floorItems.filter((item) =>
+        item.mapIndex === level &&
+        item.x === x &&
+        item.y === y,
+    );
+    if (fallers.length === 0) return null;
+
+    const landing = deps.resolvePitLanding(
+        level + 1,
+        y,
+        x,
+        state.openDoors,
+        state.openWalls,
+        state.openPits,
+    );
+    if (!landing) return null;
+
+    let creatures = state.creatures;
+    let floorItems = state.floorItems;
+
+    const hydrationPatch = deps.buildLevelHydrationPatch(
+        {
+            hydratedLevels: state.hydratedLevels,
+            creatures,
+            floorItems,
+        },
+        landing.level,
+    );
+    if (hydrationPatch) {
+        creatures = hydrationPatch.creatures ?? creatures;
+        floorItems = hydrationPatch.floorItems ?? floorItems;
+    }
+
+    const fallingIds = new Set(fallers.map((item) => item.id));
+    const nextFloorItems = floorItems.map((item) =>
+        fallingIds.has(item.id)
+            ? {
+                ...item,
+                mapIndex: landing.level,
+                x: landing.x,
+                y: landing.y,
+            }
+            : item,
+    );
+
+    return {
+        creatures,
+        floorItems: nextFloorItems,
+    };
+}
+
 export function applyCreaturesStandingOnOpenTeleporter(
     state: Pick<TerrainCreatureState, 'level' | 'position' | 'hydratedLevels' | 'creatures' | 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters'>,
     level: number,
@@ -268,6 +327,7 @@ export function applyCreaturesStandingOnOpenTeleporter(
             y,
             'NORTH',
             creature.cell,
+            creature.typeId,
         );
         if (
             resolvedTransport.level === creature.mapIndex

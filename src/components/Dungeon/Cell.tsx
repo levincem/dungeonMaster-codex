@@ -334,8 +334,8 @@ const BTN_CX     = GRID_SIZE / 2 - BTN_W / 2;
 const BTN_RENDER_W = GRID_SIZE * DOOR_BUTTON_WIDTH_RATIO;
 const BTN_OVERLAY_Z = 0.003;
 const RA_DOOR_CURTAIN_Z = 0.012;
-const BROKEN_DOOR_HEIGHT = WALL_HEIGHT * 0.34;
-const BROKEN_DOOR_Y = -(WALL_HEIGHT - BROKEN_DOOR_HEIGHT) / 2;
+const BROKEN_DOOR_HEIGHT = WALL_HEIGHT;
+const BROKEN_DOOR_Y = 0;
 
 function makeBrokenDoorTexture(texture: THREE.Texture): THREE.Texture {
     const image = texture.image as CanvasImageSource | undefined;
@@ -357,45 +357,104 @@ function makeBrokenDoorTexture(texture: THREE.Texture): THREE.Texture {
         });
     }
 
-    ctx.drawImage(image, 0, 0, width, height);
+    ctx.clearRect(0, 0, width, height);
 
-    const jag = [
-        [0, height * 0.44],
-        [width * 0.16, height * 0.2],
-        [width * 0.3, height * 0.36],
-        [width * 0.48, height * 0.12],
-        [width * 0.63, height * 0.3],
-        [width * 0.82, height * 0.18],
-        [width, height * 0.28],
+    const drawFragment = (
+        points: ReadonlyArray<readonly [number, number]>,
+        shade: string,
+    ) => {
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(points[0][0], points[0][1]);
+        points.slice(1).forEach(([x, y]) => ctx.lineTo(x, y));
+        ctx.closePath();
+        ctx.clip();
+        ctx.drawImage(image, 0, 0, width, height);
+        ctx.globalCompositeOperation = 'source-atop';
+        ctx.fillStyle = shade;
+        ctx.fillRect(0, 0, width, height);
+        ctx.restore();
+
+        ctx.beginPath();
+        ctx.moveTo(points[0][0], points[0][1]);
+        points.slice(1).forEach(([x, y]) => ctx.lineTo(x, y));
+        ctx.closePath();
+        ctx.strokeStyle = 'rgba(18, 10, 8, 0.45)';
+        ctx.lineWidth = Math.max(2, width * 0.012);
+        ctx.stroke();
+    };
+
+    const leftFragment = [
+        [0, 0],
+        [width * 0.2, 0],
+        [width * 0.24, height * 0.14],
+        [width * 0.22, height * 0.28],
+        [width * 0.18, height * 0.42],
+        [width * 0.19, height * 0.57],
+        [width * 0.22, height * 0.74],
+        [width * 0.27, height * 0.9],
+        [width * 0.21, height],
+        [0, height],
+    ] as const;
+    const rightFragment = [
+        [width, 0],
+        [width * 0.8, 0],
+        [width * 0.76, height * 0.12],
+        [width * 0.78, height * 0.26],
+        [width * 0.82, height * 0.4],
+        [width * 0.81, height * 0.56],
+        [width * 0.76, height * 0.73],
+        [width * 0.71, height * 0.88],
+        [width * 0.78, height],
+        [width, height],
+    ] as const;
+    const topFragment = [
+        [width * 0.28, 0],
+        [width * 0.38, height * 0.03],
+        [width * 0.46, height * 0.08],
+        [width * 0.53, height * 0.05],
+        [width * 0.61, height * 0.09],
+        [width * 0.69, height * 0.02],
+        [width * 0.73, height * 0.11],
+        [width * 0.64, height * 0.15],
+        [width * 0.51, height * 0.12],
+        [width * 0.39, height * 0.16],
+        [width * 0.3, height * 0.12],
+    ] as const;
+    const bottomDebris = [
+        [width * 0.12, height],
+        [width * 0.12, height * 0.86],
+        [width * 0.19, height * 0.8],
+        [width * 0.25, height * 0.86],
+        [width * 0.32, height * 0.79],
+        [width * 0.41, height * 0.87],
+        [width * 0.49, height * 0.81],
+        [width * 0.57, height * 0.88],
+        [width * 0.65, height * 0.82],
+        [width * 0.74, height * 0.89],
+        [width * 0.82, height * 0.83],
+        [width * 0.88, height * 0.9],
+        [width * 0.88, height],
     ] as const;
 
-    ctx.globalCompositeOperation = 'destination-in';
-    ctx.beginPath();
-    ctx.moveTo(jag[0][0], jag[0][1]);
-    jag.slice(1).forEach(([x, y]) => ctx.lineTo(x, y));
-    ctx.lineTo(width, height);
-    ctx.lineTo(0, height);
-    ctx.closePath();
-    ctx.fill();
+    drawFragment(leftFragment, 'rgba(24, 16, 12, 0.28)');
+    drawFragment(rightFragment, 'rgba(24, 16, 12, 0.28)');
+    drawFragment(topFragment, 'rgba(20, 14, 10, 0.22)');
+    drawFragment(bottomDebris, 'rgba(32, 22, 16, 0.32)');
 
-    ctx.globalCompositeOperation = 'source-atop';
-    ctx.fillStyle = 'rgba(24, 16, 12, 0.28)';
-    ctx.fillRect(0, 0, width, height);
-
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.42)';
-    ctx.lineWidth = Math.max(2, width * 0.012);
-    for (const startX of [0.18, 0.39, 0.71]) {
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+    ctx.lineWidth = Math.max(2, width * 0.01);
+    for (const startX of [0.12, 0.86]) {
         ctx.beginPath();
-        ctx.moveTo(width * startX, height * 0.08);
-        ctx.lineTo(width * (startX - 0.04), height * 0.34);
-        ctx.lineTo(width * (startX + 0.02), height * 0.6);
-        ctx.lineTo(width * (startX - 0.03), height * 0.92);
+        ctx.moveTo(width * startX, height * 0.1);
+        ctx.lineTo(width * (startX + (startX < 0.5 ? 0.03 : -0.03)), height * 0.3);
+        ctx.lineTo(width * (startX + (startX < 0.5 ? 0.01 : -0.01)), height * 0.56);
+        ctx.lineTo(width * (startX + (startX < 0.5 ? 0.04 : -0.04)), height * 0.84);
         ctx.stroke();
     }
 
-    ctx.fillStyle = 'rgba(255, 230, 180, 0.08)';
-    ctx.fillRect(0, height * 0.72, width, height * 0.28);
+    ctx.fillStyle = 'rgba(255, 230, 180, 0.05)';
+    ctx.fillRect(width * 0.05, height * 0.8, width * 0.9, height * 0.12);
 
     const next = new THREE.CanvasTexture(canvas);
     next.colorSpace = THREE.SRGBColorSpace;

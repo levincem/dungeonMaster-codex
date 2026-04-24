@@ -6,6 +6,7 @@ import {
     buildWallLauncherProjectiles,
     findSensorPlacement,
     getSensorStateKey,
+    queueOrComputeSensorEffect,
     readWallSensorRuntimeData,
     writeWallSensorRuntimeData,
 } from '../src/engine/systems/sensorRuntimeCore.js';
@@ -140,4 +141,37 @@ test('buildWallLauncherProjectiles creates physical item launchers with drops', 
     assert.equal(projectiles[0]?.direction, 'SOUTH');
     assert.equal(projectiles[0]?.physicalItem?.category, 'Weapon');
     assert.equal(projectiles[0]?.physicalItem?.typeId, 31);
+});
+
+test('queueOrComputeSensorEffect preserves delayed action overrides for effective hold actions', () => {
+    const sensor = createSensor(21, 'North', {
+        delay: 2,
+        action: 'Set',
+    });
+
+    const result = queueOrComputeSensorEffect(
+        sensor,
+        3,
+        {
+            firedSensors: new Set<string>(),
+        },
+        [],
+        {
+            computeSensorEffect: () => {
+                throw new Error('delayed sensors should not compute immediately');
+            },
+            originalTimerTicksToSeconds: (ticks) => ticks * 0.24,
+            getFiredSensors: (state) => state.firedSensors,
+            setFiredSensors: (_state, firedSensors) => ({ firedSensors }),
+            getSensorStateKey,
+        },
+    );
+
+    assert.deepEqual(result.sensorChanges, {});
+    assert.deepEqual(result.pendingSensorEvents, [{
+        level: 3,
+        sensorIndex: 21,
+        remaining: 0.48,
+        actionOverride: 'Set',
+    }]);
 });

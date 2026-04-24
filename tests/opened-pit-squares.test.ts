@@ -147,6 +147,7 @@ test('applyOpenedPitEffects moves the party through newly opened pits and applie
                 floorItems: [{ id: 'loot-1', category: 'Misc', typeId: 1, mapIndex: landingLevel, x: landingPosition[1], y: landingPosition[0], tilePos: 'North' }],
             }),
             applyCreaturesStandingOnOpenPit: () => null,
+            applyFloorItemsStandingOnOpenPit: () => null,
         },
     );
 
@@ -176,6 +177,7 @@ test('applyOpenedPitEffects also applies creature falls on newly opened pit squa
                 creatures: [createCreature('c2', { mapIndex: 3, x: 6, y: 7, currentHP: 30 })],
                 damageEvents: [{ id: 'pit-c2', level: 3, target: 'creature', creatureId: 'c2', amount: 20, ts: 0 }],
             }),
+            applyFloorItemsStandingOnOpenPit: () => null,
         },
     );
 
@@ -190,4 +192,49 @@ test('applyOpenedPitEffects also applies creature falls on newly opened pit squa
         { mapIndex: 3, x: 6, y: 7, currentHP: 30 },
     );
     assert.equal(result.damageEvents[0]?.amount, 20);
+});
+
+test('applyOpenedPitEffects also drops floor items through newly opened pit squares', () => {
+    const result = applyOpenedPitEffects(
+        createState({
+            position: [0, 0],
+            creatures: [createCreature('guard', { mapIndex: 1, x: 8, y: 9 })],
+            floorItems: [
+                { id: 'chest-1', category: 'Container', typeId: 0, mapIndex: 2, x: 4, y: 5, tilePos: 'North' },
+                { id: 'coin-1', category: 'Misc', typeId: 8, mapIndex: 2, x: 7, y: 7, tilePos: 'East' },
+            ],
+            openPits: new Set<string>(['2,5,4']),
+        }),
+        ['2,5,4'],
+        {
+            resolvePitLanding: () => ({ level: 3, x: 6, y: 7 }),
+            applyPartyTelefragAtSquare: () => null,
+            buildLevelHydrationPatch: () => null,
+            applyPartyFallImpactDamage: () => null,
+            applyCreaturesStandingOnOpenPit: () => null,
+            applyFloorItemsStandingOnOpenPit: (state, level, x, y) => ({
+                creatures: state.creatures,
+                floorItems: state.floorItems.map((item) =>
+                    item.mapIndex === level && item.x === x && item.y === y
+                        ? { ...item, mapIndex: 3, x: 6, y: 7 }
+                        : item,
+                ),
+            }),
+        },
+    );
+
+    assert.equal(result.changed, true);
+    assert.deepEqual(
+        result.floorItems.map((item) => ({
+            id: item.id,
+            mapIndex: item.mapIndex,
+            x: item.x,
+            y: item.y,
+            tilePos: item.tilePos,
+        })),
+        [
+            { id: 'chest-1', mapIndex: 3, x: 6, y: 7, tilePos: 'North' },
+            { id: 'coin-1', mapIndex: 2, x: 7, y: 7, tilePos: 'East' },
+        ],
+    );
 });

@@ -39,6 +39,8 @@ test('resolveProjectileTeleporterTransport does not move the party through an it
         {
             getTile: () => createTeleporterTile(),
             getOriginalTeleporterRuntime: () => ({ scope: 'Items', rotationType: 0, rotation: 'North' }),
+            isCreatureAllowedOnMap: () => true,
+            getCreatureWariness: () => 0,
         },
         'party',
     );
@@ -61,6 +63,8 @@ test('resolveProjectileTeleporterTransport still moves items through an item-onl
         {
             getTile: () => createTeleporterTile(),
             getOriginalTeleporterRuntime: () => ({ scope: 'Items', rotationType: 0, rotation: 'North' }),
+            isCreatureAllowedOnMap: () => true,
+            getCreatureWariness: () => 0,
         },
     );
 
@@ -80,9 +84,12 @@ test('resolveCreatureTeleporterTransport ignores an item-only teleporter for cre
         16,
         'EAST',
         'frontLeft',
+        12,
         {
             getTile: () => createTeleporterTile(),
             getOriginalTeleporterRuntime: () => ({ scope: 'Items', rotationType: 0, rotation: 'North' }),
+            isCreatureAllowedOnMap: () => true,
+            getCreatureWariness: () => 0,
         },
     );
 

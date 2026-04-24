@@ -30,6 +30,7 @@ function createCreatureDef(overrides: Partial<CreatureDef> = {}): CreatureDef {
         atkSpd: 10,
         moveSpd: 12,
         exp: 0,
+        experienceClass: 0,
         poison: false,
         originalAttackType: 'Impact',
         attackTypes: ['Physical'],

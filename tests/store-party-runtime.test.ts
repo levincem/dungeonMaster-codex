@@ -63,7 +63,9 @@ function createVitals(overrides: Partial<ChampionVitals> = {}): ChampionVitals {
     };
 }
 
-function createRuntime() {
+function createRuntime(
+    overrides: Partial<Parameters<typeof createStorePartyRuntime<Record<string, unknown>>>[0]> = {},
+) {
     return createStorePartyRuntime<Record<string, unknown>>({
         sleepSurvivalIntervalTicks: 5,
         awakeSurvivalIntervalTicks: 10,
@@ -133,6 +135,7 @@ function createRuntime() {
         getProjectileDamageClass: () => 'magic',
         getChampionAdjustedAttackFromResistance: (_champion, _equip, adjustedAttack) => adjustedAttack,
         getActiveShieldDefense: () => 0,
+        ...overrides,
     });
 }
 
@@ -192,4 +195,95 @@ test('store party runtime applies the original move-fatigue load factor', () => 
     });
 
     assert.equal(nextVitals?.[1]?.stamina, 18);
+});
+
+test('store party runtime converts survival-time poison deaths into real champion deaths', () => {
+    const runtime = createRuntime({
+        buildDeathDrop: (state, championId) => ({
+            party: state.party.filter((champion) => champion.id !== championId),
+            floorItems: state.floorItems,
+            championInventories: { ...state.championInventories, [championId]: [] },
+            championEquipment: { ...state.championEquipment, [championId]: {} },
+            deadChampions: {
+                ...state.deadChampions,
+                [championId]: state.party.find((champion) => champion.id === championId)!,
+            },
+        }),
+    });
+    const champion = createChampion(1);
+
+    const result = runtime.advanceSurvivalTime(
+        {
+            level: 3,
+            position: [17, 30],
+            party: [champion],
+            championVitals: {
+                1: createVitals({
+                    hp: 1,
+                    poisonEntries: [{ remaining: 64, nextTickIn: 1 }],
+                }),
+            },
+            championEquipment: { 1: {} },
+            championInventories: { 1: [] },
+            floorItems: [],
+            deadChampions: {},
+            selectedChampionIndex: 0,
+            championXP: {},
+            championTemporaryXP: { 1: createEmptyChampionTemporaryXP() },
+            elapsedGameTimeTicks: 0,
+            lastSurvivalEffectGameTick: 0,
+            freezeLifeRemainingTicks: 0,
+            lastPartyMoveGameTick: 0,
+            activePotionBoosts: [],
+        },
+        1,
+    );
+
+    assert.equal(result.championVitals[1]?.hp, 0);
+    assert.equal(result.damageEvents?.[0]?.kind, 'poison');
+    assert.equal(result.damageEvents?.[0]?.amount, 1);
+    assert.deepEqual(result.party, []);
+    assert.equal(result.deadChampions?.[1]?.id, 1);
+    assert.equal(result.selectedChampionIndex, 0);
+});
+
+test('store party runtime also resolves already-stuck zero-hp champions on the next survival tick', () => {
+    const runtime = createRuntime({
+        buildDeathDrop: (state, championId) => ({
+            party: state.party.filter((champion) => champion.id !== championId),
+            floorItems: state.floorItems,
+            championInventories: { ...state.championInventories, [championId]: [] },
+            championEquipment: { ...state.championEquipment, [championId]: {} },
+            deadChampions: {
+                ...state.deadChampions,
+                [championId]: state.party.find((champion) => champion.id === championId)!,
+            },
+        }),
+    });
+    const champion = createChampion(1);
+
+    const result = runtime.advanceSurvivalTime(
+        {
+            level: 3,
+            position: [17, 30],
+            party: [champion],
+            championVitals: { 1: createVitals({ hp: 0 }) },
+            championEquipment: { 1: {} },
+            championInventories: { 1: [] },
+            floorItems: [],
+            deadChampions: {},
+            selectedChampionIndex: 0,
+            championXP: {},
+            championTemporaryXP: { 1: createEmptyChampionTemporaryXP() },
+            elapsedGameTimeTicks: 0,
+            lastSurvivalEffectGameTick: 0,
+            freezeLifeRemainingTicks: 0,
+            lastPartyMoveGameTick: 0,
+            activePotionBoosts: [],
+        },
+        1,
+    );
+
+    assert.deepEqual(result.party, []);
+    assert.equal(result.deadChampions?.[1]?.id, 1);
 });

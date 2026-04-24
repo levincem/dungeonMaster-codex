@@ -26,6 +26,8 @@ export interface ChampionVitals {
     poisonEntries: { remaining: number; nextTickIn: number }[];
 }
 
+export type DamageEventKind = 'normal' | 'poison';
+
 export interface DamageEvent {
     id: string;
     level: number;
@@ -35,6 +37,7 @@ export interface DamageEvent {
     x?: number;
     y?: number;
     amount: number;
+    kind?: DamageEventKind;
     ts: number;
 }
 

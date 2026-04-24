@@ -1,4 +1,5 @@
 import type { CreatureDef } from '../../data/creatures';
+import type { ChampionTemporaryXP, ChampionXP, SkillKey } from '../../data/skillProgression';
 import type { GameMap } from '../../types/game';
 import { runMonsterTickRuntime } from './monsterTickRuntime';
 
@@ -28,6 +29,7 @@ type CreateStoreMonsterTickRuntimeDepsParams = {
     hasLineOfSight: MonsterTickRuntimeDeps['hasLineOfSight'];
     nextMonsterMoveDelaySeconds: MonsterTickRuntimeDeps['nextMonsterMoveDelaySeconds'];
     nextMonsterAttackDelaySeconds: MonsterTickRuntimeDeps['nextMonsterAttackDelaySeconds'];
+    nextMonsterBehaviorUpdateAfterAttackDelaySeconds?: MonsterTickRuntimeDeps['nextMonsterBehaviorUpdateAfterAttackDelaySeconds'];
     canCreatureShareTile: MonsterTickRuntimeDeps['canCreatureShareTile'];
     canArchenemyDoubleMove: MonsterTickRuntimeDeps['canArchenemyDoubleMove'];
     chooseCreatureProjectileEffect: MonsterTickRuntimeDeps['chooseCreatureProjectileEffect'];
@@ -37,6 +39,25 @@ type CreateStoreMonsterTickRuntimeDepsParams = {
     getEffectiveChampionStats: MonsterTickRuntimeDeps['getEffectiveChampionStats'];
     tryStealChampionItem: MonsterTickRuntimeDeps['tryStealChampionItem'];
     resolveMonsterAttackAgainstChampion: MonsterTickRuntimeDeps['resolveMonsterAttackAgainstChampion'];
+    buildChampionSkillExperiencePatch: (
+        state: {
+            level: number;
+            party: import('../../types/champion').Champion[];
+            championVitals: Record<number, import('../runtimeTypes').ChampionVitals>;
+            championXP: Record<number, ChampionXP>;
+            championTemporaryXP: Record<number, ChampionTemporaryXP>;
+            elapsedGameTimeTicks: number;
+            lastCreatureAttackGameTick: number;
+        },
+        championId: number,
+        skill: SkillKey,
+        amount: number,
+    ) => {
+        championVitals?: Record<number, import('../runtimeTypes').ChampionVitals>;
+        championXP: Record<number, ChampionXP>;
+        championTemporaryXP: Record<number, ChampionTemporaryXP>;
+        party?: import('../../types/champion').Champion[];
+    } | null;
     buildChampionDamageEvent: MonsterTickRuntimeDeps['buildChampionDamageEvent'];
     attackWindowMs: number;
     getTeleporter: MonsterTickRuntimeDeps['getTeleporter'];
@@ -60,6 +81,8 @@ export function createStoreMonsterTickRuntimeState<TState extends MonsterTickRun
         position: state.position,
         direction: state.direction,
         party: state.party,
+        championXP: state.championXP ?? {},
+        championTemporaryXP: state.championTemporaryXP ?? {},
         creatures: state.creatures,
         championVitals: state.championVitals,
         damageEvents: state.damageEvents,
@@ -102,6 +125,7 @@ export function createStoreMonsterTickStatefulDeps<
             y: Parameters<MonsterTickRuntimeDeps['resolveCreatureTeleporterTransport']>[3],
             direction: Parameters<MonsterTickRuntimeDeps['resolveCreatureTeleporterTransport']>[4],
             cell: Parameters<MonsterTickRuntimeDeps['resolveCreatureTeleporterTransport']>[5],
+            creatureTypeId: Parameters<MonsterTickRuntimeDeps['resolveCreatureTeleporterTransport']>[6],
             terrainDeps: TTerrainDeps,
         ) => ReturnType<MonsterTickRuntimeDeps['resolveCreatureTeleporterTransport']>;
         buildTerrainTransportDeps: () => TTerrainDeps;
@@ -113,7 +137,7 @@ export function createStoreMonsterTickStatefulDeps<
                 attackArgs,
                 params.createIncomingAttackDeps(state),
             ),
-        resolveCreatureTeleporterTransport: (teleporterState, level, x, y, direction, cell) =>
+        resolveCreatureTeleporterTransport: (teleporterState, level, x, y, direction, cell, creatureTypeId) =>
             params.resolveCreatureTeleporterTransportSystem(
                 teleporterState,
                 level,
@@ -121,6 +145,7 @@ export function createStoreMonsterTickStatefulDeps<
                 y,
                 direction,
                 cell,
+                creatureTypeId,
                 params.buildTerrainTransportDeps(),
             ),
     };
@@ -154,6 +179,7 @@ export function createStoreMonsterTickRuntimeDeps(
         hasLineOfSight: params.hasLineOfSight,
         nextMonsterMoveDelaySeconds: params.nextMonsterMoveDelaySeconds,
         nextMonsterAttackDelaySeconds: params.nextMonsterAttackDelaySeconds,
+        nextMonsterBehaviorUpdateAfterAttackDelaySeconds: params.nextMonsterBehaviorUpdateAfterAttackDelaySeconds,
         canCreatureShareTile: params.canCreatureShareTile,
         canArchenemyDoubleMove: params.canArchenemyDoubleMove,
         chooseCreatureProjectileEffect: params.chooseCreatureProjectileEffect,
@@ -163,6 +189,7 @@ export function createStoreMonsterTickRuntimeDeps(
         getEffectiveChampionStats: params.getEffectiveChampionStats,
         tryStealChampionItem: params.tryStealChampionItem,
         resolveMonsterAttackAgainstChampion: params.resolveMonsterAttackAgainstChampion,
+        buildChampionSkillExperiencePatch: params.buildChampionSkillExperiencePatch,
         buildChampionDamageEvent: params.buildChampionDamageEvent,
         attackWindowMs: params.attackWindowMs,
         getTeleporter: params.getTeleporter,

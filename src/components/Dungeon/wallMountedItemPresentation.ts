@@ -6,7 +6,7 @@ import { getOriginalWallOverlayVisual, hasOriginalWallOverlayAt } from '../../da
 const ITEM_MAX_W = GRID_SIZE * 0.42;
 const ITEM_MAX_H = WALL_HEIGHT * 0.42;
 const RECESSED_SUPPORT_ITEM_SCALE = 0.42;
-const RECESSED_SUPPORT_OVERLAYS = ['Vi Altar'] as const;
+const RECESSED_SUPPORT_OVERLAYS = ['Vi Altar', 'Slime Outlet'] as const;
 const FULL_TORCH_HOLDER_OVERLAY = 'Full Torch Holder';
 const FULL_TORCH_HOLDER_VISUAL = getOriginalWallOverlayVisual(FULL_TORCH_HOLDER_OVERLAY);
 const FULL_TORCH_HOLDER_PICKUP_PLANE_W = GRID_SIZE * (FULL_TORCH_HOLDER_VISUAL?.width ?? 0.24);

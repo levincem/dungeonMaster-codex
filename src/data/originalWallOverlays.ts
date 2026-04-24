@@ -268,7 +268,7 @@ const VISUALS_BY_NAME: Record<string, OverlayVisual> = {
     'Fireball Holes': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Fireball Holes'], accent: '#bf5b4e', width: 0.68, height: 0.52 },
     'Dagger Holes': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Dagger Holes'], accent: '#9c9aa4', width: 0.68, height: 0.52 },
     'Poison Holes': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Poison Holes'], accent: '#65a96c', width: 0.68, height: 0.52 },
-    'Slime Outlet': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Slime Outlet'], accent: '#6ea16a', width: 0.68, height: 0.52 },
+    'Slime Outlet': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Slime Outlet'], accent: '#6ea16a', width: 0.34, height: 0.26 },
     'Dent 1': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Dent 1'], accent: '#8a857d', width: 0.44, height: 0.54 },
     'Slime': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Slime'], accent: '#6c9964', width: 0.72, height: 0.86 },
     'Grate': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Grate'], accent: '#8c9098', width: 0.78, height: 0.92 },

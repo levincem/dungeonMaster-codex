@@ -1,5 +1,6 @@
 import type { CreatureDef, OriginalAttackType } from '../../data/creatures';
 import type { ChampionWoundSlot, EquipmentStatBonuses } from '../../data/equipment';
+import type { ChampionTemporaryXP, ChampionXP } from '../../data/skillProgression';
 import type { Champion } from '../../types/champion';
 import type { ChampionEquipment, FloorItem } from '../../types/game';
 import type { ActivePotionBoost, ChampionVitals, MonsterAttackDebugEntry } from '../runtimeTypes';
@@ -35,6 +36,8 @@ type ResolveMonsterAttackAgainstChampionArgs = {
     targetVitals: ChampionVitals;
     targetEquipment: ChampionEquipment | undefined;
     targetInventory: FloorItem[];
+    targetChampionXP?: ChampionXP;
+    targetChampionTemporaryXP?: ChampionTemporaryXP;
     activePotionBoosts: ActivePotionBoost[];
     attackerDef: CreatureDef;
     attackMode: 'melee' | 'ranged';
@@ -81,7 +84,12 @@ type ResolveMonsterAttackAgainstChampionDeps = {
     clampVital: (value: number, max: number) => number;
     adjustByAttribute: (value: number, currentAttribute: number) => number;
     applyPoison: (vitals: ChampionVitals, poisonStrength: number) => ChampionVitals;
-    getParryMastery: (champion: Champion) => number;
+    getParryMastery: (
+        champion: Champion,
+        championXP: ChampionXP | undefined,
+        championTemporaryXP: ChampionTemporaryXP | undefined,
+        equipment: ChampionEquipment | undefined,
+    ) => number;
 };
 
 export type MonsterAttackResolution = {
@@ -151,7 +159,12 @@ export function resolveMonsterAttackAgainstChampion(
         args.partySleeping ?? false,
     );
     const requiredQuickness = deps.randomInt(32) + args.attackerDef.hitProb + args.levelDifficulty - 16;
-    const parryMastery = deps.getParryMastery(args.targetChampion);
+    const parryMastery = deps.getParryMastery(
+        args.targetChampion,
+        args.targetChampionXP,
+        args.targetChampionTemporaryXP,
+        args.targetEquipment,
+    );
 
     const buildDebugEntry = (
         rolledAttack: number,

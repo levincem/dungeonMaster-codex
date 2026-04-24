@@ -140,23 +140,13 @@ export function resolvePartyMoveCommand<TState extends PartyMoveState>(
             state.openWalls,
             state.openPits,
         )) {
-            const pushChanges = deps.triggerWallPushSensors(
-                state.level,
-                target.x,
-                target.y,
-                state.direction,
-                deps.buildSensorStateSnapshot(state),
-                state.pendingSensorEvents,
-            );
             const postFatigueVitals = movedVitals ?? state.championVitals;
             const wallBumpChanges = targetTile && (targetTile.type === 'Wall' || targetTile.type === 'TrickWall')
                 ? deps.applyFrontRowWallBumpDamage(state, postFatigueVitals, now)
                 : null;
-            if (
-                Object.keys(pushChanges.sensorChanges).length === 0 &&
-                pushChanges.pendingSensorEvents === state.pendingSensorEvents &&
-                !wallBumpChanges
-            ) {
+            // In FTL, touching/clicking the front wall is a separate command path.
+            // A blocked forward move should only resolve the bump branch here.
+            if (!wallBumpChanges) {
                 return {
                     patch: movedVitals ? { championVitals: movedVitals } : state,
                     shouldPlayWallBump: false,
@@ -166,9 +156,7 @@ export function resolvePartyMoveCommand<TState extends PartyMoveState>(
             return {
                 patch: deps.applyImmediateTransportSquareEffects(state, {
                     ...(movedVitals ? { championVitals: movedVitals } : {}),
-                    ...(wallBumpChanges ?? {}),
-                    ...pushChanges.sensorChanges,
-                    pendingSensorEvents: pushChanges.pendingSensorEvents,
+                    ...wallBumpChanges,
                 }),
                 shouldPlayWallBump: Boolean(wallBumpChanges) && state.party.length > 0,
                 shouldPlayFallingAndDying: false,

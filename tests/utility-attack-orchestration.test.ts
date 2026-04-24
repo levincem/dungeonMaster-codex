@@ -217,7 +217,7 @@ function createDeps(overrides: Partial<TestDeps> = {}): TestDeps {
 test('buildSupportedUtilityAttackPatch applies confuse control updates through the callback', () => {
     let controlUpdate: { targetId: string; expiresAt: number; kind: string } | null = null;
 
-    const patch = buildSupportedUtilityAttackPatch(
+    const result = buildSupportedUtilityAttackPatch(
         createAction('Confuse'),
         createState(),
         createBasePatch(),
@@ -232,11 +232,18 @@ test('buildSupportedUtilityAttackPatch applies confuse control updates through t
         }),
     );
 
-    assert.ok(patch);
+    assert.ok(result.patch);
     assert.deepEqual(controlUpdate, {
         targetId: 'front-target',
         expiresAt: 91_000,
         kind: 'confused',
+    });
+    assert.deepEqual(result.influenceExperience, {
+        action: 'Confuse',
+        fullAwards: 1,
+        halfAwards: 0,
+        fullAmount: 45,
+        halfAmount: 22,
     });
 });
 
@@ -244,7 +251,7 @@ test('buildSupportedUtilityAttackPatch forwards fear effects through the callbac
     let fearSound: string | null = null;
     let frightenedId: string | null = null;
 
-    const patch = buildSupportedUtilityAttackPatch(
+    const result = buildSupportedUtilityAttackPatch(
         createAction('Blow Horn'),
         createState(),
         createBasePatch(),
@@ -256,13 +263,20 @@ test('buildSupportedUtilityAttackPatch forwards fear effects through the callbac
         }),
     );
 
-    assert.ok(patch);
+    assert.ok(result.patch);
     assert.equal(fearSound, 'horn');
     assert.equal(frightenedId, 'front-target');
+    assert.deepEqual(result.influenceExperience, {
+        action: 'Blow Horn',
+        fullAwards: 1,
+        halfAwards: 0,
+        fullAmount: 20,
+        halfAmount: 10,
+    });
 });
 
 test('buildSupportedUtilityAttackPatch converts climb-down errors into attack result messages', () => {
-    const patch = buildSupportedUtilityAttackPatch(
+    const result = buildSupportedUtilityAttackPatch(
         createAction('Climb Down'),
         createState({ creatures: [] }),
         createBasePatch(),
@@ -271,14 +285,14 @@ test('buildSupportedUtilityAttackPatch converts climb-down errors into attack re
         }),
     );
 
-    assert.equal(patch?.lastCastResult.message, 'Cannot climb down here.');
-    assert.equal(patch?.lastCastResult.success, false);
+    assert.equal(result.patch?.lastCastResult.message, 'Cannot climb down here.');
+    assert.equal(result.patch?.lastCastResult.success, false);
 });
 
 test('buildSupportedUtilityAttackPatch clears runtime control statuses when Fuse starts the endgame', () => {
     let clearedStatuses = 0;
 
-    const patch = buildSupportedUtilityAttackPatch(
+    const result = buildSupportedUtilityAttackPatch(
         createAction('Fuse'),
         createState({
             creatures: [createCreature('lord-chaos', { typeId: 23 })],
@@ -293,7 +307,8 @@ test('buildSupportedUtilityAttackPatch clears runtime control statuses when Fuse
                 clearedStatuses += 1;
             },
         }),
-    ) as TestPatch & { gamePhase?: string };
+    );
+    const patch = result.patch as TestPatch & { gamePhase?: string };
 
     assert.equal(clearedStatuses, 1);
     assert.equal(patch.gamePhase, 'endgame');

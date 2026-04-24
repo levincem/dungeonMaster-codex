@@ -15,3 +15,10 @@ export function getOriginalMonsterAttackDelaySeconds(
     }
     return Math.max(1, ticks) / 6;
 }
+
+export function getOriginalMonsterBehaviorUpdateAfterAttackDelaySeconds(
+    animationTicksAfterAttack: number,
+    randomInt: (maxExclusive: number) => number,
+): number {
+    return Math.max(0, animationTicksAfterAttack + randomInt(2)) / 6;
+}

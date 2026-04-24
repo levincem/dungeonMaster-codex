@@ -45,6 +45,7 @@ test('showStoreLastCastResultMessage applies the specialized lastCastResult patc
 test('damage and death visual builders return the expected runtime targets', () => {
     assert.equal(buildCreatureDamageEvent(0, 2, 3, 9, 'c-1').target, 'creature');
     assert.equal(buildChampionDamageEvent(0, 1, 5).target, 'champion');
+    assert.equal(buildChampionDamageEvent(0, 1, 5, 'poison').kind, 'poison');
     assert.equal(buildDeathDustEvent(0, 2, 3).kind, 'death');
 });
 

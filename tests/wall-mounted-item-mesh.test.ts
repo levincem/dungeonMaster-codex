@@ -68,6 +68,28 @@ test('recessed altar wall items still keep their reduced sprite scale', () => {
     assert.equal(presentation.spriteOffsetY, 0, 'non-holder wall items should keep the default vertical alignment');
 });
 
+test('slime outlet wall items inherit the recessed support scale', () => {
+    const outletItem = {
+        id: 'slime-outlet-key',
+        category: 'Misc',
+        typeId: 18,
+        rawName: 'Gold Key',
+        mapIndex: 3,
+        x: 10,
+        y: 30,
+        tilePos: 'North',
+    } as FloorItem;
+
+    const presentation = getWallMountedItemPresentation(3, outletItem);
+
+    assert.equal(presentation.renderSprite, true, 'slime outlet wall items should still render their own sprite');
+    assert.ok(
+        Math.abs(presentation.spriteScale - 0.42) < 1e-9,
+        'slime outlet wall items should shrink with the recessed support overlay',
+    );
+    assert.equal(presentation.spriteOffsetY, 0, 'slime outlet wall items should keep the default vertical alignment');
+});
+
 test('plain wall-mounted items without a support overlay keep their own sprite presentation', () => {
     const genericWallItem = {
         id: 'generic-wall-item',

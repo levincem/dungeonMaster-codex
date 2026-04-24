@@ -47,6 +47,7 @@ const HOOK_IMAGE = miscPath('wall_hook.png');
 const WOOD_RING_IMAGE = miscPath('wall_wood_ring.png');
 const FULL_TORCH_HOLDER_IMAGE = miscPath('wall_torch_holder_full.png');
 const EMPTY_TORCH_HOLDER_IMAGE = miscPath('wall_torch_holder_empty.png');
+const SLIME_OUTLET_IMAGE = miscPath('wall_hazard_slime_outlet.png');
 const SLIME_IMAGE = miscPath('wall_slime.png');
 const GRATE_IMAGE = miscPath('wall_grate.png');
 const GHOULS_HEAD_IMAGE = miscPath('wall_ghouls_head.png');
@@ -139,6 +140,14 @@ const DECAL_PRESETS: Record<string, WallDecalPreset> = {
     [EMPTY_TORCH_HOLDER_IMAGE]: {
         width: GRID_SIZE * 0.42,
         height: WALL_HEIGHT * 0.48,
+        y: 0,
+        hasBacking: false,
+        hasGlow: false,
+        plateColor: '#3a2b1d',
+    },
+    [SLIME_OUTLET_IMAGE]: {
+        width: GRID_SIZE * 0.34,
+        height: WALL_HEIGHT * 0.26,
         y: 0,
         hasBacking: false,
         hasGlow: false,

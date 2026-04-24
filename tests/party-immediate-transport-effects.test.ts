@@ -63,6 +63,7 @@ function createState() {
         activeShields: [] as PartyShield[],
         activePotionBoosts: [] as ActivePotionBoost[],
         championCombat: {} as Record<number, ChampionCombat>,
+        pendingSensorEvents: [] as Array<{ level: number; sensorIndex: number; remaining: number }>,
     };
 }
 
@@ -125,6 +126,11 @@ test('applyImmediateTransportSquareEffects merges pit and teleporter effect patc
                     creatures: [{ id: 'tele', typeId: 3, mapIndex: 3, x: 2, y: 1, currentHP: 6, alive: true, cell: 'center' }],
                     floorItems: [{ id: 'after', category: 'Misc', typeId: 2, mapIndex: 3, x: 2, y: 1, tilePos: 'South' }],
                     spellVisualEvents: [{ id: 'zap', level: 3, x: 2, y: 1, effect: 'lightning', ts: 1, kind: 'wall' }],
+                    openDoors: new Set(['3,30,14']),
+                    openPits: new Set(['1,4,5']),
+                    openTeleporters: new Set(['1,8,9']),
+                    openWalls: new Set<string>(),
+                    pendingSensorEvents: [{ level: 3, sensorIndex: 104, remaining: 2 }],
                     changed: true,
                 };
             },
@@ -139,5 +145,7 @@ test('applyImmediateTransportSquareEffects merges pit and teleporter effect patc
     assert.equal((result.creatures as CreatureInstance[])[0]?.id, 'tele');
     assert.equal((result.floorItems as FloorItem[])[0]?.id, 'after');
     assert.equal((result.spellVisualEvents as SpellVisualEvent[])[0]?.id, 'zap');
+    assert.equal((result.openDoors as Set<string>).has('3,30,14'), true);
+    assert.deepEqual(result.pendingSensorEvents, [{ level: 3, sensorIndex: 104, remaining: 2 }]);
 });
 type TestBasePatch = Partial<ReturnType<typeof createState>>;

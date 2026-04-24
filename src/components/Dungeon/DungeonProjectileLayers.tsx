@@ -6,7 +6,7 @@ import { GRID_SIZE } from '../../engine/constants';
 import type { Direction, ProjectileEffect } from '../../engine/runtimeTypes';
 import { getFloorItemImage } from '../../data/itemImages';
 import { BillboardGroup } from './renderHelpers';
-import { useLoadedTexture } from './useLoadedTexture';
+import { useSafeTexture } from './useLoadedTexture';
 import type { CreatureInstance, FloorItem } from '../../types/game';
 
 type MagicProjectileEffect = Exclude<ProjectileEffect, 'physical'>;
@@ -283,17 +283,9 @@ const PhysicalProjectileSprite: React.FC<{
     projectile: { x: number; y: number; physicalItem: FloorItem; direction?: Direction };
 }> = ({ projectile }) => {
     const imagePath = getFloorItemImage(projectile.physicalItem);
-    const baseTex = useLoadedTexture(imagePath);
-    const tex = useMemo(() => {
-        const next = baseTex.clone();
-        next.colorSpace = THREE.SRGBColorSpace;
-        next.needsUpdate = true;
-        return next;
-    }, [baseTex]);
+    const tex = useSafeTexture(imagePath);
 
-    useEffect(() => () => tex.dispose(), [tex]);
-
-    const image = tex.image as { width: number; height: number } | undefined;
+    const image = tex?.image as { width: number; height: number } | undefined;
     const aspect = image ? image.width / image.height : 1;
     const width = GRID_SIZE * 0.4;
     const height = width / aspect;
@@ -321,17 +313,44 @@ const PhysicalProjectileSprite: React.FC<{
         >
             <mesh>
                 <planeGeometry args={[width, height]} />
-                <meshBasicMaterial
-                    map={tex}
-                    transparent
-                    alphaTest={0.05}
-                    side={THREE.DoubleSide}
-                    depthWrite={false}
-                />
+                {tex ? (
+                    <meshBasicMaterial
+                        map={tex}
+                        transparent
+                        alphaTest={0.05}
+                        side={THREE.DoubleSide}
+                        depthWrite={false}
+                    />
+                ) : (
+                    <meshBasicMaterial
+                        color={resolvePhysicalProjectileFallbackColor(projectile.physicalItem)}
+                        transparent
+                        opacity={0.92}
+                        side={THREE.DoubleSide}
+                        depthWrite={false}
+                    />
+                )}
             </mesh>
         </BillboardGroup>
     );
 };
+
+function resolvePhysicalProjectileFallbackColor(item: FloorItem): string {
+    switch (item.category) {
+        case 'Weapon':
+            return '#b0b8c8';
+        case 'Armor':
+            return '#8b6914';
+        case 'Potion':
+            return '#e74c3c';
+        case 'Scroll':
+            return '#f0e8c8';
+        case 'Container':
+            return '#5c3a1e';
+        default:
+            return '#d4af37';
+    }
+}
 
 export const ShieldAuraLayer: React.FC = () => {
     const activeShields = useStore((state) => state.activeShields);

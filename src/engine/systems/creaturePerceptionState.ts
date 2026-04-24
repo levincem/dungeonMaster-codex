@@ -10,6 +10,7 @@ type ResolveCreaturePerceptionStateArgs = {
     nowMs: number;
     invisibleUntil: number;
     sightRange: number;
+    smellRange?: number;
     seeInvisible: boolean;
     lastSeen: RememberedPartyPosition | undefined;
 };
@@ -21,6 +22,8 @@ type ResolveCreaturePerceptionStateDeps = {
 export type CreaturePerceptionState = {
     distance: number;
     adjacent: boolean;
+    canDetectBySight: boolean;
+    canDetectBySmell: boolean;
     canDetectParty: boolean;
     rememberedTarget: RememberedPartyPosition | null;
     nextRememberedTarget: RememberedPartyPosition | null;
@@ -38,10 +41,16 @@ export function resolveCreaturePerceptionState(
     const distance = Math.abs(dx) + Math.abs(dy);
     const adjacent = distance === 1;
     const partyInvisible = args.nowMs < args.invisibleUntil;
+    const hasClearPath = deps.hasLineOfSight();
     const hasVisualLineOfSight =
         distance <= Math.max(1, args.sightRange) &&
-        deps.hasLineOfSight();
-    const canDetectParty = hasVisualLineOfSight && (!partyInvisible || args.seeInvisible);
+        hasClearPath;
+    const canDetectBySight = hasVisualLineOfSight && (!partyInvisible || args.seeInvisible);
+    const canDetectBySmell =
+        hasClearPath &&
+        !partyInvisible &&
+        distance <= Math.max(0, args.smellRange ?? 0);
+    const canDetectParty = canDetectBySight || canDetectBySmell;
     const rememberedTarget = args.lastSeen && args.lastSeen.expiresAt > args.nowMs ? args.lastSeen : null;
     const nextRememberedTarget = canDetectParty
         ? {
@@ -54,6 +63,8 @@ export function resolveCreaturePerceptionState(
     return {
         distance,
         adjacent,
+        canDetectBySight,
+        canDetectBySmell,
         canDetectParty,
         rememberedTarget,
         nextRememberedTarget,

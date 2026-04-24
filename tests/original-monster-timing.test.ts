@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
     getOriginalMonsterAttackDelaySeconds,
+    getOriginalMonsterBehaviorUpdateAfterAttackDelaySeconds,
     getOriginalMonsterMoveDelaySeconds,
 } from '../src/engine/systems/originalMonsterTiming.js';
 
@@ -17,4 +18,10 @@ test('getOriginalMonsterAttackDelaySeconds adds the extra long-delay spread for 
         23 / 6,
     );
     assert.equal(getOriginalMonsterAttackDelaySeconds(8, () => 0), 7 / 6);
+});
+
+test('getOriginalMonsterBehaviorUpdateAfterAttackDelaySeconds follows the source-backed AnimationTicks M62 rule', () => {
+    assert.equal(getOriginalMonsterBehaviorUpdateAfterAttackDelaySeconds(4, () => 0), 4 / 6);
+    assert.equal(getOriginalMonsterBehaviorUpdateAfterAttackDelaySeconds(4, () => 1), 5 / 6);
+    assert.equal(getOriginalMonsterBehaviorUpdateAfterAttackDelaySeconds(0, () => 0), 0);
 });

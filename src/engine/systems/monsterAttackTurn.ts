@@ -1,4 +1,5 @@
 import type { CreatureDef } from '../../data/creatures';
+import type { ChampionTemporaryXP, ChampionXP } from '../../data/skillProgression';
 import type { Champion } from '../../types/champion';
 import type { ChampionEquipment, CreatureCell, CreatureInstance, FloorItem } from '../../types/game';
 import type { ActivePotionBoost, ChampionVitals, DamageEvent, Direction, MonsterAttackDebugEntry, Projectile } from '../runtimeTypes';
@@ -20,6 +21,8 @@ type MonsterAttackTurnArgs = {
     championEquipment: Record<number, ChampionEquipment>;
     baseChampionEquipment: Record<number, ChampionEquipment>;
     championVitals: Record<number, ChampionVitals>;
+    championXP?: Record<number, ChampionXP>;
+    championTemporaryXP?: Record<number, ChampionTemporaryXP>;
     damageEvents: DamageEvent[];
     party: Champion[];
     partyDirection: Direction;
@@ -35,6 +38,8 @@ type MonsterAttackTurnArgs = {
     nowMs: number;
     level: number;
     levelDifficulty: number;
+    elapsedGameTimeTicks?: number;
+    lastCreatureAttackGameTick?: number;
     partySleeping: boolean;
     lastMonsterAttackDebug?: MonsterAttackDebugEntry | null;
 };
@@ -69,6 +74,7 @@ type MonsterAttackTurnDeps = {
     ) => { dexterity: number; luck: number };
     tryStealChampionItem: Parameters<typeof resolveCreatureAttackState>[1]['tryStealChampionItem'];
     resolveMonsterAttackAgainstChampion: Parameters<typeof resolveCreatureAttackState>[1]['resolveMonsterAttackAgainstChampion'];
+    buildChampionSkillExperiencePatch?: Parameters<typeof resolveCreatureAttackState>[1]['buildChampionSkillExperiencePatch'];
     buildChampionDamageEvent: (level: number, championId: number, amount: number) => DamageEvent;
     attackWindowMs: number;
 };
@@ -84,6 +90,9 @@ export type MonsterAttackTurnResult = {
     championInventories?: Record<number, FloorItem[]>;
     championEquipment?: Record<number, ChampionEquipment>;
     championVitals?: Record<number, ChampionVitals>;
+    championXP?: Record<number, ChampionXP>;
+    championTemporaryXP?: Record<number, ChampionTemporaryXP>;
+    party?: Champion[];
     damageEvents?: DamageEvent[];
     defeatedChampionId?: number | null;
     shouldFlee?: boolean;
@@ -224,9 +233,16 @@ export function resolveMonsterAttackTurn(
             adjacentAfterMove,
             targetChampion: targetState.targetChampion,
             targetVitals: targetState.targetVitals,
+            party: args.party,
+            championVitals: args.championVitals,
+            championXP: args.championXP,
+            championTemporaryXP: args.championTemporaryXP,
             targetInventory: targetState.targetInventory,
             targetEquipment: targetState.targetEquipment,
+            level: args.level,
             levelDifficulty: args.levelDifficulty,
+            elapsedGameTimeTicks: args.elapsedGameTimeTicks,
+            lastCreatureAttackGameTick: args.lastCreatureAttackGameTick,
             nowMs: args.nowMs,
             partySleeping: args.partySleeping,
         },
@@ -236,6 +252,7 @@ export function resolveMonsterAttackTurn(
             getEffectiveChampionStats: deps.getEffectiveChampionStats,
             tryStealChampionItem: deps.tryStealChampionItem,
             resolveMonsterAttackAgainstChampion: deps.resolveMonsterAttackAgainstChampion,
+            buildChampionSkillExperiencePatch: deps.buildChampionSkillExperiencePatch,
         },
     );
 
@@ -251,6 +268,9 @@ export function resolveMonsterAttackTurn(
             championEquipment: args.championEquipment,
             baseChampionEquipment: args.baseChampionEquipment,
             championVitals: args.championVitals,
+            party: args.party,
+            championXP: args.championXP ?? {},
+            championTemporaryXP: args.championTemporaryXP ?? {},
             damageEvents: args.damageEvents,
             level: args.level,
             lastMonsterAttackDebug: args.lastMonsterAttackDebug,
@@ -290,6 +310,9 @@ export function resolveMonsterAttackTurn(
             nextAttackTimer: attackStart.nextAttackTimer,
             attackWindowExpiresAt: attackStart.attackWindowExpiresAt,
             championVitals: attackOutcome.championVitals,
+            ...(attackOutcome.party ? { party: attackOutcome.party } : {}),
+            ...(attackOutcome.championXP ? { championXP: attackOutcome.championXP } : {}),
+            ...(attackOutcome.championTemporaryXP ? { championTemporaryXP: attackOutcome.championTemporaryXP } : {}),
             damageEvents: attackOutcome.damageEvents,
             defeatedChampionId: attackOutcome.defeatedChampionId,
             lastMonsterAttackDebug: attackOutcome.lastMonsterAttackDebug,
@@ -301,6 +324,9 @@ export function resolveMonsterAttackTurn(
         nextAttackTimer: attackStart.nextAttackTimer,
         attackWindowExpiresAt: attackStart.attackWindowExpiresAt,
         championVitals: attackOutcome.championVitals,
+        ...(attackOutcome.party ? { party: attackOutcome.party } : {}),
+        ...(attackOutcome.championXP ? { championXP: attackOutcome.championXP } : {}),
+        ...(attackOutcome.championTemporaryXP ? { championTemporaryXP: attackOutcome.championTemporaryXP } : {}),
         lastMonsterAttackDebug: attackOutcome.lastMonsterAttackDebug,
     };
 }

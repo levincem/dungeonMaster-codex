@@ -13,6 +13,7 @@ test('CREATURE_TYPES prefer direct I559 core stats when available', () => {
     assert.equal(giggler.moveSpd, 3);
     assert.equal(giggler.originalAttackType, 'Unconditional');
     assert.equal(giggler.exp, 15);
+    assert.equal(giggler.experienceClass, 1);
 });
 
 test('CREATURE_TYPES decode direct attack type and poison flags from I559 payload', () => {

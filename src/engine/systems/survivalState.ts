@@ -1,6 +1,6 @@
 import type { Champion } from '../../types/champion';
 import type { ChampionEquipment } from '../../types/game';
-import type { ActivePotionBoost, ChampionTemporaryXP, ChampionVitals } from '../runtimeTypes';
+import type { ActivePotionBoost, ChampionTemporaryXP, ChampionVitals, DamageEvent } from '../runtimeTypes';
 import type { ChampionXP, SkillKey } from '../../data/skillProgression';
 
 type SurvivalState = {
@@ -9,6 +9,8 @@ type SurvivalState = {
     championEquipment: Record<number, ChampionEquipment>;
     championXP: Record<number, ChampionXP>;
     championTemporaryXP: Record<number, ChampionTemporaryXP>;
+    level?: number;
+    damageEvents?: DamageEvent[];
     elapsedGameTimeTicks: number;
     lastSurvivalEffectGameTick: number;
     freezeLifeRemainingTicks: number;
@@ -72,11 +74,28 @@ type SurvivalDeps = {
 export type AdvanceSurvivalTimeResult = {
     championVitals: Record<number, ChampionVitals>;
     championTemporaryXP: Record<number, ChampionTemporaryXP>;
+    damageEvents?: DamageEvent[];
     elapsedGameTimeTicks: number;
     lastSurvivalEffectGameTick: number;
     freezeLifeRemainingTicks: number;
     advancedMs: number;
 };
+
+function buildPoisonDamageEvent(
+    level: number,
+    championId: number,
+    amount: number,
+): DamageEvent {
+    return {
+        id: `champ_poison_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+        level,
+        target: 'champion',
+        championId,
+        amount,
+        kind: 'poison',
+        ts: Date.now(),
+    };
+}
 
 export function advanceSurvivalTimeState(
     state: SurvivalState,
@@ -89,6 +108,7 @@ export function advanceSurvivalTimeState(
     let freezeLifeRemainingTicks = state.freezeLifeRemainingTicks;
     const championVitals: Record<number, ChampionVitals> = { ...state.championVitals };
     let championTemporaryXP: Record<number, ChampionTemporaryXP> = { ...state.championTemporaryXP };
+    let damageEvents = state.damageEvents;
     const sleeping = options?.sleeping ?? false;
     const survivalIntervalTicks = sleeping
         ? deps.sleepSurvivalIntervalTicks
@@ -269,10 +289,15 @@ export function advanceSurvivalTimeState(
                         updatedEntries.push({ ...entry, nextTickIn });
                         continue;
                     }
+                    const poisonDamage = Math.max(1, Math.floor(entry.remaining / 64));
                     next = {
                         ...next,
-                        hp: Math.max(0, next.hp - Math.max(1, Math.floor(entry.remaining / 64))),
+                        hp: Math.max(0, next.hp - poisonDamage),
                     };
+                    damageEvents = [
+                        ...(damageEvents ?? []),
+                        buildPoisonDamageEvent(state.level ?? 0, champ.id, poisonDamage),
+                    ];
                     const nextRemaining = entry.remaining - 1;
                     if (nextRemaining > 0) {
                         updatedEntries.push({ remaining: nextRemaining, nextTickIn: deps.poisonTickIntervalSec });
@@ -288,6 +313,7 @@ export function advanceSurvivalTimeState(
     return {
         championVitals,
         championTemporaryXP,
+        ...(damageEvents !== state.damageEvents ? { damageEvents } : {}),
         elapsedGameTimeTicks,
         lastSurvivalEffectGameTick,
         freezeLifeRemainingTicks,

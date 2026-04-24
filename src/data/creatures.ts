@@ -21,7 +21,11 @@ export interface CreatureDef {
     hitProb: number;
     atkSpd: number;
     moveSpd: number;
+    // Legacy compatibility field kept from earlier derived data; not used by the
+    // original combat XP formulas now wired through experienceClass.
     exp: number;
+    // Source-backed i559 creature property used by original melee/parry training formulas.
+    experienceClass: number;
     poison: boolean;
     originalAttackType: OriginalAttackType;
     attackTypes: AttackType[];
@@ -37,12 +41,17 @@ export interface CreatureDef {
     attackFromAllSides: boolean;
     attackRange: number;
     sightRange: number;
+    smellRange?: number;
+    wariness?: number;
     preferBackRow: boolean;
     levitates: boolean;
     absorbMissiles: boolean;
     seeInvisible: boolean;
     fearResistance: number;
     archenemy: boolean;
+    // Source-backed low nibble of CREATURE_INFO.AnimationTicks (`M62` in FTL).
+    // The packaged extracted JSON still exposes it under the older name `behaviorAfterAttack`.
+    nextBehaviorUpdateAfterAttackTicks?: number;
 }
 
 export type OriginalAttackType = 'Unconditional' | 'Fire' | 'Impact' | 'Blunt' | 'Sharp' | 'Magic' | 'Mental' | 'Blast';
@@ -83,9 +92,10 @@ type RawI559Creature = {
     attack?: number;
     poisonAttack?: number;
     dexterity?: number;
+    behaviorAfterAttack?: number;
     archenemy?: boolean;
     byte22?: number[];
-    properties?: { fearResistance?: number };
+    properties?: { fearResistance?: number; experienceClass?: number; wariness?: number };
     resistances?: { fire?: number; poison?: number };
     nonMaterial?: boolean;
     attackAnyChampion?: boolean;
@@ -94,7 +104,7 @@ type RawI559Creature = {
     levitates?: boolean;
     absorbMissiles?: boolean;
     seeInvisible?: boolean;
-    ranges?: { attack?: number; sight?: number };
+    ranges?: { attack?: number; sight?: number; smell?: number };
 };
 
 const ORIGINAL_ATTACK_TYPE_BY_ID: readonly OriginalAttackType[] = [
@@ -285,6 +295,7 @@ function buildCreatureTypes(rawGameDb: unknown): Record<number, CreatureDef> {
                 atkSpd: original?.attackTicks ?? creature.atkSpd,
                 moveSpd: original?.movementTicks ?? creature.moveSpd,
                 exp: creature.exp,
+                experienceClass: Math.max(0, Math.min(15, original?.properties?.experienceClass ?? 0)),
                 poison: typeof original?.poisonAttack === 'number' ? original.poisonAttack > 0 : creature.poison,
                 originalAttackType,
                 attackTypes: ORIGINAL_CREATURE_ATTACK_TYPE_INTERPRETATIONS[creature.id] ?? ORIGINAL_CREATURE_BASE_ATTACK_TYPE_MAP[originalAttackType] ?? ['Physical'],
@@ -300,12 +311,15 @@ function buildCreatureTypes(rawGameDb: unknown): Record<number, CreatureDef> {
                 attackFromAllSides: Boolean(original?.attackFromAllSides),
                 attackRange: Math.max(1, original?.ranges?.attack ?? 1),
                 sightRange: Math.max(1, original?.ranges?.sight ?? 8),
+                smellRange: Math.max(0, original?.ranges?.smell ?? 0),
+                wariness: Math.max(0, Math.min(15, original?.properties?.wariness ?? 0)),
                 preferBackRow: Boolean(original?.preferBackRow),
                 levitates: Boolean(original?.levitates),
                 absorbMissiles: Boolean(original?.absorbMissiles),
                 seeInvisible: Boolean(original?.seeInvisible),
                 fearResistance: Math.max(0, Math.min(15, original?.properties?.fearResistance ?? 0)),
                 archenemy: Boolean(original?.archenemy),
+                nextBehaviorUpdateAfterAttackTicks: Math.max(0, Math.min(15, original?.behaviorAfterAttack ?? 0)),
             } satisfies CreatureDef];
         }),
     );

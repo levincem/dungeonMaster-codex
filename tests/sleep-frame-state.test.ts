@@ -8,6 +8,9 @@ type SleepTestState = {
     pendingGeneratorSpawns: string[];
     championVitals: Record<number, { hp: number }>;
     championTemporaryXP: Record<number, { wizard: number }>;
+    party?: Array<{ id: number }>;
+    floorItems?: Array<{ id: string }>;
+    deadChampions?: Record<number, { id: number }>;
     spellLights?: unknown[];
     openDoors?: Set<string>;
     activeSensors?: Set<string>;
@@ -175,4 +178,61 @@ test('buildSleepFramePatch feeds the advanced state into later sleep-frame stage
 
     assert.ok(patch);
     assert.deepEqual(patch?.championVitals, { 1: { hp: 12 }, 2: { hp: 23 } });
+});
+
+test('buildSleepFramePatch preserves survival-time death state needed by Vi altar resurrection paths', () => {
+    const state: SleepTestState = {
+        sleeping: true,
+        pendingSensorEvents: [],
+        pendingGeneratorSpawns: [],
+        championVitals: { 1: { hp: 1 } },
+        championTemporaryXP: { 1: { wizard: 0 } },
+        party: [{ id: 1 }],
+        floorItems: [],
+        deadChampions: {},
+    };
+
+    const patch = buildSleepFramePatch(
+        state,
+        1000,
+        {
+            advanceSurvivalTime: () => ({
+                championVitals: { 1: { hp: 0 } },
+                championTemporaryXP: { 1: { wizard: 0 } },
+                elapsedGameTimeTicks: 5,
+                lastSurvivalEffectGameTick: 4,
+                freezeLifeRemainingTicks: 2,
+                advancedMs: 1000,
+                party: [],
+                floorItems: [{ id: 'bones_1_1000' }],
+                deadChampions: { 1: { id: 1 } },
+            }),
+            ageTimedEffectsByMs: () => ({}),
+            processPendingSensorEvents: () => ({
+                sensorChanges: {},
+                pendingSensorEvents: [],
+            }),
+            processPendingGeneratorSpawns: () => ({
+                sensorChanges: {},
+                pendingGeneratorSpawns: [],
+            }),
+            applyCombatTick: () => null,
+            isPartyRested: () => true,
+        },
+    );
+
+    assert.deepEqual(patch, {
+        championVitals: { 1: { hp: 0 } },
+        championTemporaryXP: { 1: { wizard: 0 } },
+        elapsedGameTimeTicks: 5,
+        lastSurvivalEffectGameTick: 4,
+        freezeLifeRemainingTicks: 2,
+        party: [],
+        floorItems: [{ id: 'bones_1_1000' }],
+        deadChampions: { 1: { id: 1 } },
+        regenTickRemainder: 0,
+        pendingSensorEvents: [],
+        pendingGeneratorSpawns: [],
+        sleeping: false,
+    });
 });

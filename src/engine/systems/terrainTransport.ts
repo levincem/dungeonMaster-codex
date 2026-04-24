@@ -4,6 +4,7 @@ import type {
     GameTile,
     TeleporterObject,
 } from '../../types/game';
+import { CREATURE_TYPES } from '../../data/creatures';
 import type { Direction } from '../runtimeTypes';
 import { isDisabledTeleporterKey } from './disabledTeleporters';
 
@@ -147,6 +148,8 @@ type TeleportTransportDeps = {
         y: number,
         index: number,
     ) => { scope?: string; rotationType?: number; rotation?: CardinalDir } | null | undefined;
+    isCreatureAllowedOnMap?: (mapIndex: number, creatureTypeId: number) => boolean;
+    getCreatureWariness?: (creatureTypeId: number) => number;
 };
 
 export function resolveProjectileTeleporterTransport(
@@ -218,6 +221,7 @@ export function resolveCreatureTeleporterTransport(
     y: number,
     direction: Direction,
     cell: CreatureCell,
+    creatureTypeId: number,
     deps: TeleportTransportDeps,
 ): { level: number; x: number; y: number; direction: Direction; cell: CreatureCell } {
     let nextLevel = level;
@@ -226,6 +230,7 @@ export function resolveCreatureTeleporterTransport(
     let nextDirection = direction;
     let nextCell = cell;
     const visited = new Set<string>();
+    const wariness = deps.getCreatureWariness?.(creatureTypeId) ?? CREATURE_TYPES[creatureTypeId]?.wariness ?? 0;
 
     for (let iteration = 0; iteration < 8; iteration += 1) {
         const tile = deps.getTile(nextLevel, nextX, nextY);
@@ -241,6 +246,13 @@ export function resolveCreatureTeleporterTransport(
             'creature',
             deps.getOriginalTeleporterRuntime,
         )) break;
+        if (
+            wariness >= 10 &&
+            deps.isCreatureAllowedOnMap &&
+            !deps.isCreatureAllowedOnMap(teleporter.destMap, creatureTypeId)
+        ) {
+            break;
+        }
 
         const loopKey = `${nextLevel},${nextX},${nextY},${teleporter.index},${nextDirection},${nextCell}`;
         if (visited.has(loopKey)) break;

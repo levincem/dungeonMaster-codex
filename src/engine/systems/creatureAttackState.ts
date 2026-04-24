@@ -1,8 +1,10 @@
 import type { CreatureDef } from '../../data/creatures';
+import type { ChampionTemporaryXP, ChampionXP, SkillKey } from '../../data/skillProgression';
 import type { Champion } from '../../types/champion';
 import type { ChampionEquipment, CreatureInstance, FloorItem } from '../../types/game';
 import type { ActivePotionBoost, ChampionVitals, Projectile } from '../runtimeTypes';
 import type { MonsterAttackResolution } from './monsterAttackResolution';
+import { getOriginalParryExperienceAmount } from './originalCombatExperience';
 import { applyOriginalLuckCheck } from './originalLuck';
 
 type EffectiveStats = {
@@ -30,11 +32,25 @@ type CreatureAttackStateArgs = {
     adjacentAfterMove: boolean;
     targetChampion: Champion | null;
     targetVitals: ChampionVitals | null | undefined;
+    party?: Champion[];
+    championVitals?: Record<number, ChampionVitals>;
+    championXP?: Record<number, ChampionXP>;
+    championTemporaryXP?: Record<number, ChampionTemporaryXP>;
     targetInventory: FloorItem[];
     targetEquipment: ChampionEquipment;
+    level?: number;
     levelDifficulty: number;
+    elapsedGameTimeTicks?: number;
+    lastCreatureAttackGameTick?: number;
     nowMs: number;
     partySleeping?: boolean;
+};
+
+type CreatureAttackExperiencePatch = {
+    championVitals?: Record<number, ChampionVitals>;
+    championXP: Record<number, ChampionXP>;
+    championTemporaryXP: Record<number, ChampionTemporaryXP>;
+    party?: Champion[];
 };
 
 type CreatureAttackStateDeps = {
@@ -72,6 +88,8 @@ type CreatureAttackStateDeps = {
             targetVitals: ChampionVitals;
             targetEquipment: ChampionEquipment;
             targetInventory: FloorItem[];
+            targetChampionXP?: ChampionXP;
+            targetChampionTemporaryXP?: ChampionTemporaryXP;
             activePotionBoosts: ActivePotionBoost[];
             attackerDef: CreatureDef;
             attackMode: 'melee' | 'ranged';
@@ -80,10 +98,32 @@ type CreatureAttackStateDeps = {
             partySleeping?: boolean;
         },
     ) => MonsterAttackResolution;
+    buildChampionSkillExperiencePatch?: (
+        state: {
+            level: number;
+            party: Champion[];
+            championVitals: Record<number, ChampionVitals>;
+            championXP: Record<number, ChampionXP>;
+            championTemporaryXP: Record<number, ChampionTemporaryXP>;
+            elapsedGameTimeTicks: number;
+            lastCreatureAttackGameTick: number;
+        },
+        championId: number,
+        skill: SkillKey,
+        amount: number,
+    ) => CreatureAttackExperiencePatch | null;
 };
 
 export type CreatureAttackStateResult =
-    | { kind: 'none'; targetChampionId?: number; nextVitals?: ChampionVitals; debug?: MonsterAttackResolution['debug'] }
+    | {
+        kind: 'none';
+        targetChampionId?: number;
+        nextVitals?: ChampionVitals;
+        party?: Champion[];
+        championXP?: Record<number, ChampionXP>;
+        championTemporaryXP?: Record<number, ChampionTemporaryXP>;
+        debug?: MonsterAttackResolution['debug'];
+    }
     | { kind: 'projectile'; projectile: Projectile }
     | {
         kind: 'steal';
@@ -99,6 +139,9 @@ export type CreatureAttackStateResult =
         targetChampionId: number;
         damage: number;
         nextVitals: ChampionVitals;
+        party?: Champion[];
+        championXP?: Record<number, ChampionXP>;
+        championTemporaryXP?: Record<number, ChampionTemporaryXP>;
         debug?: MonsterAttackResolution['debug'];
     };
 
@@ -177,11 +220,56 @@ export function resolveCreatureAttackState(
     }
 
     const attackMode: 'melee' | 'ranged' = !adjacentAfterMove ? 'ranged' : 'melee';
+    let currentTargetChampion = targetChampion;
+    let currentTargetVitals = targetVitals;
+    let nextParty = args.party;
+    let nextChampionXP = args.championXP;
+    let nextChampionTemporaryXP = args.championTemporaryXP;
+
+    if (
+        attackMode === 'melee'
+        && deps.buildChampionSkillExperiencePatch
+        && args.party
+        && args.championVitals
+        && args.championXP
+        && args.championTemporaryXP
+        && typeof args.level === 'number'
+        && typeof args.elapsedGameTimeTicks === 'number'
+        && typeof args.lastCreatureAttackGameTick === 'number'
+    ) {
+        const parryExperience = getOriginalParryExperienceAmount(args.attackerDef.experienceClass);
+        const xpPatch = deps.buildChampionSkillExperiencePatch(
+            {
+                level: args.level,
+                party: args.party,
+                championVitals: args.championVitals,
+                championXP: args.championXP,
+                championTemporaryXP: args.championTemporaryXP,
+                elapsedGameTimeTicks: args.elapsedGameTimeTicks,
+                lastCreatureAttackGameTick: args.lastCreatureAttackGameTick,
+            },
+            targetChampion.id,
+            'parry',
+            parryExperience,
+        );
+
+        if (xpPatch) {
+            nextParty = xpPatch.party ?? args.party;
+            nextChampionXP = xpPatch.championXP;
+            nextChampionTemporaryXP = xpPatch.championTemporaryXP;
+            const nextChampionVitals = xpPatch.championVitals ?? args.championVitals;
+            currentTargetChampion = nextParty.find((champion) => champion.id === targetChampion.id) ?? targetChampion;
+            currentTargetVitals = nextChampionVitals[targetChampion.id] ?? targetVitals;
+        }
+    }
+
     const attackResolution = deps.resolveMonsterAttackAgainstChampion({
-        targetChampion,
-        targetVitals,
+        targetChampion: currentTargetChampion,
+        targetVitals: currentTargetVitals,
         targetEquipment,
         targetInventory,
+        targetChampionXP: nextChampionXP?.[targetChampion.id],
+        targetChampionTemporaryXP: nextChampionTemporaryXP?.[targetChampion.id],
         activePotionBoosts: state.activePotionBoosts,
         attackerDef,
         attackMode,
@@ -195,6 +283,9 @@ export function resolveCreatureAttackState(
             kind: 'none',
             targetChampionId: targetChampion.id,
             nextVitals: attackResolution.nextVitals,
+            ...(nextParty ? { party: nextParty } : {}),
+            ...(nextChampionXP ? { championXP: nextChampionXP } : {}),
+            ...(nextChampionTemporaryXP ? { championTemporaryXP: nextChampionTemporaryXP } : {}),
             ...(attackResolution.debug ? { debug: attackResolution.debug } : {}),
         };
     }
@@ -204,6 +295,9 @@ export function resolveCreatureAttackState(
         targetChampionId: targetChampion.id,
         damage: Math.max(1, attackResolution.damage),
         nextVitals: attackResolution.nextVitals,
+        ...(nextParty ? { party: nextParty } : {}),
+        ...(nextChampionXP ? { championXP: nextChampionXP } : {}),
+        ...(nextChampionTemporaryXP ? { championTemporaryXP: nextChampionTemporaryXP } : {}),
         ...(attackResolution.debug ? { debug: attackResolution.debug } : {}),
     };
 }

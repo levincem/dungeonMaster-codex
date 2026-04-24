@@ -41,6 +41,11 @@ export type HudCastState<TSpell> = {
     spell: TSpell | undefined;
 };
 
+export type HudRecentDamageEntry = {
+    amount: number;
+    kind: 'normal' | 'poison';
+};
+
 export function buildHudFrontStateSummary(args: {
     currentMap: GameMap;
     level: number;
@@ -86,17 +91,17 @@ export function buildChampionRecentDamageMap(args: {
     party: HudChampionLike[];
     damageEvents: DamageEvent[];
     maxEntries?: number;
-}): Record<number, number[]> {
+}): Record<number, HudRecentDamageEntry[]> {
     const { damageEvents, party } = args;
     const maxEntries = args.maxEntries ?? 2;
     const championIds = new Set(party.map((champion) => champion.id));
-    const byChampionId: Record<number, number[]> = {};
+    const byChampionId: Record<number, HudRecentDamageEntry[]> = {};
 
     for (const event of damageEvents) {
         if (event.target !== 'champion' || event.championId === undefined) continue;
         if (!championIds.has(event.championId)) continue;
         const current = byChampionId[event.championId] ?? [];
-        current.push(event.amount);
+        current.push({ amount: event.amount, kind: event.kind ?? 'normal' });
         if (current.length > maxEntries) {
             current.splice(0, current.length - maxEntries);
         }
@@ -147,10 +152,10 @@ export function buildCombatGridSlotState<C extends HudChampionLike>(args: {
     const cooldownRatio = combatState.cooldownMax > 0 ? Math.min(1, combatState.cooldown / combatState.cooldownMax) : 0;
     const ready = combatState.cooldown <= 0;
     const equipment = championEquipment[champion.id] ?? {};
-    const allAttacks = getAllAttacks(champion.id, equipment);
-    const usableAttacks = allAttacks.filter((attack) =>
+    const allAttacks = getAllAttacks(champion.id, equipment).filter((attack) =>
         attack.masteryThreshold <= getAttackMasteryLevel(champion.id, attack),
     );
+    const usableAttacks = allAttacks;
 
     return {
         champion,

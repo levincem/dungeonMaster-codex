@@ -55,6 +55,9 @@ test('applyOpenedTeleporterEffects moves the party through newly opened teleport
             openWalls: new Set<string>(),
             openPits: new Set<string>(),
             openTeleporters: new Set<string>(['0,4,5']),
+            championInventories: {},
+            championEquipment: {},
+            pendingSensorEvents: [],
         },
         ['0,4,5'],
         {
@@ -93,6 +96,9 @@ test('applyOpenedTeleporterEffects also applies creature teleports on opened squ
             openWalls: new Set<string>(),
             openPits: new Set<string>(),
             openTeleporters: new Set<string>(['0,3,2']),
+            championInventories: {},
+            championEquipment: {},
+            pendingSensorEvents: [],
         },
         ['0,3,2'],
         {
@@ -116,4 +122,46 @@ test('applyOpenedTeleporterEffects also applies creature teleports on opened squ
         },
         { mapIndex: 0, x: 4, y: 5 },
     );
+});
+
+test('applyOpenedTeleporterEffects triggers floor sensors before transporting the party through a newly opened teleporter', () => {
+    const result = applyOpenedTeleporterEffects(
+        {
+            level: 3,
+            position: [30, 17],
+            direction: 'SOUTH',
+            hydratedLevels: new Set<number>([3]),
+            creatures: [],
+            floorItems: [],
+            spellVisualEvents: [],
+            openDoors: new Set<string>(),
+            openWalls: new Set<string>(),
+            openPits: new Set<string>(),
+            openTeleporters: new Set<string>(['3,30,17']),
+            championInventories: {},
+            championEquipment: {},
+            pendingSensorEvents: [],
+        },
+        ['3,30,17'],
+        {
+            getTile: (level, x, y) => level === 3 && x === 17 && y === 30 ? createTeleporterTile(x, y, 3, 15, 30) : undefined,
+            getTeleporter: (tile) => tile.objects[0]?.category === 'Teleporter' ? tile.objects[0] : undefined,
+            resolveProjectileTeleporterTransport: () => ({ level: 3, x: 15, y: 30, direction: 'SOUTH' }),
+            applyPartyTelefragAtSquare: () => null,
+            buildLevelHydrationPatch: () => null,
+            applyCreaturesStandingOnOpenTeleporter: () => null,
+            triggerFloorSensorsOnOpenedPartyTeleporter: () => ({
+                openDoors: new Set<string>(['3,30,14']),
+                openWalls: new Set<string>(),
+                openPits: new Set<string>(),
+                openTeleporters: new Set<string>(['3,30,17']),
+                pendingSensorEvents: [{ level: 3, sensorIndex: 104, remaining: 2 }],
+            }),
+        },
+    );
+
+    assert.equal(result.changed, true);
+    assert.deepEqual(result.position, [30, 15]);
+    assert.equal(result.openDoors.has('3,30,14'), true);
+    assert.deepEqual(result.pendingSensorEvents, [{ level: 3, sensorIndex: 104, remaining: 2 }]);
 });

@@ -21,6 +21,7 @@ export type FearUtilityActionResult = {
     clearLastSeenIds: string[];
     frightenedCreatures: FrightenedCreatureUpdate[];
     sound: FearUtilitySound;
+    testedCreatureCount: number;
 };
 
 function getFearActionProfile(
@@ -49,10 +50,12 @@ export function resolveFearUtilityAction(
     const { frightAmount, sound } = getFearActionProfile(action, rightHandTypeId);
     const frightenedCreatures: FrightenedCreatureUpdate[] = [];
     const clearLastSeenIds: string[] = [];
+    let testedCreatureCount = 0;
 
     for (const creature of frontCreatures) {
         const creatureDef = deps.getCreatureDef(creature.typeId);
         if (!creatureDef) continue;
+        testedCreatureCount += 1;
 
         const fearResistance = creatureDef.fearResistance;
         if (fearResistance >= 15) continue;
@@ -70,5 +73,6 @@ export function resolveFearUtilityAction(
         clearLastSeenIds,
         frightenedCreatures,
         sound,
+        testedCreatureCount,
     };
 }

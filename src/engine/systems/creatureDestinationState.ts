@@ -22,6 +22,7 @@ type ResolveCreatureDestinationDeps = {
         y: number,
         direction: Direction,
         cell: CreatureCell,
+        creatureTypeId: number,
     ) => { level: number; x: number; y: number; cell: CreatureCell };
     monsterWalkable: (level: number, y: number, x: number) => boolean;
     canCreatureShareTile: (creature: CreatureInstance, level: number, x: number, y: number) => boolean;
@@ -63,6 +64,7 @@ export function resolveCreatureDestinationState(
         result.y,
         args.movementDirection ?? 'NORTH',
         args.creature.cell,
+        args.creature.typeId,
     );
     const teleportedMover: CreatureInstance = {
         ...args.creature,

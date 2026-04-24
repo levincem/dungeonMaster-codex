@@ -1,5 +1,7 @@
+import { CREATURE_TYPES } from '../../data/creatures';
 import type { Champion } from '../../types/champion';
 import type { CreatureInstance, FloorItem } from '../../types/game';
+import { getOriginalMeleeExperienceAmount } from './originalCombatExperience';
 import type {
     ChampionCombat,
     ChampionVitals,
@@ -96,12 +98,16 @@ export function buildMeleeAttackResolutionPatch(
     let newChampionTemporaryXP = state.championTemporaryXP;
     let newChampionVitals = state.championVitals;
     let xpParty = state.party;
+    const attackExperience = getOriginalMeleeExperienceAmount(
+        totalDmg,
+        CREATURE_TYPES[target.typeId]?.experienceClass,
+    );
 
     const attackerXpPatch = deps.applyChampionSkillExperience(
         xpCarrier,
         championId,
         attackSkill,
-        totalDmg,
+        attackExperience,
     );
     if (attackerXpPatch) {
         newChampionVitals = attackerXpPatch.championVitals ?? newChampionVitals;

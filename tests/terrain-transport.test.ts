@@ -94,6 +94,8 @@ test('resolveProjectileTeleporterTransport follows open teleporter chains', () =
         {
             getTile: (level, x, y) => tiles.get(`${level},${y},${x}`),
             getOriginalTeleporterRuntime: () => null,
+            isCreatureAllowedOnMap: () => true,
+            getCreatureWariness: () => 0,
         },
     );
 
@@ -114,6 +116,8 @@ test('resolveProjectileTeleporterTransport applies self-target teleporter rotati
         {
             getTile: (level, x, y) => tiles.get(`${level},${y},${x}`),
             getOriginalTeleporterRuntime: () => null,
+            isCreatureAllowedOnMap: () => true,
+            getCreatureWariness: () => 0,
         },
     );
 
@@ -132,9 +136,12 @@ test('resolveCreatureTeleporterTransport rotates both direction and creature cel
         1,
         'NORTH',
         'frontLeft',
+        12,
         {
             getTile: (level, x, y) => tiles.get(`${level},${y},${x}`),
             getOriginalTeleporterRuntime: () => null,
+            isCreatureAllowedOnMap: () => true,
+            getCreatureWariness: () => 0,
         },
     );
 
@@ -159,9 +166,12 @@ test('resolveCreatureTeleporterTransport applies self-target teleporter rotation
         1,
         'NORTH',
         'frontLeft',
+        12,
         {
             getTile: (level, x, y) => tiles.get(`${level},${y},${x}`),
             getOriginalTeleporterRuntime: () => null,
+            isCreatureAllowedOnMap: () => true,
+            getCreatureWariness: () => 0,
         },
     );
 
@@ -171,6 +181,66 @@ test('resolveCreatureTeleporterTransport applies self-target teleporter rotation
         y: 1,
         direction: 'EAST',
         cell: 'frontRight',
+    });
+});
+
+test('resolveCreatureTeleporterTransport blocks high-wariness creatures from disallowed destination maps', () => {
+    const tiles = new Map<string, GameTile>([
+        ['0,1,1', createTeleporterTile(1, 1, { index: 32, scope: 'Creatures', destMap: 2, destX: 4, destY: 5 })],
+    ]);
+
+    const result = resolveCreatureTeleporterTransport(
+        { openTeleporters: new Set(['0,1,1']) },
+        0,
+        1,
+        1,
+        'NORTH',
+        'frontLeft',
+        99,
+        {
+            getTile: (level, x, y) => tiles.get(`${level},${y},${x}`),
+            getOriginalTeleporterRuntime: () => ({ scope: 'Creatures', rotationType: 0, rotation: 'North' }),
+            isCreatureAllowedOnMap: () => false,
+            getCreatureWariness: () => 10,
+        },
+    );
+
+    assert.deepEqual(result, {
+        level: 0,
+        x: 1,
+        y: 1,
+        direction: 'NORTH',
+        cell: 'frontLeft',
+    });
+});
+
+test('resolveCreatureTeleporterTransport still allows low-wariness creatures into disallowed destination maps', () => {
+    const tiles = new Map<string, GameTile>([
+        ['0,1,1', createTeleporterTile(1, 1, { index: 33, scope: 'Creatures', destMap: 2, destX: 4, destY: 5 })],
+    ]);
+
+    const result = resolveCreatureTeleporterTransport(
+        { openTeleporters: new Set(['0,1,1']) },
+        0,
+        1,
+        1,
+        'NORTH',
+        'frontLeft',
+        99,
+        {
+            getTile: (level, x, y) => tiles.get(`${level},${y},${x}`),
+            getOriginalTeleporterRuntime: () => ({ scope: 'Creatures', rotationType: 0, rotation: 'North' }),
+            isCreatureAllowedOnMap: () => false,
+            getCreatureWariness: () => 9,
+        },
+    );
+
+    assert.deepEqual(result, {
+        level: 2,
+        x: 4,
+        y: 5,
+        direction: 'NORTH',
+        cell: 'frontLeft',
     });
 });
 

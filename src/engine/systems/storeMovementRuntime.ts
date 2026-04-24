@@ -91,6 +91,8 @@ type OpenedTeleporterEffectsState = Pick<
     | 'position'
     | 'direction'
     | 'hydratedLevels'
+    | 'championInventories'
+    | 'championEquipment'
     | 'openDoors'
     | 'openPits'
     | 'openTeleporters'
@@ -98,11 +100,22 @@ type OpenedTeleporterEffectsState = Pick<
     | 'creatures'
     | 'floorItems'
     | 'spellVisualEvents'
+    | 'pendingSensorEvents'
 >;
 
 type OpenedTeleporterEffectsResult = Pick<
     MovementRuntimeState,
-    'level' | 'position' | 'direction' | 'creatures' | 'floorItems' | 'spellVisualEvents'
+    | 'level'
+    | 'position'
+    | 'direction'
+    | 'creatures'
+    | 'floorItems'
+    | 'spellVisualEvents'
+    | 'openDoors'
+    | 'openPits'
+    | 'openTeleporters'
+    | 'openWalls'
+    | 'pendingSensorEvents'
 > & { changed: boolean };
 
 type StoreMovementRuntimeParams<

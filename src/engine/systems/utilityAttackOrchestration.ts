@@ -16,6 +16,7 @@ import {
     buildUtilityRuntimeActionPatch,
     type UtilityControlUpdate,
 } from './utilityAttackControlState';
+import type { UtilityRuntimeActionResult } from './utilityAttackControlState';
 import { buildSimpleUtilityAttackPatch } from './utilityAttackState';
 import type { FearUtilityActionResult } from './fearUtilityActions';
 
@@ -85,6 +86,13 @@ type UtilityAttackDeps<
     buildDeathDustEvent: (level: number, x: number, y: number) => TSpellVisualEvent;
 };
 
+type SupportedUtilityAttackResult<TPatch> = Pick<
+    UtilityRuntimeActionResult<TPatch>,
+    'influenceExperience'
+> & {
+    patch: TPatch | null;
+};
+
 export function buildSupportedUtilityAttackPatch<
     TPatch extends object,
     TMessage,
@@ -102,7 +110,7 @@ export function buildSupportedUtilityAttackPatch<
         TSpellVisualEvent,
         TClimbDownState
     >,
-): TPatch | null {
+): SupportedUtilityAttackResult<TPatch> {
     const { front, target } = resolveAttackFrontContext(
         state.level,
         state.position,
@@ -125,28 +133,30 @@ export function buildSupportedUtilityAttackPatch<
         case 'Flip':
         case 'Invoke':
         case 'Window':
-            return buildSimpleUtilityAttackPatch(
-                action.enumName,
-                {
-                    now: state.now,
-                    level: state.level,
-                    position: state.position,
-                    direction: state.direction,
-                    freezeLifeRemainingTicks: state.freezeLifeRemainingTicks,
-                    seeThroughWallsUntil: state.seeThroughWallsUntil,
-                    spellLights: state.spellLights,
-                    activeShields: state.activeShields,
-                    projectiles: state.projectiles,
-                },
-                basePatch,
-                state.championVitals,
-                state.championId,
-                state.championHealth,
-                {
-                    randomInt: deps.randomInt,
-                    quantizeDurationMs: deps.quantizeDurationMs,
-                },
-            );
+            return {
+                patch: buildSimpleUtilityAttackPatch(
+                    action.enumName,
+                    {
+                        now: state.now,
+                        level: state.level,
+                        position: state.position,
+                        direction: state.direction,
+                        freezeLifeRemainingTicks: state.freezeLifeRemainingTicks,
+                        seeThroughWallsUntil: state.seeThroughWallsUntil,
+                        spellLights: state.spellLights,
+                        activeShields: state.activeShields,
+                        projectiles: state.projectiles,
+                    },
+                    basePatch,
+                    state.championVitals,
+                    state.championId,
+                    state.championHealth,
+                    {
+                        randomInt: deps.randomInt,
+                        quantizeDurationMs: deps.quantizeDurationMs,
+                    },
+                ),
+            };
         case 'Confuse':
         case 'Fluxcage':
         case 'Calm':
@@ -177,17 +187,19 @@ export function buildSupportedUtilityAttackPatch<
             if (result.fearResult) {
                 deps.applyFearResult(result.fearResult);
             }
-            return result.patch;
+            return result;
         }
         case 'Climb Down': {
             const climbDown = deps.resolveClimbDown(deps.climbDownState, basePatch);
             if (climbDown.errorMessage) {
                 return {
-                    ...basePatch,
-                    lastCastResult: deps.buildAttackResultMessage(climbDown.errorMessage),
-                } as TPatch;
+                    patch: {
+                        ...basePatch,
+                        lastCastResult: deps.buildAttackResultMessage(climbDown.errorMessage),
+                    } as TPatch,
+                };
             }
-            return climbDown.patch ?? basePatch;
+            return { patch: climbDown.patch ?? basePatch };
         }
         case 'Fuse': {
             const result = buildFuseActionPatch(
@@ -215,9 +227,9 @@ export function buildSupportedUtilityAttackPatch<
             if (result.clearCreatureControlStatuses) {
                 deps.clearCreatureControlStatuses();
             }
-            return result.patch;
+            return { patch: result.patch };
         }
         default:
-            return null;
+            return { patch: null };
     }
 }

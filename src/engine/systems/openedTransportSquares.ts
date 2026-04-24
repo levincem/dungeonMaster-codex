@@ -13,6 +13,9 @@ type TeleporterLoopState = {
     openWalls: Set<string>;
     openPits: Set<string>;
     openTeleporters: Set<string>;
+    championInventories: Record<number, FloorItem[]>;
+    championEquipment: Record<number, import('../../types/game').ChampionEquipment>;
+    pendingSensorEvents: Array<{ level: number; sensorIndex: number; remaining: number }>;
 };
 
 type TeleporterLoopDeps = {
@@ -42,11 +45,40 @@ type TeleporterLoopDeps = {
         x: number,
         y: number,
     ) => Pick<TeleporterLoopState, 'creatures'> | null;
+    triggerFloorSensorsOnOpenedPartyTeleporter?: (
+        state: Pick<
+            TeleporterLoopState,
+            | 'level'
+            | 'position'
+            | 'direction'
+            | 'openDoors'
+            | 'openWalls'
+            | 'openPits'
+            | 'openTeleporters'
+            | 'championInventories'
+            | 'championEquipment'
+            | 'floorItems'
+            | 'pendingSensorEvents'
+        >,
+        level: number,
+        x: number,
+        y: number,
+    ) => Pick<TeleporterLoopState, 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters' | 'pendingSensorEvents'> | null;
 };
 
 type TeleporterLoopResult = Pick<
     TeleporterLoopState,
-    'level' | 'position' | 'direction' | 'creatures' | 'floorItems' | 'spellVisualEvents'
+    | 'level'
+    | 'position'
+    | 'direction'
+    | 'creatures'
+    | 'floorItems'
+    | 'spellVisualEvents'
+    | 'openDoors'
+    | 'openWalls'
+    | 'openPits'
+    | 'openTeleporters'
+    | 'pendingSensorEvents'
 > & { changed: boolean };
 
 export function applyOpenedTeleporterEffects(
@@ -60,6 +92,11 @@ export function applyOpenedTeleporterEffects(
     let creatures = state.creatures;
     let floorItems = state.floorItems;
     let spellVisualEvents = state.spellVisualEvents;
+    let openDoors = state.openDoors;
+    let openWalls = state.openWalls;
+    let openPits = state.openPits;
+    let openTeleporters = state.openTeleporters;
+    let pendingSensorEvents = state.pendingSensorEvents;
     let changed = false;
 
     for (const key of openedTeleporterKeys) {
@@ -74,8 +111,35 @@ export function applyOpenedTeleporterEffects(
         if (!teleporter) continue;
 
         if (level === tpLevel && position[0] === tpY && position[1] === tpX) {
+            const sensorPatch = deps.triggerFloorSensorsOnOpenedPartyTeleporter?.(
+                {
+                    level,
+                    position,
+                    direction,
+                    openDoors,
+                    openWalls,
+                    openPits,
+                    openTeleporters,
+                    championInventories: state.championInventories,
+                    championEquipment: state.championEquipment,
+                    floorItems,
+                    pendingSensorEvents,
+                },
+                tpLevel,
+                tpX,
+                tpY,
+            );
+            if (sensorPatch) {
+                openDoors = sensorPatch.openDoors ?? openDoors;
+                openWalls = sensorPatch.openWalls ?? openWalls;
+                openPits = sensorPatch.openPits ?? openPits;
+                openTeleporters = sensorPatch.openTeleporters ?? openTeleporters;
+                pendingSensorEvents = sensorPatch.pendingSensorEvents ?? pendingSensorEvents;
+                changed = true;
+            }
+
             const resolvedTransport = deps.resolveProjectileTeleporterTransport(
-                { openTeleporters: state.openTeleporters },
+                { openTeleporters },
                 tpLevel,
                 tpX,
                 tpY,
@@ -117,10 +181,10 @@ export function applyOpenedTeleporterEffects(
                 position,
                 hydratedLevels: state.hydratedLevels,
                 creatures,
-                openDoors: state.openDoors,
-                openWalls: state.openWalls,
-                openPits: state.openPits,
-                openTeleporters: state.openTeleporters,
+                openDoors,
+                openWalls,
+                openPits,
+                openTeleporters,
             },
             tpLevel,
             tpX,
@@ -139,6 +203,11 @@ export function applyOpenedTeleporterEffects(
         creatures,
         floorItems,
         spellVisualEvents,
+        openDoors,
+        openWalls,
+        openPits,
+        openTeleporters,
+        pendingSensorEvents,
         changed,
     };
 }

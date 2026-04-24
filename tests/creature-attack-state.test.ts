@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { createEmptyChampionTemporaryXP, createEmptyChampionXP } from '../src/data/skillProgression.js';
 import type { CreatureDef } from '../src/data/creatures.js';
 import type { Champion } from '../src/types/champion.js';
 import type { ChampionEquipment, CreatureInstance, FloorItem } from '../src/types/game.js';
@@ -89,6 +90,7 @@ function createDef(overrides: Partial<CreatureDef> = {}): CreatureDef {
         atkSpd: 8,
         moveSpd: 8,
         exp: 10,
+        experienceClass: 0,
         poison: false,
         originalAttackType: 'Blunt',
         attackTypes: [],
@@ -307,6 +309,95 @@ test('resolveCreatureAttackState returns damage when a normal attack lands', () 
         damage: 6,
         nextVitals,
     });
+});
+
+test('resolveCreatureAttackState applies source-backed parry XP before melee defense resolution', () => {
+    const targetChampion = createChampion();
+    const targetVitals = createVitals();
+    const championXP = { 1: createEmptyChampionXP() };
+    const championTemporaryXP = { 1: createEmptyChampionTemporaryXP() };
+    let capturedTargetChampionXP = undefined as typeof championXP[1] | undefined;
+    let capturedTargetChampionTemporaryXP = undefined as typeof championTemporaryXP[1] | undefined;
+    let capturedChampionName = '';
+
+    const result = resolveCreatureAttackState(
+        {
+            state: {
+                position: [6, 6],
+                activePotionBoosts: [],
+            },
+            creature: createCreature(),
+            attackerDef: createDef({ experienceClass: 11 }),
+            creatureProjectileEffect: null,
+            shouldLaunchProjectile: false,
+            adjacentAfterMove: true,
+            targetChampion,
+            targetVitals,
+            party: [targetChampion],
+            championVitals: { 1: targetVitals },
+            championXP,
+            championTemporaryXP,
+            targetInventory: [],
+            targetEquipment: {},
+            level: 3,
+            levelDifficulty: 4,
+            elapsedGameTimeTicks: 120,
+            lastCreatureAttackGameTick: 110,
+            nowMs: 1000,
+        },
+        {
+            randomInt: () => 0,
+            buildProjectile: () => {
+                throw new Error('buildProjectile should not run for melee damage');
+            },
+            getEffectiveChampionStats: () => ({ dexterity: 20, luck: 15 }),
+            tryStealChampionItem: () => ({
+                stolenItem: null,
+                nextInventory: [],
+                nextEquipment: {} as ChampionEquipment,
+                nextVitals: targetVitals,
+                shouldFlee: false,
+            }),
+            buildChampionSkillExperiencePatch: (_state, _championId, skill, amount) => {
+                assert.equal(skill, 'parry');
+                assert.equal(amount, 11);
+                return {
+                    championXP: {
+                        1: {
+                            ...createEmptyChampionXP(),
+                            parry: 11,
+                            fighter: 11,
+                        },
+                    },
+                    championTemporaryXP: {
+                        1: {
+                            ...createEmptyChampionTemporaryXP(),
+                            parry: 1,
+                        },
+                    },
+                    party: [{ ...targetChampion, name: 'Halk the Defender' }],
+                };
+            },
+            resolveMonsterAttackAgainstChampion: (args) => {
+                capturedTargetChampionXP = args.targetChampionXP;
+                capturedTargetChampionTemporaryXP = args.targetChampionTemporaryXP;
+                capturedChampionName = args.targetChampion.name;
+                return {
+                    damage: 0,
+                    hitZones: ['torso'],
+                    damageClass: 'physical',
+                    nextVitals: args.targetVitals,
+                };
+            },
+        },
+    );
+
+    assert.equal(capturedChampionName, 'Halk the Defender');
+    assert.equal(capturedTargetChampionXP?.parry, 11);
+    assert.equal(capturedTargetChampionTemporaryXP?.parry, 1);
+    assert.equal(result.kind, 'none');
+    assert.equal(result.party?.[0]?.name, 'Halk the Defender');
+    assert.equal(result.championXP?.[1]?.parry, 11);
 });
 
 test('resolveCreatureAttackState preserves nextVitals when a normal attack deals no damage', () => {

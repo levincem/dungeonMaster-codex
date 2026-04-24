@@ -71,6 +71,7 @@ type AttackResultMessage = {
 };
 
 type AttackXpPatch = {
+    championVitals?: Record<number, ChampionVitals>;
     championXP: Record<number, ChampionXP>;
     championTemporaryXP: Record<number, ChampionTemporaryXP>;
     party?: Champion[];
@@ -309,19 +310,15 @@ export function buildStoreAttackFrontRuntimePatch<TState extends StoreAttackFron
             }) => {
                 const now = Date.now();
                 const utilityXP = selectedAttack.attack.experienceForAttacking;
-                const utilityXpPatch = utilityXP > 0
-                    ? buildChampionSkillExperiencePatch(targetChampionId, selectedSkill, utilityXP)
-                    : null;
                 const base = {
                     championCombat: { ...attackState.championCombat, [targetChampionId]: newCombat },
                     championVitals,
-                    ...(utilityXpPatch ?? {}),
                     ...(chargedEquip !== equip
                         ? { championEquipment: { ...attackState.championEquipment, [targetChampionId]: chargedEquip } }
                         : {}),
                     lastCastResult: deps.buildAttackResultMessage(selectedAttack.displayName, true),
                 } as unknown as Partial<TState>;
-                return buildSupportedUtilityAttackPatch(
+                const handled = buildSupportedUtilityAttackPatch(
                     selectedAttack,
                     {
                         now,
@@ -365,6 +362,60 @@ export function buildStoreAttackFrontRuntimePatch<TState extends StoreAttackFron
                         buildDeathDustEvent: deps.buildDeathDustEvent,
                     },
                 );
+                if (!handled.patch) return null;
+
+                let xpState = {
+                    ...attackState,
+                    championVitals,
+                } as TState;
+                let combinedXpPatch:
+                    | {
+                        championVitals?: Record<number, ChampionVitals>;
+                        championXP: Record<number, ChampionXP>;
+                        championTemporaryXP: Record<number, ChampionTemporaryXP>;
+                        party?: Champion[];
+                    }
+                    | null = null;
+
+                const applySequentialXpPatch = (skill: SkillKey, amount: number) => {
+                    if (amount <= 0) return;
+                    const xpPatch = deps.buildChampionSkillExperiencePatch(
+                        xpState,
+                        targetChampionId,
+                        skill,
+                        amount,
+                    );
+                    if (!xpPatch) return;
+
+                    xpState = {
+                        ...xpState,
+                        championXP: xpPatch.championXP,
+                        championTemporaryXP: xpPatch.championTemporaryXP,
+                        championVitals: xpPatch.championVitals ?? xpState.championVitals,
+                        party: xpPatch.party ?? xpState.party,
+                    } as TState;
+
+                    combinedXpPatch = {
+                        championXP: xpState.championXP,
+                        championTemporaryXP: xpState.championTemporaryXP,
+                        ...(xpPatch.championVitals ? { championVitals: xpState.championVitals } : {}),
+                        ...(xpPatch.party ? { party: xpState.party } : {}),
+                    };
+                };
+
+                applySequentialXpPatch(selectedSkill, utilityXP);
+
+                if (handled.influenceExperience) {
+                    const specialInfluenceAmount =
+                        handled.influenceExperience.fullAwards * handled.influenceExperience.fullAmount
+                        + handled.influenceExperience.halfAwards * handled.influenceExperience.halfAmount;
+                    applySequentialXpPatch('influence', specialInfluenceAmount);
+                }
+
+                return {
+                    ...handled.patch,
+                    ...(combinedXpPatch ?? {}),
+                };
             },
             resolveCombatItem: (equip) => getPreferredCombatItem(equip, {
                 getWeaponAttackOptions: deps.getWeaponAttackOptions,

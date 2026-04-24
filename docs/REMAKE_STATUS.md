@@ -24,8 +24,12 @@ Lecture honnete du projet aujourd'hui:
 
 - l'extraction utile au runtime principal est consideree comme fiable
 - le coeur gameplay est largement `source-backed`
+- la cible de fidelite reste `Dungeon Master` original:
+  - `DM` PC DOS est la cible prioritaire quand il faut arbitrer
+  - Atari ST sert de recoupement fort sur les tables et comportements proches
+  - `CSB` ne sert que d'aide technique sur le moteur partage, pas de cible gameplay additionnelle
 - le `store` n'est plus le gros chantier prioritaire
-- les restes ouverts sont surtout du playtest cible, des cas rares, quelques ecarts de presentation et de l'optimisation
+- les restes ouverts sont surtout du playtest cible, des cas rares, quelques ecarts de presentation, un petit reliquat structurel borne autour de `ACTIVE_GROUP`, et de l'optimisation
 - on n'est pas encore en `release candidate`, mais on n'est plus dans une logique d'alpha fragile
 
 Validation locale la plus recente:
@@ -87,6 +91,7 @@ Point utile deja confirme:
 - les groupes hors map de la party ne consomment plus les slots `ACTIVE_GROUP`
 - les reservations hors map ne consomment plus la marge `60 / 5`
 - les retries `move later` rematerialisent un blueprint gele au lieu de reroller le groupe
+- ce bloc doit maintenant se lire comme `recale cote gameplay utile`, pas comme `reproduction litterale complete` de la structure FTL `GROUP / ACTIVE_GROUP`
 
 ### Sensors `floor type 3`
 

@@ -24,6 +24,7 @@ type MonsterDestinationTurnDeps = {
         y: number,
         direction: Direction,
         cell: CreatureCell,
+        creatureTypeId: number,
     ) => { level: number; x: number; y: number; cell: CreatureCell };
     monsterWalkable: (level: number, y: number, x: number) => boolean;
     canCreatureShareTile: (

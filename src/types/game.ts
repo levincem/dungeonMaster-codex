@@ -96,6 +96,10 @@ export interface CreatureObject {
     hp: number | number[];
     count?: number;
     positions?: number;
+    possession?: { pos: number; category: number; index: number } | null;
+    raw?: {
+        possessionWord?: number;
+    };
 }
 
 export interface WeaponObject {
@@ -207,6 +211,10 @@ export interface GameMap {
     width: number;
     height: number;
     difficulty: number;
+    metadata?: {
+        allowedCreatureTypes?: number[];
+        [key: string]: unknown;
+    };
     mapOffset?: { x: number; y: number };
     localBounds?: { minX: number; minY: number; maxX: number; maxY: number };
     globalBounds?: { minX: number; minY: number; maxX: number; maxY: number };

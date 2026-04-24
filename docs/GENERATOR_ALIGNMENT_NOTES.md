@@ -132,6 +132,43 @@ Autrement dit:
 - on ne compresse plus artificiellement plusieurs reservations differees d'un meme generateur en une seule file d'attente
 - mais on n'a pas encore reconstitue la vraie representation FTL des groupes actifs
 
+## Ce que montre la structure FTL `ACTIVE_GROUP`
+
+Le point encore ouvert n'est pas abstrait; on sait maintenant beaucoup mieux ce que transporte la structure interne.
+
+Dans le source FTL:
+
+- `GLOBAL_DATA` suit explicitement `CurrentActiveGroupCount` et `MaximumActiveGroupCount`
+- un `GROUP` present sur la map de la party reutilise son champ `Cells` comme `ActiveGroupIndex`
+- les vraies `Cells` du groupe sont alors deplacees dans la structure `ACTIVE_GROUP`
+
+La structure `ACTIVE_GROUP` contient ensuite plusieurs champs transitoires que le remake ne reproduit pas encore litteralement:
+
+- `Directions`
+- `Cells`
+- `LastMoveTime`
+- `DelayFleeingFromTarget`
+- `TargetMapX / TargetMapY`
+- `PriorMapX / PriorMapY`
+- `HomeMapX / HomeMapY`
+- `Aspect[4]`
+
+Et le cycle de vie source-backed est lui aussi explicite:
+
+- `F183_kzzz_GROUP_AddActiveGroup` alloue un slot actif libre, copie `GROUP.Cells` dans `ACTIVE_GROUP.Cells`, initialise `Prior/Home`, `LastMoveTime`, les directions par creature et les `Aspect`
+- `F184_ahzz_GROUP_RemoveActiveGroup` reinjecte `ACTIVE_GROUP.Cells` dans `GROUP.Cells`, repasse la direction normalisee sur le `GROUP`, puis libere le slot
+- `F195_akzz_GROUP_AddAllActiveGroups` rehydrate les groupes actifs de toute la map de la party au chargement/changement de map
+
+Donc le vrai reliquat fidelite n'est plus:
+
+- "comment decoder les generateurs"
+
+mais plutot:
+
+- "quels etats transitoires FTL doivent exister uniquement quand un groupe est actif sur la map de la party"
+- "quand exactemment un groupe doit entrer ou sortir de cette representation active"
+- "quels effets ces etats ont encore sur saturation, flee delay, prior/home, direction et rehydratation"
+
 ## Formulation honnete a retenir
 
 On peut dire:
@@ -139,3 +176,5 @@ On peut dire:
 `Les generateurs sont maintenant largement decodes et rebranches cote runtime.`
 
 `Le principal reste ouvert n'est plus le decoding des parametres de generateur, mais la reproduction exacte de la structure interne FTL des groupes actifs qui conditionne la saturation et certains cas limites de spawn.`
+
+`En pratique, le gameplay observable des generateurs est deja largement recale; ce qui reste n'est pas un grand trou de donnees, mais un reliquat structurel borne sur la representation transitoire des groupes actifs.`

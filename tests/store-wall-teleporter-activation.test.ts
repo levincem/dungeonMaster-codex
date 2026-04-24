@@ -82,3 +82,52 @@ test('level 2 wall buttons move the Mirror Of Dawn chest when they open a telepo
         useStore.setState(initialState, true);
     }
 });
+
+test('level 3 gold coin wall slot opens the creature-only teleporter from the original walkthrough route', async () => {
+    await preloadDungeonData();
+    const { useStore } = await import('../src/engine/store.js');
+    const initialState = enterDungeonForTest(useStore);
+
+    try {
+        useStore.getState().goToLevel(3, [13, 25], 'WEST');
+
+        const goldCoin = {
+            id: 'test-gold-coin',
+            category: 'Misc',
+            typeId: 8,
+            rawName: 'Gold Coin',
+            mapIndex: 3,
+            x: 25,
+            y: 13,
+            tilePos: 'North',
+        } as const;
+
+        useStore.setState({
+            gamePhase: 'exploration',
+            paused: false,
+            sleeping: false,
+            optionsModalOpen: false,
+            movementCooldown: 0,
+            position: [13, 25],
+            direction: 'WEST',
+            championInventories: { 1: [goldCoin] },
+            championEquipment: { 1: {} },
+            pendingSensorEvents: [],
+            damageEvents: [],
+            spellVisualEvents: [],
+            activeFloorDrag: null,
+            lastMonsterAttackDebug: null,
+        });
+
+        assert.equal(useStore.getState().openTeleporters.has('3,15,23'), false);
+
+        const didUse = withAudioStub(() =>
+            useStore.getState().useItemOnFrontWall(1, goldCoin.id, 'inventory'),
+        );
+
+        assert.equal(didUse, true);
+        assert.equal(useStore.getState().openTeleporters.has('3,15,23'), true);
+    } finally {
+        useStore.setState(initialState, true);
+    }
+});

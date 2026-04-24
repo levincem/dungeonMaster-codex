@@ -59,7 +59,7 @@ type SourceGameDbCreatures = {
                 movementTicks?: number;
                 poisonAttack?: number;
                 byte22?: number[];
-                properties?: { fearResistance?: number };
+                properties?: { fearResistance?: number; experienceClass?: number };
                 resistances?: { fire?: number; poison?: number };
                 nonMaterial?: boolean;
                 attackAnyChampion?: boolean;
@@ -68,7 +68,7 @@ type SourceGameDbCreatures = {
                 levitates?: boolean;
                 absorbMissiles?: boolean;
                 seeInvisible?: boolean;
-                ranges?: { attack?: number; sight?: number };
+                ranges?: { attack?: number; sight?: number; smell?: number };
                 archenemy?: boolean;
                 attack?: number;
             }>;
@@ -221,6 +221,7 @@ test('creatures module preserves every source-backed creature characteristic use
         assert.equal(runtime.atkSpd, source?.attackTicks ?? original.atkSpd, `creature ${original.id} atkSpd drifted`);
         assert.equal(runtime.moveSpd, source?.movementTicks ?? original.moveSpd, `creature ${original.id} moveSpd drifted`);
         assert.equal(runtime.exp, original.exp, `creature ${original.id} exp drifted`);
+        assert.equal(runtime.experienceClass, Math.max(0, Math.min(15, source?.properties?.experienceClass ?? 0)), `creature ${original.id} experienceClass drifted`);
         assert.equal(runtime.poison, typeof source?.poisonAttack === 'number' ? source.poisonAttack > 0 : original.poison, `creature ${original.id} poison flag drifted`);
         assert.equal(
             runtime.originalAttackType,
@@ -239,6 +240,7 @@ test('creatures module preserves every source-backed creature characteristic use
         assert.equal(runtime.attackFromAllSides, Boolean(source?.attackFromAllSides), `creature ${original.id} attackFromAllSides drifted`);
         assert.equal(runtime.attackRange, Math.max(1, source?.ranges?.attack ?? 1), `creature ${original.id} attack range drifted`);
         assert.equal(runtime.sightRange, Math.max(1, source?.ranges?.sight ?? 8), `creature ${original.id} sight range drifted`);
+        assert.equal(runtime.smellRange, Math.max(0, source?.ranges?.smell ?? 0), `creature ${original.id} smell range drifted`);
         assert.equal(runtime.preferBackRow, Boolean(source?.preferBackRow), `creature ${original.id} preferBackRow drifted`);
         assert.equal(runtime.levitates, Boolean(source?.levitates), `creature ${original.id} levitates drifted`);
         assert.equal(runtime.absorbMissiles, Boolean(source?.absorbMissiles), `creature ${original.id} absorbMissiles drifted`);

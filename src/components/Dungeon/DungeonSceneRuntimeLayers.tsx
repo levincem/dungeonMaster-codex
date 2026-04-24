@@ -13,7 +13,11 @@ import { CreatureSprite } from './CreatureSprite';
 import { FloorItemMesh } from './FloorItemMesh';
 import { WallMountedItemMesh } from './WallMountedItemMesh';
 import { useWallClock } from './useWallClock';
-import { performDungeonDragDropAction, resolveDungeonDragDropDestination } from './dungeonDragDrop';
+import {
+    performDungeonDragDropAction,
+    resolveDungeonDragDropDestination,
+    resolveDungeonWallDropTarget,
+} from './dungeonDragDrop';
 
 function makeDamageBubbleTexture(amount: number): { texture: THREE.CanvasTexture; aspect: number } {
     const text = `-${amount}`;
@@ -265,6 +269,7 @@ export const FloorItemsLayer: React.FC = () => {
     const updateFloorDrag = useStore((state) => state.updateFloorDrag);
     const endFloorDrag = useStore((state) => state.endFloorDrag);
     const applyFloorItemOnFrontWall = useStore((state) => state.useFloorItemOnFrontWall);
+    const applyFloorItemOnViAltar = useStore((state) => state.useFloorItemOnViAltar);
     const moveFloorItemToCurrentTile = useStore((state) => state.moveFloorItemToCurrentTile);
     const moveFloorItemToFrontTile = useStore((state) => state.moveFloorItemToFrontTile);
     const throwFloorItem = useStore((state) => state.throwFloorItem);
@@ -319,10 +324,21 @@ export const FloorItemsLayer: React.FC = () => {
                                         return;
                                     }
                                     const hovered = document.elementFromPoint(pointerX, pointerY) as HTMLElement | null;
-                                    const wallDrop = hovered?.closest('[data-dm-wall-drop="true"]');
-                                    if (wallDrop && selectedChampionId != null) {
-                                        applyFloorItemOnFrontWall(item.id, selectedChampionId);
-                                        return;
+                                    const wallDropTarget = resolveDungeonWallDropTarget(hovered);
+                                    if (wallDropTarget && selectedChampionId != null) {
+                                        if (
+                                            wallDropTarget.kind === 'altar'
+                                                ? applyFloorItemOnViAltar(
+                                                    item.id,
+                                                    selectedChampionId,
+                                                    wallDropTarget.wallX,
+                                                    wallDropTarget.wallY,
+                                                    wallDropTarget.wallFace,
+                                                )
+                                                : applyFloorItemOnFrontWall(item.id, selectedChampionId)
+                                        ) {
+                                            return;
+                                        }
                                     }
                                     if (selectedChampionId != null) {
                                         const destination = resolveDungeonDragDropDestination(pointerY, window.innerHeight);

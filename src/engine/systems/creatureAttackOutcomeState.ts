@@ -1,3 +1,5 @@
+import type { Champion } from '../../types/champion';
+import type { ChampionTemporaryXP, ChampionXP } from '../../data/skillProgression';
 import type { CreatureInstance, ChampionEquipment, FloorItem } from '../../types/game';
 import type { ChampionVitals, MonsterAttackDebugEntry, Projectile } from '../runtimeTypes';
 import type { CreatureAttackStateResult } from './creatureAttackState';
@@ -13,6 +15,9 @@ type CreatureAttackOutcomeStateArgs<TDamageEvent> = {
     championEquipment: Record<number, ChampionEquipment>;
     baseChampionEquipment: Record<number, ChampionEquipment>;
     championVitals: Record<number, ChampionVitals>;
+    party: Champion[];
+    championXP: Record<number, ChampionXP>;
+    championTemporaryXP: Record<number, ChampionTemporaryXP>;
     damageEvents: TDamageEvent[];
     level: number;
     lastMonsterAttackDebug?: MonsterAttackDebugEntry | null;
@@ -26,6 +31,9 @@ export type CreatureAttackOutcomeStateResult<TDamageEvent> =
     | {
         kind: 'none';
         championVitals?: Record<number, ChampionVitals>;
+        party?: Champion[];
+        championXP?: Record<number, ChampionXP>;
+        championTemporaryXP?: Record<number, ChampionTemporaryXP>;
         lastMonsterAttackDebug?: MonsterAttackDebugEntry | null;
     }
     | {
@@ -44,6 +52,9 @@ export type CreatureAttackOutcomeStateResult<TDamageEvent> =
     | {
         kind: 'damage';
         championVitals: Record<number, ChampionVitals>;
+        party?: Champion[];
+        championXP?: Record<number, ChampionXP>;
+        championTemporaryXP?: Record<number, ChampionTemporaryXP>;
         damageEvents: TDamageEvent[];
         defeatedChampionId: number | null;
         lastMonsterAttackDebug: MonsterAttackDebugEntry | null;
@@ -103,6 +114,9 @@ export function resolveCreatureAttackOutcomeState<TDamageEvent>(
                 ...args.championVitals,
                 [args.attackResult.targetChampionId]: args.attackResult.nextVitals,
             },
+            ...(args.attackResult.party ? { party: args.attackResult.party } : {}),
+            ...(args.attackResult.championXP ? { championXP: args.attackResult.championXP } : {}),
+            ...(args.attackResult.championTemporaryXP ? { championTemporaryXP: args.attackResult.championTemporaryXP } : {}),
             damageEvents: [
                 ...args.damageEvents,
                 deps.buildChampionDamageEvent(
@@ -123,6 +137,9 @@ export function resolveCreatureAttackOutcomeState<TDamageEvent>(
                 ...args.championVitals,
                 [args.attackResult.targetChampionId]: args.attackResult.nextVitals,
             },
+            ...(args.attackResult.party ? { party: args.attackResult.party } : {}),
+            ...(args.attackResult.championXP ? { championXP: args.attackResult.championXP } : {}),
+            ...(args.attackResult.championTemporaryXP ? { championTemporaryXP: args.attackResult.championTemporaryXP } : {}),
             lastMonsterAttackDebug: args.attackResult.debug ?? args.lastMonsterAttackDebug,
         };
     }

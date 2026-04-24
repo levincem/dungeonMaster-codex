@@ -153,6 +153,12 @@ export function getGameMap(index: number): GameMap {
     return map;
 }
 
+export function isCreatureAllowedOnMap(mapIndex: number, creatureTypeId: number): boolean {
+    const allowedCreatureTypes = getGameMap(mapIndex).metadata?.allowedCreatureTypes;
+    if (!Array.isArray(allowedCreatureTypes)) return true;
+    return allowedCreatureTypes.includes(creatureTypeId);
+}
+
 export function toGlobalCoords(mapIndex: number, x: number, y: number): { x: number; y: number } {
     const map = getGameMap(mapIndex);
     return {

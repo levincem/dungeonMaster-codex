@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { createEmptyChampionTemporaryXP, createEmptyChampionXP } from '../src/data/skillProgression.js';
 import { createStoreMonsterTickRuntimeState } from '../src/engine/systems/storeMonsterRuntime.js';
 
 test('createStoreMonsterTickRuntimeState forwards open trick walls to the monster runtime state', () => {
@@ -10,6 +11,8 @@ test('createStoreMonsterTickRuntimeState forwards open trick walls to the monste
         position: [24, 7],
         direction: 'NORTH',
         party: [],
+        championXP: { 1: createEmptyChampionXP() },
+        championTemporaryXP: { 1: createEmptyChampionTemporaryXP() },
         creatures: [],
         championVitals: {},
         damageEvents: [],

@@ -1,7 +1,7 @@
 ﻿import { create } from 'zustand';
 import type { StateCreator } from 'zustand';
 import { getDungeonBootstrapSync, type RawDungeonBootstrap } from '../data/dungeonData';
-import { getGameMap, getGameMaps, getChampionStartPositions } from '../data/mapLoader';
+import { getGameMap, getGameMaps, getChampionStartPositions, isCreatureAllowedOnMap } from '../data/mapLoader';
 import {
     getMapMechanisms,
     getRequiredSensorItemName,
@@ -217,6 +217,7 @@ import {
 } from './systems/originalProjectileImpact';
 import {
     getOriginalMonsterAttackDelaySeconds,
+    getOriginalMonsterBehaviorUpdateAfterAttackDelaySeconds,
     getOriginalMonsterMoveDelaySeconds,
 } from './systems/originalMonsterTiming';
 import { getOriginalActiveShieldDefense, getOriginalPartyShieldKind } from './systems/originalShieldDefense';
@@ -295,6 +296,7 @@ import {
     resolveProjectileTeleporterTransport as resolveProjectileTeleporterTransportSystem,
 } from './systems/terrainTransport';
 import {
+    applyFloorItemsStandingOnOpenPit as applyFloorItemsStandingOnOpenPitSystem,
     applyCreaturesStandingOnOpenPit as applyCreaturesStandingOnOpenPitSystem,
     applyCreaturesStandingOnOpenTeleporter as applyCreaturesStandingOnOpenTeleporterSystem,
     applyPartyTelefragAtSquare as applyPartyTelefragAtSquareSystem,
@@ -713,6 +715,10 @@ function getMonsterMoveDelaySecondsOriginal(moveTicks: number): number {
 
 function getMonsterAttackDelaySecondsOriginal(attackTicks: number): number {
     return getOriginalMonsterAttackDelaySeconds(attackTicks, randomInt);
+}
+
+function getMonsterBehaviorUpdateAfterAttackDelaySecondsOriginal(animationTicksAfterAttack: number): number {
+    return getOriginalMonsterBehaviorUpdateAfterAttackDelaySeconds(animationTicksAfterAttack, randomInt);
 }
 
 function computeChampionWoundDefenseOriginal(
@@ -1388,6 +1394,8 @@ const {
     getTile: (level: number, x: number, y: number) => getMap(level).tiles[y]?.[x],
     isWalkable,
     getOriginalTeleporterRuntime,
+    isCreatureAllowedOnMap,
+    getCreatureWariness: (creatureTypeId: number) => CREATURE_TYPES[creatureTypeId]?.wariness ?? 0,
     getTeleporter: getTeleporterSystem,
     resolvePitLanding: resolvePitLandingSystem,
     resolveProjectileTeleporterTransport: resolveProjectileTeleporterTransportSystem,
@@ -1395,6 +1403,18 @@ const {
     applyPartyTelefragAtSquare: applyPartyTelefragAtSquareSystem,
     applyCreaturesStandingOnOpenPit: (state, level, x, y, deps) =>
         applyCreaturesStandingOnOpenPitSystem(
+            state,
+            level,
+            x,
+            y,
+            {
+                ...deps,
+                buildLevelHydrationPatch: (hydrationState, hydrationLevel) =>
+                    buildStoreLevelHydrationPatch(hydrationState as Pick<GameState, 'hydratedLevels' | 'creatures' | 'floorItems'>, hydrationLevel),
+            },
+        ),
+    applyFloorItemsStandingOnOpenPit: (state, level, x, y, deps) =>
+        applyFloorItemsStandingOnOpenPitSystem(
             state,
             level,
             x,
@@ -2324,6 +2344,7 @@ const runStoreMonsterTickActionBase = createStoreMonsterTickAction<GameState>((s
         hasLineOfSight,
         nextMonsterMoveDelaySeconds: getMonsterMoveDelaySecondsOriginal,
         nextMonsterAttackDelaySeconds: getMonsterAttackDelaySecondsOriginal,
+        nextMonsterBehaviorUpdateAfterAttackDelaySeconds: getMonsterBehaviorUpdateAfterAttackDelaySecondsOriginal,
         canCreatureShareTile,
         canArchenemyDoubleMove: (
             creatureState,
@@ -2384,11 +2405,18 @@ const runStoreMonsterTickActionBase = createStoreMonsterTickAction<GameState>((s
                 clampVital,
                 adjustByAttribute: adjustOriginalAttackByAttribute,
                 applyPoison: applyPoisonCharacterOriginal,
-                getParryMastery: (champion) => getChampionMasteryLevel(currentState as GameState, champion.id, 'parry'),
+                getParryMastery: (_champion, championXP, championTemporaryXP, equipment) => getChampionSkillLevelFromXP(
+                    championXP,
+                    championTemporaryXP,
+                    'parry',
+                    { bonusLevels: getEquipmentSkillLevelModifier('parry', equipment) },
+                ),
             }),
             resolveCreatureTeleporterTransportSystem,
             buildTerrainTransportDeps,
         }),
+        buildChampionSkillExperiencePatch: (currentState, championId, skill, amount) =>
+            buildChampionSkillExperiencePatchOriginal(currentState as GameState, championId, skill, amount),
         buildChampionDamageEvent,
         attackWindowMs: CREATURE_ATTACK_WINDOW_MS,
         getTeleporter: getTeleporterSystem,

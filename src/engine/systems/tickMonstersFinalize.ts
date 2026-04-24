@@ -1,4 +1,5 @@
 import type { Champion } from '../../types/champion';
+import type { ChampionTemporaryXP, ChampionXP } from '../../data/skillProgression';
 import type { ChampionEquipment, CreatureInstance, FloorItem } from '../../types/game';
 import type { ChampionVitals, Projectile } from '../runtimeTypes';
 
@@ -19,6 +20,10 @@ type TickMonstersFinalizeState = {
     baseChampionEquipment: Record<number, ChampionEquipment>;
     lastCreatureAttackGameTick: number;
     baseLastCreatureAttackGameTick: number;
+    championXP: Record<number, ChampionXP>;
+    baseChampionXP: Record<number, ChampionXP>;
+    championTemporaryXP: Record<number, ChampionTemporaryXP>;
+    baseChampionTemporaryXP: Record<number, ChampionTemporaryXP>;
     party: Champion[];
     baseParty: Champion[];
     selectedChampionIndex: number;
@@ -38,6 +43,8 @@ export function buildTickMonstersPatch(
     const championInventoriesChanged = state.championInventories !== state.baseChampionInventories;
     const championEquipmentChanged = state.championEquipment !== state.baseChampionEquipment;
     const lastCreatureAttackChanged = state.lastCreatureAttackGameTick !== state.baseLastCreatureAttackGameTick;
+    const championXPChanged = state.championXP !== state.baseChampionXP;
+    const championTemporaryXPChanged = state.championTemporaryXP !== state.baseChampionTemporaryXP;
     const lastMonsterAttackDebugChanged = state.lastMonsterAttackDebug !== state.baseLastMonsterAttackDebug;
     const partyChanged = state.party !== state.baseParty;
     const anyChange =
@@ -48,6 +55,8 @@ export function buildTickMonstersPatch(
         championInventoriesChanged ||
         championEquipmentChanged ||
         lastCreatureAttackChanged ||
+        championXPChanged ||
+        championTemporaryXPChanged ||
         lastMonsterAttackDebugChanged ||
         partyChanged;
 
@@ -67,6 +76,8 @@ export function buildTickMonstersPatch(
         ...(lastCreatureAttackChanged
             ? { lastCreatureAttackGameTick: state.lastCreatureAttackGameTick }
             : {}),
+        ...(championXPChanged ? { championXP: state.championXP } : {}),
+        ...(championTemporaryXPChanged ? { championTemporaryXP: state.championTemporaryXP } : {}),
         ...(lastMonsterAttackDebugChanged
             ? { lastMonsterAttackDebug: state.lastMonsterAttackDebug }
             : {}),

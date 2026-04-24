@@ -18,6 +18,7 @@ type RegenDeps<TState> = {
     advanceSurvivalTime: (state: TState, stepCount: number) => {
         championVitals: Record<number, ChampionVitals>;
         championTemporaryXP: Record<number, ChampionTemporaryXP>;
+        damageEvents?: unknown[];
         elapsedGameTimeTicks: number;
         lastSurvivalEffectGameTick: number;
         freezeLifeRemainingTicks: number;
@@ -67,6 +68,7 @@ type SleepDeps<TState extends SleepState> = {
     advanceSurvivalTime: (state: TState, stepCount: number) => {
         championVitals: Record<number, ChampionVitals>;
         championTemporaryXP: Record<number, ChampionTemporaryXP>;
+        damageEvents?: unknown[];
         elapsedGameTimeTicks: number;
         lastSurvivalEffectGameTick: number;
         freezeLifeRemainingTicks: number;

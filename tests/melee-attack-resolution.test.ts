@@ -212,7 +212,7 @@ test('buildMeleeAttackResolutionPatch applies damage without kill rewards when t
     assert.equal(patch.creatures[0]?.alive, true);
     assert.equal(patch.damageEvents.length, 1);
     assert.equal(patch.spellVisualEvents, undefined);
-    assert.equal(patch.championXP[1]?.swing, 15);
+    assert.equal(patch.championXP[1]?.swing, 5);
     assert.equal(patch.championXP[1]?.fighter, 0);
     assert.equal(patch.championVitals[1]?.currentStats.strength, 11);
 });
@@ -237,7 +237,7 @@ test('buildMeleeAttackResolutionPatch drops loot and adds death visuals on kill 
     assert.equal(patch.floorItems?.length, 1);
     assert.equal(patch.damageEvents.length, 1);
     assert.equal(patch.spellVisualEvents?.length, 1);
-    assert.equal(patch.championXP[1]?.swing, 30);
+    assert.equal(patch.championXP[1]?.swing, 8);
     assert.equal(patch.championXP[1]?.fighter, 0);
     assert.equal(patch.championXP[2]?.fighter, 0);
 });

@@ -47,6 +47,7 @@ import {
     isPointerInsideDungeonViewport,
     performDungeonDragDropAction,
     resolveDungeonDragDropDestination,
+    resolveDungeonWallDropTarget,
 } from './dungeonDragDrop';
 import {
     WallTextPlanes as SceneWallTextPlanes,
@@ -506,9 +507,12 @@ const DarknessOverlay: React.FC = () => {
 
 type WallDropPlacement = 'front' | 'left' | 'right';
 
-const WallMechanismDropTarget = ({ kind, placement = 'front', onUseItem, onActivate, activeFloorDragItemId, selectedChampionId, onUseFloorItem }: {
+const WallMechanismDropTarget = ({ kind, placement = 'front', wallX, wallY, wallFace, onUseItem, onActivate, activeFloorDragItemId, selectedChampionId, onUseFloorItem }: {
     kind: 'wall-lock' | 'alcove' | 'object-exchanger' | 'altar' | 'fountain';
     placement?: WallDropPlacement;
+    wallX?: number;
+    wallY?: number;
+    wallFace?: CardinalDir;
     onUseItem: (championId: number, itemId: string, fromSlot: EquipSlotKey | 'inventory') => boolean;
     onActivate?: (championId: number) => void;
     activeFloorDragItemId?: string | null;
@@ -521,6 +525,13 @@ const WallMechanismDropTarget = ({ kind, placement = 'front', onUseItem, onActiv
     const isAlcove = kind === 'alcove';
     const isAltar = kind === 'altar';
     const isFountain = kind === 'fountain';
+    const wallDropDataset = {
+        'data-dm-wall-drop': 'true',
+        'data-dm-wall-drop-kind': kind,
+        ...(typeof wallX === 'number' ? { 'data-dm-wall-drop-x': wallX } : {}),
+        ...(typeof wallY === 'number' ? { 'data-dm-wall-drop-y': wallY } : {}),
+        ...(wallFace ? { 'data-dm-wall-drop-face': wallFace } : {}),
+    };
     const placementStyle: React.CSSProperties = placement === 'front'
         ? {
             left: '50%',
@@ -585,7 +596,7 @@ const WallMechanismDropTarget = ({ kind, placement = 'front', onUseItem, onActiv
 
     return (
         <div
-            data-dm-wall-drop="true"
+            {...wallDropDataset}
             onDragEnter={(event) => {
                 event.preventDefault();
                 setOver(true);
@@ -665,6 +676,20 @@ const WallMechanismDropTarget = ({ kind, placement = 'front', onUseItem, onActiv
             </div>
         </div>
     );
+};
+
+let lastShownLevelNameOverlay: number | null = null;
+
+const LevelNameOverlay = ({ level }: { level: number }) => {
+    const shouldShow = level !== lastShownLevelNameOverlay;
+
+    useEffect(() => {
+        if (!shouldShow) return;
+        lastShownLevelNameOverlay = level;
+    }, [level, shouldShow]);
+
+    if (!shouldShow) return null;
+    return <LevelName level={level} />;
 };
 
 const DungeonSceneDebugOverlay: React.FC<{
@@ -940,6 +965,9 @@ const DungeonSceneDragOverlay: React.FC<{
                     key={`altar_drop_${target.placement}_${target.wallX}_${target.wallY}_${target.face}`}
                     kind="altar"
                     placement={target.placement}
+                    wallX={target.wallX}
+                    wallY={target.wallY}
+                    wallFace={target.face}
                     onUseItem={(championId, itemId, fromSlot) =>
                         applyItemOnViAltar(championId, itemId, fromSlot, target.wallX, target.wallY, target.face)
                     }
@@ -1299,26 +1327,20 @@ export const DungeonScene = () => {
         setNativeDungeonDragPointer(null);
 
         const state = useStore.getState();
-        const currentMap = getGameMap(state.level);
-        const altarDropTargets = resolveAltarDropTargets({
-            level: state.level,
-            map: currentMap,
-            position: state.position,
-            direction: state.direction,
-            openDoors: state.openDoors,
-            openWalls: state.openWalls,
-            isSelfRevealingWallTile,
-            doorBlocksVision,
-        });
+        const wallDropTarget = resolveDungeonWallDropTarget(event.target as Element | null);
         const destination = resolveDungeonDragDropDestination(event.clientY, window.innerHeight);
         const shouldUseWallTarget = destination !== 'throw';
 
-        if (shouldUseWallTarget) {
-            for (const target of altarDropTargets) {
-                if (payload.fromSlot === 'container') break;
-                if (state.useItemOnViAltar(payload.fromChampionId, payload.itemId, payload.fromSlot, target.wallX, target.wallY, target.face)) {
-                    return;
-                }
+        if (shouldUseWallTarget && wallDropTarget?.kind === 'altar' && payload.fromSlot !== 'container') {
+            if (state.useItemOnViAltar(
+                payload.fromChampionId,
+                payload.itemId,
+                payload.fromSlot,
+                wallDropTarget.wallX,
+                wallDropTarget.wallY,
+                wallDropTarget.wallFace,
+            )) {
+                return;
             }
         }
 
@@ -1436,7 +1458,7 @@ export const DungeonScene = () => {
                     })}
                 </div>
             )}
-            <LevelName key={level} level={level} />
+            <LevelNameOverlay level={level} />
             {RENDER_DEBUG_ENABLED && (
                 <DungeonSceneDebugOverlay
                     renderDebug={renderDebug}

@@ -8,6 +8,7 @@ import type {
     SensorObject,
     WallTextObject,
 } from '../../types/game';
+import { ORIGINAL_CREATURE_POSSESSIONS_BY_WORD } from '../../data/originalCreaturePossessions';
 import {
     buildGeneratedCreatureGroupPlan as buildGeneratedCreatureGroupPlanSystem,
     createGeneratedCreatureGroupInstances as createGeneratedCreatureGroupInstancesSystem,
@@ -165,6 +166,34 @@ export function createStoreWorldRuntime<TSensorState extends SensorStateLike>(
             : normalizedItem;
     };
 
+    const buildCreatureCarriedItems = (
+        map: GameMap,
+        tile: { x: number; y: number },
+        creature: CreatureObject,
+        creatureId: string,
+    ): FloorItem[] => {
+        const possessionWord = creature.raw?.possessionWord;
+        if (typeof possessionWord !== 'number') return [];
+        const itemTemplates = ORIGINAL_CREATURE_POSSESSIONS_BY_WORD[possessionWord];
+        if (!itemTemplates?.length) return [];
+
+        return itemTemplates.map((item, index) =>
+            normalizeRuntimeItemTree(buildRuntimeFloorItem(
+                map,
+                tile,
+                {
+                    category: item.category,
+                    index,
+                    tilePos: 'North',
+                    type: item.typeId,
+                    name: item.rawName,
+                    power: item.potionPower,
+                } as FloorItemObject,
+                `${creatureId}_carried_${index}_${item.category}_${item.typeId}`,
+            )),
+        );
+    };
+
     const buildCreatureInstancesForMap = (map: GameMap): CreatureInstance[] => {
         const instances: CreatureInstance[] = [];
 
@@ -188,6 +217,9 @@ export function createStoreWorldRuntime<TSensorState extends SensorStateLike>(
                         const id = hpValues.length > 1
                             ? `${map.index}_${tile.x}_${tile.y}_${obj.index}_${ordinal}`
                             : `${map.index}_${tile.x}_${tile.y}_${obj.index}`;
+                        const carriedItems = ordinal === 0
+                            ? buildCreatureCarriedItems(map, tile, obj as CreatureObject, id)
+                            : [];
                         params.registerCreatureTimers(id, {
                             mt: randomFraction() * moveSec,
                             at: randomFraction() * atkSec,
@@ -202,7 +234,7 @@ export function createStoreWorldRuntime<TSensorState extends SensorStateLike>(
                             currentHP,
                             alive: true,
                             cell: 'center',
-                            carriedItems: [],
+                            carriedItems,
                         });
                     });
                 }

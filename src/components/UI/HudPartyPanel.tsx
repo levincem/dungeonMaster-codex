@@ -8,6 +8,7 @@ import { useStore } from '../../engine/store';
 import { getTranslations } from '../../i18n';
 import type { ChampionEquipment } from '../../types/game';
 import type { EquipSlotKey } from '../../types/items';
+import type { HudRecentDamageEntry } from './hudDerivedState';
 import { getDragPayload, setDragPayload } from './dragPayload';
 
 const HUD_CLASS_COLORS: Record<string, string> = {
@@ -311,7 +312,7 @@ const ChampionCard: React.FC<{
     champion: Champion | undefined;
     vitals: ChampionVitals | undefined;
     equip: ChampionEquipment;
-    recentDamage: number[];
+    recentDamage: HudRecentDamageEntry[];
     levelUp: boolean;
     inventoryFullFlash: boolean;
     slotIndex: number;
@@ -502,9 +503,9 @@ const ChampionCard: React.FC<{
                                 />
                             </>
                         )}
-                        {recentDamage.map((amount, index) => (
+                        {recentDamage.map((entry, index) => (
                             <div
-                                key={`${champion.id}_hurt_${index}_${amount}`}
+                                key={`${champion.id}_hurt_${index}_${entry.kind}_${entry.amount}`}
                                 style={{
                                     position: 'absolute',
                                     right: 4,
@@ -512,10 +513,14 @@ const ChampionCard: React.FC<{
                                     minWidth: 26,
                                     padding: '2px 7px',
                                     borderRadius: 999,
-                                    background: 'rgba(120,16,12,0.94)',
-                                    border: '1px solid rgba(255,166,118,0.88)',
-                                    color: '#fff4dd',
-                                    fontSize: 11 + Math.min(5, amount * 0.15),
+                                    background: entry.kind === 'poison'
+                                        ? 'rgba(18,104,22,0.94)'
+                                        : 'rgba(120,16,12,0.94)',
+                                    border: entry.kind === 'poison'
+                                        ? '1px solid rgba(191,255,154,0.92)'
+                                        : '1px solid rgba(255,166,118,0.88)',
+                                    color: entry.kind === 'poison' ? '#f2ffe4' : '#fff4dd',
+                                    fontSize: 11 + Math.min(5, entry.amount * 0.15),
                                     fontWeight: 'bold',
                                     lineHeight: 1.1,
                                     textAlign: 'center',
@@ -523,7 +528,7 @@ const ChampionCard: React.FC<{
                                     pointerEvents: 'none',
                                 }}
                             >
-                                -{amount}
+                                -{entry.amount}
                             </div>
                         ))}
                         {inventoryFullFlash && (
@@ -632,7 +637,7 @@ export const HudPartyPanel: React.FC<{
     party: Champion[];
     championVitals: Record<number, ChampionVitals>;
     championEquipment: Record<number, ChampionEquipment>;
-    recentDamageByChampionId: Record<number, number[]>;
+    recentDamageByChampionId: Record<number, HudRecentDamageEntry[]>;
     levelUpChampionIds: number[];
     inventoryFullFeedback: { championId: number; ts: number } | null;
     selectedChampionIndex: number;

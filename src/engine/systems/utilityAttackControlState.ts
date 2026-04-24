@@ -1,4 +1,9 @@
 import type { CreatureDef } from '../../data/creatures';
+import {
+    getOriginalInfluenceBonusExperience,
+    isOriginalInfluenceBonusAction,
+    type OriginalInfluenceBonusAction,
+} from '../../data/originalActions';
 import { getTranslations } from '../../i18n';
 import type { CreatureInstance } from '../../types/game';
 import { resolveCreatureControlAction, type CreatureTimers } from './creatureControlActions';
@@ -42,6 +47,13 @@ export type UtilityRuntimeActionResult<TPatch> = {
     patch: TPatch;
     controlUpdate?: UtilityControlUpdate;
     fearResult?: FearUtilityActionResult;
+    influenceExperience?: {
+        action: OriginalInfluenceBonusAction;
+        fullAwards: number;
+        halfAwards: number;
+        fullAmount: number;
+        halfAmount: number;
+    };
 };
 
 export function buildUtilityRuntimeActionPatch<TPatch extends object, TMessage>(
@@ -75,26 +87,49 @@ export function buildUtilityRuntimeActionPatch<TPatch extends object, TMessage>(
                     nextTimers: control.nextTimers,
                     kind: action === 'Confuse' ? 'confused' : 'fluxcaged',
                 },
+                ...(action === 'Confuse'
+                    ? {
+                        influenceExperience: {
+                            action,
+                            fullAwards: 1,
+                            halfAwards: 0,
+                            fullAmount: getOriginalInfluenceBonusExperience(action),
+                            halfAmount: Math.floor(getOriginalInfluenceBonusExperience(action) / 2),
+                        },
+                    }
+                    : {}),
             };
         }
         case 'Calm':
         case 'Brandish':
         case 'Blow Horn':
         case 'War Cry':
+            const fearResult = resolveFearUtilityAction(
+                action,
+                state.frontCreatures,
+                state.now,
+                state.rightHandTypeId,
+                {
+                    getCreatureDef: deps.getCreatureDef,
+                    randomInt: deps.randomInt,
+                    quantizeDurationMs: deps.quantizeDurationMs,
+                    timerTickMs: deps.timerTickMs,
+                },
+            );
             return {
                 patch: basePatch,
-                fearResult: resolveFearUtilityAction(
-                    action,
-                    state.frontCreatures,
-                    state.now,
-                    state.rightHandTypeId,
-                    {
-                        getCreatureDef: deps.getCreatureDef,
-                        randomInt: deps.randomInt,
-                        quantizeDurationMs: deps.quantizeDurationMs,
-                        timerTickMs: deps.timerTickMs,
-                    },
-                ),
+                fearResult,
+                ...(isOriginalInfluenceBonusAction(action) && fearResult.testedCreatureCount > 0
+                    ? {
+                        influenceExperience: {
+                            action,
+                            fullAwards: fearResult.frightenedCreatures.length,
+                            halfAwards: Math.max(0, fearResult.testedCreatureCount - fearResult.frightenedCreatures.length),
+                            fullAmount: getOriginalInfluenceBonusExperience(action),
+                            halfAmount: Math.floor(getOriginalInfluenceBonusExperience(action) / 2),
+                        },
+                    }
+                    : {}),
             };
     }
 }

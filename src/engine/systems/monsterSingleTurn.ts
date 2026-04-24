@@ -1,4 +1,5 @@
 import type { CreatureDef } from '../../data/creatures';
+import type { ChampionTemporaryXP, ChampionXP, SkillKey } from '../../data/skillProgression';
 import type { Champion } from '../../types/champion';
 import type {
     ChampionEquipment,
@@ -47,9 +48,13 @@ type MonsterSingleTurnArgs = {
     championEquipment: Record<number, ChampionEquipment>;
     baseChampionEquipment: Record<number, ChampionEquipment>;
     championVitals: Record<number, ChampionVitals>;
+    championXP: Record<number, ChampionXP>;
+    championTemporaryXP: Record<number, ChampionTemporaryXP>;
     damageEvents: DamageEvent[];
     partySleeping: boolean;
     groupMovementPlans: Map<string, CreatureMovementStateResult>;
+    elapsedGameTimeTicks: number;
+    lastCreatureAttackGameTick: number;
     lastMonsterAttackDebug?: MonsterAttackDebugEntry | null;
 };
 
@@ -59,6 +64,7 @@ type MonsterSingleTurnDeps = {
     hasLineOfSight: () => boolean;
     nextMonsterMoveDelaySeconds: (moveTicks: number) => number;
     nextMonsterAttackDelaySeconds: (attackTicks: number) => number;
+    nextMonsterBehaviorUpdateAfterAttackDelaySeconds?: (animationTicksAfterAttack: number) => number;
     monsterWalkable: (level: number, y: number, x: number) => boolean;
     canCreatureShareTile: (
         creature: CreatureInstance,
@@ -100,6 +106,25 @@ type MonsterSingleTurnDeps = {
     ) => { dexterity: number; luck: number };
     tryStealChampionItem: Parameters<typeof resolveMonsterAttackTurn>[1]['tryStealChampionItem'];
     resolveMonsterAttackAgainstChampion: Parameters<typeof resolveMonsterAttackTurn>[1]['resolveMonsterAttackAgainstChampion'];
+    buildChampionSkillExperiencePatch: (
+        state: {
+            level: number;
+            party: Champion[];
+            championVitals: Record<number, ChampionVitals>;
+            championXP: Record<number, ChampionXP>;
+            championTemporaryXP: Record<number, ChampionTemporaryXP>;
+            elapsedGameTimeTicks: number;
+            lastCreatureAttackGameTick: number;
+        },
+        championId: number,
+        skill: SkillKey,
+        amount: number,
+    ) => {
+        championVitals?: Record<number, ChampionVitals>;
+        championXP: Record<number, ChampionXP>;
+        championTemporaryXP: Record<number, ChampionTemporaryXP>;
+        party?: Champion[];
+    } | null;
     buildChampionDamageEvent: (level: number, championId: number, amount: number) => DamageEvent;
     attackWindowMs: number;
     buildFrightenedUntilMs: (nowMs: number) => number;
@@ -112,6 +137,7 @@ type MonsterSingleTurnDeps = {
         y: number,
         direction: 'NORTH' | 'EAST' | 'SOUTH' | 'WEST',
         cell: CreatureCell,
+        creatureTypeId: number,
     ) => { level: number; x: number; y: number; cell: CreatureCell };
     normalizeCreatureCellsOnTile: (
         creatures: CreatureInstance[],
@@ -127,6 +153,9 @@ export type MonsterSingleTurnResult = {
     championInventories: Record<number, FloorItem[]>;
     championEquipment: Record<number, ChampionEquipment>;
     championVitals: Record<number, ChampionVitals>;
+    championXP: Record<number, ChampionXP>;
+    championTemporaryXP: Record<number, ChampionTemporaryXP>;
+    party: Champion[];
     damageEvents: DamageEvent[];
     moveTimer: number;
     attackTimer: number;
@@ -172,6 +201,9 @@ export function resolveMonsterSingleTurn(
     let championInventories = args.championInventories;
     let championEquipment = args.championEquipment;
     let championVitals = args.championVitals;
+    let championXP = args.championXP;
+    let championTemporaryXP = args.championTemporaryXP;
+    let party = args.party;
     let damageEvents = args.damageEvents;
     let moveTimer = turnState.moveTimer;
     let attackTimer = turnState.attackTimer;
@@ -226,6 +258,9 @@ export function resolveMonsterSingleTurn(
             championInventories,
             championEquipment,
             championVitals,
+            championXP,
+            championTemporaryXP,
+            party,
             damageEvents,
             moveTimer,
             attackTimer,
@@ -243,7 +278,7 @@ export function resolveMonsterSingleTurn(
         notifyMove = true;
         movementSound = movementTurn.usesTeleport
             ? 'teleport'
-            : perception.canDetectParty
+            : perception.canDetectBySight
                 ? 'creature'
                 : null;
     }
@@ -260,8 +295,10 @@ export function resolveMonsterSingleTurn(
             championEquipment,
             baseChampionEquipment: args.baseChampionEquipment,
             championVitals,
+            championXP,
+            championTemporaryXP,
             damageEvents,
-            party: args.party,
+            party,
             partyDirection: args.partyDirection,
             activePotionBoosts: args.activePotionBoosts,
             partyPosition: args.partyPosition,
@@ -275,6 +312,8 @@ export function resolveMonsterSingleTurn(
             nowMs: args.nowMs,
             level: args.level,
             levelDifficulty: args.levelDifficulty,
+            elapsedGameTimeTicks: args.elapsedGameTimeTicks,
+            lastCreatureAttackGameTick: args.lastCreatureAttackGameTick,
             partySleeping: args.partySleeping,
             lastMonsterAttackDebug,
         },
@@ -289,11 +328,13 @@ export function resolveMonsterSingleTurn(
             getEffectiveChampionStats: deps.getEffectiveChampionStats,
             tryStealChampionItem: deps.tryStealChampionItem,
             resolveMonsterAttackAgainstChampion: deps.resolveMonsterAttackAgainstChampion,
+            buildChampionSkillExperiencePatch: deps.buildChampionSkillExperiencePatch,
             buildChampionDamageEvent: deps.buildChampionDamageEvent,
             attackWindowMs: deps.attackWindowMs,
         },
     );
     attackTimer = attackTurn.nextAttackTimer;
+    moveTimer = attackTurn.nextMoveTimer ?? moveTimer;
 
     if (attackTurn.kind === 'contactAdvance') {
         if (creatures === args.creatures) creatures = [...creatures];
@@ -301,7 +342,6 @@ export function resolveMonsterSingleTurn(
             ...args.creature,
             cell: attackTurn.targetCell ?? args.creature.cell,
         };
-        moveTimer = attackTurn.nextMoveTimer ?? moveTimer;
         notifyMove = true;
         movementSound = null;
         return {
@@ -310,6 +350,9 @@ export function resolveMonsterSingleTurn(
             championInventories,
             championEquipment,
             championVitals,
+            championXP,
+            championTemporaryXP,
+            party,
             damageEvents,
             moveTimer,
             attackTimer,
@@ -328,6 +371,19 @@ export function resolveMonsterSingleTurn(
         attackWindowExpiresAt = attackTurn.attackWindowExpiresAt;
     }
 
+    if (
+        attackTurn.kind === 'projectile' ||
+        attackTurn.kind === 'steal' ||
+        attackTurn.kind === 'damage' ||
+        attackTurn.kind === 'none'
+    ) {
+        const postAttackBehaviorDelay = deps.nextMonsterBehaviorUpdateAfterAttackDelaySeconds?.(
+            args.creatureDef.nextBehaviorUpdateAfterAttackTicks ?? 0,
+        ) ?? 0;
+        moveTimer = Math.max(moveTimer, postAttackBehaviorDelay);
+        attackTimer = Math.max(attackTimer, postAttackBehaviorDelay);
+    }
+
     if (attackTurn.kind === 'projectile') {
         projectiles = attackTurn.projectiles ?? projectiles;
         return {
@@ -336,6 +392,9 @@ export function resolveMonsterSingleTurn(
             championInventories,
             championEquipment,
             championVitals,
+            championXP,
+            championTemporaryXP,
+            party,
             damageEvents,
             moveTimer,
             attackTimer,
@@ -354,6 +413,9 @@ export function resolveMonsterSingleTurn(
         championInventories = attackTurn.championInventories ?? championInventories;
         championEquipment = attackTurn.championEquipment ?? championEquipment;
         championVitals = attackTurn.championVitals ?? championVitals;
+        championXP = attackTurn.championXP ?? championXP;
+        championTemporaryXP = attackTurn.championTemporaryXP ?? championTemporaryXP;
+        party = attackTurn.party ?? party;
         if (attackTurn.shouldFlee) {
             frightenedUntilMs = deps.buildFrightenedUntilMs(args.nowMs);
             memoryUpdate = { kind: 'clear' };
@@ -364,6 +426,9 @@ export function resolveMonsterSingleTurn(
             championInventories,
             championEquipment,
             championVitals,
+            championXP,
+            championTemporaryXP,
+            party,
             damageEvents,
             moveTimer,
             attackTimer,
@@ -380,12 +445,18 @@ export function resolveMonsterSingleTurn(
 
     if (attackTurn.kind === 'damage') {
         championVitals = attackTurn.championVitals ?? championVitals;
+        championXP = attackTurn.championXP ?? championXP;
+        championTemporaryXP = attackTurn.championTemporaryXP ?? championTemporaryXP;
+        party = attackTurn.party ?? party;
         damageEvents = attackTurn.damageEvents ?? damageEvents;
         defeatedChampionId = attackTurn.defeatedChampionId;
         shouldPlayChampionWounded = true;
         lastMonsterAttackDebug = attackTurn.lastMonsterAttackDebug ?? lastMonsterAttackDebug;
     } else if (attackTurn.kind === 'none' && attackTurn.championVitals) {
         championVitals = attackTurn.championVitals;
+        championXP = attackTurn.championXP ?? championXP;
+        championTemporaryXP = attackTurn.championTemporaryXP ?? championTemporaryXP;
+        party = attackTurn.party ?? party;
         lastMonsterAttackDebug = attackTurn.lastMonsterAttackDebug ?? lastMonsterAttackDebug;
     }
 
@@ -418,6 +489,9 @@ export function resolveMonsterSingleTurn(
         championInventories,
         championEquipment,
         championVitals,
+        championXP,
+        championTemporaryXP,
+        party,
         damageEvents,
         moveTimer,
         attackTimer,

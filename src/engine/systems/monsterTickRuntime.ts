@@ -1,4 +1,5 @@
 import type { CreatureDef } from '../../data/creatures';
+import type { ChampionTemporaryXP, ChampionXP, SkillKey } from '../../data/skillProgression';
 import type { Champion } from '../../types/champion';
 import type { ChampionEquipment, CreatureInstance, FloorItem, GameMap } from '../../types/game';
 import type { ActivePotionBoost, ChampionVitals, DamageEvent, Direction, MonsterAttackDebugEntry, Projectile } from '../runtimeTypes';
@@ -15,6 +16,8 @@ type MonsterTickRuntimeState = {
     position: [number, number];
     direction: Direction;
     party: Champion[];
+    championXP: Record<number, ChampionXP>;
+    championTemporaryXP: Record<number, ChampionTemporaryXP>;
     creatures: CreatureInstance[];
     championVitals: Record<number, ChampionVitals>;
     damageEvents: DamageEvent[];
@@ -63,6 +66,7 @@ type MonsterTickRuntimeDeps = {
     ) => boolean;
     nextMonsterMoveDelaySeconds: (moveTicks: number) => number;
     nextMonsterAttackDelaySeconds: (attackTicks: number) => number;
+    nextMonsterBehaviorUpdateAfterAttackDelaySeconds?: (animationTicksAfterAttack: number) => number;
     canCreatureShareTile: (
         creature: CreatureInstance,
         level: number,
@@ -86,6 +90,25 @@ type MonsterTickRuntimeDeps = {
     getEffectiveChampionStats: Parameters<typeof resolveMonsterSingleTurn>[1]['getEffectiveChampionStats'];
     tryStealChampionItem: Parameters<typeof resolveMonsterSingleTurn>[1]['tryStealChampionItem'];
     resolveMonsterAttackAgainstChampion: Parameters<typeof resolveMonsterSingleTurn>[1]['resolveMonsterAttackAgainstChampion'];
+    buildChampionSkillExperiencePatch: (
+        state: {
+            level: number;
+            party: Champion[];
+            championVitals: Record<number, ChampionVitals>;
+            championXP: Record<number, ChampionXP>;
+            championTemporaryXP: Record<number, ChampionTemporaryXP>;
+            elapsedGameTimeTicks: number;
+            lastCreatureAttackGameTick: number;
+        },
+        championId: number,
+        skill: SkillKey,
+        amount: number,
+    ) => {
+        championVitals?: Record<number, ChampionVitals>;
+        championXP: Record<number, ChampionXP>;
+        championTemporaryXP: Record<number, ChampionTemporaryXP>;
+        party?: Champion[];
+    } | null;
     buildChampionDamageEvent: Parameters<typeof resolveMonsterSingleTurn>[1]['buildChampionDamageEvent'];
     attackWindowMs: number;
     getTeleporter: Parameters<typeof resolveMonsterSingleTurn>[1]['getTeleporter'];
@@ -137,7 +160,10 @@ export function runMonsterTickRuntime(
     };
 
     let creatures = state.creatures as CreatureInstance[];
+    let party = state.party;
     let championVitals = state.championVitals;
+    let championXP = state.championXP;
+    let championTemporaryXP = state.championTemporaryXP;
     let damageEvents = state.damageEvents;
     let championInventories = state.championInventories;
     let championEquipment = state.championEquipment;
@@ -166,7 +192,7 @@ export function runMonsterTickRuntime(
                 levelDifficulty: deps.getMap(state.level).difficulty * 2,
                 partyPosition: state.position,
                 partyDirection: state.direction,
-                party: state.party,
+                party,
                 activePotionBoosts: state.activePotionBoosts,
                 invisibleUntil: state.invisibleUntil,
                 openTeleporters: state.openTeleporters,
@@ -183,9 +209,13 @@ export function runMonsterTickRuntime(
                 championEquipment,
                 baseChampionEquipment: state.championEquipment,
                 championVitals,
+                championXP,
+                championTemporaryXP,
                 damageEvents,
                 partySleeping: state.sleeping,
                 groupMovementPlans,
+                elapsedGameTimeTicks: state.elapsedGameTimeTicks,
+                lastCreatureAttackGameTick,
                 lastMonsterAttackDebug,
             },
             {
@@ -204,6 +234,7 @@ export function runMonsterTickRuntime(
                     ),
                 nextMonsterMoveDelaySeconds: deps.nextMonsterMoveDelaySeconds,
                 nextMonsterAttackDelaySeconds: deps.nextMonsterAttackDelaySeconds,
+                nextMonsterBehaviorUpdateAfterAttackDelaySeconds: deps.nextMonsterBehaviorUpdateAfterAttackDelaySeconds,
                 monsterWalkable,
                 canCreatureShareTile: deps.canCreatureShareTile,
                 canArchenemyDoubleMove: (creatureState, level, x, y, direction) =>
@@ -223,6 +254,7 @@ export function runMonsterTickRuntime(
                 getEffectiveChampionStats: deps.getEffectiveChampionStats,
                 tryStealChampionItem: deps.tryStealChampionItem,
                 resolveMonsterAttackAgainstChampion: deps.resolveMonsterAttackAgainstChampion,
+                buildChampionSkillExperiencePatch: deps.buildChampionSkillExperiencePatch,
                 buildChampionDamageEvent: deps.buildChampionDamageEvent,
                 attackWindowMs: deps.attackWindowMs,
                 getTile: (level, x, y) => deps.getMap(level).tiles[y]?.[x],
@@ -238,6 +270,9 @@ export function runMonsterTickRuntime(
         championInventories = turn.championInventories;
         championEquipment = turn.championEquipment;
         championVitals = turn.championVitals;
+        championXP = turn.championXP;
+        championTemporaryXP = turn.championTemporaryXP;
+        party = turn.party;
         damageEvents = turn.damageEvents;
         lastMonsterAttackDebug = turn.lastMonsterAttackDebug;
 
@@ -275,7 +310,6 @@ export function runMonsterTickRuntime(
         }
     }
 
-    let party = state.party;
     let floorItems = state.floorItems;
     let deadChampions = state.deadChampions;
 
@@ -318,6 +352,10 @@ export function runMonsterTickRuntime(
         baseChampionEquipment: state.championEquipment,
         lastCreatureAttackGameTick,
         baseLastCreatureAttackGameTick: state.lastCreatureAttackGameTick,
+        championXP,
+        baseChampionXP: state.championXP,
+        championTemporaryXP,
+        baseChampionTemporaryXP: state.championTemporaryXP,
         party,
         baseParty: state.party,
         selectedChampionIndex: state.selectedChampionIndex,

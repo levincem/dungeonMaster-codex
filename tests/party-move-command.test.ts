@@ -37,7 +37,9 @@ test('resolvePartyMoveCommand keeps only the fatigue patch when forward hits a b
         getTile: () => ({ type: 'Floor' }),
         isWalkable: () => false,
         buildSensorStateSnapshot: () => ({}),
-        triggerWallPushSensors: () => ({ sensorChanges: {}, pendingSensorEvents: state.pendingSensorEvents }),
+        triggerWallPushSensors: () => {
+            throw new Error('blocked forward movement should not activate wall sensors');
+        },
         applyFrontRowWallBumpDamage: () => null,
         applyImmediateTransportSquareEffects: () => {
             throw new Error('transport effects should not run');
@@ -52,20 +54,17 @@ test('resolvePartyMoveCommand keeps only the fatigue patch when forward hits a b
     assert.equal(result.shouldPlayFallingAndDying, false);
 });
 
-test('resolvePartyMoveCommand merges wall push and bump effects for blocked forward movement', () => {
+test('resolvePartyMoveCommand applies only bump effects for blocked forward movement', () => {
     const state = createState();
-    state.pendingSensorEvents = [{ id: 'existing' }];
-    const nextPending = [{ id: 'next' }];
     const result = resolvePartyMoveCommand(state, 'forward', 555, {
         applyPartyMoveFatigue: () => ({ 1: { hp: 27 } as ChampionVitals }),
         isPartyStepBlockedByCreature: () => false,
         getTile: () => ({ type: 'Wall' }),
         isWalkable: () => false,
         buildSensorStateSnapshot: () => ({ snapshot: true }),
-        triggerWallPushSensors: () => ({
-            sensorChanges: { openDoors: new Set(['1,4,5']) },
-            pendingSensorEvents: nextPending,
-        }),
+        triggerWallPushSensors: () => {
+            throw new Error('blocked forward movement should not activate wall sensors');
+        },
         applyFrontRowWallBumpDamage: () => ({ damageEvents: ['bump'] }),
         applyImmediateTransportSquareEffects: (_state, patch) => ({ ...patch, routed: true }),
         resolvePartyStepTransport: () => {
@@ -76,8 +75,6 @@ test('resolvePartyMoveCommand merges wall push and bump effects for blocked forw
     assert.deepEqual(result.patch, {
         championVitals: { 1: { hp: 27 } },
         damageEvents: ['bump'],
-        openDoors: new Set(['1,4,5']),
-        pendingSensorEvents: nextPending,
         routed: true,
     });
     assert.equal(result.shouldPlayWallBump, true);
@@ -93,7 +90,9 @@ test('resolvePartyMoveCommand delegates non-forward movement to step transport a
         getTile: () => ({ type: 'Floor' }),
         isWalkable: () => true,
         buildSensorStateSnapshot: () => ({}),
-        triggerWallPushSensors: () => ({ sensorChanges: {}, pendingSensorEvents: [] }),
+        triggerWallPushSensors: () => {
+            throw new Error('non-forward movement should not activate wall sensors');
+        },
         applyFrontRowWallBumpDamage: () => null,
         applyImmediateTransportSquareEffects: (_state, patch) => patch,
         resolvePartyStepTransport: (_state, y, x, movedVitals) => {
@@ -121,7 +120,9 @@ test('resolvePartyMoveCommand stops before step transport when a creature blocks
         getTile: () => ({ type: 'Floor' }),
         isWalkable: () => true,
         buildSensorStateSnapshot: () => ({}),
-        triggerWallPushSensors: () => ({ sensorChanges: {}, pendingSensorEvents: [] }),
+        triggerWallPushSensors: () => {
+            throw new Error('creature-blocked movement should not activate wall sensors');
+        },
         applyFrontRowWallBumpDamage: () => null,
         applyImmediateTransportSquareEffects: () => {
             throw new Error('transport effects should not run');

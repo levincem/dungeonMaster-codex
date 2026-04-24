@@ -212,6 +212,72 @@ test('store world runtime expands placed creature groups with per-member HP valu
     });
 });
 
+test('store world runtime hydrates original special creature possessions without duplicating them across a group', () => {
+    const maps = [
+        createMap(3, 2, [[{
+            x: 21,
+            y: 24,
+            type: 'Floor',
+            objects: [{
+                category: 'Creature',
+                index: 7,
+                tilePos: 'North',
+                type: 7,
+                hp: [21, 32],
+                count: 2,
+                possession: { pos: 0, category: 10, index: 36 },
+                raw: { possessionWord: 10276 },
+            }],
+        }]]),
+    ];
+    const { runtime } = createRuntime(maps);
+
+    const creatures = runtime.buildCreatureInstances();
+
+    assert.equal(creatures.length, 2);
+    assert.deepEqual(
+        creatures.map((creature) => creature.carriedItems?.map((item) => item.rawName) ?? []),
+        [
+            ['Misc:8:Gold Coin'],
+            [],
+        ],
+    );
+});
+
+test('store world runtime preserves chained original creature possessions', () => {
+    const maps = [
+        createMap(1, 2, [[{
+            x: 8,
+            y: 24,
+            type: 'Floor',
+            objects: [{
+                category: 'Creature',
+                index: 6,
+                tilePos: 'North',
+                type: 7,
+                hp: 11,
+                possession: { pos: 0, category: 5, index: 23 },
+                raw: { possessionWord: 5143 },
+            }],
+        }]]),
+    ];
+    const { runtime } = createRuntime(maps);
+
+    const creatures = runtime.buildCreatureInstances();
+    const carriedItems = creatures[0]?.carriedItems ?? [];
+
+    assert.deepEqual(
+        carriedItems.map((item) => ({
+            rawName: item.rawName,
+            potionPower: item.potionPower,
+        })),
+        [
+            { rawName: 'Weapon:2:Torch', potionPower: undefined },
+            { rawName: 'Potion:20:Empty Flask', potionPower: 0 },
+        ],
+    );
+});
+
 test('store world runtime can build creatures and floor items for a single level only', () => {
     const maps = [
         createMap(0, 1, [[{
