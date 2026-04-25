@@ -503,7 +503,7 @@ export const HUD = () => {
         championXP, championTemporaryXP, championCombat, attackFront, championEquipment, gameOptions,
         damageEvents, optionsModalOpen, openOptionsModal, closeOptionsModal, setGameOptions,
         buildSaveExportPayload,
-        activeFloorDrag, inventoryFullFeedback, pickupItemToChampion, endFloorDrag, giveItem, giveEquippedItem, equipItem,
+        activeFloorDrag, inventoryFullFeedback, pickupItemToChampion, pickupItemToChampionSlot, endFloorDrag, giveItem, giveEquippedItem, equipItem,
         openDoors, openWalls, openPits, openTeleporters, paused, tutorialOverlayActive,
     } = useStore(useShallow((state) => ({
         party: state.party,
@@ -538,6 +538,7 @@ export const HUD = () => {
         activeFloorDrag: state.activeFloorDrag,
         inventoryFullFeedback: state.inventoryFullFeedback,
         pickupItemToChampion: state.pickupItemToChampion,
+        pickupItemToChampionSlot: state.pickupItemToChampionSlot,
         endFloorDrag: state.endFloorDrag,
         giveItem: state.giveItem,
         giveEquippedItem: state.giveEquippedItem,
@@ -1077,6 +1078,7 @@ export const HUD = () => {
                 openPartyMember={openPartyMember}
                 reorderParty={reorderParty}
                 pickupItemToChampion={pickupItemToChampion}
+                pickupItemToChampionSlot={pickupItemToChampionSlot}
                 endFloorDrag={endFloorDrag}
                 giveItem={giveItem}
                 giveEquippedItem={giveEquippedItem}

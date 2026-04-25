@@ -1,12 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import type { Champion } from '../src/types/champion.js';
-import type { FloorItem, GameTile, SensorObject } from '../src/types/game.js';
+import type { ChampionEquipment, FloorItem, GameTile, SensorObject } from '../src/types/game.js';
 import {
     buildFloorItemPickupPatch,
     canPartyReachFloorItem,
     hasHiddenFirestaffPickupRestriction,
     isFloorItemPickupBlockedByFullInventory,
+    transferFloorItemToChampionSlotState,
     transferFloorItemToChampionState,
 } from '../src/engine/systems/floorItemState.js';
 
@@ -269,6 +270,54 @@ test('transferFloorItemToChampionState returns null when the target backpack is 
     );
 
     assert.equal(patch, null);
+});
+
+test('transferFloorItemToChampionSlotState equips a reachable floor item even when the backpack is full', async () => {
+    const { MAX_CHAMPION_INVENTORY_ITEMS } = await import('../src/engine/systems/inventoryState.js');
+    const item = createFloorItem('knife', 4);
+    const fullInventory = Array.from({ length: MAX_CHAMPION_INVENTORY_ITEMS }, (_, index) =>
+        createFloorItem(`inv-${index}`, index + 10),
+    );
+    const pickupState: {
+        level: number;
+        position: [number, number];
+        direction: 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
+        floorItems: FloorItem[];
+        party: Champion[];
+        championInventories: Record<number, FloorItem[]>;
+        championEquipment: Record<number, ChampionEquipment>;
+        activeFloorDrag: { itemId: string; pointerX: number; pointerY: number } | null;
+        lastCastResult: { success: boolean; message: string; ts: number } | null;
+    } = {
+        level: 0,
+        position: [0, 0],
+        direction: 'NORTH',
+        floorItems: [item],
+        party: [createChampion(1)],
+        championInventories: { 1: fullInventory },
+        championEquipment: { 1: {} },
+        activeFloorDrag: { itemId: item.id, pointerX: 1, pointerY: 2 },
+        lastCastResult: null,
+    };
+
+    const patch = transferFloorItemToChampionSlotState(
+        pickupState,
+        item.id,
+        1,
+        'rightHand',
+        {
+            getTile: () => ({ x: 0, y: 0, type: 'Floor', objects: [] }),
+            buildPickupPatch: buildFloorItemPickupPatch,
+            clearAlcoveStateOnPickup: () => ({}),
+            buildHiddenFirestaffMessage: () => ({ success: false, message: 'blocked', ts: 0 }),
+            canEquipItemInSlot: () => true,
+        },
+    );
+
+    assert.ok(patch && 'championEquipment' in patch);
+    assert.deepEqual(patch.floorItems, []);
+    assert.equal(patch.championEquipment[1]?.rightHand?.id, item.id);
+    assert.equal(patch.activeFloorDrag, null);
 });
 
 test('isFloorItemPickupBlockedByFullInventory only reports reachable full-backpack failures', async () => {

@@ -1,6 +1,6 @@
 import { GRID_SIZE } from '../../engine/constants';
 import type { Direction } from '../../engine/runtimeTypes';
-import type { FloorItem } from '../../types/game';
+import type { FloorItem, GameTile } from '../../types/game';
 
 const FLOOR_Y = -GRID_SIZE / 2;
 
@@ -58,4 +58,15 @@ export function resolveFloorItemPresentation(
         ],
         scale: occupiedByCreature ? OCCUPIED_TILE_ITEM_SCALE : 1,
     };
+}
+
+export function isFloorItemWallMountedTile(
+    level: number,
+    tile: GameTile | undefined,
+    openWalls: Set<string>,
+): boolean {
+    if (!tile) return false;
+    if (tile.type === 'Wall') return true;
+    if (tile.type !== 'TrickWall') return false;
+    return !openWalls.has(`${level},${tile.y},${tile.x}`);
 }

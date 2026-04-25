@@ -174,6 +174,31 @@ test('store creature spatial runtime line of sight respects walls and closed vis
     assert.equal(runtime.hasLineOfSight(mapWithWall, 0, new Set<string>(), new Set<string>(), 0, 0, 2, 0), false);
 });
 
+test('store creature spatial runtime line of sight does not slip through diagonal wall corners', () => {
+    const runtime = createStoreCreatureSpatialRuntime({
+        creatureTypes: {},
+    });
+    const map = createMap([
+        [
+            createFloorTile(0, 0),
+            createFloorTile(1, 0),
+            createFloorTile(2, 0),
+        ],
+        [
+            createFloorTile(0, 1),
+            { ...createFloorTile(1, 1), type: 'Wall' },
+            createFloorTile(2, 1),
+        ],
+        [
+            createFloorTile(0, 2),
+            createFloorTile(1, 2),
+            createFloorTile(2, 2),
+        ],
+    ]);
+
+    assert.equal(runtime.hasLineOfSight(map, 0, new Set<string>(), new Set<string>(), 0, 0, 2, 2), false);
+});
+
 test('store creature spatial runtime line of sight respects closed and opened trick walls', () => {
     const runtime = createStoreCreatureSpatialRuntime({
         creatureTypes: {},

@@ -16,6 +16,7 @@ import {
     type CreatureRuntimeMaps,
     type PersistableGameState,
 } from '../src/engine/systems/persistence.js';
+import { createInitialGameStats } from '../src/engine/systems/gameStats.js';
 
 function createChampion(id: number): Champion {
     return {
@@ -220,6 +221,7 @@ function createState(now: number): PersistableGameState {
         movementCooldown: 0.4,
         championXP: { 1: createEmptyChampionXP() },
         championTemporaryXP: { 1: createEmptyChampionTemporaryXP() },
+        gameStats: createInitialGameStats(now - 10000),
         championCombat,
         crushingDoors: { '0,1,2': { phase: 'closing', timer: 0.5 } },
         torchBurnStart: { 'torch-1': now - 600 },

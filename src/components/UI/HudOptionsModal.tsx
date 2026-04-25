@@ -129,10 +129,10 @@ export const HudOptionsModal: React.FC<{
                                 key={action}
                                 style={{
                                     display: 'grid',
-                                    gridTemplateColumns: '48px 1fr 140px 140px',
-                                    gap: 12,
+                                    gridTemplateColumns: '40px 1fr 112px 112px',
+                                    gap: 8,
                                     alignItems: 'center',
-                                    padding: '10px 12px',
+                                    padding: '8px 10px',
                                     borderRadius: 8,
                                     border: '1px solid rgba(212,184,112,0.18)',
                                     background: 'rgba(0,0,0,0.28)',
@@ -140,20 +140,20 @@ export const HudOptionsModal: React.FC<{
                             >
                                 <div
                                     style={{
-                                        width: 38,
-                                        height: 38,
+                                        width: 32,
+                                        height: 32,
                                         borderRadius: 999,
                                         border: '1px solid rgba(212,184,112,0.28)',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         color: '#f0d060',
-                                        fontSize: 22,
+                                        fontSize: 19,
                                     }}
                                 >
                                     {icon}
                                 </div>
-                                <div style={{ fontSize: 15, color: '#ecd9a8' }}>
+                                <div style={{ fontSize: 14, color: '#ecd9a8' }}>
                                     {text.actionLabels[action]}
                                 </div>
                                 {[0, 1].map((slotIndex) => {
@@ -164,12 +164,13 @@ export const HudOptionsModal: React.FC<{
                                             key={`${action}-${slotIndex}`}
                                             onClick={() => onToggleBinding({ action, slot: slotIndex as 0 | 1 })}
                                             style={{
-                                                padding: '9px 12px',
+                                                minHeight: 32,
+                                                padding: '7px 8px',
                                                 borderRadius: 6,
                                                 border: `1px solid ${waiting ? 'rgba(240,208,96,0.78)' : 'rgba(212,184,112,0.3)'}`,
                                                 background: waiting ? 'rgba(18,12,0,0.96)' : 'rgba(0,0,0,0.62)',
                                                 color: waiting ? '#ffe9aa' : '#d8c08b',
-                                                fontSize: 15,
+                                                fontSize: 13,
                                                 cursor: 'pointer',
                                                 fontFamily: '"Courier New", monospace',
                                                 letterSpacing: 1,
@@ -182,6 +183,57 @@ export const HudOptionsModal: React.FC<{
                             </div>
                         );
                     })}
+                    <div
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns: '40px 1fr 112px 112px',
+                            gap: 8,
+                            alignItems: 'center',
+                            padding: '8px 10px',
+                            borderRadius: 8,
+                            border: '1px solid rgba(212,184,112,0.18)',
+                            background: 'rgba(0,0,0,0.22)',
+                        }}
+                    >
+                        <div
+                            style={{
+                                width: 32,
+                                height: 32,
+                                borderRadius: 999,
+                                border: '1px solid rgba(212,184,112,0.28)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: '#f0d060',
+                                fontSize: 14,
+                                fontFamily: '"Courier New", monospace',
+                                fontWeight: 'bold',
+                            }}
+                        >
+                            II
+                        </div>
+                        <div style={{ fontSize: 14, color: '#ecd9a8' }}>
+                            {text.actionLabels.pause}
+                        </div>
+                        <div
+                            style={{
+                                gridColumn: 'span 2',
+                                minHeight: 32,
+                                padding: '7px 8px',
+                                borderRadius: 6,
+                                border: '1px solid rgba(212,184,112,0.22)',
+                                background: 'rgba(0,0,0,0.42)',
+                                color: '#bfae82',
+                                fontSize: 13,
+                                fontFamily: '"Courier New", monospace',
+                                letterSpacing: 1,
+                                textAlign: 'center',
+                                boxSizing: 'border-box',
+                            }}
+                        >
+                            Esc
+                        </div>
+                    </div>
                 </div>
 
                 <div style={{ marginTop: 22, paddingTop: 18, borderTop: '1px solid rgba(212,184,112,0.18)' }}>

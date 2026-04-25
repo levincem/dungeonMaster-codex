@@ -1,8 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { GRID_SIZE } from '../src/engine/constants.js';
-import { resolveFloorItemPresentation } from '../src/components/Dungeon/floorItemPresentation.js';
-import type { FloorItem } from '../src/types/game.js';
+import {
+    isFloorItemWallMountedTile,
+    resolveFloorItemPresentation,
+} from '../src/components/Dungeon/floorItemPresentation.js';
+import type { FloorItem, GameTile } from '../src/types/game.js';
 
 function createFloorItem(overrides: Partial<FloorItem> = {}): FloorItem {
     return {
@@ -45,4 +48,14 @@ test('resolveFloorItemPresentation biases occupied-tile items from the viewer si
 
     assert.equal(eastFacing.position[0], 5 * GRID_SIZE + 0.30 - GRID_SIZE * 0.14);
     assert.equal(westFacing.position[0], 5 * GRID_SIZE - 0.30 + GRID_SIZE * 0.14);
+});
+
+test('isFloorItemWallMountedTile treats opened trick walls as floor placement', () => {
+    const closedTrickWall: GameTile = { x: 29, y: 25, type: 'TrickWall', objects: [] };
+    const openWalls = new Set<string>(['2,25,29']);
+
+    assert.equal(isFloorItemWallMountedTile(2, { x: 1, y: 2, type: 'Wall', objects: [] }, openWalls), true);
+    assert.equal(isFloorItemWallMountedTile(2, closedTrickWall, new Set()), true);
+    assert.equal(isFloorItemWallMountedTile(2, closedTrickWall, openWalls), false);
+    assert.equal(isFloorItemWallMountedTile(2, { x: 29, y: 25, type: 'Floor', objects: [] }, openWalls), false);
 });

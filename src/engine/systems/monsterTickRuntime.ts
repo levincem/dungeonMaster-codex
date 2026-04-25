@@ -135,8 +135,8 @@ type MonsterTickRuntimeDeps = {
         deadChampions: Record<number, Champion>;
     };
     nowMs: () => number;
-    onCreatureMove: (creatureId: string, creatureTypeId: number, sound: 'teleport' | 'creature' | null) => void;
-    onCreatureAttack: (creatureId: string, creatureTypeId: number, expiresAt: number) => void;
+    onCreatureMove: (creature: CreatureInstance, sound: 'teleport' | 'creature' | null) => void;
+    onCreatureAttack: (creature: CreatureInstance, expiresAt: number) => void;
     onChampionWounded: () => void;
 };
 
@@ -288,12 +288,14 @@ export function runMonsterTickRuntime(
             deps.setCreatureFrightenedUntil(creature.id, turn.frightenedUntilMs);
         }
 
+        const currentCreature = creatures.find((candidate) => candidate.id === creature.id) ?? creature;
+
         if (turn.notifyMove) {
-            deps.onCreatureMove(creature.id, creature.typeId, turn.movementSound);
+            deps.onCreatureMove(currentCreature, turn.movementSound);
         }
 
         if (turn.attackWindowExpiresAt) {
-            deps.onCreatureAttack(creature.id, creature.typeId, turn.attackWindowExpiresAt);
+            deps.onCreatureAttack(currentCreature, turn.attackWindowExpiresAt);
             lastCreatureAttackGameTick = state.elapsedGameTimeTicks;
         }
 

@@ -11,6 +11,7 @@ import type {
     SpellLight,
     SpellVisualEvent,
 } from '../runtimeTypes';
+import { createInitialGameStats, type GameStats } from './gameStats';
 
 export type StoreBootstrapDirection = 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
 export type StoreBootstrapGamePhase =
@@ -73,6 +74,7 @@ export type StoreBootstrapState = {
     lastCastResult: null;
     championXP: Record<number, never>;
     championTemporaryXP: Record<number, never>;
+    gameStats: GameStats;
     championCombat: Record<number, never>;
     damageEvents: DamageEvent[];
     spellVisualEvents: SpellVisualEvent[];
@@ -162,6 +164,7 @@ export function createStoreBootstrapRuntime(
         lastCastResult: null,
         championXP: {},
         championTemporaryXP: {},
+        gameStats: createInitialGameStats(),
         championCombat: {},
         damageEvents: [],
         spellVisualEvents: [],

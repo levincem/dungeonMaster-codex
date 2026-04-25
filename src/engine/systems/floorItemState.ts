@@ -1,5 +1,6 @@
 import type { Champion } from '../../types/champion';
-import type { FloorItem, SensorObject, GameTile } from '../../types/game';
+import type { ChampionEquipment, FloorItem, SensorObject, GameTile } from '../../types/game';
+import type { EquipSlotKey } from '../../types/items';
 import { canChampionInventoryAcceptItem } from './inventoryState';
 
 type FloorPickupState = {
@@ -14,6 +15,10 @@ type FloorPickupState = {
 
 type FloorItemPickupTransferState<TResult> = FloorPickupState & {
     lastCastResult?: TResult | null;
+};
+
+type FloorItemPickupEquipmentTransferState<TResult> = FloorItemPickupTransferState<TResult> & {
+    championEquipment: Record<number, ChampionEquipment>;
 };
 
 export function hasHiddenFirestaffPickupRestriction(item: FloorItem, tile: GameTile | undefined): boolean {
@@ -103,6 +108,11 @@ type TransferFloorItemPickupDeps<TState extends FloorItemPickupTransferState<TRe
     buildHiddenFirestaffMessage: () => TResult;
 };
 
+type TransferFloorItemEquipDeps<TState extends FloorItemPickupEquipmentTransferState<TResult>, TResult, TSensorPatch extends object> =
+    TransferFloorItemPickupDeps<TState, TResult, TSensorPatch> & {
+        canEquipItemInSlot: (item: FloorItem, slotKey: EquipSlotKey) => boolean;
+    };
+
 export function transferFloorItemToChampionState<
     TResult,
     TSensorPatch extends object,
@@ -130,4 +140,52 @@ export function transferFloorItemToChampionState<
 
     const alcoveState = deps.clearAlcoveStateOnPickup(item, state);
     return deps.buildPickupPatch(state, item, championId, alcoveState);
+}
+
+export function transferFloorItemToChampionSlotState<
+    TResult,
+    TSensorPatch extends object,
+    TState extends FloorItemPickupEquipmentTransferState<TResult>,
+>(
+    state: TState,
+    id: string,
+    championId: number,
+    slotKey: EquipSlotKey,
+    deps: TransferFloorItemEquipDeps<TState, TResult, TSensorPatch>,
+): ({
+    floorItems: FloorItem[];
+    championEquipment: Record<number, ChampionEquipment>;
+    activeFloorDrag: TState['activeFloorDrag'];
+} & TSensorPatch & { lastCastResult?: TResult | null }) | { lastCastResult: TResult } | null {
+    const item = state.floorItems.find((entry) => entry.id === id);
+    if (!item) return null;
+
+    const champion = state.party.find((entry) => entry.id === championId);
+    if (!champion) return null;
+    if (!canPartyReachFloorItem(state, item)) return null;
+    if (!deps.canEquipItemInSlot(item, slotKey)) return null;
+
+    const currentEquipment = state.championEquipment[championId] ?? {};
+    if (currentEquipment[slotKey]) return null;
+
+    const tile = deps.getTile(item.mapIndex, item.y, item.x);
+    if (hasHiddenFirestaffPickupRestriction(item, tile)) {
+        return {
+            lastCastResult: deps.buildHiddenFirestaffMessage(),
+        };
+    }
+
+    const alcoveState = deps.clearAlcoveStateOnPickup(item, state);
+    return {
+        floorItems: state.floorItems.filter((entry) => entry.id !== item.id),
+        championEquipment: {
+            ...state.championEquipment,
+            [championId]: {
+                ...currentEquipment,
+                [slotKey]: item,
+            },
+        },
+        activeFloorDrag: state.activeFloorDrag?.itemId === item.id ? null : state.activeFloorDrag,
+        ...alcoveState,
+    };
 }

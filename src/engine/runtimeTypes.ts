@@ -2,6 +2,7 @@ import type { Champion } from '../types/champion';
 import type { ChampionWounds } from '../data/equipment';
 import type { ChampionTemporaryXP, ChampionXP } from '../data/skillProgression';
 import type { ChampionEquipment, CreatureInstance, FloorItem } from '../types/game';
+import type { GameStats } from './systems/gameStats';
 
 export type { ChampionTemporaryXP, ChampionXP } from '../data/skillProgression';
 
@@ -229,6 +230,7 @@ export interface PersistedSaveData {
     movementCooldown: number;
     championXP: Record<number, ChampionXP>;
     championTemporaryXP?: Record<number, ChampionTemporaryXP>;
+    gameStats?: GameStats;
     championCombat: Record<number, ChampionCombat>;
     spellVisualEvents?: SpellVisualEvent[];
     crushingDoors: Record<string, { phase: 'closing' | 'bouncing'; timer: number }>;

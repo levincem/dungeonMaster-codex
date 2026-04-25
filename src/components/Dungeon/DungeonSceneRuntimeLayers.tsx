@@ -11,6 +11,7 @@ import { getCreatureCellOffsetXZ } from './creatureCellOffsets';
 import { BillboardGroup } from './renderHelpers';
 import { CreatureSprite } from './CreatureSprite';
 import { FloorItemMesh } from './FloorItemMesh';
+import { isFloorItemWallMountedTile } from './floorItemPresentation';
 import { WallMountedItemMesh } from './WallMountedItemMesh';
 import { useWallClock } from './useWallClock';
 import {
@@ -292,7 +293,7 @@ export const FloorItemsLayer: React.FC = () => {
     const isMirrorTile = (item: FloorItem) => MIRROR_WALL_MAP.has(`${level},${item.x},${item.y}`);
     const isWallMounted = (item: FloorItem) => {
         const tile = map.tiles[item.y]?.[item.x];
-        return tile?.type === 'Wall' || tile?.type === 'TrickWall';
+        return isFloorItemWallMountedTile(level, tile, openWalls);
     };
 
     return (

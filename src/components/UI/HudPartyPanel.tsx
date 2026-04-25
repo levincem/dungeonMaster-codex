@@ -654,6 +654,7 @@ export const HudPartyPanel: React.FC<{
     openPartyMember: (championId: number) => void;
     reorderParty: (from: number, to: number) => void;
     pickupItemToChampion: (itemId: string, championId: number) => boolean;
+    pickupItemToChampionSlot: (itemId: string, championId: number, slotKey: EquipSlotKey) => boolean;
     endFloorDrag: () => void;
     giveItem: (fromChampionId: number, toChampionId: number, itemId: string) => void;
     giveEquippedItem: (fromChampionId: number, fromSlot: EquipSlotKey, toChampionId: number) => void;
@@ -680,6 +681,7 @@ export const HudPartyPanel: React.FC<{
     openPartyMember,
     reorderParty,
     pickupItemToChampion,
+    pickupItemToChampionSlot,
     endFloorDrag,
     giveItem,
     giveEquippedItem,
@@ -814,9 +816,12 @@ export const HudPartyPanel: React.FC<{
                                     const state = useStore.getState();
                                     const floorItem = state.floorItems.find((item) => item.id === activeFloorDrag.itemId);
                                     if (!floorItem || !canEquipItemInSlot(floorItem, slotKey)) return;
-                                    const pickedUp = pickupItemToChampion(activeFloorDrag.itemId, targetChampion.id);
-                                    if (!pickedUp) return;
-                                    equipItem(targetChampion.id, slotKey, activeFloorDrag.itemId);
+                                    const equipped = pickupItemToChampionSlot(activeFloorDrag.itemId, targetChampion.id, slotKey);
+                                    if (!equipped) {
+                                        const pickedUp = pickupItemToChampion(activeFloorDrag.itemId, targetChampion.id);
+                                        if (!pickedUp) return;
+                                        equipItem(targetChampion.id, slotKey, activeFloorDrag.itemId);
+                                    }
                                     endFloorDrag();
                                     setHandDropOver(null);
                                 }}

@@ -15,7 +15,7 @@ import { getMapMechanisms, getMechanismsAt } from '../../data/mechanisms';
 import { getOriginalWallOverlaysForMap, hasEffectiveOriginalWallOverlayAt, type OriginalWallOverlayRender } from '../../data/originalWallOverlays';
 import type { Direction } from '../../engine/runtimeTypes';
 import { computeLightLevel } from '../../engine/store';
-import { getGameMap } from '../../data/mapLoader';
+import { getGameMap, toGlobalCoords } from '../../data/mapLoader';
 import type { GameMap, GameTile, TeleporterObject, CardinalDir, DoorObject } from '../../types/game';
 import type { Champion } from '../../data/champions';
 import type { EquipSlotKey } from '../../types/items';
@@ -69,7 +69,7 @@ import {
 } from './DungeonSceneRuntimeLayers';
 import { SpellImpactLayer } from './DungeonSpellImpactLayer';
 import { useTemporalFlag, useWallClock } from './useWallClock';
-import { creaturesInFront } from '../../engine/systems/frontCreatureState';
+import { creaturesInFront, isCreatureContactCell } from '../../engine/systems/frontCreatureState';
 
 const HALF = GRID_SIZE / 2;
 const BASE_FOG_NEAR = GRID_SIZE * 2;
@@ -91,12 +91,67 @@ function isDungeonRenderDebugEnabled(): boolean {
 }
 
 const RENDER_DEBUG_ENABLED = isDungeonRenderDebugEnabled();
+const CREATURE_DEBUG_OVERLAY_ENABLED = import.meta.env.DEV;
 
 const DEFAULT_RENDER_DEBUG_STATE: RenderDebugState = {
     wallTexts: true,
     wallDecals: true,
     wallButtons: true,
 };
+
+function getDebugPanelStyle(position: { top: number; left?: number; right?: number }) {
+    return {
+        position: 'fixed',
+        top: position.top,
+        ...(typeof position.left === 'number' ? { left: position.left } : {}),
+        ...(typeof position.right === 'number' ? { right: position.right } : {}),
+        zIndex: 340,
+        padding: '8px 10px',
+        borderRadius: 8,
+        background: 'rgba(10, 10, 10, 0.72)',
+        border: '1px solid rgba(197, 164, 106, 0.28)',
+        color: '#d8c48f',
+        fontFamily: '"Courier New", monospace',
+        fontSize: 11,
+        lineHeight: 1.35,
+        pointerEvents: 'auto',
+        userSelect: 'text',
+        cursor: 'text',
+        whiteSpace: 'pre-wrap',
+        overflowWrap: 'anywhere',
+        maxWidth: 460,
+        maxHeight: '42vh',
+        overflowY: 'auto',
+    } as const;
+}
+
+function getCopyableDebugPanelStyle(position: { bottom: number; left?: number; right?: number }) {
+    return {
+        position: 'fixed',
+        bottom: position.bottom,
+        ...(typeof position.left === 'number' ? { left: position.left } : {}),
+        ...(typeof position.right === 'number' ? { right: position.right } : {}),
+        zIndex: 430,
+        width: 520,
+        maxWidth: 'calc(100vw - 28px)',
+        height: 230,
+        padding: '8px 10px',
+        borderRadius: 8,
+        background: 'rgba(8, 10, 14, 0.9)',
+        border: '1px solid rgba(197, 164, 106, 0.42)',
+        color: '#d8c48f',
+        fontFamily: '"Courier New", monospace',
+        fontSize: 11,
+        lineHeight: 1.35,
+        pointerEvents: 'auto',
+        userSelect: 'text',
+        cursor: 'text',
+        whiteSpace: 'pre',
+        resize: 'both',
+        overflow: 'auto',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.38)',
+    } as const;
+}
 
 const DUNGEON_AMBIENT_COLOR = new THREE.Color('#f4e2ba');
 const DUNGEON_DARK_AMBIENT_COLOR = new THREE.Color('#8ea0c0');
@@ -787,98 +842,119 @@ const DungeonSceneDebugOverlay: React.FC<{
     return (
         <>
             <div
-                style={{
-                    position: 'fixed',
-                    top: 14,
-                    left: 14,
-                    zIndex: 340,
-                    padding: '8px 10px',
-                    borderRadius: 8,
-                    background: 'rgba(10, 10, 10, 0.72)',
-                    border: '1px solid rgba(197, 164, 106, 0.28)',
-                    color: '#d8c48f',
-                    fontFamily: '"Courier New", monospace',
-                    fontSize: 11,
-                    lineHeight: 1.35,
-                    pointerEvents: 'auto',
-                    userSelect: 'text',
-                    cursor: 'text',
-                    whiteSpace: 'pre-line',
-                }}
+                style={getDebugPanelStyle({ top: 14, left: 14 })}
                 data-debug-overlay="true"
             >
                 {text.debugRenderState(renderDebug)}
             </div>
             <div
-                style={{
-                    position: 'fixed',
-                    top: 102,
-                    left: 14,
-                    zIndex: 340,
-                    padding: '8px 10px',
-                    borderRadius: 8,
-                    background: 'rgba(10, 10, 10, 0.72)',
-                    border: '1px solid rgba(197, 164, 106, 0.28)',
-                    color: '#d8c48f',
-                    fontFamily: '"Courier New", monospace',
-                    fontSize: 11,
-                    lineHeight: 1.35,
-                    pointerEvents: 'auto',
-                    userSelect: 'text',
-                    cursor: 'text',
-                    whiteSpace: 'pre-line',
-                }}
+                style={getDebugPanelStyle({ top: 102, left: 14 })}
                 data-debug-overlay="true"
             >
                 {frontCreatureDebugLines.join('\n')}
             </div>
             <div
-                style={{
-                    position: 'fixed',
-                    top: 206,
-                    left: 14,
-                    zIndex: 340,
-                    padding: '8px 10px',
-                    borderRadius: 8,
-                    background: 'rgba(10, 10, 10, 0.72)',
-                    border: '1px solid rgba(197, 164, 106, 0.28)',
-                    color: '#d8c48f',
-                    fontFamily: '"Courier New", monospace',
-                    fontSize: 11,
-                    lineHeight: 1.35,
-                    pointerEvents: 'auto',
-                    userSelect: 'text',
-                    cursor: 'text',
-                    whiteSpace: 'pre-line',
-                }}
+                style={getDebugPanelStyle({ top: 206, left: 14 })}
                 data-debug-overlay="true"
             >
                 {lastMonsterAttackDebugLines.join('\n')}
             </div>
             <div
-                style={{
-                    position: 'fixed',
-                    top: 382,
-                    left: 14,
-                    zIndex: 340,
-                    padding: '8px 10px',
-                    borderRadius: 8,
-                    background: 'rgba(10, 10, 10, 0.72)',
-                    border: '1px solid rgba(197, 164, 106, 0.28)',
-                    color: '#d8c48f',
-                    fontFamily: '"Courier New", monospace',
-                    fontSize: 11,
-                    lineHeight: 1.35,
-                    pointerEvents: 'auto',
-                    userSelect: 'text',
-                    cursor: 'text',
-                    whiteSpace: 'pre-line',
-                }}
+                style={getDebugPanelStyle({ top: 382, left: 14 })}
                 data-debug-overlay="true"
             >
                 {forwardMoveDebugLines.join('\n')}
             </div>
         </>
+    );
+};
+
+const DungeonSceneCreatureDebugOverlay: React.FC<{
+    level: number;
+    position: [number, number];
+    direction: Direction;
+}> = ({ level, position, direction }) => {
+    const creatures = useStore((s) => s.creatures);
+    const map = getGameMap(level);
+
+    const lines = useMemo(() => {
+        const [currentY, currentX] = position;
+        const frontX = direction === 'EAST' ? currentX + 1 : direction === 'WEST' ? currentX - 1 : currentX;
+        const frontY = direction === 'NORTH' ? currentY - 1 : direction === 'SOUTH' ? currentY + 1 : currentY;
+        const currentGlobal = toGlobalCoords(level, currentX, currentY);
+        const frontGlobal = toGlobalCoords(level, frontX, frontY);
+        const frontCreatures = creaturesInFront(level, position, direction, creatures);
+        const contactCreatures = frontCreatures.filter((creature) => isCreatureContactCell(creature.cell));
+        const nearbyCreatures = creatures
+            .filter((creature) => creature.alive && creature.mapIndex === level)
+            .map((creature) => ({
+                creature,
+                distance: Math.abs(creature.x - currentX) + Math.abs(creature.y - currentY),
+                dx: creature.x - currentX,
+                dy: creature.y - currentY,
+            }))
+            .filter((entry) => entry.distance <= 10)
+            .sort((a, b) => a.distance - b.distance || a.creature.y - b.creature.y || a.creature.x - b.creature.x)
+            .slice(0, 16);
+
+        const getPlacementHPLabel = (creature: typeof frontCreatures[number]): string => {
+            const match = /^init_(\d+)_(\d+)_(\d+)_(\d+)$/.exec(creature.groupId ?? '');
+            if (!match) return '';
+            const [, sourceLevelRaw, sourceXRaw, sourceYRaw, sourceTypeRaw] = match;
+            const sourceLevel = Number(sourceLevelRaw);
+            const sourceX = Number(sourceXRaw);
+            const sourceY = Number(sourceYRaw);
+            const sourceType = Number(sourceTypeRaw);
+            if (sourceLevel !== level || ![sourceX, sourceY, sourceType].every(Number.isFinite)) return '';
+
+            const source = map.tiles[sourceY]?.[sourceX]?.objects.find((object) =>
+                object.category === 'Creature' && object.type === sourceType);
+            if (!source || source.category !== 'Creature') return '';
+
+            const hpValues = Array.isArray(source.hp)
+                ? source.hp
+                : Array.from({ length: Math.max(1, source.count ?? 1) }, () =>
+                    typeof source.hp === 'number' ? source.hp : 0);
+            const totalHP = hpValues.reduce((sum, hp) => sum + (typeof hp === 'number' ? hp : 0), 0);
+            return totalHP > 0 ? ` | sourceHP ${hpValues.join('+')}=${totalHP}` : '';
+        };
+
+        const describeCreature = (creature: typeof frontCreatures[number], index: number) => {
+            const def = CREATURE_TYPES[creature.typeId];
+            const label = def?.name ?? `Creature ${creature.typeId}`;
+            const global = toGlobalCoords(level, creature.x, creature.y);
+            return `${index + 1}. ${label} [l:${creature.x},${creature.y} / g:${global.x},${global.y}] [${creature.cell}] HP ${creature.currentHP}/${def?.baseHP ?? '?'}${getPlacementHPLabel(creature)} | id ${creature.id}${creature.groupId ? ` | group ${creature.groupId}` : ''}`;
+        };
+
+        return [
+            'Creature debug',
+            `party [l:${currentX},${currentY} / g:${currentGlobal.x},${currentGlobal.y}] ${direction} -> front [l:${frontX},${frontY} / g:${frontGlobal.x},${frontGlobal.y}]`,
+            `front tile occupants: ${frontCreatures.length}`,
+            ...(frontCreatures.length > 0
+                ? frontCreatures.map(describeCreature)
+                : ['none']),
+            `contact occupants: ${contactCreatures.length}`,
+            ...(contactCreatures.length > 0
+                ? contactCreatures.map((creature, index) => describeCreature(creature, index))
+                : ['none']),
+            `nearby alive occupants (<=10): ${nearbyCreatures.length}`,
+            ...(nearbyCreatures.length > 0
+                ? nearbyCreatures.map(({ creature, distance, dx, dy }, index) =>
+                    `${describeCreature(creature, index)} | dist ${distance} | delta ${dx},${dy}`)
+                : ['none']),
+        ];
+    }, [creatures, direction, level, map, position]);
+
+    return (
+        <textarea
+            readOnly
+            spellCheck={false}
+            value={lines.join('\n')}
+            onFocus={(event) => event.currentTarget.select()}
+            style={getCopyableDebugPanelStyle({ bottom: 14, left: 14 })}
+            data-debug-overlay="true"
+            aria-label="Creature debug"
+        />
     );
 };
 
@@ -1459,6 +1535,13 @@ export const DungeonScene = () => {
                 </div>
             )}
             <LevelNameOverlay level={level} />
+            {CREATURE_DEBUG_OVERLAY_ENABLED && (
+                <DungeonSceneCreatureDebugOverlay
+                    level={level}
+                    position={position}
+                    direction={direction}
+                />
+            )}
             {RENDER_DEBUG_ENABLED && (
                 <DungeonSceneDebugOverlay
                     renderDebug={renderDebug}

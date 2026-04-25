@@ -7,6 +7,21 @@ export const fr = {
         smartphoneUnsupported: 'Cette alpha est pensee pour le desktop. Le jeu sur smartphone n est pas encore pris en charge.',
         preparingTitleScreen: 'Preparation de l ecran titre',
         runtimeWarmupNotice: 'Le runtime gameplay est encore en train de chauffer. C est normal en mode developpement et lors d un demarrage a froid.',
+        systemRequirements: {
+            blockedTitle: 'Verification systeme echouee',
+            blockedIntro: 'Ce navigateur ou cet appareil ne possede pas tous les prerequis necessaires pour lancer Dungeon Master Remastered correctement.',
+            warningIntro: 'Cette machine peut lancer le jeu, mais les performances peuvent etre limitees :',
+            issues: {
+                requestAnimationFrame: 'Le timing d animation n est pas disponible dans ce navigateur.',
+                webgl: 'WebGL n est pas disponible ou est desactive.',
+                webgl2: 'WebGL 2 n est pas disponible ; le rendu utilisera un chemin de compatibilite reduit.',
+                textureSize: (detail?: string) => `La taille maximale de texture GPU est faible${detail ? ` (${detail}px)` : ''}.`,
+                localStorage: 'Le stockage navigateur n est pas disponible, les sauvegardes ne pourront pas etre ecrites.',
+                deviceMemory: (detail?: string) => `La memoire disponible semble limitee${detail ? ` (${detail} Go detectes)` : ''}.`,
+                cpuCores: (detail?: string) => `Le processeur semble limite${detail ? ` (${detail} coeurs logiques detectes)` : ''}.`,
+                viewport: (detail?: string) => `La fenetre est plus petite que recommande${detail ? ` (${detail})` : ''}.`,
+            },
+        },
         welcome: {
             closeNotice: 'Fermer l avis de bienvenue',
             title: 'Dungeon Master Remastered',
@@ -117,6 +132,7 @@ export const fr = {
             turnRight: 'Tourner a droite',
             strafeLeft: 'Pas a gauche',
             strafeRight: 'Pas a droite',
+            pause: 'Pause',
         },
         runeFamilyLabels: {
             power: 'PUISSANCE',

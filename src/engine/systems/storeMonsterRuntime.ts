@@ -1,6 +1,6 @@
 import type { CreatureDef } from '../../data/creatures';
 import type { ChampionTemporaryXP, ChampionXP, SkillKey } from '../../data/skillProgression';
-import type { GameMap } from '../../types/game';
+import type { CreatureInstance, GameMap } from '../../types/game';
 import { runMonsterTickRuntime } from './monsterTickRuntime';
 
 type MonsterTickRuntimeState = Parameters<typeof runMonsterTickRuntime>[0];
@@ -69,6 +69,7 @@ type CreateStoreMonsterTickRuntimeDepsParams = {
     playTeleport: () => void;
     playCreatureMove: (creatureTypeId: number) => void;
     playCreatureAttack: (creatureTypeId: number) => void;
+    canHearCreature: (creature: CreatureInstance) => boolean;
     notifyCreatureAction: (creatureId: string, action: 'move' | 'attack') => void;
     playChampionWounded: () => void;
 };
@@ -198,18 +199,18 @@ export function createStoreMonsterTickRuntimeDeps(
         buildFrightenedUntilMs: params.buildFrightenedUntilMs,
         buildDeathDrop: params.buildDeathDrop,
         nowMs: params.nowMs,
-        onCreatureMove: (creatureId, creatureTypeId, sound) => {
+        onCreatureMove: (creature, sound) => {
             if (sound === 'teleport') {
-                params.playTeleport();
-            } else if (sound === 'creature') {
-                params.playCreatureMove(creatureTypeId);
+                if (params.canHearCreature(creature)) params.playTeleport();
+            } else if (sound === 'creature' && params.canHearCreature(creature)) {
+                params.playCreatureMove(creature.typeId);
             }
-            params.notifyCreatureAction(creatureId, 'move');
+            params.notifyCreatureAction(creature.id, 'move');
         },
-        onCreatureAttack: (creatureId, creatureTypeId, expiresAt) => {
-            params.playCreatureAttack(creatureTypeId);
-            params.notifyCreatureAction(creatureId, 'attack');
-            params.creatureAttackWindows.set(creatureId, expiresAt);
+        onCreatureAttack: (creature, expiresAt) => {
+            if (params.canHearCreature(creature)) params.playCreatureAttack(creature.typeId);
+            params.notifyCreatureAction(creature.id, 'attack');
+            params.creatureAttackWindows.set(creature.id, expiresAt);
         },
         onChampionWounded: () => {
             params.playChampionWounded();

@@ -7,6 +7,21 @@ export const en = {
         smartphoneUnsupported: 'This is a desktop-first alpha. Smartphone play is not supported yet.',
         preparingTitleScreen: 'Preparing Title Screen',
         runtimeWarmupNotice: 'The gameplay runtime is still warming up. This is expected in development mode and on a cold start.',
+        systemRequirements: {
+            blockedTitle: 'System check failed',
+            blockedIntro: 'This browser or device is missing one or more requirements needed to run Dungeon Master Remastered reliably.',
+            warningIntro: 'This machine can start the game, but performance may be limited:',
+            issues: {
+                requestAnimationFrame: 'Animation timing is not available in this browser.',
+                webgl: 'WebGL is not available or is disabled.',
+                webgl2: 'WebGL 2 is not available; rendering will use a reduced compatibility path.',
+                textureSize: (detail?: string) => `Maximum GPU texture size is low${detail ? ` (${detail}px)` : ''}.`,
+                localStorage: 'Browser storage is not available, so saves cannot be written.',
+                deviceMemory: (detail?: string) => `Available memory looks limited${detail ? ` (${detail} GB reported)` : ''}.`,
+                cpuCores: (detail?: string) => `CPU parallelism looks limited${detail ? ` (${detail} logical cores reported)` : ''}.`,
+                viewport: (detail?: string) => `The viewport is smaller than recommended${detail ? ` (${detail})` : ''}.`,
+            },
+        },
         welcome: {
             closeNotice: 'Close welcome notice',
             title: 'Dungeon Master Remastered',
@@ -117,6 +132,7 @@ export const en = {
             turnRight: 'Turn right',
             strafeLeft: 'Strafe left',
             strafeRight: 'Strafe right',
+            pause: 'Pause',
         },
         runeFamilyLabels: {
             power: 'POWER',

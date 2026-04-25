@@ -1,6 +1,10 @@
 import type { Champion } from '../../types/champion';
 import type { ChampionEquipment, FloorItem, GameTile } from '../../types/game';
-import { transferFloorItemToChampionState as transferFloorItemToChampionStateSystem } from './floorItemState';
+import type { EquipSlotKey } from '../../types/items';
+import {
+    transferFloorItemToChampionSlotState as transferFloorItemToChampionSlotStateSystem,
+    transferFloorItemToChampionState as transferFloorItemToChampionStateSystem,
+} from './floorItemState';
 
 type FloorItemPickupStateLike<TMessage, TSensorPatch extends object> = {
     level: number;
@@ -44,6 +48,7 @@ export function createStoreFloorItemCommandDeps<
     } & TSensorPatch;
     clearAlcoveStateOnPickup: (item: FloorItem, state: TState) => TSensorPatch;
     buildHiddenFirestaffMessage: () => TMessage;
+    canEquipItemInSlot: (item: FloorItem, slotKey: EquipSlotKey) => boolean;
     isAltarTile: (level: number, x: number, y: number) => boolean;
     buildViAltarResurrectionPatch: (
         state: TState,
@@ -82,6 +87,18 @@ export function createStoreFloorItemCommandDeps<
             buildPickupPatch: params.buildPickupPatch,
             clearAlcoveStateOnPickup: params.clearAlcoveStateOnPickup,
             buildHiddenFirestaffMessage: params.buildHiddenFirestaffMessage,
+        }),
+        transferFloorItemToChampionSlotState: (
+            state: TState,
+            itemId: string,
+            championId: number,
+            slotKey: EquipSlotKey,
+        ) => transferFloorItemToChampionSlotStateSystem(state, itemId, championId, slotKey, {
+            getTile: params.getTile,
+            buildPickupPatch: params.buildPickupPatch,
+            clearAlcoveStateOnPickup: params.clearAlcoveStateOnPickup,
+            buildHiddenFirestaffMessage: params.buildHiddenFirestaffMessage,
+            canEquipItemInSlot: params.canEquipItemInSlot,
         }),
         isAltarTile: params.isAltarTile,
         buildViAltarResurrectionPatch: params.buildViAltarResurrectionPatch,

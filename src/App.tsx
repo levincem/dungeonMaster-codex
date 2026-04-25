@@ -3,6 +3,7 @@ import type { ComponentType } from 'react';
 import { LoadingScreen } from './components/UI/LoadingScreen';
 import { useI18n } from './i18n';
 import { preloadGameRootModule } from './preload/gameplayModulePreload';
+import { inspectSystemRequirements, type SystemRequirementIssue } from './systemRequirements';
 
 const welcomeBackdropStyle = {
   position: 'fixed' as const,
@@ -44,14 +45,27 @@ const closeButtonStyle = {
   lineHeight: 1,
 };
 
+function getSystemRequirementMessage(
+  issue: SystemRequirementIssue,
+  messages: Record<string, string | ((detail?: string) => string)>,
+): string {
+  const message = messages[issue.id];
+  if (typeof message === 'function') {
+    return message(issue.detail);
+  }
+  return message ?? issue.id;
+}
+
 function App() {
   const text = useI18n().app;
   const [GameRootComponent, setGameRootComponent] = useState<ComponentType | null>(null);
+  const [systemReport] = useState(() => inspectSystemRequirements());
   const [bootError, setBootError] = useState<string | null>(null);
   const [isSmartphone, setIsSmartphone] = useState(false);
   const [showWelcomeNotice, setShowWelcomeNotice] = useState(false);
   const [isPreparingTitle, setIsPreparingTitle] = useState(false);
   const [welcomePressedButton, setWelcomePressedButton] = useState<'close' | 'continue' | null>(null);
+  const systemRequirementWarnings = systemReport.issues.filter((issue) => issue.severity === 'warning');
 
   useEffect(() => {
     const detectSmartphone = () => {
@@ -121,6 +135,42 @@ function App() {
         textAlign: 'center',
       }}>
         {text.smartphoneUnsupported}
+      </div>
+    );
+  }
+
+  if (!systemReport.canRun) {
+    return (
+      <div style={welcomeBackdropStyle}>
+        <div style={{
+          ...welcomePanelStyle,
+          width: 'min(620px, 100%)',
+          maxHeight: 'none',
+          overflowY: 'visible',
+        }}>
+          <div style={{ fontSize: 24, letterSpacing: 0.8, marginBottom: 14, color: '#f1d9a1', textAlign: 'center' as const }}>
+            {text.systemRequirements.blockedTitle}
+          </div>
+          <div style={{ fontSize: 16, lineHeight: 1.55, color: '#dcc48b', marginBottom: 16 }}>
+            {text.systemRequirements.blockedIntro}
+          </div>
+          <ul style={{
+            margin: 0,
+            padding: '12px 18px 12px 28px',
+            border: '1px solid rgba(196, 72, 72, 0.45)',
+            borderRadius: 8,
+            background: 'rgba(90, 24, 18, 0.24)',
+            color: '#f0c19b',
+            fontSize: 15,
+            lineHeight: 1.55,
+          }}>
+            {systemReport.issues.map((issue) => (
+              <li key={`${issue.severity}-${issue.id}`}>
+                {getSystemRequirementMessage(issue, text.systemRequirements.issues)}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     );
   }
@@ -213,6 +263,29 @@ function App() {
               <p style={{ margin: '0 0 12px' }}>
                 {text.welcome.desktopNotice}
               </p>
+              {systemRequirementWarnings.length > 0 && (
+                <div style={{
+                  margin: '0 0 12px',
+                  padding: '10px 12px',
+                  border: '1px solid rgba(212, 164, 82, 0.46)',
+                  borderRadius: 8,
+                  background: 'rgba(90, 58, 18, 0.22)',
+                  color: '#e5c889',
+                  fontSize: 15,
+                  lineHeight: 1.5,
+                }}>
+                  <div style={{ marginBottom: 6, color: '#f0d8a3' }}>
+                    {text.systemRequirements.warningIntro}
+                  </div>
+                  <ul style={{ margin: 0, paddingLeft: 20 }}>
+                    {systemRequirementWarnings.map((issue) => (
+                      <li key={`${issue.severity}-${issue.id}`}>
+                        {getSystemRequirementMessage(issue, text.systemRequirements.issues)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               <p style={{ margin: '0 0 12px' }}>
                 {text.welcome.githubIntro}{' '}
                 <a

@@ -18,6 +18,11 @@ type DoorMetadataLike = {
     doorType?: number;
 } | null | undefined;
 
+type GridPoint = {
+    x: number;
+    y: number;
+};
+
 type StoreCreatureSpatialRuntimeParams = {
     creatureTypes: Record<number, CreatureDefinitionLike | undefined>;
     now?: () => number;
@@ -25,6 +30,38 @@ type StoreCreatureSpatialRuntimeParams = {
     getDoorObject?: (tile: GameTile) => DoorMetadataLike;
     doorBlocksVision?: (doorType: number | undefined) => boolean;
 };
+
+function getSupercoverLineBetweenTileCenters(ax: number, ay: number, bx: number, by: number): GridPoint[] {
+    const dx = bx - ax;
+    const dy = by - ay;
+    const steps = Math.max(Math.abs(dx), Math.abs(dy));
+    if (steps === 0) return [];
+
+    const touched = new Map<string, GridPoint>();
+    const addPoint = (x: number, y: number) => {
+        if (x === ax && y === ay) return;
+        if (x === bx && y === by) return;
+        touched.set(`${x},${y}`, { x, y });
+    };
+
+    let previousX = ax;
+    let previousY = ay;
+    for (let i = 1; i < steps; i += 1) {
+        const currentX = Math.round(ax + ((dx * i) / steps));
+        const currentY = Math.round(ay + ((dy * i) / steps));
+        addPoint(currentX, currentY);
+
+        if (currentX !== previousX && currentY !== previousY) {
+            addPoint(previousX, currentY);
+            addPoint(currentX, previousY);
+        }
+
+        previousX = currentX;
+        previousY = currentY;
+    }
+
+    return [...touched.values()];
+}
 
 export function createStoreCreatureSpatialRuntime(
     params: StoreCreatureSpatialRuntimeParams,
@@ -118,19 +155,12 @@ export function createStoreCreatureSpatialRuntime(
         bx: number,
         by: number,
     ): boolean => {
-        const dx = bx - ax;
-        const dy = by - ay;
-        const steps = Math.max(Math.abs(dx), Math.abs(dy));
-        if (steps === 0) return true;
-
-        for (let i = 1; i < steps; i += 1) {
-            const cx = Math.round(ax + ((dx * i) / steps));
-            const cy = Math.round(ay + ((dy * i) / steps));
-            const tile = map.tiles[cy]?.[cx];
+        for (const { x, y } of getSupercoverLineBetweenTileCenters(ax, ay, bx, by)) {
+            const tile = map.tiles[y]?.[x];
             if (!tile || tile.type === 'Wall') return false;
-            if (tile.type === 'TrickWall' && !openWalls.has(`${level},${cy},${cx}`)) return false;
+            if (tile.type === 'TrickWall' && !openWalls.has(`${level},${y},${x}`)) return false;
             if (tile.type !== 'Door') continue;
-            if (openDoors.has(`${level},${cy},${cx}`)) continue;
+            if (openDoors.has(`${level},${y},${x}`)) continue;
             if (doorBlocksVision(getDoorObject(tile)?.doorType)) return false;
         }
 

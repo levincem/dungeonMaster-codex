@@ -23,6 +23,13 @@ import type {
     ChampionEquipment,
 } from '../types/game';
 import type { GeneratedCreatureGroupPlanEntry } from './systems/generatedCreatureGroups';
+import {
+    applyGameStatsDelta,
+    buildGameStatsTransitionDelta,
+    type GameStats,
+    type GameStatsDamageSource,
+    type GameStatsDelta,
+} from './systems/gameStats';
 import type { EquipSlotKey } from '../types/items';
 import type { Champion } from '../data/champions';
 import { CHAMPION_BY_ID } from '../data/champions';
@@ -434,6 +441,7 @@ const DOOR_TOGGLE_SOUND_DURATION_MS = 1000;
 const DOOR_SOUND_MAX_VOLUME = 0.65;
 const DOOR_SOUND_MIN_VOLUME = 0.22;
 const DOOR_SOUND_FALLOFF_PER_TILE = 0.075;
+const CREATURE_SOUND_MAX_TILES = 10;
 
 function getDoorSoundVolume(level: number, x: number, y: number): number {
     const state = useStore.getState();
@@ -1672,6 +1680,8 @@ interface GameState {
     championXP: Record<number, ChampionXP>;
     /** Temporary per-skill XP that decays over time and affects current mastery */
     championTemporaryXP: Record<number, ChampionTemporaryXP>;
+    /** Persistent run counters used for post-game/stat screens. */
+    gameStats: GameStats;
     /** Per-champion combat state (cooldown), keyed by champion.id */
     championCombat: Record<number, ChampionCombat>;
     /** Floating damage numbers, cleared after ~500 ms */
@@ -1748,6 +1758,7 @@ interface GameState {
     tickSpells: (now: number) => void;
     pickupItem: (id: string) => void;
     pickupItemToChampion: (id: string, championId: number) => boolean;
+    pickupItemToChampionSlot: (id: string, championId: number, slotKey: EquipSlotKey) => boolean;
     dropItem: (itemId: string, championId: number) => void;
     dropCarriedItem: (championId: number, itemId: string, fromSlot: EquipSlotKey | 'inventory') => boolean;
     dropCarriedItemInFront: (championId: number, itemId: string, fromSlot: EquipSlotKey | 'inventory') => boolean;
@@ -2166,6 +2177,128 @@ function playSpellVisualImpactSounds(
     }
 }
 
+function applyStatsDeltaToPatch(
+    state: GameState,
+    patch: Partial<GameState> | GameState | null | undefined,
+    delta: GameStatsDelta,
+): Partial<GameState> | GameState | null | undefined {
+    if (!patch || patch === state) return patch;
+    return {
+        ...(patch as Partial<GameState>),
+        gameStats: applyGameStatsDelta(state.gameStats, delta),
+    };
+}
+
+function applyStatsToStateTransitionPatch(
+    state: GameState,
+    patch: Partial<GameState> | GameState | null | undefined,
+    damageSource: GameStatsDamageSource,
+    extraDelta?: GameStatsDelta,
+): Partial<GameState> | GameState | null | undefined {
+    if (!patch || patch === state) return patch;
+    const nextState = { ...state, ...(patch as Partial<GameState>) } as GameState;
+    const transitionDelta = buildGameStatsTransitionDelta(state, nextState, damageSource);
+    let gameStats = state.gameStats;
+    if (extraDelta) gameStats = applyGameStatsDelta(gameStats, extraDelta);
+    gameStats = applyGameStatsDelta(gameStats, transitionDelta);
+    return {
+        ...(patch as Partial<GameState>),
+        gameStats,
+    };
+}
+
+function getProjectileDamageStatsSource(state: GameState): GameStatsDamageSource {
+    if (state.projectiles.some((projectile) => projectile.effect === 'poison_cloud' || projectile.effect === 'poison_bolt')) {
+        return 'poison';
+    }
+    if (state.projectiles.some((projectile) => projectile.effect !== 'physical')) {
+        return 'magic';
+    }
+    return 'projectile';
+}
+
+function buildSpellStatsDelta(
+    state: GameState,
+    championId: number,
+    runeIds: string[],
+    patch: Partial<GameState> | GameState,
+): GameStatsDelta {
+    const beforeVitals = state.championVitals[championId];
+    const afterVitals = patch.championVitals?.[championId] ?? beforeVitals;
+    const manaSpent = Math.max(0, (beforeVitals?.mana ?? 0) - (afterVitals?.mana ?? beforeVitals?.mana ?? 0));
+    const spellName = patch.lastCastResult?.message?.split(' (')[0] ?? runeIds.join(' ');
+    const succeeded = patch.lastCastResult?.success === true;
+    const failed = patch.lastCastResult?.success === false;
+    const spellCounters = {
+        attempted: 1,
+        succeeded: succeeded ? 1 : 0,
+        failed: failed ? 1 : 0,
+    };
+    return {
+        magic: {
+            spells: spellCounters,
+            manaSpent,
+            bySpell: {
+                [spellName]: spellCounters,
+            },
+        },
+    };
+}
+
+function buildMovementStatsDelta(
+    state: GameState,
+    patch: Partial<GameState> | GameState,
+    key: keyof GameStats['movement'],
+): GameStatsDelta {
+    const nextPosition = patch.position ?? state.position;
+    const moved = nextPosition[0] !== state.position[0] || nextPosition[1] !== state.position[1] || (patch.level ?? state.level) !== state.level;
+    if (!moved) return { movement: { bumps: 1 } };
+
+    const [targetY, targetX] = resolveMovementTarget(state, key);
+    const targetTile = getMap(state.level).tiles[targetY]?.[targetX];
+    const fellThroughPit = targetTile?.type === 'Pit' && state.openPits.has(`${state.level},${targetY},${targetX}`);
+    return { movement: { [key]: 1, ...(fellThroughPit ? { falls: 1 } : {}) } };
+}
+
+function resolveMovementTarget(
+    state: GameState,
+    key: keyof GameStats['movement'],
+): [number, number] {
+    const [y, x] = state.position;
+    const direction = key === 'stepsBackward'
+        ? getReverseDirection(state.direction)
+        : key === 'strafesLeft'
+            ? getStrafeLeftDirection(state.direction)
+            : key === 'strafesRight'
+                ? getStrafeRightDirection(state.direction)
+                : state.direction;
+    if (direction === 'NORTH') return [y - 1, x];
+    if (direction === 'SOUTH') return [y + 1, x];
+    if (direction === 'EAST') return [y, x + 1];
+    return [y, x - 1];
+}
+
+function getReverseDirection(direction: Direction): Direction {
+    if (direction === 'NORTH') return 'SOUTH';
+    if (direction === 'SOUTH') return 'NORTH';
+    if (direction === 'EAST') return 'WEST';
+    return 'EAST';
+}
+
+function getStrafeLeftDirection(direction: Direction): Direction {
+    if (direction === 'NORTH') return 'WEST';
+    if (direction === 'SOUTH') return 'EAST';
+    if (direction === 'EAST') return 'NORTH';
+    return 'SOUTH';
+}
+
+function getStrafeRightDirection(direction: Direction): Direction {
+    if (direction === 'NORTH') return 'EAST';
+    if (direction === 'SOUTH') return 'WEST';
+    if (direction === 'EAST') return 'SOUTH';
+    return 'NORTH';
+}
+
 function applyDroppedFloorItemRuntimeEffects(
     state: GameState,
     patch: Partial<GameState> | GameState | null,
@@ -2429,6 +2562,23 @@ const runStoreMonsterTickActionBase = createStoreMonsterTickAction<GameState>((s
         playTeleport,
         playCreatureMove,
         playCreatureAttack,
+        canHearCreature: (creature) => {
+            if (!creature.alive || creature.mapIndex !== state.level) return false;
+            const partyX = state.position[1];
+            const partyY = state.position[0];
+            const distance = Math.hypot(creature.x - partyX, creature.y - partyY);
+            if (distance > CREATURE_SOUND_MAX_TILES) return false;
+            return hasLineOfSight(
+                getMap(state.level),
+                state.level,
+                state.openDoors,
+                state.openWalls,
+                partyX,
+                partyY,
+                creature.x,
+                creature.y,
+            );
+        },
         notifyCreatureAction,
         playChampionWounded,
     }),
@@ -2538,6 +2688,29 @@ function buildStorePickupItemPatch(
     return buildPickupItemToChampionRuntimePatch(state, itemId, championId, floorItemCommandDeps);
 }
 
+function buildStorePickupItemToChampionSlotPatch(
+    state: GameState,
+    itemId: string,
+    championId: number,
+    slotKey: EquipSlotKey,
+) {
+    const patch = floorItemCommandDeps.transferFloorItemToChampionSlotState(state, itemId, championId, slotKey);
+    if (!patch || !('championEquipment' in patch)) return patch;
+
+    const equippedItem = patch.championEquipment[championId]?.[slotKey];
+    if (equippedItem?.category !== 'Weapon' || equippedItem.typeId !== 2 || state.torchBurnStart[equippedItem.id] !== undefined) {
+        return patch;
+    }
+
+    return {
+        ...patch,
+        torchBurnStart: {
+            ...state.torchBurnStart,
+            [equippedItem.id]: Date.now(),
+        },
+    };
+}
+
 function buildStoreDropInventoryItemPatch(
     state: GameState,
     championId: number,
@@ -2587,6 +2760,7 @@ const floorItemCommandDeps = createStoreFloorItemCommandDeps<
         clearAlcoveStateOnPickupSystem(item, pickupState, buildWallItemSensorDeps()),
     buildHiddenFirestaffMessage: () =>
         buildAttackResultMessage(getTranslations().runtime.completeFirestaffOnlyViaAmalgam),
+    canEquipItemInSlot,
     isAltarTile: (level, x, y) =>
         isAltarTileSystem(level, x, y, (mapLevel, tileX, tileY) => getMap(mapLevel).tiles[tileY]?.[tileX]),
     buildViAltarResurrectionPatch: (state, deadChampionId, itemId, championId) =>
@@ -2633,7 +2807,15 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         runStoreMovementAction<GameState>({
             command: 'forward',
             now: Date.now(),
-            applyState: set,
+            applyState: (updater) => set((state) => {
+                const patch = updater(state);
+                return applyStatsToStateTransitionPatch(
+                    state,
+                    patch,
+                    'environment',
+                    buildMovementStatsDelta(state, patch as Partial<GameState>, 'stepsForward'),
+                ) as GameState | Partial<GameState>;
+            }),
             buildDeps: () => buildStorePartyMoveDeps(true),
             playWallBump,
             playFallingAndDying,
@@ -2645,7 +2827,15 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         runStoreMovementAction<GameState>({
             command: 'backward',
             now: Date.now(),
-            applyState: set,
+            applyState: (updater) => set((state) => {
+                const patch = updater(state);
+                return applyStatsToStateTransitionPatch(
+                    state,
+                    patch,
+                    'environment',
+                    buildMovementStatsDelta(state, patch as Partial<GameState>, 'stepsBackward'),
+                ) as GameState | Partial<GameState>;
+            }),
             buildDeps: () => buildStorePartyMoveDeps(false),
             playWallBump,
             playFallingAndDying,
@@ -2657,7 +2847,15 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         runStoreMovementAction<GameState>({
             command: 'strafeLeft',
             now: Date.now(),
-            applyState: set,
+            applyState: (updater) => set((state) => {
+                const patch = updater(state);
+                return applyStatsToStateTransitionPatch(
+                    state,
+                    patch,
+                    'environment',
+                    buildMovementStatsDelta(state, patch as Partial<GameState>, 'strafesLeft'),
+                ) as GameState | Partial<GameState>;
+            }),
             buildDeps: () => buildStorePartyMoveDeps(false),
             playWallBump,
             playFallingAndDying,
@@ -2669,7 +2867,15 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         runStoreMovementAction<GameState>({
             command: 'strafeRight',
             now: Date.now(),
-            applyState: set,
+            applyState: (updater) => set((state) => {
+                const patch = updater(state);
+                return applyStatsToStateTransitionPatch(
+                    state,
+                    patch,
+                    'environment',
+                    buildMovementStatsDelta(state, patch as Partial<GameState>, 'strafesRight'),
+                ) as GameState | Partial<GameState>;
+            }),
             buildDeps: () => buildStorePartyMoveDeps(false),
             playWallBump,
             playFallingAndDying,
@@ -2677,9 +2883,13 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         });
     },
 
-    turnLeft: () => set((state) => buildTurnLeftPatch(state) ?? state),
+    turnLeft: () => set((state) =>
+        applyStatsDeltaToPatch(state, buildTurnLeftPatch(state) ?? state, { movement: { turnsLeft: 1 } }) as GameState | Partial<GameState>,
+    ),
 
-    turnRight: () => set((state) => buildTurnRightPatch(state) ?? state),
+    turnRight: () => set((state) =>
+        applyStatsDeltaToPatch(state, buildTurnRightPatch(state) ?? state, { movement: { turnsRight: 1 } }) as GameState | Partial<GameState>,
+    ),
 
     addToParty: (champion, mode = 'resurrect') => set((state) =>
         buildAddToPartyPatch(state, champion, mode, {
@@ -2717,13 +2927,15 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         });
     },
 
-      goToLevel: (level, pos, dir) => set((state) => ({
-        ...(buildStoreLevelHydrationPatch(state, level) ?? {}),
-        ...buildGoToLevelPatch(level, pos, dir),
-      })),
+      goToLevel: (level, pos, dir) => set((state) =>
+        applyStatsDeltaToPatch(state, {
+            ...(buildStoreLevelHydrationPatch(state, level) ?? {}),
+            ...buildGoToLevelPatch(level, pos, dir),
+        }, { exploration: { levelTransitions: level === state.level ? 0 : 1 } }) as GameState | Partial<GameState>
+      ),
 
     toggleDoor: (x, y) => set((state) =>
-        buildStoreToggleDoorPatch(state, x, y, {
+        applyStatsDeltaToPatch(state, buildStoreToggleDoorPatch(state, x, y, {
             hasDoorButton,
             isDoorControlledByMechanism,
             isDoorLockedByWallSensor,
@@ -2731,11 +2943,11 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             getDoorSoundVolume,
             doorToggleSoundDurationMs: DOOR_TOGGLE_SOUND_DURATION_MS,
             doorCloseDurationSeconds: DOOR_CLOSE_DURATION_SECONDS,
-        })
+        }), { exploration: { doorsToggled: 1 } }) as GameState | Partial<GameState>
     ),
 
     activateWallSensor: (mapIndex, x, y, sensorIndex) => set((state) =>
-        applyWallInteractionTeleporterEffects(
+        applyStatsToStateTransitionPatch(state, applyWallInteractionTeleporterEffects(
             state,
             runStoreWallSensorActivationAction<GameState, SensorState, PendingSensorEvent, Partial<GameState>>(
                 state,
@@ -2745,7 +2957,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 sensorIndex,
                 buildWallSensorActivationDeps,
             ) as Partial<GameState>,
-        )
+        ), 'environment', { exploration: { wallSensorsActivated: 1 } }) as GameState | Partial<GameState>
     ),
 
     useItemOnFrontWall: (championId, itemId, fromSlot) => {
@@ -2816,10 +3028,10 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
     endFloorDrag: () => set(buildEndFloorDragPatch()),
 
     killCreature: (id) => set((state) =>
-        buildKillCreaturePatch(state, id, {
+        applyStatsToStateTransitionPatch(state, buildKillCreaturePatch(state, id, {
             dropCreatureCarriedItems: (creatures, floorItems, creatureId) =>
                 dropCreatureCarriedItemsRuntime(creatures, floorItems, creatureId, randomInt),
-        })
+        }), 'other') as GameState | Partial<GameState>
     ),
 
     killChampion: (championId) => set((state) =>
@@ -2852,7 +3064,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         const pickupPatch = buildStoreSelectedChampionPickupPatch(state, id, {
             buildPickupPatch: buildStorePickupItemPatch,
         });
-        if (pickupPatch) return pickupPatch;
+        if (pickupPatch) return applyStatsDeltaToPatch(state, pickupPatch, { items: { pickedUp: 1 } }) as GameState | Partial<GameState>;
 
         const activeChampion = state.party[state.selectedChampionIndex];
         return activeChampion
@@ -2863,13 +3075,30 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
     pickupItemToChampion: (id, championId) => {
         const applied = runStoreOptionalPatchAction(
             () => buildStorePickupItemPatch(get(), id, championId),
-            (patch) => set(patch),
+            (patch) => set((state) => applyStatsDeltaToPatch(state, patch as Partial<GameState>, { items: { pickedUp: 1 } }) as GameState | Partial<GameState>),
         );
         if (!applied) {
             const feedbackPatch = buildInventoryFullFeedbackPatch(get(), id, championId);
             if (feedbackPatch) set(feedbackPatch);
         }
         return applied;
+    },
+
+    pickupItemToChampionSlot: (id, championId, slotKey) => {
+        const state = get();
+        const patch = buildStorePickupItemToChampionSlotPatch(state, id, championId, slotKey);
+        if (!patch) {
+            const feedbackPatch = buildInventoryFullFeedbackPatch(state, id, championId);
+            if (feedbackPatch) set(feedbackPatch);
+            return false;
+        }
+        const didEquip = 'championEquipment' in patch;
+        set(applyStatsDeltaToPatch(
+            state,
+            patch as Partial<GameState>,
+            didEquip ? { items: { pickedUp: 1, equipped: 1 } } : {},
+        ) as Partial<GameState>);
+        return didEquip;
     },
 
     dropItem: (itemId, championId) => {
@@ -2879,7 +3108,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             buildStoreDropInventoryItemPatch(state, championId, itemId),
         );
         if (!patch) return;
-        set(patch);
+        set(applyStatsToStateTransitionPatch(state, patch, 'environment', { items: { dropped: 1 } }) as Partial<GameState>);
         playFallingItem();
     },
 
@@ -2895,7 +3124,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 );
             },
             (patch) => {
-                set(patch);
+                set((state) => applyStatsToStateTransitionPatch(state, patch as Partial<GameState>, 'environment', { items: { dropped: 1 } }) as GameState | Partial<GameState>);
                 playFallingItem();
             },
         ),
@@ -2932,7 +3161,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 );
             },
             (patch) => {
-                set(patch);
+                set((state) => applyStatsToStateTransitionPatch(state, patch as Partial<GameState>, 'environment', { items: { dropped: 1 } }) as GameState | Partial<GameState>);
                 playFallingItem();
             },
         ),
@@ -2970,7 +3199,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 },
             ),
             (patch) => {
-                set(patch);
+                set((state) => applyStatsDeltaToPatch(state, patch as Partial<GameState>, { items: { thrown: 1 } }) as GameState | Partial<GameState>);
                 playFallingItem();
             },
         ),
@@ -2986,7 +3215,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 );
             },
             (patch) => {
-                set(patch);
+                set((state) => applyStatsToStateTransitionPatch(state, patch as Partial<GameState>, 'environment', { items: { dropped: 1 } }) as GameState | Partial<GameState>);
                 playFallingItem();
             },
         ),
@@ -3002,7 +3231,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                     buildMoveFloorItemToTileRuntimePatch(state, itemId, championId, x, y, floorItemCommandDeps),
                 );
             },
-            (patch) => set(patch),
+            (patch) => set((state) => applyStatsToStateTransitionPatch(state, patch as Partial<GameState>, 'environment', { items: { dropped: 1 } }) as GameState | Partial<GameState>),
         ),
 
     throwFloorItem: (itemId, championId) =>
@@ -3054,59 +3283,59 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                         );
                     },
                 }),
-            (patch) => set(patch),
+            (patch) => set((state) => applyStatsDeltaToPatch(state, patch as Partial<GameState>, { items: { thrown: 1 } }) as GameState | Partial<GameState>),
         ),
 
     equipItem: (championId, slotKey, itemId) => set((state) =>
-        buildEquipItemRuntimePatch(state, championId, slotKey, itemId, {
+        applyStatsDeltaToPatch(state, buildEquipItemRuntimePatch(state, championId, slotKey, itemId, {
             canEquipItemInSlot,
             equipChampionInventoryItem,
-        }) ?? state,
+        }) ?? state, { items: { equipped: 1 } }) as GameState | Partial<GameState>,
     ),
 
     unequipItem: (championId, slotKey) => set((state) =>
-        buildUnequipItemRuntimePatch(state, championId, slotKey, {
+        applyStatsDeltaToPatch(state, buildUnequipItemRuntimePatch(state, championId, slotKey, {
             unequipChampionItem,
-        }) ?? state,
+        }) ?? state, { items: { unequipped: 1 } }) as GameState | Partial<GameState>,
     ),
 
     giveItem: (fromChampionId, toChampionId, itemId) => set((state) =>
-        buildGiveItemRuntimePatch(state, fromChampionId, toChampionId, itemId, {
+        applyStatsDeltaToPatch(state, buildGiveItemRuntimePatch(state, fromChampionId, toChampionId, itemId, {
             giveChampionInventoryItem,
-        }) ?? state,
+        }) ?? state, { items: { given: 1 } }) as GameState | Partial<GameState>,
     ),
 
     giveEquippedItem: (fromChampionId, slotKey, toChampionId) => set((state) =>
-        buildGiveEquippedItemRuntimePatch(state, fromChampionId, slotKey, toChampionId, {
+        applyStatsDeltaToPatch(state, buildGiveEquippedItemRuntimePatch(state, fromChampionId, slotKey, toChampionId, {
             giveChampionEquippedItem,
-        }) ?? state,
+        }) ?? state, { items: { given: 1 } }) as GameState | Partial<GameState>,
     ),
 
     storeItemInContainer: (championId, itemId, fromSlot, containerItemId) => set((state) =>
-        moveChampionItemToContainer(state, championId, itemId, fromSlot, containerItemId) ?? state,
+        applyStatsDeltaToPatch(state, moveChampionItemToContainer(state, championId, itemId, fromSlot, containerItemId) ?? state, { items: { storedInContainers: 1 } }) as GameState | Partial<GameState>,
     ),
 
     takeContainerItem: (championId, containerItemId, itemId) => set((state) =>
-        moveContainerItemToChampionInventory(state, championId, containerItemId, itemId) ?? state,
+        applyStatsDeltaToPatch(state, moveContainerItemToChampionInventory(state, championId, containerItemId, itemId) ?? state, { items: { takenFromContainers: 1 } }) as GameState | Partial<GameState>,
     ),
 
     giveContainerItem: (fromChampionId, toChampionId, containerItemId, itemId) => set((state) =>
-        giveChampionContainerItem(state, fromChampionId, toChampionId, containerItemId, itemId) ?? state,
+        applyStatsDeltaToPatch(state, giveChampionContainerItem(state, fromChampionId, toChampionId, containerItemId, itemId) ?? state, { items: { given: 1 } }) as GameState | Partial<GameState>,
     ),
 
     equipContainerItem: (championId, containerItemId, itemId, slotKey) => set((state) => {
         const containerItem = locateChampionItem(state, championId, containerItemId)?.item;
         const nestedItem = containerItem?.containerContents?.find((entry) => entry.id === itemId);
         if (!nestedItem || !canEquipItemInSlot(nestedItem, slotKey)) return state;
-        return equipChampionContainerItem(state, championId, containerItemId, itemId, slotKey) ?? state;
+        return applyStatsDeltaToPatch(state, equipChampionContainerItem(state, championId, containerItemId, itemId, slotKey) ?? state, { items: { equipped: 1 } }) as GameState | Partial<GameState>;
     }),
 
     dropContainerItem: (championId, containerItemId, itemId) => set((state) =>
-        dropChampionContainerItem(state, championId, containerItemId, itemId) ?? state,
+        applyStatsDeltaToPatch(state, dropChampionContainerItem(state, championId, containerItemId, itemId) ?? state, { items: { dropped: 1 } }) as GameState | Partial<GameState>,
     ),
 
     resurrectChampion: (bonesItemId) => set((state) =>
-        buildStoreResurrectChampionPatch(state, bonesItemId, storeResurrectChampionRuntimeDeps) ?? state
+        applyStatsDeltaToPatch(state, buildStoreResurrectChampionPatch(state, bonesItemId, storeResurrectChampionRuntimeDeps) ?? state, { exploration: { resurrections: 1 } }) as GameState | Partial<GameState>
     ),
 
     useItem: (championId, itemId, fromSlot = 'inventory') => {
@@ -3122,7 +3351,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             storeUseItemRuntimeDeps,
         );
         if (!patch) return;
-        set(patch);
+        set(applyStatsToStateTransitionPatch(state, patch, 'other', { items: { used: 1 } }) as Partial<GameState>);
         if (storeUseItemRuntimeDeps.resolveUseItemSound(located.item) === 'swallowing') {
             playSwallowing();
         }
@@ -3132,21 +3361,23 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         const state = get();
         const patch = buildStoreDrinkFromFountainPatch(state, championId, storeDrinkFromFountainRuntimeDeps);
         if (!patch) return;
-        set(patch);
+        set(applyStatsDeltaToPatch(state, patch, { exploration: { fountainDrinks: 1 } }) as Partial<GameState>);
         playSwallowing();
     },
 
     fillWaterContainer: (championId, itemId) => set((state) =>
-        buildStoreFillWaterPatch(state, championId, itemId, storeFillWaterRuntimeDeps) ?? state
+        applyStatsDeltaToPatch(state, buildStoreFillWaterPatch(state, championId, itemId, storeFillWaterRuntimeDeps) ?? state, { exploration: { waterContainersFilled: 1 } }) as GameState | Partial<GameState>
     ),
 
     sleep: () => set((state) =>
-        buildToggleSleepPatch(state, {
+        applyStatsDeltaToPatch(state, buildToggleSleepPatch(state, {
             isPartyRested: isPartyRestedRuntime,
-        }) ?? state
+        }) ?? state, { exploration: { sleeps: state.sleeping ? 0 : 1 } }) as GameState | Partial<GameState>
     ),
 
-    wakeUp: () => set((state) => buildWakeUpPatch(state) ?? state),
+    wakeUp: () => set((state) =>
+        applyStatsDeltaToPatch(state, buildWakeUpPatch(state) ?? state, { exploration: { wakes: state.sleeping ? 1 : 0 } }) as GameState | Partial<GameState>
+    ),
 
     togglePause: () => set((state) => {
         const patch = buildTogglePausePatch(state);
@@ -3210,8 +3441,14 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         const state = get();
         const patch = runStoreCastSpellAction(state, championId, runeIds, Date.now());
         if (!patch) return;
-        set(patch);
-        playSpellVisualImpactSounds(state.spellVisualEvents, patch.spellVisualEvents);
+        const statsPatch = applyStatsToStateTransitionPatch(
+            state,
+            patch,
+            'magic',
+            buildSpellStatsDelta(state, championId, runeIds, patch),
+        ) as Partial<GameState>;
+        set(statsPatch);
+        playSpellVisualImpactSounds(state.spellVisualEvents, statsPatch.spellVisualEvents);
     },
 
     tickGameplayFrame: (delta, now) => set((state) => {
@@ -3234,16 +3471,22 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             return { ...baseState, ...patch } as GameState;
         };
 
-        let nextState = applyPatch(state, buildStoreTickFramePatch(state, delta, now));
+        let nextState = applyPatch(
+            state,
+            applyStatsToStateTransitionPatch(state, buildStoreTickFramePatch(state, delta, now), 'environment'),
+        );
         const shouldRunExplorationTicks =
             (state.gamePhase === 'exploration' || state.gamePhase === 'mirror_open') &&
             !state.sleeping;
 
         if (shouldRunExplorationTicks) {
-            nextState = applyPatch(nextState, runStoreMonsterTickAction(nextState, delta));
             nextState = applyPatch(
                 nextState,
-                buildStoreTickDoorsPatch(
+                applyStatsToStateTransitionPatch(nextState, runStoreMonsterTickAction(nextState, delta), 'melee'),
+            );
+            nextState = applyPatch(
+                nextState,
+                applyStatsToStateTransitionPatch(nextState, buildStoreTickDoorsPatch(
                     nextState,
                     delta,
                     {
@@ -3252,9 +3495,12 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                         buildCreatureDamageEvent,
                         playWallBump,
                     },
-                ) as Partial<GameState> | null | undefined,
+                ) as Partial<GameState> | null | undefined, 'environment'),
             );
-            nextState = applyPatch(nextState, runStoreTickSpellsAction(nextState, now));
+            nextState = applyPatch(
+                nextState,
+                applyStatsToStateTransitionPatch(nextState, runStoreTickSpellsAction(nextState, now), getProjectileDamageStatsSource(nextState)),
+            );
         }
 
         const pruneDeadCreaturesPatch = buildPruneDeadCreaturesPatch(nextState);
@@ -3266,7 +3512,9 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         return nextState;
     }),
 
-    tickFrame: (delta, now) => set((state) => buildStoreTickFramePatch(state, delta, now) ?? state),
+    tickFrame: (delta, now) => set((state) =>
+        applyStatsToStateTransitionPatch(state, buildStoreTickFramePatch(state, delta, now) ?? state, 'environment') as GameState | Partial<GameState>,
+    ),
 
     regenTick: (delta) => set((state) => {
         if (state.optionsModalOpen) return state;
@@ -3286,13 +3534,23 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
 
     // ─── Weapon action / physical attack ─────────────────────────────────────
     attackFront: (championId, attackType) => set((state) => {
-        return runStoreAttackFrontAction(state, championId, attackType) ?? state;
+        const patch = runStoreAttackFrontAction(state, championId, attackType);
+        if (!patch) return state;
+        const nextProjectileCount = patch.projectiles?.length ?? state.projectiles.length;
+        const attackKind = nextProjectileCount > state.projectiles.length
+            ? 'projectile'
+            : patch.spellLights || patch.activeShields || patch.freezeLifeRemainingTicks !== undefined
+                ? 'utility'
+                : 'melee';
+        return applyStatsToStateTransitionPatch(state, patch, attackKind === 'utility' ? 'magic' : attackKind, {
+            combat: { attacks: { total: 1, [attackKind]: 1 } },
+        }) as GameState | Partial<GameState>;
     }),
 
     // ─── Door crush tick ─────────────────────────────────────────────────────
     tickDoors: (delta) => set((state) => {
         if (state.optionsModalOpen) return state;
-        return buildStoreTickDoorsPatch(
+        return applyStatsToStateTransitionPatch(state, buildStoreTickDoorsPatch(
             state,
             delta,
             {
@@ -3301,16 +3559,20 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                 buildCreatureDamageEvent,
                 playWallBump,
             },
-        ) ?? state;
+        ) ?? state, 'environment') as GameState | Partial<GameState>;
     }),
 
     // ─── Monster AI tick ─────────────────────────────────────────────────────
-    tickMonsters: (delta) => set((state) => runStoreMonsterTickAction(state, delta) ?? state),
+    tickMonsters: (delta) => set((state) =>
+        applyStatsToStateTransitionPatch(state, runStoreMonsterTickAction(state, delta) ?? state, 'melee') as GameState | Partial<GameState>
+    ),
 
 
     // ─── Combat tick (cooldowns + damage event cleanup) ───────────────────────
     // ─── Spell tick (lights expiry + projectile movement) ─────────────────────
-    tickSpells: (now) => set((state) => runStoreTickSpellsAction(state, now) ?? state),
+    tickSpells: (now) => set((state) =>
+        applyStatsToStateTransitionPatch(state, runStoreTickSpellsAction(state, now) ?? state, getProjectileDamageStatsSource(state)) as GameState | Partial<GameState>
+    ),
 
     tickCombat: (delta) => set((state) => {
         if (state.optionsModalOpen) return state;

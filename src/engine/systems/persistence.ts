@@ -4,11 +4,12 @@ import {
     getDungeonBootstrapSync,
     type RawDungeonBootstrap,
 } from '../../data/dungeonData';
+import { getGameMap } from '../../data/mapLoader';
 import {
     normalizeChampionTemporaryXP,
     normalizeChampionXP,
 } from '../../data/skillProgression';
-import type { ChampionEquipment, CreatureInstance, FloorItem } from '../../types/game';
+import type { ChampionEquipment, CreatureInstance, CreatureObject, FloorItem } from '../../types/game';
 import type {
     ActivePoisonCloud,
     ActivePotionBoost,
@@ -24,13 +25,16 @@ import type {
     Projectile,
     SpellLight,
 } from '../runtimeTypes';
+import type { GameStats } from './gameStats';
 import { DEFAULT_GAME_OPTIONS } from '../options';
 import {
     buildInitialChampionXP,
     isLegacyChampionXPForChampion,
     normalizeChampionVitalsForChampion,
 } from './championState';
+import { getCreatureCellsForOccupancy } from './creatureTileState';
 import { sanitizeOpenTeleporterKeys } from './disabledTeleporters';
+import { normalizeGameStats } from './gameStats';
 
 export interface PersistableGameState {
     gameOptions: import('../runtimeTypes').GameOptions;
@@ -66,6 +70,7 @@ export interface PersistableGameState {
     movementCooldown: number;
     championXP: Record<number, ChampionXP>;
     championTemporaryXP: Record<number, ChampionTemporaryXP>;
+    gameStats: GameStats;
     championCombat: Record<number, ChampionCombat>;
     crushingDoors: Record<string, { phase: 'closing' | 'bouncing'; timer: number }>;
     torchBurnStart: Record<string, number>;
@@ -201,6 +206,98 @@ function getPersistableLivingCreatures(creatures: readonly CreatureInstance[]): 
     return creatures.filter((creature) => creature.alive);
 }
 
+function getSourceCreatureHPValues(creature: CreatureObject, fallbackHP: number): number[] {
+    if (Array.isArray(creature.hp) && creature.hp.length > 0) {
+        return creature.hp.map((hp) => (typeof hp === 'number' && hp > 0 ? hp : fallbackHP));
+    }
+
+    if (typeof creature.count === 'number' && creature.count > 1) {
+        const hp = typeof creature.hp === 'number' && creature.hp > 0 ? creature.hp : fallbackHP;
+        return Array.from({ length: creature.count }, () => hp);
+    }
+
+    const singleHP = typeof creature.hp === 'number' && creature.hp > 0 ? creature.hp : fallbackHP;
+    return [singleHP];
+}
+
+function getInitCreatureSourceObject(creature: CreatureInstance): {
+    source: CreatureObject;
+    level: number;
+    originX: number;
+    originY: number;
+} | null {
+    const match = /^init_(\d+)_(\d+)_(\d+)_(\d+)$/.exec(creature.groupId ?? '');
+    if (!match) return null;
+
+    const [, levelRaw, originXRaw, originYRaw, typeIdRaw] = match;
+    const level = Number(levelRaw);
+    const originX = Number(originXRaw);
+    const originY = Number(originYRaw);
+    const typeId = Number(typeIdRaw);
+    if (![level, originX, originY, typeId].every(Number.isFinite)) return null;
+
+    let tile;
+    try {
+        tile = getGameMap(level).tiles[originY]?.[originX];
+    } catch {
+        return null;
+    }
+    const source = tile?.objects.find((object): object is CreatureObject =>
+        object.category === 'Creature' &&
+        object.type === typeId &&
+        creature.id === `${level}_${originX}_${originY}_${object.index}`,
+    );
+    return source
+        ? { source, level, originX, originY }
+        : null;
+}
+
+function normalizePersistedCreatures(creatures: readonly CreatureInstance[]): CreatureInstance[] {
+    const livingCreatures = getPersistableLivingCreatures(creatures);
+    const groupCounts = new Map<string, number>();
+    for (const creature of livingCreatures) {
+        if (!creature.groupId) continue;
+        groupCounts.set(creature.groupId, (groupCounts.get(creature.groupId) ?? 0) + 1);
+    }
+
+    const normalized = livingCreatures.flatMap((creature): CreatureInstance[] => {
+        if ((groupCounts.get(creature.groupId ?? '') ?? 0) !== 1) return [creature];
+
+        const sourceInfo = getInitCreatureSourceObject(creature);
+        if (!sourceInfo) return [creature];
+
+        const { source, level, originX, originY } = sourceInfo;
+        const sourceHPValues = getSourceCreatureHPValues(source, Math.max(1, creature.currentHP));
+        const sourceTotalHP = sourceHPValues.reduce((sum, hp) => sum + hp, 0);
+        if (sourceTotalHP <= 0 || (sourceHPValues.length <= 1 && creature.currentHP <= sourceTotalHP)) return [creature];
+        if (sourceHPValues.length <= 1) {
+            return [{ ...creature, currentHP: Math.min(creature.currentHP, sourceTotalHP) }];
+        }
+
+        let remainingHP = Math.min(creature.currentHP, sourceTotalHP);
+        const splitCreatures = sourceHPValues.flatMap((sourceHP, ordinal) => {
+            const currentHP = Math.min(sourceHP, remainingHP);
+            remainingHP -= currentHP;
+            if (currentHP <= 0) return [];
+
+            return [{
+                ...creature,
+                id: `${level}_${originX}_${originY}_${source.index}_${ordinal}`,
+                currentHP,
+                carriedItems: [],
+            }];
+        });
+
+        const cells = getCreatureCellsForOccupancy(splitCreatures.length, 4);
+        return splitCreatures.map((splitCreature, index) => ({
+            ...splitCreature,
+            cell: cells[index] ?? 'center',
+            carriedItems: index === 0 ? creature.carriedItems : [],
+        }));
+    });
+    return normalized;
+}
+
 function stripIntegrity(data: PersistedSaveData): PersistedSaveDataWithoutIntegrity {
     const { integrity, ...rest } = data;
     void integrity;
@@ -288,6 +385,7 @@ export function buildPersistedSaveData(
         movementCooldown: state.movementCooldown,
         championXP: state.championXP,
         championTemporaryXP: state.championTemporaryXP,
+        gameStats: state.gameStats,
         championCombat: state.championCombat,
         crushingDoors: state.crushingDoors,
         torchBurnElapsed: Object.fromEntries(
@@ -364,7 +462,7 @@ export function hydratePersistedGameState(
     data: PersistedSaveData,
     now = Date.now(),
 ): PersistableGameState {
-    const creatures = getPersistableLivingCreatures(data.creatures);
+    const creatures = normalizePersistedCreatures(data.creatures);
     const normalizedFloorItems = normalizePersistedItems(data.floorItems);
     const normalizedChampionInventories = normalizePersistedInventories(data.championInventories);
     const normalizedChampionEquipment = normalizePersistedEquipment(data.championEquipment);
@@ -425,6 +523,7 @@ export function hydratePersistedGameState(
         movementCooldown: data.movementCooldown,
         championXP,
         championTemporaryXP,
+        gameStats: normalizeGameStats(data.gameStats, data.savedAt),
         championCombat: data.championCombat,
         crushingDoors: data.crushingDoors,
         torchBurnStart: Object.fromEntries(
