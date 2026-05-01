@@ -156,7 +156,7 @@ function getCopyableDebugPanelStyle(position: { bottom: number; left?: number; r
 const DUNGEON_AMBIENT_COLOR = new THREE.Color('#f4e2ba');
 const DUNGEON_DARK_AMBIENT_COLOR = new THREE.Color('#8ea0c0');
 const CAMERA_HEIGHT_OFFSET = 0;
-const CAMERA_FORWARD_OFFSET = -GRID_SIZE * 0.28;
+const CAMERA_FORWARD_OFFSET = 0;
 const CAMERA_LATERAL_OFFSET = 0;
 const CAMERA_FOV = 80;
 const CAMERA_ROTATION_MAP = { NORTH: 0, EAST: -Math.PI / 2, SOUTH: Math.PI, WEST: Math.PI / 2 };

@@ -30,7 +30,10 @@ import {
     buildCombatGridSlotState,
     buildHudFrontStateSummary,
     didPartyTakeSingleStep,
+    getPreparedHudRunes,
+    prunePreparedHudRunes,
     selectHudRunes,
+    setPreparedHudRunes,
 } from './hudDerivedState';
 import { recordChampionStatHighlights, type HighlightStatKey } from './championStatHighlights';
 
@@ -958,10 +961,25 @@ export const HUD = () => {
         };
     }, []);
     // Rune state
-    const [selectedRunes, setSelectedRunes] = useState<string[]>([]);
+    const [preparedRunesByChampionId, setPreparedRunesByChampionId] = useState<Record<number, string[]>>({});
     const resolvedActiveSpellCasterId = party.some((champion) => champion.id === activeSpellCasterId)
         ? activeSpellCasterId
         : (party[selectedChampionIndex]?.id ?? party[0]?.id ?? null);
+    const selectedRunes = getPreparedHudRunes(preparedRunesByChampionId, resolvedActiveSpellCasterId);
+
+    useEffect(() => {
+        setPreparedRunesByChampionId((prev) => prunePreparedHudRunes(prev, party));
+    }, [party]);
+
+    const setSelectedRunes = useCallback((value: React.SetStateAction<string[]>) => {
+        setPreparedRunesByChampionId((prev) => {
+            const currentRunes = getPreparedHudRunes(prev, resolvedActiveSpellCasterId);
+            const nextRunes = typeof value === 'function'
+                ? (value as (previousState: string[]) => string[])(currentRunes)
+                : value;
+            return setPreparedHudRunes(prev, resolvedActiveSpellCasterId, nextRunes);
+        });
+    }, [resolvedActiveSpellCasterId]);
 
     const selectRune = (runeId: string) => {
         setSelectedRunes((prev) => selectHudRunes(prev, runeId));

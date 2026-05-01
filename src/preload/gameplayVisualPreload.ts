@@ -4,6 +4,7 @@ import {
     SECONDARY_WALL_OVERLAY_IMAGE_PATHS,
 } from '../data/originalWallOverlays';
 import { miscPath, runesPath, spritesPath, texturesPath } from '../data/assetPaths';
+import { preloadTexture } from '../components/Dungeon/useLoadedTexture';
 
 const RUNE_IDS = [
     'bro', 'dain', 'des', 'ee', 'ew', 'ful', 'gor',
@@ -96,7 +97,16 @@ export function preloadGameplayCoreVisualAssets(): Promise<void> {
 
 export function preloadGameplaySecondaryVisualAssets(): Promise<void> {
     if (!gameplaySecondaryVisualPromise) {
-        gameplaySecondaryVisualPromise = preloadImageList(GAMEPLAY_SECONDARY_IMAGE_ASSETS);
+        gameplaySecondaryVisualPromise = preloadImageList(GAMEPLAY_SECONDARY_IMAGE_ASSETS)
+            .then(async () => {
+                for (let index = 0; index < GAMEPLAY_SECONDARY_IMAGE_ASSETS.length; index += PRELOAD_BATCH_SIZE) {
+                    const batch = GAMEPLAY_SECONDARY_IMAGE_ASSETS.slice(index, index + PRELOAD_BATCH_SIZE);
+                    await Promise.all(batch.map((src) => preloadTexture(src)));
+                    if (index + PRELOAD_BATCH_SIZE < GAMEPLAY_SECONDARY_IMAGE_ASSETS.length) {
+                        await waitForNextTask();
+                    }
+                }
+            });
     }
     return gameplaySecondaryVisualPromise;
 }

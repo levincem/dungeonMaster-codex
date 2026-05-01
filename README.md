@@ -6,7 +6,7 @@ Goal: rebuild the original dungeon, systems, and feel as faithfully as possible 
 
 Live build: [dungeon-master.fr](https://dungeon-master.fr/)
 
-Current local version: `v0.8.0`
+Current local version: `v0.8.1`
 
 ## Status
 

@@ -179,6 +179,63 @@ export function selectHudRunes(currentRunes: string[], runeId: string): string[]
     return [...currentRunes, runeId];
 }
 
+function areHudRuneSelectionsEqual(left: readonly string[], right: readonly string[]): boolean {
+    if (left.length !== right.length) return false;
+    return left.every((runeId, index) => runeId === right[index]);
+}
+
+export function getPreparedHudRunes(
+    preparedRunesByChampionId: Record<number, string[]>,
+    championId: number | null,
+): string[] {
+    if (championId === null) return [];
+    return preparedRunesByChampionId[championId] ?? [];
+}
+
+export function setPreparedHudRunes(
+    preparedRunesByChampionId: Record<number, string[]>,
+    championId: number | null,
+    nextRunes: string[],
+): Record<number, string[]> {
+    if (championId === null) return preparedRunesByChampionId;
+
+    const currentRunes = preparedRunesByChampionId[championId] ?? [];
+    if (nextRunes.length === 0) {
+        if (!(championId in preparedRunesByChampionId)) return preparedRunesByChampionId;
+        const { [championId]: _removed, ...rest } = preparedRunesByChampionId;
+        return rest;
+    }
+
+    if (areHudRuneSelectionsEqual(currentRunes, nextRunes)) {
+        return preparedRunesByChampionId;
+    }
+
+    return {
+        ...preparedRunesByChampionId,
+        [championId]: nextRunes,
+    };
+}
+
+export function prunePreparedHudRunes<C extends HudChampionLike>(
+    preparedRunesByChampionId: Record<number, string[]>,
+    party: C[],
+): Record<number, string[]> {
+    const activeChampionIds = new Set(party.map((champion) => champion.id));
+    let changed = false;
+    const nextPreparedRunes: Record<number, string[]> = {};
+
+    for (const [championIdKey, runes] of Object.entries(preparedRunesByChampionId)) {
+        const championId = Number(championIdKey);
+        if (!activeChampionIds.has(championId)) {
+            changed = true;
+            continue;
+        }
+        nextPreparedRunes[championId] = runes;
+    }
+
+    return changed ? nextPreparedRunes : preparedRunesByChampionId;
+}
+
 export function didPartyTakeSingleStep(args: {
     previousLevel: number | null;
     nextLevel: number;

@@ -40,6 +40,10 @@ type WallBumpState = Pick<
     | 'floorItems'
     | 'deadChampions'
     | 'selectedChampionIndex'
+    | 'damageEvents'
+    | 'activeShields'
+    | 'activePotionBoosts'
+    | 'championCombat'
 >;
 
 type IncomingAttackState = Pick<
@@ -130,7 +134,7 @@ export function createStorePartyDamageRuntimeDeps(params: StorePartyDamageRuntim
             nowMs,
             {
                 ...sharedDeps,
-                randomInt: params.randomInt,
+                resolveChampionIncomingAttack: params.resolveChampionIncomingAttack,
             },
         ),
         applyPartyFallImpactDamage: (

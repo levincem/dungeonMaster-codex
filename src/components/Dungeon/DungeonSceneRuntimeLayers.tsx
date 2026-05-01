@@ -276,6 +276,7 @@ export const FloorItemsLayer: React.FC = () => {
     const throwFloorItem = useStore((state) => state.throwFloorItem);
     const selectedChampionIndex = useStore((state) => state.selectedChampionIndex);
     const party = useStore((state) => state.party);
+    const position = useStore((state) => state.position);
     const selectedChampionId = party[selectedChampionIndex]?.id ?? party[0]?.id ?? null;
     const map = getGameMap(level);
     const currentLevelCreatureKeys = useMemo(
@@ -295,17 +296,25 @@ export const FloorItemsLayer: React.FC = () => {
         const tile = map.tiles[item.y]?.[item.x];
         return isFloorItemWallMountedTile(level, tile, openWalls);
     };
+    const visibleFloorItems = floorItems
+        .filter((item) => item.mapIndex === level)
+        .filter((item) => !isMirrorTile(item))
+        .filter((item) => {
+            if (!isWallMounted(item)) return true;
+            if (!isSelfRevealingWallTile(level, item.x, item.y)) return true;
+            return openWalls.has(`${level},${item.y},${item.x}`);
+        });
+    const currentTileItemOrder = new Map(
+        visibleFloorItems
+            .filter((item) => !isWallMounted(item))
+            .filter((item) => item.x === position[1] && item.y === position[0])
+            .map((item, index) => [item.id, index]),
+    );
+    const currentTileItemCount = currentTileItemOrder.size;
 
     return (
         <>
-            {floorItems
-                .filter((item) => item.mapIndex === level)
-                .filter((item) => !isMirrorTile(item))
-                .filter((item) => {
-                    if (!isWallMounted(item)) return true;
-                    if (!isSelfRevealingWallTile(level, item.x, item.y)) return true;
-                    return openWalls.has(`${level},${item.y},${item.x}`);
-                })
+            {visibleFloorItems
                 .map((item) =>
                     isWallMounted(item)
                         ? <WallMountedItemMesh key={item.id} item={item} onPickup={() => pickupItem(item.id)} />
@@ -315,6 +324,9 @@ export const FloorItemsLayer: React.FC = () => {
                                 item={item}
                                 direction={direction}
                                 occupiedByCreature={occupiedFloorKeys.has(`${item.x},${item.y}`)}
+                                occupiedByParty={item.x === position[1] && item.y === position[0]}
+                                partyTileStackIndex={currentTileItemOrder.get(item.id) ?? 0}
+                                partyTileStackCount={currentTileItemCount || 1}
                                 onPickup={() => pickupItem(item.id)}
                                 onStartDrag={(draggedItem, _imagePath, pointerX, pointerY) =>
                                     beginFloorDrag(draggedItem.id, pointerX, pointerY)}

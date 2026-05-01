@@ -74,7 +74,7 @@ export const en = {
             spellCaster: 'Here, select the spell caster.',
             spellComposer: 'Here, the spell is built from 2 to 4 runes. Success depends on the caster level, the spell itself, and having enough mana to cast it. Each spell also has its own recovery time.',
             combatButtons: 'Click to attack. A direct attack is used if only one action is available; otherwise a submenu offers the available choices.',
-            movementButtons: 'Movement controls. You can also use the keyboard arrow keys or the AZEQSD letters. You can reconfigure them in the options menu.',
+            movementButtons: 'Movement controls. You can also use the keyboard arrow keys or the QWASDE letters. You can reconfigure them in the options menu.',
         },
     },
     loadingScreen: {

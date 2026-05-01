@@ -6,7 +6,10 @@ import {
     buildCombatGridSlotState,
     buildHudFrontStateSummary,
     didPartyTakeSingleStep,
+    getPreparedHudRunes,
+    prunePreparedHudRunes,
     selectHudRunes,
+    setPreparedHudRunes,
 } from '../src/components/UI/hudDerivedState.js';
 import type { ChampionCombat, DamageEvent } from '../src/engine/runtimeTypes.js';
 import type { GameMap, GameTile } from '../src/types/game.js';
@@ -257,6 +260,24 @@ test('selectHudRunes truncates at an existing rune and refuses to exceed four ru
     assert.deepEqual(selectHudRunes(['FUL', 'IR'], 'IR'), ['FUL']);
     assert.deepEqual(selectHudRunes(['FUL', 'IR', 'BRO', 'NETA'], 'DES'), ['FUL', 'IR', 'BRO', 'NETA']);
     assert.deepEqual(selectHudRunes(['FUL', 'IR'], 'BRO'), ['FUL', 'IR', 'BRO']);
+});
+
+test('prepared HUD runes are stored per champion and pruned when a champion leaves the party', () => {
+    const prepared = setPreparedHudRunes({}, 2, ['FUL', 'IR']);
+    const withSecondChampion = setPreparedHudRunes(prepared, 3, ['DES', 'EW']);
+
+    assert.deepEqual(getPreparedHudRunes(withSecondChampion, 2), ['FUL', 'IR']);
+    assert.deepEqual(getPreparedHudRunes(withSecondChampion, 3), ['DES', 'EW']);
+    assert.deepEqual(getPreparedHudRunes(withSecondChampion, 99), []);
+
+    const cleared = setPreparedHudRunes(withSecondChampion, 2, []);
+    assert.deepEqual(cleared, { 3: ['DES', 'EW'] });
+
+    const pruned = prunePreparedHudRunes(
+        { 2: ['FUL', 'IR'], 3: ['DES', 'EW'] },
+        [createChampion(3, 'Tiggy')],
+    );
+    assert.deepEqual(pruned, { 3: ['DES', 'EW'] });
 });
 
 test('didPartyTakeSingleStep only reports adjacent same-level movement', () => {

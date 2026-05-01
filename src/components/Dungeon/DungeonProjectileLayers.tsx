@@ -3,13 +3,32 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useStore, getCreatureFluxcageExpiry } from '../../engine/store';
 import { GRID_SIZE } from '../../engine/constants';
+import { PHYSICAL_PROJECTILE_STEP_MS } from '../../engine/time';
 import type { Direction, ProjectileEffect } from '../../engine/runtimeTypes';
 import { getFloorItemImage } from '../../data/itemImages';
 import { BillboardGroup } from './renderHelpers';
 import { useSafeTexture } from './useLoadedTexture';
 import type { CreatureInstance, FloorItem } from '../../types/game';
+import {
+    resolvePhysicalProjectileLaunchPosition,
+    resolvePhysicalProjectilePosition,
+} from './physicalProjectilePresentation';
 
 type MagicProjectileEffect = Exclude<ProjectileEffect, 'physical'>;
+type ActivePhysicalProjectile = ReturnType<typeof useStore.getState>['projectiles'][number] & {
+    effect: 'physical';
+    physicalItem: FloorItem;
+};
+type PhysicalLaunchPreview = {
+    id: string;
+    level: number;
+    x: number;
+    y: number;
+    direction: Direction;
+    physicalItem: FloorItem;
+    startedAt: number;
+    expiresAt: number;
+};
 
 const loadPhotonEffects = () => import('./PhotonsFireball');
 
@@ -66,13 +85,84 @@ function useWallClock(intervalMs = 200): number {
 export const ProjectileRenderer: React.FC = () => {
     const projectiles = useStore((state) => state.projectiles);
     const level = useStore((state) => state.level);
+    const nowMs = useWallClock(80);
     const activeProjectiles = useMemo(
         () => projectiles.filter((projectile) => projectile.level === level),
         [projectiles, level],
     );
+    const activePhysicalProjectiles = useMemo(
+        () => activeProjectiles.filter((projectile): projectile is ActivePhysicalProjectile =>
+            projectile.effect === 'physical' && Boolean(projectile.physicalItem),
+        ),
+        [activeProjectiles],
+    );
+    const [launchPreviews, setLaunchPreviews] = useState<PhysicalLaunchPreview[]>([]);
+    const previousPhysicalProjectileIdsRef = useRef<Set<string>>(new Set());
+
+    useEffect(() => {
+        const seenAt = Date.now();
+        const physicalProjectiles = projectiles.filter((projectile): projectile is ActivePhysicalProjectile =>
+            projectile.effect === 'physical' && Boolean(projectile.physicalItem),
+        );
+        const activeIds = new Set(physicalProjectiles.map((projectile) => projectile.id));
+        const addedPreviews = physicalProjectiles
+            .filter((projectile) => !previousPhysicalProjectileIdsRef.current.has(projectile.id))
+            .map((projectile) => ({
+                id: projectile.id,
+                level: projectile.level,
+                x: projectile.x,
+                y: projectile.y,
+                direction: projectile.direction,
+                physicalItem: projectile.physicalItem,
+                startedAt: projectile.nextMoveAt <= seenAt
+                    ? seenAt
+                    : projectile.nextMoveAt - PHYSICAL_PROJECTILE_STEP_MS,
+                expiresAt: projectile.nextMoveAt <= seenAt
+                    ? seenAt + PHYSICAL_PROJECTILE_STEP_MS
+                    : projectile.nextMoveAt,
+            }));
+
+        previousPhysicalProjectileIdsRef.current = activeIds;
+
+        setLaunchPreviews((current) => {
+            const retained = current.filter((preview) => preview.expiresAt > nowMs);
+            if (addedPreviews.length === 0) return retained;
+            const merged = new Map(retained.map((preview) => [preview.id, preview]));
+            for (const preview of addedPreviews) {
+                merged.set(preview.id, preview);
+            }
+            return [...merged.values()];
+        });
+    }, [nowMs, projectiles]);
+
+    const activePhysicalProjectileIds = useMemo(
+        () => new Set(activePhysicalProjectiles.map((projectile) => projectile.id)),
+        [activePhysicalProjectiles],
+    );
+    const visibleLaunchPreviews = useMemo(
+        () => launchPreviews.filter((preview) =>
+            preview.level === level &&
+            preview.expiresAt > nowMs &&
+            !activePhysicalProjectileIds.has(preview.id),
+        ),
+        [activePhysicalProjectileIds, launchPreviews, level, nowMs],
+    );
 
     return (
         <>
+            {visibleLaunchPreviews.map((preview) => (
+                <PhysicalProjectileSprite
+                    key={`launch_${preview.id}`}
+                    projectile={{
+                        x: preview.x,
+                        y: preview.y,
+                        physicalItem: preview.physicalItem,
+                        direction: preview.direction,
+                        startedAt: preview.startedAt,
+                    }}
+                    mode="launch"
+                />
+            ))}
             {activeProjectiles.map((projectile) => (
                 projectile.effect === 'physical' && projectile.physicalItem ? (
                     <PhysicalProjectileSprite
@@ -81,6 +171,7 @@ export const ProjectileRenderer: React.FC = () => {
                             ...projectile,
                             physicalItem: projectile.physicalItem,
                             direction: projectile.direction,
+                            nextMoveAt: projectile.nextMoveAt,
                         }}
                     />
                 ) : (
@@ -280,32 +371,56 @@ const ProjectileOrb: React.FC<{
 };
 
 const PhysicalProjectileSprite: React.FC<{
-    projectile: { x: number; y: number; physicalItem: FloorItem; direction?: Direction };
-}> = ({ projectile }) => {
+    projectile: {
+        x: number;
+        y: number;
+        physicalItem: FloorItem;
+        direction?: Direction;
+        nextMoveAt?: number;
+        startedAt?: number;
+    };
+    mode?: 'active' | 'launch';
+}> = ({ projectile, mode = 'active' }) => {
     const imagePath = getFloorItemImage(projectile.physicalItem);
     const tex = useSafeTexture(imagePath);
+    const groupRef = useRef<THREE.Group>(null);
 
     const image = tex?.image as { width: number; height: number } | undefined;
     const aspect = image ? image.width / image.height : 1;
     const width = GRID_SIZE * 0.4;
     const height = width / aspect;
-    const forwardOffset = GRID_SIZE * 0.22;
-    const offsetX =
-        projectile.direction === 'EAST' ? forwardOffset :
-            projectile.direction === 'WEST' ? -forwardOffset :
-                0;
-    const offsetZ =
-        projectile.direction === 'SOUTH' ? forwardOffset :
-            projectile.direction === 'NORTH' ? -forwardOffset :
-                0;
+
+    const resolvePosition = (now: number): [number, number, number] => {
+        if (mode === 'launch') {
+            return resolvePhysicalProjectileLaunchPosition({
+                x: projectile.x,
+                y: projectile.y,
+                direction: projectile.direction ?? 'NORTH',
+                now,
+                startedAt: projectile.startedAt ?? now,
+            });
+        }
+
+        return resolvePhysicalProjectilePosition({
+            x: projectile.x,
+            y: projectile.y,
+            direction: projectile.direction ?? 'NORTH',
+            now,
+            nextMoveAt: projectile.nextMoveAt ?? now,
+        });
+    };
+
+    useFrame(() => {
+        const nextPosition = resolvePosition(Date.now());
+        if (groupRef.current) {
+            groupRef.current.position.set(nextPosition[0], nextPosition[1], nextPosition[2]);
+        }
+    });
 
     return (
         <BillboardGroup
-            position={[
-                projectile.x * GRID_SIZE + offsetX,
-                GRID_SIZE * 0.14,
-                projectile.y * GRID_SIZE + offsetZ,
-            ]}
+            groupRef={groupRef}
+            position={resolvePosition(Date.now())}
             follow
             lockX={false}
             lockY={false}

@@ -74,7 +74,7 @@ export const fr = {
             spellCaster: 'Ici, selectionnez le lanceur de sort.',
             spellComposer: 'Ici, le sort est compose de 2 a 4 runes. La reussite depend du niveau du lanceur de sort, du sort lui-meme, et necessite d avoir suffisamment de mana pour le lancer. Chaque sort a un temps de recuperation plus ou moins long.',
             combatButtons: 'Cliquez pour attaquer. Attaque directe si une seule action possible, sinon sous-menu avec des choix.',
-            movementButtons: 'Touches de deplacement. Vous pouvez aussi utiliser les touches flechees du clavier ou les lettres AZEQSD. Dans le menu d options, vous pouvez le reconfigurer.',
+            movementButtons: 'Touches de deplacement. Vous pouvez aussi utiliser les touches flechees du clavier ou les lettres QWASDE. Dans le menu d options, vous pouvez le reconfigurer.',
         },
     },
     loadingScreen: {

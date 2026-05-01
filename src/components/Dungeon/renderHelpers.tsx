@@ -10,6 +10,7 @@ export function BillboardGroup({
     lockY = false,
     lockZ = false,
     position,
+    groupRef: externalGroupRef,
 }: {
     children: ReactNode;
     follow?: boolean;
@@ -17,8 +18,10 @@ export function BillboardGroup({
     lockY?: boolean;
     lockZ?: boolean;
     position?: [number, number, number];
+    groupRef?: React.RefObject<THREE.Group | null>;
 }) {
-    const groupRef = useRef<THREE.Group>(null);
+    const internalGroupRef = useRef<THREE.Group>(null);
+    const groupRef = externalGroupRef ?? internalGroupRef;
     const { camera } = useThree();
 
     useFrame(() => {
@@ -35,6 +38,55 @@ export function BillboardGroup({
 
     return (
         <group ref={groupRef} position={position}>
+            {children}
+        </group>
+    );
+}
+
+export function CameraAnchoredGroup({
+    children,
+    forward,
+    vertical = 0,
+    lateral = 0,
+    follow = true,
+    groupRef: externalGroupRef,
+}: {
+    children: ReactNode;
+    forward: number;
+    vertical?: number;
+    lateral?: number;
+    follow?: boolean;
+    groupRef?: React.RefObject<THREE.Group | null>;
+}) {
+    const internalGroupRef = useRef<THREE.Group>(null);
+    const groupRef = externalGroupRef ?? internalGroupRef;
+    const { camera } = useThree();
+    const forwardVectorRef = useRef(new THREE.Vector3());
+    const rightVectorRef = useRef(new THREE.Vector3());
+    const upVectorRef = useRef(new THREE.Vector3());
+    const worldPositionRef = useRef(new THREE.Vector3());
+
+    useFrame(() => {
+        if (!groupRef.current) return;
+
+        camera.getWorldDirection(forwardVectorRef.current);
+        rightVectorRef.current.set(1, 0, 0).applyQuaternion(camera.quaternion).normalize();
+        upVectorRef.current.set(0, 1, 0).applyQuaternion(camera.quaternion).normalize();
+
+        worldPositionRef.current.copy(camera.position)
+            .addScaledVector(forwardVectorRef.current, forward)
+            .addScaledVector(rightVectorRef.current, lateral)
+            .addScaledVector(upVectorRef.current, vertical);
+
+        groupRef.current.position.copy(worldPositionRef.current);
+
+        if (follow) {
+            groupRef.current.quaternion.copy(camera.quaternion);
+        }
+    });
+
+    return (
+        <group ref={groupRef}>
             {children}
         </group>
     );

@@ -75,7 +75,6 @@ test('applyFrontRowWallBumpDamageState damages the front row', () => {
         vitals,
         1000,
         {
-            randomInt: () => 0,
             buildChampionDamageEvent: () => ({
                 id: 'event-1',
                 level: 0,
@@ -83,6 +82,15 @@ test('applyFrontRowWallBumpDamageState damages the front row', () => {
                 amount: 1,
                 ts: 0,
             }),
+            resolveChampionIncomingAttack: (_state, _champion, currentVitals, attack, attackType, allowedSlots) => {
+                assert.equal(attack, 1);
+                assert.equal(attackType, 'Impact');
+                assert.deepEqual(allowedSlots, ['torso', 'legs']);
+                return {
+                    damage: 1,
+                    nextVitals: { ...currentVitals, hp: currentVitals.hp - 1 },
+                };
+            },
             buildDeathDrop: (state) => ({
                 party: state.party,
                 floorItems: state.floorItems,
@@ -96,6 +104,7 @@ test('applyFrontRowWallBumpDamageState damages the front row', () => {
     assert.ok(patch);
     assert.equal((patch?.championVitals as typeof vitals)[1].hp, 29);
     assert.equal((patch?.championVitals as typeof vitals)[2].hp, 29);
+    assert.equal((patch?.damageEvents as unknown[]).length, 2);
 });
 
 test('applyPartyWideIncomingAttackState records damage events and death drops', () => {

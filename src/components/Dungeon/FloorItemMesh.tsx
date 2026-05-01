@@ -4,9 +4,9 @@ import * as THREE from 'three';
 import type { Direction } from '../../engine/runtimeTypes';
 import type { FloorItem } from '../../types/game';
 import { getFloorItemImage } from '../../data/itemImages';
-import { BillboardGroup } from './renderHelpers';
+import { BillboardGroup, CameraAnchoredGroup } from './renderHelpers';
 import { useLoadedTexture } from './useLoadedTexture';
-import { FLOOR_ITEM_SIZE, resolveFloorItemPresentation } from './floorItemPresentation';
+import { FLOOR_ITEM_SIZE, resolveFloorItemPresentation, resolvePartyTileCameraAnchor } from './floorItemPresentation';
 
 // ─── Layout ───────────────────────────────────────────────────────────────────
 
@@ -19,12 +19,16 @@ const ItemSprite = ({
     onStartDrag,
     onUpdateDrag,
     onEndDrag,
+    cameraAnchored = false,
+    renderOrder = 5,
 }: {
     imagePath: string;
     onClick: () => void;
     onStartDrag: (pointerX: number, pointerY: number) => void;
     onUpdateDrag: (pointerX: number, pointerY: number) => void;
     onEndDrag: (pointerX: number, pointerY: number) => void;
+    cameraAnchored?: boolean;
+    renderOrder?: number;
 }) => {
     const baseTex = useLoadedTexture(imagePath);
     const timerRef = useRef<number | null>(null);
@@ -85,14 +89,15 @@ const ItemSprite = ({
     };
 
     return (
-        <mesh onPointerDown={handlePointerDown} renderOrder={5}>
+        <mesh onPointerDown={handlePointerDown} renderOrder={renderOrder} frustumCulled={false}>
             <planeGeometry args={[w, h]} />
             <meshBasicMaterial
                 map={tex}
                 transparent
                 alphaTest={0.05}
                 side={THREE.DoubleSide}
-                depthWrite
+                depthWrite={!cameraAnchored}
+                depthTest={!cameraAnchored}
             />
         </mesh>
     );
@@ -100,15 +105,28 @@ const ItemSprite = ({
 
 // ─── Fallback while texture loads ─────────────────────────────────────────────
 
-const ItemFallback = ({ category }: { category: string }) => {
+const ItemFallback = ({
+    category,
+    cameraAnchored = false,
+    renderOrder = 5,
+}: {
+    category: string;
+    cameraAnchored?: boolean;
+    renderOrder?: number;
+}) => {
     const colors: Record<string, string> = {
         Weapon: '#b0b8c8', Armor: '#8B6914', Potion: '#e74c3c',
         Scroll: '#f0e8c8', Container: '#5C3A1E', Misc: '#d4af37',
     };
     return (
-        <mesh>
+        <mesh renderOrder={renderOrder} frustumCulled={false}>
             <planeGeometry args={[FLOOR_ITEM_SIZE * 0.7, FLOOR_ITEM_SIZE * 0.7]} />
-            <meshBasicMaterial color={colors[category] ?? '#d4af37'} side={THREE.DoubleSide} />
+            <meshBasicMaterial
+                color={colors[category] ?? '#d4af37'}
+                side={THREE.DoubleSide}
+                depthWrite={!cameraAnchored}
+                depthTest={!cameraAnchored}
+            />
         </mesh>
     );
 };
@@ -123,11 +141,60 @@ interface Props {
     onEndDrag: (pointerX: number, pointerY: number) => void;
     direction: Direction;
     occupiedByCreature: boolean;
+    occupiedByParty: boolean;
+    partyTileStackIndex?: number;
+    partyTileStackCount?: number;
 }
 
-export const FloorItemMesh = ({ item, onPickup, onStartDrag, onUpdateDrag, onEndDrag, direction, occupiedByCreature }: Props) => {
+export const FloorItemMesh = ({
+    item,
+    onPickup,
+    onStartDrag,
+    onUpdateDrag,
+    onEndDrag,
+    direction,
+    occupiedByCreature,
+    occupiedByParty,
+    partyTileStackIndex = 0,
+    partyTileStackCount = 1,
+}: Props) => {
     const imagePath = getFloorItemImage(item);
-    const presentation = resolveFloorItemPresentation(item, direction, occupiedByCreature);
+    const presentation = resolveFloorItemPresentation(item, direction, occupiedByCreature, occupiedByParty);
+    const partyTileAnchor = occupiedByParty
+        ? resolvePartyTileCameraAnchor(item, direction, partyTileStackIndex, partyTileStackCount)
+        : null;
+    const spriteRenderOrder = occupiedByParty ? 50 + partyTileStackIndex : 5;
+    const itemContent = (
+        <group scale={[
+            occupiedByParty ? partyTileAnchor?.scale ?? presentation.scale : presentation.scale,
+            occupiedByParty ? partyTileAnchor?.scale ?? presentation.scale : presentation.scale,
+            1,
+        ]}>
+            <Suspense fallback={<ItemFallback category={item.category} cameraAnchored={occupiedByParty} renderOrder={spriteRenderOrder} />}>
+                <ItemSprite
+                    imagePath={imagePath}
+                    onClick={onPickup}
+                    onStartDrag={(pointerX, pointerY) => onStartDrag(item, imagePath, pointerX, pointerY)}
+                    onUpdateDrag={onUpdateDrag}
+                    onEndDrag={onEndDrag}
+                    cameraAnchored={occupiedByParty}
+                    renderOrder={spriteRenderOrder}
+                />
+            </Suspense>
+        </group>
+    );
+
+    if (occupiedByParty && partyTileAnchor) {
+        return (
+            <CameraAnchoredGroup
+                forward={partyTileAnchor.forward}
+                vertical={partyTileAnchor.vertical}
+                lateral={partyTileAnchor.lateral}
+            >
+                {itemContent}
+            </CameraAnchoredGroup>
+        );
+    }
 
     return (
         <BillboardGroup
@@ -137,17 +204,7 @@ export const FloorItemMesh = ({ item, onPickup, onStartDrag, onUpdateDrag, onEnd
             lockY={false}
             lockZ={true}
         >
-            <group scale={[presentation.scale, presentation.scale, 1]}>
-                <Suspense fallback={<ItemFallback category={item.category} />}>
-                    <ItemSprite
-                        imagePath={imagePath}
-                        onClick={onPickup}
-                        onStartDrag={(pointerX, pointerY) => onStartDrag(item, imagePath, pointerX, pointerY)}
-                        onUpdateDrag={onUpdateDrag}
-                        onEndDrag={onEndDrag}
-                    />
-                </Suspense>
-            </group>
+            {itemContent}
         </BillboardGroup>
     );
 };

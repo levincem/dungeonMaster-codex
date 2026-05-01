@@ -44,6 +44,30 @@ type PartyDamageDeps = {
     };
 };
 
+type IncomingAttackResolver = (
+    state: Pick<
+        PartyDamageState,
+        'level'
+        | 'position'
+        | 'party'
+        | 'championInventories'
+        | 'championEquipment'
+        | 'floorItems'
+        | 'deadChampions'
+        | 'selectedChampionIndex'
+        | 'damageEvents'
+        | 'activeShields'
+        | 'activePotionBoosts'
+        | 'championCombat'
+    >,
+    champion: Champion,
+    currentVitals: ChampionVitals,
+    attack: number,
+    attackType: string,
+    allowedSlots: readonly string[],
+    nowMs: number,
+) => { damage: number; nextVitals: ChampionVitals };
+
 function finalizePartyDamagePatch(
     state: PartyDamageState,
     championVitals: Record<number, ChampionVitals>,
@@ -87,10 +111,11 @@ export function applyFrontRowWallBumpDamageState(
         | 'damageEvents'
         | 'activeShields'
         | 'activePotionBoosts'
+        | 'championCombat'
     >,
     championVitals: Record<number, ChampionVitals>,
     nowMs: number,
-    deps: PartyDamageDeps & { randomInt: (maxExclusive: number) => number },
+    deps: PartyDamageDeps & { resolveChampionIncomingAttack: IncomingAttackResolver },
 ): Record<string, unknown> | null {
     const frontChampions = state.party
         .slice(0, 2)
@@ -99,19 +124,29 @@ export function applyFrontRowWallBumpDamageState(
     if (frontChampions.length === 0) return null;
 
     let nextVitals = championVitals;
+    let damageEvents = state.damageEvents;
     const newlyDead: number[] = [];
 
     for (const champion of frontChampions) {
         const current = nextVitals[champion.id];
         if (!current || current.hp <= 0) continue;
-        const damage = 1 + deps.randomInt(3);
-        const next = {
-            ...current,
-            hp: Math.max(0, current.hp - damage),
-        };
-        if (next.hp === current.hp) continue;
-        if (nextVitals === championVitals) nextVitals = { ...championVitals };
-        nextVitals[champion.id] = next;
+        const resolved = deps.resolveChampionIncomingAttack(
+            state,
+            champion,
+            current,
+            1,
+            'Impact',
+            ['torso', 'legs'],
+            nowMs,
+        );
+        const damage = resolved.damage;
+        const next = resolved.nextVitals;
+        if (next !== current) {
+            if (nextVitals === championVitals) nextVitals = { ...championVitals };
+            nextVitals[champion.id] = next;
+        }
+        if (damage <= 0) continue;
+        damageEvents = [...damageEvents, deps.buildChampionDamageEvent(state.level, champion.id, damage)];
         if (next.hp === 0) newlyDead.push(champion.id);
     }
 
@@ -119,7 +154,7 @@ export function applyFrontRowWallBumpDamageState(
         state,
         championVitals,
         nextVitals,
-        state.damageEvents,
+        damageEvents,
         newlyDead,
         nowMs,
         deps,
@@ -292,6 +327,10 @@ type RuntimeWallBumpState = Pick<
     | 'deadChampions'
 > & {
     selectedChampionIndex?: number | null;
+    damageEvents?: DamageEvent[];
+    activeShields?: PartyShield[];
+    activePotionBoosts?: ActivePotionBoost[];
+    championCombat?: unknown;
 };
 
 type RuntimeIncomingAttackState = Pick<
@@ -315,15 +354,15 @@ export function applyFrontRowWallBumpDamageRuntimeState(
     state: RuntimeWallBumpState,
     championVitals: Record<number, ChampionVitals>,
     nowMs = Date.now(),
-    deps: PartyDamageDeps & { randomInt: (maxExclusive: number) => number },
+    deps: PartyDamageDeps & { resolveChampionIncomingAttack: IncomingAttackResolver },
 ): Record<string, unknown> | null {
     return applyFrontRowWallBumpDamageState(
         {
             ...state,
             selectedChampionIndex: state.selectedChampionIndex ?? 0,
-            damageEvents: [],
-            activeShields: [],
-            activePotionBoosts: [],
+            damageEvents: state.damageEvents ?? [],
+            activeShields: state.activeShields ?? [],
+            activePotionBoosts: state.activePotionBoosts ?? [],
         },
         championVitals,
         nowMs,

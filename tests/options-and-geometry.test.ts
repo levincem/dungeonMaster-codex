@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { GRID_SIZE } from '../src/engine/constants.js';
-import { formatKeybinding, matchesKeybinding, normalizeBindingKey } from '../src/engine/options.js';
+import { DEFAULT_KEYBINDINGS, formatKeybinding, matchesKeybinding, normalizeBindingKey } from '../src/engine/options.js';
 import { getCreatureCellOffsetXZ } from '../src/components/Dungeon/creatureCellOffsets.js';
 
 test('normalizeBindingKey lowercases single characters only', () => {
@@ -10,12 +10,23 @@ test('normalizeBindingKey lowercases single characters only', () => {
 });
 
 test('matchesKeybinding normalizes keys consistently', () => {
-    assert.equal(matchesKeybinding(['ArrowUp', 'z'], 'Z'), true);
-    assert.equal(matchesKeybinding(['ArrowUp', 'z'], 'x'), false);
+    assert.equal(matchesKeybinding(['ArrowUp', 'w'], 'W'), true);
+    assert.equal(matchesKeybinding(['ArrowUp', 'w'], 'x'), false);
 });
 
 test('formatKeybinding renders arrows and letters for UI', () => {
-    assert.equal(formatKeybinding(['ArrowUp', 'z']), '↑ / Z');
+    assert.equal(formatKeybinding(['ArrowUp', 'w']), '↑ / W');
+});
+
+test('default movement bindings use QWERTY letters while keeping arrows', () => {
+    assert.deepEqual(DEFAULT_KEYBINDINGS, {
+        moveForward: ['ArrowUp', 'w'],
+        moveBackward: ['ArrowDown', 's'],
+        turnLeft: ['ArrowLeft', 'a'],
+        turnRight: ['ArrowRight', 'd'],
+        strafeLeft: ['q'],
+        strafeRight: ['e'],
+    });
 });
 
 test('creature cell offsets keep centered creatures centered', () => {

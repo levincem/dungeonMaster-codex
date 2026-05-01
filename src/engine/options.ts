@@ -1,11 +1,11 @@
 ﻿import type { GameOptions, KeyBindings } from './runtimeTypes';
 
 export const DEFAULT_KEYBINDINGS: KeyBindings = {
-    moveForward: ['ArrowUp', 'z'],
+    moveForward: ['ArrowUp', 'w'],
     moveBackward: ['ArrowDown', 's'],
-    turnLeft: ['ArrowLeft', 'q'],
+    turnLeft: ['ArrowLeft', 'a'],
     turnRight: ['ArrowRight', 'd'],
-    strafeLeft: ['a'],
+    strafeLeft: ['q'],
     strafeRight: ['e'],
 };
 

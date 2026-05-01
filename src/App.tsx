@@ -68,6 +68,15 @@ function App() {
   const systemRequirementWarnings = systemReport.issues.filter((issue) => issue.severity === 'warning');
 
   useEffect(() => {
+    const handleContextMenu = (event: MouseEvent) => {
+      event.preventDefault();
+    };
+
+    window.addEventListener('contextmenu', handleContextMenu);
+    return () => window.removeEventListener('contextmenu', handleContextMenu);
+  }, []);
+
+  useEffect(() => {
     const detectSmartphone = () => {
       const ua = navigator.userAgent || '';
       const hasMobileUa = /Android.+Mobile|iPhone|iPod|Windows Phone|webOS|BlackBerry|Opera Mini/i.test(ua);
