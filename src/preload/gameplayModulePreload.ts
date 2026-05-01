@@ -1,4 +1,5 @@
 import { preloadGameDbData } from '../data/gameDbData';
+import { preloadDungeonBootstrapData } from '../data/dungeonData';
 
 type GameRootModule = typeof import('../GameRoot');
 
@@ -10,14 +11,18 @@ let gameplayRenderFullReady = false;
 
 export function preloadGameRootModule(): Promise<GameRootModule> {
     if (!gameRootModulePromise) {
-        gameRootModulePromise = import('../GameRoot');
+        gameRootModulePromise = preloadDungeonBootstrapData()
+            .then(() => import('../GameRoot'));
     }
     return gameRootModulePromise!;
 }
 
 export function preloadGameplayRenderCoreModules(): Promise<void> {
     if (!gameplayRenderCorePromise) {
-        gameplayRenderCorePromise = preloadGameDbData()
+        gameplayRenderCorePromise = Promise.all([
+            preloadDungeonBootstrapData(),
+            preloadGameDbData(),
+        ])
             .then(() => Promise.all([
                 import('../components/Dungeon/DungeonScene'),
                 import('../components/UI/HUD'),
