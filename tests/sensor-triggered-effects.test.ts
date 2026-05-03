@@ -362,3 +362,105 @@ test('type 5 self-target wall-square events can retrigger sibling gate effects w
     state = applyPatch(state, dispatchTriggeredSensorEffect(resetGate, 1, state, deps));
     assert.equal(state.openTeleporters.has('1,1,2'), true);
 });
+
+test('wall square events reach type 6 countdown sensors even when the countdown lives on another face of the target wall', () => {
+    const countdown = createSensor({
+        index: 77,
+        tilePos: 'West',
+        type: 6,
+        data: 3,
+        action: 'Set',
+        targetX: 2,
+        targetY: 1,
+        targetDir: 'North',
+    });
+    const targetWall: GameTile = {
+        x: 1,
+        y: 1,
+        type: 'Wall',
+        objects: [countdown],
+    };
+    const door: GameTile = {
+        x: 2,
+        y: 1,
+        type: 'Door',
+        objects: [],
+    };
+    const tiles = [
+        [{ x: 0, y: 0, type: 'Floor', objects: [] }, { x: 1, y: 0, type: 'Floor', objects: [] }, { x: 2, y: 0, type: 'Floor', objects: [] }],
+        [{ x: 0, y: 1, type: 'Floor', objects: [] }, targetWall, door],
+        [{ x: 0, y: 2, type: 'Floor', objects: [] }, { x: 1, y: 2, type: 'Floor', objects: [] }, { x: 2, y: 2, type: 'Floor', objects: [] }],
+    ] satisfies GameTile[][];
+
+    const deps = {
+        getTile: (level: number, x: number, y: number) => {
+            assert.equal(level, 1);
+            return tiles[y]?.[x];
+        },
+        applyToSet: (set: Set<string>, key: string, action: 'Set' | 'Clear' | 'Toggle' | 'Hold') => {
+            const next = new Set(set);
+            if (action === 'Set') next.add(key);
+            if (action === 'Clear') next.delete(key);
+            if (action === 'Toggle') {
+                if (next.has(key)) next.delete(key);
+                else next.add(key);
+            }
+            return next;
+        },
+        diffSensorState: (before: TestState, after: TestState): Partial<TestState> => {
+            const patch: Partial<TestState> = {};
+            if (after.openDoors !== before.openDoors) patch.openDoors = after.openDoors;
+            if (after.sensorRuntimeData !== before.sensorRuntimeData) patch.sensorRuntimeData = after.sensorRuntimeData;
+            return patch;
+        },
+        getSensorStateKey: (level: number, sensorIndex: number) => `${level}_${sensorIndex}`,
+        wallLauncherSensorTypes: new Set<number>(),
+        findSensorPlacement: () => null,
+        buildWallLauncherProjectiles: () => [],
+        now: () => 0,
+        triggerGeneratorSensor: (_level: number, _sensor: SensorObject, state: TestState) => state,
+        isGeneratorSensor: () => false,
+        readWallSensorRuntimeData: (level: number, sensor: SensorObject, state: TestState) =>
+            readWallSensorRuntimeData(level, sensor, state.sensorRuntimeData),
+        writeWallSensorRuntimeData: (
+            level: number,
+            sensor: SensorObject,
+            state: TestState,
+            nextValue: number,
+        ) => writeWallSensorRuntimeData(level, sensor, state.sensorRuntimeData, nextValue),
+        hasWallFaceLocalRotationEffect: () => false,
+        rotateWallFaceSensors: (_level: number, _x: number, _y: number, _face: SensorObject['tilePos'], offsets: Record<string, number>) => offsets,
+        wallSensorFaceMask: {
+            North: 1,
+            East: 2,
+            South: 4,
+            West: 8,
+        },
+    };
+
+    const remoteHoldSensor = createSensor({
+        index: 70,
+        action: 'Clear',
+        targetX: 1,
+        targetY: 1,
+        targetDir: 'North',
+    });
+
+    let state = createState();
+
+    state = applyPatch(state, dispatchTriggeredSensorEffect(remoteHoldSensor, 1, state, deps));
+    assert.equal(state.sensorRuntimeData['1_77'], 2);
+    assert.equal(state.openDoors.size, 0);
+
+    state = applyPatch(state, dispatchTriggeredSensorEffect(remoteHoldSensor, 1, state, deps));
+    assert.equal(state.sensorRuntimeData['1_77'], 1);
+    assert.equal(state.openDoors.size, 0);
+
+    state = applyPatch(state, dispatchTriggeredSensorEffect(remoteHoldSensor, 1, state, deps));
+    assert.equal(state.sensorRuntimeData['1_77'], 0);
+    assert.equal(state.openDoors.size, 0);
+
+    state = applyPatch(state, dispatchTriggeredSensorEffect(remoteHoldSensor, 1, state, deps));
+    assert.equal(state.sensorRuntimeData['1_77'], 0);
+    assert.deepEqual([...state.openDoors], ['1,1,2']);
+});

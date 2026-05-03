@@ -160,10 +160,11 @@ export function dispatchTriggeredSensorEffect<TState extends SensorTriggeredStat
         for (const obj of targetTile.objects) {
             if (obj.category !== 'Sensor') continue;
             const targetSensor = obj as SensorObject;
-            // Type 5 gate sensors live on the destination wall square and aggregate face bits
-            // from remote wall clicks. Their physical facing on that wall does not have to match
-            // the source sensor's targetDir, so they must still receive the wall-square event.
-            if (targetSensor.type !== 5 && targetSensor.tilePos !== sourceSensor.targetDir) continue;
+            // Type 5 gates and type 6 countdowns live on the destination wall square and
+            // aggregate remote wall-square events. Their physical facing on that wall does
+            // not have to match the source sensor's targetDir, so they must still receive
+            // the wall-square event.
+            if (targetSensor.type !== 5 && targetSensor.type !== 6 && targetSensor.tilePos !== sourceSensor.targetDir) continue;
 
             if (deps.wallLauncherSensorTypes.has(targetSensor.type)) {
                 const targetSensorKey = deps.getSensorStateKey(sourceLevel, targetSensor.index);
@@ -271,7 +272,7 @@ export function dispatchTriggeredSensorEffect<TState extends SensorTriggeredStat
 
                 const effectiveAction = targetSensor.action === 'Hold'
                     ? ((((nextData === 0) ? 1 : 0) !== (targetSensor.revert ? 1 : 0)) ? 'Set' : 'Clear')
-                    : (nextData === 0 ? targetSensor.action : null);
+                    : (currentData === 0 ? targetSensor.action : null);
                 if (!effectiveAction) continue;
 
                 if (!options?.ignoreTriggeredDelay && targetSensor.delay > 1 && deps.queueDelayedTriggeredSensorEffect) {

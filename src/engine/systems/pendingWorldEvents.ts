@@ -126,9 +126,9 @@ export function processPendingSensorEvents<
         const nestedPending = (effect as Partial<TSensorState> & { pendingSensorEvents?: TPendingSensorEvent[] }).pendingSensorEvents;
         remainingEvents = nestedPending ?? remainingEvents;
 
-        if (sensor.sound || sensor.type === 6) {
-            deps.playPlate();
-        }
+        // Delayed sensor resolution should not replay the source plate click.
+        // The tactile "plate" sound belongs to the moment the trigger is pressed,
+        // not to the later deferred effect resolving elsewhere in the dungeon.
     }
 
     return {

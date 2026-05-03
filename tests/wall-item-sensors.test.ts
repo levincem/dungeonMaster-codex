@@ -43,6 +43,7 @@ function createDeps(overrides: Record<string, unknown> = {}) {
     return {
         getTile: () => ({ x: 0, y: 0, type: 'Wall' as const, objects: [] }),
         getWallFaceSensorsInRuntimeOrder: () => [],
+        isOriginalAlcoveWallFace: () => false,
         isWallLockSensor: () => false,
         isWallAlcoveSensor: () => false,
         isWallObjectExchangerSensor: () => false,
@@ -193,6 +194,57 @@ test('triggerAlcoveDepositSensor supports hold wall niches backed by a mounted i
     assert.deepEqual(Array.from(result.sensorChanges.openDoors ?? []), ['door-c']);
 });
 
+test('triggerAlcoveDepositSensor supports original alcove-shaped hold sensors with reverse logic', () => {
+    const receivedActions: string[] = [];
+    const sensor = {
+        category: 'Sensor',
+        index: 15,
+        type: 2,
+        revert: true,
+        action: 'Hold',
+        tilePos: 'West',
+    } as const;
+    const gem = {
+        id: 'gem-1',
+        category: 'Misc' as const,
+        typeId: 1,
+        rawName: 'Blue Gem',
+        mapIndex: 0,
+        x: 0,
+        y: 0,
+        tilePos: 'West' as const,
+    };
+    const deps = createDeps({
+        getTile: () => ({ x: 8, y: 9, type: 'Wall' as const, objects: [sensor] }),
+        getWallFaceSensorsInRuntimeOrder: () => [sensor],
+        isOriginalAlcoveWallFace: () => true,
+        getRequiredSensorItemName: () => 'BLUE GEM',
+        itemMatchesMechanismRequirement: () => true,
+        computeSensorEffect: (entry: { action: string }) => {
+            receivedActions.push(entry.action);
+            return { openDoors: new Set(['door-d']) };
+        },
+    });
+
+    const result = triggerAlcoveDepositSensor(
+        2,
+        8,
+        9,
+        'West',
+        createState(),
+        { 3: [gem] },
+        {} as Record<number, ChampionEquipment>,
+        { championId: 3, itemId: gem.id, fromSlot: 'inventory' },
+        deps,
+    );
+
+    assert.equal(result.matched, true);
+    assert.deepEqual(result.newInventories, { 3: [] });
+    assert.deepEqual(result.depositedItem, { ...gem, mapIndex: 2, x: 8, y: 9, tilePos: 'West' });
+    assert.deepEqual(receivedActions, ['Clear']);
+    assert.deepEqual(Array.from(result.sensorChanges.openDoors ?? []), ['door-d']);
+});
+
 test('triggerObjectExchangerSensor skips the Firestaff exchange until the Zokathra unlock has fired', () => {
     const zokathraSensor = { category: 'Sensor', index: 30, type: 17, tilePos: 'South' } as const;
     const firestaffSensor = { category: 'Sensor', index: 31, type: 16, tilePos: 'South' } as const;
@@ -266,6 +318,47 @@ test('clearAlcoveStateOnPickup releases hold wall niches when the last mounted i
     }, deps);
 
     assert.deepEqual(Array.from(result.openDoors ?? []), ['effect-Clear']);
+});
+
+test('clearAlcoveStateOnPickup restores original alcove-shaped reverse hold sensors when the last item is removed', () => {
+    const receivedActions: string[] = [];
+    const holderSensor = {
+        category: 'Sensor',
+        index: 22,
+        type: 2,
+        revert: true,
+        action: 'Hold',
+        tilePos: 'North',
+    } as const;
+    const item = {
+        id: 'item-3',
+        category: 'Misc' as const,
+        typeId: 1,
+        rawName: 'Blue Gem',
+        mapIndex: 6,
+        x: 7,
+        y: 8,
+        tilePos: 'North' as const,
+    };
+    const deps = createDeps({
+        getTile: () => ({ x: 7, y: 8, type: 'Wall' as const, objects: [holderSensor] }),
+        getWallFaceSensorsInRuntimeOrder: () => [holderSensor],
+        isOriginalAlcoveWallFace: () => true,
+        getRequiredSensorItemName: () => 'BLUE GEM',
+        itemMatchesMechanismRequirement: () => true,
+        computeSensorEffect: (entry: { action: string }) => {
+            receivedActions.push(entry.action);
+            return { openDoors: new Set([`effect-${entry.action}`]) };
+        },
+    });
+
+    const result = clearAlcoveStateOnPickup(item, {
+        ...createState(),
+        floorItems: [item],
+    }, deps);
+
+    assert.deepEqual(receivedActions, ['Set']);
+    assert.deepEqual(Array.from(result.openDoors ?? []), ['effect-Set']);
 });
 
 test('applyFirestaffExchangerReward upgrades the base Firestaff and removes the wall reward', () => {

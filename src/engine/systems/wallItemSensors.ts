@@ -32,6 +32,12 @@ type WallItemSensorDeps<TSensorState extends SensorStateLike, TState> = {
         face: CardinalDir,
         rotationOffsets: Record<string, number>,
     ) => SensorObject[];
+    isOriginalAlcoveWallFace: (
+        level: number,
+        x: number,
+        y: number,
+        face: CardinalDir,
+    ) => boolean;
     isWallLockSensor: (sensor: SensorObject) => boolean;
     isWallAlcoveSensor: (sensor: SensorObject) => boolean;
     isWallObjectExchangerSensor: (sensor: SensorObject) => boolean;
@@ -119,6 +125,15 @@ function hasOriginalWallMountedItemAtFace(tile: GameTile, face: CardinalDir): bo
         && isItemCategory(object.category)
         && (object as { tilePos?: CardinalDir }).tilePos === face,
     );
+}
+
+function isHoldWallNicheSensor(sensor: SensorObject): boolean {
+    return (sensor.type === 1 || sensor.type === 2 || sensor.type === 3)
+        && sensor.action === 'Hold';
+}
+
+function resolveHoldWallNicheAction(sensor: SensorObject): SensorAction {
+    return sensor.revert ? 'Clear' : 'Set';
 }
 
 export function triggerLockSensors<
@@ -319,9 +334,12 @@ export function triggerAlcoveDepositSensor<
     }
 
     const supportsMountedWallItem = hasOriginalWallMountedItemAtFace(tile, face);
-    if (supportsMountedWallItem) {
+    const supportsOriginalAlcoveWallFace = deps.isOriginalAlcoveWallFace(level, wx, wy, face);
+    if (supportsMountedWallItem || supportsOriginalAlcoveWallFace) {
         for (const sensor of faceSensors) {
-            if ((sensor.type !== 1 && sensor.type !== 2) || sensor.revert || sensor.action !== 'Hold') continue;
+            if (!isHoldWallNicheSensor(sensor)) continue;
+            const requiredName = deps.getRequiredSensorItemName(sensor);
+            if (requiredName && !deps.itemMatchesMechanismRequirement(candidate, requiredName)) continue;
 
             let newInventories: Record<number, FloorItem[]> | null = null;
             let newEquipment: Record<number, ChampionEquipment> | null = null;
@@ -336,7 +354,10 @@ export function triggerAlcoveDepositSensor<
                 newInventories[selectedItem.championId] = inv.filter((item) => item.id !== selectedItem.itemId);
             }
 
-            const effectiveSensor = { ...sensor, action: 'Set' as SensorAction };
+            const effectiveSensor = {
+                ...sensor,
+                action: resolveHoldWallNicheAction(sensor),
+            };
             const effect = deps.computeSensorEffect(effectiveSensor, level, ss);
             if (effect.openDoors && effect.openDoors !== ss.openDoors) {
                 deps.playDoorMotion(deps.resolveDoorSoundTarget(effectiveSensor, level));
@@ -512,7 +533,10 @@ export function clearAlcoveStateOnPickup<
         return deps.diffSensorState(ss, nextState);
     }
 
-    if (hasOriginalWallMountedItemAtFace(tile, item.tilePos)) {
+    if (
+        hasOriginalWallMountedItemAtFace(tile, item.tilePos)
+        || deps.isOriginalAlcoveWallFace(item.mapIndex, item.x, item.y, item.tilePos)
+    ) {
         const remainingMountedItems = ((state as { floorItems?: FloorItem[] }).floorItems ?? []).some((entry) =>
             entry.id !== item.id
             && entry.mapIndex === item.mapIndex
@@ -523,7 +547,9 @@ export function clearAlcoveStateOnPickup<
         if (remainingMountedItems) return {};
 
         for (const sensor of faceSensors) {
-            if ((sensor.type !== 1 && sensor.type !== 2) || sensor.action !== 'Hold') continue;
+            if (!isHoldWallNicheSensor(sensor)) continue;
+            const requiredName = deps.getRequiredSensorItemName(sensor);
+            if (requiredName && !deps.itemMatchesMechanismRequirement(item, requiredName)) continue;
             const ss = deps.buildSensorStateSnapshot(state);
             const effectiveSensor = {
                 ...sensor,

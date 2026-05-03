@@ -16,6 +16,7 @@ import {
   getDungeonMapIndicesSync,
   preloadDungeonBootstrapData,
   preloadDungeonMapData,
+  preloadDungeonMapSetData,
   preloadDungeonMapNeighborhoodData,
 } from './data/dungeonData';
 import { preloadGameDbData } from './data/gameDbData';
@@ -25,6 +26,7 @@ import {
 } from './data/originalWallOverlayData';
 import { readBestPersistedSave } from './engine/saveGame';
 import { inspectPersistedSaveData } from './engine/systems/persistence';
+import { collectPersistedGameplayPreloadLevels } from './preload/persistedSavePreload';
 import {
   preloadGameplayRenderCoreModules,
   preloadGameplayRenderModules,
@@ -179,7 +181,10 @@ function GameRoot() {
     void preloadGameplayCoreVisualAssets().catch(() => {});
     const preload = Promise.all([
       inspection.status === 'compatible'
-        ? preloadGameplayLevelNeighborhood(inspection.data.level)
+        ? Promise.all([
+            preloadDungeonMapSetData(collectPersistedGameplayPreloadLevels(inspection.data)),
+            preloadOriginalWallOverlayMapNeighborhoodData(inspection.data.level, 1),
+          ]).then(() => {})
         : preloadDungeonBootstrapData(),
       preloadGameDbData(),
       preloadGameplayRenderCoreModules(),

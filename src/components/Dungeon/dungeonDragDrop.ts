@@ -44,6 +44,15 @@ export function isPointerInsideDungeonViewport(
     return pointerX <= viewportWidth * 0.67;
 }
 
+export function shouldRenderDungeonSceneDragOverlay(
+    activePartyMemberId: number | null,
+    hasInventoryItemDrag: boolean,
+    hasFloorItemDrag: boolean,
+): boolean {
+    if (activePartyMemberId === null) return true;
+    return hasInventoryItemDrag || hasFloorItemDrag;
+}
+
 export function performDungeonDragDropAction(
     destination: DungeonDragDropDestination,
     handlers: DungeonDragDropActionHandlers,

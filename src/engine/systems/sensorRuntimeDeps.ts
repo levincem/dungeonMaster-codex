@@ -169,6 +169,7 @@ type WallItemSensorStateLike = {
 
 type WallItemSensorDepsLike<TSensorState extends WallItemSensorStateLike, TState> = {
     getTile: (level: number, x: number, y: number) => GameTile | undefined;
+    isOriginalAlcoveWallFace: (level: number, x: number, y: number, face: CardinalDir) => boolean;
     isWallLockSensor: (sensor: SensorObject) => boolean;
     isWallAlcoveSensor: (sensor: SensorObject) => boolean;
     isWallObjectExchangerSensor: (sensor: SensorObject) => boolean;
@@ -361,6 +362,7 @@ type StoreSensorRuntimeDepsBundleParams<
     ) => FloorItem[];
     applyImmediateTransportSquareEffects: (state: TState, patch: Partial<TState>) => TAppliedPatch;
     resolvePushFace: (direction: string) => SensorObject['tilePos'];
+    isOriginalAlcoveWallFace: (level: number, x: number, y: number, face: CardinalDir) => boolean;
     isWallLockSensor: (sensor: SensorObject) => boolean;
     isWallAlcoveSensor: (sensor: SensorObject) => boolean;
     isWallObjectExchangerSensor: (sensor: SensorObject) => boolean;
@@ -476,6 +478,7 @@ export function createWallItemSensorDeps<TSensorState extends WallItemSensorStat
     return {
         getTile: params.getTile,
         getWallFaceSensorsInRuntimeOrder: params.getWallFaceSensorsInRuntimeOrder,
+        isOriginalAlcoveWallFace: params.isOriginalAlcoveWallFace,
         isWallLockSensor: params.isWallLockSensor,
         isWallAlcoveSensor: params.isWallAlcoveSensor,
         isWallObjectExchangerSensor: params.isWallObjectExchangerSensor,
@@ -588,6 +591,7 @@ export function createStoreSensorRuntimeDepsBundle<
     const wallItemSensorDeps = {
         getTile: params.getTile,
         ...wallFaceDeps,
+        isOriginalAlcoveWallFace: params.isOriginalAlcoveWallFace,
         isWallLockSensor: params.isWallLockSensor,
         isWallAlcoveSensor: params.isWallAlcoveSensor,
         isWallObjectExchangerSensor: params.isWallObjectExchangerSensor,

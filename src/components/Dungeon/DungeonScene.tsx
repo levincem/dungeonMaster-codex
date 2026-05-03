@@ -12,7 +12,12 @@ import {
 } from '../../engine/store';
 import { CREATURE_TYPES } from '../../data/creatures';
 import { getMapMechanisms, getMechanismsAt } from '../../data/mechanisms';
-import { getOriginalWallOverlaysForMap, hasEffectiveOriginalWallOverlayAt, type OriginalWallOverlayRender } from '../../data/originalWallOverlays';
+import {
+    getOriginalWallOverlaysForMap,
+    hasEffectiveOriginalWallOverlayAt,
+    hasOriginalWallOverlayAt,
+    type OriginalWallOverlayRender,
+} from '../../data/originalWallOverlays';
 import type { Direction } from '../../engine/runtimeTypes';
 import { computeLightLevel } from '../../engine/store';
 import { getGameMap, toGlobalCoords } from '../../data/mapLoader';
@@ -48,6 +53,7 @@ import {
     performDungeonDragDropAction,
     resolveDungeonDragDropDestination,
     resolveDungeonWallDropTarget,
+    shouldRenderDungeonSceneDragOverlay,
 } from './dungeonDragDrop';
 import {
     WallTextPlanes as SceneWallTextPlanes,
@@ -998,14 +1004,17 @@ const DungeonSceneDragOverlay: React.FC<{
             position,
             direction,
             openWalls,
-            hasEffectiveOriginalWallOverlayAt,
+            hasEffectiveOriginalWallOverlayAt: (targetLevel, tileX, tileY, face, overlayName) =>
+                overlayName === 'Square Alcove' || overlayName === 'Arched Alcove'
+                    ? hasOriginalWallOverlayAt(targetLevel, tileX, tileY, face, overlayName)
+                    : hasEffectiveOriginalWallOverlayAt(targetLevel, tileX, tileY, face, overlayName),
             isSelfRevealingWallTile,
             getMechanismsAtFace: (targetLevel, tileX, tileY, face) => getMechanismsAt(targetLevel, tileX, tileY, face),
         }),
         [direction, level, map, openWalls, position],
     );
 
-    if (activePartyMemberId !== null) {
+    if (!shouldRenderDungeonSceneDragOverlay(activePartyMemberId, hasInventoryItemDrag, hasFloorItemDrag)) {
         return null;
     }
 

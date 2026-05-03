@@ -62,7 +62,7 @@ import {
     getTotalWeight,
 } from '../data/equipment';
 import type { ChampionWoundSlot, ChampionWounds, EquipmentStatBonuses } from '../data/equipment';
-import { hasEffectiveOriginalWallOverlayAt } from '../data/originalWallOverlays';
+import { hasEffectiveOriginalWallOverlayAt, hasOriginalWallOverlayAt } from '../data/originalWallOverlays';
 import { isOriginalConsumableItem } from '../data/originalItemRules';
 import {
     getOriginalPaletteNormalizedBrightnessForLuminance,
@@ -441,7 +441,7 @@ export type GamePhase = 'title' | 'exploration' | 'mirror_open' | 'endgame' | 'v
 
 const DOOR_TOGGLE_SOUND_DURATION_MS = 1000;
 const DOOR_SOUND_MAX_VOLUME = 0.65;
-const DOOR_SOUND_MAX_TILES = 5;
+const DOOR_SOUND_MAX_TILES = 7;
 const DOOR_SOUND_FALLOFF_PER_TILE = DOOR_SOUND_MAX_VOLUME / DOOR_SOUND_MAX_TILES;
 const CREATURE_SOUND_MAX_TILES = 10;
 
@@ -1375,6 +1375,9 @@ const {
     revealSelfWallMountedItems,
     applyImmediateTransportSquareEffects,
     resolvePushFace: (direction: string): CardinalDir => PUSH_FACE_BY_DIRECTION[direction] as CardinalDir,
+    isOriginalAlcoveWallFace: (level: number, x: number, y: number, face: CardinalDir) =>
+        hasOriginalWallOverlayAt(level, x, y, face, 'Square Alcove')
+        || hasOriginalWallOverlayAt(level, x, y, face, 'Arched Alcove'),
     isWallLockSensor,
     isWallAlcoveSensor,
     isWallObjectExchangerSensor,

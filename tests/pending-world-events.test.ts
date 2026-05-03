@@ -52,8 +52,6 @@ test('processPendingSensorEvents triggers elapsed events and keeps future ones q
         creatures: [],
     };
     const playedDoors: Array<{ level: number; x: number; y: number } | null> = [];
-    let plateCount = 0;
-
     const result = processPendingSensorEvents(
         1,
         [
@@ -70,7 +68,7 @@ test('processPendingSensorEvents triggers elapsed events and keeps future ones q
                 playedDoors.push(target);
             },
             playPlate: () => {
-                plateCount += 1;
+                throw new Error('delayed sensor resolution should not replay plate audio');
             },
             diffSensorState: (_before, after) => ({ openDoors: after.openDoors }),
         },
@@ -79,7 +77,6 @@ test('processPendingSensorEvents triggers elapsed events and keeps future ones q
     assert.deepEqual([...result.sensorChanges.openDoors!], ['3,1,2']);
     assert.deepEqual(result.pendingSensorEvents, [{ level: 3, sensorIndex: 6, remaining: 1 }]);
     assert.deepEqual(playedDoors, [{ level: 3, x: 2, y: 1 }]);
-    assert.equal(plateCount, 1);
 });
 
 test('processPendingSensorEvents replays delayed triggered effects through dispatch for gate sensors', () => {

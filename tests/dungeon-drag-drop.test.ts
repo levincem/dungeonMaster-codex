@@ -6,6 +6,7 @@ import {
     performDungeonDragDropAction,
     resolveDungeonDragDropDestination,
     resolveDungeonWallDropTarget,
+    shouldRenderDungeonSceneDragOverlay,
 } from '../src/components/Dungeon/dungeonDragDrop.js';
 
 test('resolveDungeonDragDropDestination splits the viewport into throw, front and current bands', () => {
@@ -57,6 +58,13 @@ test('performDungeonDragDropAction falls back from front to current and delegate
         },
     });
     assert.deepEqual(calls, ['throw']);
+});
+
+test('shouldRenderDungeonSceneDragOverlay keeps wall drop targets available while dragging from the champion sheet', () => {
+    assert.equal(shouldRenderDungeonSceneDragOverlay(null, false, false), true);
+    assert.equal(shouldRenderDungeonSceneDragOverlay(1, false, false), false);
+    assert.equal(shouldRenderDungeonSceneDragOverlay(1, true, false), true);
+    assert.equal(shouldRenderDungeonSceneDragOverlay(1, false, true), true);
 });
 
 test('resolveDungeonWallDropTarget distinguishes altar targets from generic front-wall drops', () => {
