@@ -76,8 +76,8 @@ test('resolveBlockedSpellProjectileConsequences builds a blocked poison cloud wi
             assert.equal(scaledVisual, 0.75 * 1.08);
             return poisonCloud;
         },
-        rollSourceBackedImpactDamage: () => {
-            throw new Error('source-backed impact damage should not be requested for poison clouds');
+        rollExplosionBurstAttack: () => {
+            throw new Error('explosion burst damage should not be requested for poison clouds');
         },
         rollRandomDamage: () => {
             throw new Error('random damage should not be requested for poison clouds');
@@ -91,7 +91,7 @@ test('resolveBlockedSpellProjectileConsequences builds a blocked poison cloud wi
     assert.equal(result.backlash, null);
 });
 
-test('resolveBlockedSpellProjectileConsequences prefers source-backed damage before backlash', () => {
+test('resolveBlockedSpellProjectileConsequences uses explosion burst damage for blocked fire projectiles', () => {
     const result = resolveBlockedSpellProjectileConsequences({
         spellEffect: 'fireball',
         level: 1,
@@ -105,12 +105,13 @@ test('resolveBlockedSpellProjectileConsequences prefers source-backed damage bef
         buildBlockedPoisonCloud: () => {
             throw new Error('poison cloud builder should not be called for fireball');
         },
-        rollSourceBackedImpactDamage: (initialRange) => {
-            assert.equal(initialRange, 6);
+        rollExplosionBurstAttack: (effect, attackPower) => {
+            assert.equal(effect, 'fireball');
+            assert.equal(attackPower, 6);
             return 13;
         },
         rollRandomDamage: () => {
-            throw new Error('fallback random damage should not be used when source damage is available');
+            throw new Error('fallback random damage should not be used for blocked fireball bursts');
         },
         applyBacklash: (rolledDamage) => {
             assert.equal(rolledDamage, 13);

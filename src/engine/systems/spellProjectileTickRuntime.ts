@@ -61,6 +61,8 @@ type SpellProjectileTickDeps = {
     gridSize: number;
     rollSourceBackedImpact: Parameters<typeof applyProjectileCreatureHit>[10]['rollSourceBackedImpact'];
     getCreaturePoisonAdjustedAttack: Parameters<typeof applyProjectileCreatureHit>[10]['getCreaturePoisonAdjustedAttack'];
+    scaleCreatureProjectileImpactDamage: Parameters<typeof applyProjectileCreatureHit>[10]['scaleCreatureProjectileImpactDamage'];
+    getCreatureFireAdjustedExplosionAttack: Parameters<typeof applyProjectileCreatureHit>[10]['getCreatureFireAdjustedExplosionAttack'];
     hitCreatureAbsorbsMissiles: (creature: CreatureInstance) => boolean;
     rollRandomProjectileDamage: Parameters<typeof applyProjectileCreatureHit>[10]['rollRandomProjectileDamage'];
     isLikelyNonMaterial: Parameters<typeof applyProjectileCreatureHit>[10]['isLikelyNonMaterial'];
@@ -217,6 +219,8 @@ function resolveProjectileImpactOnSquare(
         {
             rollSourceBackedImpact: deps.rollSourceBackedImpact,
             getCreaturePoisonAdjustedAttack: deps.getCreaturePoisonAdjustedAttack,
+            scaleCreatureProjectileImpactDamage: deps.scaleCreatureProjectileImpactDamage,
+            getCreatureFireAdjustedExplosionAttack: deps.getCreatureFireAdjustedExplosionAttack,
             randomInt: deps.randomInt,
             rollRandomProjectileDamage: deps.rollRandomProjectileDamage,
             rollExplosionBurstAttack: deps.rollExplosionBurstAttack,

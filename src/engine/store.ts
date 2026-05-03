@@ -441,17 +441,34 @@ export type GamePhase = 'title' | 'exploration' | 'mirror_open' | 'endgame' | 'v
 
 const DOOR_TOGGLE_SOUND_DURATION_MS = 1000;
 const DOOR_SOUND_MAX_VOLUME = 0.65;
-const DOOR_SOUND_MIN_VOLUME = 0.22;
-const DOOR_SOUND_FALLOFF_PER_TILE = 0.075;
+const DOOR_SOUND_MAX_TILES = 5;
+const DOOR_SOUND_FALLOFF_PER_TILE = DOOR_SOUND_MAX_VOLUME / DOOR_SOUND_MAX_TILES;
 const CREATURE_SOUND_MAX_TILES = 10;
 
 function getDoorSoundVolume(level: number, x: number, y: number): number {
     const state = useStore.getState();
-    if (state.level !== level) return DOOR_SOUND_MIN_VOLUME;
-    const dx = x - state.position[1];
-    const dy = y - state.position[0];
+    if (state.level !== level) return 0;
+    const partyX = state.position[1];
+    const partyY = state.position[0];
+    const dx = x - partyX;
+    const dy = y - partyY;
     const distance = Math.hypot(dx, dy);
-    return Math.max(DOOR_SOUND_MIN_VOLUME, DOOR_SOUND_MAX_VOLUME - distance * DOOR_SOUND_FALLOFF_PER_TILE);
+    if (distance > DOOR_SOUND_MAX_TILES) return 0;
+    if (
+        !hasLineOfSight(
+            getMap(level),
+            level,
+            state.openDoors,
+            state.openWalls,
+            partyX,
+            partyY,
+            x,
+            y,
+        )
+    ) {
+        return 0;
+    }
+    return Math.max(0, DOOR_SOUND_MAX_VOLUME - distance * DOOR_SOUND_FALLOFF_PER_TILE);
 }
 
 // ─── Champion vitals (live HP / Stamina / Mana) ───────────────────────────────
@@ -1013,7 +1030,7 @@ type PendingGeneratorRuntimeDeps = PendingGeneratorDeps<
 function playDoorMotionForTarget(target: { level: number; x: number; y: number } | null) {
     playDoorMotion(
         DOOR_TOGGLE_SOUND_DURATION_MS,
-        target ? getDoorSoundVolume(target.level, target.x, target.y) : DOOR_SOUND_MIN_VOLUME,
+        target ? getDoorSoundVolume(target.level, target.x, target.y) : 0,
     );
 }
 
@@ -3389,7 +3406,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
 
     // ─── Potion rune → typeId mapping (spell runes without power rune) ──────────
     // Source: canonical runtime potion table in src/data/items.ts
-    // vi → Vi Potion (14) | vi,bro → Antivenin (10) | ya → Mon Potion (11 stamina)
+    // vi → Vi Potion (45) typeId 14 | vi,bro → Antivenin (10) typeId 10 | ya → Mon Potion (11) typeId 11
     // ya,bro → Ya Potion (12 shield) | zo,bro,ra → Ee Potion (13 mana)
 
     // ─── Spell casting ────────────────────────────────────────────────────────

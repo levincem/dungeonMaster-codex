@@ -201,7 +201,7 @@ test('determineMeleeDamage produces positive damage on a successful standard hit
     assert.ok(damage > 0);
 });
 
-test('determineMeleeDamage doubles and adds 10 when the mastery roll succeeds', () => {
+test('determineMeleeDamage adds 10 when the mastery roll succeeds', () => {
     const damage = determineMeleeDamage(
         {
             champion: createChampion(),
@@ -219,7 +219,7 @@ test('determineMeleeDamage doubles and adds 10 when the mastery roll succeeds', 
         },
     );
 
-    assert.equal(damage, 14);
+    assert.equal(damage, 12);
 });
 
 test('determineMeleeDamage halves vorpal damage against material targets', () => {

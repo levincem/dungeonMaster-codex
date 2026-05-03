@@ -85,7 +85,7 @@ test('resolvePotionSpellResult upgrades the first flask hand into the generated 
             x: 0,
             y: 0,
             tilePos: 'North',
-            rawName: 'Vi Potion',
+            rawName: 'Vi Potion (45)',
             potionPower: 45,
         },
     });

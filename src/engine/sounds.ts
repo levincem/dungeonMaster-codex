@@ -209,7 +209,10 @@ export function playStep():  void {
 export function playCry():   void { play('cry',       0.55); }
 export function playPlate(): void { play('plate',     0.80); }
 export function playDoor(): void { play('door', 0.65); }
-export function playDoorMotion(durationMs = 1000, volume = 0.65): void { playLoopFor('door', durationMs, volume); }
+export function playDoorMotion(durationMs = 1000, volume = 0.65): void {
+    if (durationMs <= 0 || volume <= 0) return;
+    playLoopFor('door', durationMs, volume);
+}
 export function playTeleport(): void { play('teleport', 0.70); }
 export function playWallBump(): void { play('wall_bump', 0.70); }
 export function playFallingItem(): void { play('falling_item', 0.68); }

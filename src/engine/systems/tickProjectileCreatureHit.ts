@@ -26,6 +26,8 @@ type TickProjectileCreatureHitState = {
 type TickProjectileCreatureHitDeps = {
     rollSourceBackedImpact: (projectile: Projectile) => RolledSpellImpact | null;
     getCreaturePoisonAdjustedAttack: (creatureTypeId: number, poisonAttack: number) => number;
+    scaleCreatureProjectileImpactDamage: (creatureTypeId: number, attack: number) => number;
+    getCreatureFireAdjustedExplosionAttack: (creatureTypeId: number, attack: number) => number;
     randomInt: (maxExclusive: number) => number;
     rollRandomProjectileDamage: (projectile: Projectile) => number;
     rollExplosionBurstAttack: (effect: 'disrupt_nonmaterial' | 'poison_cloud' | 'fireball' | 'lightning', attack: number) => number;
@@ -112,11 +114,12 @@ export function applyProjectileCreatureHit(
     const poisonDamage = sourceBackedImpact?.poisonStrength
         ? deps.getCreaturePoisonAdjustedAttack(hit.typeId, sourceBackedImpact.poisonStrength)
         : 0;
-    const rolledDamage = projectile.effect === 'physical'
+    const rolledImpactDamage = projectile.effect === 'physical'
         ? rollOriginalPhysicalProjectileCreatureDamage(projectile, hit.typeId, deps.randomInt)
         : sourceBackedImpact
-            ? sourceBackedImpact.damage + poisonDamage
-            : deps.rollRandomProjectileDamage(projectile);
+            ? deps.scaleCreatureProjectileImpactDamage(hit.typeId, sourceBackedImpact.damage)
+            : deps.scaleCreatureProjectileImpactDamage(hit.typeId, deps.rollRandomProjectileDamage(projectile));
+    const rolledDamage = rolledImpactDamage + poisonDamage;
 
     let totalDamage = 0;
     const canAbsorbPhysicalMissile =
@@ -155,6 +158,22 @@ export function applyProjectileCreatureHit(
     } else {
         let newHP = Math.max(0, hit.currentHP - rolledDamage);
         totalDamage = Math.max(0, hit.currentHP - newHP);
+        if (
+            (projectile.effect === 'fireball' || projectile.effect === 'lightning') &&
+            (projectile.remainingRange ?? 0) > 0
+        ) {
+            const rawExplosionDamage = deps.rollExplosionBurstAttack(
+                projectile.effect,
+                Math.max(0, Math.round(projectile.remainingRange ?? 0)),
+            );
+            const adjustedExplosionDamage = deps.getCreatureFireAdjustedExplosionAttack(
+                hit.typeId,
+                rawExplosionDamage,
+            );
+            const appliedExplosionDamage = Math.max(0, Math.min(newHP, adjustedExplosionDamage));
+            newHP = Math.max(0, newHP - appliedExplosionDamage);
+            totalDamage += appliedExplosionDamage;
+        }
         if (projectile.effect === 'physical' && projectile.explosionOnImpact && projectile.explosionAttack) {
             const explosionEffect = projectile.explosionOnImpact;
             if (
@@ -169,7 +188,9 @@ export function applyProjectileCreatureHit(
                 );
                 const adjustedExplosionDamage = explosionEffect === 'poison_cloud'
                     ? deps.getCreaturePoisonAdjustedAttack(hit.typeId, rawExplosionDamage)
-                    : rawExplosionDamage;
+                    : explosionEffect === 'fireball' || explosionEffect === 'lightning'
+                        ? deps.getCreatureFireAdjustedExplosionAttack(hit.typeId, rawExplosionDamage)
+                        : rawExplosionDamage;
                 const appliedExplosionDamage = Math.max(0, Math.min(newHP, adjustedExplosionDamage));
                 newHP = Math.max(0, newHP - appliedExplosionDamage);
                 totalDamage += appliedExplosionDamage;

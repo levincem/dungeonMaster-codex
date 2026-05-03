@@ -113,3 +113,22 @@ test('tryUseFloorItemOnFrontWall clears the drag state and adds the message when
         lastCastResult: { message: 'The Firestaff absorbs the energy of the Amalgam.' },
     });
 });
+
+test('tryUseFloorItemOnFrontWall can trigger any-object alcove-style wall sensors without consuming the floor item', () => {
+    const state = createState();
+    const deps = createDeps({
+        triggerAnyObjectWallSensor: () => ({
+            sensorChanges: { activeSensors: ['3_12'] },
+            matched: true,
+        }),
+    });
+
+    const result = tryUseFloorItemOnFrontWall(state, 'item-1', 1, deps);
+
+    assert.equal(result.matched, true);
+    assert.equal(result.shouldPlayPlate, true);
+    assert.deepEqual(result.patch, {
+        activeSensors: ['3_12'],
+        activeFloorDrag: null,
+    });
+});

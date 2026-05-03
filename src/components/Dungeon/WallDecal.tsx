@@ -10,6 +10,7 @@ import {
     resolveWallDecalScatterOffset,
     type WallDecalPreset,
 } from '../../data/wallDecalPresets';
+import { useWallTransparencyState } from './wallTransparency';
 const NO_RAYCAST: THREE.Mesh['raycast'] = () => {};
 
 // ─── Face positioning (same convention as WallSensor / Cell FACE_CONFIGS) ─────
@@ -103,11 +104,13 @@ const DecalSprite = ({
     fallbackImage,
     width,
     height,
+    opacity,
 }: {
     image: string;
     fallbackImage?: string;
     width: number;
     height: number;
+    opacity: number;
 }) => {
     const tex = useSafeTexture(image, fallbackImage);
     if (!tex) return null;
@@ -118,6 +121,7 @@ const DecalSprite = ({
             <meshBasicMaterial
                 map={tex}
                 transparent
+                opacity={opacity}
                 alphaTest={0.05}
                 side={THREE.DoubleSide}
                 depthWrite={false}
@@ -187,11 +191,13 @@ const LabelSprite = ({
     accent,
     width,
     height,
+    opacity,
 }: {
     label: string;
     accent: string;
     width: number;
     height: number;
+    opacity: number;
 }) => {
     const texture = useMemo(() => makeLabelTexture(label, accent), [label, accent]);
     useEffect(() => () => texture.dispose(), [texture]);
@@ -202,6 +208,7 @@ const LabelSprite = ({
             <meshBasicMaterial
                 map={texture}
                 transparent
+                opacity={opacity}
                 alphaTest={0.05}
                 side={THREE.DoubleSide}
                 depthWrite={false}
@@ -239,6 +246,7 @@ export const WallDecal = ({
     height,
     onClick,
 }: Props) => {
+    const { wallTransparent, wallOpacity } = useWallTransparencyState();
     if (!image && !label) return null;
 
     const [ox, , oz] = FACE_POS[face];
@@ -297,7 +305,12 @@ export const WallDecal = ({
                     <>
                         <mesh position={[0, 0, -PLATE_DEPTH * 0.55]} frustumCulled={false} renderOrder={1} raycast={NO_RAYCAST}>
                             <boxGeometry args={[plateWidth, plateHeight, PLATE_DEPTH]} />
-                            <meshBasicMaterial color={preset.plateColor} />
+                            <meshBasicMaterial
+                                color={preset.plateColor}
+                                transparent={wallTransparent}
+                                opacity={wallOpacity}
+                                depthWrite={!wallTransparent}
+                            />
                         </mesh>
                     </>
                 )}
@@ -307,9 +320,9 @@ export const WallDecal = ({
                         <meshBasicMaterial
                             color={accent}
                             transparent
-                            opacity={0.12}
+                            opacity={0.12 * wallOpacity}
                             side={THREE.DoubleSide}
-                            depthWrite={false}
+                            depthWrite={!wallTransparent}
                             depthTest={true}
                             polygonOffset
                             polygonOffsetFactor={-2}
@@ -320,9 +333,21 @@ export const WallDecal = ({
                 )}
                 <group position={[0, 0, contentDepth]}>
                     {image ? (
-                        <DecalSprite image={image} fallbackImage={fallbackImage} width={decalWidth} height={decalHeight} />
+                        <DecalSprite
+                            image={image}
+                            fallbackImage={fallbackImage}
+                            width={decalWidth}
+                            height={decalHeight}
+                            opacity={wallOpacity}
+                        />
                     ) : label ? (
-                        <LabelSprite label={label} accent={accent} width={decalWidth} height={decalHeight} />
+                        <LabelSprite
+                            label={label}
+                            accent={accent}
+                            width={decalWidth}
+                            height={decalHeight}
+                            opacity={wallOpacity}
+                        />
                     ) : null}
                 </group>
             </group>

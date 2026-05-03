@@ -54,7 +54,10 @@ type BuildProjectileSpellStatePatchDeps = {
         elapsedGameTimeTicks: number,
         visualScale: number,
     ) => ActivePoisonCloud;
-    rollSourceBackedImpactDamage: (initialRange: number) => number | null;
+    rollExplosionBurstAttack: (
+        effect: Extract<ProjectileEffect, 'fireball' | 'lightning' | 'poison_cloud'>,
+        attackPower: number,
+    ) => number;
     rollRandomDamage: (min: number, max: number) => number;
     applyBacklash: (
         effect: Exclude<ProjectileEffect, 'physical'>,
@@ -183,7 +186,7 @@ export function buildProjectileSpellStatePatch(
             projectileDamage: projectileDamage as ProjectileDamageRange,
             initialRange: launchProfile?.initialRange ?? 0,
             buildBlockedPoisonCloud: deps.buildBlockedPoisonCloud,
-            rollSourceBackedImpactDamage: deps.rollSourceBackedImpactDamage,
+            rollExplosionBurstAttack: deps.rollExplosionBurstAttack,
             rollRandomDamage: deps.rollRandomDamage,
             applyBacklash: (rolledDamage) => deps.applyBacklash(
                 args.spell.effect as Exclude<ProjectileEffect, 'physical'>,

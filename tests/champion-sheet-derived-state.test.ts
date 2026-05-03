@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
     buildChampionSheetFrontWallContext,
     buildChampionSheetLoadSummary,
+    buildChampionSheetStatusBadges,
     buildChampionSheetVitalsSummary,
     findActivePartyChampion,
     getChampionPotionBonusesForSheet,
@@ -162,6 +163,44 @@ test('buildChampionSheetLoadSummary flags warning and overload thresholds', () =
         buildChampionSheetLoadSummary({ weight: 90, maxWeight: 80 }).loadSeverity,
         'critical',
     );
+});
+
+test('buildChampionSheetStatusBadges surfaces positive and negative champion states', () => {
+    const statuses = buildChampionSheetStatusBadges({
+        vitals: {
+            wounds: { feet: true },
+            poisonEntries: [{ remaining: 12, nextTickIn: 0.5 }],
+        },
+        foodSeverity: 'warning',
+        waterSeverity: 'critical',
+        loadSummary: buildChampionSheetLoadSummary({ weight: 90, maxWeight: 80 }),
+        potionBonuses: {
+            mana: 0,
+            strength: 4,
+            dexterity: 0,
+            wisdom: 0,
+            vitality: 0,
+            antiMagic: 0,
+            antiFire: 0,
+            luck: 0,
+        },
+        poisonedLabel: 'Poisoned',
+        woundedLabel: 'Wounded',
+        hungryLabel: 'Hungry',
+        thirstyLabel: 'Thirsty',
+        encumberedLabel: 'Encumbered',
+        overloadedLabel: 'Overloaded',
+        boostedLabel: 'Boosted',
+    });
+
+    assert.deepEqual(statuses, [
+        { key: 'poisoned', label: 'Poisoned', tone: 'negative' },
+        { key: 'wounded', label: 'Wounded', tone: 'negative' },
+        { key: 'thirsty', label: 'Thirsty', tone: 'negative' },
+        { key: 'hungry', label: 'Hungry', tone: 'warning' },
+        { key: 'overloaded', label: 'Overloaded', tone: 'negative' },
+        { key: 'boosted', label: 'Boosted', tone: 'positive' },
+    ]);
 });
 
 test('buildChampionSheetFrontWallContext resolves fountain, altar, wall mechanisms, and dismissal gating', () => {

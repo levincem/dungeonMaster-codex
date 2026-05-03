@@ -23,6 +23,10 @@ type PotionSpellDeps = {
     resolvePotionName: (typeId: number) => string;
 };
 
+function formatGeneratedPotionName(baseName: string, potionPower: number): string {
+    return `${baseName} (${potionPower})`;
+}
+
 function isEmptyFlask(item: FloorItem | undefined): boolean {
     return item?.category === 'Potion' && item.typeId === 20;
 }
@@ -51,6 +55,7 @@ export function resolvePotionSpellResult(
     const potionPower = potionStrength
         ? potionStrength.min + deps.randomInt((potionStrength.max - potionStrength.min) + 1)
         : 40;
+    const potionName = deps.resolvePotionName(descriptor.subtype);
 
     return {
         kind: 'success',
@@ -59,7 +64,7 @@ export function resolvePotionSpellResult(
             ...flask,
             category: 'Potion',
             typeId: descriptor.subtype,
-            rawName: deps.resolvePotionName(descriptor.subtype),
+            rawName: formatGeneratedPotionName(potionName, potionPower),
             potionPower,
         },
     };

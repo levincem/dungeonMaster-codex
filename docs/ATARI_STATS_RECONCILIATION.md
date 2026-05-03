@@ -150,6 +150,12 @@ What remains is the translation problem between:
 - original attack descriptors and formulas
 - the remake's simplified weapon damage range model
 
+As of `2026-05-03`, spell projectile impacts are no longer the main gap here:
+
+- direct spell hits on creatures now go back through creature defense
+- `Fireball` / `Lightning` creature impacts now replay their secondary explosion branch more faithfully
+- the remaining high-value reconciliation work is now mostly on weapon / melee interpretation
+
 We also now have `0562` decoded cleanly enough to expose proven runtime tables such as:
 
 - champion `dropOrder`
@@ -179,6 +185,9 @@ Examples:
    - Atari attack tables from `0560`
    - runtime damage formulas from `Attack.cpp`
    - remake damage ranges
+   - note `2026-05-03`:
+     - a concrete melee mastery drift was found, then corrected, in [src/engine/systems/meleeDamage.ts](/D:/DungeonMaster-codex/src/engine/systems/meleeDamage.ts)
+     - the remaining work here is now more about the broader interpretation layer than this specific proc mismatch
 
 2. Revisit remaining derived monster fields:
    - legacy compatibility aliases such as `behaviorAfterAttack`, whose current export name does not match its real original meaning

@@ -59,10 +59,16 @@ After adding this source, the attacks/defenses domain should be viewed as:
 
 ## Current Runtime Status
 
-As of `2026-04-14`, the remake now uses this source more directly for spell/projectile-side damage than it did originally:
+As of `2026-05-03`, the remake now uses this source more directly for spell/projectile-side damage than it did originally:
 
 - `Fireball`, `Lightning Bolt`, `Poison Cloud`, `Open Door`, and `Disrupt Nonmaterial` now follow source-backed projectile/explosion branches much more closely
 - party-wide spell backlash no longer uses a simple front-row/back-row split and instead uses a spread closer to `F324_aezz_CHAMPION_DamageAll_GetDamagedChampionCount`
+- direct spell-projectile impacts on creatures now reapply creature defense before HP loss, instead of taking the rolled spell hit almost raw
+- `Fireball` / `Lightning Bolt` on creatures now replay the original two-stage pattern more faithfully:
+  - direct hit first
+  - then the secondary explosion burst
+  - with creature `fireResistance` applied on that burst instead of on the direct contact hit
+- blocked `Fireball` / `Lightning Bolt` impacts now use the source-backed explosion burst branch rather than reusing the direct-hit damage roll
 - food, water, drinking, mana regen, stamina regen, and HP regen have been rechecked against `CHAMPION.C` / `INVNTORY.C`
 - creature-vs-champion mitigation now follows the original branching more closely too:
   - `Sharp` uses the `sharpDefense` path exported from `i559`
@@ -79,6 +85,11 @@ Important deliberate divergence:
 - the remake does **not** currently emulate the original compiled-game bug (`BUG0_41`) that effectively neutralized much of `Anti-Magic` / `Anti-Fire`
 - instead, those statistics remain active in the runtime because this is closer to the intended design than to the buggy Megamax output
 - `Slime` is still intentionally left as a remaining gap in full projectile-semantics parity
+
+Recent melee follow-up:
+
+- a verification pass on `2026-05-03` found and then corrected a remaining mastery drift in [src/engine/systems/meleeDamage.ts](/D:/DungeonMaster-codex/src/engine/systems/meleeDamage.ts)
+- the mastery proc now matches `DeterminePhysicalAttackDamage` and adds only `+10`
 
 ## Recommended Integration Order
 

@@ -38,7 +38,7 @@ Le donjon actif DM est tres bien recale:
 Nuance utile:
 
 - l'audit canonique suit `50` generateurs places dans le monde de reference
-- l'export brut et le runtime recales suivent `54` generateurs de sol `type 6`
+- l'export brut et le runtime recales suivent `50` generateurs de groupe au sol `type 6`
 - ce n'est pas une contradiction, mais une difference de perimetre entre audit canonique et export brut
 
 Sources:

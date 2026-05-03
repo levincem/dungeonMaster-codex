@@ -370,6 +370,24 @@ export function tryUseFloorItemOnFrontWall<
         };
     }
 
+    const anyObjectResult = deps.triggerAnyObjectWallSensor(
+        state.level,
+        wallX,
+        wallY,
+        face,
+        ss,
+    );
+    if (anyObjectResult.matched) {
+        return {
+            matched: true,
+            patch: deps.applyImmediateTransportSquareEffects(state, {
+                ...anyObjectResult.sensorChanges,
+                activeFloorDrag: state.activeFloorDrag?.itemId === itemId ? null : state.activeFloorDrag,
+            }),
+            shouldPlayPlate: hasSensorChanges(anyObjectResult.sensorChanges),
+        };
+    }
+
     if (isWallFaceOccupied(state.floorItems, state.level, wallX, wallY, face)) {
         return { matched: false, patch: null, shouldPlayPlate: false };
     }

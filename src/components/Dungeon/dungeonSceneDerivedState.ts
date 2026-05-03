@@ -17,6 +17,7 @@ const WALL_FACE_VECTORS: Record<CardinalDir, { dx: number; dy: number }> = {
 
 type MechanismEntry = {
     trigger: string;
+    sensorType?: number;
 };
 type MapMechanismEntry = {
     x: number;
@@ -81,6 +82,23 @@ function isWallMountedItemHolderFace(tile: GameTile | undefined, face: CardinalD
 function wallFaceAnchor(tileX: number, tileY: number, face: CardinalDir): { x: number; y: number } {
     const step = WALL_FACE_VECTORS[face];
     return { x: tileX + step.dx, y: tileY + step.dy };
+}
+
+function isOriginalAlcoveWallFace(
+    level: number,
+    tileX: number,
+    tileY: number,
+    face: CardinalDir,
+    hasWallOverlayAt: (
+        level: number,
+        tileX: number,
+        tileY: number,
+        face: CardinalDir,
+        overlayName: string,
+    ) => boolean,
+): boolean {
+    return hasWallOverlayAt(level, tileX, tileY, face, 'Square Alcove')
+        || hasWallOverlayAt(level, tileX, tileY, face, 'Arched Alcove');
 }
 
 function blocksWallFaceSight(
@@ -186,7 +204,14 @@ export function resolveFrontWallInteractionKind(args: {
     if (hasWallOverlayAt(level, frontTileX, frontTileY, frontFace, 'Fountain')) {
         return 'fountain';
     }
-    const mechanism = mechanismLookup(level, frontTileX, frontTileY, frontFace).find((entry) =>
+    const mechanisms = mechanismLookup(level, frontTileX, frontTileY, frontFace);
+    if (
+        isOriginalAlcoveWallFace(level, frontTileX, frontTileY, frontFace, hasWallOverlayAt)
+        && mechanisms.some((entry) => entry.sensorType === 1 || entry.sensorType === 2 || entry.sensorType === 3)
+    ) {
+        return 'alcove';
+    }
+    const mechanism = mechanisms.find((entry) =>
         entry.trigger === 'wall-lock' || entry.trigger === 'alcove' || entry.trigger === 'object-exchanger',
     );
     if (!mechanism) {

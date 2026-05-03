@@ -81,8 +81,11 @@ Points a considerer comme clos sauf regression constatee en jeu:
 - Les generateurs de creatures au sol sont de nouveau actifs via [src/data/originalGenerators.ts](/D:/DungeonMaster-codex/src/data/originalGenerators.ts) et [src/engine/store.ts](/D:/DungeonMaster-codex/src/engine/store.ts).
   - le manque de monstres constate venait bien en grande partie de cette absence
   - les creatures generees reapparaissent maintenant depuis leur vraie case de spawn source-backed
-  - la table compacte runtime embarque desormais `54` generateurs `type 6` issus de l'export source
-  - l'ancien chiffre `50` correspondait au sous-ensemble "canonical world content" suivi par l'audit de placement, pas au total brut des capteurs de generation presents dans l'export
+  - la table compacte runtime embarque desormais `50` generateurs de groupe au sol `type 6` issus de l'export source
+  - la source originale confirme que ces generateurs ne lisent pas de cible `targetX/targetY`:
+    - leur mot final est un `Multiple` 12 bits
+    - le spawn se fait sur la case du capteur lui-meme
+  - l'ancien chiffre `54` et plusieurs anciennes cases de spawn venaient d'une lecture trop large qui incluait aussi des `type 6` muraux `countdown`
   - le runtime suit maintenant aussi la formule source pour les HP initiaux:
     - `healthMultiplier == 0` retombe sur la difficulte de la map
     - HP = `baseHealth * multiplier + random((baseHealth >> 2) + 1)`
@@ -435,7 +438,13 @@ Reste explicitement en attente cote mecanismes rares:
   - les types de missile de `GROUP1.C` sont maintenant remappes pour `Vexirk`, `Wizard Eye`, `Materializer/Zytaz`, `Demon`, `Red Dragon` et `Lord Chaos`
   - l'energie/attaque du projectile creature exploite de nouveau `attack` et `dexterity` issus de `i559`
   - les impacts sur le groupe reappliquent un impact cible puis, selon le sort, l'explosion secondaire source-backed
+  - les impacts de sorts projectiles sur creature reappliquent maintenant aussi la defense creature sur le hit direct, puis le burst secondaire `Fireball` / `Lightning` avec la reduction feu au bon endroit
   - `Poison Cloud` sur la case du groupe repasse par une attaque `Normal` sans blessures au lieu d'une mitigation magique generique
+
+Suivi melee `2026-05-03`:
+
+- la verification a trouve puis recale un dernier drift concret dans [src/engine/systems/meleeDamage.ts](/D:/DungeonMaster-codex/src/engine/systems/meleeDamage.ts):
+  - le proc de maitrise ajoute maintenant seulement `+10`, comme `DeterminePhysicalAttackDamage`
 
 ## Encore interprete cote remake
 

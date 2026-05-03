@@ -28,6 +28,7 @@ import { canDrinkFromContainer, canFillWaterContainer, getWaterContainerState, i
 import { itemsPath, miscPath } from '../../data/assetPaths';
 import { playPlate } from '../../engine/sounds';
 import {
+    canChampionInventoryAcceptItem,
     getContainerContents,
     MAX_CHAMPION_INVENTORY_ITEMS,
     MAX_CONTAINER_ITEMS,
@@ -43,6 +44,7 @@ import {
 import {
     buildChampionSheetFrontWallContext,
     buildChampionSheetLoadSummary,
+    buildChampionSheetStatusBadges,
     buildChampionSheetVitalsSummary,
     findActivePartyChampion,
     getChampionPotionBonusesForSheet,
@@ -354,10 +356,11 @@ const PartyMemberDropTarget: React.FC<{
         <div title={title}
             style={{ width: 84, border: `2px solid ${over ? T.gold : T.slotBorder}`, borderRadius: 4, background: over ? 'rgba(255,248,230,0.98)' : T.slotBg, cursor: over ? 'copy' : 'pointer', transition: 'border-color 0.12s', overflow: 'hidden' }}
             onClick={() => onOpen(other.id)}
-            onDragOver={e => { e.preventDefault(); setOver(true); }}
+            onDragOver={e => { e.preventDefault(); e.stopPropagation(); setOver(true); }}
             onDragLeave={() => setOver(false)}
             onDrop={e => {
                 e.preventDefault();
+                e.stopPropagation();
                 setOver(false);
                 const p = getDragPayload(e);
                 if (!p || p.fromChampionId !== championId) return;
@@ -568,8 +571,8 @@ export const ChampionSheet: React.FC = () => {
         activePartyMemberId, party, level, position, direction,
         closePartyMember, openPartyMember, removeFromParty,
         championInventories, championEquipment, championVitals, championXP, firedSensors,
-        equipItem, unequipItem, dropItem, giveItem, giveEquippedItem,
-        storeItemInContainer, takeContainerItem, giveContainerItem, equipContainerItem, sleeping,
+        equipItem, unequipItem, dropItem, dropCarriedItem, giveItem, giveEquippedItem,
+        storeItemInContainer, takeContainerItem, giveContainerItem, equipContainerItem, dropContainerItem, sleeping,
         useItem: consumeItem, drinkFromFountain, fillWaterContainer, sleep, saveGame, showTransientMessage, useItemOnFrontWall: frontWallItemAction,
     } = useStore(useShallow((state) => ({
         activePartyMemberId: state.activePartyMemberId,
@@ -588,12 +591,14 @@ export const ChampionSheet: React.FC = () => {
         equipItem: state.equipItem,
         unequipItem: state.unequipItem,
         dropItem: state.dropItem,
+        dropCarriedItem: state.dropCarriedItem,
         giveItem: state.giveItem,
         giveEquippedItem: state.giveEquippedItem,
         storeItemInContainer: state.storeItemInContainer,
         takeContainerItem: state.takeContainerItem,
         giveContainerItem: state.giveContainerItem,
         equipContainerItem: state.equipContainerItem,
+        dropContainerItem: state.dropContainerItem,
         sleeping: state.sleeping,
         useItem: state.useItem,
         drinkFromFountain: state.drinkFromFountain,
@@ -677,6 +682,20 @@ export const ChampionSheet: React.FC = () => {
     const water = vitalsSummary.water;
     const foodFrame = vitalsSummary.foodSeverity === 'critical' ? '#b83a30' : vitalsSummary.foodSeverity === 'warning' ? 'rgba(212, 168, 32, 0.7)' : undefined;
     const waterFrame = vitalsSummary.waterSeverity === 'critical' ? '#b83a30' : vitalsSummary.waterSeverity === 'warning' ? 'rgba(212, 168, 32, 0.7)' : undefined;
+    const statusBadges = buildChampionSheetStatusBadges({
+        vitals,
+        foodSeverity: vitalsSummary.foodSeverity,
+        waterSeverity: vitalsSummary.waterSeverity,
+        loadSummary: loadState,
+        potionBonuses,
+        poisonedLabel: text.statusLabels.poisoned,
+        woundedLabel: text.statusLabels.wounded,
+        hungryLabel: text.statusLabels.hungry,
+        thirstyLabel: text.statusLabels.thirsty,
+        encumberedLabel: text.statusLabels.encumbered,
+        overloadedLabel: text.statusLabels.overloaded,
+        boostedLabel: text.statusLabels.boosted,
+    });
     const attributeStatuses = Object.fromEntries(
         ATTRIBUTE_STAT_KEYS.map((stat) => {
             if (effectiveStats[stat] < champion[stat]) return [stat, 'penalty'];
@@ -731,6 +750,43 @@ export const ChampionSheet: React.FC = () => {
         return !!item && canFillWaterContainer(item);
     };
 
+    const dropPayloadToFloor = (payload: DragPayload) => {
+        if (payload.fromSlot === 'container') {
+            if (!payload.fromContainerItemId) return;
+            dropContainerItem(payload.fromChampionId, payload.fromContainerItemId, payload.itemId);
+            return;
+        }
+        dropCarriedItem(payload.fromChampionId, payload.itemId, payload.fromSlot as EquipSlotKey | 'inventory');
+    };
+
+    const canChampionReceiveInventoryItem = (targetChampionId: number) =>
+        canChampionInventoryAcceptItem(useStore.getState().championInventories[targetChampionId] ?? []);
+
+    const giveInventoryItemOrDropToFloor = (targetChampionId: number, itemId: string) => {
+        if (!canChampionReceiveInventoryItem(targetChampionId)) {
+            dropCarriedItem(champion.id, itemId, 'inventory');
+            return;
+        }
+        giveItem(champion.id, targetChampionId, itemId);
+    };
+
+    const giveEquippedItemOrDropToFloor = (targetChampionId: number, slot: EquipSlotKey) => {
+        if (!canChampionReceiveInventoryItem(targetChampionId)) {
+            const item = equip[slot];
+            if (item) dropCarriedItem(champion.id, item.id, slot);
+            return;
+        }
+        giveEquippedItem(champion.id, slot, targetChampionId);
+    };
+
+    const giveContainerItemOrDropToFloor = (targetChampionId: number, containerItemId: string, itemId: string) => {
+        if (!canChampionReceiveInventoryItem(targetChampionId)) {
+            dropContainerItem(champion.id, containerItemId, itemId);
+            return;
+        }
+        giveContainerItem(champion.id, targetChampionId, containerItemId, itemId);
+    };
+
     const handleDropOnSlot = (payload: DragPayload, targetSlot: EquipSlotKey) => {
         if (payload.fromSlot === 'container') {
             if (!payload.fromContainerItemId) return;
@@ -739,6 +795,11 @@ export const ChampionSheet: React.FC = () => {
             return;
         }
         if (payload.fromChampionId !== champion.id) {
+            if (!canChampionInventoryAcceptItem(inv)) {
+                dropPayloadToFloor(payload);
+                clearDragState();
+                return;
+            }
             giveItem(payload.fromChampionId, champion.id, payload.itemId);
             clearDragState();
             return;
@@ -761,15 +822,26 @@ export const ChampionSheet: React.FC = () => {
 
     const handleUnequipToInventory = (e: React.DragEvent) => {
         e.preventDefault();
+        e.stopPropagation();
         const p = getDragPayload(e);
         if (!p || p.fromChampionId !== champion.id) return;
         if (p.fromSlot === 'container') {
             if (!p.fromContainerItemId) return;
+            if (!canChampionInventoryAcceptItem(inv)) {
+                dropContainerItem(champion.id, p.fromContainerItemId, p.itemId);
+                clearDragState();
+                return;
+            }
             takeContainerItem(champion.id, p.fromContainerItemId, p.itemId);
             clearDragState();
             return;
         }
         if (p.fromSlot === 'inventory') return;
+        if (!canChampionInventoryAcceptItem(inv)) {
+            dropCarriedItem(champion.id, p.itemId, p.fromSlot as EquipSlotKey);
+            clearDragState();
+            return;
+        }
         unequipItem(champion.id, p.fromSlot as EquipSlotKey);
         clearDragState();
     };
@@ -931,6 +1003,7 @@ export const ChampionSheet: React.FC = () => {
                         waterFrame={waterFrame}
                         effectiveStats={effectiveStats}
                         attributeStatuses={attributeStatuses}
+                        statusBadges={statusBadges}
                     />
 
                     {/* COL 2: Equipment silhouette */}
@@ -939,9 +1012,24 @@ export const ChampionSheet: React.FC = () => {
                         {/* Header: title + weight on same line */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
                             <span style={{ fontSize: 10, letterSpacing: 3, color: T.gold }}>{text.equipment}</span>
-                            <span style={{ fontSize: 11, fontWeight: 'bold', color: loadColor }}>
+                            <span
+                                style={{
+                                    fontSize: loadState.overloaded ? 14 : 11,
+                                    fontWeight: 'bold',
+                                    color: loadColor,
+                                    letterSpacing: loadState.overloaded ? 0.6 : 0,
+                                }}
+                            >
                                 {text.weightLabel} {formatWeight(loadState.weight)}
-                                <span style={{ fontSize: 10, color: T.creamDim, fontWeight: 'normal' }}>/{formatWeight(loadState.maxWeight)} {text.weightUnit}</span>
+                                <span
+                                    style={{
+                                        fontSize: loadState.overloaded ? 12 : 10,
+                                        color: T.creamDim,
+                                        fontWeight: 'normal',
+                                    }}
+                                >
+                                    /{formatWeight(loadState.maxWeight)} {text.weightUnit}
+                                </span>
                                 {loadState.overloaded && <span style={{ color: T.red }}> !</span>}
                             </span>
                         </div>
@@ -1098,9 +1186,9 @@ export const ChampionSheet: React.FC = () => {
                                                     key={other.id}
                                                     championId={champion.id}
                                                     other={other}
-                                                    onGiveInventory={(targetId, itemId) => giveItem(champion.id, targetId, itemId)}
-                                                    onGiveEquipped={(targetId, slot) => giveEquippedItem(champion.id, slot, targetId)}
-                                                    onGiveContainerItem={(targetId, containerItemId, itemId) => giveContainerItem(champion.id, targetId, containerItemId, itemId)}
+                                                    onGiveInventory={giveInventoryItemOrDropToFloor}
+                                                    onGiveEquipped={giveEquippedItemOrDropToFloor}
+                                                    onGiveContainerItem={giveContainerItemOrDropToFloor}
                                                     onOpen={openPartyMember}
                                                     title={text.giveTo(other.name)}
                                                 />

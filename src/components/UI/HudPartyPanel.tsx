@@ -5,11 +5,12 @@ import { miscPath } from '../../data/assetPaths';
 import { getEquippedItemImage } from '../../data/itemImages';
 import type { ChampionVitals } from '../../engine/runtimeTypes';
 import { useStore } from '../../engine/store';
+import { canChampionInventoryAcceptItem } from '../../engine/systems/inventoryState';
 import { getTranslations } from '../../i18n';
 import type { ChampionEquipment } from '../../types/game';
 import type { EquipSlotKey } from '../../types/items';
 import type { HudRecentDamageEntry } from './hudDerivedState';
-import { getDragPayload, setDragPayload } from './dragPayload';
+import { getDragPayload, setDragPayload, type DragPayload } from './dragPayload';
 
 const HUD_CLASS_COLORS: Record<string, string> = {
     Fighter: '#e05040',
@@ -690,6 +691,28 @@ export const HudPartyPanel: React.FC<{
     const [activeInventoryFullChampionId, setActiveInventoryFullChampionId] = React.useState<number | null>(null);
     const inventoryFullTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
+    const dropPayloadToFloor = React.useCallback((payload: DragPayload) => {
+        useStore.getState().dropCarriedItem(
+            payload.fromChampionId,
+            payload.itemId,
+            payload.fromSlot as EquipSlotKey | 'inventory',
+        );
+    }, []);
+
+    const transferPayloadToChampionInventory = React.useCallback((payload: DragPayload, targetChampionId: number) => {
+        const targetInventory = useStore.getState().championInventories[targetChampionId] ?? [];
+        if (!canChampionInventoryAcceptItem(targetInventory)) {
+            dropPayloadToFloor(payload);
+            return false;
+        }
+        if (payload.fromSlot === 'inventory') {
+            giveItem(payload.fromChampionId, targetChampionId, payload.itemId);
+            return true;
+        }
+        giveEquippedItem(payload.fromChampionId, payload.fromSlot as EquipSlotKey, targetChampionId);
+        return true;
+    }, [dropPayloadToFloor, giveEquippedItem, giveItem]);
+
     React.useEffect(() => {
         if (!inventoryFullFeedback) return;
         setActiveInventoryFullChampionId(inventoryFullFeedback.championId);
@@ -750,11 +773,7 @@ export const HudPartyPanel: React.FC<{
                                     if (!payload) return;
                                     if (payload.fromSlot === 'container') return;
                                     if (payload.fromChampionId === targetChampion.id && payload.fromSlot !== 'inventory') return;
-                                    if (payload.fromSlot === 'inventory') {
-                                        giveItem(payload.fromChampionId, targetChampion.id, payload.itemId);
-                                        return;
-                                    }
-                                    giveEquippedItem(payload.fromChampionId, payload.fromSlot as EquipSlotKey, targetChampion.id);
+                                    transferPayloadToChampionInventory(payload, targetChampion.id);
                                 }}
                                 onFloorDrop={() => {
                                     const targetChampion = party[index];
@@ -793,11 +812,7 @@ export const HudPartyPanel: React.FC<{
                                         : state.championEquipment[payload.fromChampionId]?.[payload.fromSlot as EquipSlotKey];
                                     if (!sourceItem || !canEquipItemInSlot(sourceItem, slotKey)) return;
                                     if (payload.fromChampionId !== targetChampion.id) {
-                                        if (payload.fromSlot === 'inventory') {
-                                            giveItem(payload.fromChampionId, targetChampion.id, payload.itemId);
-                                        } else {
-                                            giveEquippedItem(payload.fromChampionId, payload.fromSlot as EquipSlotKey, targetChampion.id);
-                                        }
+                                        if (!transferPayloadToChampionInventory(payload, targetChampion.id)) return;
                                         equipItem(targetChampion.id, slotKey, payload.itemId);
                                         return;
                                     }

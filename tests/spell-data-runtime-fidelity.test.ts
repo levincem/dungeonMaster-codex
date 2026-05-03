@@ -177,7 +177,7 @@ test('spell runtime rejects the old speculative healing signature and accepts ca
             x: 0,
             y: 0,
             tilePos: 'North',
-            rawName: 'Ven Potion',
+            rawName: 'Ven Potion (40)',
             potionPower: 40,
         },
     });

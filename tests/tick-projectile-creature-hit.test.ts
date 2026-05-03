@@ -88,6 +88,8 @@ test('applyProjectileCreatureHit damages a creature, drops loot on kill, and emi
         {
             rollSourceBackedImpact: () => null,
             getCreaturePoisonAdjustedAttack: (_typeId, attack) => attack,
+            scaleCreatureProjectileImpactDamage: (_typeId, attack) => attack,
+            getCreatureFireAdjustedExplosionAttack: (_typeId, attack) => attack,
             randomInt: () => 0,
             rollRandomProjectileDamage: () => 0,
             rollExplosionBurstAttack: () => 0,
@@ -165,6 +167,8 @@ test('applyProjectileCreatureHit keeps a thrown physical weapon on the creature 
         {
             rollSourceBackedImpact: () => null,
             getCreaturePoisonAdjustedAttack: (_typeId, attack) => attack,
+            scaleCreatureProjectileImpactDamage: (_typeId, attack) => attack,
+            getCreatureFireAdjustedExplosionAttack: (_typeId, attack) => attack,
             randomInt: () => 0,
             rollRandomProjectileDamage: () => 0,
             rollExplosionBurstAttack: () => 0,
@@ -246,6 +250,8 @@ test('applyProjectileCreatureHit stores a thrown physical weapon on missile-abso
         {
             rollSourceBackedImpact: () => null,
             getCreaturePoisonAdjustedAttack: (_typeId, attack) => attack,
+            scaleCreatureProjectileImpactDamage: (_typeId, attack) => attack,
+            getCreatureFireAdjustedExplosionAttack: (_typeId, attack) => attack,
             randomInt: () => 0,
             rollRandomProjectileDamage: () => 0,
             rollExplosionBurstAttack: () => 0,
@@ -313,6 +319,8 @@ test('applyProjectileCreatureHit handles disrupt_nonmaterial as an area hit on n
         {
             rollSourceBackedImpact: () => null,
             getCreaturePoisonAdjustedAttack: (_typeId, attack) => attack,
+            scaleCreatureProjectileImpactDamage: (_typeId, attack) => attack,
+            getCreatureFireAdjustedExplosionAttack: (_typeId, attack) => attack,
             randomInt: () => 0,
             rollRandomProjectileDamage: () => 0,
             rollExplosionBurstAttack: () => 6,
@@ -376,6 +384,8 @@ test('applyProjectileCreatureHit creates poison clouds from poison impacts and l
         {
             rollSourceBackedImpact: () => null,
             getCreaturePoisonAdjustedAttack: (_typeId, attack) => attack,
+            scaleCreatureProjectileImpactDamage: (_typeId, attack) => attack,
+            getCreatureFireAdjustedExplosionAttack: (_typeId, attack) => attack,
             randomInt: () => 0,
             rollRandomProjectileDamage: () => 0,
             rollExplosionBurstAttack: () => 5,
@@ -430,4 +440,122 @@ test('applyProjectileCreatureHit creates poison clouds from poison impacts and l
     assert.equal(result.activePoisonClouds[0]?.remainingAttack, 5);
     assert.equal(result.damageEvents[0]?.amount, 17);
     assert.equal(result.spellVisualEvents[0]?.effect, 'poison_cloud');
+});
+
+test('applyProjectileCreatureHit scales direct spell impact by creature defense before adding poison damage', () => {
+    const hit = createCreature({ currentHP: 20 });
+    const result = applyProjectileCreatureHit(
+        createProjectile({ effect: 'poison_bolt' }),
+        hit,
+        [hit],
+        false,
+        0,
+        2,
+        2,
+        10,
+        1000,
+        createState({ creatures: [hit] }),
+        {
+            rollSourceBackedImpact: () => ({ damage: 8, poisonStrength: 4 }),
+            getCreaturePoisonAdjustedAttack: (_typeId, attack) => attack + 1,
+            scaleCreatureProjectileImpactDamage: (_typeId, attack) => Math.floor(attack / 2),
+            getCreatureFireAdjustedExplosionAttack: (_typeId, attack) => attack,
+            randomInt: () => 0,
+            rollRandomProjectileDamage: () => 0,
+            rollExplosionBurstAttack: () => 0,
+            isLikelyNonMaterial: () => false,
+            rollDisruptNonMaterialAttack: () => 0,
+            dropCreatureCarriedItems: (creatures, floorItems) => ({ creatures, floorItems }),
+            buildDeathDustEvent: () => ({
+                id: 'dust-1',
+                level: 0,
+                x: 2,
+                y: 2,
+                effect: 'fireball',
+                ts: 1000,
+                kind: 'death',
+            }),
+            buildCreatureDamageEvent: (level, x, y, amount, creatureId) => ({
+                id: 'damage-1',
+                level,
+                target: 'creature',
+                x,
+                y,
+                amount,
+                creatureId,
+                ts: 1000,
+            }),
+            buildLingeringPoisonCloud: () => null,
+            buildActivePoisonCloud: () => {
+                throw new Error('no poison cloud expected');
+            },
+            getThrownExplosionVisualScale: () => 1,
+            buildDroppedItem: (item) => item,
+            gridSize: 2,
+        },
+    );
+
+    assert.equal(result.creatures[0]?.currentHP, 11);
+    assert.equal(result.damageEvents[0]?.amount, 9);
+});
+
+test('applyProjectileCreatureHit applies the fire burst separately after direct fireball impact', () => {
+    const hit = createCreature({ currentHP: 20 });
+    const result = applyProjectileCreatureHit(
+        createProjectile({ effect: 'fireball', remainingRange: 7 }),
+        hit,
+        [hit],
+        false,
+        0,
+        2,
+        2,
+        10,
+        1000,
+        createState({ creatures: [hit] }),
+        {
+            rollSourceBackedImpact: () => ({ damage: 9 }),
+            getCreaturePoisonAdjustedAttack: () => 0,
+            scaleCreatureProjectileImpactDamage: (_typeId, attack) => attack - 3,
+            getCreatureFireAdjustedExplosionAttack: (_typeId, attack) => attack - 5,
+            randomInt: () => 0,
+            rollRandomProjectileDamage: () => 0,
+            rollExplosionBurstAttack: (effect, attack) => {
+                assert.equal(effect, 'fireball');
+                assert.equal(attack, 7);
+                return 8;
+            },
+            isLikelyNonMaterial: () => false,
+            rollDisruptNonMaterialAttack: () => 0,
+            dropCreatureCarriedItems: (creatures, floorItems) => ({ creatures, floorItems }),
+            buildDeathDustEvent: () => ({
+                id: 'dust-1',
+                level: 0,
+                x: 2,
+                y: 2,
+                effect: 'fireball',
+                ts: 1000,
+                kind: 'death',
+            }),
+            buildCreatureDamageEvent: (level, x, y, amount, creatureId) => ({
+                id: 'damage-1',
+                level,
+                target: 'creature',
+                x,
+                y,
+                amount,
+                creatureId,
+                ts: 1000,
+            }),
+            buildLingeringPoisonCloud: () => null,
+            buildActivePoisonCloud: () => {
+                throw new Error('no poison cloud expected');
+            },
+            getThrownExplosionVisualScale: () => 1,
+            buildDroppedItem: (item) => item,
+            gridSize: 2,
+        },
+    );
+
+    assert.equal(result.creatures[0]?.currentHP, 11);
+    assert.equal(result.damageEvents[0]?.amount, 9);
 });

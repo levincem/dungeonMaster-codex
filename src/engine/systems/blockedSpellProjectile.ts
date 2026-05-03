@@ -49,7 +49,10 @@ type ResolveBlockedSpellProjectileConsequencesArgs = {
         elapsedGameTimeTicks: number,
         visualScale: number,
     ) => ActivePoisonCloud;
-    rollSourceBackedImpactDamage: (initialRange: number) => number | null;
+    rollExplosionBurstAttack: (
+        effect: Extract<ProjectileEffect, 'fireball' | 'lightning' | 'poison_cloud'>,
+        attackPower: number,
+    ) => number;
     rollRandomDamage: (min: number, max: number) => number;
     applyBacklash: (rolledDamage: number) => SpellBacklashPatch | null;
 };
@@ -65,7 +68,7 @@ export function resolveBlockedSpellProjectileConsequences({
     projectileDamage,
     initialRange,
     buildBlockedPoisonCloud,
-    rollSourceBackedImpactDamage,
+    rollExplosionBurstAttack,
     rollRandomDamage,
     applyBacklash,
 }: ResolveBlockedSpellProjectileConsequencesArgs): {
@@ -90,12 +93,10 @@ export function resolveBlockedSpellProjectileConsequences({
         };
     }
 
-    const sourceBackedDamage =
+    const rolledDamage =
         spellEffect === 'fireball' || spellEffect === 'lightning'
-            ? rollSourceBackedImpactDamage(initialRange)
-            : null;
-    const rolledDamage = sourceBackedDamage
-        ?? rollRandomDamage(projectileDamage.min, projectileDamage.max);
+            ? rollExplosionBurstAttack(spellEffect, initialRange)
+            : rollRandomDamage(projectileDamage.min, projectileDamage.max);
 
     return {
         blockedPoisonCloud: null,

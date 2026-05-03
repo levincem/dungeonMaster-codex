@@ -127,7 +127,7 @@ export function rollOriginalPartyWideAttack(
 export function getProjectileDamageClass(
     effect: Exclude<ProjectileEffect, 'physical'>,
 ): MonsterDamageClass {
-    if (effect === 'fireball') return 'fire';
+    if (effect === 'fireball' || effect === 'lightning') return 'fire';
     return 'magic';
 }
 

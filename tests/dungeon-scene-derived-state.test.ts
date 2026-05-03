@@ -176,6 +176,42 @@ test('resolveFrontWallInteractionKind treats hold wall niches with mounted items
     assert.equal(interaction, 'alcove');
 });
 
+test('resolveFrontWallInteractionKind treats alcove-shaped wall buttons as alcove-like drop targets', () => {
+    const map = createMap(4, 3);
+    map.tiles[1][2] = createTile(2, 1, 'Wall', [
+        {
+            category: 'Sensor',
+            index: 12,
+            tilePos: 'West',
+            type: 2,
+            data: 0,
+            graphic: 14,
+            isLocal: false,
+            delay: 0,
+            sound: true,
+            revert: true,
+            action: 'Hold',
+            onceOnly: false,
+            targetY: 1,
+            targetX: 2,
+            targetDir: 'North',
+        },
+    ] as GameTile['objects']);
+
+    const interaction = resolveFrontWallInteractionKind({
+        level: 5,
+        map,
+        position: [1, 1],
+        direction: 'EAST',
+        openWalls: new Set(),
+        hasEffectiveOriginalWallOverlayAt: (_level, tileX, tileY, face, overlayName) =>
+            tileX === 2 && tileY === 1 && face === 'West' && overlayName === 'Square Alcove',
+        getMechanismsAtFace: () => [{ trigger: 'wall-button', sensorType: 2 }],
+    });
+
+    assert.equal(interaction, 'alcove');
+});
+
 test('collectDungeonScene helpers keep only actionable plates, closed trick walls, and pits', () => {
     const map = createMap(4, 3);
     map.tiles[0][0] = createTile(0, 0, 'Pit');

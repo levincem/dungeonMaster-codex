@@ -143,6 +143,12 @@ Ce qu'il reste vraiment:
   - `wariness` n'est plus un point code ouvert:
   - sa seule utilisation source-backed retrouvee concerne l'entree dans certains teleporters creatures/groupes
   - le runtime applique maintenant ce garde-fou cible, sans extrapoler ce champ a une aggression generale
+- [meleeDamage.ts](/D:/DungeonMaster-codex/src/engine/systems/meleeDamage.ts)
+  - la structure generale de `DeterminePhysicalAttackDamage` est bien rebranchee
+  - la verification `2026-05-03` a permis de recaler aussi le proc de maitrise sur le `+10` original
+- projectiles physiques d'armes
+  - les descripteurs source-backed `kineticEnergy / shootDamage / rawClass` sont bien consommes
+  - mais la couche de lancement `Throw / Shoot` reste encore en partie une modelisation runtime plutot qu'un miroir litteral complet de `Attack.cpp`
 
 Conclusion pratique:
 

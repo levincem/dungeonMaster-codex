@@ -1,6 +1,7 @@
-﻿import * as THREE from 'three';
+import * as THREE from 'three';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import type { CardinalDir } from '../../types/game';
+import { useWallTransparencyState } from './wallTransparency';
 
 interface Props {
     tileX: number;
@@ -26,6 +27,7 @@ const FACE_ROT: Record<CardinalDir, [number, number, number]> = {
 };
 
 export const WallSensor = ({ tileX, tileY, face, onClick }: Props) => {
+    const { wallTransparent, wallOpacity } = useWallTransparencyState();
     const worldX = tileX * GRID_SIZE;
     const worldZ = tileY * GRID_SIZE;
     const [ox, , oz] = FACE_POS[face];
@@ -51,15 +53,23 @@ export const WallSensor = ({ tileX, tileY, face, onClick }: Props) => {
             </mesh>
             <mesh position={[0, -WALL_HEIGHT * 0.05, depth / 2]}>
                 <boxGeometry args={[btnSize, btnSize * 0.6, depth]} />
-                <meshStandardMaterial color="#6a5a3a" roughness={0.6} metalness={0.4} />
+                <meshStandardMaterial
+                    color="#6a5a3a"
+                    roughness={0.6}
+                    metalness={0.4}
+                    transparent={wallTransparent}
+                    opacity={wallOpacity}
+                    depthWrite={!wallTransparent}
+                />
             </mesh>
             <mesh position={[0, -WALL_HEIGHT * 0.05, depth / 2 + 0.001]}>
                 <planeGeometry args={[btnSize * 0.82, btnSize * 0.5]} />
                 <meshBasicMaterial
                     color="#c8a96e"
                     transparent
-                    opacity={0.35}
+                    opacity={0.35 * wallOpacity}
                     side={THREE.FrontSide}
+                    depthWrite={!wallTransparent}
                 />
             </mesh>
         </group>

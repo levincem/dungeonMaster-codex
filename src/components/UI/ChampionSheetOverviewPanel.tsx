@@ -3,6 +3,7 @@ import type { Champion } from '../../data/champions';
 import { MAX_FOOD, MAX_WATER } from '../../engine/store';
 import { useI18n } from '../../i18n';
 import type { HighlightStatKey } from './championStatHighlights';
+import type { ChampionSheetStatusBadge } from './championSheetDerivedState';
 
 const THEME = {
     panelBg: 'rgba(0,0,0,0.84)',
@@ -86,6 +87,7 @@ export const ChampionSheetOverviewPanel: React.FC<{
         antiFire: number;
     };
     attributeStatuses: Partial<Record<HighlightStatKey, 'levelUp' | 'penalty'>>;
+    statusBadges: ChampionSheetStatusBadge[];
 }> = ({
     champion,
     text,
@@ -101,6 +103,7 @@ export const ChampionSheetOverviewPanel: React.FC<{
     waterFrame,
     effectiveStats,
     attributeStatuses,
+    statusBadges,
 }) => {
     const resolveAttributeColor = (stat: HighlightStatKey): string => {
         const status = attributeStatuses[stat];
@@ -171,6 +174,47 @@ export const ChampionSheetOverviewPanel: React.FC<{
                 <VitalBar label={text.hunger} value={food} max={MAX_FOOD} color="#d88b2d" frameColor={foodFrame} />
                 <VitalBar label={text.thirst} value={water} max={MAX_WATER} color="#3aa0d8" frameColor={waterFrame} />
                 <VitalBar label={text.mana} value={mana} max={effectiveMana} color={THEME.blue} />
+                {statusBadges.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                        {statusBadges.map((status) => {
+                            const palette = status.tone === 'positive'
+                                ? {
+                                    border: `${THEME.green}88`,
+                                    color: '#d9ffe4',
+                                    background: 'rgba(48, 176, 80, 0.18)',
+                                }
+                                : status.tone === 'warning'
+                                    ? {
+                                        border: `${THEME.yellow}88`,
+                                        color: '#ffe9a8',
+                                        background: 'rgba(212, 168, 32, 0.18)',
+                                    }
+                                    : {
+                                        border: `${THEME.red}88`,
+                                        color: '#ffd2d2',
+                                        background: 'rgba(216, 48, 48, 0.18)',
+                                    };
+                            return (
+                                <span
+                                    key={status.key}
+                                    style={{
+                                        padding: '2px 7px',
+                                        borderRadius: 999,
+                                        border: `1px solid ${palette.border}`,
+                                        background: palette.background,
+                                        color: palette.color,
+                                        fontSize: 10,
+                                        fontWeight: 'bold',
+                                        letterSpacing: 0.8,
+                                        textTransform: 'uppercase',
+                                    }}
+                                >
+                                    {status.label}
+                                </span>
+                            );
+                        })}
+                    </div>
+                )}
             </div>
 
             <div style={{ background: THEME.panelBg, border: attributePanelBorder, borderRadius: 5, padding: '10px 12px' }}>

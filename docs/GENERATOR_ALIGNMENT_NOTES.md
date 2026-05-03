@@ -25,7 +25,7 @@ La table runtime active des generateurs est dans [originalGenerators.ts](/D:/Dun
 
 Releve actuel:
 
-- `54` generateurs runtime `type 6`
+- `50` generateurs runtime de groupe au sol `type 6`
 - `37` generateurs a compte fixe
 - `17` generateurs a compte randomise
 - `10` generateurs avec `hpMultiplier > 0`
@@ -46,8 +46,8 @@ Repartition par niveau:
 Nuance utile:
 
 - l'audit canonique suit `50` generateurs du monde de reference
-- le runtime suit `54` generateurs de sol `type 6` extraits
-- ce n'est pas une contradiction, mais une difference de perimetre
+- le runtime suit `50` generateurs de groupe au sol `type 6`, ce qui recolle au sous-ensemble canonique suivi par l'audit
+- l'ancien chiffre `54` venait d'une lecture trop large qui melangeait aussi des `type 6` muraux de type `countdown`
 
 Sources:
 
@@ -100,6 +100,8 @@ Les points suivants ne doivent plus etre traites comme les grands inconnus du su
 - la randomisation du compte
 - la lecture de `generatorHealthMultiplier`
 - la case de spawn
+  - pour les generateurs de groupe au sol, la source originale montre que le spawn se fait sur la case du capteur lui-meme
+  - les pseudo-coordonnees `targetX/targetY` decodees depuis le mot final n'etaient pas des cibles valides pour ce type de capteur
 - le type de creature generee
 - le delai brut de reactivation
 

@@ -34,6 +34,14 @@ export type ChampionSheetLoadSummary = {
     loadSeverity: SheetSeverity;
 };
 
+export type ChampionSheetStatusTone = 'positive' | 'warning' | 'negative';
+
+export type ChampionSheetStatusBadge = {
+    key: string;
+    label: string;
+    tone: ChampionSheetStatusTone;
+};
+
 export type ChampionSheetFrontWallContext<TMechanism> = {
     facingFountain: boolean;
     facingAltar: boolean;
@@ -188,6 +196,60 @@ export function buildChampionSheetLoadSummary(args: {
         loadWarn,
         loadSeverity: overloaded ? 'critical' : loadWarn ? 'warning' : 'normal',
     };
+}
+
+export function buildChampionSheetStatusBadges(args: {
+    vitals: {
+        wounds?: Partial<Record<'head' | 'torso' | 'rightHand' | 'leftHand' | 'legs' | 'feet', boolean>>;
+        poisonEntries?: { remaining: number; nextTickIn: number }[];
+    } | undefined;
+    foodSeverity: SheetSeverity;
+    waterSeverity: SheetSeverity;
+    loadSummary: ChampionSheetLoadSummary;
+    potionBonuses: ChampionPotionBonusState;
+    poisonedLabel: string;
+    woundedLabel: string;
+    hungryLabel: string;
+    thirstyLabel: string;
+    encumberedLabel: string;
+    overloadedLabel: string;
+    boostedLabel: string;
+}): ChampionSheetStatusBadge[] {
+    const statuses: ChampionSheetStatusBadge[] = [];
+    const hasWound = Object.values(args.vitals?.wounds ?? {}).some(Boolean);
+    const hasPoison = (args.vitals?.poisonEntries?.length ?? 0) > 0;
+    const hasBoost = Object.values(args.potionBonuses).some((value) => value > 0);
+
+    if (hasPoison) {
+        statuses.push({ key: 'poisoned', label: args.poisonedLabel, tone: 'negative' });
+    }
+    if (hasWound) {
+        statuses.push({ key: 'wounded', label: args.woundedLabel, tone: 'negative' });
+    }
+    if (args.waterSeverity !== 'normal') {
+        statuses.push({
+            key: 'thirsty',
+            label: args.thirstyLabel,
+            tone: args.waterSeverity === 'critical' ? 'negative' : 'warning',
+        });
+    }
+    if (args.foodSeverity !== 'normal') {
+        statuses.push({
+            key: 'hungry',
+            label: args.hungryLabel,
+            tone: args.foodSeverity === 'critical' ? 'negative' : 'warning',
+        });
+    }
+    if (args.loadSummary.overloaded) {
+        statuses.push({ key: 'overloaded', label: args.overloadedLabel, tone: 'negative' });
+    } else if (args.loadSummary.loadWarn) {
+        statuses.push({ key: 'encumbered', label: args.encumberedLabel, tone: 'warning' });
+    }
+    if (hasBoost) {
+        statuses.push({ key: 'boosted', label: args.boostedLabel, tone: 'positive' });
+    }
+
+    return statuses;
 }
 
 export function buildChampionSheetFrontWallContext<TMechanism>(args: {

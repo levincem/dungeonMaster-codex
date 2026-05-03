@@ -1,5 +1,4 @@
 import { findSpell, type SpellDef } from '../../data/runes';
-import { rollOriginalSpellProjectileImpact } from '../../data/spellRuntime';
 import { resolveItemName } from '../../data/items';
 import type { SkillKey } from '../../data/skillProgression';
 import type { Champion } from '../../types/champion';
@@ -17,7 +16,7 @@ import { prepareSpellCast } from './spellCastPreparation';
 import { buildHandledNonProjectileSpellPatch } from './spellNonProjectileEffects';
 import { buildProjectileSpellStatePatch } from './spellProjectileState';
 import { buildTickSpellsRuntimePatch, type TickSpellsRuntimeState, type TickSpellsProjectileDeps } from './tickSpellsRuntime';
-import { createTickSpellsProjectileDeps } from './tickSpellsProjectileDeps';
+import { createTickSpellsProjectileDeps, rollOriginalExplosionBurstAttack } from './tickSpellsProjectileDeps';
 
 type CastSpellStoreRuntimeState = {
     party: Champion[];
@@ -297,15 +296,8 @@ export function buildStoreCastSpellRuntimeResult(
                         isImmediatelyBlocked: (level, x, y) =>
                             deps.isImmediatelyBlocked(currentState, level, x, y),
                         buildBlockedPoisonCloud: deps.buildBlockedPoisonCloud,
-                        rollSourceBackedImpactDamage: (initialRange) => {
-                            const impact = rollOriginalSpellProjectileImpact(
-                                spell,
-                                initialRange,
-                                0,
-                                deps.randomInt,
-                            );
-                            return impact?.damage ?? null;
-                        },
+                        rollExplosionBurstAttack: (effect, attackPower) =>
+                            rollOriginalExplosionBurstAttack(effect, attackPower, deps.randomInt),
                         rollRandomDamage: (min, max) =>
                             min + Math.floor(Math.random() * (max - min + 1)),
                         applyBacklash: (effect, rolledDamage) =>

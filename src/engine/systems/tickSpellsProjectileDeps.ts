@@ -68,6 +68,35 @@ export function getOriginalCreaturePoisonAdjustedAttack(
     return Math.floor(((poisonAttack + randomInt(4)) << 3) / (creature.poisonResistance + 1));
 }
 
+export function scaleOriginalCreatureProjectileImpactDamage(
+    creatureTypeId: number,
+    attack: number,
+): number {
+    if (attack <= 0) return 0;
+    const creatureDefense = Math.max(1, CREATURE_TYPES[creatureTypeId]?.armor ?? 1);
+    return Math.max(0, Math.floor((attack << 6) / creatureDefense));
+}
+
+export function getOriginalCreatureFireAdjustedExplosionAttack(
+    creatureTypeId: number,
+    attack: number,
+    randomInt: (maxExclusive: number) => number,
+): number {
+    if (attack <= 0) return 0;
+    const creature = CREATURE_TYPES[creatureTypeId];
+    if (!creature) return attack;
+    if (creature.fireResistance >= 15) return 0;
+
+    let adjustedAttack = attack;
+    if (creature.nonMaterial) {
+        adjustedAttack >>= 2;
+    }
+    if (adjustedAttack <= 0) return 0;
+
+    adjustedAttack -= randomInt((creature.fireResistance << 1) + 1);
+    return Math.max(0, adjustedAttack);
+}
+
 export function rollOriginalExplosionBurstAttack(
     effect: Exclude<ProjectileEffect, 'physical'>,
     attackPower: number,
@@ -78,7 +107,11 @@ export function rollOriginalExplosionBurstAttack(
         return Math.max(1, Math.min(attackPower >> 5, 4) + randomInt(2));
     }
     const burstBase = (attackPower >> 1) + 1;
-    return burstBase + randomInt(Math.max(1, burstBase)) + 1;
+    let attack = burstBase + randomInt(Math.max(1, burstBase)) + 1;
+    if (effect === 'lightning') {
+        attack >>= 1;
+    }
+    return attack;
 }
 
 function isMaterializerLike(target: CreatureInstance): boolean {
@@ -222,6 +255,10 @@ export function createTickSpellsProjectileDeps(
             rollRuntimeSourceBackedProjectileImpact(projectile, deps.randomInt),
         getCreaturePoisonAdjustedAttack: (creatureTypeId, poisonAttack) =>
             getOriginalCreaturePoisonAdjustedAttack(creatureTypeId, poisonAttack, deps.randomInt),
+        scaleCreatureProjectileImpactDamage: (creatureTypeId, attack) =>
+            scaleOriginalCreatureProjectileImpactDamage(creatureTypeId, attack),
+        getCreatureFireAdjustedExplosionAttack: (creatureTypeId, attack) =>
+            getOriginalCreatureFireAdjustedExplosionAttack(creatureTypeId, attack, deps.randomInt),
         hitCreatureAbsorbsMissiles: (creature) => Boolean(CREATURE_TYPES[creature.typeId]?.absorbMissiles),
         rollRandomProjectileDamage,
         isLikelyNonMaterial: deps.isLikelyNonMaterial,

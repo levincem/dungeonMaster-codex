@@ -169,6 +169,8 @@ function createUnusedProjectileDeps(): UnusedProjectileDeps {
         gridSize: 1,
         rollSourceBackedImpact: () => null,
         getCreaturePoisonAdjustedAttack: () => 0,
+        scaleCreatureProjectileImpactDamage: (_typeId: number, attack: number) => attack,
+        getCreatureFireAdjustedExplosionAttack: (_typeId: number, attack: number) => attack,
         hitCreatureAbsorbsMissiles: () => false,
         rollRandomProjectileDamage: () => 0,
         isLikelyNonMaterial: () => false,

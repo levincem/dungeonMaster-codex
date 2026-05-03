@@ -5,6 +5,7 @@ import { useStore } from '../../engine/store';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import type { CardinalDir, GameMap, WallTextObject } from '../../types/game';
 import { resolveWallTextFace } from './wallTextHelpers';
+import { useWallTransparencyState } from './wallTransparency';
 
 const CHAMPION_DATA_RE = /\n{2,}[MF]\n[A-Z]/;
 
@@ -68,6 +69,7 @@ function makeEngravedTexture(text: string): THREE.CanvasTexture {
 }
 
 const WallTextEntry: React.FC<{ tileX: number; tileY: number; face: CardinalDir; text: string }> = ({ tileX, tileY, face, text }) => {
+    const { wallOpacity } = useWallTransparencyState();
     const tex = useMemo(() => makeEngravedTexture(text), [text]);
     useEffect(() => () => tex.dispose(), [tex]);
     const [ox, , oz] = FACE_POS_TEXT[face];
@@ -83,6 +85,7 @@ const WallTextEntry: React.FC<{ tileX: number; tileY: number; face: CardinalDir;
             <meshBasicMaterial
                 map={tex}
                 transparent
+                opacity={wallOpacity}
                 alphaTest={0.08}
                 depthWrite={false}
                 depthTest

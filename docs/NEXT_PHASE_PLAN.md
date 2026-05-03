@@ -33,6 +33,11 @@ Regle simple:
   - dalles `Hold + revert`, poids `party / objet / creature`, et pits relies corriges
   - artefact visuel `wallButtons` du puzzle boulder/dalle corrige
   - porte a deux leviers et leviers `up/down` recales
+- serie de correctifs playtest recents `LVL 3` / runtime coeur
+  - `TrickWall` imaginaires de nouveau traversables sans passage force par `openWalls`
+  - la mort d'une creature libere maintenant correctement les dalles `creature-only`, ce qui recale le puzzle de la momie / prisonnier
+  - `tickCrushingDoors` reapplique aussi les effets de mort attendus `drops / death dust`
+  - impacts `Fireball` / `Lightning` sur creatures recalés sur le pipeline source `hit direct via defense creature + burst secondaire + reduction feu au bon endroit`
 - passe fidelite runtime
   - fermee cote recollage code/source pour les domaines critiques utiles au runtime
   - le reliquat fidelity n'est plus un chantier de reimplementation, mais surtout du playtest cible et quelques finitions visuelles
