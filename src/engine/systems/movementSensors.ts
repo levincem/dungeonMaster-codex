@@ -1,4 +1,4 @@
-import type { ChampionEquipment, FloorItem, SensorObject } from '../../types/game';
+import type { ChampionEquipment, FloorItem, SensorAction, SensorObject } from '../../types/game';
 import { getTranslations } from '../../i18n';
 
 const runtimeText = getTranslations().runtime;
@@ -66,6 +66,21 @@ type MovementSensorDeps<TSensorState extends SensorStateLike, TPendingSensorEven
     diffSensorState: (before: TSensorState, after: TSensorState) => Partial<TSensorState>;
 };
 
+function resolvePresenceSensorAction(
+    sensor: Pick<SensorObject, 'action' | 'revert'>,
+    mode: 'enter' | 'leave',
+): SensorAction {
+    if (mode === 'enter') {
+        if (sensor.action === 'Hold') return sensor.revert ? 'Clear' : 'Set';
+        if (!sensor.revert) return sensor.action;
+        if (sensor.action === 'Set') return 'Clear';
+        if (sensor.action === 'Clear') return 'Set';
+        return sensor.action;
+    }
+
+    return sensor.revert ? 'Set' : 'Clear';
+}
+
 export function triggerFloorSensors<
     TSensorState extends SensorStateLike,
     TPendingSensorEvent extends PendingSensorEventLike,
@@ -118,9 +133,13 @@ export function triggerFloorSensors<
         if (source === 'creature' && !isGenericWeightFloorSensor && !isCreatureOnlyFloorSensor) continue;
 
         if (mode === 'leave') {
-            if (sensor.action !== 'Hold') continue;
+            if (sensor.action !== 'Hold' && !sensor.revert) continue;
             if (source === 'party' && isPartyFloorSensor) {
-                const effect = deps.computeSensorEffect({ ...sensor, action: sensor.revert ? 'Set' : 'Clear' }, level, cur);
+                const effect = deps.computeSensorEffect(
+                    { ...sensor, action: resolvePresenceSensorAction(sensor, 'leave') },
+                    level,
+                    cur,
+                );
                 if (Object.keys(effect).length > 0) {
                     cur = { ...cur, ...effect } as TSensorState;
                     changed = true;
@@ -137,7 +156,11 @@ export function triggerFloorSensors<
             }
             if (source !== 'creature' && (isCreatureOnlyFloorSensor || deps.isGeneratorSensor(sensor) || isObjectOnlyFloorSensor)) continue;
             if (source === 'creature' && (isPartyFloorSensor || deps.isPartyPossessionSensor(sensor) || deps.isGeneratorSensor(sensor) || isObjectOnlyFloorSensor)) continue;
-            const effect = deps.computeSensorEffect({ ...sensor, action: sensor.revert ? 'Set' : 'Clear' }, level, cur);
+            const effect = deps.computeSensorEffect(
+                { ...sensor, action: resolvePresenceSensorAction(sensor, 'leave') },
+                level,
+                cur,
+            );
             if (Object.keys(effect).length > 0) {
                 cur = { ...cur, ...effect } as TSensorState;
                 changed = true;
@@ -180,9 +203,7 @@ export function triggerFloorSensors<
         }
 
         const queued = deps.queueOrComputeSensorEffect(
-            sensor.action === 'Hold'
-                ? { ...sensor, action: sensor.revert ? 'Clear' : 'Set' }
-                : sensor,
+            { ...sensor, action: resolvePresenceSensorAction(sensor, 'enter') },
             level,
             cur,
             nextPending,

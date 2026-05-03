@@ -218,3 +218,19 @@ test('store creature spatial runtime line of sight respects closed and opened tr
         true,
     );
 });
+
+test('store creature spatial runtime line of sight treats imaginary trick walls as already passable', () => {
+    const runtime = createStoreCreatureSpatialRuntime({
+        creatureTypes: {},
+    });
+    const mapWithImaginaryTrickWall = createMap([[
+        createFloorTile(0, 0),
+        { ...createFloorTile(1, 0), type: 'TrickWall', imaginary: true },
+        createFloorTile(2, 0),
+    ]]);
+
+    assert.equal(
+        runtime.hasLineOfSight(mapWithImaginaryTrickWall, 0, new Set<string>(), new Set<string>(), 0, 0, 2, 0),
+        true,
+    );
+});

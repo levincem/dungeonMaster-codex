@@ -7,6 +7,7 @@ import type { CreatureMovementStateResult } from './creatureMovementState';
 import { processMonsterTickChampionDeaths } from './monsterDeathProcessing';
 import { resolveMonsterSingleTurn } from './monsterSingleTurn';
 import { buildTickMonstersPatch } from './tickMonstersFinalize';
+import { isTrickWallPassable } from './trickWallState';
 
 type RuntimeTimer = { mt: number; at: number };
 type RuntimeRememberedPartyPosition = { x: number; y: number; expiresAt: number };
@@ -153,7 +154,7 @@ export function runMonsterTickRuntime(
         if (y < 0 || y >= levelMap.height || x < 0 || x >= levelMap.width) return false;
         const tile = levelMap.tiles[y]?.[x];
         if (!tile || tile.type === 'Wall') return false;
-        if (tile.type === 'TrickWall') return state.openWalls.has(`${level},${y},${x}`);
+        if (tile.type === 'TrickWall') return isTrickWallPassable(tile, level, y, x, state.openWalls);
         if (tile.type === 'Door') return state.openDoors.has(`${level},${y},${x}`);
         if (tile.type === 'Pit') return !state.openPits.has(`${level},${y},${x}`);
         return true;

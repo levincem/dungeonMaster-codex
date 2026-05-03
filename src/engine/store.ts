@@ -406,6 +406,8 @@ import {
     triggerFloorSensors as triggerFloorSensorsSystem,
     transitionFloorSensors as transitionFloorSensorsSystem,
 } from './systems/movementSensors';
+import { collectCreatureFloorSensorTransitions } from './systems/creatureSensorTransitions';
+import { isTrickWallPassable } from './systems/trickWallState';
 import { triggerWallPushSensors as triggerWallPushSensorsSystem } from './systems/wallPushSensors';
 import {
     applyFirestaffExchangerReward as applyFirestaffExchangerRewardSystem,
@@ -988,7 +990,7 @@ const isWalkable = (
     const tile = map.tiles[y]?.[x];
     if (!tile) return false;
     if (tile.type === 'Wall') return false;
-    if (tile.type === 'TrickWall') return openWalls.has(`${level},${y},${x}`);
+    if (tile.type === 'TrickWall') return isTrickWallPassable(tile, level, y, x, openWalls);
     if (tile.type === 'Door') return openDoors.has(`${level},${y},${x}`);
     if (tile.type === 'Pit') return !openPits.has(`${level},${y},${x}`);
     return true;
@@ -2592,22 +2594,8 @@ function applyCreatureFloorSensorRuntimeEffects(
 
     const nextCreatures = patch.creatures ?? state.creatures;
     if (nextCreatures === state.creatures) return patch;
-
-    const previousById = new Map(state.creatures.map((creature) => [creature.id, creature]));
-    const movedCreatures = nextCreatures.filter((creature) => {
-        const previous = previousById.get(creature.id);
-        return (
-            previous &&
-            previous.alive &&
-            creature.alive &&
-            (
-                previous.mapIndex !== creature.mapIndex ||
-                previous.x !== creature.x ||
-                previous.y !== creature.y
-            )
-        );
-    });
-    if (movedCreatures.length === 0) return patch;
+    const transitions = collectCreatureFloorSensorTransitions(state.creatures, nextCreatures);
+    if (transitions.length === 0) return patch;
 
     let currentPatch: Partial<GameState> = {
         ...patch,
@@ -2615,10 +2603,7 @@ function applyCreatureFloorSensorRuntimeEffects(
     };
     let currentPendingSensorEvents = currentPatch.pendingSensorEvents ?? state.pendingSensorEvents;
 
-    for (const creature of movedCreatures) {
-        const previous = previousById.get(creature.id);
-        if (!previous) continue;
-
+    for (const transition of transitions) {
         const applySensorPhase = (
             level: number,
             x: number,
@@ -2651,8 +2636,7 @@ function applyCreatureFloorSensorRuntimeEffects(
             };
         };
 
-        applySensorPhase(previous.mapIndex, previous.x, previous.y, 'leave');
-        applySensorPhase(creature.mapIndex, creature.x, creature.y, 'enter');
+        applySensorPhase(transition.level, transition.x, transition.y, transition.type);
     }
 
     return currentPatch;
@@ -2739,7 +2723,7 @@ function canPlaceDungeonDraggedItemOnTile(
     if (!tile) return false;
     if (tile.type === 'Wall') return false;
     if (tile.type === 'TrickWall') {
-        return state.openWalls.has(`${state.level},${y},${x}`);
+        return isTrickWallPassable(tile, state.level, y, x, state.openWalls);
     }
     if (tile.type === 'Door') {
         return state.openDoors.has(`${state.level},${y},${x}`);
@@ -3486,20 +3470,34 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             );
             nextState = applyPatch(
                 nextState,
-                applyStatsToStateTransitionPatch(nextState, buildStoreTickDoorsPatch(
+                applyStatsToStateTransitionPatch(
                     nextState,
-                    delta,
-                    {
-                        doorReboundDurationSeconds: DOOR_REBOUND_DURATION_SECONDS,
-                        doorRecloseDurationSeconds: DOOR_RECLOSE_DURATION_SECONDS,
-                        buildCreatureDamageEvent,
-                        playWallBump,
-                    },
-                ) as Partial<GameState> | null | undefined, 'environment'),
+                    applyCreatureFloorSensorRuntimeEffects(
+                        nextState,
+                        buildStoreTickDoorsPatch<CreatureInstance, DamageEvent, FloorItem, SpellVisualEvent, GameState>(
+                            nextState,
+                            delta,
+                            {
+                                doorReboundDurationSeconds: DOOR_REBOUND_DURATION_SECONDS,
+                                doorRecloseDurationSeconds: DOOR_RECLOSE_DURATION_SECONDS,
+                                buildCreatureDamageEvent,
+                                dropCreatureCarriedItems: (creatures, floorItems, creatureId) =>
+                                    dropCreatureCarriedItemsRuntime(creatures, floorItems, creatureId, randomInt),
+                                buildDeathDustEvent,
+                                playWallBump,
+                            },
+                        ),
+                    ),
+                    'environment',
+                ),
             );
             nextState = applyPatch(
                 nextState,
-                applyStatsToStateTransitionPatch(nextState, runStoreTickSpellsAction(nextState, now), getProjectileDamageStatsSource(nextState)),
+                applyStatsToStateTransitionPatch(
+                    nextState,
+                    applyCreatureFloorSensorRuntimeEffects(nextState, runStoreTickSpellsAction(nextState, now)),
+                    getProjectileDamageStatsSource(nextState),
+                ),
             );
         }
 
@@ -3534,7 +3532,10 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
 
     // ─── Weapon action / physical attack ─────────────────────────────────────
     attackFront: (championId, attackType) => set((state) => {
-        const patch = runStoreAttackFrontAction(state, championId, attackType);
+        const patch = applyCreatureFloorSensorRuntimeEffects(
+            state,
+            runStoreAttackFrontAction(state, championId, attackType),
+        );
         if (!patch) return state;
         const nextProjectileCount = patch.projectiles?.length ?? state.projectiles.length;
         const attackKind = nextProjectileCount > state.projectiles.length
@@ -3550,16 +3551,26 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
     // ─── Door crush tick ─────────────────────────────────────────────────────
     tickDoors: (delta) => set((state) => {
         if (state.optionsModalOpen) return state;
-        return applyStatsToStateTransitionPatch(state, buildStoreTickDoorsPatch(
+        return applyStatsToStateTransitionPatch(
             state,
-            delta,
-            {
-                doorReboundDurationSeconds: DOOR_REBOUND_DURATION_SECONDS,
-                doorRecloseDurationSeconds: DOOR_RECLOSE_DURATION_SECONDS,
-                buildCreatureDamageEvent,
-                playWallBump,
-            },
-        ) ?? state, 'environment') as GameState | Partial<GameState>;
+            applyCreatureFloorSensorRuntimeEffects(
+                state,
+                buildStoreTickDoorsPatch<CreatureInstance, DamageEvent, FloorItem, SpellVisualEvent, GameState>(
+                    state,
+                    delta,
+                    {
+                        doorReboundDurationSeconds: DOOR_REBOUND_DURATION_SECONDS,
+                        doorRecloseDurationSeconds: DOOR_RECLOSE_DURATION_SECONDS,
+                        buildCreatureDamageEvent,
+                        dropCreatureCarriedItems: (creatures, floorItems, creatureId) =>
+                            dropCreatureCarriedItemsRuntime(creatures, floorItems, creatureId, randomInt),
+                        buildDeathDustEvent,
+                        playWallBump,
+                    },
+                ),
+            ) ?? state,
+            'environment',
+        ) as GameState | Partial<GameState>;
     }),
 
     // ─── Monster AI tick ─────────────────────────────────────────────────────
@@ -3571,7 +3582,11 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
     // ─── Combat tick (cooldowns + damage event cleanup) ───────────────────────
     // ─── Spell tick (lights expiry + projectile movement) ─────────────────────
     tickSpells: (now) => set((state) =>
-        applyStatsToStateTransitionPatch(state, runStoreTickSpellsAction(state, now) ?? state, getProjectileDamageStatsSource(state)) as GameState | Partial<GameState>
+        applyStatsToStateTransitionPatch(
+            state,
+            applyCreatureFloorSensorRuntimeEffects(state, runStoreTickSpellsAction(state, now)) ?? state,
+            getProjectileDamageStatsSource(state),
+        ) as GameState | Partial<GameState>
     ),
 
     tickCombat: (delta) => set((state) => {

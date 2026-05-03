@@ -29,6 +29,8 @@ type DoorTickStateLike<TCreature, TDamageEvent> = {
     openDoors: Set<string>;
     creatures: TCreature[];
     damageEvents: TDamageEvent[];
+    floorItems: unknown[];
+    spellVisualEvents: unknown[];
 };
 
 type DoorTickCreatureLike = DoorToggleCreatureLike & {
@@ -89,6 +91,8 @@ export function buildStoreToggleDoorPatch<
 export function buildStoreTickDoorsPatch<
     TCreature extends DoorTickCreatureLike,
     TDamageEvent,
+    TFloorItem,
+    TSpellVisualEvent,
     TState extends DoorTickStateLike<TCreature, TDamageEvent>,
 >(
     state: TState,
@@ -103,14 +107,52 @@ export function buildStoreTickDoorsPatch<
             amount: number,
             creatureId?: string,
         ) => TDamageEvent;
+        dropCreatureCarriedItems: (
+            creatures: TCreature[],
+            floorItems: TFloorItem[],
+            creatureId: string,
+        ) => {
+            creatures: TCreature[];
+            floorItems: TFloorItem[];
+        };
+        buildDeathDustEvent: (level: number, x: number, y: number) => TSpellVisualEvent;
         playWallBump: () => void;
     },
 ) {
-    return tickCrushingDoorsSystem<TCreature, TDamageEvent>(
+    const basePatch = tickCrushingDoorsSystem<TCreature, TDamageEvent>(
         state,
         delta,
         deps,
     ) as Partial<TState> | null;
+    if (!basePatch?.creatures) return basePatch;
+
+    const previousById = new Map(state.creatures.map((creature) => [creature.id, creature]));
+    const newlyDead = basePatch.creatures.filter((creature) => {
+        const previous = previousById.get(creature.id);
+        return previous?.alive && !creature.alive;
+    });
+    if (newlyDead.length === 0) return basePatch;
+
+    let creatures = basePatch.creatures;
+    let floorItems = (basePatch.floorItems ?? state.floorItems) as TFloorItem[];
+    let spellVisualEvents = (basePatch.spellVisualEvents ?? state.spellVisualEvents) as TSpellVisualEvent[];
+
+    for (const creature of newlyDead) {
+        const dropped = deps.dropCreatureCarriedItems(creatures, floorItems, creature.id);
+        creatures = dropped.creatures;
+        floorItems = dropped.floorItems;
+        spellVisualEvents = [
+            ...spellVisualEvents,
+            deps.buildDeathDustEvent(creature.mapIndex, creature.x, creature.y),
+        ];
+    }
+
+    return {
+        ...basePatch,
+        creatures,
+        floorItems,
+        spellVisualEvents,
+    } as Partial<TState>;
 }
 
 export function buildStoreCombatTickPatch<TState extends CombatTickStateLike>(

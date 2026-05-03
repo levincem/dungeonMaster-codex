@@ -240,3 +240,34 @@ test('resolveProjectileTraversalStep treats metadata-less closed doors as solid 
         assert.equal(result.floorItems[0]?.tilePos, 'East');
     }
 });
+
+test('resolveProjectileTraversalStep does not collide with imaginary trick walls', () => {
+    const result = resolveProjectileTraversalStep(
+        createState({
+            projectile: createProjectile({ direction: 'EAST', x: 0, y: 0 }),
+        }),
+        {
+            getTile: (_level, x, y) => {
+                if (x === 1 && y === 0) return { x, y, type: 'TrickWall', imaginary: true, objects: [] } as unknown as GameTile;
+                return { x, y, type: 'Floor', objects: [] } as unknown as GameTile;
+            },
+            doorBlocksProjectile: () => false,
+            buildActivePoisonCloud: () => {
+                throw new Error('no cloud expected');
+            },
+            getThrownExplosionVisualScale: () => 1,
+            buildDroppedItem: (item) => item,
+            resolveProjectileTeleporterTransport: (level, x, y, direction) => ({ level, x, y, direction }),
+            gridSize: 2,
+            originalSpellProjectileAttack: 32,
+        },
+    );
+
+    assert.equal(result.kind, 'advanced');
+    if (result.kind === 'advanced') {
+        assert.deepEqual(
+            { level: result.level, x: result.x, y: result.y, direction: result.direction },
+            { level: 0, x: 1, y: 0, direction: 'EAST' },
+        );
+    }
+});

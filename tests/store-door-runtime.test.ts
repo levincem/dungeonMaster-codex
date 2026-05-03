@@ -73,12 +73,16 @@ test('buildStoreTickDoorsPatch delegates door crush progress and emits damage', 
             openDoors: new Set<string>(),
             creatures: [{ id: 'creature-1', alive: true, mapIndex: 0, x: 6, y: 5, currentHP: 10 }],
             damageEvents: [],
+            floorItems: [] as Array<{ id: string }>,
+            spellVisualEvents: [] as Array<{ id: string }>,
         },
         0.2,
         {
             doorReboundDurationSeconds: 0.3,
             doorRecloseDurationSeconds: 0.4,
             buildCreatureDamageEvent: (_level, _x, _y, amount, creatureId) => ({ amount, creatureId }),
+            dropCreatureCarriedItems: (creatures, floorItems) => ({ creatures, floorItems }),
+            buildDeathDustEvent: (_level, _x, _y) => ({ id: 'unused-death' }),
             playWallBump: () => {
                 bumps.push(1);
             },
@@ -89,6 +93,56 @@ test('buildStoreTickDoorsPatch delegates door crush progress and emits damage', 
     assert.equal(result?.damageEvents?.length, 1);
     assert.equal(result?.crushingDoors?.['0,5,6']?.phase, 'bouncing');
     assert.equal(bumps.length, 1);
+});
+
+test('buildStoreTickDoorsPatch drops creature loot and emits death dust when a crusher kill lands', () => {
+    const result = buildStoreTickDoorsPatch(
+        {
+            crushingDoors: { '0,5,6': { phase: 'closing', timer: 0.05 } },
+            openDoors: new Set<string>(),
+            creatures: [{
+                id: 'creature-1',
+                alive: true,
+                mapIndex: 0,
+                x: 6,
+                y: 5,
+                currentHP: 5,
+                carriedItems: [{ id: 'loot-1', category: 'Misc', typeId: 1, mapIndex: 0, x: 6, y: 5, tilePos: 'North' }],
+            }],
+            damageEvents: [],
+            floorItems: [] as Array<{ id: string; category: 'Misc'; typeId: number; mapIndex: number; x: number; y: number; tilePos: 'North' }>,
+            spellVisualEvents: [] as Array<{ id: string; level: number; x: number; y: number; kind: 'death' }>,
+        },
+        0.2,
+        {
+            doorReboundDurationSeconds: 0.3,
+            doorRecloseDurationSeconds: 0.4,
+            buildCreatureDamageEvent: (_level, _x, _y, amount, creatureId) => ({ amount, creatureId }),
+            dropCreatureCarriedItems: (creatures, floorItems, creatureId) => {
+                const nextCreatures = creatures.map((creature) =>
+                    creature.id === creatureId
+                        ? { ...creature, carriedItems: [] }
+                        : creature,
+                );
+                return {
+                    creatures: nextCreatures,
+                    floorItems: [
+                        ...floorItems,
+                        { id: 'loot-1', category: 'Misc', typeId: 1, mapIndex: 0, x: 6, y: 5, tilePos: 'North' as const },
+                    ],
+                };
+            },
+            buildDeathDustEvent: (level, x, y) => ({ id: 'death-dust', level, x, y, kind: 'death' }),
+            playWallBump: () => undefined,
+        },
+    );
+
+    assert.ok(result);
+    assert.equal(result?.creatures?.[0]?.alive, false);
+    assert.deepEqual(result?.creatures?.[0]?.carriedItems, []);
+    assert.equal(result?.floorItems?.[0]?.id, 'loot-1');
+    assert.deepEqual(result?.spellVisualEvents, [{ id: 'death-dust', level: 0, x: 6, y: 5, kind: 'death' }]);
+    assert.deepEqual(result?.crushingDoors, {});
 });
 
 test('buildStoreCombatTickPatch delegates cleanup of expired damage events', () => {

@@ -43,6 +43,7 @@ import type {
     ProjectileEffect,
 } from '../runtimeTypes';
 import { buildRuntimeCastResult } from './storeFeedbackRuntime';
+import { isTrickWallBlocking } from './trickWallState';
 import {
     getChampionSkillLevelFromXP,
     getEquipmentSkillLevelModifier,
@@ -249,7 +250,7 @@ export function isBlockedForProjectile(
     const tile = map.tiles[y]?.[x];
     if (!tile) return true;
     if (tile.type === 'Wall') return true;
-    if (tile.type === 'TrickWall' && !state.openWalls.has(`${level},${y},${x}`)) return true;
+    if (isTrickWallBlocking(tile, level, y, x, state.openWalls)) return true;
     if (tile.type !== 'Door' || state.openDoors.has(`${level},${y},${x}`)) return false;
     const door = deps.getDoorObject(tile);
     return deps.doorBlocksThrownItems(door?.doorType);

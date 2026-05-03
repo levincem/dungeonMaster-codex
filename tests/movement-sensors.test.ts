@@ -207,6 +207,59 @@ test('triggerFloorSensors clears hold effects when a type 3 party plate is left'
     assert.deepEqual([...result.sensorChanges.openDoors!], []);
 });
 
+test('triggerFloorSensors inverts revert Set sensors between enter and leave for creature plates', () => {
+    const sensor = createSensor({ type: 2, action: 'Set', revert: true });
+    const enterActions: string[] = [];
+    const leaveActions: string[] = [];
+    const { deps } = createDeps(sensor, {
+        isCreatureOnlyFloorSensor: (candidate: SensorObject) => candidate.type === 2,
+        queueOrComputeSensorEffect: (effectiveSensor, _level, _ss, pending) => {
+            enterActions.push(effectiveSensor.action);
+            return {
+                sensorChanges: { openDoors: new Set<string>() },
+                pendingSensorEvents: pending,
+            };
+        },
+        computeSensorEffect: (effectiveSensor) => {
+            leaveActions.push(effectiveSensor.action);
+            return { openDoors: new Set(['0,4,6']) };
+        },
+    });
+
+    triggerFloorSensors(
+        0,
+        6,
+        9,
+        { openDoors: new Set<string>() },
+        {},
+        {},
+        [],
+        [],
+        deps,
+        'enter',
+        'creature',
+        [{ mapIndex: 0, x: 6, y: 9, alive: true }],
+    );
+    const leave = triggerFloorSensors(
+        0,
+        6,
+        9,
+        { openDoors: new Set<string>() },
+        {},
+        {},
+        [],
+        [],
+        deps,
+        'leave',
+        'creature',
+        [],
+    );
+
+    assert.deepEqual(enterActions, ['Clear']);
+    assert.deepEqual(leaveActions, ['Set']);
+    assert.deepEqual([...leave.sensorChanges.openDoors!], ['0,4,6']);
+});
+
 test('triggerFloorSensors keeps a hold plate active when the required floor item remains on it', () => {
     const sensor = createSensor({ type: 4, requiredObjectName: 'COMPASS', action: 'Hold' });
     const { deps } = createDeps(sensor, {

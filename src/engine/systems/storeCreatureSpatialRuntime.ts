@@ -9,6 +9,7 @@ import {
 import { getCreatureTileCapacity as getCreatureTileCapacitySystem } from './generatedCreatureGroups';
 import { resolveOriginalArchenemyDoubleMoveDestination } from './originalArchenemyMovement';
 import { canCreatureShareRuntimeTile } from './runtimeGroupOccupancy';
+import { isTrickWallBlocking } from './trickWallState';
 
 type CreatureDefinitionLike = {
     sizeOnTile?: number;
@@ -158,7 +159,7 @@ export function createStoreCreatureSpatialRuntime(
         for (const { x, y } of getSupercoverLineBetweenTileCenters(ax, ay, bx, by)) {
             const tile = map.tiles[y]?.[x];
             if (!tile || tile.type === 'Wall') return false;
-            if (tile.type === 'TrickWall' && !openWalls.has(`${level},${y},${x}`)) return false;
+            if (isTrickWallBlocking(tile, level, y, x, openWalls)) return false;
             if (tile.type !== 'Door') continue;
             if (openDoors.has(`${level},${y},${x}`)) continue;
             if (doorBlocksVision(getDoorObject(tile)?.doorType)) return false;

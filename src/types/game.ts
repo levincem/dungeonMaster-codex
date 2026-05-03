@@ -200,6 +200,7 @@ export interface GameTile {
     // Teleporter-specific
     open?: boolean;
     visible?: boolean;
+    imaginary?: boolean;
     // All objects placed on this tile
     objects: TileObject[];
 }

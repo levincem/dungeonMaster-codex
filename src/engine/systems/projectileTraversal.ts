@@ -3,6 +3,7 @@ import type { ActivePoisonCloud, Projectile, SpellVisualEvent } from '../runtime
 import type { Direction } from '../runtimeTypes';
 import { getDoorObject } from './doorMetadata';
 import { buildProjectileDroppedItem } from './projectileDroppedItem';
+import { isTrickWallBlocking } from './trickWallState';
 
 type TraversalState = {
     projectile: Projectile;
@@ -95,7 +96,6 @@ export function resolveProjectileTraversalStep(
 
     const tile = deps.getTile(level, x, y);
     const doorKey = `${level},${y},${x}`;
-    const wallKey = `${level},${y},${x}`;
     const closedDoor = tile?.type === 'Door' && !state.openDoors.has(doorKey)
         ? getDoorObject(tile)
         : undefined;
@@ -131,7 +131,7 @@ export function resolveProjectileTraversalStep(
     }
 
     const closedDoorBlocksProjectile = closedDoor ? deps.doorBlocksProjectile(closedDoor, projectile) : false;
-    if (!tile || tile.type === 'Wall' || (tile.type === 'TrickWall' && !state.openWalls.has(wallKey)) || closedDoorBlocksProjectile) {
+    if (!tile || tile.type === 'Wall' || isTrickWallBlocking(tile, level, y, x, state.openWalls) || closedDoorBlocksProjectile) {
         const wallImpactEffect = projectile.effect === 'physical' ? projectile.explosionOnImpact : projectile.effect;
         if (wallImpactEffect) {
             spellVisualEvents = [

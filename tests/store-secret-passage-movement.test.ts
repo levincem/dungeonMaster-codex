@@ -219,3 +219,120 @@ test('level 2 mummies behind the opened Mirror Of Dawn secret passage can move t
         useStore.setState(initialState, true);
     }
 });
+
+test('imaginary level 3 trick walls are traversable without being added to openWalls', async () => {
+    await preloadDungeonData();
+    const { getGameMap } = await import('../src/data/mapLoader.js');
+    const { useStore } = await import('../src/engine/store.js');
+    const initialState = enterDungeonForTest(useStore);
+    const map = getGameMap(3);
+    const wallX = 13;
+    const wallY = 21;
+    const wall = map.tiles[wallY]?.[wallX];
+
+    assert.equal(wall?.type, 'TrickWall');
+    assert.equal(wall?.imaginary, true);
+    const westTile = map.tiles[wallY]?.[wallX - 1];
+    const eastTile = map.tiles[wallY]?.[wallX + 1];
+    assert.equal(westTile?.type, 'Floor');
+    assert.equal(eastTile?.type, 'Floor');
+
+    try {
+        useStore.setState({
+            gamePhase: 'exploration',
+            paused: false,
+            sleeping: false,
+            optionsModalOpen: false,
+            movementCooldown: 0,
+            level: 3,
+            position: [wallY, wallX - 1],
+            direction: 'EAST',
+            party: [],
+            openDoors: new Set(initialState.openDoors),
+            openPits: new Set(initialState.openPits),
+            openTeleporters: new Set(initialState.openTeleporters),
+            openWalls: new Set<string>(),
+            pendingSensorEvents: [],
+            damageEvents: [],
+            spellVisualEvents: [],
+            activeFloorDrag: null,
+            lastMonsterAttackDebug: null,
+        });
+
+        useStore.getState().moveForward();
+
+        const afterMove = useStore.getState();
+        assert.deepEqual(afterMove.position, [wallY, wallX]);
+        assert.equal(afterMove.openWalls.has('3,21,13'), false);
+    } finally {
+        useStore.setState(initialState, true);
+    }
+});
+
+test('tickDoors treats the prisoner-room mummy death as leaving the creature-only sensor tile', async () => {
+    await preloadDungeonData();
+    const { useStore } = await import('../src/engine/store.js');
+    const initialState = enterDungeonForTest(useStore);
+
+    try {
+        useStore.getState().goToLevel(3, [6, 7], 'NORTH');
+        const baseState = useStore.getState();
+        const prisonerMummy = baseState.creatures.find((creature) =>
+            creature.alive &&
+            creature.mapIndex === 3 &&
+            creature.typeId === 10 &&
+            creature.x === 7 &&
+            creature.y === 5,
+        );
+
+        assert.ok(prisonerMummy, 'expected the prisoner-room mummy');
+
+        useStore.setState({
+            gamePhase: 'exploration',
+            paused: false,
+            sleeping: false,
+            optionsModalOpen: false,
+            level: 3,
+            position: [6, 7],
+            direction: 'NORTH',
+            openWalls: new Set<string>(),
+            crushingDoors: { '3,5,7': { phase: 'closing', timer: 0.05 } },
+            pendingSensorEvents: [],
+            damageEvents: [],
+            spellVisualEvents: [],
+            floorItems: [],
+            creatures: baseState.creatures.map((creature) =>
+                creature.id === prisonerMummy?.id
+                    ? {
+                        ...creature,
+                        currentHP: 5,
+                        carriedItems: [{
+                            id: 'mummy-loot',
+                            category: 'Misc',
+                            typeId: 1,
+                            mapIndex: 3,
+                            x: 7,
+                            y: 5,
+                            tilePos: 'North',
+                        }],
+                    }
+                    : creature,
+            ),
+        });
+
+        withAudioStub(() => {
+            useStore.getState().tickDoors(0.2);
+        });
+
+        const afterTick = useStore.getState();
+        const deadMummy = afterTick.creatures.find((creature) => creature.id === prisonerMummy?.id);
+        assert.equal(deadMummy?.alive, false);
+        assert.deepEqual(deadMummy?.carriedItems, []);
+        assert.equal(afterTick.openWalls.has('3,5,6'), true);
+        assert.equal(afterTick.floorItems.some((item) => item.id === 'mummy-loot' && item.x === 7 && item.y === 5), true);
+        assert.equal(afterTick.spellVisualEvents.some((event) => event.kind === 'death' && event.x === 7 && event.y === 5), true);
+        assert.equal(afterTick.crushingDoors['3,5,7'], undefined);
+    } finally {
+        useStore.setState(initialState, true);
+    }
+});
