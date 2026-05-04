@@ -100,6 +100,7 @@ export type StoreBootstrapState = {
 type StoreBootstrapRuntimeParams = {
     hallStart: [number, number];
     hallStartDirection: StoreBootstrapDirection;
+    buildDefaultOpenDoors: () => Set<string>;
     buildDefaultOpenPits: () => Set<string>;
     buildDefaultOpenTeleporters: () => Set<string>;
     buildDefaultVisibleTexts: () => Set<string>;
@@ -132,7 +133,7 @@ export function createStoreBootstrapRuntime(
         activePartyMemberId: null,
         gateOpen: false,
         hydratedLevels,
-        openDoors: createEmptyStringSet(),
+        openDoors: shouldHydrateWorld ? params.buildDefaultOpenDoors() : createEmptyStringSet(),
         brokenDoors: createEmptyStringSet(),
         openPits: shouldHydrateWorld ? params.buildDefaultOpenPits() : createEmptyStringSet(),
         openTeleporters: shouldHydrateWorld ? params.buildDefaultOpenTeleporters() : createEmptyStringSet(),

@@ -6,11 +6,18 @@ Goal: rebuild the original dungeon, systems, and feel as faithfully as possible 
 
 Live build: [dungeon-master.fr](https://dungeon-master.fr/)
 
-Current local version: `v0.8.3`
+Current local version: `v0.8.4`
 
 ## Status
 
 This is now a desktop-first beta focused on gameplay validation from the early dungeon through endgame, while keeping PC DOS fidelity first and presentation polish second.
+
+Latest `v0.8.4` focus:
+
+- `LVL 5` playtest fidelity fixes for open-by-default doors, wall locks, wall rings, and lock visuals
+- wall multi-lock sequences aligned with the original source behavior in a single use
+- dungeon floor drag/drop now completes correctly after movement
+- ranged creature stability fixes around launch-square self hits and blocked diagonal corner line of sight
 
 Already in place:
 

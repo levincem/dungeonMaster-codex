@@ -156,72 +156,145 @@ export function triggerLockSensors<
     }
 
     let cur = ss;
-    let sensorChanged = false;
     let matched = false;
+    let matchedCompatibleLock = false;
     let newInventories: Record<number, FloorItem[]> | null = null;
     let newEquipment: Record<number, ChampionEquipment> | null = null;
+    let shouldRotateFaceAfterProcessing = false;
+
+    const selectedCandidate = selectedItem
+        ? (
+            selectedItem.fromSlot !== 'inventory'
+                ? equipment[selectedItem.championId]?.[selectedItem.fromSlot as EquipSlotKey]
+                : inventories[selectedItem.championId]?.find((item) => item.id === selectedItem.itemId)
+        )
+        : null;
+    let carriedItemConsumed = false;
+    let fallbackMatch:
+        | {
+            championId: number;
+            itemId: string;
+            slot: EquipSlotKey | null;
+            item: FloorItem;
+        }
+        | null = null;
 
     const faceSensors = deps.getWallFaceSensorsInRuntimeOrder(level, wx, wy, face, ss.sensorRotationOffsets);
-    for (const sensor of faceSensors) {
+    for (let sensorIndex = 0; sensorIndex < faceSensors.length; sensorIndex += 1) {
+        const sensor = faceSensors[sensorIndex];
         if (!deps.isWallLockSensor(sensor)) continue;
         if (deps.isWallSensorConsumedAtRuntime(level, sensor, cur)) continue;
+        if ((sensor.type === 11 || sensor.type === 17) && sensorIndex < faceSensors.length - 1) continue;
 
         const requiredName = deps.getRequiredSensorItemName(sensor);
         const requiredData = sensor.data;
         let matchChampId: number | null = null;
         let matchItemId: string | null = null;
         let matchSlot: EquipSlotKey | null = null;
+        let matchedItem: FloorItem | null = null;
 
         if (selectedItem) {
-            const fromEquip = selectedItem.fromSlot !== 'inventory';
-            const candidate = fromEquip
-                ? equipment[selectedItem.championId]?.[selectedItem.fromSlot as EquipSlotKey]
-                : inventories[selectedItem.championId]?.find((item) => item.id === selectedItem.itemId);
-            if (!candidate) continue;
+            if (carriedItemConsumed || !selectedCandidate) continue;
 
-            const matchesByName = deps.itemMatchesMechanismRequirement(candidate, requiredName);
-            const matchesByData = requiredName === undefined && deps.itemToLockData(candidate.category, candidate.typeId) === requiredData;
+            const matchesByName = deps.itemMatchesMechanismRequirement(selectedCandidate, requiredName);
+            const matchesByData = requiredName === undefined
+                && deps.itemToLockData(selectedCandidate.category, selectedCandidate.typeId) === requiredData;
             const matchesRequirement = matchesByName || matchesByData;
             const shouldTrigger = sensor.revert ? !matchesRequirement : matchesRequirement;
             if (!shouldTrigger) continue;
 
+            matchedCompatibleLock = true;
             matchChampId = selectedItem.championId;
-            matchItemId = candidate.id;
-            matchSlot = fromEquip ? selectedItem.fromSlot as EquipSlotKey : null;
+            matchItemId = selectedCandidate.id;
+            matchSlot = selectedItem.fromSlot !== 'inventory' ? selectedItem.fromSlot as EquipSlotKey : null;
+            matchedItem = selectedCandidate;
         } else {
+            if (carriedItemConsumed) continue;
             if (sensor.revert) continue;
-            for (const [cidStr, inv] of Object.entries(inventories)) {
-                for (const item of inv) {
-                    const matchesByName = deps.itemMatchesMechanismRequirement(item, requiredName);
-                    const matchesByData = requiredName === undefined && deps.itemToLockData(item.category, item.typeId) === requiredData;
-                    if (matchesByName || matchesByData) {
-                        matchChampId = parseInt(cidStr, 10);
-                        matchItemId = item.id;
-                        break;
-                    }
+
+            if (fallbackMatch) {
+                const matchesByName = deps.itemMatchesMechanismRequirement(fallbackMatch.item, requiredName);
+                const matchesByData = requiredName === undefined
+                    && deps.itemToLockData(fallbackMatch.item.category, fallbackMatch.item.typeId) === requiredData;
+                if (!matchesByName && !matchesByData) {
+                    continue;
                 }
-                if (matchChampId !== null) break;
-            }
-            if (matchChampId === null) {
-                for (const [cidStr, equip] of Object.entries(equipment)) {
-                    for (const [slotKey, item] of Object.entries(equip ?? {}) as Array<[EquipSlotKey, FloorItem | undefined]>) {
-                        if (!item) continue;
+                matchChampId = fallbackMatch.championId;
+                matchItemId = fallbackMatch.itemId;
+                matchSlot = fallbackMatch.slot;
+                matchedItem = fallbackMatch.item;
+            } else {
+                for (const [cidStr, inv] of Object.entries(inventories)) {
+                    for (const item of inv) {
                         const matchesByName = deps.itemMatchesMechanismRequirement(item, requiredName);
-                        const matchesByData = requiredName === undefined && deps.itemToLockData(item.category, item.typeId) === requiredData;
+                        const matchesByData = requiredName === undefined
+                            && deps.itemToLockData(item.category, item.typeId) === requiredData;
                         if (matchesByName || matchesByData) {
                             matchChampId = parseInt(cidStr, 10);
                             matchItemId = item.id;
-                            matchSlot = slotKey;
+                            matchedItem = item;
                             break;
                         }
                     }
                     if (matchChampId !== null) break;
                 }
+                if (matchChampId === null) {
+                    for (const [cidStr, equip] of Object.entries(equipment)) {
+                        for (const [slotKey, item] of Object.entries(equip ?? {}) as Array<[EquipSlotKey, FloorItem | undefined]>) {
+                            if (!item) continue;
+                            const matchesByName = deps.itemMatchesMechanismRequirement(item, requiredName);
+                            const matchesByData = requiredName === undefined
+                                && deps.itemToLockData(item.category, item.typeId) === requiredData;
+                            if (matchesByName || matchesByData) {
+                                matchChampId = parseInt(cidStr, 10);
+                                matchItemId = item.id;
+                                matchSlot = slotKey;
+                                matchedItem = item;
+                                break;
+                            }
+                        }
+                        if (matchChampId !== null) break;
+                    }
+                }
+                if (matchChampId === null || !matchedItem) continue;
+                fallbackMatch = {
+                    championId: matchChampId,
+                    itemId: matchItemId ?? matchedItem.id,
+                    slot: matchSlot,
+                    item: matchedItem,
+                };
             }
-            if (matchChampId === null) continue;
+            matchedCompatibleLock = true;
+        }
+
+        const effectiveSensor = sensor.type === 17 && !sensor.onceOnly
+            ? { ...sensor, onceOnly: true }
+            : sensor;
+        let nextState = cur;
+        const effect = deps.computeSensorEffect(effectiveSensor, level, nextState);
+        if (Object.keys(effect).length > 0) {
+            if (effect.openDoors && effect.openDoors !== nextState.openDoors) {
+                deps.playDoorMotion(deps.resolveDoorSoundTarget(effectiveSensor, level));
+            }
+            nextState = { ...nextState, ...effect } as TSensorState;
+        }
+        if (deps.shouldRotateWallFaceAfterActivation(level, wx, wy, face, nextState.sensorRotationOffsets)) {
+            nextState = {
+                ...nextState,
+                sensorRotationOffsets: deps.rotateWallFaceSensors(level, wx, wy, face, nextState.sensorRotationOffsets),
+            } as TSensorState;
+        }
+
+        const nextSensorPatch = deps.diffSensorState(cur, nextState);
+        const stateChangedThisSensor = Object.keys(nextSensorPatch).length > 0;
+        if (!stateChangedThisSensor && !deps.isConsumableLockSensor(sensor)) {
+            continue;
         }
 
         if (deps.isConsumableLockSensor(sensor)) {
+            if (carriedItemConsumed || matchChampId === null || matchItemId === null) {
+                continue;
+            }
             if (matchSlot) {
                 if (newEquipment === null) newEquipment = { ...equipment };
                 const equip = { ...(newEquipment[matchChampId] ?? equipment[matchChampId] ?? {}) };
@@ -232,35 +305,28 @@ export function triggerLockSensors<
                 const inv = newInventories[matchChampId] ?? inventories[matchChampId] ?? [];
                 newInventories[matchChampId] = inv.filter((item) => item.id !== matchItemId);
             }
+            carriedItemConsumed = true;
         }
 
-        const effectiveSensor = sensor.type === 17 && !sensor.onceOnly
-            ? { ...sensor, onceOnly: true }
-            : sensor;
-        const effect = deps.computeSensorEffect(effectiveSensor, level, cur);
-        if (Object.keys(effect).length > 0) {
-            if (effect.openDoors && effect.openDoors !== cur.openDoors) {
-                deps.playDoorMotion(deps.resolveDoorSoundTarget(effectiveSensor, level));
-            }
-            cur = { ...cur, ...effect } as TSensorState;
-            sensorChanged = true;
-        }
-        if (deps.shouldRotateWallFaceAfterActivation(level, wx, wy, face, cur.sensorRotationOffsets)) {
-            cur = {
-                ...cur,
-                sensorRotationOffsets: deps.rotateWallFaceSensors(level, wx, wy, face, cur.sensorRotationOffsets),
-            } as TSensorState;
-            sensorChanged = true;
-        }
+        cur = nextState;
         matched = true;
-        break;
+        shouldRotateFaceAfterProcessing = shouldRotateFaceAfterProcessing
+            || deps.shouldRotateWallFaceAfterActivation(level, wx, wy, face, cur.sensorRotationOffsets);
     }
 
+    if (matched && shouldRotateFaceAfterProcessing) {
+        cur = {
+            ...cur,
+            sensorRotationOffsets: deps.rotateWallFaceSensors(level, wx, wy, face, cur.sensorRotationOffsets),
+        } as TSensorState;
+    }
+
+    const sensorChanges = deps.diffSensorState(ss, cur);
     return {
-        sensorChanges: sensorChanged ? deps.diffSensorState(ss, cur) : {},
+        sensorChanges,
         newInventories,
         newEquipment,
-        matched,
+        matched: matched || matchedCompatibleLock,
     };
 }
 

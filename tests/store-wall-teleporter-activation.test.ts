@@ -11,6 +11,7 @@ function enterDungeonForTest<TState extends { enterDungeon: () => void }>(
 
 function withAudioStub<T>(run: () => T): T {
     const originalAudio = globalThis.Audio;
+    const originalWindow = (globalThis as typeof globalThis & { window?: typeof globalThis }).window;
     class AudioStub {
         currentTime = 0;
         volume = 1;
@@ -21,11 +22,11 @@ function withAudioStub<T>(run: () => T): T {
         pause() { return undefined; }
         cloneNode() { return new AudioStub(); }
     }
-    Object.assign(globalThis, { Audio: AudioStub });
+    Object.assign(globalThis, { Audio: AudioStub, window: globalThis });
     try {
         return run();
     } finally {
-        Object.assign(globalThis, { Audio: originalAudio });
+        Object.assign(globalThis, { Audio: originalAudio, window: originalWindow });
     }
 }
 
@@ -127,6 +128,168 @@ test('level 3 gold coin wall slot opens the creature-only teleporter from the or
 
         assert.equal(didUse, true);
         assert.equal(useStore.getState().openTeleporters.has('3,15,23'), true);
+    } finally {
+        useStore.setState(initialState, true);
+    }
+});
+
+test('level 5 solid-key wall face resolves the full original multi-lock sequence in one use', async () => {
+    await preloadDungeonData();
+    const { useStore } = await import('../src/engine/store.js');
+    const initialState = enterDungeonForTest(useStore);
+
+    try {
+        useStore.getState().goToLevel(5, [8, 20], 'SOUTH');
+
+        const solidKey = {
+            id: 'test-solid-key',
+            category: 'Misc',
+            typeId: 11,
+            rawName: 'Solid Key',
+            mapIndex: 5,
+            x: 20,
+            y: 8,
+            tilePos: 'North',
+        } as const;
+
+        useStore.setState({
+            gamePhase: 'exploration',
+            paused: false,
+            sleeping: false,
+            optionsModalOpen: false,
+            movementCooldown: 0,
+            position: [8, 20],
+            direction: 'SOUTH',
+            championInventories: { 1: [solidKey] },
+            championEquipment: { 1: {} },
+            pendingSensorEvents: [],
+            damageEvents: [],
+            spellVisualEvents: [],
+            activeFloorDrag: null,
+            lastMonsterAttackDebug: null,
+        });
+
+        assert.equal(useStore.getState().openDoors.has('5,8,19'), false);
+
+        const usedKey = withAudioStub(() =>
+            useStore.getState().useItemOnFrontWall(1, solidKey.id, 'inventory'),
+        );
+        assert.equal(usedKey, true);
+
+        const afterUse = useStore.getState();
+        assert.equal(afterUse.firedSensors.has('5_413'), true);
+        assert.equal(afterUse.firedSensors.has('5_404'), true);
+        assert.equal(afterUse.openDoors.has('5,8,19'), true);
+        assert.equal(afterUse.championInventories[1]?.length ?? 0, 0);
+    } finally {
+        useStore.setState(initialState, true);
+    }
+});
+
+test('level 5 solid-key wall face clears both linked teleporters and opens the door in one use', async () => {
+    await preloadDungeonData();
+    const { useStore } = await import('../src/engine/store.js');
+    const initialState = enterDungeonForTest(useStore);
+
+    try {
+        useStore.getState().goToLevel(5, [8, 20], 'SOUTH');
+
+        const solidKey = {
+            id: 'test-solid-key',
+            category: 'Misc',
+            typeId: 11,
+            rawName: 'Solid Key',
+            mapIndex: 5,
+            x: 20,
+            y: 8,
+            tilePos: 'North',
+        } as const;
+
+        useStore.setState({
+            gamePhase: 'exploration',
+            paused: false,
+            sleeping: false,
+            optionsModalOpen: false,
+            movementCooldown: 0,
+            position: [8, 20],
+            direction: 'SOUTH',
+            championInventories: { 1: [solidKey] },
+            championEquipment: { 1: {} },
+            openTeleporters: new Set([
+                ...useStore.getState().openTeleporters,
+                '5,4,21',
+                '5,6,21',
+            ]),
+            pendingSensorEvents: [],
+            damageEvents: [],
+            spellVisualEvents: [],
+            activeFloorDrag: null,
+            lastMonsterAttackDebug: null,
+        });
+
+        const usedKey = withAudioStub(() =>
+            useStore.getState().useItemOnFrontWall(1, solidKey.id, 'inventory'),
+        );
+        assert.equal(usedKey, true);
+
+        const afterUse = useStore.getState();
+        assert.equal(afterUse.openTeleporters.has('5,4,21'), false);
+        assert.equal(afterUse.openTeleporters.has('5,6,21'), false);
+        assert.equal(afterUse.firedSensors.has('5_413'), true);
+        assert.equal(afterUse.firedSensors.has('5_404'), true);
+        assert.equal(afterUse.openDoors.has('5,8,19'), true);
+        assert.equal(afterUse.championInventories[1]?.length ?? 0, 0);
+    } finally {
+        useStore.setState(initialState, true);
+    }
+});
+
+test('level 3 gold-key wall face resolves all original matching locks in one use', async () => {
+    await preloadDungeonData();
+    const { useStore } = await import('../src/engine/store.js');
+    const initialState = enterDungeonForTest(useStore);
+
+    try {
+        useStore.getState().goToLevel(3, [7, 28], 'SOUTH');
+
+        const goldKey = {
+            id: 'test-gold-key',
+            category: 'Misc',
+            typeId: 17,
+            rawName: 'Gold Key',
+            mapIndex: 3,
+            x: 28,
+            y: 7,
+            tilePos: 'North',
+        } as const;
+
+        useStore.setState({
+            gamePhase: 'exploration',
+            paused: false,
+            sleeping: false,
+            optionsModalOpen: false,
+            movementCooldown: 0,
+            position: [7, 28],
+            direction: 'SOUTH',
+            championInventories: { 1: [goldKey] },
+            championEquipment: { 1: {} },
+            pendingSensorEvents: [],
+            damageEvents: [],
+            spellVisualEvents: [],
+            activeFloorDrag: null,
+            lastMonsterAttackDebug: null,
+        });
+
+        const usedKey = withAudioStub(() =>
+            useStore.getState().useItemOnFrontWall(1, goldKey.id, 'inventory'),
+        );
+        assert.equal(usedKey, true);
+
+        const afterUse = useStore.getState();
+        assert.equal(afterUse.firedSensors.has('3_379'), true);
+        assert.equal(afterUse.firedSensors.has('3_288'), true);
+        assert.equal(afterUse.firedSensors.has('3_177'), true);
+        assert.equal(afterUse.championInventories[1]?.length ?? 0, 0);
     } finally {
         useStore.setState(initialState, true);
     }

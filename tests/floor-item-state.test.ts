@@ -231,6 +231,46 @@ test('transferFloorItemToChampionState ignores distant items', () => {
     assert.equal(patch, null);
 });
 
+test('transferFloorItemToChampionState still allows the actively dragged floor item after moving away', () => {
+    const item = createFloorItem('dragged', 1, { x: 2, y: 2 });
+    const pickupState: {
+        level: number;
+        position: [number, number];
+        direction: 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
+        floorItems: FloorItem[];
+        party: Champion[];
+        championInventories: Record<number, FloorItem[]>;
+        activeFloorDrag: { itemId: string; pointerX: number; pointerY: number } | null;
+        lastCastResult: { success: boolean; message: string; ts: number } | null;
+    } = {
+        level: 0,
+        position: [5, 5] as [number, number],
+        direction: 'NORTH' as const,
+        floorItems: [item],
+        party: [createChampion(1)],
+        championInventories: { 1: [] as FloorItem[] },
+        activeFloorDrag: { itemId: item.id, pointerX: 40, pointerY: 50 },
+        lastCastResult: null,
+    };
+
+    const patch = transferFloorItemToChampionState(
+        pickupState,
+        item.id,
+        1,
+        {
+            getTile: () => ({ x: item.x, y: item.y, type: 'Floor', objects: [] }),
+            buildPickupPatch: buildFloorItemPickupPatch,
+            clearAlcoveStateOnPickup: () => ({}),
+            buildHiddenFirestaffMessage: () => ({ success: false, message: 'blocked', ts: 0 }),
+        },
+    );
+
+    assert.ok(patch && 'championInventories' in patch);
+    assert.deepEqual(patch.floorItems, []);
+    assert.deepEqual(patch.championInventories[1]?.map((entry: FloorItem) => entry.id), [item.id]);
+    assert.equal(patch.activeFloorDrag, null);
+});
+
 test('transferFloorItemToChampionState returns null when the target backpack is full', async () => {
     const { MAX_CHAMPION_INVENTORY_ITEMS } = await import('../src/engine/systems/inventoryState.js');
     const item = createFloorItem('floor-item', 1);

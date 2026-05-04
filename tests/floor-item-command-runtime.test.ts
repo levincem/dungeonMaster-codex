@@ -397,6 +397,48 @@ test('buildMoveFloorItemToTileRuntimePatch clears source sensors then triggers d
     });
 });
 
+test('buildMoveFloorItemToTileRuntimePatch still finalizes the actively dragged item after the party moved away', () => {
+    const item = createItem('dragged-scroll', { category: 'Scroll', x: 1, y: 1 });
+    const state = {
+        level: 0,
+        position: [8, 8] as [number, number],
+        direction: 'NORTH' as const,
+        party: [createChampion(1)],
+        floorItems: [item],
+        championInventories: { 1: [] as FloorItem[] },
+        championEquipment: { 1: {} as ChampionEquipment },
+        deadChampions: {},
+        pendingSensorEvents: [] as PendingSensorEvent[],
+        activeFloorDrag: { itemId: item.id, pointerX: 10, pointerY: 10 },
+    };
+
+    const patch = buildMoveFloorItemToTileRuntimePatch(
+        state,
+        item.id,
+        1,
+        8,
+        8,
+        {
+            buildSensorStateSnapshot: () => ({ snapshot: true }),
+            triggerFloorSensors: (_level, _x, _y, _sensorState, _inventories, _equipment, floorItems) => ({
+                sensorChanges: { floorItems },
+                pendingSensorEvents: [],
+            }),
+            applyImmediateTransportSquareEffects: (_currentState, basePatch) => ({
+                ...basePatch,
+                transported: true,
+            }),
+        },
+    );
+
+    assert.deepEqual(patch, {
+        floorItems: [{ ...item, mapIndex: 0, x: 8, y: 8, tilePos: 'North', projectileDropped: undefined }],
+        pendingSensorEvents: [],
+        activeFloorDrag: null,
+        transported: true,
+    });
+});
+
 test('buildThrowFloorItemRuntimePatch removes the floor item and appends a projectile', () => {
     const item = createItem('dagger', { x: 5, y: 3, typeId: 8 });
     const projectile = {
@@ -448,5 +490,57 @@ test('buildThrowFloorItemRuntimePatch removes the floor item and appends a proje
         activeFloorDrag: null,
         projectiles: [projectile],
         marker: 'xp',
+    });
+});
+
+test('buildThrowFloorItemRuntimePatch still throws the actively dragged item after the party moved away', () => {
+    const item = createItem('dragged-dagger', { x: 1, y: 1, typeId: 8 });
+    const projectile = {
+        id: 'projectile_dragged',
+        level: 0,
+        x: 8,
+        y: 8,
+        direction: 'NORTH' as const,
+        effect: 'physical' as const,
+        damage: [2, 4] as [number, number],
+        nextMoveAt: 0,
+        remainingRange: 4,
+        remainingAttack: 4,
+        stepDecay: 1,
+        physicalItem: item,
+    };
+    const state = {
+        level: 0,
+        position: [8, 8] as [number, number],
+        direction: 'NORTH' as const,
+        party: [createChampion(1)],
+        floorItems: [item],
+        championInventories: { 1: [] as FloorItem[] },
+        championEquipment: { 1: {} as ChampionEquipment },
+        deadChampions: {},
+        pendingSensorEvents: [] as PendingSensorEvent[],
+        activeFloorDrag: { itemId: item.id, pointerX: 10, pointerY: 10 },
+        projectiles: [],
+    };
+
+    const patch = buildThrowFloorItemRuntimePatch(
+        state,
+        item.id,
+        1,
+        {
+            buildSensorStateSnapshot: () => ({ snapshot: true }),
+            triggerFloorSensors: () => ({
+                sensorChanges: { floorItems: [] },
+                pendingSensorEvents: [],
+            }),
+            buildProjectile: () => projectile,
+        },
+    );
+
+    assert.deepEqual(patch, {
+        floorItems: [],
+        pendingSensorEvents: [],
+        activeFloorDrag: null,
+        projectiles: [projectile],
     });
 });

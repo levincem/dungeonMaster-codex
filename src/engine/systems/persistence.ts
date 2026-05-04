@@ -9,7 +9,14 @@ import {
     normalizeChampionTemporaryXP,
     normalizeChampionXP,
 } from '../../data/skillProgression';
-import type { ChampionEquipment, CreatureInstance, CreatureObject, FloorItem } from '../../types/game';
+import type {
+    ChampionEquipment,
+    CreatureInstance,
+    CreatureObject,
+    FloorItem,
+    SensorObject,
+    WallTextObject,
+} from '../../types/game';
 import type {
     ActivePoisonCloud,
     ActivePotionBoost,
@@ -182,6 +189,21 @@ function buildDefaultOpenPits(): Set<string> {
     return new Set<string>(getDungeonBootstrap().defaultOpenPits ?? []);
 }
 
+function buildDefaultOpenDoors(): Set<string> {
+    const openDoors = new Set<string>();
+    for (const mapSummary of getDungeonBootstrap().maps ?? []) {
+        const map = getGameMap(mapSummary.index);
+        for (const row of map.tiles) {
+            for (const tile of row) {
+                if (tile.type === 'Door' && tile.state === 'Open') {
+                    openDoors.add(`${map.index},${tile.y},${tile.x}`);
+                }
+            }
+        }
+    }
+    return openDoors;
+}
+
 function buildDefaultOpenTeleporters(): Set<string> {
     return sanitizeOpenTeleporterKeys(getDungeonBootstrap().defaultOpenTeleporters ?? []);
 }
@@ -192,6 +214,114 @@ function buildDefaultVisibleTexts(): Set<string> {
 
 function buildDefaultHydratedLevels(): Set<number> {
     return new Set<number>((getDungeonBootstrap().maps ?? []).map((map) => map.index));
+}
+
+function applyPersistedSensorActionToSet(
+    set: Set<string>,
+    key: string,
+    action: 'Set' | 'Clear',
+): Set<string> {
+    const hasKey = set.has(key);
+    if (action === 'Set') {
+        if (hasKey) return set;
+        const next = new Set(set);
+        next.add(key);
+        return next;
+    }
+
+    if (!hasKey) return set;
+    const next = new Set(set);
+    next.delete(key);
+    return next;
+}
+
+function findPersistedSensorByIndex(level: number, sensorIndex: number): SensorObject | null {
+    const map = getGameMap(level);
+    for (const row of map.tiles) {
+        for (const tile of row) {
+            for (const object of tile.objects) {
+                if (object.category !== 'Sensor') continue;
+                const sensor = object as SensorObject;
+                if (sensor.index === sensorIndex) return sensor;
+            }
+        }
+    }
+    return null;
+}
+
+function reconcileTriggeredWorldStateFromFiredSensors(params: {
+    firedSensors: Set<string>;
+    openDoors: Set<string>;
+    openPits: Set<string>;
+    openTeleporters: Set<string>;
+    openWalls: Set<string>;
+    visibleTexts: Set<string>;
+}): Pick<
+    PersistableGameState,
+    'openDoors' | 'openPits' | 'openTeleporters' | 'openWalls' | 'visibleTexts'
+> {
+    let openDoors = params.openDoors;
+    let openPits = params.openPits;
+    let openTeleporters = params.openTeleporters;
+    let openWalls = params.openWalls;
+    let visibleTexts = params.visibleTexts;
+
+    for (const sensorKey of params.firedSensors) {
+        const match = /^(\d+)_(\d+)$/.exec(sensorKey);
+        if (!match) continue;
+
+        const level = Number(match[1]);
+        const sensorIndex = Number(match[2]);
+        if (!Number.isFinite(level) || !Number.isFinite(sensorIndex)) continue;
+
+        let sensor: SensorObject | null = null;
+        try {
+            sensor = findPersistedSensorByIndex(level, sensorIndex);
+        } catch {
+            continue;
+        }
+        if (!sensor) continue;
+        if (!sensor.onceOnly || sensor.isLocal) continue;
+        if (sensor.action !== 'Set' && sensor.action !== 'Clear') continue;
+
+        const map = getGameMap(level);
+        const targetTile = map.tiles[sensor.targetY]?.[sensor.targetX];
+        if (!targetTile) continue;
+
+        const targetKey = `${level},${sensor.targetY},${sensor.targetX}`;
+        if (targetTile.type === 'Door') {
+            openDoors = applyPersistedSensorActionToSet(openDoors, targetKey, sensor.action);
+            continue;
+        }
+        if (targetTile.type === 'Pit') {
+            openPits = applyPersistedSensorActionToSet(openPits, targetKey, sensor.action);
+            continue;
+        }
+        if (targetTile.type === 'TrickWall') {
+            openWalls = applyPersistedSensorActionToSet(openWalls, targetKey, sensor.action);
+            continue;
+        }
+        if (targetTile.type === 'Teleporter') {
+            openTeleporters = applyPersistedSensorActionToSet(openTeleporters, targetKey, sensor.action);
+            continue;
+        }
+
+        const textObject = targetTile.objects.find(
+            (object) => object.category === 'Text' && (object as WallTextObject).tilePos === sensor.targetDir,
+        ) as WallTextObject | undefined;
+        if (!textObject) continue;
+
+        const visibleKey = `${level}_${sensor.targetX}_${sensor.targetY}_${textObject.index}`;
+        visibleTexts = applyPersistedSensorActionToSet(visibleTexts, visibleKey, sensor.action);
+    }
+
+    return {
+        openDoors,
+        openPits,
+        openTeleporters,
+        openWalls,
+        visibleTexts,
+    };
 }
 
 export type PersistedSaveInspection =
@@ -481,6 +611,15 @@ export function hydratePersistedGameState(
             normalizeChampionTemporaryXP(data.championTemporaryXP?.[champion.id]),
         ]),
     );
+    const firedSensors = new Set<string>(data.firedSensors);
+    const reconciledWorldState = reconcileTriggeredWorldStateFromFiredSensors({
+        firedSensors,
+        openDoors: new Set<string>([...(data.openDoors ?? []), ...buildDefaultOpenDoors()]),
+        openPits: new Set<string>(data.openPits ?? [...buildDefaultOpenPits()]),
+        openTeleporters: sanitizeOpenTeleporterKeys(data.openTeleporters ?? [...buildDefaultOpenTeleporters()]),
+        openWalls: new Set<string>(data.openWalls ?? []),
+        visibleTexts: new Set<string>(data.visibleTexts ?? [...buildDefaultVisibleTexts()]),
+    });
 
     return {
         gameOptions: data.gameOptions ?? DEFAULT_GAME_OPTIONS,
@@ -490,16 +629,16 @@ export function hydratePersistedGameState(
         party: data.party,
         gateOpen: data.gateOpen,
         hydratedLevels: new Set<number>(data.hydratedLevels ?? [...buildDefaultHydratedLevels()]),
-        openDoors: new Set<string>(data.openDoors),
+        openDoors: reconciledWorldState.openDoors,
         brokenDoors: new Set<string>(data.brokenDoors ?? []),
-        openPits: new Set<string>(data.openPits ?? [...buildDefaultOpenPits()]),
-        openTeleporters: sanitizeOpenTeleporterKeys(data.openTeleporters ?? [...buildDefaultOpenTeleporters()]),
-        openWalls: new Set<string>(data.openWalls),
+        openPits: reconciledWorldState.openPits,
+        openTeleporters: reconciledWorldState.openTeleporters,
+        openWalls: reconciledWorldState.openWalls,
         activeSensors: new Set<string>(data.activeSensors),
-        firedSensors: new Set<string>(data.firedSensors),
+        firedSensors,
         sensorRuntimeData: data.sensorRuntimeData ?? {},
         sensorRotationOffsets: data.sensorRotationOffsets ?? {},
-        visibleTexts: new Set<string>(data.visibleTexts ?? [...buildDefaultVisibleTexts()]),
+        visibleTexts: reconciledWorldState.visibleTexts,
         pendingSensorEvents: data.pendingSensorEvents ?? [],
         pendingGeneratorSpawns: data.pendingGeneratorSpawns ?? [],
         creatures,

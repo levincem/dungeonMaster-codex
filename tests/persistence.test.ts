@@ -513,9 +513,36 @@ test('persisted saves round-trip back into the same dungeon state', () => {
 
         restoreExternalCreatureRuntimeFromSave(persisted, restoredRuntime);
         const roundTripped = buildPersistedSaveData(hydrated, restoredRuntime);
+        const expected = {
+            ...persisted,
+            openDoors: [...hydrated.openDoors],
+            integrity: roundTripped.integrity,
+        };
 
         assert.deepEqual([...hydrated.hydratedLevels], [0, 1]);
-        assert.deepEqual(roundTripped, persisted);
+        assert.deepEqual(roundTripped, expected);
+    } finally {
+        Date.now = originalNow;
+    }
+});
+
+test('hydratePersistedGameState repairs stale once-only direct sensor world state from saves', () => {
+    const now = 31_000;
+    const originalNow = Date.now;
+    Date.now = () => now;
+
+    try {
+        const state = createState(now);
+        const runtime = createRuntimeMaps(now);
+        const persisted = buildPersistedSaveData(state, runtime);
+
+        persisted.openDoors = [];
+        persisted.firedSensors = ['5_404'];
+
+        const hydrated = hydratePersistedGameState(persisted, now);
+
+        assert.equal(hydrated.firedSensors.has('5_404'), true);
+        assert.equal(hydrated.openDoors.has('5,8,19'), true);
     } finally {
         Date.now = originalNow;
     }

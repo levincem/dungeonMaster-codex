@@ -192,6 +192,40 @@ test('stateful fixed wall faces own their render slot and do not also emit dupli
     );
 });
 
+test('level 5 iron-key stone locks keep their modern decal render and specific-object sensor linkage', async () => {
+    await preloadDungeonData();
+    await preloadOriginalWallOverlayMapData(5);
+
+    const map = getGameMap(5);
+    const overlays = getOriginalWallOverlaysForMap(map, new Set<string>(), new Set<string>());
+    const lock = overlays.find((overlay) =>
+        overlay.tileX === 16 &&
+        overlay.tileY === 14 &&
+        overlay.face === 'West',
+    );
+
+    assert.ok(lock, 'expected the level 5 front-wall iron-key lock overlay to be rendered');
+    assert.equal(lock?.image, '/game/images/misc/wall_lock_stone.png');
+    assert.deepEqual(lock?.interactiveSensorIndices, [202]);
+});
+
+test('level 5 decorative iron rings still expose their wall-click sensor linkage', async () => {
+    await preloadDungeonData();
+    await preloadOriginalWallOverlayMapData(5);
+
+    const map = getGameMap(5);
+    const overlays = getOriginalWallOverlaysForMap(map, new Set<string>(), new Set<string>());
+    const ring = overlays.find((overlay) =>
+        overlay.tileX === 26 &&
+        overlay.tileY === 11 &&
+        overlay.face === 'West',
+    );
+
+    assert.ok(ring, 'expected the level 5 secret-wall ring overlay to be rendered');
+    assert.equal(ring?.image, '/game/images/misc/wall_iron_ring.png');
+    assert.deepEqual(ring?.interactiveSensorIndices, [312]);
+});
+
 test('key modern wall overlay visuals stay aligned with the shared 3D decal composition presets', () => {
     const cases = [
         'Fountain',
@@ -203,6 +237,7 @@ test('key modern wall overlay visuals stay aligned with the shared 3D decal comp
         'Empty Torch Holder',
         'Hook',
         'Wood Ring',
+        'Iron Ring',
         'Slime Outlet',
         'Slime',
         'Grate',
@@ -233,6 +268,7 @@ test('lock and random-capable wall ornament presets keep the intended reduced ra
         ['Empty Torch Holder', 0.42, 0.48],
         ['Hook', 0.15, 0.15],
         ['Wood Ring', 0.15, 0.15],
+        ['Iron Ring', 0.2, 0.2],
         ['Slime Outlet', 0.34, 0.26],
         ['Slime', 0.15, 0.15],
         ['Grate', 0.15, 0.15],

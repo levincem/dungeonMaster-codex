@@ -40,6 +40,7 @@ test('store bootstrap runtime builds a fresh exploration-ready dungeon state', (
     const { buildFreshDungeonState } = createStoreBootstrapRuntime({
         hallStart: [3, 1],
         hallStartDirection: 'SOUTH',
+        buildDefaultOpenDoors: () => new Set<string>(['0,4,2']),
         buildDefaultOpenPits: () => new Set<string>(['1,2,3']),
         buildDefaultOpenTeleporters: () => new Set<string>(['4,5,6']),
         buildDefaultVisibleTexts: () => new Set<string>(['txt']),
@@ -54,6 +55,7 @@ test('store bootstrap runtime builds a fresh exploration-ready dungeon state', (
     assert.equal(state.direction, 'SOUTH');
     assert.equal(state.gamePhase, 'exploration');
     assert.deepEqual([...state.hydratedLevels], [0]);
+    assert.deepEqual([...state.openDoors], ['0,4,2']);
     assert.deepEqual([...state.openPits], ['1,2,3']);
     assert.deepEqual([...state.openTeleporters], ['4,5,6']);
     assert.deepEqual([...state.visibleTexts], ['txt']);
@@ -70,6 +72,7 @@ test('store bootstrap runtime builds a fresh exploration-ready dungeon state', (
 
 test('store bootstrap runtime keeps title boot lightweight until world hydration is needed', () => {
     let openPitsCalls = 0;
+    let openDoorsCalls = 0;
     let openTeleportersCalls = 0;
     let visibleTextsCalls = 0;
     let creaturesCalls = 0;
@@ -78,6 +81,10 @@ test('store bootstrap runtime keeps title boot lightweight until world hydration
     const { buildFreshDungeonState } = createStoreBootstrapRuntime({
         hallStart: [3, 1],
         hallStartDirection: 'SOUTH',
+        buildDefaultOpenDoors: () => {
+            openDoorsCalls += 1;
+            return new Set<string>(['0,4,2']);
+        },
         buildDefaultOpenPits: () => {
             openPitsCalls += 1;
             return new Set<string>(['1,2,3']);
@@ -104,6 +111,7 @@ test('store bootstrap runtime keeps title boot lightweight until world hydration
 
     assert.equal(state.gamePhase, 'title');
     assert.deepEqual([...state.hydratedLevels], []);
+    assert.deepEqual([...state.openDoors], []);
     assert.deepEqual([...state.openPits], []);
     assert.deepEqual([...state.openTeleporters], []);
     assert.deepEqual([...state.visibleTexts], []);
@@ -111,6 +119,7 @@ test('store bootstrap runtime keeps title boot lightweight until world hydration
     assert.deepEqual(state.floorItems, []);
     assert.equal(state.tutorialOverlayActive, false);
     assert.equal(openPitsCalls, 0);
+    assert.equal(openDoorsCalls, 0);
     assert.equal(openTeleportersCalls, 0);
     assert.equal(visibleTextsCalls, 0);
     assert.equal(creaturesCalls, 0);

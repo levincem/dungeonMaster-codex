@@ -904,9 +904,26 @@ const {
     randomInt,
 });
 const getDungeonBootstrap = (): RawDungeonBootstrap => getDungeonBootstrapSync<RawDungeonBootstrap>();
+
+function buildDefaultOpenDoors(): Set<string> {
+    const openDoors = new Set<string>();
+    for (const mapSummary of getDungeonBootstrap().maps ?? []) {
+        const map = getGameMap(mapSummary.index);
+        for (const row of map.tiles) {
+            for (const tile of row) {
+                if (tile.type === 'Door' && tile.state === 'Open') {
+                    openDoors.add(`${map.index},${tile.y},${tile.x}`);
+                }
+            }
+        }
+    }
+    return openDoors;
+}
+
 const { buildFreshDungeonState } = createStoreBootstrapRuntime({
     hallStart: [3, 1],
     hallStartDirection: 'SOUTH',
+    buildDefaultOpenDoors,
     buildDefaultOpenPits: () => new Set<string>(getDungeonBootstrap().defaultOpenPits ?? []),
     buildDefaultOpenTeleporters: () => sanitizeOpenTeleporterKeys(getDungeonBootstrap().defaultOpenTeleporters ?? []),
     buildDefaultVisibleTexts: () => new Set<string>(getDungeonBootstrap().defaultVisibleTexts ?? []),

@@ -2,7 +2,7 @@ import type { Champion } from '../../types/champion';
 import type { ChampionEquipment, FloorItem } from '../../types/game';
 import type { EquipSlotKey } from '../../types/items';
 import type { Projectile } from '../runtimeTypes';
-import { canPartyReachFloorItem } from './floorItemState';
+import { canPartyInteractWithFloorItem } from './floorItemState';
 
 type PendingSensorChangeResult<TPatch> = {
     sensorChanges: TPatch;
@@ -303,7 +303,7 @@ export function buildMoveFloorItemToTileRuntimePatch<
 ): TPatch | null {
     const item = state.floorItems.find((entry) => entry.id === itemId);
     const champion = state.party.find((entry) => entry.id === championId);
-    if (!item || !champion || !canPartyReachFloorItem(state, item)) return null;
+    if (!item || !champion || !canPartyInteractWithFloorItem(state, item)) return null;
 
     if (item.mapIndex === state.level && item.x === targetX && item.y === targetY && item.tilePos === 'North') {
         return {
@@ -375,7 +375,7 @@ export function buildThrowFloorItemRuntimePatch<
 ): (TSensorPatch & TXpPatch) | null {
     const item = state.floorItems.find((entry) => entry.id === itemId);
     const champion = state.party.find((entry) => entry.id === championId);
-    if (!item || !champion || !canPartyReachFloorItem(state, item)) return null;
+    if (!item || !champion || !canPartyInteractWithFloorItem(state, item)) return null;
 
     const withoutSourceItem = state.floorItems.filter((entry) => entry.id !== itemId);
     const leaveState = deps.buildSensorStateSnapshot(state);

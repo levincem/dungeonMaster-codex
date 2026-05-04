@@ -45,6 +45,12 @@ function getSupercoverLineBetweenTileCenters(ax: number, ay: number, bx: number,
         touched.set(`${x},${y}`, { x, y });
     };
 
+    if (steps === 1 && Math.abs(dx) === 1 && Math.abs(dy) === 1) {
+        addPoint(ax, by);
+        addPoint(bx, ay);
+        return [...touched.values()];
+    }
+
     let previousX = ax;
     let previousY = ay;
     for (let i = 1; i < steps; i += 1) {

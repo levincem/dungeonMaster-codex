@@ -278,7 +278,7 @@ const VISUALS_BY_NAME: Record<string, OverlayVisual> = {
     'Amalgam (Free Gem)': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Amalgam (Free Gem)'], accent: '#d1bf81', width: 0.78, height: 0.9 },
     'Amalgam (Without Gem)': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Amalgam (Without Gem)'], accent: '#d1bf81', width: 0.78, height: 0.9 },
     'Crack': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Crack'], accent: '#8e8f9b', width: 0.56, height: 0.8 },
-    'Iron Ring': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Iron Ring'], accent: '#a0a0a6', width: 0.42, height: 0.58 },
+    'Iron Ring': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Iron Ring'], accent: '#a0a0a6', width: 0.2, height: 0.2 },
     'Manacles': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Manacles'], accent: '#9c9aa4', width: 0.56, height: 0.66 },
     'Lord Order (Outside)': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Lord Order (Outside)'], accent: '#bf8b54', width: 0.78, height: 1.0 },
 };
@@ -392,8 +392,10 @@ function isFaceActive(level: number, face: FixedFace, activeSensors: Set<string>
 function getInteractiveSensorIndices(face: FixedFace): number[] {
     const interactiveVariants = face.variants.filter((variant) =>
         variant.source === 'fixed-sensor' &&
-        variant.overlayClassification === 'interactive' &&
-        (variant.sensorType === 1 || variant.sensorType === 2),
+        (variant.sensorType === 1
+            || variant.sensorType === 2
+            || variant.sensorType === 3
+            || variant.sensorType === 4),
     );
     const preferred = interactiveVariants.filter((variant) => variant.isLocal === false);
     return (preferred.length > 0 ? preferred : interactiveVariants).map((variant) => variant.objectIndex);

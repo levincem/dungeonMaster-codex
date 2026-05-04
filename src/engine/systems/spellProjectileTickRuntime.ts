@@ -119,6 +119,9 @@ function resolveProjectileImpactOnSquare(
     state: SpellProjectileTickState,
     runtime: ProjectileImpactMutableState,
     deps: SpellProjectileTickDeps,
+    options?: {
+        skipCreatureImpactOnLaunchSquare?: boolean;
+    },
 ): { consumed: boolean; nextState: ProjectileImpactMutableState } {
     const hitsPartySquare =
         projectile.launchedBy === 'creature' &&
@@ -187,9 +190,11 @@ function resolveProjectileImpactOnSquare(
         };
     }
 
-    const hitCreatures = runtime.creatures.filter(
-        (creature) => creature.alive && creature.mapIndex === projectileLevel && creature.x === x && creature.y === y,
-    );
+    const hitCreatures = options?.skipCreatureImpactOnLaunchSquare && projectile.launchedBy === 'creature'
+        ? []
+        : runtime.creatures.filter((creature) =>
+            creature.alive && creature.mapIndex === projectileLevel && creature.x === x && creature.y === y,
+        );
     const hit = hitCreatures[0];
     if (!hit) {
         return { consumed: false, nextState: runtime };
@@ -291,6 +296,7 @@ export function runSpellProjectileTickRuntime(
                     lastCreatureAttackGameTick,
                 },
                 deps,
+                { skipCreatureImpactOnLaunchSquare: true },
             );
             if (immediateImpact.consumed) {
                 ({

@@ -58,6 +58,22 @@ export function canPartyReachFloorItem(
     return item.x === frontTile.x && item.y === frontTile.y;
 }
 
+export function canFinalizeActiveFloorDragForItem(
+    state: { activeFloorDrag?: FloorPickupState['activeFloorDrag'] },
+    item: FloorItem,
+): boolean {
+    return state.activeFloorDrag?.itemId === item.id;
+}
+
+export function canPartyInteractWithFloorItem(
+    state: Pick<FloorPickupState, 'level' | 'position' | 'direction'> & {
+        activeFloorDrag?: FloorPickupState['activeFloorDrag'];
+    },
+    item: FloorItem,
+): boolean {
+    return canPartyReachFloorItem(state, item) || canFinalizeActiveFloorDragForItem(state, item);
+}
+
 export function isFloorItemPickupBlockedByFullInventory(
     state: FloorPickupState,
     id: string,
@@ -68,7 +84,7 @@ export function isFloorItemPickupBlockedByFullInventory(
 
     const champion = state.party.find((entry) => entry.id === championId);
     if (!champion) return false;
-    if (!canPartyReachFloorItem(state, item)) return false;
+    if (!canPartyInteractWithFloorItem(state, item)) return false;
 
     return !canChampionInventoryAcceptItem(state.championInventories[championId] ?? []);
 }
@@ -128,7 +144,7 @@ export function transferFloorItemToChampionState<
 
     const champion = state.party.find((entry) => entry.id === championId);
     if (!champion) return null;
-    if (!canPartyReachFloorItem(state, item)) return null;
+    if (!canPartyInteractWithFloorItem(state, item)) return null;
     if (!canChampionInventoryAcceptItem(state.championInventories[championId] ?? [])) return null;
 
     const tile = deps.getTile(item.mapIndex, item.y, item.x);
@@ -162,7 +178,7 @@ export function transferFloorItemToChampionSlotState<
 
     const champion = state.party.find((entry) => entry.id === championId);
     if (!champion) return null;
-    if (!canPartyReachFloorItem(state, item)) return null;
+    if (!canPartyInteractWithFloorItem(state, item)) return null;
     if (!deps.canEquipItemInSlot(item, slotKey)) return null;
 
     const currentEquipment = state.championEquipment[championId] ?? {};

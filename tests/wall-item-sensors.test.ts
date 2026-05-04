@@ -57,10 +57,13 @@ function createDeps(overrides: Record<string, unknown> = {}) {
         playDoorMotion: () => undefined,
         shouldRotateWallFaceAfterActivation: () => false,
         rotateWallFaceSensors: () => ({}),
-        diffSensorState: (_before: SensorState, after: SensorState) => ({
-            activeSensors: after.activeSensors,
-            openDoors: after.openDoors,
-            sensorRotationOffsets: after.sensorRotationOffsets,
+        diffSensorState: (before: SensorState, after: SensorState) => ({
+            ...(after.activeSensors !== before.activeSensors ? { activeSensors: after.activeSensors } : {}),
+            ...(after.firedSensors !== before.firedSensors ? { firedSensors: after.firedSensors } : {}),
+            ...(after.openDoors !== before.openDoors ? { openDoors: after.openDoors } : {}),
+            ...(after.sensorRotationOffsets !== before.sensorRotationOffsets
+                ? { sensorRotationOffsets: after.sensorRotationOffsets }
+                : {}),
         }),
         applyToSet: (set: Set<string>, key: string, action: SensorAction) => {
             const next = new Set(set);
@@ -104,6 +107,121 @@ test('triggerLockSensors consumes a matching inventory item and rotates the wall
     assert.deepEqual(Array.from(result.sensorChanges.openDoors ?? []), ['door-a']);
     assert.deepEqual(result.sensorChanges.sensorRotationOffsets, { north: 1 });
     assert.equal(playedTargets.length, 1);
+});
+
+test('triggerLockSensors skips inert persistent locks and advances to the next effective matching lock', () => {
+    const processed: number[] = [];
+    const inertLock = {
+        category: 'Sensor',
+        index: 41,
+        type: 3,
+        data: 99,
+        onceOnly: false,
+        revert: false,
+        tilePos: 'North',
+    } as const;
+    const consumingLock = {
+        category: 'Sensor',
+        index: 42,
+        type: 4,
+        data: 99,
+        onceOnly: true,
+        revert: false,
+        tilePos: 'North',
+    } as const;
+    const key = createWeapon('key-2', 6);
+    const deps = createDeps({
+        getWallFaceSensorsInRuntimeOrder: () => [inertLock, consumingLock],
+        isWallLockSensor: () => true,
+        itemToLockData: () => 99,
+        isConsumableLockSensor: (sensor: { index: number }) => sensor.index === 42,
+        computeSensorEffect: (sensor: { index: number }, _level: number, state: SensorState) => {
+            processed.push(sensor.index);
+            if (sensor.index === 41) {
+                return { openDoors: state.openDoors };
+            }
+            return {
+                firedSensors: new Set(['0_42']),
+                openDoors: new Set(['door-next']),
+            };
+        },
+    });
+
+    const result = triggerLockSensors(
+        0,
+        4,
+        5,
+        'North',
+        createState(),
+        { 1: [key] },
+        {} as Record<number, ChampionEquipment>,
+        deps,
+    );
+
+    assert.deepEqual(processed, [41, 42]);
+    assert.equal(result.matched, true);
+    assert.deepEqual(result.newInventories, { 1: [] });
+    assert.deepEqual(Array.from(result.sensorChanges.firedSensors ?? []), ['0_42']);
+    assert.deepEqual(Array.from(result.sensorChanges.openDoors ?? []), ['door-next']);
+});
+
+test('triggerLockSensors processes the full matching lock sequence on a multi-lock face', () => {
+    const processed: number[] = [];
+    const firstLock = {
+        category: 'Sensor',
+        index: 51,
+        type: 3,
+        data: 77,
+        onceOnly: true,
+        revert: false,
+        tilePos: 'North',
+    } as const;
+    const secondLock = {
+        category: 'Sensor',
+        index: 52,
+        type: 4,
+        data: 77,
+        onceOnly: true,
+        revert: false,
+        tilePos: 'North',
+    } as const;
+    const key = createWeapon('key-3', 7);
+    const deps = createDeps({
+        getWallFaceSensorsInRuntimeOrder: () => [firstLock, secondLock],
+        isWallLockSensor: () => true,
+        itemToLockData: () => 77,
+        isConsumableLockSensor: (sensor: { index: number }) => sensor.index === 52,
+        computeSensorEffect: (sensor: { index: number }, _level: number, state: SensorState) => {
+            processed.push(sensor.index);
+            if (sensor.index === 51) {
+                return {
+                    firedSensors: new Set([...state.firedSensors, '0_51']),
+                    openDoors: new Set([...state.openDoors, 'door-first']),
+                };
+            }
+            return {
+                firedSensors: new Set([...state.firedSensors, '0_52']),
+                openDoors: new Set([...state.openDoors, 'door-second']),
+            };
+        },
+    });
+
+    const result = triggerLockSensors(
+        0,
+        4,
+        5,
+        'North',
+        createState(),
+        { 1: [key] },
+        {} as Record<number, ChampionEquipment>,
+        deps,
+    );
+
+    assert.deepEqual(processed, [51, 52]);
+    assert.equal(result.matched, true);
+    assert.deepEqual(result.newInventories, { 1: [] });
+    assert.deepEqual(Array.from(result.sensorChanges.firedSensors ?? []).sort(), ['0_51', '0_52']);
+    assert.deepEqual(Array.from(result.sensorChanges.openDoors ?? []).sort(), ['door-first', 'door-second']);
 });
 
 test('triggerAlcoveDepositSensor removes the selected item and places it on the alcove tile', () => {

@@ -1,6 +1,6 @@
 # Dungeon Master Remake - Etat du projet
 
-Etat revu le `2026-04-23`.
+Etat revu le `2026-05-04`.
 
 Ce document est un journal d'etat compact.
 
@@ -34,8 +34,7 @@ Lecture honnete du projet aujourd'hui:
 
 Validation locale la plus recente:
 
-- `npm.cmd test` : `721` tests verts
-- `npm.cmd run lint` : vert
+- `npm.cmd test` : `854` tests verts
 - `npm.cmd run build` : vert
 
 ## Lecture beta
@@ -117,6 +116,40 @@ Le detail ordonne vit dans [docs/NEXT_PHASE_PLAN.md](/D:/DungeonMaster-codex/doc
 - surtout du playtest cible sur cas rares, puis quelques ecarts de presentation
 
 ## Checkpoints recents
+
+### 2026-05-04
+
+Travail ferme dans cette session:
+
+- passe de verification puis corrections ciblees `LVL 5`
+  - porte source `Open` de nouveau ouverte par defaut dans le runtime
+  - reprise de sauvegarde recalee pour precharger les maps avant hydration complete
+  - reparation de coherence au chargement entre sensors `onceOnly` persistants et etat mutable du monde
+- interactions murales recalees sur les sources et les assets modernes
+  - serrures et anneaux muraux `LVL 5` de nouveau cliquables via les bons capteurs
+  - rendu des serrures de face stabilise a courte distance
+  - preset dedie ajoute pour la taille des `Iron Ring`
+  - aucun retour aux vieux `bmp`
+- runtime des faces multi-serrures corrige globalement
+  - une seule insertion d'objet declenche maintenant toute la chaine compatible de la face
+  - le comportement suit de nouveau les sources originales au lieu d'exiger plusieurs essais successifs
+  - le cas `LVL 3` reste preserve
+- runtime d'exploration / projectiles / monstres nettoye
+  - un projectile de creature ne peut plus se resoudre contre son propre lanceur sur la case de depart
+  - la ligne de vue ne glisse plus a travers un coin de mur bloque sur une diagonale adjacente
+  - les `Wizard Eye` derriere un coin ne peuvent plus detecter ni attaquer la party dans ce trou de LOS
+- drag and drop donjon encore recale
+  - un item pris au sol puis relache apres deplacement est maintenant vraiment depose / lance au lieu de rester silencieusement sur sa case source
+- couverture de tests et verifications renforcee
+  - nouvelles regressions sur `default open doors`, persistance, multi-locks muraux, drag/drop actif, auto-hit projectile creature et LOS diagonale adjacente
+
+Impact:
+
+- le playtest `LVL 5` recolle mieux a l'original sur les portes, serrures, anneaux et puzzles a cle
+- les interactions murales modernes sont plus lisibles et plus fiables en vue frontale
+- les creatures a distance ont moins de comportements absurdes lies a la LOS ou a leur projectile de depart
+- le drag and drop donjon est plus coherent pendant les deplacements
+- la memoire projet recolle avec l'etat reel de la branche `0.8.4`
 
 ### 2026-04-22
 

@@ -1,6 +1,6 @@
 # Next Phase Plan
 
-Etat revu le `2026-04-23`.
+Etat revu le `2026-05-04`.
 
 Ce document ne doit contenir que des sujets encore ouverts.
 
@@ -47,6 +47,12 @@ Regle simple:
 - rendu `Ra Door`
   - ferme cote presentation cible
   - le rendu visible passe maintenant par un panneau energetique procedural + rideau `photons2`
+- serie de correctifs playtest `LVL 5` / interactions murales / runtime d'exploration
+  - portes ouvertes par defaut restaurees depuis les donnees source et au rechargement
+  - serrures et anneaux muraux modernes recales en clic, taille et visibilite de face
+  - les faces multi-serrures rejouent maintenant toute leur sequence compatible en une seule insertion, comme dans les sources originales
+  - drag and drop `sol -> deplacement -> relacher` ferme
+  - les creatures a distance ne gagnent plus de ligne de vue a travers un coin de mur bloque en diagonale adjacente
 
 ## Ordre recommande avant release
 

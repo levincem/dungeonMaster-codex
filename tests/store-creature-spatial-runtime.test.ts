@@ -199,6 +199,56 @@ test('store creature spatial runtime line of sight does not slip through diagona
     assert.equal(runtime.hasLineOfSight(map, 0, new Set<string>(), new Set<string>(), 0, 0, 2, 2), false);
 });
 
+test('store creature spatial runtime blocks adjacent diagonal sight when a corner wall intervenes', () => {
+    const runtime = createStoreCreatureSpatialRuntime({
+        creatureTypes: {},
+    });
+    const map = createMap([
+        [
+            createFloorTile(0, 0),
+            createFloorTile(1, 0),
+            createFloorTile(2, 0),
+        ],
+        [
+            createFloorTile(0, 1),
+            createFloorTile(1, 1),
+            { ...createFloorTile(2, 1), type: 'Wall' },
+        ],
+        [
+            createFloorTile(0, 2),
+            createFloorTile(1, 2),
+            createFloorTile(2, 2),
+        ],
+    ]);
+
+    assert.equal(runtime.hasLineOfSight(map, 0, new Set<string>(), new Set<string>(), 2, 2, 1, 1), false);
+});
+
+test('store creature spatial runtime keeps adjacent diagonal sight in an open corner', () => {
+    const runtime = createStoreCreatureSpatialRuntime({
+        creatureTypes: {},
+    });
+    const map = createMap([
+        [
+            createFloorTile(0, 0),
+            createFloorTile(1, 0),
+            createFloorTile(2, 0),
+        ],
+        [
+            createFloorTile(0, 1),
+            createFloorTile(1, 1),
+            createFloorTile(2, 1),
+        ],
+        [
+            createFloorTile(0, 2),
+            createFloorTile(1, 2),
+            createFloorTile(2, 2),
+        ],
+    ]);
+
+    assert.equal(runtime.hasLineOfSight(map, 0, new Set<string>(), new Set<string>(), 2, 2, 1, 1), true);
+});
+
 test('store creature spatial runtime line of sight respects closed and opened trick walls', () => {
     const runtime = createStoreCreatureSpatialRuntime({
         creatureTypes: {},

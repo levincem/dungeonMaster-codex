@@ -305,6 +305,80 @@ test('buildTickSpellsRuntimePatch resolves spell projectile hits on the current 
     assert.equal(patch.creatures?.[0]?.currentHP, 3);
 });
 
+test('buildTickSpellsRuntimePatch lets a creature projectile leave its launch square before any creature collision check', () => {
+    const caster: CreatureInstance = {
+        id: 'wizard-eye',
+        typeId: 3,
+        mapIndex: 0,
+        x: 0,
+        y: 0,
+        currentHP: 12,
+        alive: true,
+        cell: 'center',
+    };
+    const projectile: Projectile = {
+        id: 'wizard-eye-shot',
+        level: 0,
+        x: 0,
+        y: 0,
+        direction: 'EAST',
+        effect: 'lightning',
+        launchedBy: 'creature',
+        sourceCreatureId: 'wizard-eye',
+        damage: [4, 8],
+        nextMoveAt: 1000,
+        remainingRange: 6,
+        remainingAttack: 10,
+        visualScale: 1.05,
+    };
+    const map: GameMap = {
+        index: 0,
+        name: 'Open Corridor',
+        level: 0,
+        width: 3,
+        height: 1,
+        difficulty: 0,
+        tiles: [[
+            { x: 0, y: 0, type: 'Floor', objects: [] },
+            { x: 1, y: 0, type: 'Floor', objects: [] },
+            { x: 2, y: 0, type: 'Floor', objects: [] },
+        ]],
+    };
+    const state = createState({
+        position: [0, 2],
+        creatures: [caster],
+        projectiles: [projectile],
+    });
+
+    const patch = buildTickSpellsRuntimePatch(state, 1000, {
+        buildProjectileTickDeps: (_state, currentGameTick, now) => ({
+            ...createUnusedProjectileDeps(),
+            currentGameTick,
+            now,
+            getMap: () => map,
+            rollSourceBackedImpact: () => ({ damage: 4 }),
+            buildCreatureDamageEvent: (level, x, y, amount, creatureId) => ({
+                id: 'damage-self-hit',
+                level,
+                target: 'creature',
+                x,
+                y,
+                amount,
+                creatureId,
+                ts: now,
+            }),
+        }),
+        footprintLifetimeMs: 100,
+        damageEventLifetimeMs: 100,
+    });
+
+    assert.equal(patch.projectiles?.length, 1);
+    assert.equal(patch.projectiles?.[0]?.x, 1);
+    assert.equal(patch.projectiles?.[0]?.y, 0);
+    assert.equal(patch.damageEvents?.length ?? 0, 0);
+    assert.equal(patch.creatures, undefined);
+});
+
 test('buildTickSpellsRuntimePatch drops a thrown physical weapon on the creature square after a hit', () => {
     const creature: CreatureInstance = {
         id: 'creature-dagger',

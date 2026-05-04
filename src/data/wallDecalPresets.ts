@@ -45,6 +45,7 @@ const TORCH_IMAGE = itemsPath('torch_unlit.png');
 const FOUNTAIN_IMAGE = miscPath('wall_foutain_overlay.png');
 const HOOK_IMAGE = miscPath('wall_hook.png');
 const WOOD_RING_IMAGE = miscPath('wall_wood_ring.png');
+const IRON_RING_IMAGE = miscPath('wall_iron_ring.png');
 const FULL_TORCH_HOLDER_IMAGE = miscPath('wall_torch_holder_full.png');
 const EMPTY_TORCH_HOLDER_IMAGE = miscPath('wall_torch_holder_empty.png');
 const SLIME_OUTLET_IMAGE = miscPath('wall_hazard_slime_outlet.png');
@@ -124,6 +125,14 @@ const DECAL_PRESETS: Record<string, WallDecalPreset> = {
     [WOOD_RING_IMAGE]: {
         width: GRID_SIZE * 0.15,
         height: WALL_HEIGHT * 0.15,
+        y: 0,
+        hasBacking: false,
+        hasGlow: false,
+        plateColor: '#3a2b1d',
+    },
+    [IRON_RING_IMAGE]: {
+        width: GRID_SIZE * 0.2,
+        height: WALL_HEIGHT * 0.2,
         y: 0,
         hasBacking: false,
         hasGlow: false,
