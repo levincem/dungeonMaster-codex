@@ -99,6 +99,13 @@ Point utile deja confirme:
 - un drop d'objet ne les declenche plus comme une plaque a objet
 - les rares `type 3` encore nommes sont des sensors muraux legitimes
 
+### Vue runtime des mecanismes
+
+- la vue runtime des mecanismes se rederive maintenant directement depuis les sensors extraits du donjon
+- le vieux `mechanisms.json` doit se lire comme un rapport humain filtre, pas comme la source de verite gameplay
+- pour la campagne DM chargee, les requirements d'objet actifs sont deja portes par `requiredObjectName` dans les maps runtime extraites
+- le fallback manuel `LOCK_DATA_TO_NAME` reste seulement comme garde-fou de compatibilite et n'est pas exerce par les sensors actifs audites au `2026-05-04`
+
 ### `0696.RAW1`
 
 - le bloc est maintenant borne comme conteneur post-Atari de composition/layout
@@ -142,6 +149,10 @@ Travail ferme dans cette session:
   - un item pris au sol puis relache apres deplacement est maintenant vraiment depose / lance au lieu de rester silencieusement sur sa case source
 - couverture de tests et verifications renforcee
   - nouvelles regressions sur `default open doors`, persistance, multi-locks muraux, drag/drop actif, auto-hit projectile creature et LOS diagonale adjacente
+- passe d'audit mecanismes recalee
+  - `tests/mechanisms-runtime-fidelity.test.ts` confirme la reconstruction map par map depuis `dungeon.json`
+  - les `608` sensors actifs du donjon se decomposent bien entre `541` entrees du rapport humain, `50` generateurs de sol et `17` lanceurs muraux exclus volontairement de `mechanisms.json`
+  - aucun sensor actif a requirement d'objet ne depend d'un fallback manuel de nom dans la campagne DM courante
 
 Impact:
 

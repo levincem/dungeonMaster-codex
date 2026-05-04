@@ -14,10 +14,9 @@ This is now a desktop-first beta focused on gameplay validation from the early d
 
 Latest `v0.8.4` focus:
 
-- `LVL 5` playtest fidelity fixes for open-by-default doors, wall locks, wall rings, and lock visuals
-- wall multi-lock sequences aligned with the original source behavior in a single use
-- dungeon floor drag/drop now completes correctly after movement
-- ranged creature stability fixes around launch-square self hits and blocked diagonal corner line of sight
+- gameplay-fidelity fixes driven by real playtesting
+- stronger alignment between extracted original data and active runtime behavior
+- continued cleanup of dungeon interactions, combat edge cases, and state persistence
 
 Already in place:
 

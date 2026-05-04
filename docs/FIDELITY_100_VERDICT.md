@@ -1,6 +1,6 @@
 # Fidelity 100 Verdict
 
-Etat pose le `2026-04-17`.
+Etat recale le `2026-05-04`.
 
 But de ce document:
 
@@ -105,16 +105,24 @@ Conclusion:
 - `0696` n'est plus une boite noire complete
 - mais ce n'est pas encore une reconstruction semantique totale
 
-### 2. Certaines extractions restent fonctionnelles mais pas byte-pures
+### 2. Certaines vues d'audit auxiliaires restent fonctionnelles mais pas byte-pures
 
-Exemple principal:
+Exemple utile:
 
-- `mechanisms.json` reste partiellement aide par des correspondances manuelles `item -> serrure` et des libelles construits
+- `mechanisms.json` reste un rapport humain filtré, avec libellés construits et périmètre volontairement réduit
+
+Nuance importante apres relecture `2026-05-04` :
+
+- ce fichier ne pilote plus la fidélité runtime des mécanismes
+- la chaîne active reconstruit maintenant les mécanismes directement depuis les sensors extraits des maps runtime
+- les requirements d'objet actifs du donjon DM courant sont déjà portés par `requiredObjectName` dans les maps extraites
+- le fallback manuel de noms de serrures n'est pas exercé par les sensors actifs de cette campagne
 
 Conclusion:
 
-- le resultat est exploitable
-- mais ce n'est pas encore une extraction brute et parfaitement neutre de bout en bout
+- le rapport auxiliaire `mechanisms.json` n'est pas byte-pur
+- mais ce n'est plus un vrai verrou de fidélité mécanismes pour le runtime actif
+- le vrai reliquat extraction reste surtout le bornage sémantique complet de `0696.RAW1` et, plus largement, ce qui dépend encore d'un croisement multi-sources plutôt que d'un seul export brut PC
 
 ### 3. Une partie de la connaissance gameplay reste prouvee par croisement, pas par une seule extraction PC brute
 
@@ -153,6 +161,8 @@ Le runtime a beaucoup progresse, mais la validation n'est pas encore complete su
 ### 3. Certaines divergences sont volontaires
 
 Le projet ne cherche pas a reproduire aveuglement certains bugs compileur du binaire original.
+
+Il ne cherche pas non plus a devenir un clone visuel strict: certains ecarts de presentation relevent d'un remaster assume tant qu'ils ne derangent pas la logique gameplay ou la lisibilite.
 
 Exemple documente:
 

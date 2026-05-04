@@ -1,6 +1,6 @@
 # Fidelity Remaining Matrix
 
-Etat recale le `2026-04-22`.
+Etat recale le `2026-05-04`.
 
 Ce document ne sert plus d'historique long. Il repond a une seule question:
 
@@ -121,6 +121,22 @@ Sources:
 - [graphics_helper_0696.json](/D:/DungeonMaster-codex/public/graphics_helper_0696.json)
 - [graphics_panels_0696.json](/D:/DungeonMaster-codex/public/graphics_panels_0696.json)
 
+### Mecanismes derives des sensors extraits
+
+Ce point ne doit plus etre traite comme un bloc fidelity ouvert.
+
+Ce qui est maintenant ferme:
+
+- la vue runtime des mecanismes est reconstruite directement depuis les sensors extraits du donjon dans [src/data/mechanisms.ts](/D:/DungeonMaster-codex/src/data/mechanisms.ts)
+- un test de fidelite dedie verifie que cette vue preserve bien chaque semantique de sensor utile au runtime par rapport a `dungeon.json` dans [tests/mechanisms-runtime-fidelity.test.ts](/D:/DungeonMaster-codex/tests/mechanisms-runtime-fidelity.test.ts)
+- pour la campagne DM chargee, les sensors actifs a requirement d'objet exposent deja tous `requiredObjectName` dans les maps runtime extraites
+- le fallback manuel `LOCK_DATA_TO_NAME` reste seulement comme garde-fou de compatibilite et n'est pas exerce par les sensors actifs du donjon courant
+
+Ce qui reste seulement borne:
+
+- `mechanisms.json` reste un rapport humain filtre avec libelles manuels
+- il ne faut pas le confondre avec la base de verite runtime des mecanismes
+
 ## Ce qui reste vraiment ouvert
 
 ### 1. Couche de compatibilite / interpretation encore explicite
@@ -174,7 +190,9 @@ Sources:
 
 ### 3. Presentation / placeholders
 
-Il reste des ecarts visuels qui ne remettent pas en cause la logique gameplay, mais empechent un claim `presentation originale complete`.
+Il reste des ecarts visuels qui ne remettent pas en cause la logique gameplay.
+
+Dans ce projet, ils ne doivent pas tous etre lus comme des defauts de fidelite: une partie releve d'un choix assume de remaster plutot que d'un objectif de clone visuel strict.
 
 Exemples:
 

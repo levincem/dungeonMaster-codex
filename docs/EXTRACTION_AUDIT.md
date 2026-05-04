@@ -1,6 +1,6 @@
 # Audit d'extraction des données originales
 
-Date : 2026-04-10
+Date : 2026-05-04
 
 Ce document recense l'état complet de l'extraction des données du jeu original (PC DOS, Atari ST), ce qui est correctement extrait, ce qui reste lacunaire, et ce qui existe mais n'est pas encore branché au runtime.
 
@@ -97,7 +97,9 @@ Ces tables proviennent du GRAPHICS.DAT Atari ST v1.1 via le fichier `.map` de `s
 
 ### Mécanismes — `export_mechanisms.js` → `assets/OriginalDataExtraction/output/mechanisms.json`
 
-541 mécanismes répartis sur 14 niveaux :
+`mechanisms.json` reste un rapport humain filtré, pas le dump canonique exhaustif des senseurs.
+
+Il contient aujourd'hui `541` entrées réparties sur 14 niveaux :
 
 | Niveau | Mécanismes |
 |---|---|
@@ -116,7 +118,16 @@ Ces tables proviennent du GRAPHICS.DAT Atari ST v1.1 via le fichier `.map` de `s
 | Level 12 | 18 |
 | Lord Chaos's Lair | 12 |
 
-Types couverts : dalles de pression, leviers, serrures, faux-murs, téléporteurs conditionnels, capteurs de possession.
+Nuance importante :
+
+- ce rapport exclut volontairement les lanceurs muraux `type 7-10 / 14-15`
+- il exclut aussi les générateurs de groupe au sol `type 6`
+- il conserve des libellés français pratiques pour la lecture humaine
+- sur les `608` sensors actifs du donjon DM extraits, cela correspond exactement aux `67` entrées non reprises dans ce rapport: `50` générateurs de sol et `17` lanceurs muraux
+
+La vérité runtime active ne passe donc plus par ce fichier, mais directement par les sensors extraits des maps sous `src/assets/runtime/dungeon/maps/*.json`.
+
+Types couverts dans ce rapport : dalles de pression, leviers, serrures, faux-murs, téléporteurs conditionnels, capteurs de possession.
 
 ### Positions d'overlays muraux — `public/original_wall_overlay_positions.json`
 
@@ -205,7 +216,21 @@ Les `.imf` extraits sont jouables directement via un lecteur AdLib (adplug, imf2
 
 ### 5. Mécanismes — heuristiques résiduelles
 
-Les correspondances `item → serrure` dans `mechanisms.json` sont en partie manuelles. Les `kind` sont des descriptions en français construites à la main, pas des valeurs byte-exactes. Le fichier est fonctionnellement correct mais n'est pas une extraction pure.
+Le point encore manuel ne porte plus sur la chaîne runtime active des mécanismes, mais seulement sur le rapport humain `mechanisms.json`.
+
+État réel au `2026-05-04` :
+
+- `mechanisms.json` garde bien des libellés français construits à la main et un périmètre filtré
+- mais le runtime ne s'appuie plus sur ce fichier
+- la vue runtime des mécanismes est reconstruite directement depuis les sensors extraits via [src/data/mechanisms.ts](/D:/DungeonMaster-codex/src/data/mechanisms.ts)
+- un test de fidélité dédié verrouille maintenant cette reconstruction contre `dungeon.json` dans [tests/mechanisms-runtime-fidelity.test.ts](/D:/DungeonMaster-codex/tests/mechanisms-runtime-fidelity.test.ts)
+- pour le donjon DM courant, les sensors actifs qui demandent un objet (`wall locks`, `floor type 4`, `floor type 8`) exposent tous déjà `requiredObjectName` dans les maps runtime extraites
+- le fallback manuel `LOCK_DATA_TO_NAME` reste présent comme garde-fou de compatibilité, mais l'audit ciblé `2026-05-04` trouve `0` sensor actif qui en dépend dans la campagne DM chargée
+
+Conclusion honnête :
+
+- `mechanisms.json` lui-même n'est pas une extraction byte-pure
+- en revanche, la fidélité runtime des mécanismes utiles n'est plus bloquée par ce fichier ni par des correspondances manuelles `item -> serrure`
 
 ---
 

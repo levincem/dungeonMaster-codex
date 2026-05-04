@@ -367,7 +367,9 @@ Expose:
 
 ### `src/data/mechanisms.ts`
 
-Reconstruit une vue runtime des mecanismes a partir des sensors extraits du donjon.
+Reconstruit une vue runtime des mecanismes directement a partir des sensors extraits du donjon.
+
+Ne depend pas du rapport humain `assets/OriginalDataExtraction/output/mechanisms.json`, qui reste seulement un export de lecture.
 
 Le store s'en sert pour:
 

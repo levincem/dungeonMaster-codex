@@ -2,7 +2,7 @@
 
 Etat du runtime actuel compare aux donnees originales desormais considerees comme fiables.
 
-Version observee dans le code au 2026-04-17.
+Version observee dans le code au 2026-05-04.
 
 Lecture courte apres la derniere relecture code/runtime:
 
@@ -144,6 +144,10 @@ Points a considerer comme clos sauf regression constatee en jeu:
 - Les wall sensors cliquables avec effet `Hold` suivent maintenant la semantique FTL de `SENSOR.C`:
   - un clic mural convertit bien `Hold` en activation effective `Set`
   - ces boutons/serrures murales ne restent donc plus silencieusement sans effet dans le runtime
+- La vue runtime des mecanismes ne depend plus du vieux rapport `mechanisms.json`:
+  - [src/data/mechanisms.ts](/D:/DungeonMaster-codex/src/data/mechanisms.ts) rederive maintenant les mecanismes directement depuis les sensors extraits des maps runtime
+  - [tests/mechanisms-runtime-fidelity.test.ts](/D:/DungeonMaster-codex/tests/mechanisms-runtime-fidelity.test.ts) verrouille cette vue contre `dungeon.json`
+  - pour le donjon DM courant, les requirements d'objet actifs ne tombent plus sur un mapping manuel residuel; ils sont deja portes par `requiredObjectName` dans les maps extraites
 - Les alcoves `type 13` suivent maintenant mieux `SENSOR.C`:
   - depot et retrait font bien tourner la face murale concernee
   - cela couvre aussi les cas ou la metadata runtime compacte n'expose pas explicitement la rotation locale, comme certaines alcoves speciales non-torches
