@@ -137,6 +137,7 @@ test('resolveOpenPitEntryTransport applies sensor transitions, telefrag and fall
     const state = createState();
     let enterSensorState: TestSensorState | null = null;
     let capturedPatch: TestPatch | null = null;
+    let resolvePitLandingArgs: { level: number; x: number; y: number } | null = null;
 
     const result = resolveOpenPitEntryTransport<TestState, TestSensorState, TestPendingSensorEvent, TestPatch>(
         state,
@@ -146,7 +147,10 @@ test('resolveOpenPitEntryTransport applies sensor transitions, telefrag and fall
         5,
         null,
         {
-            resolvePitLanding: () => ({ level: 1, x: 7, y: 8 }),
+            resolvePitLanding: (level, y, x) => {
+                resolvePitLandingArgs = { level, x, y };
+                return { level: 1, x: 7, y: 8 };
+            },
             buildSensorStateSnapshot: () => ({ openDoors: new Set<string>(), openedBy: 'snapshot' }),
             triggerFloorSensors: (_level, _x, _y, ss, _inventories, _equipment, _floorItems, _pending, mode) => {
                 if (mode === 'enter') {
@@ -182,6 +186,7 @@ test('resolveOpenPitEntryTransport applies sensor transitions, telefrag and fall
 
     assert.ok(result);
     assert.equal(result?.fellThroughPit, true);
+    assert.deepEqual(resolvePitLandingArgs, { level: 0, x: 5, y: 4 });
     assert.deepEqual(enterSensorState, { openDoors: new Set(['leave-door']), openedBy: 'leave' });
     assert.ok(capturedPatch);
     const patch = capturedPatch as TestPatch;

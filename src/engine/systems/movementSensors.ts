@@ -132,6 +132,13 @@ export function triggerFloorSensors<
         if (source === 'item' && !isObjectOnlyFloorSensor && !isGenericWeightFloorSensor) continue;
         if (source === 'creature' && !isGenericWeightFloorSensor && !isCreatureOnlyFloorSensor) continue;
 
+        // In the original SENSOR.C flow, floor "weight" sensors only trigger when a thing
+        // is added to an otherwise empty square. If an item is already resting on the plate,
+        // walking onto it must not fire the launcher again.
+        if (mode === 'enter' && source === 'party' && isGenericWeightFloorSensor && (tileHasAnyFloorItem || tileHasAnyCreature)) {
+            continue;
+        }
+
         if (mode === 'leave') {
             if (sensor.action !== 'Hold' && !sensor.revert) continue;
             if (source === 'party' && isPartyFloorSensor) {

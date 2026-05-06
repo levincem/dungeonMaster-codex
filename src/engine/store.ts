@@ -97,6 +97,7 @@ import {
     playExplodingSpell,
     playFallingAndDying,
     playFallingItem,
+    playFountainWater,
     playPlate,
     playDoorMotion,
     playSwallowing,
@@ -144,6 +145,7 @@ import {
     removeChampionCarriedItemToTile,
 } from './systems/floorItemCommandRuntime';
 import { applyFloorItemTeleporterEffects as applyFloorItemTeleporterEffectsSystem } from './systems/floorItemTeleporterEffects';
+import { applyFloorItemPitEffects as applyFloorItemPitEffectsSystem } from './systems/floorItemPitEffects';
 import {
     getChampionPotionBonuses,
     getChampionRuntimeBonuses,
@@ -2396,7 +2398,53 @@ function applyFloorItemTeleporterEffects(
     patch: Partial<GameState> | GameState | null,
 ): Partial<GameState> | GameState | null {
     if (!patch || patch === state) return patch;
-    return applyFloorItemTeleporterEffectsSystem(state, patch as Partial<GameState>, {
+    const patchAfterPit = applyFloorItemPitEffectsSystem(state, patch as Partial<GameState>, {
+        buildSensorStateSnapshot,
+        triggerFloorSensors: (
+            level,
+            x,
+            y,
+            sensorState,
+            inventories,
+            equipment,
+            floorItems,
+            pendingSensorEvents,
+            source,
+            mode,
+        ) => triggerFloorSensorsSystem(
+            level,
+            x,
+            y,
+            sensorState as SensorState,
+            inventories,
+            equipment,
+            floorItems,
+            pendingSensorEvents as PendingSensorEvent[],
+            buildMovementSensorDeps(),
+            mode,
+                source,
+        ),
+        resolvePitLanding: (level, y, x, openDoors, openWalls, openPits) =>
+            resolvePitLandingSystem(
+                level,
+                y,
+                x,
+                openDoors,
+                openWalls,
+                openPits,
+                {
+                    getTile: (tileLevel, tileX, tileY) => getMap(tileLevel).tiles[tileY]?.[tileX],
+                    isWalkable,
+                },
+            ),
+        buildLevelHydrationPatch: (hydrationState, hydrationLevel) =>
+            buildStoreLevelHydrationPatch(
+                hydrationState as Pick<GameState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'>,
+                hydrationLevel,
+            ) as Partial<GameState> | null,
+    });
+
+    return applyFloorItemTeleporterEffectsSystem(state, patchAfterPit as Partial<GameState>, {
         buildSensorStateSnapshot,
         triggerFloorSensors: (
             level,
@@ -3384,12 +3432,16 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         const patch = buildStoreDrinkFromFountainPatch(state, championId, storeDrinkFromFountainRuntimeDeps);
         if (!patch) return;
         set(applyStatsDeltaToPatch(state, patch, { exploration: { fountainDrinks: 1 } }) as Partial<GameState>);
-        playSwallowing();
+        playFountainWater();
     },
 
-    fillWaterContainer: (championId, itemId) => set((state) =>
-        applyStatsDeltaToPatch(state, buildStoreFillWaterPatch(state, championId, itemId, storeFillWaterRuntimeDeps) ?? state, { exploration: { waterContainersFilled: 1 } }) as GameState | Partial<GameState>
-    ),
+    fillWaterContainer: (championId, itemId) => {
+        const state = get();
+        const patch = buildStoreFillWaterPatch(state, championId, itemId, storeFillWaterRuntimeDeps);
+        if (!patch) return;
+        set(applyStatsDeltaToPatch(state, patch, { exploration: { waterContainersFilled: 1 } }) as Partial<GameState>);
+        playFountainWater();
+    },
 
     sleep: () => set((state) =>
         applyStatsDeltaToPatch(state, buildToggleSleepPatch(state, {

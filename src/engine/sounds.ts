@@ -18,6 +18,7 @@ const FILES: Record<string, string> = {
     exploding_fireball:     'exploding_fireball.wav',
     exploding_spell:        'exploding_spell.wav',
     swallowing:             'swallowing.wav',
+    fountain_water:         'move_slime_water.mp3',
     champion_wounded_1:     'champion_wounded_1.wav',
     champion_wounded_2:     'champion_wounded_2.wav',
     champion_wounded_3:     'champion_wounded_3.wav',
@@ -105,8 +106,6 @@ export function preloadAllSounds(): void {
 // Per-sound cooldown: prevents the same sound from re-triggering within MIN_INTERVAL ms
 const MIN_INTERVAL = 250; // ms
 const lastPlayed: Record<string, number> = {};
-const activeLoops: Record<string, HTMLAudioElement | null> = {};
-const loopTimeouts: Record<string, number | undefined> = {};
 
 // ─── Debug overlay pub/sub ────────────────────────────────────────────────────
 type SoundListener = (name: string, file: string) => void;
@@ -147,57 +146,6 @@ function play(
     } catch { /* ignore */ }
 }
 
-function playLoopFor(name: string, durationMs: number, volume = 0.65): void {
-    const audios = getOrCreate(name);
-    if (!audios.length) return;
-
-    const currentLoop = activeLoops[name];
-    const timeoutId = loopTimeouts[name];
-    if (timeoutId !== undefined) {
-        window.clearTimeout(timeoutId);
-    }
-
-    if (currentLoop && !currentLoop.paused) {
-        currentLoop.volume = volume;
-        loopTimeouts[name] = window.setTimeout(() => {
-            currentLoop.loop = false;
-            currentLoop.pause();
-            currentLoop.currentTime = 0;
-            if (activeLoops[name] === currentLoop) {
-                activeLoops[name] = null;
-            }
-            loopTimeouts[name] = undefined;
-        }, durationMs);
-        return;
-    }
-
-    if (currentLoop) {
-        currentLoop.loop = false;
-        currentLoop.pause();
-        currentLoop.currentTime = 0;
-    }
-
-    const audio = audios.find(a => a !== currentLoop && (a.paused || a.ended)) ?? audios[0];
-
-    try {
-        audio.loop = true;
-        audio.volume = volume;
-        audio.currentTime = 0;
-        audio.play().catch(() => { /* autoplay policy */ });
-        for (const fn of soundListeners) fn(name, FILES[name] ?? name);
-        activeLoops[name] = audio;
-        loopTimeouts[name] = window.setTimeout(() => {
-            audio.loop = false;
-            audio.pause();
-            audio.currentTime = 0;
-            if (activeLoops[name] === audio) {
-                activeLoops[name] = null;
-            }
-            loopTimeouts[name] = undefined;
-        }, durationMs);
-    } catch { /* ignore */ }
-}
-
 // ─── Player ───────────────────────────────────────────────────────────────────
 export function playStep():  void {
     play('footstep', 0.37, {
@@ -211,7 +159,9 @@ export function playPlate(): void { play('plate',     0.80); }
 export function playDoor(): void { play('door', 0.65); }
 export function playDoorMotion(durationMs = 1000, volume = 0.65): void {
     if (durationMs <= 0 || volume <= 0) return;
-    playLoopFor('door', durationMs, volume);
+    // The door clip already carries the motion envelope; a direct one-shot
+    // avoids browsers occasionally swallowing the looped start.
+    play('door', volume);
 }
 export function playTeleport(): void { play('teleport', 0.70); }
 export function playWallBump(): void { play('wall_bump', 0.70); }
@@ -220,6 +170,13 @@ export function playFallingAndDying(): void { play('falling_and_dying', 0.72); }
 export function playExplodingFireball(): void { play('exploding_fireball', 0.72); }
 export function playExplodingSpell(): void { play('exploding_spell', 0.72); }
 export function playSwallowing(): void { play('swallowing', 0.68); }
+export function playFountainWater(): void {
+    play('fountain_water', 0.48, {
+        volumeJitter: 0.04,
+        playbackRateMin: 0.94,
+        playbackRateMax: 1.01,
+    });
+}
 export function playChampionWounded(): void {
     const sound = CHAMPION_WOUNDED_SOUNDS[Math.floor(Math.random() * CHAMPION_WOUNDED_SOUNDS.length)];
     play(sound, 0.68);

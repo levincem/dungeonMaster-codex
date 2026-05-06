@@ -108,6 +108,9 @@ export function resolveMonsterAttackTurn(
     const distanceAfterMove = Math.abs(px - args.movedPosition.x) + Math.abs(py - args.movedPosition.y);
     const adjacentAfterMove = distanceAfterMove === 1;
     const creatureProjectileEffect = deps.chooseCreatureProjectileEffect(args.creature.typeId, deps.randomInt);
+    const projectileLaneAligned =
+        args.movedPosition.x === px ||
+        args.movedPosition.y === py;
 
     const attackOpportunity = resolveCreatureAttackOpportunity(
         {
@@ -117,7 +120,7 @@ export function resolveMonsterAttackTurn(
             movedThisTick: args.movedThisTick,
             frightened: args.frightened,
             atkTimer: args.currentAttackTimer,
-            projectileEffectAvailable: Boolean(creatureProjectileEffect),
+            projectileEffectAvailable: Boolean(creatureProjectileEffect) && projectileLaneAligned,
             adjacentAfterMove,
             isContactCell: isCreatureContactCell(args.creature.cell),
             attackWindowSeconds: deps.attackWindowMs / 1000,

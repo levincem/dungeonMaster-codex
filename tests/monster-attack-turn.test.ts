@@ -427,3 +427,126 @@ test('resolveMonsterAttackTurn keeps a current front attacker on the front row f
     assert.equal(result.championVitals?.[3]?.hp, 20);
     assert.equal(result.championVitals?.[4]?.hp, 20);
 });
+
+test('resolveMonsterAttackTurn does not launch a creature projectile when the party is off-axis', () => {
+    const creature = createCreature('vexirk', { cell: 'center', x: 4, y: 4, typeId: 14 });
+    const projectile: Projectile = {
+        id: 'proj-off-axis',
+        level: 0,
+        x: 4,
+        y: 4,
+        direction: 'EAST',
+        effect: 'fireball',
+        launchedBy: 'creature',
+        damage: [1, 8],
+        nextMoveAt: 1000,
+    };
+
+    const result = resolveMonsterAttackTurn(
+        {
+            creature,
+            attackerDef: createCreatureDef({
+                id: 14,
+                name: 'Vexirk',
+                originalAttackType: 'Magic',
+                attackTypes: ['Magic'],
+                attackRange: 4,
+            }),
+            creatures: [creature],
+            stateCreatures: [creature],
+            projectiles: [],
+            stateProjectiles: [],
+            championInventories: { 1: [] },
+            championEquipment: { 1: {} },
+            baseChampionEquipment: {},
+            championVitals: { 1: createVitals(20) },
+            damageEvents: [],
+            party: [createChampion(1)],
+            partyDirection: 'NORTH',
+            activePotionBoosts: [],
+            partyPosition: [6, 7],
+            movedPosition: { x: 4, y: 4 },
+            movedThisTick: false,
+            canDetectParty: true,
+            frightened: false,
+            confused: false,
+            attackReach: 4,
+            currentAttackTimer: 0,
+            nowMs: 1000,
+            level: 0,
+            levelDifficulty: 2,
+            partySleeping: false,
+        },
+        {
+            ...baseDeps,
+            chooseCreatureProjectileEffect: () => 'fireball',
+            buildProjectile: () => projectile,
+        },
+    );
+
+    assert.equal(result.kind, 'idle');
+    assert.equal(result.projectiles, undefined);
+    assert.equal(result.attackWindowExpiresAt, undefined);
+});
+
+test('resolveMonsterAttackTurn launches a creature projectile when the party is aligned on the firing lane', () => {
+    const creature = createCreature('vexirk', { cell: 'center', x: 4, y: 4, typeId: 14 });
+    const projectile: Projectile = {
+        id: 'proj-aligned',
+        level: 0,
+        x: 4,
+        y: 4,
+        direction: 'SOUTH',
+        effect: 'fireball',
+        launchedBy: 'creature',
+        damage: [1, 8],
+        nextMoveAt: 1000,
+    };
+
+    const result = resolveMonsterAttackTurn(
+        {
+            creature,
+            attackerDef: createCreatureDef({
+                id: 14,
+                name: 'Vexirk',
+                originalAttackType: 'Magic',
+                attackTypes: ['Magic'],
+                attackRange: 4,
+            }),
+            creatures: [creature],
+            stateCreatures: [creature],
+            projectiles: [],
+            stateProjectiles: [],
+            championInventories: { 1: [] },
+            championEquipment: { 1: {} },
+            baseChampionEquipment: {},
+            championVitals: { 1: createVitals(20) },
+            damageEvents: [],
+            party: [createChampion(1)],
+            partyDirection: 'NORTH',
+            activePotionBoosts: [],
+            partyPosition: [6, 4],
+            movedPosition: { x: 4, y: 4 },
+            movedThisTick: false,
+            canDetectParty: true,
+            frightened: false,
+            confused: false,
+            attackReach: 4,
+            currentAttackTimer: 0,
+            nowMs: 1000,
+            level: 0,
+            levelDifficulty: 2,
+            partySleeping: false,
+        },
+        {
+            ...baseDeps,
+            chooseCreatureProjectileEffect: () => 'fireball',
+            buildProjectile: () => projectile,
+        },
+    );
+
+    assert.equal(result.kind, 'projectile');
+    assert.equal(result.nextAttackTimer, 0.8);
+    assert.equal(result.attackWindowExpiresAt, 2200);
+    assert.deepEqual(result.projectiles, [projectile]);
+});

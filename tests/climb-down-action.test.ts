@@ -87,6 +87,7 @@ test('resolveClimbDownAction returns an error when the landing is invalid', () =
 
 test('resolveClimbDownAction returns the movement patch on success', () => {
     let enterState: TestSensorState | null = null;
+    let resolvePitLandingArgs: { level: number; x: number; y: number } | null = null;
 
     const result = resolveClimbDownAction<TestState, TestSensorState, TestPendingSensorEvent, TestPatch>(
         createState(),
@@ -94,7 +95,10 @@ test('resolveClimbDownAction returns the movement patch on success', () => {
         {
             getFrontPosition: () => ({ x: 5, y: 3 }),
             getTile: () => ({ x: 5, y: 3, type: 'Pit', open: true, objects: [] } as GameTile),
-            resolvePitLanding: () => ({ level: 2, x: 7, y: 8 }),
+            resolvePitLanding: (level, y, x) => {
+                resolvePitLandingArgs = { level, x, y };
+                return { level: 2, x: 7, y: 8 };
+            },
             applyPartyLoadBasedFatigue: () => ({ 1: { hp: 24 } as ChampionVitals }),
             buildSensorStateSnapshot: () => ({ openDoors: new Set<string>(), marker: 'snapshot' }),
             triggerFloorSensors: (_level, _x, _y, ss, _inventories, _equipment, _floorItems, _pending, mode) => {
@@ -116,6 +120,7 @@ test('resolveClimbDownAction returns the movement patch on success', () => {
     );
 
     assert.equal(result.errorMessage, undefined);
+    assert.deepEqual(resolvePitLandingArgs, { level: 1, x: 5, y: 3 });
     assert.deepEqual(enterState, { openDoors: new Set(['leave-door']), marker: 'leave' });
     const patch = result.patch as TestPatch;
     assert.deepEqual(patch.position, [8, 7]);

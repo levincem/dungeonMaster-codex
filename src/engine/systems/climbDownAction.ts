@@ -76,7 +76,7 @@ export function resolveClimbDownAction<
     }
 
     const landing = deps.resolvePitLanding(
-        state.level + 1,
+        state.level,
         pitY,
         pitX,
         state.openDoors,

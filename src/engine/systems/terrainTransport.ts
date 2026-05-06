@@ -5,6 +5,7 @@ import type {
     TeleporterObject,
 } from '../../types/game';
 import { CREATURE_TYPES } from '../../data/creatures';
+import { getGameMap } from '../../data/mapLoader';
 import type { Direction } from '../runtimeTypes';
 import { isDisabledTeleporterKey } from './disabledTeleporters';
 
@@ -309,7 +310,7 @@ type PitLandingDeps = {
 };
 
 export function resolvePitLanding(
-    level: number,
+    sourceLevel: number,
     y: number,
     x: number,
     openDoors: Set<string>,
@@ -317,14 +318,33 @@ export function resolvePitLanding(
     openPits: Set<string>,
     deps: PitLandingDeps,
 ): { level: number; y: number; x: number } | null {
-    let currentLevel = level;
+    const readMap = (level: number) => {
+        try {
+            return getGameMap(level);
+        } catch {
+            return null;
+        }
+    };
+
+    const sourceMap = readMap(sourceLevel);
+    if (!sourceMap) return null;
+
+    const sourceGlobalX = (sourceMap.mapOffset?.x ?? 0) + x;
+    const sourceGlobalY = (sourceMap.mapOffset?.y ?? 0) + y;
+    let currentLevel = sourceLevel + 1;
 
     while (true) {
-        const tile = deps.getTile(currentLevel, x, y);
+        const currentMap = readMap(currentLevel);
+        if (!currentMap) return null;
+
+        // Pits fall straight down in world space, even when stacked maps have different local offsets.
+        const landingX = sourceGlobalX - (currentMap.mapOffset?.x ?? 0);
+        const landingY = sourceGlobalY - (currentMap.mapOffset?.y ?? 0);
+        const tile = deps.getTile(currentLevel, landingX, landingY);
         if (!tile) return null;
-        if (tile.type !== 'Pit' || !openPits.has(`${currentLevel},${y},${x}`)) {
-            return deps.isWalkable(currentLevel, y, x, openDoors, openWalls, openPits)
-                ? { level: currentLevel, y, x }
+        if (tile.type !== 'Pit' || !openPits.has(`${currentLevel},${landingY},${landingX}`)) {
+            return deps.isWalkable(currentLevel, landingY, landingX, openDoors, openWalls, openPits)
+                ? { level: currentLevel, y: landingY, x: landingX }
                 : null;
         }
         currentLevel += 1;

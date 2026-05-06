@@ -328,6 +328,39 @@ test('triggerFloorSensors activates generic weight plates when the source is a d
     assert.deepEqual(result.pendingSensorEvents, [{ level: 0, sensorIndex: 99, remaining: 1 }]);
 });
 
+test('triggerFloorSensors does not retrigger a generic weight plate when the party enters a tile already occupied by an item', () => {
+    const sensor = createSensor({ type: 1, action: 'Set' });
+    const { deps, getPlateSoundCount } = createDeps(sensor);
+
+    const result = triggerFloorSensors(
+        0,
+        25,
+        1,
+        { openDoors: new Set<string>(), currentDirection: 'NORTH' },
+        {},
+        {},
+        [
+            {
+                id: 'boulder-on-plate',
+                mapIndex: 0,
+                x: 25,
+                y: 1,
+                category: 'Misc',
+                typeId: 1,
+                tilePos: 'North',
+            },
+        ],
+        [],
+        deps,
+        'enter',
+        'party',
+    );
+
+    assert.deepEqual(result.sensorChanges, {});
+    assert.deepEqual(result.pendingSensorEvents, []);
+    assert.equal(getPlateSoundCount(), 0);
+});
+
 test('triggerFloorSensors clears revert hold targets while a generic weight plate is held down', () => {
     const sensor = createSensor({ type: 1, action: 'Hold', revert: true });
     const { deps } = createDeps(sensor, {

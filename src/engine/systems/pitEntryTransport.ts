@@ -125,7 +125,7 @@ export function resolveOpenPitEntryTransport<
     deps: PitEntryTransportDeps<TState, TSensorState, TPendingSensorEvent, TPatch>,
 ): { patch: TPatch; fellThroughPit: true } | null {
     const landing = deps.resolvePitLanding(
-        state.level + 1,
+        state.level,
         ny,
         nx,
         state.openDoors,

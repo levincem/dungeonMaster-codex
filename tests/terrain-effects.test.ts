@@ -70,6 +70,8 @@ test('applyPartyTelefragAtSquare kills creatures on the square and drops their i
 });
 
 test('applyCreaturesStandingOnOpenPit moves surviving creatures to the landing tile and records damage', () => {
+    let resolvePitLandingArgs: { level: number; x: number; y: number } | null = null;
+
     const state = {
         level: 0,
         position: [0, 0] as [number, number],
@@ -84,7 +86,10 @@ test('applyCreaturesStandingOnOpenPit moves surviving creatures to the landing t
     };
 
     const result = applyCreaturesStandingOnOpenPit(state, 2, 4, 5, {
-        resolvePitLanding: () => ({ level: 3, x: 6, y: 7 }),
+        resolvePitLanding: (level, y, x) => {
+            resolvePitLandingArgs = { level, x, y };
+            return { level: 3, x: 6, y: 7 };
+        },
         isWalkable: () => true,
         canCreatureShareTile: () => true,
         dropCreatureCarriedItems: (creatures, floorItems) => ({ creatures, floorItems }),
@@ -95,6 +100,7 @@ test('applyCreaturesStandingOnOpenPit moves surviving creatures to the landing t
     });
 
     assert.ok(result);
+    assert.deepEqual(resolvePitLandingArgs, { level: 2, x: 4, y: 5 });
     assert.deepEqual(
         result?.creatures[0] && {
             mapIndex: result.creatures[0].mapIndex,

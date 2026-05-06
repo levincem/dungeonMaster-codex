@@ -1601,21 +1601,23 @@ export const DungeonScene = () => {
                     partyDirection={direction}
                 />
 
-                <FootprintLayer />
-                <MagicVisionLayer
-            wallButtons={wallButtons}
-            pressurePlates={pressurePlates}
-            trickWalls={trickWalls}
-            pits={pits}
-        />
-                <CreaturesLayer />
-                <FluxcageLayer />
-                <PoisonCloudLayer />
-                <TeleporterLayer teleporters={teleporters} />
-                <DamageLayer />
-                <SpellImpactLayer />
-                <FloorItemsLayer />
-                <ProjectileRenderer />
+                <group key={`level-visuals-${level}`}>
+                    <FootprintLayer />
+                    <MagicVisionLayer
+                        wallButtons={wallButtons}
+                        pressurePlates={pressurePlates}
+                        trickWalls={trickWalls}
+                        pits={pits}
+                    />
+                    <CreaturesLayer />
+                    <FluxcageLayer />
+                    <PoisonCloudLayer />
+                    <TeleporterLayer teleporters={teleporters} />
+                    <DamageLayer />
+                    <SpellImpactLayer />
+                    <FloorItemsLayer />
+                    <ProjectileRenderer />
+                </group>
             </Canvas>
             <ViAltarMiracleOverlay />
             <DungeonSceneDragOverlay

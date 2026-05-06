@@ -160,7 +160,7 @@ export function applyOpenedPitEffects(
 
         if (level === pitLevel && position[0] === pitY && position[1] === pitX) {
             const landing = deps.resolvePitLanding(
-                pitLevel + 1,
+                pitLevel,
                 pitY,
                 pitX,
                 state.openDoors,

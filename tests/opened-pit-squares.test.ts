@@ -109,13 +109,18 @@ function createState(overrides: Partial<Parameters<typeof applyOpenedPitEffects>
 }
 
 test('applyOpenedPitEffects moves the party through newly opened pits and applies fall damage', () => {
+    let resolvePitLandingArgs: { level: number; x: number; y: number } | null = null;
+
     const result = applyOpenedPitEffects(
         createState({
             creatures: [createCreature('guardian', { mapIndex: 1, x: 7, y: 8 })],
         }),
         ['0,4,5'],
         {
-            resolvePitLanding: () => ({ level: 1, x: 7, y: 8 }),
+            resolvePitLanding: (level, y, x) => {
+                resolvePitLandingArgs = { level, x, y };
+                return { level: 1, x: 7, y: 8 };
+            },
             applyPartyTelefragAtSquare: () => ({
                 creatures: [createCreature('guardian', { mapIndex: 1, x: 7, y: 8, alive: false, currentHP: 0 })],
                 floorItems: [{ id: 'loot-1', category: 'Misc', typeId: 1, mapIndex: 1, x: 7, y: 8, tilePos: 'North' }],
@@ -152,6 +157,7 @@ test('applyOpenedPitEffects moves the party through newly opened pits and applie
     );
 
     assert.equal(result.changed, true);
+    assert.deepEqual(resolvePitLandingArgs, { level: 0, x: 5, y: 4 });
     assert.equal(result.level, 1);
     assert.deepEqual(result.position, [8, 7]);
     assert.equal(result.championVitals[1]?.hp, 22);

@@ -244,35 +244,34 @@ test('resolveCreatureTeleporterTransport still allows low-wariness creatures int
     });
 });
 
-test('resolvePitLanding falls through chained open pits until a walkable landing tile', () => {
+test('resolvePitLanding preserves global coordinates while falling through chained open pits', () => {
     const tiles = new Map<string, GameTile>([
-        ['1,4,3', { x: 3, y: 4, type: 'Pit', objects: [] }],
-        ['2,4,3', { x: 3, y: 4, type: 'Pit', objects: [] }],
-        ['3,4,3', { x: 3, y: 4, type: 'Floor', objects: [] }],
+        ['9,2,11', { x: 11, y: 2, type: 'Pit', objects: [] }],
+        ['10,2,11', { x: 11, y: 2, type: 'Floor', objects: [] }],
     ]);
 
     const result = resolvePitLanding(
-        1,
-        4,
-        3,
+        8,
+        7,
+        9,
         new Set<string>(),
         new Set<string>(),
-        new Set(['1,4,3', '2,4,3']),
+        new Set(['9,2,11']),
         {
             getTile: (level, x, y) => tiles.get(`${level},${y},${x}`),
-            isWalkable: (level, y, x) => level === 3 && y === 4 && x === 3,
+            isWalkable: (level, y, x) => level === 10 && y === 2 && x === 11,
         },
     );
 
-    assert.deepEqual(result, { level: 3, y: 4, x: 3 });
+    assert.deepEqual(result, { level: 10, y: 2, x: 11 });
     assert.equal(
         resolvePitLanding(
-            1,
-            4,
-            3,
+            8,
+            7,
+            9,
             new Set<string>(),
             new Set<string>(),
-            new Set(['1,4,3', '2,4,3']),
+            new Set(['9,2,11']),
             {
                 getTile: (level, x, y) => tiles.get(`${level},${y},${x}`),
                 isWalkable: () => false,

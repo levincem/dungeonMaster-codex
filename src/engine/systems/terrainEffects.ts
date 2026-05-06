@@ -149,7 +149,7 @@ export function applyCreaturesStandingOnOpenPit(
         if (!creature || !creature.alive) continue;
 
         const landing = deps.resolvePitLanding(
-            level + 1,
+            level,
             y,
             x,
             state.openDoors,
@@ -236,7 +236,7 @@ export function applyFloorItemsStandingOnOpenPit(
     if (fallers.length === 0) return null;
 
     const landing = deps.resolvePitLanding(
-        level + 1,
+        level,
         y,
         x,
         state.openDoors,
