@@ -253,10 +253,13 @@ export function itemToLockData(category: string, typeId: number): number {
 }
 
 export const LOCK_DATA_TO_NAME: Record<number, string> = {
+    49: 'BOW',
     125: 'COPPER COIN',
     126: 'SILVER COIN',
     127: 'GOLD COIN',
     129: 'BLUE GEM',
+    134: 'MIRROR OF DAWN',
+    138: 'CORBAMITE',
     176: 'IRON KEY',
     177: 'KEY OF B',
     178: 'SOLID KEY',

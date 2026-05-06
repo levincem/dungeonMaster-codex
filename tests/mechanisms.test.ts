@@ -35,6 +35,12 @@ test('isSpecificObjectFloorSensor only treats floor type 4 as an object plate', 
     assert.equal(isSpecificObjectFloorSensor(explicitObjectPlate), true);
 });
 
+test('getRequiredSensorItemName resolves source-backed wall sensor object codes that are not simple key data', () => {
+    assert.equal(getRequiredSensorItemName(createSensor({ type: 2, data: 49 })), 'BOW');
+    assert.equal(getRequiredSensorItemName(createSensor({ type: 2, data: 134 })), 'MIRROR OF DAWN');
+    assert.equal(getRequiredSensorItemName(createSensor({ type: 2, data: 138 })), 'CORBAMITE');
+});
+
 test('describeFloorSensor distinguishes party presence from party orientation plates', () => {
     assert.equal(describeFloorSensor(createSensor({ type: 3, data: 0 })), 'Capteur de passage (party)');
     assert.equal(describeFloorSensor(createSensor({ type: 3, data: 2 })), 'Capteur d orientation (party)');

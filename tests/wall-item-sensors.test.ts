@@ -269,6 +269,30 @@ test('triggerAnyObjectWallSensor treats hold sensors as set when applying the ef
     assert.deepEqual(Array.from(result.sensorChanges.openDoors ?? []), ['door-b']);
 });
 
+test('triggerAnyObjectWallSensor ignores specific-object type 2 sensors so they can be handled by alcove-style deposits', () => {
+    const sensor = {
+        category: 'Sensor',
+        index: 23,
+        type: 2,
+        data: 138,
+        revert: false,
+        action: 'Set',
+        tilePos: 'North',
+    } as const;
+    const deps = createDeps({
+        getWallFaceSensorsInRuntimeOrder: () => [sensor],
+        getRequiredSensorItemName: () => 'CORBAMITE',
+        computeSensorEffect: () => {
+            throw new Error('specific-object type 2 sensors must not use the any-object fallback');
+        },
+    });
+
+    const result = triggerAnyObjectWallSensor(0, 1, 1, 'North', createState(), deps);
+
+    assert.equal(result.matched, false);
+    assert.deepEqual(result.sensorChanges, {});
+});
+
 test('triggerAlcoveDepositSensor supports hold wall niches backed by a mounted item', () => {
     const sensor = {
         category: 'Sensor',
@@ -361,6 +385,54 @@ test('triggerAlcoveDepositSensor supports original alcove-shaped hold sensors wi
     assert.deepEqual(result.depositedItem, { ...gem, mapIndex: 2, x: 8, y: 9, tilePos: 'West' });
     assert.deepEqual(receivedActions, ['Clear']);
     assert.deepEqual(Array.from(result.sensorChanges.openDoors ?? []), ['door-d']);
+});
+
+test('triggerAlcoveDepositSensor supports original alcove faces backed by one-shot type 2 specific-object sensors', () => {
+    const sensor = {
+        category: 'Sensor',
+        index: 24,
+        type: 2,
+        data: 138,
+        revert: false,
+        action: 'Set',
+        onceOnly: true,
+        tilePos: 'North',
+    } as const;
+    const corbamite = {
+        id: 'corbamite-1',
+        category: 'Misc' as const,
+        typeId: 47,
+        rawName: 'Corbamite',
+        mapIndex: 0,
+        x: 0,
+        y: 0,
+        tilePos: 'North' as const,
+    };
+    const deps = createDeps({
+        getTile: () => ({ x: 8, y: 9, type: 'Wall' as const, objects: [sensor] }),
+        getWallFaceSensorsInRuntimeOrder: () => [sensor],
+        isOriginalAlcoveWallFace: () => true,
+        getRequiredSensorItemName: () => 'CORBAMITE',
+        itemMatchesMechanismRequirement: () => true,
+        computeSensorEffect: () => ({ openDoors: new Set(['door-e']) }),
+    });
+
+    const result = triggerAlcoveDepositSensor(
+        2,
+        8,
+        9,
+        'North',
+        createState(),
+        { 3: [corbamite] },
+        {} as Record<number, ChampionEquipment>,
+        { championId: 3, itemId: corbamite.id, fromSlot: 'inventory' },
+        deps,
+    );
+
+    assert.equal(result.matched, true);
+    assert.deepEqual(result.newInventories, { 3: [] });
+    assert.deepEqual(result.depositedItem, { ...corbamite, mapIndex: 2, x: 8, y: 9, tilePos: 'North' });
+    assert.deepEqual(Array.from(result.sensorChanges.openDoors ?? []), ['door-e']);
 });
 
 test('triggerObjectExchangerSensor skips the Firestaff exchange until the Zokathra unlock has fired', () => {

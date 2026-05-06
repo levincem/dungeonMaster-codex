@@ -162,6 +162,88 @@ test('level 8 pressure plate and lever route the hidden Green Gem chest through 
     }
 });
 
+test('level 8 Corbamite alcove rejects the wrong item and keeps the matching quest item mounted in the wall', async () => {
+    await preloadDungeonData();
+    const { useStore } = await import('../src/engine/store.js');
+    const initialState = enterDungeonForTest(useStore);
+
+    try {
+        const skeletonKey = {
+            id: 'test-skeleton-key',
+            category: 'Misc',
+            typeId: 16,
+            rawName: 'Skeleton Key',
+            mapIndex: 8,
+            x: 23,
+            y: 15,
+            tilePos: 'North',
+        } as const;
+        const corbamite = {
+            id: 'test-corbamite',
+            category: 'Misc',
+            typeId: 47,
+            rawName: 'Corbamite',
+            mapIndex: 8,
+            x: 23,
+            y: 15,
+            tilePos: 'North',
+        } as const;
+
+        useStore.getState().goToLevel(8, [15, 23], 'SOUTH');
+
+        useStore.setState({
+            gamePhase: 'exploration',
+            paused: false,
+            sleeping: false,
+            optionsModalOpen: false,
+            movementCooldown: 0,
+            position: [15, 23],
+            direction: 'SOUTH',
+            championInventories: { 0: [skeletonKey] },
+            championEquipment: { 0: {} },
+            pendingSensorEvents: [],
+            damageEvents: [],
+            spellVisualEvents: [],
+            activeFloorDrag: null,
+            lastMonsterAttackDebug: null,
+        });
+
+        const wrongMatch = withAudioStub(() => useStore.getState().useItemOnFrontWall(0, skeletonKey.id, 'inventory'));
+        const afterWrongItem = useStore.getState();
+        assert.equal(wrongMatch, false);
+        assert.equal(afterWrongItem.openDoors.has('8,15,22'), false);
+        assert.equal(afterWrongItem.championInventories[0]?.some((item) => item.id === skeletonKey.id), true);
+        assert.equal(afterWrongItem.floorItems.some((item) => item.id === skeletonKey.id), false);
+
+        useStore.setState({
+            championInventories: { 0: [corbamite] },
+            championEquipment: { 0: {} },
+            pendingSensorEvents: [],
+            damageEvents: [],
+            spellVisualEvents: [],
+            activeFloorDrag: null,
+            lastMonsterAttackDebug: null,
+        });
+
+        const correctMatch = withAudioStub(() => useStore.getState().useItemOnFrontWall(0, corbamite.id, 'inventory'));
+        const afterCorbamite = useStore.getState();
+        assert.equal(correctMatch, true);
+        assert.equal(afterCorbamite.openDoors.has('8,15,22'), true);
+        assert.equal(afterCorbamite.championInventories[0]?.some((item) => item.id === corbamite.id), false);
+        assert.deepEqual(
+            afterCorbamite.floorItems.find((item) => item.id === corbamite.id) && {
+                mapIndex: afterCorbamite.floorItems.find((item) => item.id === corbamite.id)?.mapIndex,
+                x: afterCorbamite.floorItems.find((item) => item.id === corbamite.id)?.x,
+                y: afterCorbamite.floorItems.find((item) => item.id === corbamite.id)?.y,
+                tilePos: afterCorbamite.floorItems.find((item) => item.id === corbamite.id)?.tilePos,
+            },
+            { mapIndex: 8, x: 23, y: 16, tilePos: 'North' },
+        );
+    } finally {
+        useStore.setState(initialState, true);
+    }
+});
+
 test('level 8 fireball plates stay quiet when the party walks onto a plate already occupied by an item', async () => {
     await preloadDungeonData();
     const { useStore } = await import('../src/engine/store.js');
