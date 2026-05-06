@@ -1,6 +1,6 @@
 # Dungeon Master Remake - Etat du projet
 
-Etat revu le `2026-05-04`.
+Etat revu le `2026-05-06`.
 
 Ce document est un journal d'etat compact.
 
@@ -34,7 +34,7 @@ Lecture honnete du projet aujourd'hui:
 
 Validation locale la plus recente:
 
-- `npm.cmd test` : `854` tests verts
+- `npm.cmd test` : `859` tests verts
 - `npm.cmd run build` : vert
 
 ## Lecture beta
@@ -123,6 +123,30 @@ Le detail ordonne vit dans [docs/NEXT_PHASE_PLAN.md](/D:/DungeonMaster-codex/doc
 - surtout du playtest cible sur cas rares, puis quelques ecarts de presentation
 
 ## Checkpoints recents
+
+### 2026-05-06
+
+Travail ferme dans cette session:
+
+- verification source-backed puis correction de deux bugs GitHub recents
+  - fontaine fixe `LVL 8` visible mais non buvable recalee dans le runtime des overlays muraux
+  - coffre `Green Gem` `LVL 8` de nouveau pousse a travers le teleporter puis le pit, y compris si le niveau cible n'etait pas encore hydrate
+- piege mural projectile `LVL 7` corrige
+  - les projectiles de lanceurs muraux portent maintenant une origine runtime explicite
+  - l'impact sur la party se reapplique bien pour les projectiles `wall`, au lieu de n'accepter que `creature`
+- drag and drop `sol -> HUD` referme
+  - un relacher sur portrait champion ou slot de main n'est plus vole par la logique de drop `dungeon`
+  - les cibles HUD sont maintenant resolues explicitement au `pointerup` du drag sol
+- couverture de tests et verifications renforcee
+  - regressions ajoutees sur projectile mural -> party, cibles HUD de floor-drag, fontaine fixe `LVL 8`, et puzzle `Green Gem`
+  - `npm.cmd test` : `859` verts
+  - `npm.cmd run build` : vert
+
+Impact:
+
+- les bugs remontes par playtest recent et issues GitHub sont recales sur les sources originales et verrouilles par tests
+- le drag and drop donjon / HUD est de nouveau coherent meme apres les corrections du pipeline de lancer
+- la branche locale passe en `0.8.5` avec une memoire projet et un `README` recales
 
 ### 2026-05-04
 

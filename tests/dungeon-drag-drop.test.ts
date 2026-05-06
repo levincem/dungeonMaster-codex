@@ -5,6 +5,7 @@ import {
     isPointerInsideDungeonViewport,
     performDungeonDragDropAction,
     resolveDungeonDragDropDestination,
+    resolveHudFloorDragDropTarget,
     resolveDungeonWallDropTarget,
     shouldRenderDungeonSceneDragOverlay,
 } from '../src/components/Dungeon/dungeonDragDrop.js';
@@ -98,4 +99,38 @@ test('resolveDungeonWallDropTarget distinguishes altar targets from generic fron
     });
     assert.deepEqual(resolveDungeonWallDropTarget(wall), { kind: 'front-wall' });
     assert.equal(resolveDungeonWallDropTarget(null), null);
+});
+
+test('resolveHudFloorDragDropTarget distinguishes champion portraits from hand slots', () => {
+    const champion = {
+        dataset: {
+            dmFloorDragTarget: 'champion',
+            dmChampionId: '7',
+        },
+    };
+    const hand = {
+        dataset: {
+            dmFloorDragTarget: 'hand',
+            dmChampionId: '3',
+            dmSlotKey: 'rightHand',
+        },
+    };
+
+    const championChild = {
+        closest: (selector: string) => selector === '[data-dm-floor-drag-target="champion"]' ? champion : null,
+    } as unknown as Element;
+    const handChild = {
+        closest: (selector: string) => selector === '[data-dm-floor-drag-target="hand"]' ? hand : null,
+    } as unknown as Element;
+
+    assert.deepEqual(resolveHudFloorDragDropTarget(championChild), {
+        kind: 'champion',
+        championId: 7,
+    });
+    assert.deepEqual(resolveHudFloorDragDropTarget(handChild), {
+        kind: 'hand',
+        championId: 3,
+        slotKey: 'rightHand',
+    });
+    assert.equal(resolveHudFloorDragDropTarget(null), null);
 });

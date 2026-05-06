@@ -124,7 +124,7 @@ function resolveProjectileImpactOnSquare(
     },
 ): { consumed: boolean; nextState: ProjectileImpactMutableState } {
     const hitsPartySquare =
-        projectile.launchedBy === 'creature' &&
+        (projectile.launchedBy === 'creature' || projectile.launchedBy === 'wall') &&
         projectileLevel === state.level &&
         x === state.position[1] &&
         y === state.position[0];

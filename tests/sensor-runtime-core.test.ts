@@ -114,6 +114,7 @@ test('buildWallLauncherProjectiles creates explosion projectiles from wall launc
     assert.equal(projectiles[0]?.y, 1);
     assert.equal(projectiles[0]?.direction, 'EAST');
     assert.equal(projectiles[0]?.effect, 'lightning');
+    assert.equal(projectiles[0]?.launchedBy, 'wall');
     assert.equal(projectiles[0]?.visualScale, 1.04);
 });
 
@@ -139,6 +140,7 @@ test('buildWallLauncherProjectiles creates physical item launchers with drops', 
     assert.equal(projectiles.length, 2);
     assert.equal(projectiles[0]?.effect, 'physical');
     assert.equal(projectiles[0]?.direction, 'SOUTH');
+    assert.equal(projectiles[0]?.launchedBy, 'wall');
     assert.equal(projectiles[0]?.physicalItem?.category, 'Weapon');
     assert.equal(projectiles[0]?.physicalItem?.typeId, 31);
 });

@@ -105,6 +105,7 @@ export type WallLauncherProjectile<TPhysicalItem = WallLauncherPhysicalItem> = {
     y: number;
     direction: Direction;
     effect: WallLauncherProjectileEffect;
+    launchedBy?: 'wall';
     damage: [number, number];
     nextMoveAt: number;
     remainingRange: number;
@@ -268,6 +269,7 @@ export function buildWallLauncherProjectiles(
             y: startY,
             direction,
             effect,
+            launchedBy: 'wall',
             damage: effect === 'open' ? [0, 0] : [1, kineticEnergy],
             nextMoveAt: now + index * 40,
             remainingRange: kineticEnergy,
@@ -290,6 +292,7 @@ export function buildWallLauncherProjectiles(
             y: startY,
             direction,
             effect: 'physical' as const,
+            launchedBy: 'wall',
             damage: [baseDamage, Math.max(baseDamage, kineticEnergy)],
             nextMoveAt: now + index * 40,
             remainingRange: kineticEnergy,

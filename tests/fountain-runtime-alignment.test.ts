@@ -199,3 +199,65 @@ test('random-capable faces that merely include Fountain in their variant pool do
         false,
     );
 });
+
+test('fixed fountain overlays remain drinkable for the level 8 west-face fountain at global [13,33]', async () => {
+    await preloadDungeonData();
+    await preloadOriginalWallOverlayMapData(8);
+
+    const getTileAt = (level: number, tileX: number, tileY: number) =>
+        getGameMap(level).tiles[tileY]?.[tileX];
+
+    assert.equal(hasOriginalWallOverlayAt(8, 1, 28, 'West', 'Fountain'), true);
+    assert.equal(hasEffectiveOriginalWallOverlayAt(8, 1, 28, 'West', 'Fountain'), true);
+
+    const context = buildChampionSheetFrontWallContext({
+        level: 8,
+        position: [28, 0] as [number, number],
+        direction: 'EAST' as const,
+        firedSensors: new Set<string>(),
+        getTileAt,
+        hasEffectiveOriginalWallOverlayAt,
+        isAltarWallFace: () => false,
+        getMechanismsAtFace: () => [],
+        isFrontWallMechanism: () => false,
+    });
+
+    assert.equal(context.facingFountain, true);
+    assert.equal(
+        isFacingFountain(8, [28, 0], 'EAST', {
+            getTile: getTileAt,
+            hasEffectiveOriginalWallOverlayAt,
+        }),
+        true,
+    );
+
+    const deps = createStoreDrinkFromFountainRuntimeDeps({
+        isFacingFountain: (state) => isFacingFountain(state.level, state.position, state.direction, {
+            getTile: getTileAt,
+            hasEffectiveOriginalWallOverlayAt,
+        }),
+        clampWater: (value) => Math.min(2048, value),
+        waterGain: 800,
+    });
+
+    assert.deepEqual(
+        buildStoreDrinkFromFountainPatch(
+            {
+                level: 8,
+                position: [28, 0] as [number, number],
+                direction: 'EAST' as const,
+                championVitals: { 1: createVitals() },
+            },
+            1,
+            deps,
+        ),
+        {
+            championVitals: {
+                1: {
+                    ...createVitals(),
+                    water: 800,
+                },
+            },
+        },
+    );
+});

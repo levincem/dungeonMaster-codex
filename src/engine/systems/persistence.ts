@@ -40,6 +40,7 @@ import {
     normalizeChampionVitalsForChampion,
 } from './championState';
 import { getCreatureCellsForOccupancy } from './creatureTileState';
+import { buildDefaultOpenDoorsForLevels } from './defaultOpenDoors';
 import { sanitizeOpenTeleporterKeys } from './disabledTeleporters';
 import { normalizeGameStats } from './gameStats';
 
@@ -187,21 +188,6 @@ function getDungeonBootstrap(): RawDungeonBootstrap {
 
 function buildDefaultOpenPits(): Set<string> {
     return new Set<string>(getDungeonBootstrap().defaultOpenPits ?? []);
-}
-
-function buildDefaultOpenDoors(): Set<string> {
-    const openDoors = new Set<string>();
-    for (const mapSummary of getDungeonBootstrap().maps ?? []) {
-        const map = getGameMap(mapSummary.index);
-        for (const row of map.tiles) {
-            for (const tile of row) {
-                if (tile.type === 'Door' && tile.state === 'Open') {
-                    openDoors.add(`${map.index},${tile.y},${tile.x}`);
-                }
-            }
-        }
-    }
-    return openDoors;
 }
 
 function buildDefaultOpenTeleporters(): Set<string> {
@@ -592,6 +578,7 @@ export function hydratePersistedGameState(
     data: PersistedSaveData,
     now = Date.now(),
 ): PersistableGameState {
+    const hydratedLevels = new Set<number>(data.hydratedLevels ?? [...buildDefaultHydratedLevels()]);
     const creatures = normalizePersistedCreatures(data.creatures);
     const normalizedFloorItems = normalizePersistedItems(data.floorItems);
     const normalizedChampionInventories = normalizePersistedInventories(data.championInventories);
@@ -614,7 +601,7 @@ export function hydratePersistedGameState(
     const firedSensors = new Set<string>(data.firedSensors);
     const reconciledWorldState = reconcileTriggeredWorldStateFromFiredSensors({
         firedSensors,
-        openDoors: new Set<string>([...(data.openDoors ?? []), ...buildDefaultOpenDoors()]),
+        openDoors: new Set<string>(data.openDoors ?? [...buildDefaultOpenDoorsForLevels(hydratedLevels)]),
         openPits: new Set<string>(data.openPits ?? [...buildDefaultOpenPits()]),
         openTeleporters: sanitizeOpenTeleporterKeys(data.openTeleporters ?? [...buildDefaultOpenTeleporters()]),
         openWalls: new Set<string>(data.openWalls ?? []),
@@ -628,7 +615,7 @@ export function hydratePersistedGameState(
         direction: data.direction,
         party: data.party,
         gateOpen: data.gateOpen,
-        hydratedLevels: new Set<number>(data.hydratedLevels ?? [...buildDefaultHydratedLevels()]),
+        hydratedLevels,
         openDoors: reconciledWorldState.openDoors,
         brokenDoors: new Set<string>(data.brokenDoors ?? []),
         openPits: reconciledWorldState.openPits,

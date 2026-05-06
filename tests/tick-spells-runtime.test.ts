@@ -379,6 +379,58 @@ test('buildTickSpellsRuntimePatch lets a creature projectile leave its launch sq
     assert.equal(patch.creatures, undefined);
 });
 
+test('buildTickSpellsRuntimePatch applies wall projectile damage when a trap projectile enters the party square', () => {
+    const projectile: Projectile = {
+        id: 'wall-fireball',
+        level: 0,
+        x: 0,
+        y: 0,
+        direction: 'EAST',
+        effect: 'fireball',
+        launchedBy: 'wall',
+        damage: [4, 8],
+        nextMoveAt: 1000,
+        remainingRange: 6,
+        remainingAttack: 10,
+        visualScale: 1,
+    };
+    const state = createState({
+        position: [0, 1],
+        projectiles: [projectile],
+    });
+    const map = createFloorMap(3, 1);
+
+    const patch = buildTickSpellsRuntimePatch(state, 1000, {
+        buildProjectileTickDeps: (_state, currentGameTick, now) => ({
+            ...createUnusedProjectileDeps(),
+            currentGameTick,
+            now,
+            getMap: () => map,
+            resolveProjectileImpact: () => ({ damage: 5, attackType: 'Fire', poisonAttack: 0 }),
+            resolveChampionIncomingAttack: (_incomingState, _targetChampion, currentVitals) => ({
+                damage: 5,
+                nextVitals: { ...currentVitals, hp: currentVitals.hp - 5 },
+            }),
+            buildChampionDamageEvent: (level, championId, amount) => ({
+                id: 'damage-wall-fireball',
+                level,
+                target: 'champion',
+                championId,
+                amount,
+                ts: now,
+            }),
+            applyPartySpellBacklashDamage: () => null,
+        }),
+        footprintLifetimeMs: 100,
+        damageEventLifetimeMs: 100,
+    });
+
+    assert.deepEqual(patch.projectiles, []);
+    assert.equal(patch.championVitals?.[1]?.hp, 95);
+    assert.equal(patch.damageEvents?.length, 1);
+    assert.equal(patch.damageEvents?.[0]?.championId, 1);
+});
+
 test('buildTickSpellsRuntimePatch drops a thrown physical weapon on the creature square after a hit', () => {
     const creature: CreatureInstance = {
         id: 'creature-dagger',

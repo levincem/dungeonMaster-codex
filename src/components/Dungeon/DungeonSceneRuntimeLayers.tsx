@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { MIRROR_WALL_MAP, isSelfRevealingWallTile, useStore } from '../../engine/store';
 import { DAMAGE_EVENT_LIFETIME_MS, FOOTPRINT_LIFETIME_MS } from '../../engine/time';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
+import { canEquipItemInSlot } from '../../data/equipment';
 import { getGameMap } from '../../data/mapLoader';
 import type { FootprintEntry } from '../../engine/runtimeTypes';
 import type { FloorItem } from '../../types/game';
@@ -15,8 +16,10 @@ import { isFloorItemWallMountedTile } from './floorItemPresentation';
 import { WallMountedItemMesh } from './WallMountedItemMesh';
 import { useWallClock } from './useWallClock';
 import {
+    isPointerInsideDungeonViewport,
     performDungeonDragDropAction,
     resolveDungeonDragDropDestination,
+    resolveHudFloorDragDropTarget,
     resolveDungeonWallDropTarget,
 } from './dungeonDragDrop';
 
@@ -274,6 +277,9 @@ export const FloorItemsLayer: React.FC = () => {
     const moveFloorItemToCurrentTile = useStore((state) => state.moveFloorItemToCurrentTile);
     const moveFloorItemToFrontTile = useStore((state) => state.moveFloorItemToFrontTile);
     const throwFloorItem = useStore((state) => state.throwFloorItem);
+    const pickupItemToChampion = useStore((state) => state.pickupItemToChampion);
+    const pickupItemToChampionSlot = useStore((state) => state.pickupItemToChampionSlot);
+    const equipItem = useStore((state) => state.equipItem);
     const selectedChampionIndex = useStore((state) => state.selectedChampionIndex);
     const party = useStore((state) => state.party);
     const position = useStore((state) => state.position);
@@ -337,6 +343,36 @@ export const FloorItemsLayer: React.FC = () => {
                                         return;
                                     }
                                     const hovered = document.elementFromPoint(pointerX, pointerY) as HTMLElement | null;
+                                    const hudDropTarget = resolveHudFloorDragDropTarget(hovered);
+                                    if (hudDropTarget) {
+                                        if (hudDropTarget.kind === 'champion') {
+                                            pickupItemToChampion(item.id, hudDropTarget.championId);
+                                            return;
+                                        }
+
+                                        const floorItem = currentState.floorItems.find((entry) => entry.id === item.id);
+                                        if (!floorItem || !canEquipItemInSlot(floorItem, hudDropTarget.slotKey)) {
+                                            return;
+                                        }
+
+                                        const equipped = pickupItemToChampionSlot(
+                                            item.id,
+                                            hudDropTarget.championId,
+                                            hudDropTarget.slotKey,
+                                        );
+                                        if (!equipped) {
+                                            const pickedUp = pickupItemToChampion(item.id, hudDropTarget.championId);
+                                            if (!pickedUp) return;
+                                            equipItem(hudDropTarget.championId, hudDropTarget.slotKey, item.id);
+                                        }
+                                        return;
+                                    }
+
+                                    if (!isPointerInsideDungeonViewport(pointerX, window.innerWidth)) {
+                                        endFloorDrag();
+                                        return;
+                                    }
+
                                     const wallDropTarget = resolveDungeonWallDropTarget(hovered);
                                     if (wallDropTarget && selectedChampionId != null) {
                                         if (

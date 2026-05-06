@@ -554,11 +554,22 @@ export function hasEffectiveOriginalWallOverlayAt(
     face: CardinalDir,
     overlayName: string,
 ): boolean {
-    const { resolvedPlacements } = ensureOverlayMapIndex(mapIndex);
+    const { fixedFaces, resolvedPlacements } = ensureOverlayMapIndex(mapIndex);
+    // Only the fixed disabled-ornament fountains are direct water sources.
+    // Other fixed Fountain art, such as the wish fountain flow, must not
+    // become drinkable just because they share the same wall overlay family.
     return resolvedPlacements.some((placement) =>
         placement.x === x
         && placement.y === y
         && placement.face === face
         && placement.overlayName === overlayName,
+    ) || fixedFaces.some((fixedFace) =>
+        overlayName === 'Fountain'
+        && !fixedFace.stateful
+        && fixedFace.x === x
+        && fixedFace.y === y
+        && fixedFace.face === face
+        && fixedFace.primaryOverlayName === overlayName
+        && fixedFace.variants.every((variant) => variant.sensorType === 0),
     );
 }

@@ -180,6 +180,9 @@ const HandSlot: React.FC<{
             onDrop={onNativeItemDrop}
             onDragLeave={onNativeItemDragLeave}
             onMouseUp={onFloorDrop}
+            data-dm-floor-drag-target="hand"
+            data-dm-champion-id={championId}
+            data-dm-slot-key={slotKey}
             style={{
                 flex: 1,
                 height: 36,
@@ -367,6 +370,8 @@ const ChampionCard: React.FC<{
             onDrop={champion ? onNativeItemDrop : undefined}
             onDragLeave={champion ? onNativeItemDragLeave : undefined}
             onMouseUp={champion ? onFloorDrop : undefined}
+            data-dm-floor-drag-target={champion ? 'champion' : undefined}
+            data-dm-champion-id={champion?.id}
             title={
                 champion
                     ? (selected ? HUD_TEXT.party.openSheet(champion.name) : HUD_TEXT.party.selectChampion(champion.name))

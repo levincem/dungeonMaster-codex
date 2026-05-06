@@ -314,6 +314,10 @@ import { resolveStairStepTransport as resolveStairStepTransportSystem } from './
 import { resolveStandardStepTransport as resolveStandardStepTransportSystem } from './systems/standardStepTransport';
 import { resolveTeleporterStepTransport as resolveTeleporterStepTransportSystem } from './systems/teleporterStepTransport';
 import { sanitizeOpenTeleporterKeys } from './systems/disabledTeleporters';
+import {
+    buildDefaultOpenDoorsForLevel,
+    buildDefaultOpenDoorsForLevels,
+} from './systems/defaultOpenDoors';
 import { applyOpenedPitEffects as applyOpenedPitEffectsSystem } from './systems/openedPitSquares';
 import { applyOpenedTeleporterEffects as applyOpenedTeleporterEffectsSystem } from './systems/openedTransportSquares';
 import { isGeneratorSpawnBlocked as isGeneratorSpawnBlockedSystem } from './systems/sensorGeneratorRuntime';
@@ -607,7 +611,7 @@ export interface Projectile {
     y: number;           // tile y
     direction: Direction;
     effect: ProjectileEffect;
-    launchedBy?: 'party' | 'creature';
+    launchedBy?: 'party' | 'creature' | 'wall';
     sourceCreatureId?: string;
     targetChampionId?: number;
     spellRunes?: string[];
@@ -905,25 +909,10 @@ const {
 });
 const getDungeonBootstrap = (): RawDungeonBootstrap => getDungeonBootstrapSync<RawDungeonBootstrap>();
 
-function buildDefaultOpenDoors(): Set<string> {
-    const openDoors = new Set<string>();
-    for (const mapSummary of getDungeonBootstrap().maps ?? []) {
-        const map = getGameMap(mapSummary.index);
-        for (const row of map.tiles) {
-            for (const tile of row) {
-                if (tile.type === 'Door' && tile.state === 'Open') {
-                    openDoors.add(`${map.index},${tile.y},${tile.x}`);
-                }
-            }
-        }
-    }
-    return openDoors;
-}
-
 const { buildFreshDungeonState } = createStoreBootstrapRuntime({
     hallStart: [3, 1],
     hallStartDirection: 'SOUTH',
-    buildDefaultOpenDoors,
+    buildDefaultOpenDoorsForLevels,
     buildDefaultOpenPits: () => new Set<string>(getDungeonBootstrap().defaultOpenPits ?? []),
     buildDefaultOpenTeleporters: () => sanitizeOpenTeleporterKeys(getDungeonBootstrap().defaultOpenTeleporters ?? []),
     buildDefaultVisibleTexts: () => new Set<string>(getDungeonBootstrap().defaultVisibleTexts ?? []),
@@ -935,14 +924,22 @@ const { buildFreshDungeonState } = createStoreBootstrapRuntime({
 
 const getMap = (level: number): GameMap => getGameMap(level);
 function buildStoreLevelHydrationPatch(
-    state: Pick<GameState, 'hydratedLevels' | 'creatures' | 'floorItems'>,
+    state: Pick<GameState, 'hydratedLevels' | 'creatures' | 'floorItems'>
+        & Partial<Pick<GameState, 'openDoors'>>,
     level: number,
 ): Partial<GameState> | null {
     if (state.hydratedLevels.has(level)) return null;
+
+    const defaultOpenDoors = buildDefaultOpenDoorsForLevel(level);
+    const openDoors = state.openDoors ?? new Set<string>();
+
     return {
         hydratedLevels: new Set<number>([...state.hydratedLevels, level]),
         creatures: [...state.creatures, ...buildCreatureInstancesForLevel(level)],
         floorItems: [...state.floorItems, ...buildFloorItemsForLevel(level)],
+        ...(defaultOpenDoors.size > 0
+            ? { openDoors: new Set<string>([...openDoors, ...defaultOpenDoors]) }
+            : {}),
     };
 }
 
@@ -1346,10 +1343,12 @@ function applyImmediateTransportSquareEffects(
         | 'activeShields'
         | 'activePotionBoosts'
         | 'championCombat'
+        | 'pendingSensorEvents'
     >,
     basePatch: Partial<GameState>,
 ): Partial<GameState> {
-    return storeMovementRuntime.applyImmediateTransportSquareEffects(state as GameState, basePatch);
+    const patch = storeMovementRuntime.applyImmediateTransportSquareEffects(state as GameState, basePatch);
+    return (applyFloorItemTeleporterEffects(state as GameState, patch) ?? patch) as Partial<GameState>;
 }
 
 function buildStorePartyMoveDeps(enableFrontWallBumpDamage: boolean) {
@@ -1457,7 +1456,7 @@ const {
             {
                 ...deps,
                 buildLevelHydrationPatch: (hydrationState, hydrationLevel) =>
-                    buildStoreLevelHydrationPatch(hydrationState as Pick<GameState, 'hydratedLevels' | 'creatures' | 'floorItems'>, hydrationLevel),
+                    buildStoreLevelHydrationPatch(hydrationState as Pick<GameState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'>, hydrationLevel),
             },
         ),
     applyFloorItemsStandingOnOpenPit: (state, level, x, y, deps) =>
@@ -1469,7 +1468,7 @@ const {
             {
                 ...deps,
                 buildLevelHydrationPatch: (hydrationState, hydrationLevel) =>
-                    buildStoreLevelHydrationPatch(hydrationState as Pick<GameState, 'hydratedLevels' | 'creatures' | 'floorItems'>, hydrationLevel),
+                    buildStoreLevelHydrationPatch(hydrationState as Pick<GameState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'>, hydrationLevel),
             },
         ),
     applyCreaturesStandingOnOpenTeleporter: (state, level, x, y, deps) =>
@@ -1481,7 +1480,7 @@ const {
             {
                 ...deps,
                 buildLevelHydrationPatch: (hydrationState, hydrationLevel) =>
-                    buildStoreLevelHydrationPatch(hydrationState as Pick<GameState, 'hydratedLevels' | 'creatures' | 'floorItems'>, hydrationLevel),
+                    buildStoreLevelHydrationPatch(hydrationState as Pick<GameState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'>, hydrationLevel),
             },
         ),
     dropCreatureCarriedItems,
@@ -1489,7 +1488,8 @@ const {
     buildCreatureDamageEvent,
     normalizeCreatureCellsOnTile,
     canCreatureShareTile,
-    buildLevelHydrationPatch: (state, level) => buildStoreLevelHydrationPatch(state, level),
+    buildLevelHydrationPatch: (state, level) =>
+        buildStoreLevelHydrationPatch(state as Pick<GameState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'>, level),
     buildSensorStateSnapshot,
     triggerFloorSensors: triggerFloorSensorsSystem,
     transitionFloorSensors: transitionFloorSensorsSystem,
@@ -1515,7 +1515,8 @@ const buildClimbDownActionDeps = () => createStoreClimbDownRuntimeDeps<GameState
     buildSensorStateSnapshot,
     triggerFloorSensors: triggerFloorSensorsSystem,
     buildMovementSensorDeps,
-    buildLevelHydrationPatch: (state, level) => buildStoreLevelHydrationPatch(state, level),
+    buildLevelHydrationPatch: (state, level) =>
+        buildStoreLevelHydrationPatch(state as Pick<GameState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'>, level),
     computeMovementCooldown: computePartyMovementCooldownSecondsRuntime,
 });
 

@@ -343,6 +343,13 @@ test('buildPersistedSaveData serializes runtime state in a stable shape', () => 
     }
 });
 
+test('hydratePersistedGameState reuses persisted open door state without requiring map preload', () => {
+    const now = 10_000;
+    const persisted = buildPersistedSaveData(createState(now), createRuntimeMaps(now));
+
+    assert.doesNotThrow(() => hydratePersistedGameState(persisted, now));
+});
+
 test('buildPersistedSaveData compacts dead creatures and their timers out of saves', () => {
     const now = 11_000;
     const originalNow = Date.now;

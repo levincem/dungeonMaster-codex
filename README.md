@@ -6,17 +6,17 @@ Goal: rebuild the original dungeon, systems, and feel as faithfully as possible 
 
 Live build: [dungeon-master.fr](https://dungeon-master.fr/)
 
-Current local version: `v0.8.4`
+Current local version: `v0.8.5`
 
 ## Status
 
 This is now a desktop-first beta focused on gameplay validation from the early dungeon through endgame, while keeping PC DOS fidelity first and presentation polish second.
 
-Latest `v0.8.4` focus:
+Latest `v0.8.5` focus:
 
-- gameplay-fidelity fixes driven by real playtesting
-- stronger alignment between extracted original data and active runtime behavior
-- continued cleanup of dungeon interactions, combat edge cases, and state persistence
+- playtest and GitHub issue fixes landed directly in the active runtime
+- stronger alignment between extracted original data, wall interactions, and projectile behavior
+- continued cleanup of dungeon interactions, cross-level item transport, and drag-and-drop edge cases
 
 Already in place:
 

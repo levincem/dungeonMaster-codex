@@ -1,6 +1,6 @@
 # Next Phase Plan
 
-Etat revu le `2026-05-04`.
+Etat revu le `2026-05-06`.
 
 Ce document ne doit contenir que des sujets encore ouverts.
 
@@ -53,6 +53,11 @@ Regle simple:
   - les faces multi-serrures rejouent maintenant toute leur sequence compatible en une seule insertion, comme dans les sources originales
   - drag and drop `sol -> deplacement -> relacher` ferme
   - les creatures a distance ne gagnent plus de ligne de vue a travers un coin de mur bloque en diagonale adjacente
+- serie de correctifs playtest / GitHub `LVL 7` / `LVL 8` / HUD
+  - fontaine fixe `LVL 8` de nouveau buvable via le runtime actif
+  - coffre `Green Gem` de `LVL 8` recale a travers teleporter + pit meme quand le niveau cible n'etait pas encore hydrate
+  - projectiles muraux `LVL 7` reappliquent bien leurs degats a la party
+  - drag and drop `sol -> portrait / main champion` referme apres la regression du pipeline de lancer
 
 ## Ordre recommande avant release
 

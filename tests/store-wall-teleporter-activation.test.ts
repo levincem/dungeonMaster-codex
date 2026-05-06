@@ -84,6 +84,84 @@ test('level 2 wall buttons move the Mirror Of Dawn chest when they open a telepo
     }
 });
 
+test('level 8 pressure plate and lever route the hidden Green Gem chest through the gate pit puzzle', async () => {
+    await preloadDungeonData();
+    const { useStore } = await import('../src/engine/store.js');
+    const initialState = enterDungeonForTest(useStore);
+
+    try {
+        useStore.getState().goToLevel(8, [10, 9], 'SOUTH');
+
+        useStore.setState({
+            gamePhase: 'exploration',
+            paused: false,
+            sleeping: false,
+            optionsModalOpen: false,
+            movementCooldown: 0,
+            position: [10, 9],
+            direction: 'SOUTH',
+            party: [],
+            pendingSensorEvents: [],
+            damageEvents: [],
+            spellVisualEvents: [],
+            activeFloorDrag: null,
+            lastMonsterAttackDebug: null,
+        });
+
+        const beforeChest = useStore.getState().floorItems.find((item) =>
+            item.mapIndex === 8 &&
+            item.x === 28 &&
+            item.y === 0 &&
+            item.category === 'Container' &&
+            item.rawName === 'Chest',
+        );
+        assert.ok(beforeChest, 'expected the hidden Green Gem chest on the closed teleporter square');
+        assert.equal(beforeChest.containerContents?.[0]?.rawName, 'Green Gem');
+
+        assert.equal(useStore.getState().openTeleporters.has('8,0,28'), false);
+
+        withAudioStub(() => {
+            useStore.getState().moveForward();
+        });
+
+        const afterPlate = useStore.getState();
+        assert.deepEqual(afterPlate.position, [11, 9]);
+        assert.equal(afterPlate.openTeleporters.has('8,0,28'), true);
+
+        const gateChest = afterPlate.floorItems.find((item) => item.id === beforeChest.id);
+        assert.ok(gateChest, 'expected the same chest after the pressure plate opens the hidden teleporter');
+        assert.deepEqual(
+            gateChest && {
+                mapIndex: gateChest.mapIndex,
+                x: gateChest.x,
+                y: gateChest.y,
+            },
+            { mapIndex: 8, x: 9, y: 7 },
+        );
+
+        withAudioStub(() => {
+            useStore.getState().activateWallSensor(8, 10, 8, 254);
+        });
+
+        const afterLever = useStore.getState();
+        assert.equal(afterLever.openPits.has('8,7,9'), true);
+
+        const fallenChest = afterLever.floorItems.find((item) => item.id === beforeChest.id);
+        assert.ok(fallenChest, 'expected the same chest after the lever opens the pit under it');
+        assert.deepEqual(
+            fallenChest && {
+                mapIndex: fallenChest.mapIndex,
+                x: fallenChest.x,
+                y: fallenChest.y,
+            },
+            { mapIndex: 9, x: 9, y: 7 },
+        );
+        assert.equal(fallenChest?.containerContents?.[0]?.rawName, 'Green Gem');
+    } finally {
+        useStore.setState(initialState, true);
+    }
+});
+
 test('level 3 gold coin wall slot opens the creature-only teleporter from the original walkthrough route', async () => {
     await preloadDungeonData();
     const { useStore } = await import('../src/engine/store.js');

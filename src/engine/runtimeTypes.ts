@@ -110,7 +110,7 @@ export interface Projectile {
     y: number;
     direction: Direction;
     effect: ProjectileEffect;
-    launchedBy?: 'party' | 'creature';
+    launchedBy?: 'party' | 'creature' | 'wall';
     sourceCreatureId?: string;
     targetChampionId?: number;
     spellRunes?: string[];

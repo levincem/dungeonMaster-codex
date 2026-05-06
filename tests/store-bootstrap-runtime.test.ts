@@ -16,6 +16,7 @@ const TEST_OPTIONS: GameOptions = {
 };
 
 test('store bootstrap runtime builds a fresh exploration-ready dungeon state', () => {
+    let requestedDoorLevels: number[] = [];
     const creature: CreatureInstance = {
         id: 'creature-1',
         groupId: 'group-1',
@@ -40,7 +41,10 @@ test('store bootstrap runtime builds a fresh exploration-ready dungeon state', (
     const { buildFreshDungeonState } = createStoreBootstrapRuntime({
         hallStart: [3, 1],
         hallStartDirection: 'SOUTH',
-        buildDefaultOpenDoors: () => new Set<string>(['0,4,2']),
+        buildDefaultOpenDoorsForLevels: (levels) => {
+            requestedDoorLevels = [...levels];
+            return new Set<string>(['0,4,2']);
+        },
         buildDefaultOpenPits: () => new Set<string>(['1,2,3']),
         buildDefaultOpenTeleporters: () => new Set<string>(['4,5,6']),
         buildDefaultVisibleTexts: () => new Set<string>(['txt']),
@@ -55,6 +59,7 @@ test('store bootstrap runtime builds a fresh exploration-ready dungeon state', (
     assert.equal(state.direction, 'SOUTH');
     assert.equal(state.gamePhase, 'exploration');
     assert.deepEqual([...state.hydratedLevels], [0]);
+    assert.deepEqual(requestedDoorLevels, [0]);
     assert.deepEqual([...state.openDoors], ['0,4,2']);
     assert.deepEqual([...state.openPits], ['1,2,3']);
     assert.deepEqual([...state.openTeleporters], ['4,5,6']);
@@ -81,7 +86,7 @@ test('store bootstrap runtime keeps title boot lightweight until world hydration
     const { buildFreshDungeonState } = createStoreBootstrapRuntime({
         hallStart: [3, 1],
         hallStartDirection: 'SOUTH',
-        buildDefaultOpenDoors: () => {
+        buildDefaultOpenDoorsForLevels: () => {
             openDoorsCalls += 1;
             return new Set<string>(['0,4,2']);
         },

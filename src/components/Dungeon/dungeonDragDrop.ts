@@ -2,6 +2,9 @@ export type DungeonDragDropDestination = 'current' | 'front' | 'throw';
 export type DungeonWallDropTarget =
     | { kind: 'altar'; wallX: number; wallY: number; wallFace: 'North' | 'East' | 'South' | 'West' }
     | { kind: 'front-wall' };
+export type HudFloorDragDropTarget =
+    | { kind: 'champion'; championId: number }
+    | { kind: 'hand'; championId: number; slotKey: 'leftHand' | 'rightHand' };
 
 export type DungeonDragDropBand = {
     destination: DungeonDragDropDestination;
@@ -85,4 +88,25 @@ export function resolveDungeonWallDropTarget(element: Element | null): DungeonWa
     }
 
     return { kind: 'front-wall' };
+}
+
+export function resolveHudFloorDragDropTarget(element: Element | null): HudFloorDragDropTarget | null {
+    const handDrop = element?.closest?.('[data-dm-floor-drag-target="hand"]') as { dataset?: Record<string, string | undefined> } | null;
+    if (handDrop?.dataset) {
+        const championId = Number(handDrop.dataset.dmChampionId);
+        const slotKey = handDrop.dataset.dmSlotKey;
+        if (
+            Number.isFinite(championId) &&
+            (slotKey === 'leftHand' || slotKey === 'rightHand')
+        ) {
+            return { kind: 'hand', championId, slotKey };
+        }
+    }
+
+    const championDrop = element?.closest?.('[data-dm-floor-drag-target="champion"]') as { dataset?: Record<string, string | undefined> } | null;
+    if (!championDrop?.dataset) return null;
+
+    const championId = Number(championDrop.dataset.dmChampionId);
+    if (!Number.isFinite(championId)) return null;
+    return { kind: 'champion', championId };
 }
