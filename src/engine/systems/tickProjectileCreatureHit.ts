@@ -38,6 +38,12 @@ type TickProjectileCreatureHitDeps = {
         floorItems: FloorItem[],
         creatureId: string,
     ) => DroppedCreatureState;
+    normalizeCreatureCellsOnTile: (
+        creatures: CreatureInstance[],
+        level: number,
+        x: number,
+        y: number,
+    ) => CreatureInstance[];
     buildDeathDustEvent: (level: number, x: number, y: number) => SpellVisualEvent;
     buildCreatureDamageEvent: (
         level: number,
@@ -93,6 +99,7 @@ export function applyProjectileCreatureHit(
     let damageEvents = state.damageEvents;
     let spellVisualEvents = state.spellVisualEvents;
     let activePoisonClouds = state.activePoisonClouds;
+    let shouldNormalizeImpactTile = false;
 
     const hitDefNonMaterial = deps.isLikelyNonMaterial(hit);
     const passesThroughNonMaterial =
@@ -152,6 +159,7 @@ export function applyProjectileCreatureHit(
                     creatures = dropped.creatures;
                     floorItems = dropped.floorItems;
                     spellVisualEvents = [...spellVisualEvents, deps.buildDeathDustEvent(projectileLevel, x, y)];
+                    shouldNormalizeImpactTile = true;
                 }
             }
         }
@@ -235,7 +243,12 @@ export function applyProjectileCreatureHit(
             creatures = dropped.creatures;
             floorItems = dropped.floorItems;
             spellVisualEvents = [...spellVisualEvents, deps.buildDeathDustEvent(projectileLevel, x, y)];
+            shouldNormalizeImpactTile = true;
         }
+    }
+
+    if (shouldNormalizeImpactTile) {
+        creatures = deps.normalizeCreatureCellsOnTile(creatures, projectileLevel, x, y);
     }
 
     if (totalDamage > 0) {

@@ -75,7 +75,7 @@ function createVitals(): ChampionVitals {
     };
 }
 
-function createFloorItem(): FloorItem {
+function createFloorItem(overrides: Partial<FloorItem> = {}): FloorItem {
     return {
         id: 'item-1',
         category: 'Weapon',
@@ -84,10 +84,11 @@ function createFloorItem(): FloorItem {
         x: 5,
         y: 6,
         tilePos: 'North',
+        ...overrides,
     };
 }
 
-function createCreature(): CreatureInstance {
+function createCreature(overrides: Partial<CreatureInstance> = {}): CreatureInstance {
     return {
         id: 'creature-1',
         groupId: 'group-1',
@@ -98,6 +99,7 @@ function createCreature(): CreatureInstance {
         currentHP: 42,
         alive: true,
         cell: 'frontLeft',
+        ...overrides,
     };
 }
 
@@ -371,6 +373,85 @@ test('buildPersistedSaveData compacts dead creatures and their timers out of sav
     }
 });
 
+test('buildPersistedSaveData normalizes living creature cells before serializing', () => {
+    const now = 32_000;
+    const originalNow = Date.now;
+    Date.now = () => now;
+
+    try {
+        const state = createState(now);
+        state.creatures = [
+            { ...createCreature(), id: 'creature-a', x: 4, y: 5, cell: 'frontLeft' },
+            { ...createCreature(), id: 'creature-b', x: 4, y: 5, cell: 'backLeft' },
+            { ...createCreature(), id: 'creature-c', x: 4, y: 5, cell: 'backRight' },
+        ];
+
+        const persisted = buildPersistedSaveData(state, createRuntimeMaps(now));
+
+        assert.deepEqual(
+            persisted.creatures.map((creature) => [creature.id, creature.cell]),
+            [
+                ['creature-a', 'frontLeft'],
+                ['creature-b', 'frontRight'],
+                ['creature-c', 'backLeft'],
+            ],
+        );
+    } finally {
+        Date.now = originalNow;
+    }
+});
+
+test('buildPersistedSaveData removes duplicate floor item ids while preserving the progressed instance', () => {
+    const now = 32_500;
+    const originalNow = Date.now;
+    Date.now = () => now;
+
+    try {
+        const state = createState(now);
+        state.floorItems = [
+            createFloorItem({ id: '9_3_12_Misc_81', category: 'Misc', typeId: 10, mapIndex: 9, x: 3, y: 12 }),
+            createFloorItem({ id: '9_3_12_Misc_81', category: 'Misc', typeId: 10, mapIndex: 9, x: 5, y: 12 }),
+        ];
+
+        const persisted = buildPersistedSaveData(state, createRuntimeMaps(now));
+
+        assert.deepEqual(
+            persisted.floorItems.map((item) => ({ id: item.id, mapIndex: item.mapIndex, x: item.x, y: item.y })),
+            [{ id: '9_3_12_Misc_81', mapIndex: 9, x: 5, y: 12 }],
+        );
+    } finally {
+        Date.now = originalNow;
+    }
+});
+
+test('buildPersistedSaveData removes duplicate creature ids while preserving the progressed instance', () => {
+    const now = 32_600;
+    const originalNow = Date.now;
+    Date.now = () => now;
+
+    try {
+        const state = createState(now);
+        state.creatures = [
+            createCreature({ id: '9_13_24_100', mapIndex: 9, x: 13, y: 24, cell: 'center' }),
+            createCreature({ id: '9_13_24_100', mapIndex: 9, x: 11, y: 25, cell: 'center' }),
+        ];
+
+        const persisted = buildPersistedSaveData(state, createRuntimeMaps(now));
+
+        assert.deepEqual(
+            persisted.creatures.map((creature) => ({
+                id: creature.id,
+                mapIndex: creature.mapIndex,
+                x: creature.x,
+                y: creature.y,
+            })),
+            [{ id: '9_13_24_100', mapIndex: 9, x: 11, y: 25 }],
+        );
+    } finally {
+        Date.now = originalNow;
+    }
+});
+
 test('inspectPersistedSaveData rejects saves with invalid integrity', () => {
     const raw = JSON.stringify({
         version: 2,
@@ -528,6 +609,89 @@ test('persisted saves round-trip back into the same dungeon state', () => {
 
         assert.deepEqual([...hydrated.hydratedLevels], [0, 1]);
         assert.deepEqual(roundTripped, expected);
+    } finally {
+        Date.now = originalNow;
+    }
+});
+
+test('hydratePersistedGameState normalizes persisted creature cells for multi-creature tiles', () => {
+    const now = 30_500;
+    const originalNow = Date.now;
+    Date.now = () => now;
+
+    try {
+        const state = createState(now);
+        const runtime = createRuntimeMaps(now);
+        const persisted = buildPersistedSaveData(state, runtime);
+        persisted.creatures = [
+            { ...createCreature(), id: 'creature-a', x: 4, y: 5, cell: 'backLeft' },
+            { ...createCreature(), id: 'creature-b', x: 4, y: 5, cell: 'backRight' },
+        ];
+
+        const hydrated = hydratePersistedGameState(persisted, now);
+
+        assert.deepEqual(
+            hydrated.creatures.map((creature) => [creature.id, creature.cell]),
+            [
+                ['creature-a', 'frontLeft'],
+                ['creature-b', 'frontRight'],
+            ],
+        );
+    } finally {
+        Date.now = originalNow;
+    }
+});
+
+test('hydratePersistedGameState removes duplicate floor item ids while preserving the progressed instance', () => {
+    const now = 30_750;
+    const originalNow = Date.now;
+    Date.now = () => now;
+
+    try {
+        const state = createState(now);
+        const runtime = createRuntimeMaps(now);
+        const persisted = buildPersistedSaveData(state, runtime);
+        persisted.floorItems = [
+            createFloorItem({ id: '9_3_12_Misc_81', category: 'Misc', typeId: 10, mapIndex: 9, x: 3, y: 12 }),
+            createFloorItem({ id: '9_3_12_Misc_81', category: 'Misc', typeId: 10, mapIndex: 9, x: 5, y: 12 }),
+        ];
+
+        const hydrated = hydratePersistedGameState(persisted, now);
+
+        assert.deepEqual(
+            hydrated.floorItems.map((item) => ({ id: item.id, mapIndex: item.mapIndex, x: item.x, y: item.y })),
+            [{ id: '9_3_12_Misc_81', mapIndex: 9, x: 5, y: 12 }],
+        );
+    } finally {
+        Date.now = originalNow;
+    }
+});
+
+test('hydratePersistedGameState removes duplicate creature ids while preserving the progressed instance', () => {
+    const now = 30_800;
+    const originalNow = Date.now;
+    Date.now = () => now;
+
+    try {
+        const state = createState(now);
+        const runtime = createRuntimeMaps(now);
+        const persisted = buildPersistedSaveData(state, runtime);
+        persisted.creatures = [
+            createCreature({ id: '9_13_24_100', mapIndex: 9, x: 13, y: 24, cell: 'center' }),
+            createCreature({ id: '9_13_24_100', mapIndex: 9, x: 11, y: 25, cell: 'center' }),
+        ];
+
+        const hydrated = hydratePersistedGameState(persisted, now);
+
+        assert.deepEqual(
+            hydrated.creatures.map((creature) => ({
+                id: creature.id,
+                mapIndex: creature.mapIndex,
+                x: creature.x,
+                y: creature.y,
+            })),
+            [{ id: '9_13_24_100', mapIndex: 9, x: 11, y: 25 }],
+        );
     } finally {
         Date.now = originalNow;
     }

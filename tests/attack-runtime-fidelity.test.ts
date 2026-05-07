@@ -200,6 +200,7 @@ function createDeps<TState extends ReturnType<typeof createState>>(state: TState
         clearCreatureControlStatuses: () => {},
         getEndgameMessagesForMap: () => [],
         dropCreatureCarriedItems: (creatures: CreatureInstance[], floorItems: FloorItem[]) => ({ creatures, floorItems }),
+        normalizeCreatureCellsOnTile: (creatures: CreatureInstance[]) => creatures,
         buildCreatureDamageEvent: (level: number, x: number, y: number, amount: number, creatureId?: string) => ({
             id: 'damage',
             level,

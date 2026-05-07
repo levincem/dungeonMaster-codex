@@ -32,7 +32,7 @@ import {
 } from './systems/gameStats';
 import type { EquipSlotKey } from '../types/items';
 import type { Champion } from '../data/champions';
-import { CHAMPION_BY_ID } from '../data/champions';
+import { getChampionById } from '../data/champions';
 import { buildChampionStarterLoadout } from '../data/championStarterItems';
 import { CREATURE_TYPES } from '../data/creatures';
 import {
@@ -1000,11 +1000,56 @@ export function getSelfRevealingWallFace(level: number, x: number, y: number): C
     return getSelfRevealingWallSensor(getMap(level).tiles[y]?.[x])?.tilePos ?? null;
 }
 
-export const MIRROR_WALL_MAP: Map<string, Champion> = new Map(
-    getChampionStartPositions().map(pos => [`${pos.mapIndex},${pos.x},${pos.y}`, CHAMPION_BY_ID[pos.portraitId]])
+let mirrorWallMapCache: Map<string, Champion> | null = null;
+let mirrorFaceMapCache: Map<string, CardinalDir> | null = null;
+
+const mirrorWallMapTarget = new Map<string, Champion>();
+const mirrorFaceMapTarget = new Map<string, CardinalDir>();
+
+function replaceMapContents<K, V>(target: Map<K, V>, source: Map<K, V>): void {
+    target.clear();
+    source.forEach((value, key) => target.set(key, value));
+}
+
+function createHydratingMapProxy<K, V>(target: Map<K, V>, hydrate: () => void): Map<K, V> {
+    return new Proxy(target, {
+        get(currentTarget, prop) {
+            hydrate();
+            const value = Reflect.get(currentTarget, prop, currentTarget);
+            return typeof value === 'function' ? value.bind(currentTarget) : value;
+        },
+    });
+}
+
+function ensureMirrorMapsHydrated(): void {
+    if (mirrorWallMapCache && mirrorFaceMapCache) return;
+
+    const startPositions = getChampionStartPositions();
+    const wallEntries = startPositions.map((pos) => {
+        const champion = getChampionById(pos.portraitId);
+        if (!champion) {
+            throw new Error(`Champion ${pos.portraitId} missing from runtime roster.`);
+        }
+        return [`${pos.mapIndex},${pos.x},${pos.y}`, champion] as const;
+    });
+    const faceEntries = startPositions.map((pos) => [
+        `${pos.mapIndex},${pos.x},${pos.y}`,
+        pos.wallFace,
+    ] as const);
+
+    mirrorWallMapCache = new Map(wallEntries);
+    mirrorFaceMapCache = new Map(faceEntries);
+    replaceMapContents(mirrorWallMapTarget, mirrorWallMapCache);
+    replaceMapContents(mirrorFaceMapTarget, mirrorFaceMapCache);
+}
+
+export const MIRROR_WALL_MAP: Map<string, Champion> = createHydratingMapProxy(
+    mirrorWallMapTarget,
+    ensureMirrorMapsHydrated,
 );
-export const MIRROR_FACE_MAP: Map<string, CardinalDir> = new Map(
-    getChampionStartPositions().map(pos => [`${pos.mapIndex},${pos.x},${pos.y}`, pos.wallFace])
+export const MIRROR_FACE_MAP: Map<string, CardinalDir> = createHydratingMapProxy(
+    mirrorFaceMapTarget,
+    ensureMirrorMapsHydrated,
 );
 
 // ─── Champion death helper ────────────────────────────────────────────────────
@@ -2126,6 +2171,7 @@ const runStoreAttackFrontAction = createStoreAttackFrontAction<GameState>({
     getEndgameMessagesForMap,
     dropCreatureCarriedItems: (creatures, floorItems, creatureId) =>
         dropCreatureCarriedItemsRuntime(creatures, floorItems, creatureId, randomInt),
+    normalizeCreatureCellsOnTile,
     buildCreatureDamageEvent,
     buildDeathDustEvent,
     getFluxcageExpiresAt: (creatureId) => creatureFluxcageUntil.get(creatureId) ?? 0,
@@ -2534,6 +2580,7 @@ const runStoreTickSpellsAction = (state: GameState, now: number) => {
             isLikelyNonMaterial,
             dropCreatureCarriedItems: (creatures, floorItems, creatureId) =>
                 dropCreatureCarriedItemsRuntime(creatures, floorItems, creatureId, randomInt),
+            normalizeCreatureCellsOnTile,
             buildDeathDustEvent,
             buildCreatureDamageEvent,
             creatureAttackWindows,
@@ -3101,6 +3148,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         applyStatsToStateTransitionPatch(state, buildKillCreaturePatch(state, id, {
             dropCreatureCarriedItems: (creatures, floorItems, creatureId) =>
                 dropCreatureCarriedItemsRuntime(creatures, floorItems, creatureId, randomInt),
+            normalizeCreatureCellsOnTile,
         }), 'other') as GameState | Partial<GameState>
     ),
 
@@ -3432,7 +3480,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         const patch = buildStoreDrinkFromFountainPatch(state, championId, storeDrinkFromFountainRuntimeDeps);
         if (!patch) return;
         set(applyStatsDeltaToPatch(state, patch, { exploration: { fountainDrinks: 1 } }) as Partial<GameState>);
-        playFountainWater();
+        playSwallowing();
     },
 
     fillWaterContainer: (championId, itemId) => {
@@ -3573,6 +3621,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                                 buildCreatureDamageEvent,
                                 dropCreatureCarriedItems: (creatures, floorItems, creatureId) =>
                                     dropCreatureCarriedItemsRuntime(creatures, floorItems, creatureId, randomInt),
+                                normalizeCreatureCellsOnTile,
                                 buildDeathDustEvent,
                                 playWallBump,
                             },
@@ -3654,6 +3703,7 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                         buildCreatureDamageEvent,
                         dropCreatureCarriedItems: (creatures, floorItems, creatureId) =>
                             dropCreatureCarriedItemsRuntime(creatures, floorItems, creatureId, randomInt),
+                        normalizeCreatureCellsOnTile,
                         buildDeathDustEvent,
                         playWallBump,
                     },

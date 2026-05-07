@@ -29,6 +29,12 @@ type FuseDeps<TMessage, TDamageEvent, TSpellVisualEvent> = {
         floorItems: FloorItem[],
         creatureId: string,
     ) => { creatures: CreatureInstance[]; floorItems: FloorItem[] };
+    normalizeCreatureCellsOnTile: (
+        creatures: CreatureInstance[],
+        level: number,
+        x: number,
+        y: number,
+    ) => CreatureInstance[];
     buildCreatureDamageEvent: (
         level: number,
         x: number,
@@ -140,7 +146,12 @@ export function buildFuseActionPatch<
     let newFloorItems = state.floorItems;
     if (killed) {
         const dropped = deps.dropCreatureCarriedItems(newCreatures, newFloorItems, state.target.id);
-        newCreatures = dropped.creatures;
+        newCreatures = deps.normalizeCreatureCellsOnTile(
+            dropped.creatures,
+            state.target.mapIndex,
+            state.target.x,
+            state.target.y,
+        );
         newFloorItems = dropped.floorItems;
     }
     const damageEvent = deps.buildCreatureDamageEvent(

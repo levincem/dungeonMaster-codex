@@ -76,6 +76,12 @@ type UtilityAttackDeps<
         floorItems: FloorItem[],
         creatureId: string,
     ) => { creatures: CreatureInstance[]; floorItems: FloorItem[] };
+    normalizeCreatureCellsOnTile: (
+        creatures: CreatureInstance[],
+        level: number,
+        x: number,
+        y: number,
+    ) => CreatureInstance[];
     buildCreatureDamageEvent: (
         level: number,
         x: number,
@@ -220,6 +226,7 @@ export function buildSupportedUtilityAttackPatch<
                     buildAttackResultMessage: deps.buildAttackResultMessage,
                     getEndgameMessagesForMap: deps.getEndgameMessagesForMap,
                     dropCreatureCarriedItems: deps.dropCreatureCarriedItems,
+                    normalizeCreatureCellsOnTile: deps.normalizeCreatureCellsOnTile,
                     buildCreatureDamageEvent: deps.buildCreatureDamageEvent,
                     buildDeathDustEvent: deps.buildDeathDustEvent,
                 },

@@ -84,6 +84,7 @@ const ATTACK_SOUND_BY_ORDINAL: Record<number, string> = {
 
 // ─── Pool ─────────────────────────────────────────────────────────────────────
 const pool: Record<string, HTMLAudioElement[]> = {};
+const timedLoopPool: Record<string, { audio: HTMLAudioElement; stopTimer: ReturnType<typeof setTimeout> | null }> = {};
 
 function getOrCreate(name: string): HTMLAudioElement[] {
     if (!pool[name]) {
@@ -96,6 +97,18 @@ function getOrCreate(name: string): HTMLAudioElement[] {
         ];
     }
     return pool[name];
+}
+
+function getOrCreateTimedLoop(name: string): { audio: HTMLAudioElement; stopTimer: ReturnType<typeof setTimeout> | null } | null {
+    if (!timedLoopPool[name]) {
+        const file = FILES[name];
+        if (!file) return null;
+        timedLoopPool[name] = {
+            audio: Object.assign(new Audio(soundsPath(file)), { preload: 'auto', loop: true }),
+            stopTimer: null,
+        };
+    }
+    return timedLoopPool[name];
 }
 
 /** Eagerly preload all sounds (call once at app start). */
@@ -159,9 +172,31 @@ export function playPlate(): void { play('plate',     0.80); }
 export function playDoor(): void { play('door', 0.65); }
 export function playDoorMotion(durationMs = 1000, volume = 0.65): void {
     if (durationMs <= 0 || volume <= 0) return;
-    // The door clip already carries the motion envelope; a direct one-shot
-    // avoids browsers occasionally swallowing the looped start.
-    play('door', volume);
+    const playback = getOrCreateTimedLoop('door');
+    if (!playback) return;
+
+    if (playback.stopTimer) {
+        clearTimeout(playback.stopTimer);
+        playback.stopTimer = null;
+    }
+
+    const audio = playback.audio;
+    try {
+        audio.loop = true;
+        audio.volume = Math.max(0, Math.min(1, volume));
+        audio.currentTime = 0;
+        audio.play().catch(() => { /* autoplay policy */ });
+        for (const fn of soundListeners) fn('door', FILES.door);
+    } catch { /* ignore */ }
+
+    playback.stopTimer = setTimeout(() => {
+        try {
+            audio.pause();
+            audio.currentTime = 0;
+            audio.loop = false;
+        } catch { /* ignore */ }
+        playback.stopTimer = null;
+    }, durationMs);
 }
 export function playTeleport(): void { play('teleport', 0.70); }
 export function playWallBump(): void { play('wall_bump', 0.70); }

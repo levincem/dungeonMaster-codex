@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { preloadDungeonData } from '../src/data/dungeonData.js';
-import { onSoundPlayed } from '../src/engine/sounds.js';
+import { preloadOriginalWallOverlayMapData } from '../src/data/originalWallOverlayData.js';
+import { onSoundPlayed, playDoorMotion } from '../src/engine/sounds.js';
 import { resetExternalCreatureRuntimeState } from '../src/engine/systems/storeCreatureRuntime.js';
 
 function enterDungeonForTest<TState extends { enterDungeon: () => void }>(
@@ -42,6 +43,57 @@ function withAudioStub<T>(run: () => T): T {
         Object.assign(globalThis, { Audio: originalAudio, window: originalWindow });
     }
 }
+
+test('playDoorMotion keeps the door clip active until the requested duration elapses', async () => {
+    const originalAudio = globalThis.Audio;
+    const originalWindow = (globalThis as typeof globalThis & { window?: typeof globalThis }).window;
+    const instances: AudioStub[] = [];
+
+    class AudioStub {
+        currentTime = 0;
+        volume = 1;
+        playbackRate = 1;
+        muted = false;
+        preload = 'auto';
+        src = '';
+        paused = true;
+        ended = false;
+        loop = false;
+
+        constructor() {
+            instances.push(this);
+        }
+
+        play() {
+            this.paused = false;
+            this.ended = false;
+            return Promise.resolve();
+        }
+
+        pause() {
+            this.paused = true;
+            return undefined;
+        }
+
+        cloneNode() { return new AudioStub(); }
+    }
+
+    Object.assign(globalThis, { Audio: AudioStub, window: globalThis });
+    try {
+        playDoorMotion(20, 0.5);
+        const audio = instances[0];
+        assert.ok(audio);
+        assert.equal(audio.loop, true);
+        assert.equal(audio.paused, false);
+
+        await new Promise((resolve) => setTimeout(resolve, 35));
+
+        assert.equal(audio.paused, true);
+        assert.equal(audio.loop, false);
+    } finally {
+        Object.assign(globalThis, { Audio: originalAudio, window: originalWindow });
+    }
+});
 
 test('adjacent button doors still emit the door sound cue when toggled', async () => {
     await preloadDungeonData();
@@ -84,8 +136,9 @@ test('adjacent button doors still emit the door sound cue when toggled', async (
     }
 });
 
-test('drinking from a fountain emits the dedicated fountain water cue', async () => {
+test('drinking from a fountain emits the swallowing cue', async () => {
     await preloadDungeonData();
+    await preloadOriginalWallOverlayMapData(8);
     const { useStore } = await import('../src/engine/store.js');
     const initialState = enterDungeonForTest(useStore);
     const heard: string[] = [];
@@ -143,7 +196,7 @@ test('drinking from a fountain emits the dedicated fountain water cue', async ()
             useStore.getState().drinkFromFountain(1);
         });
 
-        assert.deepEqual(heard, ['fountain_water']);
+        assert.deepEqual(heard, ['swallowing']);
     } finally {
         Date.now = originalDateNow;
         stopListening();

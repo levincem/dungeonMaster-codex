@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import type { Champion } from '../src/types/champion.js';
 import type { ChampionEquipment, CreatureInstance, FloorItem } from '../src/types/game.js';
 import type { ChampionVitals, GameOptions } from '../src/engine/runtimeTypes.js';
+import { normalizeCreatureCellsOnTile as normalizeCreatureCellsOnTileSystem } from '../src/engine/systems/creatureTileState.js';
 import {
     buildKillCreaturePatch,
     buildPruneDeadCreaturesPatch,
@@ -12,6 +13,9 @@ import {
     buildToggleSleepPatch,
     buildWakeUpPatch,
 } from '../src/engine/systems/storeStateRuntime.js';
+
+const normalizeCreatureCellsOnTile = (creatures: CreatureInstance[], level: number, x: number, y: number) =>
+    normalizeCreatureCellsOnTileSystem(creatures, level, x, y, () => 4);
 
 function createChampion(id: number): Champion {
     return {
@@ -112,8 +116,9 @@ test('buildSetGameOptionsPatch merges partial keybindings into the existing opti
 test('buildKillCreaturePatch marks the creature dead and returns dropped items', () => {
     const state = {
         creatures: [
-            { id: 'creature-1', alive: true } as CreatureInstance,
-            { id: 'creature-2', alive: true } as CreatureInstance,
+            { id: 'creature-1', alive: true, mapIndex: 0, x: 4, y: 5, typeId: 1, cell: 'frontLeft' } as CreatureInstance,
+            { id: 'creature-2', alive: true, mapIndex: 0, x: 4, y: 5, typeId: 1, cell: 'backLeft' } as CreatureInstance,
+            { id: 'creature-3', alive: true, mapIndex: 0, x: 4, y: 5, typeId: 1, cell: 'backRight' } as CreatureInstance,
         ],
         floorItems: [] as FloorItem[],
     };
@@ -126,9 +131,18 @@ test('buildKillCreaturePatch marks the creature dead and returns dropped items',
                 floorItems: [{ id: 'loot', category: 'Weapon', typeId: 1, mapIndex: 0, x: 0, y: 0, tilePos: 'North' }],
             };
         },
+        normalizeCreatureCellsOnTile,
     });
 
     assert.equal(patch.creatures[0]?.alive, false);
+    assert.deepEqual(
+        patch.creatures.map((creature) => [creature.id, creature.alive, creature.cell]),
+        [
+            ['creature-1', false, 'frontLeft'],
+            ['creature-2', true, 'frontLeft'],
+            ['creature-3', true, 'frontRight'],
+        ],
+    );
     assert.deepEqual(patch.floorItems, [
         { id: 'loot', category: 'Weapon', typeId: 1, mapIndex: 0, x: 0, y: 0, tilePos: 'North' },
     ]);

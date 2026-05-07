@@ -79,9 +79,9 @@ type OpenedPitLoopDeps = {
         >
     > | null;
     buildLevelHydrationPatch: (
-        state: Pick<OpenedPitLoopState, 'hydratedLevels' | 'creatures' | 'floorItems'>,
+        state: Pick<OpenedPitLoopState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'>,
         level: number,
-    ) => Partial<Pick<OpenedPitLoopState, 'creatures' | 'floorItems'>> | null;
+    ) => Partial<Pick<OpenedPitLoopState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'>> | null;
     applyCreaturesStandingOnOpenPit: (
         state: Pick<
             OpenedPitLoopState,
@@ -99,7 +99,7 @@ type OpenedPitLoopDeps = {
         level: number,
         x: number,
         y: number,
-    ) => Partial<Pick<OpenedPitLoopState, 'creatures' | 'floorItems' | 'damageEvents' | 'spellVisualEvents'>> | null;
+    ) => Partial<Pick<OpenedPitLoopState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'damageEvents' | 'spellVisualEvents' | 'openDoors'>> | null;
     applyFloorItemsStandingOnOpenPit: (
         state: Pick<
             OpenedPitLoopState,
@@ -113,15 +113,17 @@ type OpenedPitLoopDeps = {
         level: number,
         x: number,
         y: number,
-    ) => Partial<Pick<OpenedPitLoopState, 'creatures' | 'floorItems'>> | null;
+    ) => Partial<Pick<OpenedPitLoopState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'>> | null;
 };
 
 type OpenedPitLoopResult = Pick<
     OpenedPitLoopState,
     | 'level'
     | 'position'
+    | 'hydratedLevels'
     | 'creatures'
     | 'floorItems'
+    | 'openDoors'
     | 'championVitals'
     | 'party'
     | 'championInventories'
@@ -139,8 +141,10 @@ export function applyOpenedPitEffects(
 ): OpenedPitLoopResult {
     let level = state.level;
     let position = state.position;
+    let hydratedLevels = state.hydratedLevels;
     let creatures = state.creatures;
     let floorItems = state.floorItems;
+    let openDoors = state.openDoors;
     let championVitals = state.championVitals;
     let party = state.party;
     let championInventories = state.championInventories;
@@ -170,15 +174,18 @@ export function applyOpenedPitEffects(
             if (landing) {
                 const hydrationPatch = deps.buildLevelHydrationPatch(
                     {
-                        hydratedLevels: state.hydratedLevels,
+                        hydratedLevels,
                         creatures,
                         floorItems,
+                        openDoors,
                     },
                     landing.level,
                 );
                 if (hydrationPatch) {
+                    hydratedLevels = hydrationPatch.hydratedLevels ?? hydratedLevels;
                     creatures = hydrationPatch.creatures ?? creatures;
                     floorItems = hydrationPatch.floorItems ?? floorItems;
+                    openDoors = hydrationPatch.openDoors ?? openDoors;
                 }
                 const telefrag = deps.applyPartyTelefragAtSquare(
                     { creatures, floorItems, spellVisualEvents },
@@ -230,10 +237,10 @@ export function applyOpenedPitEffects(
 
         const floorItemFallPatch = deps.applyFloorItemsStandingOnOpenPit(
             {
-                hydratedLevels: state.hydratedLevels,
+                hydratedLevels,
                 creatures,
                 floorItems,
-                openDoors: state.openDoors,
+                openDoors,
                 openWalls: state.openWalls,
                 openPits: state.openPits,
             },
@@ -242,8 +249,10 @@ export function applyOpenedPitEffects(
             pitY,
         );
         if (floorItemFallPatch) {
+            hydratedLevels = floorItemFallPatch.hydratedLevels ?? hydratedLevels;
             creatures = floorItemFallPatch.creatures ?? creatures;
             floorItems = floorItemFallPatch.floorItems ?? floorItems;
+            openDoors = floorItemFallPatch.openDoors ?? openDoors;
             changed = true;
         }
 
@@ -251,12 +260,12 @@ export function applyOpenedPitEffects(
             {
                 level,
                 position,
-                hydratedLevels: state.hydratedLevels,
+                hydratedLevels,
                 creatures,
                 floorItems,
                 damageEvents,
                 spellVisualEvents,
-                openDoors: state.openDoors,
+                openDoors,
                 openWalls: state.openWalls,
                 openPits: state.openPits,
             },
@@ -265,8 +274,10 @@ export function applyOpenedPitEffects(
             pitY,
         );
         if (creatureFallPatch) {
+            hydratedLevels = creatureFallPatch.hydratedLevels ?? hydratedLevels;
             creatures = creatureFallPatch.creatures ?? creatures;
             floorItems = creatureFallPatch.floorItems ?? floorItems;
+            openDoors = creatureFallPatch.openDoors ?? openDoors;
             damageEvents = creatureFallPatch.damageEvents ?? damageEvents;
             spellVisualEvents = creatureFallPatch.spellVisualEvents ?? spellVisualEvents;
             changed = true;
@@ -276,8 +287,10 @@ export function applyOpenedPitEffects(
     return {
         level,
         position,
+        hydratedLevels,
         creatures,
         floorItems,
+        openDoors,
         championVitals,
         party,
         championInventories,

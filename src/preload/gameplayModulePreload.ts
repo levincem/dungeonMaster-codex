@@ -37,15 +37,16 @@ export function preloadGameplayRenderCoreModules(): Promise<void> {
 
 export function preloadGameplayRenderModules(): Promise<void> {
     if (!gameplayRenderFullPromise) {
-        gameplayRenderFullPromise = Promise.all([
-            preloadGameplayRenderCoreModules(),
-            import('../components/Dungeon/PhotonsFireball'),
-            import('../components/UI/MirrorPopup'),
-            import('../components/UI/ChampionSheet'),
-            import('../components/UI/VictoryScreen'),
-        ]).then(() => {
-            gameplayRenderFullReady = true;
-        });
+        gameplayRenderFullPromise = preloadGameplayRenderCoreModules()
+            .then(() => Promise.all([
+                import('../components/Dungeon/PhotonsFireball'),
+                import('../components/UI/MirrorPopup'),
+                import('../components/UI/ChampionSheet'),
+                import('../components/UI/VictoryScreen'),
+            ]))
+            .then(() => {
+                gameplayRenderFullReady = true;
+            });
     }
 
     return gameplayRenderFullPromise!;

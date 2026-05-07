@@ -244,3 +244,34 @@ test('applyOpenedPitEffects also drops floor items through newly opened pit squa
         ],
     );
 });
+
+test('applyOpenedPitEffects reuses hydrated levels after a party fall within the same loop', () => {
+    const seenHydratedLevels: number[][] = [];
+
+    applyOpenedPitEffects(
+        createState({
+            openPits: new Set<string>(['0,4,5', '2,5,4']),
+        }),
+        ['0,4,5', '2,5,4'],
+        {
+            resolvePitLanding: () => ({ level: 1, x: 7, y: 8 }),
+            applyPartyTelefragAtSquare: () => null,
+            buildLevelHydrationPatch: (state) => ({
+                hydratedLevels: new Set<number>([...state.hydratedLevels, 1]),
+                creatures: state.creatures,
+                floorItems: state.floorItems,
+            }),
+            applyPartyFallImpactDamage: () => null,
+            applyCreaturesStandingOnOpenPit: (state) => {
+                seenHydratedLevels.push([...state.hydratedLevels]);
+                return null;
+            },
+            applyFloorItemsStandingOnOpenPit: (state) => {
+                seenHydratedLevels.push([...state.hydratedLevels]);
+                return null;
+            },
+        },
+    );
+
+    assert.deepEqual(seenHydratedLevels, [[0, 1], [0, 1], [0, 1], [0, 1]]);
+});

@@ -15,6 +15,13 @@ Regle simple:
 - un sujet `ouvert` doit dire explicitement ce qui manque encore
 - on n'utilise plus de statuts flous du type `entamee` sans dire `pourquoi ce n'est pas fini`
 
+Regle de correction:
+
+- on ne force pas un comportement attendu par une couche de contournement si la cause du bug n'est pas encore identifiee
+- d'abord reproduire, borner et expliquer le bug
+- ensuite appliquer le plus petit correctif qui supprime la cause
+- eviter les couches de correctifs sur correctifs qui masquent le symptome sans expliquer la regression
+
 ## Ferme recemment
 
 - `GROUP / ACTIVE_GROUP / generateurs`

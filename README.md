@@ -6,17 +6,17 @@ Goal: rebuild the original dungeon, systems, and feel as faithfully as possible 
 
 Live build: [dungeon-master.fr](https://dungeon-master.fr/)
 
-Current local version: `v0.8.5`
+Current local version: `v0.8.6`
 
 ## Status
 
 This is now a desktop-first beta focused on gameplay validation from the early dungeon through endgame, while keeping PC DOS fidelity first and presentation polish second.
 
-Latest `v0.8.5` focus:
+Latest `v0.8.6` focus:
 
-- playtest and GitHub issue fixes landed directly in the active runtime
-- stronger alignment between extracted original data, wall interactions, and projectile behavior
-- continued cleanup of dungeon interactions, cross-level item transport, and drag-and-drop edge cases
+- runtime fixes for playtest and GitHub issues across level transitions, saves, and teleporter chains
+- stronger recovery and persistence handling for corrupted runtime state discovered during long-play tests
+- continued cleanup of dungeon interactions, audio feedback, and transport edge cases
 
 Already in place:
 
@@ -106,6 +106,10 @@ The fans and preservation community:
 - the [Dungeon Master Encyclopaedia](http://dmweb.free.fr/)
 - the [ReDMCSB](https://github.com/gondur/ReDMCSB_Release2) project by Christophe Fontanel
 - the Swoosh Construction Kit ecosystem and related reverse-engineering tools
+
+Playtesting help:
+
+- [Hydro338](https://github.com/Hydro338) for playtesting, bug reports, and ongoing feedback
 
 ## Intent
 

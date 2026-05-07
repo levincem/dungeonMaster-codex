@@ -32,6 +32,11 @@ Lecture honnete du projet aujourd'hui:
 - les restes ouverts sont surtout du playtest cible, des cas rares, quelques ecarts de presentation, un petit reliquat structurel borne autour de `ACTIVE_GROUP`, et de l'optimisation
 - on n'est pas encore en `release candidate`, mais on n'est plus dans une logique d'alpha fragile
 
+Regle de travail retenue pour les regressions:
+
+- d'abord trouver la cause, ensuite corriger
+- eviter les couches de contournement qui forcent un comportement sans expliquer le bug source
+
 Validation locale la plus recente:
 
 - `npm.cmd test` : `859` tests verts

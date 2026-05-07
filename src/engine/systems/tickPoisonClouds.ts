@@ -79,6 +79,12 @@ type TickPoisonCloudDeps = {
         floorItems: FloorItem[],
         creatureId: string,
     ) => DroppedCreatureState;
+    normalizeCreatureCellsOnTile: (
+        creatures: CreatureInstance[],
+        level: number,
+        x: number,
+        y: number,
+    ) => CreatureInstance[];
     buildDeathDustEvent: (level: number, x: number, y: number) => SpellVisualEvent;
 };
 
@@ -194,7 +200,12 @@ export function tickPoisonClouds(
                         ];
                         if (killed) {
                             const dropped = deps.dropCreatureCarriedItems(creatures, floorItems, hit.id);
-                            creatures = dropped.creatures;
+                            creatures = deps.normalizeCreatureCellsOnTile(
+                                dropped.creatures,
+                                currentCloud.level,
+                                currentCloud.x,
+                                currentCloud.y,
+                            );
                             floorItems = dropped.floorItems;
                             spellVisualEvents = [
                                 ...spellVisualEvents,

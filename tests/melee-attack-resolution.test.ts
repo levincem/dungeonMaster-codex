@@ -10,6 +10,7 @@ import {
     type ChampionXP,
     type SkillKey,
 } from '../src/data/skillProgression.js';
+import { normalizeCreatureCellsOnTile as normalizeCreatureCellsOnTileSystem } from '../src/engine/systems/creatureTileState.js';
 import { buildMeleeAttackResolutionPatch } from '../src/engine/systems/meleeAttackResolution.js';
 
 function createChampion(id: number): Champion {
@@ -193,6 +194,8 @@ function createXpDeps() {
             ts: 1,
             kind: 'death' as const,
         }),
+        normalizeCreatureCellsOnTile: (creatures: CreatureInstance[], level: number, x: number, y: number) =>
+            normalizeCreatureCellsOnTileSystem(creatures, level, x, y, () => 4),
     };
 }
 
@@ -240,4 +243,31 @@ test('buildMeleeAttackResolutionPatch drops loot and adds death visuals on kill 
     assert.equal(patch.championXP[1]?.swing, 8);
     assert.equal(patch.championXP[1]?.fighter, 0);
     assert.equal(patch.championXP[2]?.fighter, 0);
+});
+
+test('buildMeleeAttackResolutionPatch normalizes surviving group cells after a kill', () => {
+    const state = createState();
+    const target = createCreature({ id: 'target-a', currentHP: 20, cell: 'frontLeft' });
+    const survivorA = createCreature({ id: 'target-b', currentHP: 20, cell: 'backLeft' });
+    const survivorB = createCreature({ id: 'target-c', currentHP: 20, cell: 'backRight' });
+    state.creatures = [target, survivorA, survivorB];
+
+    const patch = buildMeleeAttackResolutionPatch(
+        state,
+        1,
+        target,
+        25,
+        'swing',
+        createCombat(),
+        createXpDeps(),
+    );
+
+    assert.deepEqual(
+        patch.creatures.map((creature) => [creature.id, creature.alive, creature.cell]),
+        [
+            ['target-a', false, 'frontLeft'],
+            ['target-b', true, 'frontLeft'],
+            ['target-c', true, 'frontRight'],
+        ],
+    );
 });

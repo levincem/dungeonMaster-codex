@@ -7,6 +7,7 @@ import type {
     Projectile,
     SpellVisualEvent,
 } from '../src/engine/runtimeTypes.js';
+import { normalizeCreatureCellsOnTile as normalizeCreatureCellsOnTileSystem } from '../src/engine/systems/creatureTileState.js';
 import { applyProjectileCreatureHit } from '../src/engine/systems/tickProjectileCreatureHit.js';
 
 function createCreature(overrides: Partial<CreatureInstance> = {}): CreatureInstance {
@@ -57,6 +58,9 @@ function createState(overrides: Partial<{
     };
 }
 
+const normalizeCreatureCellsOnTile = (creatures: CreatureInstance[], level: number, x: number, y: number) =>
+    normalizeCreatureCellsOnTileSystem(creatures, level, x, y, () => 4);
+
 test('applyProjectileCreatureHit damages a creature, drops loot on kill, and emits visuals', () => {
     const dagger: FloorItem = {
         id: 'dagger-kill',
@@ -96,6 +100,7 @@ test('applyProjectileCreatureHit damages a creature, drops loot on kill, and emi
             isLikelyNonMaterial: () => false,
             rollDisruptNonMaterialAttack: () => 0,
             dropCreatureCarriedItems: (creatures, floorItems) => ({ creatures, floorItems }),
+            normalizeCreatureCellsOnTile,
             buildDeathDustEvent: (level, x, y) => ({
                 id: 'dust-1',
                 level,
@@ -175,6 +180,7 @@ test('applyProjectileCreatureHit keeps a thrown physical weapon on the creature 
             isLikelyNonMaterial: () => false,
             rollDisruptNonMaterialAttack: () => 0,
             dropCreatureCarriedItems: (creatures, floorItems) => ({ creatures, floorItems }),
+            normalizeCreatureCellsOnTile,
             buildDeathDustEvent: () => ({
                 id: 'dust-1',
                 level: 0,
@@ -215,6 +221,77 @@ test('applyProjectileCreatureHit keeps a thrown physical weapon on the creature 
         tilePos: 'West',
         projectileDropped: true,
     });
+});
+
+test('applyProjectileCreatureHit normalizes surviving group cells after a kill', () => {
+    const target = createCreature({ id: 'creature-a', currentHP: 2, cell: 'frontLeft' });
+    const survivorA = createCreature({ id: 'creature-b', currentHP: 12, cell: 'backLeft' });
+    const survivorB = createCreature({ id: 'creature-c', currentHP: 12, cell: 'backRight' });
+
+    const result = applyProjectileCreatureHit(
+        createProjectile({
+            effect: 'physical',
+            remainingRange: 24,
+            remainingAttack: 40,
+        }),
+        target,
+        [target, survivorA, survivorB],
+        false,
+        0,
+        2,
+        2,
+        10,
+        1000,
+        createState({ creatures: [target, survivorA, survivorB] }),
+        {
+            rollSourceBackedImpact: () => null,
+            getCreaturePoisonAdjustedAttack: (_typeId, attack) => attack,
+            scaleCreatureProjectileImpactDamage: (_typeId, attack) => attack,
+            getCreatureFireAdjustedExplosionAttack: (_typeId, attack) => attack,
+            randomInt: () => 0,
+            rollRandomProjectileDamage: () => 0,
+            rollExplosionBurstAttack: () => 0,
+            isLikelyNonMaterial: () => false,
+            rollDisruptNonMaterialAttack: () => 0,
+            dropCreatureCarriedItems: (creatures, floorItems) => ({ creatures, floorItems }),
+            normalizeCreatureCellsOnTile,
+            buildDeathDustEvent: () => ({
+                id: 'dust-1',
+                level: 0,
+                x: 2,
+                y: 2,
+                effect: 'fireball',
+                ts: 1000,
+                kind: 'death',
+            }),
+            buildCreatureDamageEvent: (level, x, y, amount, creatureId) => ({
+                id: 'damage-1',
+                level,
+                target: 'creature',
+                x,
+                y,
+                amount,
+                creatureId,
+                ts: 1000,
+            }),
+            buildLingeringPoisonCloud: () => null,
+            buildActivePoisonCloud: () => {
+                throw new Error('no active cloud expected');
+            },
+            getThrownExplosionVisualScale: () => 1.3,
+            buildDroppedItem: (item) => item,
+            gridSize: 2,
+        },
+    );
+
+    assert.deepEqual(
+        result.creatures.map((creature) => [creature.id, creature.alive, creature.cell]),
+        [
+            ['creature-a', false, 'frontLeft'],
+            ['creature-b', true, 'frontLeft'],
+            ['creature-c', true, 'frontRight'],
+        ],
+    );
 });
 
 test('applyProjectileCreatureHit stores a thrown physical weapon on missile-absorbing creatures instead of losing it', () => {
@@ -258,6 +335,7 @@ test('applyProjectileCreatureHit stores a thrown physical weapon on missile-abso
             isLikelyNonMaterial: () => false,
             rollDisruptNonMaterialAttack: () => 0,
             dropCreatureCarriedItems: (creatures, floorItems) => ({ creatures, floorItems }),
+            normalizeCreatureCellsOnTile,
             buildDeathDustEvent: () => ({
                 id: 'dust-1',
                 level: 0,
@@ -327,6 +405,7 @@ test('applyProjectileCreatureHit handles disrupt_nonmaterial as an area hit on n
             isLikelyNonMaterial: () => true,
             rollDisruptNonMaterialAttack: (_now, creature) => creature.id === 'a' ? 4 : 3,
             dropCreatureCarriedItems: (creatures, floorItems) => ({ creatures, floorItems }),
+            normalizeCreatureCellsOnTile,
             buildDeathDustEvent: () => ({
                 id: 'dust-1',
                 level: 0,
@@ -392,6 +471,7 @@ test('applyProjectileCreatureHit creates poison clouds from poison impacts and l
             isLikelyNonMaterial: () => false,
             rollDisruptNonMaterialAttack: () => 0,
             dropCreatureCarriedItems: (creatures, floorItems) => ({ creatures, floorItems }),
+            normalizeCreatureCellsOnTile,
             buildDeathDustEvent: () => ({
                 id: 'dust-1',
                 level: 0,
@@ -466,6 +546,7 @@ test('applyProjectileCreatureHit scales direct spell impact by creature defense 
             isLikelyNonMaterial: () => false,
             rollDisruptNonMaterialAttack: () => 0,
             dropCreatureCarriedItems: (creatures, floorItems) => ({ creatures, floorItems }),
+            normalizeCreatureCellsOnTile,
             buildDeathDustEvent: () => ({
                 id: 'dust-1',
                 level: 0,
@@ -527,6 +608,7 @@ test('applyProjectileCreatureHit applies the fire burst separately after direct 
             isLikelyNonMaterial: () => false,
             rollDisruptNonMaterialAttack: () => 0,
             dropCreatureCarriedItems: (creatures, floorItems) => ({ creatures, floorItems }),
+            normalizeCreatureCellsOnTile,
             buildDeathDustEvent: () => ({
                 id: 'dust-1',
                 level: 0,

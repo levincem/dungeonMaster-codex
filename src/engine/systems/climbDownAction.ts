@@ -124,6 +124,7 @@ export function resolveClimbDownAction<
             ...basePatch,
             level: landing.level,
             position: [landing.y, landing.x],
+            activeFloorDrag: null,
             lastPartyMoveGameTick: hydratedState.elapsedGameTimeTicks,
             movementCooldown: deps.computeMovementCooldown(hydratedState),
             ...(climbDownVitals ? { championVitals: climbDownVitals } : {}),

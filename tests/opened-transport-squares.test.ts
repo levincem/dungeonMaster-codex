@@ -107,8 +107,11 @@ test('applyOpenedTeleporterEffects also applies creature teleports on opened squ
             resolveProjectileTeleporterTransport: () => ({ level: 0, x: 2, y: 3, direction: 'NORTH' }),
             applyPartyTelefragAtSquare: () => null,
             buildLevelHydrationPatch: () => null,
-            applyCreaturesStandingOnOpenTeleporter: () => ({
+            applyCreaturesStandingOnOpenTeleporter: (state) => ({
+                hydratedLevels: state.hydratedLevels,
                 creatures: [createCreature('c2', { mapIndex: 0, x: 4, y: 5 })],
+                floorItems: state.floorItems,
+                openDoors: state.openDoors,
             }),
         },
     );
@@ -164,4 +167,101 @@ test('applyOpenedTeleporterEffects triggers floor sensors before transporting th
     assert.deepEqual(result.position, [30, 15]);
     assert.equal(result.openDoors.has('3,30,14'), true);
     assert.deepEqual(result.pendingSensorEvents, [{ level: 3, sensorIndex: 104, remaining: 2 }]);
+});
+
+test('applyOpenedTeleporterEffects chains Zooooom-style teleporters that open on arrival', () => {
+    const result = applyOpenedTeleporterEffects(
+        {
+            level: 0,
+            position: [10, 10],
+            direction: 'EAST',
+            hydratedLevels: new Set<number>([0]),
+            creatures: [],
+            floorItems: [],
+            spellVisualEvents: [],
+            openDoors: new Set<string>(),
+            openWalls: new Set<string>(),
+            openPits: new Set<string>(),
+            openTeleporters: new Set<string>(['0,10,10']),
+            championInventories: {},
+            championEquipment: {},
+            pendingSensorEvents: [],
+        },
+        ['0,10,10'],
+        {
+            getTile: (level, x, y) => {
+                if (level !== 0) return undefined;
+                if (x === 10 && y === 10) return createTeleporterTile(x, y, 0, 11, 10);
+                if (x === 11 && y === 10) return createTeleporterTile(x, y, 0, 12, 10);
+                return undefined;
+            },
+            getTeleporter: (tile) => tile.objects[0]?.category === 'Teleporter' ? tile.objects[0] : undefined,
+            resolveProjectileTeleporterTransport: (transportState, level, x, y, direction) => {
+                if (level === 0 && x === 10 && y === 10) return { level: 0, x: 11, y: 10, direction };
+                if (level === 0 && x === 11 && y === 10 && transportState.openTeleporters.has('0,10,11')) {
+                    return { level: 0, x: 12, y: 10, direction };
+                }
+                return { level, x, y, direction };
+            },
+            applyPartyTelefragAtSquare: () => null,
+            buildLevelHydrationPatch: () => null,
+            applyCreaturesStandingOnOpenTeleporter: () => null,
+            triggerFloorSensorsOnOpenedPartyTeleporter: (transportState, level, x, y) => {
+                if (level !== 0 || x !== 11 || y !== 10) return null;
+                return {
+                    openDoors: transportState.openDoors,
+                    openWalls: transportState.openWalls,
+                    openPits: transportState.openPits,
+                    openTeleporters: new Set<string>([...transportState.openTeleporters, '0,10,11']),
+                    pendingSensorEvents: transportState.pendingSensorEvents,
+                };
+            },
+        },
+    );
+
+    assert.equal(result.changed, true);
+    assert.deepEqual(result.position, [10, 12]);
+    assert.equal(result.direction, 'EAST');
+    assert.equal(result.openTeleporters.has('0,10,11'), true);
+});
+
+test('applyOpenedTeleporterEffects reuses hydrated levels after a party transport within the same loop', () => {
+    const seenHydratedLevels: number[][] = [];
+
+    applyOpenedTeleporterEffects(
+        {
+            level: 0,
+            position: [3, 2],
+            direction: 'NORTH',
+            hydratedLevels: new Set<number>([0]),
+            creatures: [],
+            floorItems: [],
+            spellVisualEvents: [],
+            openDoors: new Set<string>(),
+            openWalls: new Set<string>(),
+            openPits: new Set<string>(),
+            openTeleporters: new Set<string>(['0,3,2', '0,5,4']),
+            championInventories: {},
+            championEquipment: {},
+            pendingSensorEvents: [],
+        },
+        ['0,3,2', '0,5,4'],
+        {
+            getTile: () => createTeleporterTile(0, 0, 1, 7, 8),
+            getTeleporter: (tile) => tile.objects[0]?.category === 'Teleporter' ? tile.objects[0] : undefined,
+            resolveProjectileTeleporterTransport: () => ({ level: 1, x: 7, y: 8, direction: 'EAST' }),
+            applyPartyTelefragAtSquare: () => null,
+            buildLevelHydrationPatch: (state) => ({
+                hydratedLevels: new Set<number>([...state.hydratedLevels, 1]),
+                creatures: state.creatures,
+                floorItems: state.floorItems,
+            }),
+            applyCreaturesStandingOnOpenTeleporter: (state) => {
+                seenHydratedLevels.push([...state.hydratedLevels]);
+                return null;
+            },
+        },
+    );
+
+    assert.deepEqual(seenHydratedLevels, [[0, 1], [0, 1]]);
 });

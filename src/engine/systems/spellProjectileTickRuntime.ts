@@ -68,6 +68,7 @@ type SpellProjectileTickDeps = {
     isLikelyNonMaterial: Parameters<typeof applyProjectileCreatureHit>[10]['isLikelyNonMaterial'];
     rollDisruptNonMaterialAttack: Parameters<typeof applyProjectileCreatureHit>[10]['rollDisruptNonMaterialAttack'];
     dropCreatureCarriedItems: Parameters<typeof applyProjectileCreatureHit>[10]['dropCreatureCarriedItems'];
+    normalizeCreatureCellsOnTile: Parameters<typeof applyProjectileCreatureHit>[10]['normalizeCreatureCellsOnTile'];
     buildDeathDustEvent: Parameters<typeof applyProjectileCreatureHit>[10]['buildDeathDustEvent'];
     buildCreatureDamageEvent: Parameters<typeof applyProjectileCreatureHit>[10]['buildCreatureDamageEvent'];
     buildLingeringPoisonCloud: Parameters<typeof applyProjectileCreatureHit>[10]['buildLingeringPoisonCloud'];
@@ -232,6 +233,7 @@ function resolveProjectileImpactOnSquare(
             isLikelyNonMaterial: deps.isLikelyNonMaterial,
             rollDisruptNonMaterialAttack: deps.rollDisruptNonMaterialAttack,
             dropCreatureCarriedItems: deps.dropCreatureCarriedItems,
+            normalizeCreatureCellsOnTile: deps.normalizeCreatureCellsOnTile,
             buildDeathDustEvent: deps.buildDeathDustEvent,
             buildCreatureDamageEvent: deps.buildCreatureDamageEvent,
             buildLingeringPoisonCloud: deps.buildLingeringPoisonCloud,
@@ -455,6 +457,7 @@ export function runSpellProjectileTickRuntime(
                 getCreaturePoisonAdjustedAttack: deps.getCreaturePoisonAdjustedAttack,
                 buildCreatureDamageEvent: deps.buildCreatureDamageEvent,
                 dropCreatureCarriedItems: deps.dropCreatureCarriedItems,
+                normalizeCreatureCellsOnTile: deps.normalizeCreatureCellsOnTile,
                 buildDeathDustEvent: deps.buildDeathDustEvent,
             },
         );

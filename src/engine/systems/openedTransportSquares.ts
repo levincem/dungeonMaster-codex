@@ -36,15 +36,15 @@ type TeleporterLoopDeps = {
         y: number,
     ) => Pick<TeleporterLoopState, 'creatures' | 'floorItems' | 'spellVisualEvents'> | null;
     buildLevelHydrationPatch: (
-        state: Pick<TeleporterLoopState, 'hydratedLevels' | 'creatures' | 'floorItems'>,
+        state: Pick<TeleporterLoopState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'>,
         level: number,
-    ) => Partial<Pick<TeleporterLoopState, 'creatures' | 'floorItems'>> | null;
+    ) => Partial<Pick<TeleporterLoopState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'>> | null;
     applyCreaturesStandingOnOpenTeleporter: (
-        state: Pick<TeleporterLoopState, 'level' | 'position' | 'hydratedLevels' | 'creatures' | 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters'>,
+        state: Pick<TeleporterLoopState, 'level' | 'position' | 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters'>,
         level: number,
         x: number,
         y: number,
-    ) => Pick<TeleporterLoopState, 'creatures'> | null;
+    ) => Pick<TeleporterLoopState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'> | null;
     triggerFloorSensorsOnOpenedPartyTeleporter?: (
         state: Pick<
             TeleporterLoopState,
@@ -71,6 +71,7 @@ type TeleporterLoopResult = Pick<
     | 'level'
     | 'position'
     | 'direction'
+    | 'hydratedLevels'
     | 'creatures'
     | 'floorItems'
     | 'spellVisualEvents'
@@ -89,6 +90,7 @@ export function applyOpenedTeleporterEffects(
     let level = state.level;
     let position = state.position;
     let direction = state.direction;
+    let hydratedLevels = state.hydratedLevels;
     let creatures = state.creatures;
     let floorItems = state.floorItems;
     let spellVisualEvents = state.spellVisualEvents;
@@ -98,8 +100,26 @@ export function applyOpenedTeleporterEffects(
     let openTeleporters = state.openTeleporters;
     let pendingSensorEvents = state.pendingSensorEvents;
     let changed = false;
+    const pendingTeleporterKeys = [...openedTeleporterKeys];
+    const queuedTeleporterKeys = new Set(openedTeleporterKeys);
+    const processedTeleporterKeys = new Set<string>();
 
-    for (const key of openedTeleporterKeys) {
+    const queueNewTeleporterKeys = (nextOpenTeleporters: Set<string> | undefined) => {
+        if (!nextOpenTeleporters) return;
+        for (const nextKey of nextOpenTeleporters) {
+            if (openTeleporters.has(nextKey) || queuedTeleporterKeys.has(nextKey) || processedTeleporterKeys.has(nextKey)) {
+                continue;
+            }
+            queuedTeleporterKeys.add(nextKey);
+            pendingTeleporterKeys.push(nextKey);
+        }
+    };
+
+    while (pendingTeleporterKeys.length > 0) {
+        const key = pendingTeleporterKeys.shift();
+        if (!key || processedTeleporterKeys.has(key)) continue;
+        processedTeleporterKeys.add(key);
+
         const [tpLevelRaw, tpYRaw, tpXRaw] = key.split(',');
         const tpLevel = Number(tpLevelRaw);
         const tpY = Number(tpYRaw);
@@ -130,6 +150,7 @@ export function applyOpenedTeleporterEffects(
                 tpY,
             );
             if (sensorPatch) {
+                queueNewTeleporterKeys(sensorPatch.openTeleporters);
                 openDoors = sensorPatch.openDoors ?? openDoors;
                 openWalls = sensorPatch.openWalls ?? openWalls;
                 openPits = sensorPatch.openPits ?? openPits;
@@ -149,15 +170,18 @@ export function applyOpenedTeleporterEffects(
             direction = resolvedTransport.direction;
             const hydrationPatch = deps.buildLevelHydrationPatch(
                 {
-                    hydratedLevels: state.hydratedLevels,
+                    hydratedLevels,
                     creatures,
                     floorItems,
+                    openDoors,
                 },
                 resolvedTransport.level,
             );
             if (hydrationPatch) {
+                hydratedLevels = hydrationPatch.hydratedLevels ?? hydratedLevels;
                 creatures = hydrationPatch.creatures ?? creatures;
                 floorItems = hydrationPatch.floorItems ?? floorItems;
+                openDoors = hydrationPatch.openDoors ?? openDoors;
             }
             const telefrag = deps.applyPartyTelefragAtSquare(
                 { creatures, floorItems, spellVisualEvents },
@@ -173,14 +197,43 @@ export function applyOpenedTeleporterEffects(
             level = resolvedTransport.level;
             position = [resolvedTransport.y, resolvedTransport.x];
             changed = true;
+
+            const arrivalSensorPatch = deps.triggerFloorSensorsOnOpenedPartyTeleporter?.(
+                {
+                    level,
+                    position,
+                    direction,
+                    openDoors,
+                    openWalls,
+                    openPits,
+                    openTeleporters,
+                    championInventories: state.championInventories,
+                    championEquipment: state.championEquipment,
+                    floorItems,
+                    pendingSensorEvents,
+                },
+                level,
+                resolvedTransport.x,
+                resolvedTransport.y,
+            );
+            if (arrivalSensorPatch) {
+                queueNewTeleporterKeys(arrivalSensorPatch.openTeleporters);
+                openDoors = arrivalSensorPatch.openDoors ?? openDoors;
+                openWalls = arrivalSensorPatch.openWalls ?? openWalls;
+                openPits = arrivalSensorPatch.openPits ?? openPits;
+                openTeleporters = arrivalSensorPatch.openTeleporters ?? openTeleporters;
+                pendingSensorEvents = arrivalSensorPatch.pendingSensorEvents ?? pendingSensorEvents;
+                changed = true;
+            }
         }
 
         const creatureTeleportPatch = deps.applyCreaturesStandingOnOpenTeleporter(
             {
                 level,
                 position,
-                hydratedLevels: state.hydratedLevels,
+                hydratedLevels,
                 creatures,
+                floorItems,
                 openDoors,
                 openWalls,
                 openPits,
@@ -191,7 +244,10 @@ export function applyOpenedTeleporterEffects(
             tpY,
         );
         if (creatureTeleportPatch) {
+            hydratedLevels = creatureTeleportPatch.hydratedLevels ?? hydratedLevels;
             creatures = creatureTeleportPatch.creatures ?? creatures;
+            floorItems = creatureTeleportPatch.floorItems ?? floorItems;
+            openDoors = creatureTeleportPatch.openDoors ?? openDoors;
             changed = true;
         }
     }
@@ -200,6 +256,7 @@ export function applyOpenedTeleporterEffects(
         level,
         position,
         direction,
+        hydratedLevels,
         creatures,
         floorItems,
         spellVisualEvents,

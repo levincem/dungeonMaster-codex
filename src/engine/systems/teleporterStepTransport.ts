@@ -117,6 +117,7 @@ export function resolveTeleporterStepTransport<
                 level: resolvedTransport.level,
                 position: [resolvedTransport.y, resolvedTransport.x],
                 direction: resolvedTransport.direction,
+                activeFloorDrag: null,
                 lastPartyMoveGameTick: state.elapsedGameTimeTicks,
                 movementCooldown: deps.computeMovementCooldown(state),
                 ...(movedVitals ? { championVitals: movedVitals } : {}),
@@ -155,6 +156,7 @@ export function resolveTeleporterStepTransport<
         patch: deps.applyImmediateTransportSquareEffects(state, {
             position: [resolvedTransport.y, resolvedTransport.x],
             direction: resolvedTransport.direction,
+            activeFloorDrag: null,
             lastPartyMoveGameTick: state.elapsedGameTimeTicks,
             movementCooldown: deps.computeMovementCooldown(state),
             ...(movedVitals ? { championVitals: movedVitals } : {}),

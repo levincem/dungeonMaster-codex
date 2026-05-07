@@ -45,6 +45,7 @@ test('resolveStairStepTransport applies the stair destination, direction and coo
     assert.equal(patch.level, 3);
     assert.deepEqual(patch.position, [10, 11]);
     assert.equal(patch.direction, 'WEST');
+    assert.equal(patch.activeFloorDrag, null);
     assert.equal(patch.lastPartyMoveGameTick, 42);
     assert.equal(patch.movementCooldown, 1.75);
     assert.deepEqual(patch.championVitals, { 1: { hp: 25 } });

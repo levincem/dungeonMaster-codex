@@ -128,7 +128,7 @@ type TerrainEffectsDeps<TGameState extends TransportRuntimeState<PendingSensorEv
     getTile: (level: number, x: number, y: number) => GameTile | undefined;
     getTeleporter: (tile: GameTile) => TeleporterObject | undefined;
     buildLevelHydrationPatch: (
-        state: Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems'>,
+        state: Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'>,
         level: number,
     ) => Partial<TGameState> | null;
 };
@@ -295,7 +295,7 @@ type TransportRuntimeDepsParams<
                 y: number,
             ) => CreatureInstance[];
         },
-    ) => Pick<TGameState, 'creatures' | 'floorItems' | 'damageEvents' | 'spellVisualEvents'> | null;
+    ) => Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'damageEvents' | 'spellVisualEvents' | 'openDoors'> | null;
     applyFloorItemsStandingOnOpenPit: (
         state: Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors' | 'openWalls' | 'openPits'>,
         level: number,
@@ -311,13 +311,13 @@ type TransportRuntimeDepsParams<
                 openPits: Set<string>,
             ) => PitLanding;
             buildLevelHydrationPatch: (
-                state: Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems'>,
+                state: Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'>,
                 level: number,
             ) => Partial<TGameState> | null;
         },
-    ) => Pick<TGameState, 'creatures' | 'floorItems'> | null;
+    ) => Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'> | null;
     applyCreaturesStandingOnOpenTeleporter: (
-        state: Pick<TGameState, 'level' | 'position' | 'hydratedLevels' | 'creatures' | 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters'>,
+        state: Pick<TGameState, 'level' | 'position' | 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters'>,
         level: number,
         x: number,
         y: number,
@@ -348,7 +348,7 @@ type TransportRuntimeDepsParams<
                 y: number,
             ) => CreatureInstance[];
         },
-    ) => Pick<TGameState, 'creatures'> | null;
+    ) => Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'> | null;
     dropCreatureCarriedItems: (
         creatures: CreatureInstance[],
         floorItems: FloorItem[],
@@ -376,7 +376,7 @@ type TransportRuntimeDepsParams<
         creatures: CreatureInstance[],
     ) => boolean;
     buildLevelHydrationPatch: (
-        state: Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems'>,
+        state: Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'>,
         level: number,
     ) => Partial<TGameState> | null;
     buildSensorStateSnapshot: (state: TGameState) => TSensorState;
@@ -524,7 +524,7 @@ export function createTransportRuntimeDeps<
     );
 
     const buildLevelHydrationPatch = (
-        state: Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems'>,
+        state: Pick<TGameState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'>,
         level: number,
     ) => params.buildLevelHydrationPatch(state, level);
 
@@ -560,7 +560,7 @@ export function createTransportRuntimeDeps<
             ) => params.applyPartyTelefragAtSquare(state, level, x, y, terrainEffectsDeps),
             buildLevelHydrationPatch,
             applyCreaturesStandingOnOpenTeleporter: (
-                state: Pick<TGameState, 'level' | 'position' | 'hydratedLevels' | 'creatures' | 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters'>,
+                state: Pick<TGameState, 'level' | 'position' | 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters'>,
                 level: number,
                 x: number,
                 y: number,

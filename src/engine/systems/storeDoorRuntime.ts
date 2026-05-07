@@ -115,6 +115,12 @@ export function buildStoreTickDoorsPatch<
             creatures: TCreature[];
             floorItems: TFloorItem[];
         };
+        normalizeCreatureCellsOnTile: (
+            creatures: TCreature[],
+            level: number,
+            x: number,
+            y: number,
+        ) => TCreature[];
         buildDeathDustEvent: (level: number, x: number, y: number) => TSpellVisualEvent;
         playWallBump: () => void;
     },
@@ -139,7 +145,12 @@ export function buildStoreTickDoorsPatch<
 
     for (const creature of newlyDead) {
         const dropped = deps.dropCreatureCarriedItems(creatures, floorItems, creature.id);
-        creatures = dropped.creatures;
+        creatures = deps.normalizeCreatureCellsOnTile(
+            dropped.creatures,
+            creature.mapIndex,
+            creature.x,
+            creature.y,
+        );
         floorItems = dropped.floorItems;
         spellVisualEvents = [
             ...spellVisualEvents,

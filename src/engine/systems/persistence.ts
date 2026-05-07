@@ -9,6 +9,7 @@ import {
     normalizeChampionTemporaryXP,
     normalizeChampionXP,
 } from '../../data/skillProgression';
+import { CREATURE_TYPES } from '../../data/creatures';
 import type {
     ChampionEquipment,
     CreatureInstance,
@@ -39,10 +40,11 @@ import {
     isLegacyChampionXPForChampion,
     normalizeChampionVitalsForChampion,
 } from './championState';
-import { getCreatureCellsForOccupancy } from './creatureTileState';
+import { getCreatureCellsForOccupancy, normalizeCreatureCells } from './creatureTileState';
 import { buildDefaultOpenDoorsForLevels } from './defaultOpenDoors';
 import { sanitizeOpenTeleporterKeys } from './disabledTeleporters';
 import { normalizeGameStats } from './gameStats';
+import { getCreatureTileCapacity } from './generatedCreatureGroups';
 
 export interface PersistableGameState {
     gameOptions: import('../runtimeTypes').GameOptions;
@@ -105,6 +107,13 @@ export interface CreatureRuntimeMaps {
     creatureLastSeenPartyPos: Map<string, { x: number; y: number; expiresAt: number }>;
 }
 
+type PersistedPositionedEntry = {
+    id: string;
+    mapIndex: number;
+    x: number;
+    y: number;
+};
+
 function normalizeChargedPersistedItem(
     item: FloorItem,
     params: {
@@ -151,8 +160,63 @@ function normalizePersistedItem(item: FloorItem): FloorItem {
     return item;
 }
 
+function getPersistedEntrySourcePosition(id: string): { level: number; x: number; y: number } | null {
+    const directMatch = /^(\d+)_(\d+)_(\d+)_/.exec(id);
+    if (directMatch) {
+        const [, levelRaw, xRaw, yRaw] = directMatch;
+        const level = Number(levelRaw);
+        const x = Number(xRaw);
+        const y = Number(yRaw);
+        if ([level, x, y].every(Number.isFinite)) {
+            return { level, x, y };
+        }
+    }
+
+    const fixedDropMatch = /^creature_fixed_drop_(\d+)_(\d+)_(\d+)_/.exec(id);
+    if (fixedDropMatch) {
+        const [, levelRaw, xRaw, yRaw] = fixedDropMatch;
+        const level = Number(levelRaw);
+        const x = Number(xRaw);
+        const y = Number(yRaw);
+        if ([level, x, y].every(Number.isFinite)) {
+            return { level, x, y };
+        }
+    }
+
+    return null;
+}
+
+function getPersistedEntrySourceDistance(entry: PersistedPositionedEntry): number {
+    const source = getPersistedEntrySourcePosition(entry.id);
+    if (!source) return Number.NEGATIVE_INFINITY;
+    if (source.level !== entry.mapIndex) return Number.POSITIVE_INFINITY;
+    return Math.abs(source.x - entry.x) + Math.abs(source.y - entry.y);
+}
+
+function dedupePersistedPositionedEntriesById<T extends PersistedPositionedEntry>(entries: readonly T[]): T[] {
+    const selectedById = new Map<string, { entry: T; index: number }>();
+
+    entries.forEach((entry, index) => {
+        const current = selectedById.get(entry.id);
+        if (!current) {
+            selectedById.set(entry.id, { entry, index });
+            return;
+        }
+
+        const currentDistance = getPersistedEntrySourceDistance(current.entry);
+        const nextDistance = getPersistedEntrySourceDistance(entry);
+        if (nextDistance > currentDistance) {
+            selectedById.set(entry.id, { entry, index });
+        }
+    });
+
+    return [...selectedById.values()]
+        .sort((left, right) => left.index - right.index)
+        .map(({ entry }) => entry);
+}
+
 function normalizePersistedItems(items: FloorItem[] | undefined): FloorItem[] {
-    return (items ?? []).map(normalizePersistedItem);
+    return dedupePersistedPositionedEntriesById((items ?? []).map(normalizePersistedItem));
 }
 
 function normalizePersistedInventories(
@@ -369,7 +433,7 @@ function getInitCreatureSourceObject(creature: CreatureInstance): {
 }
 
 function normalizePersistedCreatures(creatures: readonly CreatureInstance[]): CreatureInstance[] {
-    const livingCreatures = getPersistableLivingCreatures(creatures);
+    const livingCreatures = dedupePersistedPositionedEntriesById(getPersistableLivingCreatures(creatures));
     const groupCounts = new Map<string, number>();
     for (const creature of livingCreatures) {
         if (!creature.groupId) continue;
@@ -411,7 +475,17 @@ function normalizePersistedCreatures(creatures: readonly CreatureInstance[]): Cr
             carriedItems: index === 0 ? creature.carriedItems : [],
         }));
     });
-    return normalized;
+    return normalizeCreatureCells(
+        normalized,
+        (typeId) => getCreatureTileCapacity(CREATURE_TYPES[typeId]?.sizeOnTile ?? 0),
+    );
+}
+
+function normalizePersistableCreaturesForSave(creatures: readonly CreatureInstance[]): CreatureInstance[] {
+    return normalizeCreatureCells(
+        dedupePersistedPositionedEntriesById(getPersistableLivingCreatures(creatures)),
+        (typeId) => getCreatureTileCapacity(CREATURE_TYPES[typeId]?.sizeOnTile ?? 0),
+    );
 }
 
 function stripIntegrity(data: PersistedSaveData): PersistedSaveDataWithoutIntegrity {
@@ -438,7 +512,8 @@ export function buildPersistedSaveData(
     runtime: CreatureRuntimeMaps,
 ): PersistedSaveData {
     const now = Date.now();
-    const livingCreatures = getPersistableLivingCreatures(state.creatures);
+    const livingCreatures = normalizePersistableCreaturesForSave(state.creatures);
+    const floorItems = dedupePersistedPositionedEntriesById(state.floorItems);
     const livingCreatureIds = new Set(livingCreatures.map((creature) => creature.id));
     const timerIds = new Set<string>([
         ...livingCreatureIds,
@@ -488,7 +563,7 @@ export function buildPersistedSaveData(
         pendingSensorEvents: state.pendingSensorEvents,
         pendingGeneratorSpawns: state.pendingGeneratorSpawns,
         creatures: livingCreatures,
-        floorItems: state.floorItems,
+        floorItems,
         championInventories: state.championInventories,
         championEquipment: state.championEquipment,
         championVitals: state.championVitals,

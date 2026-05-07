@@ -189,6 +189,7 @@ export function resolveOpenPitEntryTransport<
             ...(hydrationPatch ?? {}),
             level: landing.level,
             position: landingPosition,
+            activeFloorDrag: null,
             lastPartyMoveGameTick: hydratedState.elapsedGameTimeTicks,
             movementCooldown: deps.computeMovementCooldown(hydratedState),
             ...(movedVitals ? { championVitals: movedVitals } : {}),

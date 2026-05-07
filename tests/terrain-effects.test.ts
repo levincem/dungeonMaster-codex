@@ -5,6 +5,7 @@ import type { DamageEvent, SpellVisualEvent } from '../src/engine/runtimeTypes.j
 import {
     applyCreaturesStandingOnOpenPit,
     applyCreaturesStandingOnOpenTeleporter,
+    applyFloorItemsStandingOnOpenPit,
     applyPartyTelefragAtSquare,
 } from '../src/engine/systems/terrainEffects.js';
 
@@ -138,6 +139,7 @@ test('applyCreaturesStandingOnOpenTeleporter teleports creatures when the destin
         position: [0, 0] as [number, number],
         hydratedLevels: new Set<number>([0]),
         creatures: [createCreature('c3', { mapIndex: 0, x: 2, y: 3, cell: 'frontLeft' })],
+        floorItems: [] as FloorItem[],
         openDoors: new Set<string>(),
         openWalls: new Set<string>(),
         openPits: new Set<string>(),
@@ -164,4 +166,160 @@ test('applyCreaturesStandingOnOpenTeleporter teleports creatures when the destin
         },
         { mapIndex: 1, x: 8, y: 9, cell: 'frontRight' },
     );
+});
+
+test('applyFloorItemsStandingOnOpenPit propagates hydrated levels across sequential falls', () => {
+    let hydrationCalls = 0;
+    const state = {
+        hydratedLevels: new Set<number>([2]),
+        creatures: [] as CreatureInstance[],
+        floorItems: [
+            { id: 'faller-a', category: 'Misc', typeId: 1, mapIndex: 2, x: 4, y: 5, tilePos: 'North' },
+            { id: 'faller-b', category: 'Misc', typeId: 1, mapIndex: 2, x: 8, y: 9, tilePos: 'North' },
+        ] as FloorItem[],
+        openDoors: new Set<string>(),
+        openWalls: new Set<string>(),
+        openPits: new Set<string>(['2,5,4', '2,9,8']),
+    };
+
+    const deps = {
+        resolvePitLanding: (_level: number, y: number, x: number) => ({
+            level: 3,
+            x: x + 2,
+            y: y + 2,
+        }),
+        buildLevelHydrationPatch: (
+            currentState: Pick<typeof state, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'>,
+            level: number,
+        ) => {
+            if (currentState.hydratedLevels.has(level)) return null;
+            hydrationCalls += 1;
+            const seededItem: FloorItem = {
+                id: 'seed-item',
+                category: 'Misc',
+                typeId: 1,
+                mapIndex: level,
+                x: 1,
+                y: 1,
+                tilePos: 'North',
+            };
+            return {
+                hydratedLevels: new Set<number>([...currentState.hydratedLevels, level]),
+                creatures: currentState.creatures,
+                floorItems: [
+                    ...currentState.floorItems,
+                    seededItem,
+                ],
+            };
+        },
+    };
+
+    const first = applyFloorItemsStandingOnOpenPit(state, 2, 4, 5, deps);
+    assert.ok(first);
+    assert.deepEqual([...(first?.hydratedLevels ?? [])], [2, 3]);
+
+    const second = applyFloorItemsStandingOnOpenPit(
+        { ...state, ...first },
+        2,
+        8,
+        9,
+        deps,
+    );
+
+    assert.ok(second);
+    assert.equal(hydrationCalls, 1);
+    assert.equal(second?.floorItems.filter((item) => item.id === 'seed-item').length, 1);
+});
+
+test('applyCreaturesStandingOnOpenTeleporter propagates hydrated levels and hydrated floor items between teleports', () => {
+    let hydrationCalls = 0;
+    const teleporterTile: GameTile = {
+        x: 0,
+        y: 0,
+        type: 'Teleporter',
+        objects: [{
+            category: 'Teleporter',
+            index: 1,
+            tilePos: 'North',
+            sound: false,
+            scope: 'local',
+            rotationType: 0,
+            rotation: 'North',
+            destX: 0,
+            destY: 0,
+            destMap: 1,
+        }],
+    };
+    const state = {
+        level: 0,
+        position: [0, 0] as [number, number],
+        hydratedLevels: new Set<number>([0]),
+        creatures: [
+            createCreature('c-a', { mapIndex: 0, x: 2, y: 3 }),
+            createCreature('c-b', { mapIndex: 0, x: 4, y: 5 }),
+        ],
+        floorItems: [] as FloorItem[],
+        openDoors: new Set<string>(),
+        openWalls: new Set<string>(),
+        openPits: new Set<string>(),
+        openTeleporters: new Set<string>(['0,3,2', '0,5,4']),
+    };
+
+    const deps = {
+        getTile: () => teleporterTile,
+        getTeleporter: (tile: GameTile) => tile.objects[0]?.category === 'Teleporter' ? tile.objects[0] : undefined,
+        resolveCreatureTeleporterTransport: (
+            _transportState: Pick<typeof state, 'openTeleporters'>,
+            _level: number,
+            x: number,
+            y: number,
+        ) => ({ level: 1, x: x + 6, y: y + 6, direction: 'EAST' as const, cell: 'frontRight' as const }),
+        isWalkable: () => true,
+        canCreatureShareTile: () => true,
+        normalizeCreatureCellsOnTile: (creatures: CreatureInstance[]) => creatures,
+        buildLevelHydrationPatch: (
+            currentState: Pick<typeof state, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'>,
+            level: number,
+        ) => {
+            if (currentState.hydratedLevels.has(level)) return null;
+            hydrationCalls += 1;
+            const seededItem: FloorItem = {
+                id: 'seed-item',
+                category: 'Misc',
+                typeId: 1,
+                mapIndex: level,
+                x: 1,
+                y: 1,
+                tilePos: 'North',
+            };
+            return {
+                hydratedLevels: new Set<number>([...currentState.hydratedLevels, level]),
+                creatures: [
+                    ...currentState.creatures,
+                    createCreature('seed-creature', { mapIndex: level, x: 9, y: 9 }),
+                ],
+                floorItems: [
+                    ...currentState.floorItems,
+                    seededItem,
+                ],
+            };
+        },
+    };
+
+    const first = applyCreaturesStandingOnOpenTeleporter(state, 0, 2, 3, deps);
+    assert.ok(first);
+    assert.deepEqual([...(first?.hydratedLevels ?? [])], [0, 1]);
+
+    const second = applyCreaturesStandingOnOpenTeleporter(
+        { ...state, ...first },
+        0,
+        4,
+        5,
+        deps,
+    );
+
+    assert.ok(second);
+    assert.equal(hydrationCalls, 1);
+    assert.equal(second?.creatures.filter((creature) => creature.id === 'seed-creature').length, 1);
+    assert.equal(second?.floorItems.filter((item) => item.id === 'seed-item').length, 1);
 });

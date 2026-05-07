@@ -11,6 +11,7 @@ import type {
     PartyShield,
     SpellVisualEvent,
 } from '../src/engine/runtimeTypes.js';
+import { normalizeCreatureCellsOnTile as normalizeCreatureCellsOnTileSystem } from '../src/engine/systems/creatureTileState.js';
 import { tickPoisonClouds } from '../src/engine/systems/tickPoisonClouds.js';
 
 function createChampion(id: number): Champion {
@@ -138,6 +139,9 @@ function createState(overrides: Partial<{
     };
 }
 
+const normalizeCreatureCellsOnTile = (creatures: CreatureInstance[], level: number, x: number, y: number) =>
+    normalizeCreatureCellsOnTileSystem(creatures, level, x, y, () => 4);
+
 test('tickPoisonClouds applies party backlash when a cloud pulses on the party square', () => {
     const state = createState({
         activePoisonClouds: [createCloud({ x: 3, y: 3 })],
@@ -166,6 +170,7 @@ test('tickPoisonClouds applies party backlash when a cloud pulses on the party s
         dropCreatureCarriedItems: () => {
             throw new Error('no creature drop expected');
         },
+        normalizeCreatureCellsOnTile,
         buildDeathDustEvent: () => {
             throw new Error('no death dust expected');
         },
@@ -201,6 +206,7 @@ test('tickPoisonClouds damages creatures on a cloud square and emits death visua
             ts: 1500,
         }),
         dropCreatureCarriedItems: (creatures, floorItems) => ({ creatures, floorItems }),
+        normalizeCreatureCellsOnTile,
         buildDeathDustEvent: (level, x, y) => ({
             id: 'dust-1',
             level,
@@ -236,10 +242,59 @@ test('tickPoisonClouds removes a cloud once it decays below the last pulse thres
         dropCreatureCarriedItems: () => {
             throw new Error('no drop expected');
         },
+        normalizeCreatureCellsOnTile,
         buildDeathDustEvent: () => {
             throw new Error('no death dust expected');
         },
     });
 
     assert.equal(result.activePoisonClouds.length, 0);
+});
+
+test('tickPoisonClouds normalizes surviving group cells after a kill', () => {
+    const target = createCreature({ id: 'mummy-a', x: 1, y: 1, currentHP: 5, cell: 'frontLeft' });
+    const survivorA = createCreature({ id: 'mummy-b', x: 1, y: 1, currentHP: 12, cell: 'backLeft' });
+    const survivorB = createCreature({ id: 'mummy-c', x: 1, y: 1, currentHP: 12, cell: 'backRight' });
+    const state = createState({
+        creatures: [target, survivorA, survivorB],
+        activePoisonClouds: [createCloud({ x: 1, y: 1, remainingAttack: 6 })],
+    });
+
+    const result = tickPoisonClouds(state, 5, 1500, {
+        rollPoisonCloudPulseAttack: () => 4,
+        applyPartyWideIncomingAttack: () => {
+            throw new Error('party backlash should not run for creature-only pulse');
+        },
+        getCreaturePoisonAdjustedAttack: () => 5,
+        buildCreatureDamageEvent: (level, x, y, amount, creatureId) => ({
+            id: 'damage-1',
+            level,
+            target: 'creature',
+            x,
+            y,
+            amount,
+            creatureId,
+            ts: 1500,
+        }),
+        dropCreatureCarriedItems: (creatures, floorItems) => ({ creatures, floorItems }),
+        normalizeCreatureCellsOnTile,
+        buildDeathDustEvent: (level, x, y) => ({
+            id: 'dust-1',
+            level,
+            x,
+            y,
+            effect: 'fireball',
+            ts: 1500,
+            kind: 'death',
+        }),
+    });
+
+    assert.deepEqual(
+        result.creatures.map((creature) => [creature.id, creature.alive, creature.cell]),
+        [
+            ['mummy-a', false, 'frontLeft'],
+            ['mummy-b', true, 'frontLeft'],
+            ['mummy-c', true, 'frontRight'],
+        ],
+    );
 });

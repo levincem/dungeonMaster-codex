@@ -60,6 +60,12 @@ type MeleeAttackResolutionDeps = {
         creatureId?: string,
     ) => DamageEvent;
     buildDeathDustEvent: (level: number, x: number, y: number) => SpellVisualEvent;
+    normalizeCreatureCellsOnTile: (
+        creatures: CreatureInstance[],
+        level: number,
+        x: number,
+        y: number,
+    ) => CreatureInstance[];
 };
 
 export function buildMeleeAttackResolutionPatch(
@@ -81,7 +87,12 @@ export function buildMeleeAttackResolutionPatch(
     let newFloorItems = state.floorItems;
     if (killed) {
         const dropped = deps.dropCreatureCarriedItems(newCreatures, newFloorItems, target.id);
-        newCreatures = dropped.creatures;
+        newCreatures = deps.normalizeCreatureCellsOnTile(
+            dropped.creatures,
+            target.mapIndex,
+            target.x,
+            target.y,
+        );
         newFloorItems = dropped.floorItems;
     }
 

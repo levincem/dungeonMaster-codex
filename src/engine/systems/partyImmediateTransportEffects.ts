@@ -14,6 +14,7 @@ type PartyImmediateTransportState = {
     level: number;
     position: [number, number];
     direction: Direction;
+    activeFloorDrag?: { itemId: string; pointerX: number; pointerY: number } | null;
     party: Champion[];
     selectedChampionIndex: number;
     openDoors: Set<string>;
@@ -225,6 +226,7 @@ export function applyImmediateTransportSquareEffects<
         level,
         position,
         direction,
+        activeFloorDrag: null,
         creatures,
         floorItems,
         openDoors,

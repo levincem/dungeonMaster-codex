@@ -176,6 +176,7 @@ function createUnusedProjectileDeps(): UnusedProjectileDeps {
         isLikelyNonMaterial: () => false,
         rollDisruptNonMaterialAttack: () => 0,
         dropCreatureCarriedItems: () => [],
+        normalizeCreatureCellsOnTile: (creatures: CreatureInstance[]) => creatures,
         buildDeathDustEvent: () => ({ id: 'fx', level: 0, x: 0, y: 0, effect: 'fireball' as const, ts: 0, kind: 'death' as const }),
         buildCreatureDamageEvent: () => ({ id: 'dmg', level: 0, target: 'creature' as const, amount: 0, ts: 0 }),
         buildLingeringPoisonCloud: () => null,
@@ -480,6 +481,7 @@ test('buildTickSpellsRuntimePatch drops a thrown physical weapon on the creature
             getMap: () => map,
             buildDroppedItem: (item, level, x, y) => ({ ...item, mapIndex: level, x, y, tilePos: 'North' }),
             dropCreatureCarriedItems: (creatures, floorItems) => ({ creatures, floorItems }),
+            normalizeCreatureCellsOnTile: (creatures: CreatureInstance[]) => creatures,
             buildCreatureDamageEvent: (level, x, y, amount, creatureId) => ({
                 id: 'damage-dagger-hit',
                 level,
@@ -551,6 +553,7 @@ test('buildTickSpellsRuntimePatch preserves a thrown physical weapon on the crea
             getMap: () => map,
             buildDroppedItem: (item, level, x, y) => ({ ...item, mapIndex: level, x, y, tilePos: 'North' }),
             dropCreatureCarriedItems: (creatures, floorItems) => ({ creatures, floorItems }),
+            normalizeCreatureCellsOnTile: (creatures: CreatureInstance[]) => creatures,
             buildCreatureDamageEvent: (level, x, y, amount, creatureId) => ({
                 id: 'damage-dagger-live',
                 level,

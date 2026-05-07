@@ -86,37 +86,125 @@ function deriveChampionClass(skills: ChampionSkills): ChampionClass {
     return totals[0]?.[0] ?? 'Fighter';
 }
 
-const rawChampions = getDungeonBootstrapSync<RawDungeon>().champions ?? [];
 const ORIGINAL_STAMINA_SCALE = 10;
 
-export const CHAMPIONS: Champion[] = rawChampions
-    .map((champion) => {
-        const skills = normalizeSkills(champion.skills);
-        const championClass = deriveChampionClass(skills);
-        return {
-            id: champion.portraitId,
-            name: champion.name,
-            title: champion.title,
-            gender: champion.gender,
-            class: championClass,
-            health: champion.health,
-            stamina: champion.stamina * ORIGINAL_STAMINA_SCALE,
-            mana: champion.mana,
-            luck: champion.luck,
-            strength: champion.strength,
-            dexterity: champion.dexterity,
-            wisdom: champion.wisdom,
-            vitality: champion.vitality,
-            antiMagic: champion.antiMagic,
-            antiFire: champion.antiFire,
-            skills,
-            color: CLASS_COLORS[championClass],
-            equipment: [],
-            portrait: PORTRAITS[champion.portraitId] ?? portraitsPath('elija.png'),
-        };
-    })
-    .sort((a, b) => a.id - b.id);
+let championsCache: Champion[] | null = null;
+let championByIdCache: Record<number, Champion> | null = null;
 
-export const CHAMPION_BY_ID: Record<number, Champion> = Object.fromEntries(
-    CHAMPIONS.map((champion) => [champion.id, champion]),
-);
+const championsTarget: Champion[] = [];
+const championByIdTarget: Record<number, Champion> = {};
+
+function replaceChampionArray(target: Champion[], source: Champion[]): void {
+    target.splice(0, target.length, ...source);
+}
+
+function replaceChampionRecord(target: Record<number, Champion>, source: Record<number, Champion>): void {
+    for (const key of Object.keys(target)) {
+        delete target[Number(key)];
+    }
+    Object.assign(target, source);
+}
+
+function syncChampionExports(champions: Champion[], championById: Record<number, Champion>): void {
+    replaceChampionArray(championsTarget, champions);
+    replaceChampionRecord(championByIdTarget, championById);
+}
+
+function createHydratingArrayProxy<T>(target: T[], hydrate: () => void): T[] {
+    return new Proxy(target, {
+        get(currentTarget, prop, receiver) {
+            hydrate();
+            return Reflect.get(currentTarget, prop, receiver);
+        },
+        has(currentTarget, prop) {
+            hydrate();
+            return Reflect.has(currentTarget, prop);
+        },
+        ownKeys(currentTarget) {
+            hydrate();
+            return Reflect.ownKeys(currentTarget);
+        },
+        getOwnPropertyDescriptor(currentTarget, prop) {
+            hydrate();
+            return Reflect.getOwnPropertyDescriptor(currentTarget, prop);
+        },
+    });
+}
+
+function createHydratingRecordProxy<T extends Record<number, unknown>>(target: T, hydrate: () => void): T {
+    return new Proxy(target, {
+        get(currentTarget, prop, receiver) {
+            hydrate();
+            return Reflect.get(currentTarget, prop, receiver);
+        },
+        has(currentTarget, prop) {
+            hydrate();
+            return Reflect.has(currentTarget, prop);
+        },
+        ownKeys(currentTarget) {
+            hydrate();
+            return Reflect.ownKeys(currentTarget);
+        },
+        getOwnPropertyDescriptor(currentTarget, prop) {
+            hydrate();
+            return Reflect.getOwnPropertyDescriptor(currentTarget, prop);
+        },
+    });
+}
+
+function buildChampions(): Champion[] {
+    const rawChampions = getDungeonBootstrapSync<RawDungeon>().champions ?? [];
+    return rawChampions
+        .map((champion) => {
+            const skills = normalizeSkills(champion.skills);
+            const championClass = deriveChampionClass(skills);
+            return {
+                id: champion.portraitId,
+                name: champion.name,
+                title: champion.title,
+                gender: champion.gender,
+                class: championClass,
+                health: champion.health,
+                stamina: champion.stamina * ORIGINAL_STAMINA_SCALE,
+                mana: champion.mana,
+                luck: champion.luck,
+                strength: champion.strength,
+                dexterity: champion.dexterity,
+                wisdom: champion.wisdom,
+                vitality: champion.vitality,
+                antiMagic: champion.antiMagic,
+                antiFire: champion.antiFire,
+                skills,
+                color: CLASS_COLORS[championClass],
+                equipment: [],
+                portrait: PORTRAITS[champion.portraitId] ?? portraitsPath('elija.png'),
+            };
+        })
+        .sort((a, b) => a.id - b.id);
+}
+
+function ensureChampionsHydrated(): void {
+    if (championsCache && championByIdCache) return;
+
+    const champions = championsCache ?? buildChampions();
+    const championById = championByIdCache ?? Object.fromEntries(
+        champions.map((champion) => [champion.id, champion]),
+    );
+
+    championsCache = champions;
+    championByIdCache = championById;
+    syncChampionExports(champions, championById);
+}
+
+export function getChampions(): Champion[] {
+    ensureChampionsHydrated();
+    return championsCache!;
+}
+
+export function getChampionById(id: number): Champion | undefined {
+    ensureChampionsHydrated();
+    return championByIdCache?.[id];
+}
+
+export const CHAMPIONS: Champion[] = createHydratingArrayProxy(championsTarget, ensureChampionsHydrated);
+export const CHAMPION_BY_ID: Record<number, Champion> = createHydratingRecordProxy(championByIdTarget, ensureChampionsHydrated);

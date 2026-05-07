@@ -123,6 +123,7 @@ test('resolveTeleporterStepTransport handles cross-level teleports before immedi
     assert.equal(patch.level, 1);
     assert.deepEqual(patch.position, [8, 7]);
     assert.equal(patch.direction, 'EAST');
+    assert.equal(patch.activeFloorDrag, null);
     assert.equal(patch.lastPartyMoveGameTick, 456);
     assert.equal(patch.movementCooldown, 1.5);
     assert.equal((patch.floorItems as FloorItem[]).length, 1);
@@ -173,6 +174,7 @@ test('resolveTeleporterStepTransport handles same-level teleports with floor sen
     const patch = capturedPatch as unknown as TestPatch;
     assert.deepEqual(patch.position, [7, 6]);
     assert.equal(patch.direction, 'WEST');
+    assert.equal(patch.activeFloorDrag, null);
     assert.equal(patch.movementCooldown, 2);
     assert.deepEqual(patch.pendingSensorEvents, [{ level: 0, sensorIndex: 2, remaining: 1 }]);
     assert.equal((patch.openDoors as Set<string>).has('sensor-door'), true);

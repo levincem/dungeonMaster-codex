@@ -42,6 +42,7 @@ export function resolveStairStepTransport<TState extends StairStepTransportState
             level: link.toLevel,
             position: [link.toY + dy, link.toX + dx] as [number, number],
             direction: link.dir,
+            activeFloorDrag: null,
             lastPartyMoveGameTick: state.elapsedGameTimeTicks,
             movementCooldown: deps.computeMovementCooldown(state),
             ...(movedChampionVitalsPatch ?? {}),

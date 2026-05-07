@@ -200,6 +200,7 @@ function createDeps(overrides: Partial<TestDeps> = {}): TestDeps {
         clearCreatureControlStatuses: () => {},
         getEndgameMessagesForMap: () => ['Victory'],
         dropCreatureCarriedItems: (creatures: CreatureInstance[], floorItems: FloorItem[]) => ({ creatures, floorItems }),
+        normalizeCreatureCellsOnTile: (creatures: CreatureInstance[]) => creatures,
         buildCreatureDamageEvent: () => 'damage',
         buildDeathDustEvent: (level: number, x: number, y: number) => ({
             id: 'dust',

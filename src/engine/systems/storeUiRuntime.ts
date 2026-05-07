@@ -86,6 +86,7 @@ export function buildGoToLevelPatch(
         level,
         position,
         direction,
+        activeFloorDrag: null,
     };
 }
 

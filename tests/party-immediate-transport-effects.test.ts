@@ -46,6 +46,7 @@ function createState() {
         level: 1,
         position: [4, 5] as [number, number],
         direction: 'NORTH' as const,
+        activeFloorDrag: { itemId: 'dragged-item', pointerX: 10, pointerY: 20 },
         party: [createChampion(1)],
         selectedChampionIndex: 0,
         openDoors: new Set<string>(),
@@ -140,6 +141,7 @@ test('applyImmediateTransportSquareEffects merges pit and teleporter effect patc
     assert.equal(result.level, 3);
     assert.deepEqual(result.position, [1, 2]);
     assert.equal(result.direction, 'EAST');
+    assert.equal(result.activeFloorDrag, null);
     assert.equal((result.championVitals as Record<number, ChampionVitals>)[1]?.hp, 22);
     assert.equal((result.damageEvents as DamageEvent[])[0]?.amount, 8);
     assert.equal((result.creatures as CreatureInstance[])[0]?.id, 'tele');

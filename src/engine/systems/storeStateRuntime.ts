@@ -68,17 +68,31 @@ export function buildKillCreaturePatch<TState extends KillCreatureStateLike>(
             floorItems: FloorItem[],
             creatureId: string,
         ) => {
-            creatures: CreatureInstance[];
-            floorItems: FloorItem[];
+                creatures: CreatureInstance[];
+                floorItems: FloorItem[];
         };
+        normalizeCreatureCellsOnTile: (
+            creatures: CreatureInstance[],
+            level: number,
+            x: number,
+            y: number,
+        ) => CreatureInstance[];
     },
 ) {
     const creatures = state.creatures.map((creature) =>
         creature.id === creatureId ? { ...creature, alive: false } : creature,
     );
     const dropped = deps.dropCreatureCarriedItems(creatures, state.floorItems, creatureId);
+    const killedCreature = state.creatures.find((creature) => creature.id === creatureId);
     return {
-        creatures: dropped.creatures,
+        creatures: killedCreature
+            ? deps.normalizeCreatureCellsOnTile(
+                dropped.creatures,
+                killedCreature.mapIndex,
+                killedCreature.x,
+                killedCreature.y,
+            )
+            : dropped.creatures,
         floorItems: dropped.floorItems,
     };
 }

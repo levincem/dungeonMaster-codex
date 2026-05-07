@@ -162,6 +162,12 @@ type CreatureCombatRuntimeDeps<TState extends StoreAttackFrontRuntimeState> = {
         creatures: CreatureInstance[];
         floorItems: FloorItem[];
     };
+    normalizeCreatureCellsOnTile: (
+        creatures: CreatureInstance[],
+        level: number,
+        x: number,
+        y: number,
+    ) => CreatureInstance[];
     buildCreatureDamageEvent: (level: number, x: number, y: number, amount: number, creatureId?: string) => DamageEvent;
     buildDeathDustEvent: (level: number, x: number, y: number) => SpellVisualEvent;
     getFluxcageExpiresAt: (creatureId: string) => number;
@@ -358,6 +364,7 @@ export function buildStoreAttackFrontRuntimePatch<TState extends StoreAttackFron
                         clearCreatureControlStatuses: deps.clearCreatureControlStatuses,
                         getEndgameMessagesForMap: deps.getEndgameMessagesForMap,
                         dropCreatureCarriedItems: deps.dropCreatureCarriedItems,
+                        normalizeCreatureCellsOnTile: deps.normalizeCreatureCellsOnTile,
                         buildCreatureDamageEvent: deps.buildCreatureDamageEvent,
                         buildDeathDustEvent: deps.buildDeathDustEvent,
                     },
@@ -571,6 +578,7 @@ export function buildStoreAttackFrontRuntimePatch<TState extends StoreAttackFron
                                         amount,
                                     ),
                                 dropCreatureCarriedItems: deps.dropCreatureCarriedItems,
+                                normalizeCreatureCellsOnTile: deps.normalizeCreatureCellsOnTile,
                                 buildCreatureDamageEvent: deps.buildCreatureDamageEvent,
                                 buildDeathDustEvent: deps.buildDeathDustEvent,
                             },

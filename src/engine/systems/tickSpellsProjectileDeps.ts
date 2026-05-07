@@ -26,6 +26,7 @@ type TickSpellsProjectileDepsParams = Pick<
     | 'applyPartySpellBacklashDamage'
     | 'applyPartyWideIncomingAttack'
     | 'dropCreatureCarriedItems'
+    | 'normalizeCreatureCellsOnTile'
     | 'buildDeathDustEvent'
     | 'buildCreatureDamageEvent'
     | 'onDoorMotion'
@@ -269,6 +270,7 @@ export function createTickSpellsProjectileDeps(
                 randomInt: deps.randomInt,
             }),
         dropCreatureCarriedItems: deps.dropCreatureCarriedItems,
+        normalizeCreatureCellsOnTile: deps.normalizeCreatureCellsOnTile,
         buildDeathDustEvent: deps.buildDeathDustEvent,
         buildCreatureDamageEvent: deps.buildCreatureDamageEvent,
         buildLingeringPoisonCloud: (level, x, y, initialAttack, nextPulseGameTick, visualScale) =>

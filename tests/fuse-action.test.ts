@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import type { CreatureInstance, FloorItem } from '../src/types/game.js';
+import { normalizeCreatureCellsOnTile as normalizeCreatureCellsOnTileSystem } from '../src/engine/systems/creatureTileState.js';
 import { buildFuseActionPatch } from '../src/engine/systems/fuseAction.js';
 
 type TestPatch = {
@@ -54,6 +55,8 @@ function createDeps() {
             y,
             effect: 'poison_cloud',
         }),
+        normalizeCreatureCellsOnTile: (creatures: CreatureInstance[], level: number, x: number, y: number) =>
+            normalizeCreatureCellsOnTileSystem(creatures, level, x, y, () => 4),
     };
 }
 
@@ -181,4 +184,36 @@ test('buildFuseActionPatch applies fuse damage and death visuals to non-chaos ta
     assert.equal(result.patch.floorItems.length, 1);
     assert.equal(result.patch.damageEvents[0]?.amount, 90);
     assert.equal(result.patch.spellVisualEvents[0]?.id, 'dust');
+});
+
+test('buildFuseActionPatch normalizes surviving group cells after a kill', () => {
+    const deps = createDeps();
+    const target = createCreature({ id: 'target-a', currentHP: 80, cell: 'frontLeft' });
+    const survivorA = createCreature({ id: 'target-b', currentHP: 120, cell: 'backLeft' });
+    const survivorB = createCreature({ id: 'target-c', currentHP: 120, cell: 'backRight' });
+    const result = buildFuseActionPatch(
+        {
+            now: 1000,
+            level: 2,
+            target,
+            rightHand: { typeId: 45, rawName: 'The Firestaff Complete' },
+            rightHandWeaponName: 'Firestaff',
+            fluxcageExpiresAt: 0,
+            creatures: [target, survivorA, survivorB],
+            floorItems: [],
+            damageEvents: [],
+            spellVisualEvents: [],
+        },
+        createBasePatch(),
+        deps,
+    ) as { patch: TestPatch & { creatures: CreatureInstance[] } };
+
+    assert.deepEqual(
+        result.patch.creatures.map((creature) => [creature.id, creature.alive, creature.cell]),
+        [
+            ['target-a', false, 'frontLeft'],
+            ['target-b', true, 'frontLeft'],
+            ['target-c', true, 'frontRight'],
+        ],
+    );
 });

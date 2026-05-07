@@ -90,6 +90,7 @@ test('store navigation UI patches handle gate opening and direct level jumps', (
         level: 2,
         position: [8, 9],
         direction: 'WEST',
+        activeFloorDrag: null,
     });
 });
 
