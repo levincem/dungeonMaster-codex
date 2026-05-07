@@ -1,6 +1,6 @@
 # Dungeon Master Remake - Etat du projet
 
-Etat revu le `2026-05-06`.
+Etat revu le `2026-05-08`.
 
 Ce document est un journal d'etat compact.
 
@@ -39,7 +39,7 @@ Regle de travail retenue pour les regressions:
 
 Validation locale la plus recente:
 
-- `npm.cmd test` : `859` tests verts
+- `npm.cmd test` : `900` tests verts
 - `npm.cmd run build` : vert
 
 ## Lecture beta
@@ -110,6 +110,12 @@ Point utile deja confirme:
 - le vieux `mechanisms.json` doit se lire comme un rapport humain filtre, pas comme la source de verite gameplay
 - pour la campagne DM chargee, les requirements d'objet actifs sont deja portes par `requiredObjectName` dans les maps runtime extraites
 - le fallback manuel `LOCK_DATA_TO_NAME` reste seulement comme garde-fou de compatibilite et n'est pas exerce par les sensors actifs audites au `2026-05-04`
+
+### Interactions murales tardives
+
+- l'oeil `Enlarge My View` est recale cote interaction murale avec requirement canonique `Magnifier`
+- le retrait de `Diamond Edge` redemarre bien la chaine de poison attendue
+- le pattern runtime `pickup d'objet mural -> sensor type 2 associe` est maintenant traite proprement sans muter les donnees runtime extraites
 
 ### `0696.RAW1`
 

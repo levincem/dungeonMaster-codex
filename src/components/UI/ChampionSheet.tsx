@@ -713,11 +713,37 @@ export const ChampionSheet: React.FC = () => {
         isAltarWallFace: isAltarWallFaceSystem,
         getMechanismsAtFace: (mapLevel, tileX, tileY, face) => getMechanismsAt(mapLevel, tileX, tileY, face),
         isFrontWallMechanism: (mechanism) =>
-            mechanism.trigger === 'wall-lock' || mechanism.trigger === 'alcove' || mechanism.trigger === 'object-exchanger',
+            mechanism.trigger === 'wall-lock'
+                || mechanism.trigger === 'wall-button'
+                || mechanism.trigger === 'alcove'
+                || mechanism.trigger === 'object-exchanger',
     });
     const facingFountain = frontWallContext.facingFountain;
     const facingAltar = frontWallContext.facingAltar;
     const frontWallItemMechanism = frontWallContext.frontWallItemMechanism;
+    const frontWallMechanismUsesReceptaclePresentation = frontWallItemMechanism?.trigger === 'object-exchanger'
+        || frontWallItemMechanism?.trigger === 'wall-button';
+    const frontWallMechanismIcon = !frontWallItemMechanism
+        ? null
+        : frontWallItemMechanism.trigger === 'alcove'
+            ? wallContextGlyphs.alcove
+            : frontWallMechanismUsesReceptaclePresentation
+                ? wallContextGlyphs.receptacle
+                : wallContextGlyphs.lock;
+    const frontWallMechanismLabel = !frontWallItemMechanism
+        ? ''
+        : frontWallItemMechanism.trigger === 'alcove'
+            ? text.alcove
+            : frontWallMechanismUsesReceptaclePresentation
+                ? text.receptacle
+                : text.lock;
+    const frontWallMechanismTitle = !frontWallItemMechanism
+        ? ''
+        : frontWallItemMechanism.trigger === 'alcove'
+            ? text.alcoveTitle
+            : frontWallMechanismUsesReceptaclePresentation
+                ? text.receptacleTitle
+                : text.lockTitle;
     const canDismissChampion = frontWallContext.canDismissChampion;
     const highlightMouth = draggingItem
         ? isConsumable(draggingItem) || (facingFountain && canFillWaterContainer(draggingItem))
@@ -1055,17 +1081,9 @@ export const ChampionSheet: React.FC = () => {
                             <div style={{ display: 'flex', justifyContent: 'center', minHeight: 48 }}>
                                 {frontWallItemMechanism ? (
                                     <DropZone
-                                        icon={frontWallItemMechanism.trigger === 'alcove'
-                                            ? wallContextGlyphs.alcove
-                                            : frontWallItemMechanism.trigger === 'object-exchanger'
-                                                ? wallContextGlyphs.receptacle
-                                                : wallContextGlyphs.lock}
-                                        label={frontWallItemMechanism.trigger === 'alcove' ? text.alcove : frontWallItemMechanism.trigger === 'object-exchanger' ? text.receptacle : text.lock}
-                                        title={frontWallItemMechanism.trigger === 'alcove'
-                                            ? text.alcoveTitle
-                                            : frontWallItemMechanism.trigger === 'object-exchanger'
-                                                ? text.receptacleTitle
-                                                : text.lockTitle}
+                                        icon={frontWallMechanismIcon}
+                                        label={frontWallMechanismLabel}
+                                        title={frontWallMechanismTitle}
                                         borderColor="#d4a840"
                                         onDrop={handleUseOnWallMechanism}
                                     />

@@ -50,6 +50,17 @@ function getDerivedFilename(rawName?: string): string | undefined {
     const directFilename = `${slugifyItemName(normalizedName)}.png`;
     if (AVAILABLE_ITEM_IMAGES.has(directFilename)) return directFilename;
 
+    // Generated potion names include their rolled power, e.g. "Vi Potion (32)".
+    // Strip that suffix before falling back to aliases or canonical shipped filenames.
+    const generatedVariantBaseName = normalizedName.replace(/\s*\(\d+\)\s*$/, '');
+    if (generatedVariantBaseName !== normalizedName) {
+        const baseAliasFilename = ITEM_IMAGE_NAME_ALIASES[generatedVariantBaseName];
+        if (baseAliasFilename) return baseAliasFilename;
+
+        const baseDirectFilename = `${slugifyItemName(generatedVariantBaseName)}.png`;
+        if (AVAILABLE_ITEM_IMAGES.has(baseDirectFilename)) return baseDirectFilename;
+    }
+
     return undefined;
 }
 

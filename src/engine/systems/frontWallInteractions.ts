@@ -86,6 +86,7 @@ type FrontWallItemDeps<TState, TSensorState, TAppliedPatch extends Record<string
         wallY: number,
         face: CardinalDir,
         ss: TSensorState,
+        selectedItem: FloorItem | undefined,
     ) => AnyObjectResult;
     triggerAlcoveDepositSensor: (
         level: number,
@@ -224,6 +225,7 @@ export function tryUseChampionItemOnFrontWall<
         wallY,
         face,
         ss,
+        carriedItem,
     );
     if (anyObjectResult.matched) {
         return {
@@ -376,6 +378,7 @@ export function tryUseFloorItemOnFrontWall<
         wallY,
         face,
         ss,
+        item,
     );
     if (anyObjectResult.matched) {
         return {

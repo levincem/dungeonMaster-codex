@@ -16,6 +16,7 @@ import {
     itemMatchesMechanismRequirement,
     itemToLockData,
 } from '../data/mechanisms';
+import { getWallSensorRequiredItemOverride } from '../data/wallSensorRuntimeCompatibility';
 import type {
     GameMap, GameTile,
     CreatureInstance, FloorItem,
@@ -1417,6 +1418,7 @@ const {
     isPartyPossessionSensor,
     isSpecificObjectFloorSensor,
     getRequiredSensorItemName,
+    getWallSensorRequiredItemOverride,
     partyHasRequiredItem,
     tileHasRequiredFloorItem,
     computeSensorEffect,

@@ -43,6 +43,13 @@ type WallItemSensorDeps<TSensorState extends SensorStateLike, TState> = {
     isWallObjectExchangerSensor: (sensor: SensorObject) => boolean;
     isWallSensorConsumedAtRuntime: (level: number, sensor: SensorObject, ss: TSensorState) => boolean;
     getRequiredSensorItemName: (sensor: SensorObject) => string | undefined;
+    getWallSensorRequiredItemOverride?: (
+        level: number,
+        x: number,
+        y: number,
+        face: CardinalDir,
+        sensor: SensorObject,
+    ) => string | undefined;
     itemMatchesMechanismRequirement: (item: FloorItem, requiredName: string | undefined) => boolean;
     itemToLockData: (category: FloorItem['category'], typeId: number) => number;
     isConsumableLockSensor: (sensor: SensorObject) => boolean;
@@ -136,6 +143,22 @@ function resolveHoldWallNicheAction(sensor: SensorObject): SensorAction {
     return sensor.revert ? 'Clear' : 'Set';
 }
 
+function resolveMountedItemPickupAction(sensor: Pick<SensorObject, 'revert'>): SensorAction {
+    return sensor.revert ? 'Set' : 'Clear';
+}
+
+function resolveWallSensorRequiredItemName<TSensorState extends SensorStateLike, TState>(
+    deps: WallItemSensorDeps<TSensorState, TState>,
+    level: number,
+    x: number,
+    y: number,
+    face: CardinalDir,
+    sensor: SensorObject,
+): string | undefined {
+    return deps.getWallSensorRequiredItemOverride?.(level, x, y, face, sensor)
+        ?? deps.getRequiredSensorItemName(sensor);
+}
+
 export function triggerLockSensors<
     TSensorState extends SensorStateLike,
     TState,
@@ -186,7 +209,7 @@ export function triggerLockSensors<
         if (deps.isWallSensorConsumedAtRuntime(level, sensor, cur)) continue;
         if ((sensor.type === 11 || sensor.type === 17) && sensorIndex < faceSensors.length - 1) continue;
 
-        const requiredName = deps.getRequiredSensorItemName(sensor);
+        const requiredName = resolveWallSensorRequiredItemName(deps, level, wx, wy, face, sensor);
         const requiredData = sensor.data;
         let matchChampId: number | null = null;
         let matchItemId: string | null = null;
@@ -361,7 +384,7 @@ export function triggerAlcoveDepositSensor<
     for (const sensor of faceSensors) {
         if (!deps.isWallAlcoveSensor(sensor)) continue;
 
-        const requiredName = deps.getRequiredSensorItemName(sensor);
+        const requiredName = resolveWallSensorRequiredItemName(deps, level, wx, wy, face, sensor);
         if (requiredName && !deps.itemMatchesMechanismRequirement(candidate, requiredName)) continue;
 
         let newInventories: Record<number, FloorItem[]> | null = null;
@@ -405,7 +428,7 @@ export function triggerAlcoveDepositSensor<
         for (const sensor of faceSensors) {
             if (sensor.type !== 2 || sensor.action === 'Hold') continue;
 
-            const requiredName = deps.getRequiredSensorItemName(sensor);
+            const requiredName = resolveWallSensorRequiredItemName(deps, level, wx, wy, face, sensor);
             if (!requiredName || !deps.itemMatchesMechanismRequirement(candidate, requiredName)) continue;
 
             let newInventories: Record<number, FloorItem[]> | null = null;
@@ -438,7 +461,7 @@ export function triggerAlcoveDepositSensor<
 
         for (const sensor of faceSensors) {
             if (!isHoldWallNicheSensor(sensor)) continue;
-            const requiredName = deps.getRequiredSensorItemName(sensor);
+            const requiredName = resolveWallSensorRequiredItemName(deps, level, wx, wy, face, sensor);
             if (requiredName && !deps.itemMatchesMechanismRequirement(candidate, requiredName)) continue;
 
             let newInventories: Record<number, FloorItem[]> | null = null;
@@ -487,6 +510,7 @@ export function triggerAnyObjectWallSensor<
     face: CardinalDir,
     ss: TSensorState,
     deps: WallItemSensorDeps<TSensorState, TState>,
+    selectedItem?: FloorItem,
 ): ObjectResult<TSensorState> {
     const tile = deps.getTile(level, wx, wy);
     if (!isWallTile(tile)) {
@@ -494,12 +518,18 @@ export function triggerAnyObjectWallSensor<
     }
 
     const faceSensors = deps.getWallFaceSensorsInRuntimeOrder(level, wx, wy, face, ss.sensorRotationOffsets);
+    const isAlcoveLikeFace = hasOriginalWallMountedItemAtFace(tile, face)
+        || deps.isOriginalAlcoveWallFace(level, wx, wy, face);
     let cur = ss;
     let matched = false;
 
     for (const sensor of faceSensors) {
         if (sensor.type !== 2 || sensor.revert) continue;
-        if (deps.getRequiredSensorItemName(sensor)) continue;
+        const requiredName = resolveWallSensorRequiredItemName(deps, level, wx, wy, face, sensor);
+        if (requiredName) {
+            if (isAlcoveLikeFace) continue;
+            if (!selectedItem || !deps.itemMatchesMechanismRequirement(selectedItem, requiredName)) continue;
+        }
         if (deps.isWallSensorConsumedAtRuntime(level, sensor, cur)) continue;
         const effectiveSensor = sensor.action === 'Hold'
             ? { ...sensor, action: 'Set' as SensorAction }
@@ -551,7 +581,7 @@ export function triggerObjectExchangerSensor<
     const faceSensors = deps.getWallFaceSensorsInRuntimeOrder(level, wx, wy, face, ss.sensorRotationOffsets);
     const pendingAmalgamUnlock = faceSensors.find((sensor) =>
         sensor.type === 17 &&
-        deps.getRequiredSensorItemName(sensor) === 'ZOKATHRA SPELL' &&
+        resolveWallSensorRequiredItemName(deps, level, wx, wy, face, sensor) === 'ZOKATHRA SPELL' &&
         !ss.firedSensors.has(`${level}_${sensor.index}`),
     );
     for (const sensor of faceSensors) {
@@ -559,12 +589,12 @@ export function triggerObjectExchangerSensor<
         if (
             pendingAmalgamUnlock &&
             sensor.type === 16 &&
-            deps.getRequiredSensorItemName(sensor) === 'THE FIRESTAFF'
+            resolveWallSensorRequiredItemName(deps, level, wx, wy, face, sensor) === 'THE FIRESTAFF'
         ) {
             continue;
         }
 
-        const requiredName = deps.getRequiredSensorItemName(sensor);
+        const requiredName = resolveWallSensorRequiredItemName(deps, level, wx, wy, face, sensor);
         if (requiredName && !deps.itemMatchesMechanismRequirement(candidate, requiredName)) continue;
 
         let newInventories: Record<number, FloorItem[]> | null = null;
@@ -616,55 +646,84 @@ export function clearAlcoveStateOnPickup<
     const tile = deps.getTile(item.mapIndex, item.x, item.y);
     if (!isWallTile(tile)) return {};
 
-    const faceSensors = deps.getWallFaceSensorsInRuntimeOrder(item.mapIndex, item.x, item.y, item.tilePos, deps.buildSensorStateSnapshot(state).sensorRotationOffsets);
+    const initialSensorState = deps.buildSensorStateSnapshot(state);
+    const faceSensors = deps.getWallFaceSensorsInRuntimeOrder(
+        item.mapIndex,
+        item.x,
+        item.y,
+        item.tilePos,
+        initialSensorState.sensorRotationOffsets,
+    );
     for (const sensor of faceSensors) {
         if (!deps.isWallAlcoveSensor(sensor)) continue;
-        const requiredName = deps.getRequiredSensorItemName(sensor);
+        const requiredName = resolveWallSensorRequiredItemName(deps, item.mapIndex, item.x, item.y, item.tilePos, sensor);
         if (requiredName && !deps.itemMatchesMechanismRequirement(item, requiredName)) continue;
-        const ss = deps.buildSensorStateSnapshot(state);
         const sensorKey = `${item.mapIndex}_${sensor.index}`;
         let nextState = {
-            ...ss,
-            activeSensors: deps.applyToSet(ss.activeSensors, sensorKey, 'Clear'),
+            ...initialSensorState,
+            activeSensors: deps.applyToSet(initialSensorState.activeSensors, sensorKey, 'Clear'),
         } as TSensorState;
         nextState = {
             ...nextState,
             sensorRotationOffsets: deps.rotateWallFaceSensors(item.mapIndex, item.x, item.y, item.tilePos, nextState.sensorRotationOffsets),
         };
-        return deps.diffSensorState(ss, nextState);
+        return deps.diffSensorState(initialSensorState, nextState);
     }
 
-    if (
-        hasOriginalWallMountedItemAtFace(tile, item.tilePos)
-        || deps.isOriginalAlcoveWallFace(item.mapIndex, item.x, item.y, item.tilePos)
-    ) {
-        const remainingMountedItems = ((state as { floorItems?: FloorItem[] }).floorItems ?? []).some((entry) =>
-            entry.id !== item.id
-            && entry.mapIndex === item.mapIndex
-            && entry.x === item.x
-            && entry.y === item.y
-            && entry.tilePos === item.tilePos,
-        );
-        if (remainingMountedItems) return {};
+    const hasOriginalMountedItem = hasOriginalWallMountedItemAtFace(tile, item.tilePos);
+    const hasOriginalAlcoveFace = deps.isOriginalAlcoveWallFace(item.mapIndex, item.x, item.y, item.tilePos);
+    if (!hasOriginalMountedItem && !hasOriginalAlcoveFace) return {};
 
+    const remainingMountedItems = ((state as { floorItems?: FloorItem[] }).floorItems ?? []).some((entry) =>
+        entry.id !== item.id
+        && entry.mapIndex === item.mapIndex
+        && entry.x === item.x
+        && entry.y === item.y
+        && entry.tilePos === item.tilePos,
+    );
+    if (remainingMountedItems) return {};
+
+    let nextState = initialSensorState;
+
+    if (hasOriginalMountedItem) {
         for (const sensor of faceSensors) {
-            if (!isHoldWallNicheSensor(sensor)) continue;
-            const requiredName = deps.getRequiredSensorItemName(sensor);
+            if (sensor.type !== 2 || sensor.action === 'Hold') continue;
+            if (deps.isWallSensorConsumedAtRuntime(item.mapIndex, sensor, nextState)) continue;
+            const requiredName = resolveWallSensorRequiredItemName(deps, item.mapIndex, item.x, item.y, item.tilePos, sensor);
             if (requiredName && !deps.itemMatchesMechanismRequirement(item, requiredName)) continue;
-            const ss = deps.buildSensorStateSnapshot(state);
+
             const effectiveSensor = {
                 ...sensor,
-                action: (sensor.revert ? 'Set' : 'Clear') as SensorAction,
+                action: resolveMountedItemPickupAction(sensor),
             };
-            const effect = deps.computeSensorEffect(effectiveSensor, item.mapIndex, ss);
-            if (effect.openDoors && effect.openDoors !== ss.openDoors) {
+            const effect = deps.computeSensorEffect(effectiveSensor, item.mapIndex, nextState);
+            if (effect.openDoors && effect.openDoors !== nextState.openDoors) {
                 deps.playDoorMotion(deps.resolveDoorSoundTarget(effectiveSensor, item.mapIndex));
             }
-            const nextState = { ...ss, ...effect } as TSensorState;
-            return deps.diffSensorState(ss, nextState);
+            if (Object.keys(effect).length > 0) {
+                nextState = { ...nextState, ...effect } as TSensorState;
+            }
         }
     }
-    return {};
+
+    for (const sensor of faceSensors) {
+        if (!isHoldWallNicheSensor(sensor)) continue;
+        const requiredName = resolveWallSensorRequiredItemName(deps, item.mapIndex, item.x, item.y, item.tilePos, sensor);
+        if (requiredName && !deps.itemMatchesMechanismRequirement(item, requiredName)) continue;
+        const effectiveSensor = {
+            ...sensor,
+            action: resolveMountedItemPickupAction(sensor),
+        };
+        const effect = deps.computeSensorEffect(effectiveSensor, item.mapIndex, nextState);
+        if (effect.openDoors && effect.openDoors !== nextState.openDoors) {
+            deps.playDoorMotion(deps.resolveDoorSoundTarget(effectiveSensor, item.mapIndex));
+        }
+        if (Object.keys(effect).length > 0) {
+            nextState = { ...nextState, ...effect } as TSensorState;
+        }
+    }
+
+    return deps.diffSensorState(initialSensorState, nextState);
 }
 
 export function applyFirestaffExchangerReward<TState extends FirestaffRewardStateLike>(

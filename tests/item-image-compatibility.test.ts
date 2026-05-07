@@ -8,6 +8,7 @@ import {
     LEGACY_POTION_TYPE_IMAGE_MAP,
     LEGACY_WEAPON_TYPE_IMAGE_MAP,
 } from '../src/data/itemImageCompatibility.js';
+import { getFloorItemImage } from '../src/data/itemImages.js';
 
 test('item image aliases keep only friendly potion labels that do not match shipped filenames directly', () => {
     assert.equal(ITEM_IMAGE_NAME_ALIASES['health potion'], 'vi_potion.png');
@@ -44,4 +45,21 @@ test('legacy image maps keep only ids that still cannot be resolved by canonical
     assert.deepEqual(LEGACY_MISC_TYPE_IMAGE_MAP, { 52: 'cross_key.png' });
 
     assert.deepEqual(LEGACY_CONTAINER_TYPE_IMAGE_MAP, {});
+});
+
+test('generated potion names keep their canonical item art after appending rolled power', () => {
+    assert.equal(
+        getFloorItemImage({
+            id: 'vi-generated',
+            category: 'Potion',
+            typeId: 14,
+            rawName: 'Vi Potion (32)',
+            potionPower: 32,
+            mapIndex: 0,
+            x: 0,
+            y: 0,
+            tilePos: 'North',
+        }),
+        '/game/images/items/vi_potion.png',
+    );
 });

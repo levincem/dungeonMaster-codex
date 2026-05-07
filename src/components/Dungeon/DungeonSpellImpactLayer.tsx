@@ -39,7 +39,7 @@ export const SpellImpactLayer: React.FC = () => {
     const disruptMaterial = useMemo(() => createPulseMaterial('#aeefff', 0.3), []);
     const disruptCoreMaterial = useMemo(() => createPulseMaterial('#f3ffff', 0.52), []);
     const disruptShardMaterial = useMemo(() => createPulseMaterial('#8dd8ff', 0.34), []);
-    const dustMaterial = useMemo(() => createPulseMaterial('#c9a56c', 0.38), []);
+    const dustMaterial = useMemo(() => createPulseMaterial('#d8b781', 0.5), []);
 
     useEffect(() => () => {
         ringGeometry.dispose();
@@ -739,10 +739,10 @@ const DeathDustBurst: React.FC<{
 }> = ({ event, material }) => {
     const groupRef = useRef<THREE.Group>(null);
     const seed = useMemo(
-        () => Array.from({ length: 12 }, (_, index) => {
-            const angle = (index / 12) * Math.PI * 2;
-            const radius = 0.08 + (index % 4) * 0.045;
-            const rise = 0.08 + (index % 3) * 0.04;
+        () => Array.from({ length: 14 }, (_, index) => {
+            const angle = (index / 14) * Math.PI * 2;
+            const radius = 0.1 + (index % 4) * 0.05;
+            const rise = 0.11 + (index % 3) * 0.045;
             return { x: Math.cos(angle) * radius, z: Math.sin(angle) * radius, rise };
         }),
         [],
@@ -751,24 +751,24 @@ const DeathDustBurst: React.FC<{
     useFrame(() => {
         if (!groupRef.current) return;
         const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / 850));
+        const t = Math.max(0, Math.min(1, age / DAMAGE_EVENT_LIFETIME_MS));
         groupRef.current.children.forEach((child, index) => {
             const particle = child as THREE.Mesh;
             const cfg = seed[index];
-            particle.position.x = cfg.x * (0.35 + t * 1.25);
-            particle.position.z = cfg.z * (0.35 + t * 1.25);
-            particle.position.y = cfg.rise * Math.sin(Math.PI * t) - t * 0.08;
-            particle.scale.setScalar((1 - t) * (0.55 + (index % 3) * 0.18));
-            (particle.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.42;
+            particle.position.x = cfg.x * (0.45 + t * 1.45);
+            particle.position.z = cfg.z * (0.45 + t * 1.45);
+            particle.position.y = cfg.rise * Math.sin(Math.PI * t) - t * 0.04;
+            particle.scale.setScalar((1 - t) * (0.72 + (index % 3) * 0.22));
+            (particle.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.55;
             particle.visible = t < 1;
         });
     });
 
     return (
-        <group ref={groupRef} position={[event.x * GRID_SIZE, GRID_SIZE * 0.05, event.y * GRID_SIZE]}>
+        <group ref={groupRef} position={[event.x * GRID_SIZE, GRID_SIZE * 0.08, event.y * GRID_SIZE]}>
             {seed.map((_, index) => (
                 <mesh key={index} material={material} frustumCulled={false}>
-                    <sphereGeometry args={[0.08, 6, 6]} />
+                    <sphereGeometry args={[0.1, 6, 6]} />
                 </mesh>
             ))}
         </group>

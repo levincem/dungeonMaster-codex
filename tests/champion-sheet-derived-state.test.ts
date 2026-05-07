@@ -13,7 +13,7 @@ import type { EquipSlotKey } from '../src/types/items.js';
 import type { ChampionEquipment, FloorItem, GameTile } from '../src/types/game.js';
 
 type TestMechanism = {
-    trigger: 'wall-lock' | 'alcove' | 'object-exchanger' | 'other';
+    trigger: 'wall-lock' | 'wall-button' | 'alcove' | 'object-exchanger' | 'other';
 };
 
 function createChampion() {
@@ -261,6 +261,25 @@ test('buildChampionSheetFrontWallContext keeps fountain interaction when the fro
     assert.equal(context.facingFountain, true);
     assert.equal(context.facingAltar, false);
     assert.equal(context.frontWallItemMechanism, null);
+});
+
+test('buildChampionSheetFrontWallContext returns wall-button mechanisms when the consumer accepts them', () => {
+    const wallTile = createTile('Wall');
+    const wallButton: TestMechanism = { trigger: 'wall-button' };
+
+    const context = buildChampionSheetFrontWallContext<TestMechanism>({
+        level: 10,
+        position: [24, 20],
+        direction: 'EAST',
+        firedSensors: new Set(),
+        getTileAt: (_level, tileX, tileY) => (tileX === 21 && tileY === 24 ? wallTile : undefined),
+        hasEffectiveOriginalWallOverlayAt: () => false,
+        isAltarWallFace: () => false,
+        getMechanismsAtFace: () => [wallButton],
+        isFrontWallMechanism: (mechanism) => mechanism.trigger === 'wall-button',
+    });
+
+    assert.equal(context.frontWallItemMechanism, wallButton);
 });
 
 test('getFirstEquipTargetSlot prefers an empty valid slot before falling back to the first slot', () => {

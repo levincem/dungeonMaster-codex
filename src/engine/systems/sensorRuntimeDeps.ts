@@ -100,6 +100,13 @@ type MovementSensorDepsLike<TSensorState, TPendingSensorEvent extends PendingSen
     isPartyPossessionSensor: (sensor: SensorObject) => boolean;
     isSpecificObjectFloorSensor: (sensor: SensorObject) => boolean;
     getRequiredSensorItemName: (sensor: SensorObject) => string | undefined;
+    getWallSensorRequiredItemOverride?: (
+        level: number,
+        x: number,
+        y: number,
+        face: CardinalDir,
+        sensor: SensorObject,
+    ) => string | undefined;
     partyHasRequiredItem: (
         requiredName: string | undefined,
         inventories: Record<number, FloorItem[]>,
@@ -175,6 +182,13 @@ type WallItemSensorDepsLike<TSensorState extends WallItemSensorStateLike, TState
     isWallObjectExchangerSensor: (sensor: SensorObject) => boolean;
     isWallSensorConsumedAtRuntime: (level: number, sensor: SensorObject, ss: TSensorState) => boolean;
     getRequiredSensorItemName: (sensor: SensorObject) => string | undefined;
+    getWallSensorRequiredItemOverride?: (
+        level: number,
+        x: number,
+        y: number,
+        face: CardinalDir,
+        sensor: SensorObject,
+    ) => string | undefined;
     itemMatchesMechanismRequirement: (item: FloorItem, requiredName: string | undefined) => boolean;
     itemToLockData: (category: FloorItem['category'], typeId: number) => number;
     isConsumableLockSensor: (sensor: SensorObject) => boolean;
@@ -224,6 +238,7 @@ type FrontWallInteractionDepsLike<TState, TSensorState, TAppliedPatch extends Re
         face: CardinalDir,
         ss: TSensorState,
         deps: WallItemSensorDepsLike<TSensorState & WallItemSensorStateLike, TState>,
+        selectedItem?: FloorItem,
     ) => {
         sensorChanges: Record<string, unknown>;
         matched: boolean;
@@ -294,6 +309,13 @@ type StoreSensorRuntimeDepsBundleParams<
     isPartyPossessionSensor: (sensor: SensorObject) => boolean;
     isSpecificObjectFloorSensor: (sensor: SensorObject) => boolean;
     getRequiredSensorItemName: (sensor: SensorObject) => string | undefined;
+    getWallSensorRequiredItemOverride?: (
+        level: number,
+        x: number,
+        y: number,
+        face: CardinalDir,
+        sensor: SensorObject,
+    ) => string | undefined;
     partyHasRequiredItem: (
         requiredName: string | undefined,
         inventories: Record<number, FloorItem[]>,
@@ -484,6 +506,7 @@ export function createWallItemSensorDeps<TSensorState extends WallItemSensorStat
         isWallObjectExchangerSensor: params.isWallObjectExchangerSensor,
         isWallSensorConsumedAtRuntime: params.isWallSensorConsumedAtRuntime,
         getRequiredSensorItemName: params.getRequiredSensorItemName,
+        getWallSensorRequiredItemOverride: params.getWallSensorRequiredItemOverride,
         itemMatchesMechanismRequirement: params.itemMatchesMechanismRequirement,
         itemToLockData: params.itemToLockData,
         isConsumableLockSensor: params.isConsumableLockSensor,
@@ -526,7 +549,8 @@ export function createFrontWallInteractionDeps<
             wallY: number,
             face: CardinalDir,
             ss: TSensorState,
-        ) => params.triggerAnyObjectWallSensor(level, wallX, wallY, face, ss, wallItemSensorDeps),
+            selectedItem?: FloorItem,
+        ) => params.triggerAnyObjectWallSensor(level, wallX, wallY, face, ss, wallItemSensorDeps, selectedItem),
         triggerAlcoveDepositSensor: (
             level: number,
             wallX: number,
@@ -597,6 +621,7 @@ export function createStoreSensorRuntimeDepsBundle<
         isWallObjectExchangerSensor: params.isWallObjectExchangerSensor,
         isWallSensorConsumedAtRuntime: params.isWallSensorConsumedAtRuntime,
         getRequiredSensorItemName: params.getRequiredSensorItemName,
+        getWallSensorRequiredItemOverride: params.getWallSensorRequiredItemOverride,
         itemMatchesMechanismRequirement: params.itemMatchesMechanismRequirement,
         itemToLockData: params.itemToLockData,
         isConsumableLockSensor: params.isConsumableLockSensor,

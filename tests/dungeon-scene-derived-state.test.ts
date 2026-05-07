@@ -133,6 +133,22 @@ test('resolveFrontWallInteractionKind treats a front fountain overlay as an inte
     assert.equal(interaction, 'fountain');
 });
 
+test('resolveFrontWallInteractionKind exposes generic wall-button faces as front-wall item targets', () => {
+    const map = createMap(4, 3);
+    map.tiles[1][2] = createTile(2, 1, 'Wall');
+
+    const interaction = resolveFrontWallInteractionKind({
+        level: 0,
+        map,
+        position: [1, 1],
+        direction: 'EAST',
+        openWalls: new Set(),
+        getMechanismsAtFace: () => [{ trigger: 'wall-button', sensorType: 2 }],
+    });
+
+    assert.equal(interaction, 'wall-button');
+});
+
 test('resolveFrontWallInteractionKind treats hold wall niches with mounted items as alcove-like drop targets', () => {
     const map = createMap(4, 3);
     map.tiles[1][2] = createTile(2, 1, 'Wall', [

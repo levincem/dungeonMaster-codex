@@ -510,6 +510,47 @@ test('clearAlcoveStateOnPickup releases hold wall niches when the last mounted i
     assert.deepEqual(Array.from(result.openDoors ?? []), ['effect-Clear']);
 });
 
+test('clearAlcoveStateOnPickup triggers mounted-item pickup wall buttons even when the runtime sensor has no explicit item name', () => {
+    const receivedActions: string[] = [];
+    const sensor = {
+        category: 'Sensor',
+        index: 566,
+        type: 2,
+        revert: true,
+        action: 'Set',
+        onceOnly: true,
+        tilePos: 'East',
+    } as const;
+    const item = {
+        id: 'diamond-edge-1',
+        category: 'Weapon' as const,
+        typeId: 15,
+        rawName: 'Diamond Edge',
+        mapIndex: 10,
+        x: 0,
+        y: 14,
+        tilePos: 'East' as const,
+    };
+    const deps = createDeps({
+        getTile: () => ({ x: 0, y: 14, type: 'Wall' as const, objects: [sensor, item] }),
+        getWallFaceSensorsInRuntimeOrder: () => [sensor],
+        getRequiredSensorItemName: () => undefined,
+        itemMatchesMechanismRequirement: () => false,
+        computeSensorEffect: (entry: { action: string }) => {
+            receivedActions.push(entry.action);
+            return { openDoors: new Set([`effect-${entry.action}`]) };
+        },
+    });
+
+    const result = clearAlcoveStateOnPickup(item, {
+        ...createState(),
+        floorItems: [item],
+    }, deps);
+
+    assert.deepEqual(receivedActions, ['Set']);
+    assert.deepEqual(Array.from(result.openDoors ?? []), ['effect-Set']);
+});
+
 test('clearAlcoveStateOnPickup restores original alcove-shaped reverse hold sensors when the last item is removed', () => {
     const receivedActions: string[] = [];
     const holderSensor = {

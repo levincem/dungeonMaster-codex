@@ -1,6 +1,6 @@
 # Next Phase Plan
 
-Etat revu le `2026-05-06`.
+Etat revu le `2026-05-08`.
 
 Ce document ne doit contenir que des sujets encore ouverts.
 

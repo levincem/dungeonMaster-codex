@@ -569,7 +569,7 @@ const DarknessOverlay: React.FC = () => {
 type WallDropPlacement = 'front' | 'left' | 'right';
 
 const WallMechanismDropTarget = ({ kind, placement = 'front', wallX, wallY, wallFace, onUseItem, onActivate, activeFloorDragItemId, selectedChampionId, onUseFloorItem }: {
-    kind: 'wall-lock' | 'alcove' | 'object-exchanger' | 'altar' | 'fountain';
+    kind: 'wall-lock' | 'wall-button' | 'alcove' | 'object-exchanger' | 'altar' | 'fountain';
     placement?: WallDropPlacement;
     wallX?: number;
     wallY?: number;
@@ -1424,6 +1424,16 @@ export const DungeonScene = () => {
                 wallDropTarget.wallX,
                 wallDropTarget.wallY,
                 wallDropTarget.wallFace,
+            )) {
+                return;
+            }
+        }
+
+        if (shouldUseWallTarget && wallDropTarget?.kind === 'front-wall' && payload.fromSlot !== 'container') {
+            if (state.useItemOnFrontWall(
+                payload.fromChampionId,
+                payload.itemId,
+                payload.fromSlot,
             )) {
                 return;
             }

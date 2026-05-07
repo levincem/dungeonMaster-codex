@@ -29,7 +29,7 @@ type MapMechanismEntry = {
     graphic?: number;
     face: CardinalDir;
 };
-export type FrontWallInteractionKind = 'wall-lock' | 'alcove' | 'object-exchanger' | 'fountain';
+export type FrontWallInteractionKind = 'wall-lock' | 'wall-button' | 'alcove' | 'object-exchanger' | 'fountain';
 export type AltarDropTarget = {
     placement: WallDropPlacement;
     wallX: number;
@@ -169,6 +169,24 @@ function isWallFaceVisible(
     return hasWallFaceLineOfSight(map, level, openDoors, openWalls, isSelfRevealingWallTile, doorBlocksVision, partyX, partyY, anchor.x, anchor.y);
 }
 
+function resolveMechanismInteractionKind(
+    mechanisms: readonly MechanismEntry[],
+): Exclude<FrontWallInteractionKind, 'fountain'> | null {
+    if (mechanisms.some((entry) => entry.trigger === 'alcove')) {
+        return 'alcove';
+    }
+    if (mechanisms.some((entry) => entry.trigger === 'object-exchanger')) {
+        return 'object-exchanger';
+    }
+    if (mechanisms.some((entry) => entry.trigger === 'wall-lock')) {
+        return 'wall-lock';
+    }
+    if (mechanisms.some((entry) => entry.trigger === 'wall-button')) {
+        return 'wall-button';
+    }
+    return null;
+}
+
 export function resolveFrontWallInteractionKind(args: {
     level: number;
     map: GameMap;
@@ -211,15 +229,11 @@ export function resolveFrontWallInteractionKind(args: {
     ) {
         return 'alcove';
     }
-    const mechanism = mechanisms.find((entry) =>
-        entry.trigger === 'wall-lock' || entry.trigger === 'alcove' || entry.trigger === 'object-exchanger',
-    );
-    if (!mechanism) {
+    const mechanismKind = resolveMechanismInteractionKind(mechanisms);
+    if (!mechanismKind) {
         return isWallMountedItemHolderFace(tile, frontFace) ? 'alcove' : null;
     }
-    if (mechanism.trigger === 'alcove') return 'alcove';
-    if (mechanism.trigger === 'object-exchanger') return 'object-exchanger';
-    return 'wall-lock';
+    return mechanismKind;
 }
 
 export function resolveAltarDropTargets(args: {

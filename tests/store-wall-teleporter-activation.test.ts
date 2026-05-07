@@ -329,6 +329,160 @@ test('level 8 Corbamite alcove rejects the wrong item and keeps the matching que
     }
 });
 
+test('level 10 magnifier opens the Enlarge My View trick wall from the front-wall interaction path', async () => {
+    await preloadDungeonData();
+    const { useStore } = await import('../src/engine/store.js');
+    const initialState = enterDungeonForTest(useStore);
+
+    try {
+        useStore.getState().goToLevel(10, [24, 20], 'EAST');
+
+        const rock = {
+            id: 'test-rock',
+            category: 'Misc',
+            typeId: 3,
+            rawName: 'Rock',
+            mapIndex: 10,
+            x: 20,
+            y: 24,
+            tilePos: 'North',
+        } as const;
+        const magnifier = {
+            id: 'test-magnifier',
+            category: 'Misc',
+            typeId: 50,
+            rawName: 'Magnifier',
+            mapIndex: 10,
+            x: 20,
+            y: 24,
+            tilePos: 'North',
+        } as const;
+
+        useStore.setState({
+            gamePhase: 'exploration',
+            paused: false,
+            sleeping: false,
+            optionsModalOpen: false,
+            movementCooldown: 0,
+            position: [24, 20],
+            direction: 'EAST',
+            championInventories: { 1: [rock] },
+            championEquipment: { 1: {} },
+            pendingSensorEvents: [],
+            damageEvents: [],
+            spellVisualEvents: [],
+            activeFloorDrag: null,
+            lastMonsterAttackDebug: null,
+        });
+
+        assert.equal(useStore.getState().openWalls.has('10,23,21'), false);
+
+        const usedRock = withAudioStub(() =>
+            useStore.getState().useItemOnFrontWall(1, rock.id, 'inventory'),
+        );
+        const afterWrongItem = useStore.getState();
+        assert.equal(usedRock, false);
+        assert.equal(afterWrongItem.openWalls.has('10,23,21'), false);
+        assert.equal(afterWrongItem.championInventories[1]?.some((item) => item.id === rock.id), true);
+
+        useStore.setState({
+            championInventories: { 1: [magnifier] },
+            championEquipment: { 1: {} },
+            pendingSensorEvents: [],
+            damageEvents: [],
+            spellVisualEvents: [],
+            activeFloorDrag: null,
+            lastMonsterAttackDebug: null,
+        });
+
+        const usedMagnifier = withAudioStub(() =>
+            useStore.getState().useItemOnFrontWall(1, magnifier.id, 'inventory'),
+        );
+
+        const afterUse = useStore.getState();
+        assert.equal(usedMagnifier, true);
+        assert.equal(afterUse.openWalls.has('10,23,21'), true);
+        assert.equal(afterUse.championInventories[1]?.some((item) => item.id === magnifier.id), true);
+    } finally {
+        useStore.setState(initialState, true);
+    }
+});
+
+test('level 10 Diamond Edge pickup fires the wall sensor and carrying it through the hall triggers the possession plate', async () => {
+    await preloadDungeonData();
+    const { preloadOriginalWallOverlayData } = await import('../src/data/originalWallOverlayData.js');
+    await preloadOriginalWallOverlayData();
+    const { useStore } = await import('../src/engine/store.js');
+    const initialState = enterDungeonForTest(useStore);
+
+    try {
+        useStore.getState().goToLevel(10, [14, 1], 'WEST');
+
+        useStore.setState({
+            gamePhase: 'exploration',
+            paused: false,
+            sleeping: false,
+            optionsModalOpen: false,
+            movementCooldown: 0,
+            position: [14, 1],
+            direction: 'WEST',
+            party: [{ id: 1 } as never],
+            championInventories: { 1: [] },
+            championEquipment: { 1: {} },
+            pendingSensorEvents: [],
+            damageEvents: [],
+            spellVisualEvents: [],
+            activeFloorDrag: null,
+            lastMonsterAttackDebug: null,
+        });
+
+        const diamondEdge = useStore.getState().floorItems.find((item) =>
+            item.mapIndex === 10 &&
+            item.x === 0 &&
+            item.y === 14 &&
+            item.tilePos === 'East' &&
+            item.category === 'Weapon' &&
+            item.typeId === 15,
+        );
+        assert.ok(diamondEdge, 'expected the Diamond Edge to still be mounted on the level 10 wall face');
+
+        const pickedUp = withAudioStub(() =>
+            useStore.getState().pickupItemToChampion(diamondEdge!.id, 1),
+        );
+
+        const afterPickup = useStore.getState();
+        assert.equal(pickedUp, true);
+        assert.equal(afterPickup.floorItems.some((item) => item.id === diamondEdge!.id), false);
+        assert.equal(afterPickup.championInventories[1]?.some((item) => item.id === diamondEdge!.id), true);
+        assert.equal(
+            afterPickup.projectiles.some((projectile) =>
+                projectile.level === 10
+                && projectile.launchedBy === 'wall'
+                && projectile.effect === 'poison_cloud',
+            ),
+            true,
+        );
+
+        useStore.setState({
+            direction: 'EAST',
+            movementCooldown: 0,
+            pendingSensorEvents: [],
+            damageEvents: [],
+            spellVisualEvents: [],
+        });
+
+        withAudioStub(() => {
+            useStore.getState().moveForward();
+        });
+
+        const afterMove = useStore.getState();
+        assert.deepEqual(afterMove.position, [14, 2]);
+        assert.equal(afterMove.firedSensors.has('10_586'), true);
+    } finally {
+        useStore.setState(initialState, true);
+    }
+});
+
 test('level 8 fireball plates stay quiet when the party walks onto a plate already occupied by an item', async () => {
     await preloadDungeonData();
     const { useStore } = await import('../src/engine/store.js');

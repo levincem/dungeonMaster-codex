@@ -6,17 +6,17 @@ Goal: rebuild the original dungeon, systems, and feel as faithfully as possible 
 
 Live build: [dungeon-master.fr](https://dungeon-master.fr/)
 
-Current local version: `v0.8.7`
+Current local version: `v0.8.8`
 
 ## Status
 
 This is now a desktop-first beta focused on gameplay validation from the early dungeon through endgame, while keeping PC DOS fidelity first and presentation polish second.
 
-Latest `v0.8.7` focus:
+Latest `v0.8.8` focus:
 
-- teleporter and delayed-sensor runtime fixes validated against long-play edge cases and original source behavior
-- cleaner handling of opened pits / teleporters for party, creatures, and floor items already standing on the square
-- continued stabilization of saves, transition chains, and tricky puzzle rooms such as level 9 `Zooooom`
+- wall-mounted item and wall-sensor interactions cleaned up for late-game puzzles such as `Magnifier` / `Enlarge My View` and `Diamond Edge`
+- death dust and recent item presentation regressions polished without regressing the runtime interaction model
+- continued stabilization of saves, transition chains, delayed sensors, and tricky puzzle rooms such as level 9 `Zooooom`
 
 Already in place:
 
