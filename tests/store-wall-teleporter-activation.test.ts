@@ -65,8 +65,22 @@ test('level 2 wall buttons move the Mirror Of Dawn chest when they open a telepo
             useStore.getState().activateWallSensor(2, 1, 25, 65);
         });
 
-        const afterState = useStore.getState();
-        assert.equal(afterState.openTeleporters.has('2,26,0'), true);
+        let afterState = useStore.getState();
+        assert.equal(afterState.openTeleporters.has('2,26,0'), false);
+        assert.deepEqual(afterState.pendingSensorEvents, [
+            {
+                level: 2,
+                sensorIndex: 72,
+                remaining: 1.44,
+                actionOverride: 'Clear',
+            },
+            {
+                level: 2,
+                sensorIndex: 65,
+                remaining: 0.24,
+                actionOverride: 'Set',
+            },
+        ]);
 
         const afterChest = afterState.floorItems.find((item) => item.id === beforeChest.id);
         assert.ok(afterChest, 'expected the same chest item after teleporter activation');
@@ -76,9 +90,26 @@ test('level 2 wall buttons move the Mirror Of Dawn chest when they open a telepo
                 x: afterChest.x,
                 y: afterChest.y,
             },
-            { mapIndex: 2, x: 6, y: 26 },
+            { mapIndex: 2, x: 0, y: 26 },
         );
         assert.equal(afterChest?.containerContents?.[0]?.rawName, 'Mirror Of Dawn');
+
+        useStore.getState().tickFrame(1, Date.now());
+
+        afterState = useStore.getState();
+        assert.equal(afterState.openTeleporters.has('2,26,0'), true);
+
+        const movedChest = afterState.floorItems.find((item) => item.id === beforeChest.id);
+        assert.ok(movedChest, 'expected the same chest item after the delayed teleporter activation');
+        assert.deepEqual(
+            movedChest && {
+                mapIndex: movedChest.mapIndex,
+                x: movedChest.x,
+                y: movedChest.y,
+            },
+            { mapIndex: 2, x: 6, y: 26 },
+        );
+        assert.equal(movedChest?.containerContents?.[0]?.rawName, 'Mirror Of Dawn');
     } finally {
         useStore.setState(initialState, true);
     }
@@ -124,9 +155,17 @@ test('level 8 pressure plate and lever route the hidden Green Gem chest through 
             useStore.getState().moveForward();
         });
 
-        const afterPlate = useStore.getState();
+        let afterPlate = useStore.getState();
         assert.deepEqual(afterPlate.position, [11, 9]);
-        assert.equal(afterPlate.openTeleporters.has('8,0,28'), true);
+        assert.equal(afterPlate.openTeleporters.has('8,0,28'), false);
+        assert.deepEqual(afterPlate.pendingSensorEvents, [
+            {
+                level: 8,
+                sensorIndex: 252,
+                remaining: 0.24,
+                actionOverride: 'Set',
+            },
+        ]);
 
         const gateChest = afterPlate.floorItems.find((item) => item.id === beforeChest.id);
         assert.ok(gateChest, 'expected the same chest after the pressure plate opens the hidden teleporter');
@@ -136,6 +175,22 @@ test('level 8 pressure plate and lever route the hidden Green Gem chest through 
                 x: gateChest.x,
                 y: gateChest.y,
             },
+            { mapIndex: 8, x: 28, y: 0 },
+        );
+
+        useStore.getState().tickFrame(1, Date.now());
+
+        afterPlate = useStore.getState();
+        assert.equal(afterPlate.openTeleporters.has('8,0,28'), true);
+
+        const teleportedChest = afterPlate.floorItems.find((item) => item.id === beforeChest.id);
+        assert.ok(teleportedChest, 'expected the same chest after the delayed teleporter activation');
+        assert.deepEqual(
+            teleportedChest && {
+                mapIndex: teleportedChest.mapIndex,
+                x: teleportedChest.x,
+                y: teleportedChest.y,
+            },
             { mapIndex: 8, x: 9, y: 7 },
         );
 
@@ -143,20 +198,50 @@ test('level 8 pressure plate and lever route the hidden Green Gem chest through 
             useStore.getState().activateWallSensor(8, 10, 8, 254);
         });
 
-        const afterLever = useStore.getState();
-        assert.equal(afterLever.openPits.has('8,7,9'), true);
+        let afterLever = useStore.getState();
+        assert.equal(afterLever.openPits.has('8,7,9'), false);
+        assert.deepEqual(afterLever.pendingSensorEvents, [
+            {
+                level: 8,
+                sensorIndex: 255,
+                remaining: 0.24,
+                actionOverride: 'Toggle',
+            },
+            {
+                level: 8,
+                sensorIndex: 254,
+                remaining: 0.24,
+                actionOverride: 'Toggle',
+            },
+        ]);
 
         const fallenChest = afterLever.floorItems.find((item) => item.id === beforeChest.id);
-        assert.ok(fallenChest, 'expected the same chest after the lever opens the pit under it');
+        assert.ok(fallenChest, 'expected the same chest before the delayed pit opening resolves');
         assert.deepEqual(
             fallenChest && {
                 mapIndex: fallenChest.mapIndex,
                 x: fallenChest.x,
                 y: fallenChest.y,
             },
+            { mapIndex: 8, x: 9, y: 7 },
+        );
+
+        useStore.getState().tickFrame(1, Date.now());
+
+        afterLever = useStore.getState();
+        assert.equal(afterLever.openPits.has('8,7,9'), true);
+
+        const droppedChest = afterLever.floorItems.find((item) => item.id === beforeChest.id);
+        assert.ok(droppedChest, 'expected the same chest after the delayed pit opening resolves');
+        assert.deepEqual(
+            droppedChest && {
+                mapIndex: droppedChest.mapIndex,
+                x: droppedChest.x,
+                y: droppedChest.y,
+            },
             { mapIndex: 9, x: 11, y: 2 },
         );
-        assert.equal(fallenChest?.containerContents?.[0]?.rawName, 'Green Gem');
+        assert.equal(droppedChest?.containerContents?.[0]?.rawName, 'Green Gem');
     } finally {
         useStore.setState(initialState, true);
     }

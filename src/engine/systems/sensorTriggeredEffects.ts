@@ -78,6 +78,7 @@ export function dispatchTriggeredSensorEffect<TState extends SensorTriggeredStat
         allowWallSquareTargeting?: boolean;
         wallSquareVisitKeys?: Set<string>;
         ignoreTriggeredDelay?: boolean;
+        ignoreOnceOnly?: boolean;
     },
 ): Partial<TState> {
     const applyDirectSensorTargetAction = (
@@ -220,7 +221,7 @@ export function dispatchTriggeredSensorEffect<TState extends SensorTriggeredStat
                     : (conditionMet ? targetSensor.action : null);
                 if (!effectiveAction) continue;
 
-                if (!options?.ignoreTriggeredDelay && targetSensor.delay > 1 && deps.queueDelayedTriggeredSensorEffect) {
+                if (!options?.ignoreTriggeredDelay && targetSensor.delay > 0 && deps.queueDelayedTriggeredSensorEffect) {
                     const delayedEffect = deps.queueDelayedTriggeredSensorEffect(
                         targetSensor,
                         sourceLevel,
@@ -275,7 +276,7 @@ export function dispatchTriggeredSensorEffect<TState extends SensorTriggeredStat
                     : (currentData === 0 ? targetSensor.action : null);
                 if (!effectiveAction) continue;
 
-                if (!options?.ignoreTriggeredDelay && targetSensor.delay > 1 && deps.queueDelayedTriggeredSensorEffect) {
+                if (!options?.ignoreTriggeredDelay && targetSensor.delay > 0 && deps.queueDelayedTriggeredSensorEffect) {
                     const delayedEffect = deps.queueDelayedTriggeredSensorEffect(
                         targetSensor,
                         sourceLevel,
@@ -334,9 +335,9 @@ export function dispatchTriggeredSensorEffect<TState extends SensorTriggeredStat
     if (action === 'Hold') return {};
 
     const sensorKey = deps.getSensorStateKey(level, sensor.index);
-    if (sensor.onceOnly && state.firedSensors.has(sensorKey)) return {};
+    if (!options?.ignoreOnceOnly && sensor.onceOnly && state.firedSensors.has(sensorKey)) return {};
 
-    let current: TState = sensor.onceOnly
+    let current: TState = sensor.onceOnly && !options?.ignoreOnceOnly
         ? { ...state, firedSensors: new Set([...state.firedSensors, sensorKey]) }
         : state;
 

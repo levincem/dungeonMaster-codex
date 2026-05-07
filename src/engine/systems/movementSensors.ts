@@ -81,6 +81,39 @@ function resolvePresenceSensorAction(
     return sensor.revert ? 'Set' : 'Clear';
 }
 
+function applyQueuedSensorEffect<
+    TSensorState extends SensorStateLike,
+    TPendingSensorEvent extends PendingSensorEventLike,
+>(
+    cur: TSensorState,
+    changed: boolean,
+    nextPending: TPendingSensorEvent[],
+    sensor: SensorObject,
+    level: number,
+    deps: Pick<MovementSensorDeps<TSensorState, TPendingSensorEvent>, 'queueOrComputeSensorEffect'>,
+): {
+    cur: TSensorState;
+    changed: boolean;
+    nextPending: TPendingSensorEvent[];
+} {
+    const queued: PendingSensorChangeResult<TSensorState, TPendingSensorEvent> =
+        deps.queueOrComputeSensorEffect(sensor, level, cur, nextPending);
+    const sensorChanges = queued.sensorChanges;
+    if (Object.keys(sensorChanges).length === 0) {
+        return {
+            cur,
+            changed,
+            nextPending: queued.pendingSensorEvents,
+        };
+    }
+
+    return {
+        cur: { ...cur, ...sensorChanges } as TSensorState,
+        changed: true,
+        nextPending: queued.pendingSensorEvents,
+    };
+}
+
 export function triggerFloorSensors<
     TSensorState extends SensorStateLike,
     TPendingSensorEvent extends PendingSensorEventLike,
@@ -142,17 +175,21 @@ export function triggerFloorSensors<
         if (mode === 'leave') {
             if (sensor.action !== 'Hold' && !sensor.revert) continue;
             if (source === 'party' && isPartyFloorSensor) {
-                const effect = deps.computeSensorEffect(
+                const queued: {
+                    cur: TSensorState;
+                    changed: boolean;
+                    nextPending: TPendingSensorEvent[];
+                } = applyQueuedSensorEffect(
+                    cur,
+                    changed,
+                    nextPending,
                     { ...sensor, action: resolvePresenceSensorAction(sensor, 'leave') },
                     level,
-                    cur,
+                    deps,
                 );
-                if (Object.keys(effect).length > 0) {
-                    cur = { ...cur, ...effect } as TSensorState;
-                    changed = true;
-                    const nestedPending = (effect as Partial<TSensorState> & { pendingSensorEvents?: TPendingSensorEvent[] }).pendingSensorEvents;
-                    nextPending = nestedPending ?? nextPending;
-                }
+                cur = queued.cur;
+                changed = queued.changed;
+                nextPending = queued.nextPending;
                 continue;
             }
             if (isGenericWeightFloorSensor && (tileHasAnyFloorItem || tileHasAnyCreature || tileHasParty)) continue;
@@ -163,17 +200,21 @@ export function triggerFloorSensors<
             }
             if (source !== 'creature' && (isCreatureOnlyFloorSensor || deps.isGeneratorSensor(sensor) || isObjectOnlyFloorSensor)) continue;
             if (source === 'creature' && (isPartyFloorSensor || deps.isPartyPossessionSensor(sensor) || deps.isGeneratorSensor(sensor) || isObjectOnlyFloorSensor)) continue;
-            const effect = deps.computeSensorEffect(
+            const queued: {
+                cur: TSensorState;
+                changed: boolean;
+                nextPending: TPendingSensorEvent[];
+            } = applyQueuedSensorEffect(
+                cur,
+                changed,
+                nextPending,
                 { ...sensor, action: resolvePresenceSensorAction(sensor, 'leave') },
                 level,
-                cur,
+                deps,
             );
-            if (Object.keys(effect).length > 0) {
-                cur = { ...cur, ...effect } as TSensorState;
-                changed = true;
-                const nestedPending = (effect as Partial<TSensorState> & { pendingSensorEvents?: TPendingSensorEvent[] }).pendingSensorEvents;
-                nextPending = nestedPending ?? nextPending;
-            }
+            cur = queued.cur;
+            changed = queued.changed;
+            nextPending = queued.nextPending;
             continue;
         }
 

@@ -161,6 +161,10 @@ type StoreMovementRuntimeParams<
         state: OpenedTeleporterEffectsState,
         openedTeleporterKeys: string[],
     ) => OpenedTeleporterEffectsResult;
+    applyFloorItemTeleporterEffects: (
+        state: TState,
+        patch: Partial<TState>,
+    ) => Partial<TState>;
     resolveOpenPitEntryTransport: (
         state: TState,
         x: number,
@@ -202,28 +206,31 @@ export function createStoreMovementRuntime<
     const applyImmediateTransportSquareEffects = (
         state: TState,
         basePatch: Partial<TState>,
-    ): Partial<TState> => applyImmediateTransportSquareEffectsSystem(
+    ): Partial<TState> => params.applyFloorItemTeleporterEffects(
         state,
-        basePatch,
-        {
-            applyOpenedPitEffects: (transportState, openedPitKeys) =>
-                params.applyOpenedPitEffects(
-                    {
-                        ...transportState,
-                        hydratedLevels: state.hydratedLevels,
-                    },
-                    openedPitKeys,
-                ),
-            applyOpenedTeleporterEffects: (transportState, openedTeleporterKeys) =>
-                params.applyOpenedTeleporterEffects(
-                    {
-                        ...transportState,
-                        hydratedLevels: state.hydratedLevels,
-                    },
-                    openedTeleporterKeys,
-                ),
-        },
-    ) as unknown as Partial<TState>;
+        applyImmediateTransportSquareEffectsSystem(
+            state,
+            basePatch,
+            {
+                applyOpenedPitEffects: (transportState, openedPitKeys) =>
+                    params.applyOpenedPitEffects(
+                        {
+                            ...transportState,
+                            hydratedLevels: state.hydratedLevels,
+                        },
+                        openedPitKeys,
+                    ),
+                applyOpenedTeleporterEffects: (transportState, openedTeleporterKeys) =>
+                    params.applyOpenedTeleporterEffects(
+                        {
+                            ...transportState,
+                            hydratedLevels: state.hydratedLevels,
+                        },
+                        openedTeleporterKeys,
+                    ),
+            },
+        ) as unknown as Partial<TState>,
+    );
 
     const resolvePartyStepTransport = (
         state: TState,

@@ -565,46 +565,32 @@ export function createTransportRuntimeDeps<
                 x: number,
                 y: number,
             ) => params.applyCreaturesStandingOnOpenTeleporter(state, level, x, y, terrainEffectsDeps),
-            triggerFloorSensorsOnOpenedPartyTeleporter: (
-                state: Pick<
-                    TGameState,
-                    | 'level'
-                    | 'position'
-                    | 'direction'
-                    | 'openDoors'
-                    | 'openWalls'
-                    | 'openPits'
-                    | 'openTeleporters'
-                    | 'championInventories'
-                    | 'championEquipment'
-                    | 'floorItems'
-                    | 'pendingSensorEvents'
-                >,
+            buildSensorStateSnapshot: (
+                state: Pick<TGameState, 'level' | 'position' | 'direction' | 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters'>,
+            ) =>
+                params.buildSensorStateSnapshot(state as TGameState),
+            triggerFloorSensors: (
                 level: number,
                 x: number,
                 y: number,
-            ) => {
-                const ss = params.buildSensorStateSnapshot(state as TGameState);
-                const result = params.triggerFloorSensors(
-                    level,
-                    x,
-                    y,
-                    ss,
-                    state.championInventories,
-                    state.championEquipment,
-                    state.floorItems,
-                    state.pendingSensorEvents,
-                    movementSensorDeps,
-                    'enter',
-                );
-                if (Object.keys(result.sensorChanges).length === 0 && result.pendingSensorEvents === state.pendingSensorEvents) {
-                    return null;
-                }
-                return {
-                    ...(result.sensorChanges as unknown as Pick<TGameState, 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters'>),
-                    pendingSensorEvents: result.pendingSensorEvents,
-                };
-            },
+                ss: TSensorState,
+                inventories: Record<number, FloorItem[]>,
+                equipment: Record<number, ChampionEquipment>,
+                floorItems: FloorItem[],
+                pendingSensorEvents: TPendingSensorEvent[],
+                mode: 'enter' | 'leave',
+            ) => params.triggerFloorSensors(
+                level,
+                x,
+                y,
+                ss,
+                inventories,
+                equipment,
+                floorItems,
+                pendingSensorEvents,
+                movementSensorDeps,
+                mode,
+            ),
         };
     };
 

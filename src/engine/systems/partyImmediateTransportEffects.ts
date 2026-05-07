@@ -97,6 +97,7 @@ type PartyImmediateTransportDeps = {
             | 'level'
             | 'position'
             | 'direction'
+            | 'party'
             | 'championInventories'
             | 'championEquipment'
             | 'openDoors'
@@ -191,6 +192,7 @@ export function applyImmediateTransportSquareEffects<
             level,
             position,
             direction,
+            party,
             championInventories,
             championEquipment,
             creatures,

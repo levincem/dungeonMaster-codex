@@ -122,7 +122,7 @@ test('transitionFloorSensors blocks the empty party at the starting gate plate',
     );
 
     assert.equal(result.blockedMessage, 'Choose at least one adventurer, four is better!');
-    assert.deepEqual([...result.sensorChanges.openDoors!], ['0,4,6']);
+    assert.deepEqual([...result.sensorChanges.openDoors!], ['leave']);
   });
 
 test('triggerFloorSensors only activates type 3 party plates when the facing direction matches', () => {
@@ -188,7 +188,10 @@ test('triggerFloorSensors still requires a floor item for type 4 object-only sen
 test('triggerFloorSensors clears hold effects when a type 3 party plate is left', () => {
     const sensor = createSensor({ type: 3, data: 2, action: 'Hold' });
     const { deps } = createDeps(sensor, {
-        computeSensorEffect: () => ({ openDoors: new Set<string>() }),
+        queueOrComputeSensorEffect: (_effectiveSensor, _level, _ss, pending) => ({
+            sensorChanges: { openDoors: new Set<string>() },
+            pendingSensorEvents: pending,
+        }),
     });
 
     const result = triggerFloorSensors(
@@ -214,15 +217,19 @@ test('triggerFloorSensors inverts revert Set sensors between enter and leave for
     const { deps } = createDeps(sensor, {
         isCreatureOnlyFloorSensor: (candidate: SensorObject) => candidate.type === 2,
         queueOrComputeSensorEffect: (effectiveSensor, _level, _ss, pending) => {
-            enterActions.push(effectiveSensor.action);
+            if (effectiveSensor.action === 'Clear') {
+                enterActions.push(effectiveSensor.action);
+            } else {
+                leaveActions.push(effectiveSensor.action);
+            }
             return {
-                sensorChanges: { openDoors: new Set<string>() },
+                sensorChanges: {
+                    openDoors: effectiveSensor.action === 'Set'
+                        ? new Set(['0,4,6'])
+                        : new Set<string>(),
+                },
                 pendingSensorEvents: pending,
             };
-        },
-        computeSensorEffect: (effectiveSensor) => {
-            leaveActions.push(effectiveSensor.action);
-            return { openDoors: new Set(['0,4,6']) };
         },
     });
 
@@ -447,7 +454,10 @@ test('triggerFloorSensors keeps a generic weight hold plate active when an item 
 test('triggerFloorSensors clears a generic weight hold plate when the party leaves and nothing remains on it', () => {
     const sensor = createSensor({ type: 1, action: 'Hold' });
     const { deps } = createDeps(sensor, {
-        computeSensorEffect: () => ({ openDoors: new Set<string>() }),
+        queueOrComputeSensorEffect: (_effectiveSensor, _level, _ss, pending) => ({
+            sensorChanges: { openDoors: new Set<string>() },
+            pendingSensorEvents: pending,
+        }),
     });
 
     const result = triggerFloorSensors(

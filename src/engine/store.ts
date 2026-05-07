@@ -237,6 +237,7 @@ import {
     buildStoreMovementTickPatch,
     buildStoreTickFramePatch as buildStoreTickFramePatchSystem,
 } from './systems/storeFrameRuntime';
+import { applyCreatureFloorSensorRuntimeEffects as applyCreatureFloorSensorRuntimeEffectsSystem } from './systems/creatureFloorSensorRuntime';
 import {
     clearCreatureControlStatuses,
     creatureAttackWindows,
@@ -412,7 +413,6 @@ import {
     triggerFloorSensors as triggerFloorSensorsSystem,
     transitionFloorSensors as transitionFloorSensorsSystem,
 } from './systems/movementSensors';
-import { collectCreatureFloorSensorTransitions } from './systems/creatureSensorTransitions';
 import { isTrickWallPassable } from './systems/trickWallState';
 import { triggerWallPushSensors as triggerWallPushSensorsSystem } from './systems/wallPushSensors';
 import {
@@ -1603,6 +1603,11 @@ const storeMovementRuntime = createStoreMovementRuntime<
             openedTeleporterKeys,
             buildOpenedTeleporterEffectsDeps(),
         ),
+    applyFloorItemTeleporterEffects: (transportState, patch) =>
+        applyFloorItemTeleporterEffects(
+            transportState,
+            patch,
+        ) as Partial<GameState>,
     resolveOpenPitEntryTransport: (stepState, x, y, stepY, stepX, stepVitals) =>
         resolveOpenPitEntryTransportSystem(
             stepState,
@@ -2723,56 +2728,39 @@ function applyCreatureFloorSensorRuntimeEffects(
     state: GameState,
     patch: Partial<GameState> | null,
 ): Partial<GameState> | null {
-    if (!patch) return patch;
-
-    const nextCreatures = patch.creatures ?? state.creatures;
-    if (nextCreatures === state.creatures) return patch;
-    const transitions = collectCreatureFloorSensorTransitions(state.creatures, nextCreatures);
-    if (transitions.length === 0) return patch;
-
-    let currentPatch: Partial<GameState> = {
-        ...patch,
-        creatures: nextCreatures,
-    };
-    let currentPendingSensorEvents = currentPatch.pendingSensorEvents ?? state.pendingSensorEvents;
-
-    for (const transition of transitions) {
-        const applySensorPhase = (
-            level: number,
-            x: number,
-            y: number,
-            mode: 'enter' | 'leave',
-        ) => {
-            const sensorState = buildSensorStateSnapshot({
-                ...state,
-                ...currentPatch,
-            });
-            const sensorResult = triggerFloorSensorsSystem(
-                level,
-                x,
-                y,
-                sensorState,
-                currentPatch.championInventories ?? state.championInventories,
-                currentPatch.championEquipment ?? state.championEquipment,
-                currentPatch.floorItems ?? state.floorItems,
-                currentPendingSensorEvents,
-                buildMovementSensorDeps(),
-                mode,
-                'creature',
-                currentPatch.creatures ?? nextCreatures,
-            );
-            currentPendingSensorEvents = sensorResult.pendingSensorEvents;
-            currentPatch = {
-                ...currentPatch,
-                ...sensorResult.sensorChanges,
-                pendingSensorEvents: currentPendingSensorEvents,
-            };
-        };
-
-        applySensorPhase(transition.level, transition.x, transition.y, transition.type);
-    }
-
-    return currentPatch;
+    return applyCreatureFloorSensorRuntimeEffectsSystem(
+        state,
+        patch,
+        {
+            triggerCreatureFloorSensors: (runtimeState, level, x, y, mode) => {
+                const sensorState = buildSensorStateSnapshot(runtimeState);
+                const sensorResult = triggerFloorSensorsSystem(
+                    level,
+                    x,
+                    y,
+                    sensorState,
+                    runtimeState.championInventories,
+                    runtimeState.championEquipment,
+                    runtimeState.floorItems,
+                    runtimeState.pendingSensorEvents,
+                    buildMovementSensorDeps(),
+                    mode,
+                    'creature',
+                    runtimeState.creatures,
+                );
+                return {
+                    sensorChanges: sensorResult.sensorChanges as Partial<GameState>,
+                    pendingSensorEvents: sensorResult.pendingSensorEvents,
+                };
+            },
+            applyCreaturesStandingOnOpenPit: (runtimeState, level, x, y) =>
+                buildOpenedPitEffectsDeps().applyCreaturesStandingOnOpenPit(runtimeState, level, x, y),
+            applyFloorItemsStandingOnOpenPit: (runtimeState, level, x, y) =>
+                buildOpenedPitEffectsDeps().applyFloorItemsStandingOnOpenPit(runtimeState, level, x, y),
+            applyCreaturesStandingOnOpenTeleporter: (runtimeState, level, x, y) =>
+                buildOpenedTeleporterEffectsDeps().applyCreaturesStandingOnOpenTeleporter(runtimeState, level, x, y),
+        },
+    );
 }
 
 const runStoreMonsterTickAction = (state: GameState, delta: number) =>

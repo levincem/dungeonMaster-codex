@@ -53,7 +53,7 @@ type PendingSensorDeps<TSensorState extends PendingSensorStateLike<TCreature>, T
         sensor: SensorObject,
         level: number,
         ss: TSensorState,
-        options?: { actionOverride?: SensorAction; ignoreTriggeredDelay?: boolean },
+        options?: { actionOverride?: SensorAction; ignoreTriggeredDelay?: boolean; ignoreOnceOnly?: boolean },
     ) => Partial<TSensorState>;
     resolveDoorSoundTarget: (sensor: SensorObject, level: number) => DoorSoundTarget;
     playDoorMotion: (target: DoorSoundTarget) => void;
@@ -112,7 +112,7 @@ export function processPendingSensorEvents<
                 sensor,
                 event.level,
                 effectState,
-                { actionOverride: event.actionOverride },
+                { actionOverride: event.actionOverride, ignoreOnceOnly: true },
             )
             : deps.computeSensorEffect(sensor, event.level, effectState);
         if (Object.keys(effect).length <= 0) continue;

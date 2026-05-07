@@ -427,7 +427,7 @@ export function queueOrComputeSensorEffect<TSensorState, TPendingSensorEvent ext
     sensorChanges: Partial<TSensorState>;
     pendingSensorEvents: TPendingSensorEvent[];
 } {
-    if (sensor.delay > 1) {
+    if (sensor.delay > 0) {
         const sensorKey = deps.getSensorStateKey(level, sensor.index);
         const firedSensors = deps.getFiredSensors(ss);
         const nextFired = sensor.onceOnly && !firedSensors.has(sensorKey)

@@ -123,6 +123,7 @@ function createRuntime() {
             direction: 'NORTH' as const,
             position: [7, 7] as [number, number],
         }),
+        applyFloorItemTeleporterEffects: (_state, patch) => patch,
         resolveOpenPitEntryTransport: () => null,
         findStairLink: () => undefined,
         resolveStairStepTransport: () => null,

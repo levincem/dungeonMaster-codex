@@ -1,7 +1,13 @@
-import type { CreatureInstance, FloorItem, GameTile } from '../../types/game';
+import type { ChampionEquipment, CreatureInstance, FloorItem, GameTile } from '../../types/game';
 import type { Direction, SpellVisualEvent } from '../runtimeTypes';
 
-type TeleporterLoopState = {
+type PendingSensorEventLike = {
+    level: number;
+    sensorIndex: number;
+    remaining: number;
+};
+
+type TeleporterLoopState<TPendingSensorEvent extends PendingSensorEventLike = PendingSensorEventLike> = {
     level: number;
     position: [number, number];
     direction: Direction;
@@ -14,15 +20,23 @@ type TeleporterLoopState = {
     openPits: Set<string>;
     openTeleporters: Set<string>;
     championInventories: Record<number, FloorItem[]>;
-    championEquipment: Record<number, import('../../types/game').ChampionEquipment>;
-    pendingSensorEvents: Array<{ level: number; sensorIndex: number; remaining: number }>;
+    championEquipment: Record<number, ChampionEquipment>;
+    pendingSensorEvents: TPendingSensorEvent[];
 };
 
-type TeleporterLoopDeps = {
+type SensorTransitionChanges<TPendingSensorEvent extends PendingSensorEventLike> = {
+    sensorChanges: Partial<Pick<
+        TeleporterLoopState<TPendingSensorEvent>,
+        'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters'
+    >>;
+    pendingSensorEvents: TPendingSensorEvent[];
+};
+
+type TeleporterLoopDeps<TSensorState, TPendingSensorEvent extends PendingSensorEventLike> = {
     getTile: (level: number, x: number, y: number) => GameTile | undefined;
     getTeleporter: (tile: GameTile) => { destMap: number; destX: number; destY: number } | undefined;
     resolveProjectileTeleporterTransport: (
-        state: Pick<TeleporterLoopState, 'openTeleporters'>,
+        state: Pick<TeleporterLoopState<TPendingSensorEvent>, 'openTeleporters'>,
         level: number,
         x: number,
         y: number,
@@ -30,24 +44,24 @@ type TeleporterLoopDeps = {
         transportKind?: 'item' | 'party',
     ) => { level: number; x: number; y: number; direction: Direction };
     applyPartyTelefragAtSquare: (
-        state: Pick<TeleporterLoopState, 'creatures' | 'floorItems' | 'spellVisualEvents'>,
+        state: Pick<TeleporterLoopState<TPendingSensorEvent>, 'creatures' | 'floorItems' | 'spellVisualEvents'>,
         level: number,
         x: number,
         y: number,
-    ) => Pick<TeleporterLoopState, 'creatures' | 'floorItems' | 'spellVisualEvents'> | null;
+    ) => Pick<TeleporterLoopState<TPendingSensorEvent>, 'creatures' | 'floorItems' | 'spellVisualEvents'> | null;
     buildLevelHydrationPatch: (
-        state: Pick<TeleporterLoopState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'>,
+        state: Pick<TeleporterLoopState<TPendingSensorEvent>, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'>,
         level: number,
-    ) => Partial<Pick<TeleporterLoopState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'>> | null;
+    ) => Partial<Pick<TeleporterLoopState<TPendingSensorEvent>, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'>> | null;
     applyCreaturesStandingOnOpenTeleporter: (
-        state: Pick<TeleporterLoopState, 'level' | 'position' | 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters'>,
+        state: Pick<TeleporterLoopState<TPendingSensorEvent>, 'level' | 'position' | 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters'>,
         level: number,
         x: number,
         y: number,
-    ) => Pick<TeleporterLoopState, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'> | null;
-    triggerFloorSensorsOnOpenedPartyTeleporter?: (
+    ) => Pick<TeleporterLoopState<TPendingSensorEvent>, 'hydratedLevels' | 'creatures' | 'floorItems' | 'openDoors'> | null;
+    buildSensorStateSnapshot: (
         state: Pick<
-            TeleporterLoopState,
+            TeleporterLoopState<TPendingSensorEvent>,
             | 'level'
             | 'position'
             | 'direction'
@@ -55,19 +69,23 @@ type TeleporterLoopDeps = {
             | 'openWalls'
             | 'openPits'
             | 'openTeleporters'
-            | 'championInventories'
-            | 'championEquipment'
-            | 'floorItems'
-            | 'pendingSensorEvents'
         >,
+    ) => TSensorState;
+    triggerFloorSensors: (
         level: number,
         x: number,
         y: number,
-    ) => Pick<TeleporterLoopState, 'openDoors' | 'openWalls' | 'openPits' | 'openTeleporters' | 'pendingSensorEvents'> | null;
+        ss: TSensorState,
+        inventories: Record<number, FloorItem[]>,
+        equipment: Record<number, ChampionEquipment>,
+        floorItems: FloorItem[],
+        pendingSensorEvents: TPendingSensorEvent[],
+        mode: 'enter' | 'leave',
+    ) => SensorTransitionChanges<TPendingSensorEvent>;
 };
 
-type TeleporterLoopResult = Pick<
-    TeleporterLoopState,
+type TeleporterLoopResult<TPendingSensorEvent extends PendingSensorEventLike> = Pick<
+    TeleporterLoopState<TPendingSensorEvent>,
     | 'level'
     | 'position'
     | 'direction'
@@ -82,11 +100,14 @@ type TeleporterLoopResult = Pick<
     | 'pendingSensorEvents'
 > & { changed: boolean };
 
-export function applyOpenedTeleporterEffects(
-    state: TeleporterLoopState,
+export function applyOpenedTeleporterEffects<
+    TSensorState,
+    TPendingSensorEvent extends PendingSensorEventLike,
+>(
+    state: TeleporterLoopState<TPendingSensorEvent>,
     openedTeleporterKeys: string[],
-    deps: TeleporterLoopDeps,
-): TeleporterLoopResult {
+    deps: TeleporterLoopDeps<TSensorState, TPendingSensorEvent>,
+): TeleporterLoopResult<TPendingSensorEvent> {
     let level = state.level;
     let position = state.position;
     let direction = state.direction;
@@ -100,26 +121,27 @@ export function applyOpenedTeleporterEffects(
     let openTeleporters = state.openTeleporters;
     let pendingSensorEvents = state.pendingSensorEvents;
     let changed = false;
-    const pendingTeleporterKeys = [...openedTeleporterKeys];
-    const queuedTeleporterKeys = new Set(openedTeleporterKeys);
-    const processedTeleporterKeys = new Set<string>();
 
-    const queueNewTeleporterKeys = (nextOpenTeleporters: Set<string> | undefined) => {
-        if (!nextOpenTeleporters) return;
-        for (const nextKey of nextOpenTeleporters) {
-            if (openTeleporters.has(nextKey) || queuedTeleporterKeys.has(nextKey) || processedTeleporterKeys.has(nextKey)) {
-                continue;
-            }
-            queuedTeleporterKeys.add(nextKey);
-            pendingTeleporterKeys.push(nextKey);
+    const applySensorTransition = (
+        sensorResult: SensorTransitionChanges<TPendingSensorEvent>,
+    ) => {
+        const pendingChanged = sensorResult.pendingSensorEvents !== pendingSensorEvents;
+        openDoors = sensorResult.sensorChanges.openDoors ?? openDoors;
+        openWalls = sensorResult.sensorChanges.openWalls ?? openWalls;
+        openPits = sensorResult.sensorChanges.openPits ?? openPits;
+        openTeleporters = sensorResult.sensorChanges.openTeleporters ?? openTeleporters;
+        if (pendingChanged) {
+            pendingSensorEvents = sensorResult.pendingSensorEvents;
+        }
+        if (
+            Object.keys(sensorResult.sensorChanges).length > 0 ||
+            pendingChanged
+        ) {
+            changed = true;
         }
     };
 
-    while (pendingTeleporterKeys.length > 0) {
-        const key = pendingTeleporterKeys.shift();
-        if (!key || processedTeleporterKeys.has(key)) continue;
-        processedTeleporterKeys.add(key);
-
+    for (const key of openedTeleporterKeys) {
         const [tpLevelRaw, tpYRaw, tpXRaw] = key.split(',');
         const tpLevel = Number(tpLevelRaw);
         const tpY = Number(tpYRaw);
@@ -131,34 +153,9 @@ export function applyOpenedTeleporterEffects(
         if (!teleporter) continue;
 
         if (level === tpLevel && position[0] === tpY && position[1] === tpX) {
-            const sensorPatch = deps.triggerFloorSensorsOnOpenedPartyTeleporter?.(
-                {
-                    level,
-                    position,
-                    direction,
-                    openDoors,
-                    openWalls,
-                    openPits,
-                    openTeleporters,
-                    championInventories: state.championInventories,
-                    championEquipment: state.championEquipment,
-                    floorItems,
-                    pendingSensorEvents,
-                },
-                tpLevel,
-                tpX,
-                tpY,
-            );
-            if (sensorPatch) {
-                queueNewTeleporterKeys(sensorPatch.openTeleporters);
-                openDoors = sensorPatch.openDoors ?? openDoors;
-                openWalls = sensorPatch.openWalls ?? openWalls;
-                openPits = sensorPatch.openPits ?? openPits;
-                openTeleporters = sensorPatch.openTeleporters ?? openTeleporters;
-                pendingSensorEvents = sensorPatch.pendingSensorEvents ?? pendingSensorEvents;
-                changed = true;
-            }
-
+            const sourceLevel = level;
+            const sourcePosition = position;
+            const sourceDirection = direction;
             const resolvedTransport = deps.resolveProjectileTeleporterTransport(
                 { openTeleporters },
                 tpLevel,
@@ -167,7 +164,7 @@ export function applyOpenedTeleporterEffects(
                 direction,
                 'party',
             );
-            direction = resolvedTransport.direction;
+
             const hydrationPatch = deps.buildLevelHydrationPatch(
                 {
                     hydratedLevels,
@@ -183,6 +180,61 @@ export function applyOpenedTeleporterEffects(
                 floorItems = hydrationPatch.floorItems ?? floorItems;
                 openDoors = hydrationPatch.openDoors ?? openDoors;
             }
+
+            const sourceSensorState = deps.buildSensorStateSnapshot({
+                level: sourceLevel,
+                position: sourcePosition,
+                direction: sourceDirection,
+                openDoors,
+                openWalls,
+                openPits,
+                openTeleporters,
+            });
+            applySensorTransition(
+                deps.triggerFloorSensors(
+                    sourceLevel,
+                    sourcePosition[1],
+                    sourcePosition[0],
+                    sourceSensorState,
+                    state.championInventories,
+                    state.championEquipment,
+                    floorItems,
+                    pendingSensorEvents,
+                    'leave',
+                ),
+            );
+
+            const destinationChanged =
+                resolvedTransport.level !== sourceLevel ||
+                resolvedTransport.x !== sourcePosition[1] ||
+                resolvedTransport.y !== sourcePosition[0] ||
+                resolvedTransport.direction !== sourceDirection;
+
+            if (destinationChanged) {
+                const destinationSensorState = deps.buildSensorStateSnapshot({
+                    level: resolvedTransport.level,
+                    position: [resolvedTransport.y, resolvedTransport.x],
+                    direction: resolvedTransport.direction,
+                    openDoors,
+                    openWalls,
+                    openPits,
+                    openTeleporters,
+                });
+                applySensorTransition(
+                    deps.triggerFloorSensors(
+                        resolvedTransport.level,
+                        resolvedTransport.x,
+                        resolvedTransport.y,
+                        destinationSensorState,
+                        state.championInventories,
+                        state.championEquipment,
+                        floorItems,
+                        pendingSensorEvents,
+                        'enter',
+                    ),
+                );
+            }
+
             const telefrag = deps.applyPartyTelefragAtSquare(
                 { creatures, floorItems, spellVisualEvents },
                 resolvedTransport.level,
@@ -194,37 +246,11 @@ export function applyOpenedTeleporterEffects(
                 floorItems = telefrag.floorItems ?? floorItems;
                 spellVisualEvents = telefrag.spellVisualEvents ?? spellVisualEvents;
             }
+
             level = resolvedTransport.level;
             position = [resolvedTransport.y, resolvedTransport.x];
+            direction = resolvedTransport.direction;
             changed = true;
-
-            const arrivalSensorPatch = deps.triggerFloorSensorsOnOpenedPartyTeleporter?.(
-                {
-                    level,
-                    position,
-                    direction,
-                    openDoors,
-                    openWalls,
-                    openPits,
-                    openTeleporters,
-                    championInventories: state.championInventories,
-                    championEquipment: state.championEquipment,
-                    floorItems,
-                    pendingSensorEvents,
-                },
-                level,
-                resolvedTransport.x,
-                resolvedTransport.y,
-            );
-            if (arrivalSensorPatch) {
-                queueNewTeleporterKeys(arrivalSensorPatch.openTeleporters);
-                openDoors = arrivalSensorPatch.openDoors ?? openDoors;
-                openWalls = arrivalSensorPatch.openWalls ?? openWalls;
-                openPits = arrivalSensorPatch.openPits ?? openPits;
-                openTeleporters = arrivalSensorPatch.openTeleporters ?? openTeleporters;
-                pendingSensorEvents = arrivalSensorPatch.pendingSensorEvents ?? pendingSensorEvents;
-                changed = true;
-            }
         }
 
         const creatureTeleportPatch = deps.applyCreaturesStandingOnOpenTeleporter(
