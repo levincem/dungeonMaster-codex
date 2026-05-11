@@ -11,6 +11,7 @@ export type SimpleUtilityAttack =
     | 'Lightning'
     | 'Fireball'
     | 'Dispell'
+    | 'Disrupt'
     | 'Freeze Life'
     | 'Block'
     | 'Flip'
@@ -95,6 +96,7 @@ export function buildSimpleUtilityAttackPatch<TPatch extends object>(
         case 'Lightning':
         case 'Fireball':
         case 'Dispell':
+        case 'Disrupt':
         case 'Invoke': {
             const projectile = buildUtilityAttackProjectile(
                 action,

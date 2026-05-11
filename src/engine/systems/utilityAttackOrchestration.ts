@@ -1,5 +1,6 @@
 import type { CreatureDef } from '../../data/creatures';
 import type { WeaponAttackOption } from '../../data/weaponAttacks';
+import { getTranslations } from '../../i18n';
 import type { Champion } from '../../types/champion';
 import type { CreatureInstance, FloorItem } from '../../types/game';
 import type {
@@ -12,6 +13,7 @@ import type {
 import { resolveAttackFrontContext } from './attackFrontContext';
 import type { CreatureTimers } from './creatureControlActions';
 import { buildFuseActionPatch } from './fuseAction';
+import { resolveLordChaosFluxcageEscape } from './lordChaosFluxcageEscape';
 import {
     buildUtilityRuntimeActionPatch,
     type UtilityControlUpdate,
@@ -19,6 +21,8 @@ import {
 import type { UtilityRuntimeActionResult } from './utilityAttackControlState';
 import { buildSimpleUtilityAttackPatch } from './utilityAttackState';
 import type { FearUtilityActionResult } from './fearUtilityActions';
+
+const runtimeText = getTranslations().runtime;
 
 type UtilityRightHand = {
     typeId: number;
@@ -40,6 +44,9 @@ type UtilityAttackState<TDamageEvent, TSpellVisualEvent> = {
     spellLights: SpellLight[];
     activeShields: PartyShield[];
     projectiles: Projectile[];
+    openDoors: Set<string>;
+    openPits: Set<string>;
+    openWalls: Set<string>;
     rightHandTypeId: number | undefined;
     rightHand: UtilityRightHand;
     rightHandWeaponName: string;
@@ -59,6 +66,19 @@ type UtilityAttackDeps<
     quantizeDurationMs: (durationMs: number) => number;
     buildAttackResultMessage: (message: string, success?: boolean) => TMessage;
     getCreatureDef: (typeId: number) => CreatureDef | undefined;
+    getMapTile: (level: number, x: number, y: number) => import('../../types/game').GameTile | undefined;
+    buildFluxcageCastEvents: (
+        level: number,
+        x: number,
+        y: number,
+    ) => TSpellVisualEvent[];
+    canCreatureShareTile: (
+        mover: CreatureInstance,
+        level: number,
+        x: number,
+        y: number,
+        creatures: CreatureInstance[],
+    ) => boolean;
     timerTickMs: number;
     getFluxcageExpiresAt: (creatureId: string) => number;
     getTargetTimers: (creatureId: string) => CreatureTimers | undefined;
@@ -70,7 +90,13 @@ type UtilityAttackDeps<
     applyControlUpdate: (update: UtilityControlUpdate) => void;
     applyFearResult: (fearResult: FearUtilityActionResult) => void;
     clearCreatureControlStatuses: () => void;
+    clearTargetFluxcageStatus: (creatureId: string) => void;
     getEndgameMessagesForMap: (level: number) => string[];
+    buildFuseIgnitionEvents: (
+        level: number,
+        x: number,
+        y: number,
+    ) => TSpellVisualEvent[];
     dropCreatureCarriedItems: (
         creatures: CreatureInstance[],
         floorItems: FloorItem[],
@@ -134,6 +160,7 @@ export function buildSupportedUtilityAttackPatch<
         case 'Lightning':
         case 'Fireball':
         case 'Dispell':
+        case 'Disrupt':
         case 'Freeze Life':
         case 'Block':
         case 'Flip':
@@ -164,7 +191,6 @@ export function buildSupportedUtilityAttackPatch<
                 ),
             };
         case 'Confuse':
-        case 'Fluxcage':
         case 'Calm':
         case 'Brandish':
         case 'Blow Horn':
@@ -195,6 +221,85 @@ export function buildSupportedUtilityAttackPatch<
             }
             return result;
         }
+        case 'Fluxcage': {
+            if (target?.typeId === 23) {
+                const escape = resolveLordChaosFluxcageEscape(
+                    target,
+                    state.creatures,
+                    state.position,
+                    state.openDoors,
+                    state.openPits,
+                    state.openWalls,
+                    {
+                        getMapTile: deps.getMapTile,
+                        canCreatureShareTile: deps.canCreatureShareTile,
+                    },
+                );
+                if (escape) {
+                    let creatures = state.creatures.map((creature) =>
+                        creature.id === target.id
+                            ? { ...creature, x: escape.x, y: escape.y, cell: 'center' as const }
+                            : creature,
+                    );
+                    creatures = deps.normalizeCreatureCellsOnTile(
+                        creatures,
+                        target.mapIndex,
+                        target.x,
+                        target.y,
+                    );
+                    creatures = deps.normalizeCreatureCellsOnTile(
+                        creatures,
+                        target.mapIndex,
+                        escape.x,
+                        escape.y,
+                    );
+                    return {
+                        patch: {
+                            ...basePatch,
+                            creatures,
+                            spellVisualEvents: [
+                                ...state.spellVisualEvents,
+                                ...deps.buildFluxcageCastEvents(state.level, target.x, target.y),
+                            ],
+                        } as TPatch,
+                    };
+                }
+            }
+
+            const result = buildUtilityRuntimeActionPatch(
+                action.enumName,
+                {
+                    now: state.now,
+                    frontCreatures: front,
+                    target,
+                    rightHandTypeId: state.rightHandTypeId,
+                    targetTimers: target ? deps.getTargetTimers(target.id) : undefined,
+                },
+                basePatch,
+                {
+                    buildAttackResultMessage: deps.buildAttackResultMessage,
+                    getCreatureDef: deps.getCreatureDef,
+                    quantizeDurationMs: deps.quantizeDurationMs,
+                    randomInt: deps.randomInt,
+                    timerTickMs: deps.timerTickMs,
+                },
+            );
+            if (result.controlUpdate) {
+                deps.applyControlUpdate(result.controlUpdate);
+            }
+            return {
+                ...result,
+                patch: result.controlUpdate && target
+                    ? {
+                        ...result.patch,
+                        spellVisualEvents: [
+                            ...state.spellVisualEvents,
+                            ...deps.buildFluxcageCastEvents(state.level, target.x, target.y),
+                        ],
+                    } as TPatch
+                    : result.patch,
+            };
+        }
         case 'Climb Down': {
             const climbDown = deps.resolveClimbDown(deps.climbDownState, basePatch);
             if (climbDown.errorMessage) {
@@ -208,6 +313,48 @@ export function buildSupportedUtilityAttackPatch<
             return { patch: climbDown.patch ?? basePatch };
         }
         case 'Fuse': {
+            if (target?.typeId === 23 && deps.getFluxcageExpiresAt(target.id) > state.now) {
+                const escape = resolveLordChaosFluxcageEscape(
+                    target,
+                    state.creatures,
+                    state.position,
+                    state.openDoors,
+                    state.openPits,
+                    state.openWalls,
+                    {
+                        getMapTile: deps.getMapTile,
+                        canCreatureShareTile: deps.canCreatureShareTile,
+                    },
+                );
+                if (escape) {
+                    deps.clearTargetFluxcageStatus(target.id);
+                    let creatures = state.creatures.map((creature) =>
+                        creature.id === target.id
+                            ? { ...creature, x: escape.x, y: escape.y, cell: 'center' as const }
+                            : creature,
+                    );
+                    creatures = deps.normalizeCreatureCellsOnTile(
+                        creatures,
+                        target.mapIndex,
+                        target.x,
+                        target.y,
+                    );
+                    creatures = deps.normalizeCreatureCellsOnTile(
+                        creatures,
+                        target.mapIndex,
+                        escape.x,
+                        escape.y,
+                    );
+                    return {
+                        patch: {
+                            ...basePatch,
+                            creatures,
+                            lastCastResult: deps.buildAttackResultMessage(runtimeText.lordChaosEscapesFuse),
+                        } as TPatch,
+                    };
+                }
+            }
+
             const result = buildFuseActionPatch(
                 {
                     now: state.now,
@@ -225,6 +372,7 @@ export function buildSupportedUtilityAttackPatch<
                 {
                     buildAttackResultMessage: deps.buildAttackResultMessage,
                     getEndgameMessagesForMap: deps.getEndgameMessagesForMap,
+                    buildFuseIgnitionEvents: deps.buildFuseIgnitionEvents,
                     dropCreatureCarriedItems: deps.dropCreatureCarriedItems,
                     normalizeCreatureCellsOnTile: deps.normalizeCreatureCellsOnTile,
                     buildCreatureDamageEvent: deps.buildCreatureDamageEvent,

@@ -159,6 +159,42 @@ Impact:
 - le drag and drop donjon / HUD est de nouveau coherent meme apres les corrections du pipeline de lancer
 - la branche locale passe en `0.8.5` avec une memoire projet et un `README` recales
 
+### 2026-05-11
+
+Travail ferme dans cette session:
+
+- passe GitHub `fin de jeu / armes speciales / fontaines`
+  - bug `Firestaff` `LVL 13` corrige sur la chaine `Zokathra -> Amalgam -> Firestaff complete`
+  - action `Disrupt` de la `Vorpal Blade` recalee sur un projectile `non-material` avec le rendu partage de type `Des Ew`
+  - audit des autres capacites speciales d'armes refait
+  - point residuel note: `Brandish` passe bien par le meme runtime de peur que `Calm / Blow Horn / War Cry`, mais n'a pas encore son test nomme propre
+- fin alternative modelee proprement
+  - retour au `Hall of Champions` avec `The Firestaff` incomplet
+  - texte `WELCOME BACK BRAVE ADVENTURERS` puis sequence `Lord Order`
+  - immobilisation de la party, barrage de `fireballs`, mort du groupe, retour sur l'ecran `game over` normal
+- vraie fin rejouable jusqu'a `victory`
+  - `Fuse` avec `The Firestaff (Complete)` sur `Lord Chaos` deja piege entre en phase `endgame`
+  - la sequence alterne ensuite `Lord Chaos / Lord Order`, fixe `Grey Lord`, puis bascule vers l'ecran final
+  - nuance de fidelite explicite: la condition runtime n'est toujours pas une reconstruction spatiale complete des cases de `Fluxcage` autour de `Lord Chaos`
+  - mais un correctif de comportement existe maintenant: si `Fluxcage` est lance directement sur sa case et qu'une case adjacente libre existe, `Lord Chaos` s'y echappe au lieu d'etre considere comme piege
+  - garde-fou supplementaire: `Fuse` ne lance plus la sequence finale si `Lord Chaos` a encore une case adjacente libre; il se derobe a la fusion a ce moment-la
+- clarifications documentees sur les fontaines
+  - certaines faces murales gardent un pool d'ornements `random-capable`
+  - la presence effective d'une fontaine est ensuite resolue de facon deterministe par la formule d'origine
+  - un decalage avec une lecture naive de certaines maps "officielles" peut donc etre normal
+  - a l'inverse, une fontaine fixe doit rester fixe
+- couverture de tests et verifications renforcee
+  - regressions ajoutees sur `Firestaff`, fin alternative, fin normale et `Disrupt`
+  - les tests cibles du sous-systeme `utility attacks` ont ete rejoues
+  - `npm.cmd test` : `905` verts
+
+Impact:
+
+- les deux fins du jeu sont maintenant documentees et jouables cote runtime
+- le bloc `Firestaff / Fuse / Hall of Champions` n'est plus un trou de progression
+- le sujet fontaines est clarifie: il reste un point de lecture des overlays d'origine, pas un hasard gameplay en cours de partie
+- le reliquat utile sur la fin de jeu est maintenant surtout une nuance de fidelite autour de la representation exacte du piege de `Lord Chaos`, pas un blocage de completion
+
 ### 2026-05-04
 
 Travail ferme dans cette session:

@@ -37,7 +37,7 @@ type TickFrameRuntimeDepsParams<
         pendingGeneratorSpawns: TPendingGeneratorSpawn[];
     };
     generatorRuntimeDeps: TPendingGeneratorDeps;
-    applyImmediateTransportSquareEffects: (state: TState, patch: Partial<TState>) => Partial<TState>;
+    applyImmediateTransportSquareEffects: (state: TState, patch: Partial<TState>, now: number) => Partial<TState>;
 };
 
 export function createStoreTickFrameRuntimeDeps<
@@ -85,6 +85,7 @@ export function createStoreTickFrameRuntimeDeps<
             sensorState,
             params.generatorRuntimeDeps,
         ),
-        applyImmediateTransportSquareEffects: params.applyImmediateTransportSquareEffects,
+        applyImmediateTransportSquareEffects: (state: TState, patch: Partial<TState>, now: number) =>
+            params.applyImmediateTransportSquareEffects(state, patch, now),
     };
 }

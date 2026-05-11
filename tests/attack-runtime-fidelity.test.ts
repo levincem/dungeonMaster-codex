@@ -198,7 +198,30 @@ function createDeps<TState extends ReturnType<typeof createState>>(state: TState
         applyControlUpdate: () => {},
         applyFearResult: () => {},
         clearCreatureControlStatuses: () => {},
+        clearTargetFluxcageStatus: () => {},
         getEndgameMessagesForMap: () => [],
+        buildFluxcageCastEvents: (level: number, x: number, y: number) => ([
+            {
+                id: 'flux-visual',
+                level,
+                x,
+                y,
+                effect: 'open' as const,
+                ts: 1,
+                kind: 'creature' as const,
+            },
+        ]),
+        buildFuseIgnitionEvents: (level: number, x: number, y: number) => ([
+            {
+                id: 'fuse-visual',
+                level,
+                x,
+                y,
+                effect: 'fireball' as const,
+                ts: 1,
+                kind: 'creature' as const,
+            },
+        ]),
         dropCreatureCarriedItems: (creatures: CreatureInstance[], floorItems: FloorItem[]) => ({ creatures, floorItems }),
         normalizeCreatureCellsOnTile: (creatures: CreatureInstance[]) => creatures,
         buildCreatureDamageEvent: (level: number, x: number, y: number, amount: number, creatureId?: string) => ({
@@ -224,6 +247,7 @@ function createDeps<TState extends ReturnType<typeof createState>>(state: TState
         getTargetTimers: () => undefined,
         getMapDifficulty: () => 1,
         getMapTile: () => ({ x: 0, y: 0, type: 'Floor', objects: [] } as GameTile),
+        canCreatureShareTile: () => true,
         getFrontPosition: () => ({ x: 5, y: 4 }),
         getEffectiveChampionStatsRuntime: (champion: Champion) => ({
             luck: champion.luck,

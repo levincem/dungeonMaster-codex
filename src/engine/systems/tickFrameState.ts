@@ -1,6 +1,6 @@
 type TickFrameStateBase = {
     optionsModalOpen: boolean;
-    gamePhase: 'title' | 'exploration' | 'mirror_open' | 'endgame' | 'victory' | 'game_over';
+    gamePhase: 'title' | 'exploration' | 'mirror_open' | 'endgame' | 'alternate_ending' | 'victory' | 'game_over';
     party: unknown[];
     deadChampions: Record<number, unknown>;
     sleeping: boolean;
@@ -9,6 +9,7 @@ type TickFrameStateBase = {
     activeMirrorChampionId: number | null;
     activePartyMemberId: number | null;
     endgameSequence: unknown | null;
+    alternateEndingSequence: unknown | null;
     lastCastResult: unknown | null;
     damageEvents: unknown[];
     spellVisualEvents: unknown[];
@@ -52,6 +53,7 @@ type TickFrameDeps<TState extends TickFrameStateBase, TSensorState> = {
     applyImmediateTransportSquareEffects: (
         state: TState,
         patch: Partial<TState>,
+        now: number,
     ) => Partial<TState>;
 };
 
@@ -65,6 +67,7 @@ function buildGameOverPatch<TState extends TickFrameStateBase>(): Partial<TState
         lastMonsterAttackDebug: null,
         optionsModalOpen: false,
         endgameSequence: null,
+        alternateEndingSequence: null,
         lastCastResult: null,
         damageEvents: [],
         spellVisualEvents: [],
@@ -91,6 +94,9 @@ export function processTickFrame<TState extends TickFrameStateBase, TSensorState
     if (state.gamePhase === 'game_over') return state;
     if (state.gamePhase === 'endgame') {
         return deps.applyEndgameFrame(state, now) ?? state;
+    }
+    if (state.gamePhase === 'alternate_ending') {
+        return state;
     }
     if (state.sleeping) {
         return deps.applySleepFrame(state, now) ?? state;
@@ -145,7 +151,7 @@ export function processTickFrame<TState extends TickFrameStateBase, TSensorState
             : {}),
     } as Partial<TState>;
 
-    const nextPatch = deps.applyImmediateTransportSquareEffects(afterCombat, nextPatchBase);
+    const nextPatch = deps.applyImmediateTransportSquareEffects(afterCombat, nextPatchBase, now);
 
     const nextParty = (nextPatch.party ?? afterCombat.party) as TState['party'];
     const nextDeadChampions = (nextPatch.deadChampions ?? afterCombat.deadChampions) as TState['deadChampions'];

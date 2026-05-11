@@ -1,6 +1,6 @@
 import type { Direction, Projectile, ProjectileEffect } from '../runtimeTypes';
 
-export type UtilityProjectileAttack = 'Lightning' | 'Fireball' | 'Dispell' | 'Invoke';
+export type UtilityProjectileAttack = 'Lightning' | 'Fireball' | 'Dispell' | 'Disrupt' | 'Invoke';
 
 type UtilityProjectileDeps = {
     randomInt: (max: number) => number;
@@ -53,8 +53,13 @@ export function buildUtilityAttackProjectile(
                 nextMoveAt: now,
             };
         case 'Dispell':
+        case 'Disrupt':
             return {
-                id: buildProjectileId('weapon_dispell', now, deps),
+                id: buildProjectileId(
+                    attack === 'Disrupt' ? 'weapon_disrupt' : 'weapon_dispell',
+                    now,
+                    deps,
+                ),
                 level,
                 x,
                 y,

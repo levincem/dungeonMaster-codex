@@ -158,13 +158,16 @@ Pourquoi ce n'est pas fini:
 
 - le coeur gameplay est solide, mais les cas rares n'ont pas encore tous ete rejoues et verifies jusqu'au bout
 - la semantique des mecanismes courants est maintenant largement decryptee, mais les combinaisons rares `delay / gate / local wall effects / countdowns` demandent encore du playtest cible pour confirmer qu'on couvre bien tout le long tail sans regressions
+- le chemin `Firestaff -> Fuse -> endgame -> victory` et la fin alternative du `Hall of Champions` ne sont plus les inconnues principales
+- le point ouvert utile cote fin de jeu est surtout la fidelite exacte de la representation de `Lord Chaos` face aux `Fluxcage` et a ses echappements speciaux, si on veut coller de tres pres a la formulation walkthrough
+- un garde-fou utile existe deja: `Fluxcage` lance sur sa case le fait maintenant s'echapper vers une case adjacente libre au lieu de le pieger artificiellement
+- second garde-fou en place: `Fuse` n'entre plus en `endgame` si `Lord Chaos` a encore une case adjacente libre; il s'echappe d'abord au lieu de valider la fusion
 
 Cible:
 
 - `Zo Kath Ra`
-- `Firestaff`
-- `Fuse`
-- victoire
+- representation exacte du piege final de `Lord Chaos`
+- echappements speciaux / double move de `Lord Chaos`
 - mecanismes tardifs peu frequents
 
 Definition de fini:

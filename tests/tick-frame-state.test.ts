@@ -4,7 +4,7 @@ import { processTickFrame } from '../src/engine/systems/tickFrameState.js';
 
 type TestState = {
     optionsModalOpen: boolean;
-    gamePhase: 'title' | 'exploration' | 'mirror_open' | 'endgame' | 'victory' | 'game_over';
+    gamePhase: 'title' | 'exploration' | 'mirror_open' | 'endgame' | 'alternate_ending' | 'victory' | 'game_over';
     party: Array<{ id: number }>;
     deadChampions: Record<number, unknown>;
     sleeping: boolean;
@@ -13,6 +13,7 @@ type TestState = {
     activeMirrorChampionId: number | null;
     activePartyMemberId: number | null;
     endgameSequence: { id: string } | null;
+    alternateEndingSequence: { stage: string } | null;
     lastCastResult: { message: string } | null;
     damageEvents: Array<{ id: string }>;
     spellVisualEvents: Array<{ id: string }>;
@@ -34,6 +35,7 @@ function createState(overrides: Partial<TestState> = {}): TestState {
         activeMirrorChampionId: 1,
         activePartyMemberId: 1,
         endgameSequence: { id: 'end' },
+        alternateEndingSequence: { stage: 'barrage' },
         lastCastResult: { message: 'hello' },
         damageEvents: [{ id: 'dmg' }],
         spellVisualEvents: [{ id: 'spell' }],
@@ -60,7 +62,7 @@ const inertDeps = {
         sensorChanges: {},
         pendingGeneratorSpawns,
     }),
-    applyImmediateTransportSquareEffects: (_state: TestState, patch: Partial<TestState>) => patch,
+    applyImmediateTransportSquareEffects: (_state: TestState, patch: Partial<TestState>, _now: number) => patch,
 };
 
 test('processTickFrame returns the original state while options modal is open', () => {
@@ -88,6 +90,7 @@ test('processTickFrame returns the game over patch immediately when the entry ch
     assert.deepEqual(result.damageEvents, []);
     assert.deepEqual(result.spellVisualEvents, []);
     assert.equal(result.activeFloorDrag, null);
+    assert.equal(result.alternateEndingSequence, null);
 });
 
 test('processTickFrame delegates endgame and sleep phases before exploration logic', () => {
@@ -107,6 +110,23 @@ test('processTickFrame delegates endgame and sleep phases before exploration log
     assert.deepEqual(sleepResult, { marker: 'sleep' });
 });
 
+test('processTickFrame leaves alternate ending state untouched so the scripted sequence can own the timeline', () => {
+    const alternateEndingState = createState({
+        gamePhase: 'alternate_ending',
+        pendingSensorEvents: ['legacy-sensor'],
+        pendingGeneratorSpawns: ['legacy-spawn'],
+    });
+
+    const result = processTickFrame(alternateEndingState, 0.1, 1000, {
+        ...inertDeps,
+        applyRegenTick: () => ({ marker: 'regen' }),
+        applyMovementTick: () => ({ marker: 'move' }),
+        applyCombatTick: () => ({ marker: 'combat' }),
+    });
+
+    assert.equal(result, alternateEndingState);
+});
+
 test('processTickFrame composes exploration patches and runs the post-transport game over check', () => {
     const state = createState();
 
@@ -123,7 +143,7 @@ test('processTickFrame composes exploration patches and runs the post-transport 
             sensorChanges: { marker: 'generator' },
             pendingGeneratorSpawns: ['spawn-b'],
         }),
-        applyImmediateTransportSquareEffects: (_currentState, patch) => ({
+        applyImmediateTransportSquareEffects: (_currentState, patch, _now) => ({
             ...patch,
             party: [],
             deadChampions: { 1: { id: 1 } },

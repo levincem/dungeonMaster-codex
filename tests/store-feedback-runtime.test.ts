@@ -5,6 +5,8 @@ import {
     buildChampionDamageEvent,
     buildCreatureDamageEvent,
     buildDeathDustEvent,
+    buildFluxcageCastEvents,
+    buildFuseIgnitionEvents,
     buildRuntimeCastResult,
     buildViAltarCelebrationEvents,
     decorateViAltarResurrectionPatch,
@@ -47,6 +49,14 @@ test('damage and death visual builders return the expected runtime targets', () 
     assert.equal(buildChampionDamageEvent(0, 1, 5).target, 'champion');
     assert.equal(buildChampionDamageEvent(0, 1, 5, 'poison').kind, 'poison');
     assert.equal(buildDeathDustEvent(0, 2, 3).kind, 'death');
+    assert.deepEqual(
+        buildFluxcageCastEvents(0, 2, 3, 1).map((event) => event.effect),
+        ['open', 'disrupt_nonmaterial', 'open'],
+    );
+    assert.deepEqual(
+        buildFuseIgnitionEvents(0, 2, 3, 1).map((event) => event.effect),
+        ['fireball', 'fireball', 'disrupt_nonmaterial', 'open'],
+    );
 });
 
 test('decorateViAltarResurrectionPatch consumes equipped bones and adds celebration feedback', () => {

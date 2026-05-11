@@ -1,6 +1,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { preloadDungeonData } from '../src/data/dungeonData.js';
+import {
+    ALTERNATE_ENDING_ENTRANCE_DOOR_KEY,
+    ALTERNATE_ENDING_MESSAGE_DURATION_MS,
+    ALTERNATE_ENDING_REJECTION_DURATION_MS,
+    ALTERNATE_ENDING_REJECTION_MESSAGE,
+    ALTERNATE_ENDING_WELCOME_DURATION_MS,
+    ALTERNATE_ENDING_WELCOME_MESSAGE,
+} from '../src/engine/systems/alternateEndingRuntime.js';
 
 function enterDungeonForTest<TState extends { enterDungeon: () => void }>(
     useStore: { getState: () => TState },
@@ -880,6 +888,371 @@ test('level 3 gold-key wall face resolves all original matching locks in one use
         assert.equal(afterUse.firedSensors.has('3_288'), true);
         assert.equal(afterUse.firedSensors.has('3_177'), true);
         assert.equal(afterUse.championInventories[1]?.length ?? 0, 0);
+    } finally {
+        useStore.setState(initialState, true);
+    }
+});
+
+test('level 13 Firestaff sequence upgrades the Amalgam reward after the Zokathra unlock fires', async () => {
+    await preloadDungeonData();
+    const { useStore } = await import('../src/engine/store.js');
+    const initialState = enterDungeonForTest(useStore);
+
+    try {
+        useStore.getState().goToLevel(13, [4, 24], 'NORTH');
+
+        const zokathra = {
+            id: 'test-zokathra',
+            category: 'Misc' as const,
+            typeId: 51,
+            rawName: 'Zokathra',
+            mapIndex: 13,
+            x: 24,
+            y: 4,
+            tilePos: 'North' as const,
+        };
+        const firestaff = {
+            id: 'test-firestaff',
+            category: 'Weapon' as const,
+            typeId: 7,
+            rawName: 'The Firestaff',
+            mapIndex: 13,
+            x: 24,
+            y: 4,
+            tilePos: 'North' as const,
+        };
+
+        useStore.setState((state) => ({
+            ...state,
+            gamePhase: 'exploration',
+            paused: false,
+            sleeping: false,
+            optionsModalOpen: false,
+            movementCooldown: 0,
+            pendingSensorEvents: [],
+            damageEvents: [],
+            spellVisualEvents: [],
+            activeFloorDrag: null,
+            lastMonsterAttackDebug: null,
+            championInventories: {
+                ...state.championInventories,
+                1: [...(state.championInventories[1] ?? []), zokathra, firestaff],
+            },
+        }));
+
+        const beforeUnlock = useStore.getState();
+        const hiddenRewardBefore = beforeUnlock.floorItems.find((item) =>
+            item.mapIndex === 13 &&
+            item.x === 24 &&
+            item.y === 3 &&
+            item.tilePos === 'South' &&
+            item.category === 'Weapon' &&
+            item.typeId === 45,
+        );
+        assert.ok(hiddenRewardBefore, 'expected the hidden complete Firestaff reward on the Amalgam wall');
+
+        const unlockMatched = withAudioStub(() => useStore.getState().useItemOnFrontWall(1, zokathra.id, 'inventory'));
+        assert.equal(unlockMatched, true);
+
+        let afterUse = useStore.getState();
+        assert.equal(afterUse.firedSensors.has('13_535'), true);
+        assert.equal(
+            afterUse.championInventories[1]?.some((item) => item.id === zokathra.id) ?? false,
+            false,
+            'Zokathra should be consumed by the unlock sensor',
+        );
+
+        const combineMatched = withAudioStub(() => useStore.getState().useItemOnFrontWall(1, firestaff.id, 'inventory'));
+        assert.equal(combineMatched, true);
+
+        afterUse = useStore.getState();
+        const upgradedFirestaff = afterUse.championInventories[1]?.find((item) => item.typeId === 45);
+        assert.ok(upgradedFirestaff, 'expected the incomplete Firestaff to be replaced in inventory');
+        assert.equal(
+            afterUse.floorItems.some((item) => item.id === hiddenRewardBefore.id),
+            false,
+            'expected the wall-mounted reward to be removed after the transformation',
+        );
+        assert.equal(
+            afterUse.lastCastResult?.message,
+            'The Firestaff absorbs the energy of the Amalgam.',
+        );
+    } finally {
+        useStore.setState(initialState, true);
+    }
+});
+
+test('Hall of Champions alternate ending opens the entrance and keeps Lord Order at the dungeon exit', async () => {
+    await preloadDungeonData();
+    const { getChampionById } = await import('../src/data/champions.js');
+    const { useStore } = await import('../src/engine/store.js');
+    const initialState = enterDungeonForTest(useStore);
+
+    try {
+        const champion = getChampionById(1);
+        assert.ok(champion, 'expected a real champion definition for the alternate ending route');
+
+        useStore.getState().goToLevel(0, [4, 1], 'NORTH');
+        useStore.getState().addToParty(champion!, 'resurrect');
+
+        const firestaff = {
+            id: 'test-firestaff',
+            category: 'Weapon' as const,
+            typeId: 7,
+            rawName: 'The Firestaff',
+            mapIndex: 0,
+            x: 1,
+            y: 5,
+            tilePos: 'North' as const,
+        };
+
+        useStore.setState((state) => ({
+            ...state,
+            gamePhase: 'exploration',
+            paused: false,
+            sleeping: false,
+            optionsModalOpen: false,
+            movementCooldown: 0,
+            pendingSensorEvents: [],
+            damageEvents: [],
+            spellVisualEvents: [],
+            activeFloorDrag: null,
+            lastMonsterAttackDebug: null,
+            championInventories: {
+                ...state.championInventories,
+                [champion!.id]: [...(state.championInventories[champion!.id] ?? []), firestaff],
+            },
+            championEquipment: {
+                ...state.championEquipment,
+                [champion!.id]: state.championEquipment[champion!.id] ?? {},
+            },
+        }));
+
+        withAudioStub(() => {
+            useStore.getState().moveForward();
+        });
+        useStore.getState().tickFrame(1, 10_000);
+
+        let afterStep = useStore.getState();
+        assert.equal(afterStep.position[0], 3);
+        assert.equal(afterStep.position[1], 1);
+        assert.equal(afterStep.gamePhase, 'alternate_ending');
+        assert.equal(afterStep.openDoors.has(ALTERNATE_ENDING_ENTRANCE_DOOR_KEY), true);
+        assert.equal(afterStep.openTeleporters.has('0,3,1'), false);
+        assert.equal(afterStep.visibleTexts.has('0_1_4_31'), true);
+        assert.equal(afterStep.lastCastResult?.message, ALTERNATE_ENDING_WELCOME_MESSAGE);
+        const hallMessageStartedAt = afterStep.alternateEndingSequence?.startedAt ?? 0;
+
+        useStore.getState().tickGameplayFrame(0.1, hallMessageStartedAt + ALTERNATE_ENDING_MESSAGE_DURATION_MS + 1);
+
+        afterStep = useStore.getState();
+        assert.deepEqual(afterStep.position, [3, 1]);
+        assert.equal(afterStep.gamePhase, 'alternate_ending');
+        assert.equal(afterStep.lastCastResult?.message, ALTERNATE_ENDING_REJECTION_MESSAGE);
+    } finally {
+        useStore.setState(initialState, true);
+    }
+});
+
+test('Hall of Champions alternate ending seizes control from a save already standing on the Hall trigger tile', async () => {
+    await preloadDungeonData();
+    const { getChampionById } = await import('../src/data/champions.js');
+    const { useStore } = await import('../src/engine/store.js');
+    const initialState = enterDungeonForTest(useStore);
+
+    try {
+        const halk = getChampionById(1);
+        const hawk = getChampionById(6);
+        assert.ok(halk && hawk, 'expected real champion definitions for the alternate ending route');
+
+        useStore.getState().goToLevel(0, [3, 1], 'NORTH');
+        useStore.getState().addToParty(halk!, 'resurrect');
+        useStore.getState().addToParty(hawk!, 'resurrect');
+
+        const incompleteFirestaff = {
+            id: 'save-firestaff',
+            category: 'Weapon' as const,
+            typeId: 7,
+            rawName: 'The Firestaff',
+            mapIndex: 0,
+            x: 1,
+            y: 3,
+            tilePos: 'North' as const,
+        };
+        const falsePositiveRope = {
+            id: 'save-rope',
+            category: 'Misc' as const,
+            typeId: 45,
+            rawName: 'Rope',
+            mapIndex: 0,
+            x: 1,
+            y: 3,
+            tilePos: 'North' as const,
+        };
+        const falsePositiveArmor = {
+            id: 'save-poleyn',
+            category: 'Armor' as const,
+            typeId: 45,
+            rawName: 'Poleyn Of Lyte',
+            mapIndex: 0,
+            x: 1,
+            y: 3,
+            tilePos: 'North' as const,
+        };
+
+        useStore.setState((state) => ({
+            ...state,
+            gamePhase: 'exploration',
+            paused: false,
+            sleeping: false,
+            optionsModalOpen: false,
+            movementCooldown: 0,
+            pendingSensorEvents: [
+                { level: 0, sensorIndex: 532, remaining: 0.4, actionOverride: 'Set' as const },
+            ],
+            championInventories: {
+                ...state.championInventories,
+                [halk!.id]: [...(state.championInventories[halk!.id] ?? []), falsePositiveRope],
+            },
+            championEquipment: {
+                ...state.championEquipment,
+                [halk!.id]: {
+                    ...(state.championEquipment[halk!.id] ?? {}),
+                    rightHand: incompleteFirestaff,
+                },
+                [hawk!.id]: {
+                    ...(state.championEquipment[hawk!.id] ?? {}),
+                    legs: falsePositiveArmor,
+                },
+            },
+        }));
+
+        useStore.getState().tickFrame(0.1, 30_000);
+
+        const afterTick = useStore.getState();
+        assert.equal(afterTick.gamePhase, 'alternate_ending');
+        assert.deepEqual(afterTick.position, [3, 1]);
+        assert.equal(afterTick.openTeleporters.has('0,3,1'), false);
+        assert.deepEqual(afterTick.pendingSensorEvents, []);
+        assert.equal(afterTick.lastCastResult?.message, ALTERNATE_ENDING_WELCOME_MESSAGE);
+    } finally {
+        useStore.setState(initialState, true);
+    }
+});
+
+test('Hall of Champions alternate ending traps the party under Lord Order fireballs and returns to the normal game over screen', async () => {
+    await preloadDungeonData();
+    const { getChampionById } = await import('../src/data/champions.js');
+    const { useStore } = await import('../src/engine/store.js');
+    const initialState = enterDungeonForTest(useStore);
+
+    try {
+        const partyChampions = [1, 6, 21, 7]
+            .map((id) => getChampionById(id))
+            .filter((champion): champion is NonNullable<typeof champion> => champion !== undefined);
+        assert.equal(partyChampions.length, 4, 'expected the full late-game party for the alternate ending route');
+
+        useStore.getState().goToLevel(0, [4, 1], 'NORTH');
+        for (const champion of partyChampions) {
+            useStore.getState().addToParty(champion, 'resurrect');
+        }
+
+        const firestaff = {
+            id: 'test-firestaff-alt-ending',
+            category: 'Weapon' as const,
+            typeId: 7,
+            rawName: 'The Firestaff',
+            mapIndex: 0,
+            x: 1,
+            y: 5,
+            tilePos: 'North' as const,
+        };
+
+        useStore.setState((state) => ({
+            ...state,
+            gamePhase: 'exploration',
+            paused: false,
+            sleeping: false,
+            optionsModalOpen: false,
+            movementCooldown: 0,
+            pendingSensorEvents: [],
+            damageEvents: [],
+            spellVisualEvents: [],
+            activeFloorDrag: null,
+            lastMonsterAttackDebug: null,
+            championInventories: {
+                ...state.championInventories,
+                [partyChampions[3]!.id]: [...(state.championInventories[partyChampions[3]!.id] ?? []), firestaff],
+            },
+            championEquipment: {
+                ...state.championEquipment,
+                [partyChampions[3]!.id]: state.championEquipment[partyChampions[3]!.id] ?? {},
+            },
+            championVitals: {
+                ...state.championVitals,
+                [partyChampions[0]!.id]: { ...state.championVitals[partyChampions[0]!.id]!, hp: 196 },
+                [partyChampions[1]!.id]: { ...state.championVitals[partyChampions[1]!.id]!, hp: 286 },
+                [partyChampions[2]!.id]: { ...state.championVitals[partyChampions[2]!.id]!, hp: 209 },
+                [partyChampions[3]!.id]: { ...state.championVitals[partyChampions[3]!.id]!, hp: 178 },
+            },
+        }));
+
+        withAudioStub(() => {
+            useStore.getState().moveForward();
+        });
+        useStore.getState().tickFrame(1, 20_000);
+
+        let afterArrival = useStore.getState();
+        assert.equal(afterArrival.gamePhase, 'alternate_ending');
+        assert.deepEqual(afterArrival.position, [3, 1]);
+        assert.equal(afterArrival.openTeleporters.has('0,3,1'), false);
+        assert.equal(afterArrival.lastCastResult?.message, ALTERNATE_ENDING_WELCOME_MESSAGE);
+        const hallMessageStartedAt = afterArrival.alternateEndingSequence?.startedAt ?? 0;
+
+        useStore.getState().tickGameplayFrame(0.1, hallMessageStartedAt + ALTERNATE_ENDING_WELCOME_DURATION_MS + 1);
+
+        afterArrival = useStore.getState();
+        assert.deepEqual(afterArrival.position, [3, 1]);
+        assert.equal(afterArrival.lastCastResult?.message, ALTERNATE_ENDING_REJECTION_MESSAGE);
+        const orderMessageStartedAt = afterArrival.alternateEndingSequence?.startedAt ?? 0;
+
+        let sawLordOrderFireball = false;
+        let now = orderMessageStartedAt + ALTERNATE_ENDING_REJECTION_DURATION_MS + 100;
+        const barrageDeadline = orderMessageStartedAt + ALTERNATE_ENDING_REJECTION_DURATION_MS + 7_000;
+        withAudioStub(() => {
+            while (now <= barrageDeadline) {
+                useStore.getState().tickGameplayFrame(0.1, now);
+                now += 275;
+                const current = useStore.getState();
+                if (
+                    current.projectiles.some((projectile) =>
+                        projectile.level === 0 &&
+                        projectile.x === 1 &&
+                        projectile.y === 1 &&
+                        projectile.launchedBy === 'wall' &&
+                        projectile.effect === 'fireball',
+                    ) ||
+                    current.spellVisualEvents.some((event) =>
+                        event.level === 0 &&
+                        event.x === 1 &&
+                        event.y === 1 &&
+                        event.effect === 'fireball',
+                    )
+                ) {
+                    sawLordOrderFireball = true;
+                }
+                if (current.gamePhase === 'game_over') break;
+            }
+        });
+
+        const afterSequence = useStore.getState();
+        assert.equal(sawLordOrderFireball, true, 'expected Lord Order to start launching fireballs');
+        assert.equal(afterSequence.gamePhase, 'game_over');
+        assert.equal(afterSequence.party.length, 0);
+        assert.ok(
+            Object.keys(afterSequence.deadChampions).length > 0,
+            'expected the alternate ending to kill the party before returning to game over',
+        );
     } finally {
         useStore.setState(initialState, true);
     }

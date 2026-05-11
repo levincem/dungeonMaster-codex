@@ -33,6 +33,8 @@ type AttackFrontRuntimeState = {
     direction: Direction;
     creatures: CreatureInstance[];
     openDoors: Set<string>;
+    openPits?: Set<string>;
+    openWalls?: Set<string>;
     brokenDoors: Set<string>;
     floorItems: FloorItem[];
     championXP: Record<number, ChampionXP>;

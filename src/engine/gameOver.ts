@@ -1,4 +1,11 @@
-export type GameOverPhase = 'title' | 'exploration' | 'mirror_open' | 'endgame' | 'victory' | 'game_over';
+export type GameOverPhase =
+    'title'
+    | 'exploration'
+    | 'mirror_open'
+    | 'endgame'
+    | 'alternate_ending'
+    | 'victory'
+    | 'game_over';
 
 export function shouldEnterGameOver(params: {
     phase: GameOverPhase;

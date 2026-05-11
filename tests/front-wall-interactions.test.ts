@@ -132,3 +132,43 @@ test('tryUseFloorItemOnFrontWall can trigger any-object alcove-style wall sensor
         activeFloorDrag: null,
     });
 });
+
+test('tryUseChampionItemOnFrontWall still reaches the object exchanger when the wall face is occupied', () => {
+    const state = {
+        ...createState(),
+        floorItems: [
+            createWeapon('wall-item', 45),
+        ].map((item) => ({
+            ...item,
+            mapIndex: 3,
+            x: 6,
+            y: 4,
+            tilePos: 'South' as const,
+        })),
+    };
+    let exchangerCalls = 0;
+    const deps = createDeps({
+        triggerAlcoveDepositSensor: () => {
+            throw new Error('occupied wall face should not attempt alcove deposit before the exchanger');
+        },
+        triggerObjectExchangerSensor: () => {
+            exchangerCalls += 1;
+            return {
+                sensorChanges: { activeSensors: ['3_146'] },
+                newInventories: { 1: [] },
+                newEquipment: null,
+                matched: true,
+            };
+        },
+    });
+
+    const result = tryUseChampionItemOnFrontWall(state, { championId: 1, itemId: 'item-1', fromSlot: 'inventory' }, deps);
+
+    assert.equal(exchangerCalls, 1);
+    assert.equal(result.matched, true);
+    assert.equal(result.shouldPlayPlate, true);
+    assert.deepEqual(result.patch, {
+        activeSensors: ['3_146'],
+        championInventories: { 1: [] },
+    });
+});

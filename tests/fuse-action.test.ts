@@ -36,6 +36,26 @@ function createDeps() {
     return {
         buildAttackResultMessage: (message: string) => ({ success: false, message, ts: 99 }),
         getEndgameMessagesForMap: () => ['The Firestaff is complete...'],
+        buildFuseIgnitionEvents: (level: number, x: number, y: number) => ([
+            {
+                id: 'fuse-core',
+                level,
+                x,
+                y,
+                effect: 'fireball',
+                ts: 0,
+                kind: 'creature',
+            },
+            {
+                id: 'fuse-flux',
+                level,
+                x,
+                y,
+                effect: 'disrupt_nonmaterial',
+                ts: 0,
+                kind: 'creature',
+            },
+        ]),
         dropCreatureCarriedItems: (creatures: CreatureInstance[], floorItems: FloorItem[]) => ({
             creatures,
             floorItems: [...floorItems, droppedItem],
@@ -149,7 +169,7 @@ test('buildFuseActionPatch starts the endgame flow for trapped Lord Chaos', () =
         },
         createBasePatch(),
         deps,
-    ) as { patch: TestPatch & { gamePhase: string; endgameSequence: { lordChaosId: string; messages: string[] }; projectiles: []; activePoisonClouds: [] }; clearCreatureControlStatuses?: boolean };
+    ) as { patch: TestPatch & { gamePhase: string; endgameSequence: { lordChaosId: string; messages: string[] }; projectiles: []; activePoisonClouds: []; spellVisualEvents: Array<{ id: string; effect: string }> }; clearCreatureControlStatuses?: boolean };
 
     assert.equal(result.clearCreatureControlStatuses, true);
     assert.equal(result.patch.gamePhase, 'endgame');
@@ -157,6 +177,10 @@ test('buildFuseActionPatch starts the endgame flow for trapped Lord Chaos', () =
     assert.deepEqual(result.patch.endgameSequence.messages, ['The Firestaff is complete...']);
     assert.deepEqual(result.patch.projectiles, []);
     assert.deepEqual(result.patch.activePoisonClouds, []);
+    assert.deepEqual(
+        result.patch.spellVisualEvents.map((event) => event.effect),
+        ['fireball', 'disrupt_nonmaterial'],
+    );
 });
 
 test('buildFuseActionPatch applies fuse damage and death visuals to non-chaos targets', () => {

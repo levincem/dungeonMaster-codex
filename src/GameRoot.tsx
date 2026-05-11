@@ -70,7 +70,7 @@ function getAnalyticsSnapshot(): GameAnalyticsSnapshot {
 }
 
 function isGameplayPhase(phase: GameAnalyticsSnapshot['phase']): boolean {
-  return phase === 'exploration' || phase === 'mirror_open' || phase === 'endgame';
+  return phase === 'exploration' || phase === 'mirror_open' || phase === 'endgame' || phase === 'alternate_ending';
 }
 
 function getSortedDungeonPreloadQueue(currentLevel: number): number[] {
@@ -141,6 +141,7 @@ function GameRoot() {
   const level = useStore((state) => state.level);
   const paused = useStore((state) => state.paused);
   const activePartyMemberId = useStore((state) => state.activePartyMemberId);
+  const lastCastResult = useStore((state) => state.lastCastResult);
   const tutorialOverlayActive = useStore((state) => state.tutorialOverlayActive);
   const enterDungeon = useStore((state) => state.enterDungeon);
   const loadGame = useStore((state) => state.loadGame);
@@ -464,9 +465,40 @@ function GameRoot() {
         <Suspense fallback={null}>
           <VictoryScreen />
         </Suspense>
-      ) : gamePhase === 'endgame' ? (
+      ) : gamePhase === 'endgame' || gamePhase === 'alternate_ending' ? (
         <Suspense fallback={null}>
-          <DungeonScene />
+          <>
+            <DungeonScene />
+            {gamePhase === 'alternate_ending' && lastCastResult && (
+              <div
+                style={{
+                  position: 'fixed',
+                  left: '50%',
+                  bottom: 42,
+                  transform: 'translateX(-50%)',
+                  width: 'min(88vw, 560px)',
+                  padding: '18px 22px',
+                  borderRadius: 10,
+                  background: 'linear-gradient(180deg, rgba(16,10,4,0.94), rgba(6,4,2,0.98))',
+                  border: '1px solid rgba(224,184,96,0.42)',
+                  boxShadow: '0 18px 48px rgba(0,0,0,0.45)',
+                  color: '#f2e2b1',
+                  fontFamily: '"Courier New", monospace',
+                  fontSize: 20,
+                  lineHeight: 1.45,
+                  letterSpacing: 1,
+                  textAlign: 'center',
+                  whiteSpace: 'pre-line',
+                  zIndex: 210,
+                  pointerEvents: 'none',
+                  textTransform: 'uppercase',
+                  textShadow: '0 2px 10px rgba(0,0,0,0.55)',
+                }}
+              >
+                {lastCastResult.message}
+              </div>
+            )}
+          </>
         </Suspense>
       ) : (
         <Suspense fallback={null}>

@@ -1,6 +1,13 @@
 type AnalyticsEventParams = Record<string, string | number | boolean | undefined>;
 
-export type TrackedGamePhase = 'title' | 'exploration' | 'mirror_open' | 'endgame' | 'victory' | 'game_over';
+export type TrackedGamePhase =
+    'title'
+    | 'exploration'
+    | 'mirror_open'
+    | 'endgame'
+    | 'alternate_ending'
+    | 'victory'
+    | 'game_over';
 export type GameSessionSource = 'new_game' | 'resume';
 
 export interface GameAnalyticsSnapshot {

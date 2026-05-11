@@ -30,7 +30,7 @@ type EndgameState = {
     creatures: unknown[];
     spellVisualEvents: unknown[];
     lastCastResult: unknown | null;
-    gamePhase: 'title' | 'exploration' | 'mirror_open' | 'endgame' | 'victory' | 'game_over';
+    gamePhase: 'title' | 'exploration' | 'mirror_open' | 'endgame' | 'alternate_ending' | 'victory' | 'game_over';
     activeMirrorChampionId: number | null;
     activePartyMemberId: number | null;
     sleeping: boolean;

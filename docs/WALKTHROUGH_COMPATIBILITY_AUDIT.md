@@ -2,7 +2,7 @@
 
 Audit rapide de compatibilite entre le runtime actuel et un walkthrough complet de *Dungeon Master*.
 
-Version observee dans le code au 2026-04-11.
+Version observee dans le code au 2026-05-11.
 
 ## Objectif
 
@@ -23,7 +23,7 @@ Les 4 gros blockers identifies lors de la premiere passe ont maintenant une impl
 - `Zo` ouvre desormais la premiere porte fermee trouvee dans son axe
 - les portes destructibles peuvent etre brisees en attaque physique
 - la sequence `Zokathra -> Amalgam -> The Firestaff (Complete)` est branchee
-- une phase de victoire minimale existe apres la fusion de Lord Chaos
+- la vraie fin et la fin alternative du `Hall of Champions` sont maintenant toutes deux modelees
 
 Le risque principal n'est donc plus un oubli structurel, mais la fidelite exacte en playtest sur quelques sequences tardives.
 
@@ -114,12 +114,16 @@ Constat:
 
 - `Fluxcage` est branche cote runtime
 - `Fuse` est branche cote runtime
-- Lord Chaos doit deja etre fluxcage avant `Fuse` dans [src/engine/store.ts](/D:/DungeonMaster-codex/src/engine/store.ts)
+- Lord Chaos doit deja etre `fluxcaged` avant `Fuse` dans [fuseAction.ts](/D:/DungeonMaster-codex/src/engine/systems/fuseAction.ts:91)
+- l'IA speciale de `Lord Chaos` a aussi recupere son `double square move`, ce qui rebranche bien sa capacite de fuite speciale a haut niveau [creatureMovementState.ts](/D:/DungeonMaster-codex/src/engine/systems/creatureMovementState.ts:79) [originalArchenemyMovement.ts](/D:/DungeonMaster-codex/src/engine/systems/originalArchenemyMovement.ts:5)
+- nuance importante: la condition finale reste aujourd'hui plus abstraite qu'une reconstruction litterale des cases de `Fluxcage` posees autour de lui
+- correctif utile deja en place: si `Fluxcage` est lance directement sur la case de `Lord Chaos` alors qu'une case adjacente libre existe, il s'y echappe au lieu d'etre traite comme deja piege
+- correctif utile ajoute sur `Fuse`: meme si `Lord Chaos` est encore marque `fluxcaged`, le cast ne demarre plus la vraie fin s'il a encore une case adjacente libre; il s'echappe d'abord et la fusion echoue
 
 Verdict:
 
-- partiellement compatible
-- la logique de combat final existe deja
+- compatible pour finir le jeu
+- encore partiellement abstrait sur la geometrie exacte du piege final si on prend le walkthrough comme oracle strict
 
 ## Risques de blocage probables
 
@@ -196,13 +200,14 @@ Risque residuel:
 
 Constate code:
 
-- `GamePhase` couvre maintenant une phase `victory`
-- la neutralisation de Lord Chaos via `Fuse` bascule vers un ecran de fin minimal
-- la presentation actuelle est volontairement simple: ecran noir, `Congratulations!`, Grey Lord, puis `The End` et logo `Dungeon Master`
+- `GamePhase` couvre maintenant les phases `endgame`, `victory` et `alternate_ending`
+- la neutralisation de Lord Chaos via `Fuse` bascule vers une vraie sequence `endgame` avec alternance `Lord Chaos / Lord Order`, apparition du `Grey Lord`, puis ecran final
+- le retour au `Hall of Champions` avec `The Firestaff` incomplet declenche maintenant aussi la fin alternative: retour devant `Lord Order`, barrage de `fireballs`, mort de la party, puis `game over` normal
 
 Risque residuel:
 
-- faible, plutot du polish que du blocage
+- faible sur la completion
+- moyen seulement si l'objectif devient la fidelite spatiale tres stricte du piege de `Lord Chaos`
 
 ## Points a reverifier en playtest
 
@@ -227,7 +232,7 @@ Les verifications prioritaires restantes avant de dire "run complete compatible 
 
 1. valider en jeu les puzzles `Zo` a distance les plus sensibles
 2. valider quelques portes cassables emblematiques (`None Shall Pass`, portes en bois de debut de jeu)
-3. jouer la sequence complete `Zokathra -> Amalgam -> Firestaff complet -> Fluxcage -> Fuse`
+3. confirmer jusqu'ou on veut pousser la fidelite exacte du piege final `Lord Chaos + Fluxcage` par rapport a la formulation walkthrough
 4. verifier les derniers cas rares de countdowns / teleporters / retours entre niveaux
 
 ## Liens utiles

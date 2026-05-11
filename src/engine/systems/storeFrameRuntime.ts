@@ -9,6 +9,7 @@ type StoreFrameGamePhase =
     | 'exploration'
     | 'mirror_open'
     | 'endgame'
+    | 'alternate_ending'
     | 'victory'
     | 'game_over';
 
@@ -22,6 +23,7 @@ type StoreFrameStateBase = {
     activeMirrorChampionId: number | null;
     activePartyMemberId: number | null;
     endgameSequence: unknown | null;
+    alternateEndingSequence: unknown | null;
     lastCastResult: unknown | null;
     damageEvents: unknown[];
     spellVisualEvents: unknown[];
@@ -84,6 +86,7 @@ type StoreTickFrameDeps<
     applyImmediateTransportSquareEffects: (
         state: TState,
         patch: Partial<TState>,
+        now: number,
     ) => Partial<TState>;
 };
 

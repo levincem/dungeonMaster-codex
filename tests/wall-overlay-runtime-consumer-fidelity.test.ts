@@ -128,6 +128,29 @@ test('buildDungeonSceneWallDecals drops overlays hidden behind opened self-revea
     assert.equal(decals.length, 0, 'opened self-revealing walls should hide their associated overlay decals');
 });
 
+test('buildDungeonSceneWallDecals can suppress a specific overlay until runtime conditions are met', () => {
+    const map = createOpenRoomMap();
+    const overlay = {
+        tileX: 1,
+        tileY: 1,
+        face: 'South' as const,
+        image: '/game/images/misc/wall_lord_order_outside_v2.png',
+        label: 'Lord Order (Outside)',
+    };
+
+    const decals = buildDungeonSceneWallDecals({
+        level: map.index,
+        map,
+        openDoors: new Set(),
+        openWalls: new Set(),
+        partyPosition: [2, 1],
+        originalWallOverlays: [overlay],
+        includeOverlay: () => false,
+    });
+
+    assert.deepEqual(decals, [], 'runtime overlay filters should be able to hide a decorative face entirely');
+});
+
 test('buildDungeonSceneWallDecals no longer injects stair visuals as wall decals', () => {
     const map: GameMap = {
         index: 0,

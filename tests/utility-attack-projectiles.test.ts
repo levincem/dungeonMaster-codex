@@ -36,6 +36,17 @@ test('buildUtilityAttackProjectile builds fixed combat projectiles with the expe
             buildIdSuffix: () => 'seed',
         },
     );
+    const disrupt = buildUtilityAttackProjectile(
+        'Disrupt',
+        2,
+        [5, 5],
+        'SOUTH',
+        100,
+        {
+            randomInt: () => 0,
+            buildIdSuffix: () => 'seed',
+        },
+    );
 
     assert.equal(lightning.id, 'weapon_lightning_100_seed');
     assert.deepEqual([lightning.x, lightning.y], [5, 4]);
@@ -51,6 +62,11 @@ test('buildUtilityAttackProjectile builds fixed combat projectiles with the expe
     assert.deepEqual([dispell.x, dispell.y], [4, 5]);
     assert.equal(dispell.effect, 'disrupt_nonmaterial');
     assert.deepEqual(dispell.damage, [14, 34]);
+
+    assert.equal(disrupt.id, 'weapon_disrupt_100_seed');
+    assert.deepEqual([disrupt.x, disrupt.y], [5, 6]);
+    assert.equal(disrupt.effect, 'disrupt_nonmaterial');
+    assert.deepEqual(disrupt.damage, [14, 34]);
 });
 
 test('buildUtilityAttackProjectile selects invoke effects through injected randomness', () => {

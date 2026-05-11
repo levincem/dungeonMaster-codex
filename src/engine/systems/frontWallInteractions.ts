@@ -235,31 +235,30 @@ export function tryUseChampionItemOnFrontWall<
         };
     }
 
-    if (isWallFaceOccupied(state.floorItems, state.level, wallX, wallY, face)) {
-        return { matched: false, patch: null, shouldPlayPlate: false };
-    }
-
-    const alcoveResult = deps.triggerAlcoveDepositSensor(
-        state.level,
-        wallX,
-        wallY,
-        face,
-        ss,
-        state.championInventories,
-        state.championEquipment,
-        selectedItem,
-    );
-    if (alcoveResult.matched && alcoveResult.depositedItem) {
-        return {
-            matched: true,
-            patch: deps.applyImmediateTransportSquareEffects(state, {
-                ...alcoveResult.sensorChanges,
-                ...(alcoveResult.newInventories ? { championInventories: alcoveResult.newInventories } : {}),
-                ...(alcoveResult.newEquipment ? { championEquipment: alcoveResult.newEquipment } : {}),
-                floorItems: [...state.floorItems, alcoveResult.depositedItem],
-            }),
-            shouldPlayPlate: hasSensorChanges(alcoveResult.sensorChanges),
-        };
+    const wallFaceOccupied = isWallFaceOccupied(state.floorItems, state.level, wallX, wallY, face);
+    if (!wallFaceOccupied) {
+        const alcoveResult = deps.triggerAlcoveDepositSensor(
+            state.level,
+            wallX,
+            wallY,
+            face,
+            ss,
+            state.championInventories,
+            state.championEquipment,
+            selectedItem,
+        );
+        if (alcoveResult.matched && alcoveResult.depositedItem) {
+            return {
+                matched: true,
+                patch: deps.applyImmediateTransportSquareEffects(state, {
+                    ...alcoveResult.sensorChanges,
+                    ...(alcoveResult.newInventories ? { championInventories: alcoveResult.newInventories } : {}),
+                    ...(alcoveResult.newEquipment ? { championEquipment: alcoveResult.newEquipment } : {}),
+                    floorItems: [...state.floorItems, alcoveResult.depositedItem],
+                }),
+                shouldPlayPlate: hasSensorChanges(alcoveResult.sensorChanges),
+            };
+        }
     }
 
     const exchangerResult = deps.triggerObjectExchangerSensor(
@@ -391,35 +390,34 @@ export function tryUseFloorItemOnFrontWall<
         };
     }
 
-    if (isWallFaceOccupied(state.floorItems, state.level, wallX, wallY, face)) {
-        return { matched: false, patch: null, shouldPlayPlate: false };
-    }
-
-    const alcoveResult = deps.triggerAlcoveDepositSensor(
-        state.level,
-        wallX,
-        wallY,
-        face,
-        ss,
-        temporaryInventories,
-        state.championEquipment,
-        selectedItem,
-    );
-    if (alcoveResult.matched && alcoveResult.depositedItem) {
-        return {
-            matched: true,
-            patch: deps.applyImmediateTransportSquareEffects(state, {
-                ...alcoveResult.sensorChanges,
-                championInventories: alcoveResult.newInventories ?? temporaryInventories,
-                ...(alcoveResult.newEquipment ? { championEquipment: alcoveResult.newEquipment } : {}),
-                floorItems: [
-                    ...state.floorItems.filter((entry) => entry.id !== itemId),
-                    alcoveResult.depositedItem,
-                ],
-                activeFloorDrag: state.activeFloorDrag?.itemId === itemId ? null : state.activeFloorDrag,
-            }),
-            shouldPlayPlate: hasSensorChanges(alcoveResult.sensorChanges),
-        };
+    const wallFaceOccupied = isWallFaceOccupied(state.floorItems, state.level, wallX, wallY, face);
+    if (!wallFaceOccupied) {
+        const alcoveResult = deps.triggerAlcoveDepositSensor(
+            state.level,
+            wallX,
+            wallY,
+            face,
+            ss,
+            temporaryInventories,
+            state.championEquipment,
+            selectedItem,
+        );
+        if (alcoveResult.matched && alcoveResult.depositedItem) {
+            return {
+                matched: true,
+                patch: deps.applyImmediateTransportSquareEffects(state, {
+                    ...alcoveResult.sensorChanges,
+                    championInventories: alcoveResult.newInventories ?? temporaryInventories,
+                    ...(alcoveResult.newEquipment ? { championEquipment: alcoveResult.newEquipment } : {}),
+                    floorItems: [
+                        ...state.floorItems.filter((entry) => entry.id !== itemId),
+                        alcoveResult.depositedItem,
+                    ],
+                    activeFloorDrag: state.activeFloorDrag?.itemId === itemId ? null : state.activeFloorDrag,
+                }),
+                shouldPlayPlate: hasSensorChanges(alcoveResult.sensorChanges),
+            };
+        }
     }
 
     const exchangerResult = deps.triggerObjectExchangerSensor(

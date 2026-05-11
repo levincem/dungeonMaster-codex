@@ -50,6 +50,8 @@ type StoreAttackFrontRuntimeState = {
     direction: 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
     creatures: CreatureInstance[];
     openDoors: Set<string>;
+    openPits?: Set<string>;
+    openWalls?: Set<string>;
     brokenDoors: Set<string>;
     floorItems: FloorItem[];
     championXP: Record<number, ChampionXP>;
@@ -154,7 +156,10 @@ type UtilityAttackRuntimeDeps<TState extends StoreAttackFrontRuntimeState> = {
     applyControlUpdate: (update: UtilityControlUpdate) => void;
     applyFearResult: (fearResult: FearUtilityActionResult) => void;
     clearCreatureControlStatuses: () => void;
+    clearTargetFluxcageStatus: (creatureId: string) => void;
     getEndgameMessagesForMap: (level: number) => string[];
+    buildFluxcageCastEvents: (level: number, x: number, y: number) => SpellVisualEvent[];
+    buildFuseIgnitionEvents: (level: number, x: number, y: number) => SpellVisualEvent[];
 };
 
 type CreatureCombatRuntimeDeps<TState extends StoreAttackFrontRuntimeState> = {
@@ -174,6 +179,13 @@ type CreatureCombatRuntimeDeps<TState extends StoreAttackFrontRuntimeState> = {
     getTargetTimers: (creatureId: string) => { mt: number; at: number } | undefined;
     getMapDifficulty: (level: number) => number;
     getMapTile: (level: number, x: number, y: number) => GameTile | undefined;
+    canCreatureShareTile: (
+        mover: CreatureInstance,
+        level: number,
+        x: number,
+        y: number,
+        creatures: CreatureInstance[],
+    ) => boolean;
     getFrontPosition: (position: [number, number], direction: TState['direction']) => { x: number; y: number };
     getEffectiveChampionStatsRuntime: (
         champion: Champion,
@@ -341,6 +353,9 @@ export function buildStoreAttackFrontRuntimePatch<TState extends StoreAttackFron
                         spellLights: attackState.spellLights,
                         activeShields: attackState.activeShields,
                         projectiles: attackState.projectiles,
+                        openDoors: attackState.openDoors,
+                        openPits: attackState.openPits ?? new Set<string>(),
+                        openWalls: attackState.openWalls ?? new Set<string>(),
                         rightHandTypeId: rightHand?.typeId,
                         rightHand,
                         rightHandWeaponName: rightHand ? deps.getWeaponName(rightHand) : '',
@@ -354,6 +369,9 @@ export function buildStoreAttackFrontRuntimePatch<TState extends StoreAttackFron
                         quantizeDurationMs: quantizeMsToOriginalTimerTicks,
                         buildAttackResultMessage: deps.buildAttackResultMessage,
                         getCreatureDef: deps.getCreatureDef,
+                        getMapTile: deps.getMapTile,
+                        buildFluxcageCastEvents: deps.buildFluxcageCastEvents,
+                        canCreatureShareTile: deps.canCreatureShareTile,
                         timerTickMs: ORIGINAL_TIMER_TICK_MS,
                         getFluxcageExpiresAt: deps.getFluxcageExpiresAt,
                         getTargetTimers: deps.getTargetTimers,
@@ -362,7 +380,9 @@ export function buildStoreAttackFrontRuntimePatch<TState extends StoreAttackFron
                         applyControlUpdate: deps.applyControlUpdate,
                         applyFearResult: deps.applyFearResult,
                         clearCreatureControlStatuses: deps.clearCreatureControlStatuses,
+                        clearTargetFluxcageStatus: deps.clearTargetFluxcageStatus,
                         getEndgameMessagesForMap: deps.getEndgameMessagesForMap,
+                        buildFuseIgnitionEvents: deps.buildFuseIgnitionEvents,
                         dropCreatureCarriedItems: deps.dropCreatureCarriedItems,
                         normalizeCreatureCellsOnTile: deps.normalizeCreatureCellsOnTile,
                         buildCreatureDamageEvent: deps.buildCreatureDamageEvent,

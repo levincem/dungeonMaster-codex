@@ -19,6 +19,7 @@ export type StoreBootstrapGamePhase =
     | 'exploration'
     | 'mirror_open'
     | 'endgame'
+    | 'alternate_ending'
     | 'victory'
     | 'game_over';
 
@@ -71,6 +72,7 @@ export type StoreBootstrapState = {
     pausedAt?: number | null;
     lastMonsterAttackDebug: null;
     endgameSequence: null;
+    alternateEndingSequence: null;
     lastCastResult: null;
     championXP: Record<number, never>;
     championTemporaryXP: Record<number, never>;
@@ -162,6 +164,7 @@ export function createStoreBootstrapRuntime(
         pausedAt: null,
         lastMonsterAttackDebug: null,
         endgameSequence: null,
+        alternateEndingSequence: null,
         lastCastResult: null,
         championXP: {},
         championTemporaryXP: {},

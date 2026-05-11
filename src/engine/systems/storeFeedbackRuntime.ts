@@ -149,6 +149,91 @@ export function buildDeathDustEvent(
     };
 }
 
+function buildSpellVisualEvent(
+    idPrefix: string,
+    level: number,
+    x: number,
+    y: number,
+    effect: SpellVisualEventLike['effect'],
+    ts: number,
+    options: Partial<Pick<SpellVisualEventLike, 'offsetX' | 'offsetZ' | 'height' | 'visualScale' | 'kind'>> = {},
+): SpellVisualEventLike {
+    return {
+        id: `${idPrefix}_${ts}_${Math.random().toString(36).slice(2)}`,
+        level,
+        x,
+        y,
+        effect,
+        ts,
+        kind: options.kind ?? 'creature',
+        ...(options.offsetX !== undefined ? { offsetX: options.offsetX } : {}),
+        ...(options.offsetZ !== undefined ? { offsetZ: options.offsetZ } : {}),
+        ...(options.height !== undefined ? { height: options.height } : {}),
+        ...(options.visualScale !== undefined ? { visualScale: options.visualScale } : {}),
+    };
+}
+
+export function buildFluxcageCastEvents(
+    level: number,
+    x: number,
+    y: number,
+    gridSize: number,
+): SpellVisualEventLike[] {
+    const ts = Date.now();
+    return [
+        buildSpellVisualEvent('fluxcage_shell', level, x, y, 'open', ts, {
+            kind: 'creature',
+            visualScale: 0.94,
+            height: gridSize * 0.12,
+        }),
+        buildSpellVisualEvent('fluxcage_shards', level, x, y, 'disrupt_nonmaterial', ts, {
+            kind: 'creature',
+            visualScale: 1.08,
+            height: gridSize * 0.24,
+        }),
+        buildSpellVisualEvent('fluxcage_crown', level, x, y, 'open', ts, {
+            kind: 'creature',
+            visualScale: 0.82,
+            height: gridSize * 0.44,
+            offsetX: gridSize * 0.08,
+            offsetZ: -gridSize * 0.08,
+        }),
+    ];
+}
+
+export function buildFuseIgnitionEvents(
+    level: number,
+    x: number,
+    y: number,
+    gridSize: number,
+): SpellVisualEventLike[] {
+    const ts = Date.now();
+    return [
+        buildSpellVisualEvent('fuse_fire_core', level, x, y, 'fireball', ts, {
+            kind: 'creature',
+            visualScale: 1.18,
+            height: gridSize * 0.1,
+        }),
+        buildSpellVisualEvent('fuse_fire_spark', level, x, y, 'fireball', ts, {
+            kind: 'creature',
+            visualScale: 0.96,
+            height: gridSize * 0.34,
+            offsetX: gridSize * 0.12,
+            offsetZ: -gridSize * 0.08,
+        }),
+        buildSpellVisualEvent('fuse_flux', level, x, y, 'disrupt_nonmaterial', ts, {
+            kind: 'creature',
+            visualScale: 1.12,
+            height: gridSize * 0.22,
+        }),
+        buildSpellVisualEvent('fuse_seal', level, x, y, 'open', ts, {
+            kind: 'creature',
+            visualScale: 1.28,
+            height: gridSize * 0.5,
+        }),
+    ];
+}
+
 export function buildViAltarCelebrationEvents(
     level: number,
     x: number,

@@ -345,11 +345,13 @@ export function buildDungeonSceneWallDecals(args: {
     originalWallOverlays: readonly WallDecalRender[];
     isSelfRevealingWallTile?: (level: number, tileX: number, tileY: number) => boolean;
     doorBlocksVision?: (doorType: number | undefined) => boolean;
+    includeOverlay?: (overlay: WallDecalRender) => boolean;
 }): WallDecalRender[] {
     const { level, map, openDoors, openWalls, partyPosition } = args;
     const overlays = args.originalWallOverlays;
     const selfRevealingWallTile = args.isSelfRevealingWallTile ?? (() => false);
     const doorBlocksVisionFn = args.doorBlocksVision ?? (() => true);
+    const includeOverlay = args.includeOverlay ?? (() => true);
     const partyX = partyPosition[1];
     const partyY = partyPosition[0];
     const decals: WallDecalRender[] = [];
@@ -364,6 +366,9 @@ export function buildDungeonSceneWallDecals(args: {
       };
 
     for (const overlay of overlays) {
+        if (!includeOverlay(overlay)) {
+            continue;
+        }
         if (
             selfRevealingWallTile(level, overlay.tileX, overlay.tileY) &&
             openWalls.has(`${level},${overlay.tileY},${overlay.tileX}`)

@@ -73,9 +73,14 @@ import {
     FloorItemsLayer,
     FootprintLayer,
 } from './DungeonSceneRuntimeLayers';
+import { PartyFireballBlastLayer } from './PartyFireballBlastLayer';
 import { SpellImpactLayer } from './DungeonSpellImpactLayer';
 import { useTemporalFlag, useWallClock } from './useWallClock';
 import { creaturesInFront, isCreatureContactCell } from '../../engine/systems/frontCreatureState';
+import {
+    ALTERNATE_ENDING_ENTRANCE_DOOR_KEY,
+    ALTERNATE_ENDING_HALL_OVERLAY,
+} from '../../engine/systems/alternateEndingRuntime';
 
 const HALF = GRID_SIZE / 2;
 const BASE_FOG_NEAR = GRID_SIZE * 2;
@@ -1148,7 +1153,12 @@ const TileGrid: React.FC<{
                         ? (tile.objects.find(o => o.category === 'Door') as DoorObject | undefined)?.hasButton ?? false
                         : undefined;
                     const doorType = renderType === 'Door'
-                        ? (tile.objects.find(o => o.category === 'Door') as DoorObject | undefined)?.doorType
+                        ? (() => {
+                            const originalDoorType = (tile.objects.find(o => o.category === 'Door') as DoorObject | undefined)?.doorType;
+                            return level === 0 && x === 1 && y === 2
+                                ? 1
+                                : originalDoorType;
+                        })()
                         : undefined;
                     const isFrontDoor = x === frontTileX && y === frontTileY;
                     const doorButtonVisible = renderType === 'Door'
@@ -1324,6 +1334,18 @@ export const DungeonScene = () => {
             originalWallOverlays,
             isSelfRevealingWallTile,
             doorBlocksVision,
+            includeOverlay: (overlay) => {
+                if (
+                    level === ALTERNATE_ENDING_HALL_OVERLAY.level &&
+                    overlay.tileX === ALTERNATE_ENDING_HALL_OVERLAY.tileX &&
+                    overlay.tileY === ALTERNATE_ENDING_HALL_OVERLAY.tileY &&
+                    overlay.face === ALTERNATE_ENDING_HALL_OVERLAY.face &&
+                    !openDoors.has(ALTERNATE_ENDING_ENTRANCE_DOOR_KEY)
+                ) {
+                    return false;
+                }
+                return true;
+            },
         }),
         [level, map, openDoors, openWalls, originalWallOverlays, position],
     );
@@ -1625,6 +1647,7 @@ export const DungeonScene = () => {
                     <TeleporterLayer teleporters={teleporters} />
                     <DamageLayer />
                     <SpellImpactLayer />
+                    <PartyFireballBlastLayer />
                     <FloorItemsLayer />
                     <ProjectileRenderer />
                 </group>

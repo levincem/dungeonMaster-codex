@@ -66,9 +66,21 @@ const PULSE_STYLE = `
 .slot-valid { animation: slot-pulse 1s ease-in-out infinite; border-color: #e0c050 !important; }
 `;
 
-function getSkillLevelName(xp: number, names: readonly string[]): string {
-    const lvl = xpToLevel(xp);
-    return names[Math.min(lvl, names.length - 1)] ?? names[names.length - 1] ?? '';
+function getSkillLevelDisplay(
+    xp: number,
+    names: readonly string[],
+): {
+    visible: boolean;
+    name: string;
+    label: string;
+} {
+    const lvl = Math.min(16, xpToLevel(xp));
+    if (lvl <= 1 || names.length === 0) {
+        return { visible: false, name: '', label: '' };
+    }
+
+    const name = names[Math.min(lvl - 2, names.length - 1)] ?? names[names.length - 1] ?? '';
+    return { visible: true, name, label: name };
 }
 
 function formatWeight(value: number): string {
@@ -1181,13 +1193,18 @@ export const ChampionSheet: React.FC = () => {
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 18px' }}>
                                         {skills.map(({ key, label }) => {
                                             const skillXP = xp?.[key] ?? 0;
-                                            const name = getSkillLevelName(skillXP, text.skillLevelNames);
+                                            const skillLevel = getSkillLevelDisplay(skillXP, text.skillLevelNames);
                                             const color = SKILL_COLORS[key];
-                                            if (name === text.skillLevelNames[0]) return null;
+                                            if (!skillLevel.visible) return null;
                                             return (
                                                 <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 2 }}>
                                                     <span style={{ fontSize: 14, color: T.creamDim }}>{label}</span>
-                                                    <span style={{ fontSize: 14, fontWeight: 'bold', color }}>{name}</span>
+                                                    <span
+                                                        style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 'bold', color }}
+                                                        title={skillLevel.name}
+                                                    >
+                                                        <span>{skillLevel.label}</span>
+                                                    </span>
                                                 </div>
                                             );
                                         })}

@@ -24,6 +24,11 @@ type FuseState<TDamageEvent, TSpellVisualEvent> = {
 type FuseDeps<TMessage, TDamageEvent, TSpellVisualEvent> = {
     buildAttackResultMessage: (message: string) => TMessage;
     getEndgameMessagesForMap: (level: number) => string[];
+    buildFuseIgnitionEvents: (
+        level: number,
+        x: number,
+        y: number,
+    ) => TSpellVisualEvent[];
     dropCreatureCarriedItems: (
         creatures: CreatureInstance[],
         floorItems: FloorItem[],
@@ -128,6 +133,10 @@ export function buildFuseActionPatch<
                     shownMessageCount: 0,
                     messages: deps.getEndgameMessagesForMap(state.level),
                 },
+                spellVisualEvents: [
+                    ...state.spellVisualEvents,
+                    ...deps.buildFuseIgnitionEvents(state.level, state.target.x, state.target.y),
+                ],
                 activeMirrorChampionId: null,
                 activePartyMemberId: null,
                 sleeping: false,

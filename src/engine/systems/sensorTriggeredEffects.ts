@@ -136,6 +136,12 @@ export function dispatchTriggeredSensorEffect<TState extends SensorTriggeredStat
             changed = true;
         }
 
+        const directPatch = applyDirectSensorTargetAction(sourceSensor, sourceLevel, nextState, sourceAction);
+        if (Object.keys(directPatch).length > 0) {
+            nextState = { ...nextState, ...directPatch } as TState;
+            changed = true;
+        }
+
         return changed ? deps.diffSensorState(current, nextState) : {};
     };
 

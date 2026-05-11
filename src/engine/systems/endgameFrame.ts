@@ -172,7 +172,7 @@ type ApplyEndgameFrameState<
     TSpellVisualEvent,
     TCastResult,
 > = EndgameFrameState<TSequence, TCreature, TSpellVisualEvent, TCastResult> & {
-    gamePhase: 'title' | 'exploration' | 'mirror_open' | 'endgame' | 'victory' | 'game_over';
+    gamePhase: 'title' | 'exploration' | 'mirror_open' | 'endgame' | 'alternate_ending' | 'victory' | 'game_over';
     activeMirrorChampionId: number | null;
     activePartyMemberId: number | null;
     sleeping: boolean;

@@ -10,7 +10,7 @@ import type { ChampionVitals } from '../src/engine/runtimeTypes.js';
 
 type TestState = {
     optionsModalOpen: boolean;
-    gamePhase: 'title' | 'exploration' | 'mirror_open' | 'endgame' | 'victory' | 'game_over';
+    gamePhase: 'title' | 'exploration' | 'mirror_open' | 'endgame' | 'alternate_ending' | 'victory' | 'game_over';
     party: Array<{ id: number }>;
     deadChampions: Record<number, unknown>;
     sleeping: boolean;
@@ -18,6 +18,7 @@ type TestState = {
     activeMirrorChampionId: number | null;
     activePartyMemberId: number | null;
     endgameSequence: { id: string } | null;
+    alternateEndingSequence: { stage: string } | null;
     lastCastResult: { message: string } | null;
     damageEvents: Array<{ id: string }>;
     spellVisualEvents: Array<{ id: string }>;
@@ -73,6 +74,7 @@ function createState(overrides: Partial<TestState> = {}): TestState {
         activeMirrorChampionId: 1,
         activePartyMemberId: 1,
         endgameSequence: { id: 'end' },
+        alternateEndingSequence: { stage: 'barrage' },
         lastCastResult: { message: 'hello' },
         damageEvents: [{ id: 'dmg' }],
         spellVisualEvents: [{ id: 'spell' }],
@@ -181,7 +183,7 @@ test('buildStoreTickFramePatch centralizes regen, movement, combat, and pending 
                 };
             },
             generatorRuntimeDeps: generatorDeps,
-            applyImmediateTransportSquareEffects: (_currentState, basePatch) => ({
+            applyImmediateTransportSquareEffects: (_currentState, basePatch, _now) => ({
                 ...basePatch,
                 marker: `${basePatch.marker}-transport`,
             }),

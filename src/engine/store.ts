@@ -274,6 +274,13 @@ import {
     buildStoreSleepFramePatch,
 } from './systems/storeTimeRuntime';
 import {
+    ALTERNATE_ENDING_HALL_FIREBALL_ORIGIN,
+    buildAlternateEndingFramePatch,
+    buildAlternateEndingHallStartPatch,
+    shouldStartAlternateEndingHallSequence,
+    type AlternateEndingSequence,
+} from './systems/alternateEndingRuntime';
+import {
     createStoreCastSpellRuntimeDeps,
     buildStoreTickSpellsRuntimePatch,
     createStoreTickSpellsRuntimePartyDamageDeps,
@@ -338,6 +345,8 @@ import {
     buildChampionDamageEvent as buildChampionDamageEventRuntime,
     buildCreatureDamageEvent as buildCreatureDamageEventRuntime,
     buildDeathDustEvent as buildDeathDustEventRuntime,
+    buildFluxcageCastEvents as buildFluxcageCastEventsRuntime,
+    buildFuseIgnitionEvents as buildFuseIgnitionEventsRuntime,
     buildViAltarCelebrationEvents as buildViAltarCelebrationEventsRuntime,
     decorateViAltarResurrectionPatch as decorateViAltarResurrectionPatchRuntime,
     showStoreLastCastResultMessage,
@@ -444,7 +453,14 @@ import {
 } from './time';
 
 export type Direction = 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
-export type GamePhase = 'title' | 'exploration' | 'mirror_open' | 'endgame' | 'victory' | 'game_over';
+export type GamePhase =
+    'title'
+    | 'exploration'
+    | 'mirror_open'
+    | 'endgame'
+    | 'alternate_ending'
+    | 'victory'
+    | 'game_over';
 
 const DOOR_TOGGLE_SOUND_DURATION_MS = 1000;
 const DOOR_SOUND_MAX_VOLUME = 0.65;
@@ -543,6 +559,167 @@ interface EndgameSequence {
     hideFluxcages: boolean;
     shownMessageCount: number;
     messages: string[];
+}
+
+type PartyItemIdentity = Pick<FloorItem, 'category' | 'typeId' | 'rawName'> | null | undefined;
+
+function isIncompleteFirestaffItem(item: PartyItemIdentity): boolean {
+    if (!item || item.category !== 'Weapon') return false;
+    const rawName = (item.rawName ?? '').toLowerCase();
+    return item.typeId === 7 || (rawName.includes('firestaff') && !/complete|final/i.test(rawName));
+}
+
+function isCompleteFirestaffItem(item: PartyItemIdentity): boolean {
+    if (!item || item.category !== 'Weapon') return false;
+    const rawName = (item.rawName ?? '').toLowerCase();
+    return item.typeId === 45 || (rawName.includes('firestaff') && /complete|final/i.test(rawName));
+}
+
+function partyHasMatchingItem(
+    inventories: Record<number, FloorItem[]>,
+    equipmentByChampion: Record<number, ChampionEquipment>,
+    predicate: (item: PartyItemIdentity) => boolean,
+): boolean {
+    for (const inventory of Object.values(inventories)) {
+        if (inventory.some((item) => predicate(item))) {
+            return true;
+        }
+    }
+
+    for (const equipment of Object.values(equipmentByChampion)) {
+        if (!equipment) continue;
+        for (const item of Object.values(equipment)) {
+            if (predicate(item ?? undefined)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+function buildAlternateEndingHallStartPatchIfNeeded(
+    state: Pick<
+        GameState,
+        | 'gamePhase'
+        | 'party'
+        | 'level'
+        | 'position'
+        | 'openTeleporters'
+        | 'openDoors'
+        | 'visibleTexts'
+        | 'championInventories'
+        | 'championEquipment'
+        | 'optionsModalOpen'
+        | 'activeMirrorChampionId'
+        | 'activePartyMemberId'
+        | 'sleeping'
+        | 'paused'
+        | 'lastCastResult'
+        | 'alternateEndingSequence'
+    >,
+    now: number,
+): Partial<GameState> | null {
+    const hasIncompleteFirestaff = partyHasMatchingItem(
+        state.championInventories,
+        state.championEquipment,
+        isIncompleteFirestaffItem,
+    );
+    const hasCompleteFirestaff = partyHasMatchingItem(
+        state.championInventories,
+        state.championEquipment,
+        isCompleteFirestaffItem,
+    );
+
+    if (!shouldStartAlternateEndingHallSequence({
+        phase: state.gamePhase,
+        partySize: state.party.length,
+        level: state.level,
+        position: state.position,
+        hasIncompleteFirestaff,
+        hasCompleteFirestaff,
+        hallTeleporterOpen: state.openTeleporters.has('0,3,1'),
+    })) {
+        return null;
+    }
+
+    const openTeleporters = new Set(state.openTeleporters);
+    openTeleporters.delete('0,3,1');
+
+    return {
+        openTeleporters,
+        pendingSensorEvents: [],
+        ...buildAlternateEndingHallStartPatch(
+            {
+                gamePhase: state.gamePhase,
+                openDoors: state.openDoors,
+                visibleTexts: state.visibleTexts,
+                optionsModalOpen: state.optionsModalOpen,
+                activeMirrorChampionId: state.activeMirrorChampionId,
+                activePartyMemberId: state.activePartyMemberId,
+                sleeping: state.sleeping,
+                paused: state.paused,
+                lastCastResult: state.lastCastResult,
+                alternateEndingSequence: state.alternateEndingSequence,
+            },
+            now,
+            {
+                buildMessageResult: (message) => buildAttackResultMessage(message, true),
+            },
+        ),
+    };
+}
+
+function buildAlternateEndingWallFireballEvent(
+    level: number,
+    x: number,
+    y: number,
+    ts: number,
+): SpellVisualEvent {
+    return {
+        id: `alt_ending_wall_fire_${ts}_${Math.random().toString(36).slice(2)}`,
+        level,
+        x,
+        y,
+        effect: 'fireball',
+        ts,
+        kind: 'wall',
+        visualScale: 1.3,
+        height: GRID_SIZE * 0.22,
+    };
+}
+
+function buildAlternateEndingFireballProjectile(
+    now: number,
+    targetChampionId: number | null,
+    targetTileX: number,
+    targetTileY: number,
+    volleyCount: number,
+): Projectile {
+    const travelDistance = Math.max(
+        1,
+        Math.abs(targetTileX - ALTERNATE_ENDING_HALL_FIREBALL_ORIGIN.tileX)
+        + Math.abs(targetTileY - ALTERNATE_ENDING_HALL_FIREBALL_ORIGIN.tileY),
+    );
+    const barrageAttackPower = Math.max(96, travelDistance * 32);
+
+    return {
+        id: `alt_ending_fireball_${now}_${volleyCount}_${Math.random().toString(36).slice(2)}`,
+        level: ALTERNATE_ENDING_HALL_FIREBALL_ORIGIN.level,
+        x: ALTERNATE_ENDING_HALL_FIREBALL_ORIGIN.tileX,
+        y: ALTERNATE_ENDING_HALL_FIREBALL_ORIGIN.tileY,
+        direction: 'SOUTH',
+        effect: 'fireball',
+        launchedBy: 'wall',
+        targetChampionId: targetChampionId ?? undefined,
+        spellRunes: ['ful', 'ir'],
+        visualScale: 1.34,
+        damage: [48, 72],
+        nextMoveAt: now + 260,
+        remainingRange: barrageAttackPower,
+        remainingAttack: 255,
+        stepDecay: 0,
+    };
 }
 
 // ─── Torch burn lifecycle ──────────────────────────────────────────────────────
@@ -1213,6 +1390,14 @@ function buildDeathDustEvent(level: number, x: number, y: number): SpellVisualEv
     return buildDeathDustEventRuntime(level, x, y);
 }
 
+function buildFluxcageCastEvents(level: number, x: number, y: number): SpellVisualEvent[] {
+    return buildFluxcageCastEventsRuntime(level, x, y, GRID_SIZE);
+}
+
+function buildFuseIgnitionEvents(level: number, x: number, y: number): SpellVisualEvent[] {
+    return buildFuseIgnitionEventsRuntime(level, x, y, GRID_SIZE);
+}
+
 function buildViAltarCelebrationEvents(
     level: number,
     x: number,
@@ -1374,12 +1559,17 @@ function applyImmediateTransportSquareEffects(
         | 'level'
         | 'position'
         | 'direction'
+        | 'gamePhase'
+        | 'optionsModalOpen'
+        | 'activeMirrorChampionId'
+        | 'activePartyMemberId'
         | 'party'
         | 'selectedChampionIndex'
         | 'openDoors'
         | 'openPits'
         | 'openTeleporters'
         | 'openWalls'
+        | 'visibleTexts'
         | 'creatures'
         | 'floorItems'
         | 'championInventories'
@@ -1391,12 +1581,46 @@ function applyImmediateTransportSquareEffects(
         | 'activeShields'
         | 'activePotionBoosts'
         | 'championCombat'
+        | 'lastCastResult'
+        | 'alternateEndingSequence'
         | 'pendingSensorEvents'
+        | 'sleeping'
+        | 'paused'
     >,
     basePatch: Partial<GameState>,
+    now: number,
 ): Partial<GameState> {
     const patch = storeMovementRuntime.applyImmediateTransportSquareEffects(state as GameState, basePatch);
-    return (applyFloorItemTeleporterEffects(state as GameState, patch) ?? patch) as Partial<GameState>;
+    const nextPatch = (applyFloorItemTeleporterEffects(state as GameState, patch) ?? patch) as Partial<GameState>;
+    const nextOpenTeleporters = nextPatch.openTeleporters ?? state.openTeleporters;
+    const nextInventories = nextPatch.championInventories ?? state.championInventories;
+    const nextEquipment = nextPatch.championEquipment ?? state.championEquipment;
+
+    const alternateEndingStartPatch = buildAlternateEndingHallStartPatchIfNeeded(
+        {
+            ...state,
+            ...nextPatch,
+            level: nextPatch.level ?? state.level,
+            position: nextPatch.position ?? state.position,
+            gamePhase: nextPatch.gamePhase ?? state.gamePhase,
+            party: nextPatch.party ?? state.party,
+            openTeleporters: nextOpenTeleporters,
+            openDoors: nextPatch.openDoors ?? state.openDoors,
+            visibleTexts: nextPatch.visibleTexts ?? state.visibleTexts,
+            championInventories: nextInventories,
+            championEquipment: nextEquipment,
+        },
+        now,
+    );
+
+    if (alternateEndingStartPatch) {
+        return {
+            ...nextPatch,
+            ...alternateEndingStartPatch,
+        };
+    }
+
+    return nextPatch;
 }
 
 function buildStorePartyMoveDeps(enableFrontWallBumpDamage: boolean) {
@@ -1438,7 +1662,8 @@ const {
     shouldRotateWallFaceAfterActivation,
     rotateWallFaceSensors,
     revealSelfWallMountedItems,
-    applyImmediateTransportSquareEffects,
+    applyImmediateTransportSquareEffects: (runtimeState, patch) =>
+        applyImmediateTransportSquareEffects(runtimeState, patch, Date.now()),
     resolvePushFace: (direction: string): CardinalDir => PUSH_FACE_BY_DIRECTION[direction] as CardinalDir,
     isOriginalAlcoveWallFace: (level: number, x: number, y: number, face: CardinalDir) =>
         hasOriginalWallOverlayAt(level, x, y, face, 'Square Alcove')
@@ -1550,7 +1775,8 @@ const {
             landingLevel,
             landingPosition,
         ),
-    applyImmediateTransportSquareEffects,
+    applyImmediateTransportSquareEffects: (runtimeState, patch) =>
+        applyImmediateTransportSquareEffects(runtimeState, patch, Date.now()),
     computeMovementCooldown: computePartyMovementCooldownSecondsRuntime,
     playTeleport,
 });
@@ -1768,6 +1994,7 @@ interface GameState {
     pausedAt?: number | null;
     lastMonsterAttackDebug: MonsterAttackDebugEntry | null;
     endgameSequence: EndgameSequence | null;
+    alternateEndingSequence: AlternateEndingSequence | null;
     /** Result of the most recent spell cast attempt */
     lastCastResult: CastResult | null;
     /** Per-champion accumulated XP, keyed by champion.id */
@@ -2175,7 +2402,12 @@ const runStoreAttackFrontAction = createStoreAttackFrontAction<GameState>({
         }
     },
     clearCreatureControlStatuses,
+    clearTargetFluxcageStatus: (creatureId) => {
+        creatureFluxcageUntil.delete(creatureId);
+    },
     getEndgameMessagesForMap,
+    buildFluxcageCastEvents,
+    buildFuseIgnitionEvents,
     dropCreatureCarriedItems: (creatures, floorItems, creatureId) =>
         dropCreatureCarriedItemsRuntime(creatures, floorItems, creatureId, randomInt),
     normalizeCreatureCellsOnTile,
@@ -2185,6 +2417,7 @@ const runStoreAttackFrontAction = createStoreAttackFrontAction<GameState>({
     getTargetTimers: (creatureId) => creatureTimers.get(creatureId),
     getMapDifficulty: (level) => getMap(level).difficulty,
     getMapTile: (level, x, y) => getMap(level).tiles[y]?.[x],
+    canCreatureShareTile,
     getFrontPosition,
     getEffectiveChampionStatsRuntime,
     randomInt,
@@ -2442,7 +2675,7 @@ function applyDroppedFloorItemRuntimeEffects(
 
     return applyFloorItemTeleporterEffects(
         state,
-        applyImmediateTransportSquareEffects(state, currentPatch) as Partial<GameState>,
+        applyImmediateTransportSquareEffects(state, currentPatch, Date.now()) as Partial<GameState>,
     );
 }
 
@@ -2902,7 +3135,7 @@ const floorItemCommandDeps = createStoreFloorItemCommandDeps<
         source,
     ),
     applyImmediateTransportSquareEffects: (state, patch) =>
-        applyImmediateTransportSquareEffects(state, patch),
+        applyImmediateTransportSquareEffects(state, patch, Date.now()),
 });
 
 // ─── Store ────────────────────────────────────────────────────────────────────
@@ -3583,15 +3816,49 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
             return { ...baseState, ...patch } as GameState;
         };
 
-        let nextState = applyPatch(
-            state,
-            applyStatsToStateTransitionPatch(state, buildStoreTickFramePatch(state, delta, now), 'environment'),
-        );
-        const shouldRunExplorationTicks =
-            (state.gamePhase === 'exploration' || state.gamePhase === 'mirror_open') &&
-            !state.sleeping;
+        const alternateEndingStartPatch = buildAlternateEndingHallStartPatchIfNeeded(state, now);
 
-        if (shouldRunExplorationTicks) {
+        let nextState = alternateEndingStartPatch
+            ? applyPatch(state, alternateEndingStartPatch)
+            : applyPatch(
+                state,
+                applyStatsToStateTransitionPatch(state, buildStoreTickFramePatch(state, delta, now), 'environment'),
+            );
+
+        if (nextState.gamePhase === 'alternate_ending') {
+            nextState = applyPatch(
+                nextState,
+                buildAlternateEndingFramePatch(
+                    nextState,
+                    now,
+                    {
+                        buildMessageResult: (message) => buildAttackResultMessage(message, true),
+                        buildWallFireballVisual: (level, x, y, ts) => buildAlternateEndingWallFireballEvent(level, x, y, ts),
+                        buildFireballProjectile: ({ now: volleyNow, targetChampionId, targetTileX, targetTileY, volleyCount }) =>
+                            buildAlternateEndingFireballProjectile(
+                                volleyNow,
+                                targetChampionId,
+                                targetTileX,
+                                targetTileY,
+                                volleyCount,
+                            ),
+                    },
+                ),
+            );
+        }
+
+        const shouldRunMonsterTicks =
+            (nextState.gamePhase === 'exploration' || nextState.gamePhase === 'mirror_open') &&
+            !nextState.sleeping;
+        const shouldRunProjectileTicks =
+            (
+                nextState.gamePhase === 'exploration' ||
+                nextState.gamePhase === 'mirror_open' ||
+                nextState.gamePhase === 'alternate_ending'
+            ) &&
+            !nextState.sleeping;
+
+        if (shouldRunMonsterTicks) {
             nextState = applyPatch(
                 nextState,
                 applyStatsToStateTransitionPatch(nextState, runStoreMonsterTickAction(nextState, delta), 'melee'),
@@ -3620,6 +3887,9 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
                     'environment',
                 ),
             );
+        }
+
+        if (shouldRunProjectileTicks) {
             nextState = applyPatch(
                 nextState,
                 applyStatsToStateTransitionPatch(
@@ -3639,9 +3909,17 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         return nextState;
     }),
 
-    tickFrame: (delta, now) => set((state) =>
-        applyStatsToStateTransitionPatch(state, buildStoreTickFramePatch(state, delta, now) ?? state, 'environment') as GameState | Partial<GameState>,
-    ),
+    tickFrame: (delta, now) => set((state) => {
+        const alternateEndingStartPatch = buildAlternateEndingHallStartPatchIfNeeded(state, now);
+        if (alternateEndingStartPatch) {
+            return alternateEndingStartPatch;
+        }
+        return applyStatsToStateTransitionPatch(
+            state,
+            buildStoreTickFramePatch(state, delta, now) ?? state,
+            'environment',
+        ) as GameState | Partial<GameState>;
+    }),
 
     regenTick: (delta) => set((state) => {
         if (state.optionsModalOpen) return state;

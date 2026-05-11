@@ -6,17 +6,17 @@ Goal: rebuild the original dungeon, systems, and feel as faithfully as possible 
 
 Live build: [dungeon-master.fr](https://dungeon-master.fr/)
 
-Current local version: `v0.8.8`
+Current local version: `v0.8.9`
 
 ## Status
 
 This is now a desktop-first beta focused on gameplay validation from the early dungeon through endgame, while keeping PC DOS fidelity first and presentation polish second.
 
-Latest `v0.8.8` focus:
+Latest `v0.8.9` focus:
 
-- wall-mounted item and wall-sensor interactions cleaned up for late-game puzzles such as `Magnifier` / `Enlarge My View` and `Diamond Edge`
-- death dust and recent item presentation regressions polished without regressing the runtime interaction model
-- continued stabilization of saves, transition chains, delayed sensors, and tricky puzzle rooms such as level 9 `Zooooom`
+- late-game Firestaff progression and endgame flow stabilized, including `Zokathra -> Amalgam -> Firestaff (Complete)`
+- alternate ending in the `Hall of Champions` now plays as a full in-world scripted sequence back to the normal `Game Over`
+- special weapon actions and spell-impact feedback polished further, including `Disrupt`, `Fluxcage`, `Fuse`, and party hit visuals
 
 Already in place:
 

@@ -190,7 +190,7 @@ const WALL_OVERLAY_ASSET_POLICY_BY_NAME: Record<string, OverlayAssetPolicy> = {
     'Crack': { modernImage: miscPath('wall_crack.png'), originalFallbackImage: originalMiscPath('crack.bmp') },
     'Iron Ring': { modernImage: miscPath('wall_iron_ring.png'), originalFallbackImage: originalMiscPath('iron_ring.bmp') },
     'Manacles': { modernImage: miscPath('wall_manacles.png'), originalFallbackImage: originalMiscPath('manacles.bmp') },
-    'Lord Order (Outside)': { modernImage: miscPath('wall_lord_order_outside.png'), originalFallbackImage: originalMiscPath('lord_order_outside.bmp') },
+    'Lord Order (Outside)': { modernImage: miscPath('wall_lord_order_outside_v2.png'), originalFallbackImage: originalMiscPath('lord_order_outside.bmp') },
 };
 
 function resolveOverlayAssetImage(policy: OverlayAssetPolicy): string {
