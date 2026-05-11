@@ -1,6 +1,6 @@
 # Next Phase Plan
 
-Etat revu le `2026-05-08`.
+Etat revu le `2026-05-11`.
 
 Ce document ne doit contenir que des sujets encore ouverts.
 
@@ -65,13 +65,16 @@ Regle de correction:
   - coffre `Green Gem` de `LVL 8` recale a travers teleporter + pit meme quand le niveau cible n'etait pas encore hydrate
   - projectiles muraux `LVL 7` reappliquent bien leurs degats a la party
   - drag and drop `sol -> portrait / main champion` referme apres la regression du pipeline de lancer
+- presentation / pickup des items sur case occupee
+  - ferme cote runtime utile
+  - les items sur case occupee ont maintenant leur presentation relevee / tiree vers le joueur, avec couverture dediee sur les cas `creature` et `party`
+  - si un nouveau playtest remonte un vrai cas de pickup impossible ou illisible, on le rouvrira comme bug cible plutot que comme chantier ouvert generique
 
 ## Ordre recommande avant release
 
 1. playtest cible `generateurs / transitions de niveau`
 2. mecanismes rares et endgame
-3. presentation / interaction des items sur case occupee
-4. profilage / optimisation
+3. profilage / optimisation
 
 ## 1. Playtest cible generateurs / transitions
 
@@ -81,7 +84,8 @@ Statut:
 
 Pourquoi ce n'est pas fini:
 
-- le chantier generateurs est boucle cote code, mais pas encore valide en jeu sur les cas limites
+- le chantier generateurs est largement recale cote code et tests
+- le reliquat utile est surtout une passe de confirmation gameplay sur les cas limites, pas un gros doute moteur restant
 
 A verifier:
 
@@ -101,28 +105,7 @@ Support:
 
 - [PLAYTEST_CHECKLIST_TRANSITIONS_ENDGAME.md](/D:/DungeonMaster-codex/docs/PLAYTEST_CHECKLIST_TRANSITIONS_ENDGAME.md)
 
-## 2. Presentation / interaction des items sur case occupee
-
-Statut:
-
-- ouvert
-
-Pourquoi ce n'est pas fini:
-
-- un cas de presentation / ciblage reste a confirmer quand un groupe de creatures partage la case d'objets au sol
-
-A verifier:
-
-- objets au sol partiellement masques par un groupe de creatures sur la meme case
-- visibilite du pickup quand un item est sous ou derriere un groupe
-- priorite de ciblage / ramassage sur la case occupee sans casser la lisibilite des creatures
-
-Definition de fini:
-
-- les items au sol restent visibles et ramassables meme quand un groupe occupe la case
-- le comportement retenu est rejoue une fois proprement en playtest
-
-## 3. Profilage / optimisation
+## 2. Profilage / optimisation
 
 Statut:
 
@@ -132,7 +115,8 @@ Pourquoi ce n'est pas fini:
 
 - le boot prod est acceptable, mais la pile runtime / rendu reste lourde
 - le mode `dev` reste lent a froid, meme si ce n'est pas le sujet prioritaire
-- le warm-up title/gameplay est deja plus progressif qu'avant, mais les gros chunks `three` et `map-*` restent la vraie masse a surveiller
+- les warnings de build les plus bruyants sont maintenant recales; le sujet redevient surtout une question de mesure reelle et de rendement
+- le warm-up title/gameplay est deja plus progressif qu'avant, mais `three` et le chargement des maps restent la vraie masse a surveiller
 
 Priorites:
 
@@ -148,7 +132,7 @@ Definition de fini:
 - on identifie 2 ou 3 gains concrets a fort rendement
 - on applique seulement ceux qui ne compliquent pas le runtime inutilement
 
-## 4. Mecanismes rares et endgame
+## 3. Mecanismes rares et endgame
 
 Statut:
 
@@ -156,8 +140,8 @@ Statut:
 
 Pourquoi ce n'est pas fini:
 
-- le coeur gameplay est solide, mais les cas rares n'ont pas encore tous ete rejoues et verifies jusqu'au bout
-- la semantique des mecanismes courants est maintenant largement decryptee, mais les combinaisons rares `delay / gate / local wall effects / countdowns` demandent encore du playtest cible pour confirmer qu'on couvre bien tout le long tail sans regressions
+- le coeur gameplay est solide, mais quelques cas tardifs / rares meritent encore confirmation en vrai playtest
+- la semantique des mecanismes courants est maintenant largement decryptee; le reliquat n'est plus un chantier moteur large, mais un petit long tail de combinaisons `delay / gate / local wall effects / countdowns` si de nouveaux retours apparaissent
 - le chemin `Firestaff -> Fuse -> endgame -> victory` et la fin alternative du `Hall of Champions` ne sont plus les inconnues principales
 - le point ouvert utile cote fin de jeu est surtout la fidelite exacte de la representation de `Lord Chaos` face aux `Fluxcage` et a ses echappements speciaux, si on veut coller de tres pres a la formulation walkthrough
 - un garde-fou utile existe deja: `Fluxcage` lance sur sa case le fait maintenant s'echapper vers une case adjacente libre au lieu de le pieger artificiellement
@@ -165,10 +149,10 @@ Pourquoi ce n'est pas fini:
 
 Cible:
 
-- `Zo Kath Ra`
 - representation exacte du piege final de `Lord Chaos`
 - echappements speciaux / double move de `Lord Chaos`
-- mecanismes tardifs peu frequents
+- derniers timings / enchainements de la vraie fin
+- mecanismes tardifs peu frequents seulement si un playtest remonte un cas concret
 
 Definition de fini:
 
@@ -181,14 +165,20 @@ Support:
 
 ## Hors priorite immediate
 
+- compatibilite navigateur `drag and drop inventaire -> vue donjon`
+  - a verifier sur `Firefox / Linux`
+  - symptome remonte: un objet deja dans l'inventaire reste en main apres relacher sur la vue du donjon; le drag natif navigateur semble prendre le dessus et l'overlay de drop du jeu n'apparait pas correctement
+  - non confirme localement a ce stade; non reproduit cote `Brave`
+  - ne pas corriger avant reproduction locale nette; la piste probable est l'ecart entre le drag HTML natif de l'inventaire et le drag `maison` des objets deja au sol
 - nouvelles micro-extractions du `store`
   - non prioritaires
   - le gros travail utile est deja fait
   - on n'en relance pas sans raison nette
 - polish HUD `combat`
   - a revoir plus tard
-  - si une seule action est disponible, ne pas ouvrir de sous-menu
-  - masquer les actions indisponibles au lieu de les afficher en grise
+  - petit reliquat concret seulement
+  - le `combat grid` ouvre encore son sous-menu sur le compte total `allAttacks` au lieu de s'en tenir strictement aux actions vraiment utilisables
+  - les actions non utilisables restent encore visibles dans ce menu au lieu d'etre simplement filtrees
 
 ## Discipline de mise a jour
 

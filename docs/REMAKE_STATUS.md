@@ -54,7 +54,6 @@ Ce qu'il reste avant une release plus large:
 
 - rejouer explicitement `generateurs / transitions / endgame`
 - verifier les mecanismes rares et les timings tardifs
-- confirmer les derniers cas de presentation / pickup sur case occupee
 - continuer a surveiller les performances sur longues sessions, surtout en `dev`
 
 ## Aide debug locale
@@ -128,10 +127,9 @@ Point utile deja confirme:
 Le detail ordonne vit dans [docs/NEXT_PHASE_PLAN.md](/D:/DungeonMaster-codex/docs/NEXT_PHASE_PLAN.md), mais en resume:
 
 - playtest cible `generateurs / transitions de niveau`
-- presentation / interaction des items sur case occupee
 - profilage / optimisation
 - mecanismes rares et endgame
-- surtout du playtest cible sur cas rares, puis quelques ecarts de presentation
+- surtout du playtest cible sur cas rares, puis un petit reliquat de polish / perf
 
 ## Checkpoints recents
 

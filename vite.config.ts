@@ -19,6 +19,10 @@ export default defineConfig({
     ],
   },
   build: {
+    // Map data is already split per-level and lazy-loaded. Keep the warning
+    // high enough to avoid noise from those intentional JSON-heavy chunks
+    // while still catching a meaningful regression above today's largest one.
+    chunkSizeWarningLimit: 800,
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -100,7 +104,7 @@ export default defineConfig({
             normalizedId.includes('/src/data/waterContainers.ts') ||
             normalizedId.includes('/src/data/weaponAttacks.ts')
           ) {
-            return 'item-data'
+            return 'runtime-data-core'
           }
 
           if (
@@ -131,14 +135,14 @@ export default defineConfig({
             normalizedId.includes('/src/data/equipment.ts') ||
             normalizedId.includes('/src/data/doors.ts')
           ) {
-            return 'world-data'
+            return 'runtime-data-core'
           }
 
           if (
             normalizedId.includes('/src/engine/saveGame.ts') ||
             normalizedId.includes('/src/engine/sounds.ts')
           ) {
-            return 'game-core'
+            return 'runtime-data-core'
           }
 
           if (normalizedId.includes('/src/components/Dungeon/PhotonsFireball.tsx')) {

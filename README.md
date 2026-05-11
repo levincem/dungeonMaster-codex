@@ -6,13 +6,13 @@ Goal: rebuild the original dungeon, systems, and feel as faithfully as possible 
 
 Live build: [dungeon-master.fr](https://dungeon-master.fr/)
 
-Current local version: `v0.8.9`
+Current local version: `v0.8.10`
 
 ## Status
 
 This is now a desktop-first beta focused on gameplay validation from the early dungeon through endgame, while keeping PC DOS fidelity first and presentation polish second.
 
-Latest `v0.8.9` focus:
+Latest `v0.8.10` focus:
 
 - late-game Firestaff progression and endgame flow stabilized, including `Zokathra -> Amalgam -> Firestaff (Complete)`
 - alternate ending in the `Hall of Champions` now plays as a full in-world scripted sequence back to the normal `Game Over`
@@ -37,7 +37,6 @@ Still open:
 Before a release candidate:
 
 - replay the remaining generator / transition / endgame cases
-- confirm the last presentation edge cases around occupied tiles and pickups
 - keep fixing only issues found in real play, not by reopening solved subsystems
 
 ## Run Locally
