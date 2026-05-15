@@ -8,7 +8,7 @@ import type { Direction, ProjectileEffect } from '../../engine/runtimeTypes';
 import { getFloorItemImage } from '../../data/itemImages';
 import { BillboardGroup } from './renderHelpers';
 import { useSafeTexture } from './useLoadedTexture';
-import type { CreatureInstance, FloorItem } from '../../types/game';
+import type { FloorItem } from '../../types/game';
 import {
     resolvePhysicalProjectileLaunchPosition,
     resolvePhysicalProjectilePosition,
@@ -65,6 +65,8 @@ function createPulseMaterial(color: string, opacity: number) {
         toneMapped: false,
     });
 }
+
+const FLUXCAGE_RENDER_ORDER = 18;
 
 function useWallClock(intervalMs = 200): number {
     const [nowMs, setNowMs] = useState(0);
@@ -330,7 +332,14 @@ const TeleporterVisual: React.FC<{
 };
 
 const ProjectileOrb: React.FC<{
-    projectile: { x: number; y: number; effect: MagicProjectileEffect; direction?: Direction; visualScale?: number };
+    projectile: {
+        x: number;
+        y: number;
+        effect: MagicProjectileEffect;
+        direction?: Direction;
+        visualScale?: number;
+        visualVariant?: 'invoke';
+    };
 }> = ({ projectile }) => {
     const directionRotation: Record<Direction, number> = {
         NORTH: 0,
@@ -342,7 +351,12 @@ const ProjectileOrb: React.FC<{
 
     return (
         <group position={[projectile.x * GRID_SIZE, 0, projectile.y * GRID_SIZE]}>
-            {projectile.effect === 'fireball' ? (
+            {projectile.visualVariant === 'invoke' ? (
+                <InvokeProjectileVisual
+                    scale={visualScale}
+                    directionRotation={directionRotation[projectile.direction ?? 'NORTH']}
+                />
+            ) : projectile.effect === 'fireball' ? (
                 <Suspense fallback={null}>
                     <LazyPhotonsFireball scale={visualScale} />
                 </Suspense>
@@ -366,6 +380,85 @@ const ProjectileOrb: React.FC<{
                     <LazyPhotonsDisruptProjectile scale={visualScale} />
                 </Suspense>
             )}
+        </group>
+    );
+};
+
+const InvokeProjectileVisual: React.FC<{
+    scale: number;
+    directionRotation: number;
+}> = ({ scale, directionRotation }) => {
+    const groupRef = useRef<THREE.Group>(null);
+    const coreRef = useRef<THREE.Mesh>(null);
+    const ringARef = useRef<THREE.Mesh>(null);
+    const ringBRef = useRef<THREE.Mesh>(null);
+    const trailRef = useRef<THREE.Mesh>(null);
+    const phaseRef = useRef(0);
+    const coreGeometry = useMemo(() => new THREE.OctahedronGeometry(GRID_SIZE * 0.085, 0), []);
+    const ringGeometry = useMemo(() => new THREE.TorusGeometry(GRID_SIZE * 0.13, GRID_SIZE * 0.012, 10, 28), []);
+    const trailGeometry = useMemo(() => new THREE.CylinderGeometry(GRID_SIZE * 0.02, GRID_SIZE * 0.055, GRID_SIZE * 0.34, 10, 1, true), []);
+    const coreMaterial = useMemo(() => createPulseMaterial('#ff5f3a', 0.8), []);
+    const haloMaterial = useMemo(() => createPulseMaterial('#ffd35a', 0.42), []);
+    const trailMaterial = useMemo(() => createPulseMaterial('#ffb347', 0.28), []);
+
+    useEffect(() => () => {
+        coreGeometry.dispose();
+        ringGeometry.dispose();
+        trailGeometry.dispose();
+        coreMaterial.dispose();
+        haloMaterial.dispose();
+        trailMaterial.dispose();
+    }, [coreGeometry, ringGeometry, trailGeometry, coreMaterial, haloMaterial, trailMaterial]);
+
+    useFrame((_, delta) => {
+        phaseRef.current += delta * 5.2;
+        const phase = phaseRef.current;
+        if (groupRef.current) {
+            groupRef.current.rotation.y = directionRotation;
+            groupRef.current.position.y = GRID_SIZE * 0.08 + Math.sin(phase * 1.25) * GRID_SIZE * 0.015;
+        }
+        if (coreRef.current) {
+            coreRef.current.rotation.y += delta * 4.5;
+            coreRef.current.rotation.x += delta * 2.8;
+            const corePulse = 1 + Math.sin(phase * 2.1) * 0.09;
+            coreRef.current.scale.set(0.86 * corePulse, 1.28 * corePulse, 0.86 * corePulse);
+        }
+        if (ringARef.current) {
+            ringARef.current.rotation.x = Math.PI / 2 + Math.sin(phase * 1.4) * 0.24;
+            ringARef.current.rotation.z += delta * 3.2;
+        }
+        if (ringBRef.current) {
+            ringBRef.current.rotation.z = Math.PI / 2 + Math.cos(phase * 1.5) * 0.2;
+            ringBRef.current.rotation.x -= delta * 2.6;
+        }
+        if (trailRef.current) {
+            trailRef.current.scale.set(
+                1,
+                0.92 + Math.sin(phase * 1.8) * 0.08,
+                1.02 + Math.cos(phase * 1.2) * 0.1,
+            );
+        }
+    });
+
+    return (
+        <group ref={groupRef} scale={scale}>
+            <mesh
+                ref={trailRef}
+                geometry={trailGeometry}
+                material={trailMaterial}
+                position={[0, 0, -GRID_SIZE * 0.14]}
+                rotation={[Math.PI / 2, 0, 0]}
+            />
+            <mesh ref={ringARef} geometry={ringGeometry} material={haloMaterial} position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]} />
+            <mesh ref={ringBRef} geometry={ringGeometry} material={haloMaterial} position={[0, 0, 0]} rotation={[0, 0, Math.PI / 2]} scale={0.82} />
+            <mesh ref={coreRef} geometry={coreGeometry} material={coreMaterial} position={[0, 0, 0]} />
+            <pointLight
+                color="#ffb347"
+                intensity={1.05}
+                distance={GRID_SIZE * 1.75}
+                decay={2}
+                position={[0, 0, 0]}
+            />
         </group>
     );
 };
@@ -551,16 +644,32 @@ const ShieldAuraVisual: React.FC<{
 
 export const FluxcageLayer: React.FC = () => {
     const creatures = useStore((state) => state.creatures);
+    const activeFluxcages = useStore((state) => state.activeFluxcages);
     const level = useStore((state) => state.level);
     const gamePhase = useStore((state) => state.gamePhase);
     const endgameSequence = useStore((state) => state.endgameSequence);
     const nowMs = useWallClock();
     const hideFluxcages = gamePhase === 'endgame' && Boolean(endgameSequence?.hideFluxcages);
-    const activeCreatures = useMemo(
+    const activeFluxcageAnchors = useMemo(
         () => hideFluxcages
-            ? []
-            : creatures.filter((creature) => creature.alive && creature.mapIndex === level && getCreatureFluxcageExpiry(creature.id) > nowMs),
-        [creatures, level, nowMs, hideFluxcages],
+            ? [] as Array<{ id: string; x: number; y: number }>
+            : [
+                ...creatures
+                    .filter((creature) => creature.alive && creature.mapIndex === level && getCreatureFluxcageExpiry(creature.id) > nowMs)
+                    .map((creature) => ({
+                        id: `creature_${creature.id}`,
+                        x: creature.x,
+                        y: creature.y,
+                    })),
+                ...activeFluxcages
+                    .filter((fluxcage) => fluxcage.level === level && fluxcage.expiresAt > nowMs)
+                    .map((fluxcage) => ({
+                        id: `tile_${fluxcage.id}`,
+                        x: fluxcage.x,
+                        y: fluxcage.y,
+                    })),
+            ],
+        [activeFluxcages, creatures, level, nowMs, hideFluxcages],
     );
     const ringGeometry = useMemo(() => new THREE.TorusGeometry(0.28, 0.02, 8, 24), []);
     const barGeometry = useMemo(() => new THREE.CylinderGeometry(0.012, 0.012, 0.8, 6), []);
@@ -576,10 +685,11 @@ export const FluxcageLayer: React.FC = () => {
 
     return (
         <>
-            {activeCreatures.map((creature) => (
+            {activeFluxcageAnchors.map((anchor) => (
                 <FluxcageVisual
-                    key={`flux_${creature.id}`}
-                    creature={creature}
+                    key={anchor.id}
+                    x={anchor.x}
+                    y={anchor.y}
                     ringGeometry={ringGeometry}
                     barGeometry={barGeometry}
                     ringMaterial={ringMaterial}
@@ -591,12 +701,13 @@ export const FluxcageLayer: React.FC = () => {
 };
 
 const FluxcageVisual: React.FC<{
-    creature: CreatureInstance;
+    x: number;
+    y: number;
     ringGeometry: THREE.TorusGeometry;
     barGeometry: THREE.CylinderGeometry;
     ringMaterial: THREE.MeshBasicMaterial;
     barMaterial: THREE.MeshBasicMaterial;
-}> = ({ creature, ringGeometry, barGeometry, ringMaterial, barMaterial }) => {
+}> = ({ x, y, ringGeometry, barGeometry, ringMaterial, barMaterial }) => {
     const groupRef = useRef<THREE.Group>(null);
     useFrame((_, delta) => {
         if (!groupRef.current) return;
@@ -606,13 +717,13 @@ const FluxcageVisual: React.FC<{
     });
 
     return (
-        <group ref={groupRef} position={[creature.x * GRID_SIZE, 0, creature.y * GRID_SIZE]}>
-            <mesh geometry={ringGeometry} material={ringMaterial} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.05, 0]} />
-            <mesh geometry={ringGeometry} material={ringMaterial} rotation={[Math.PI / 2, 0, 0]} position={[0, -0.18, 0]} scale={0.82} />
-            <mesh geometry={barGeometry} material={barMaterial} position={[0.22, 0, 0.22]} />
-            <mesh geometry={barGeometry} material={barMaterial} position={[-0.22, 0, 0.22]} />
-            <mesh geometry={barGeometry} material={barMaterial} position={[0.22, 0, -0.22]} />
-            <mesh geometry={barGeometry} material={barMaterial} position={[-0.22, 0, -0.22]} />
+        <group ref={groupRef} position={[x * GRID_SIZE, 0, y * GRID_SIZE]}>
+            <mesh geometry={ringGeometry} material={ringMaterial} renderOrder={FLUXCAGE_RENDER_ORDER} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.05, 0]} />
+            <mesh geometry={ringGeometry} material={ringMaterial} renderOrder={FLUXCAGE_RENDER_ORDER} rotation={[Math.PI / 2, 0, 0]} position={[0, -0.18, 0]} scale={0.82} />
+            <mesh geometry={barGeometry} material={barMaterial} renderOrder={FLUXCAGE_RENDER_ORDER} position={[0.22, 0, 0.22]} />
+            <mesh geometry={barGeometry} material={barMaterial} renderOrder={FLUXCAGE_RENDER_ORDER} position={[-0.22, 0, 0.22]} />
+            <mesh geometry={barGeometry} material={barMaterial} renderOrder={FLUXCAGE_RENDER_ORDER} position={[0.22, 0, -0.22]} />
+            <mesh geometry={barGeometry} material={barMaterial} renderOrder={FLUXCAGE_RENDER_ORDER} position={[-0.22, 0, -0.22]} />
         </group>
     );
 };

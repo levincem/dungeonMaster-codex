@@ -1,5 +1,6 @@
 import type { ChampionVitals } from '../runtimeTypes';
 import type { CreatureInstance } from '../../types/game';
+import { CREATURE_TYPES } from '../../data/creatures';
 
 export type GameStatsDamageSource = 'melee' | 'projectile' | 'magic' | 'environment' | 'poison' | 'other';
 
@@ -47,6 +48,7 @@ export type GameStats = {
         championsKilled: number;
         damageDealt: GameStatsDamageTotals;
         damageTaken: GameStatsDamageTotals;
+        byCreature: Record<string, number>;
     };
     magic: {
         spells: GameStatsSpellCounters;
@@ -75,6 +77,7 @@ export type GameStatsDelta = Partial<{
         championsKilled: number;
         damageDealt: Partial<GameStatsDamageTotals>;
         damageTaken: Partial<GameStatsDamageTotals>;
+        byCreature: Record<string, number>;
     }>;
     magic: Partial<{
         spells: Partial<GameStatsSpellCounters>;
@@ -122,6 +125,10 @@ function createSpellCounters(): GameStatsSpellCounters {
     };
 }
 
+function createNamedCounters(): Record<string, number> {
+    return {};
+}
+
 export function createInitialGameStats(now = Date.now()): GameStats {
     return {
         startedAt: now,
@@ -151,6 +158,7 @@ export function createInitialGameStats(now = Date.now()): GameStats {
             championsKilled: 0,
             damageDealt: createDamageTotals(),
             damageTaken: createDamageTotals(),
+            byCreature: createNamedCounters(),
         },
         magic: {
             spells: createSpellCounters(),
@@ -202,6 +210,15 @@ function mergeSpellCounters(base: GameStatsSpellCounters | undefined, delta?: Pa
     return next;
 }
 
+function mergeNamedCounters(base: Record<string, number> | undefined, delta?: Record<string, number>): Record<string, number> {
+    const next: Record<string, number> = { ...(base ?? {}) };
+    if (!delta) return next;
+    for (const [key, value] of Object.entries(delta)) {
+        next[key] = addNumber(next[key], value);
+    }
+    return next;
+}
+
 function addDamageSource(total: Partial<GameStatsDamageTotals>, source: GameStatsDamageSource, amount: number): void {
     if (amount <= 0) return;
     total.total = addNumber(total.total, amount);
@@ -225,6 +242,7 @@ export function normalizeGameStats(value: unknown, now = Date.now()): GameStats 
             championsKilled: source.combat?.championsKilled ?? 0,
             damageDealt: mergeDamageTotals(source.combat?.damageDealt),
             damageTaken: mergeDamageTotals(source.combat?.damageTaken),
+            byCreature: mergeNamedCounters(source.combat?.byCreature),
         },
         magic: {
             spells: mergeSpellCounters(source.magic?.spells),
@@ -257,6 +275,7 @@ export function applyGameStatsDelta(stats: GameStats, delta: GameStatsDelta): Ga
             championsKilled: addNumber(stats.combat.championsKilled, delta.combat?.championsKilled),
             damageDealt: mergeDamageTotals(stats.combat.damageDealt, delta.combat?.damageDealt),
             damageTaken: mergeDamageTotals(stats.combat.damageTaken, delta.combat?.damageTaken),
+            byCreature: mergeNamedCounters(stats.combat.byCreature, delta.combat?.byCreature),
         },
         magic: {
             spells: mergeSpellCounters(stats.magic.spells, delta.magic?.spells),
@@ -283,6 +302,7 @@ export function buildGameStatsTransitionDelta(
 ): GameStatsDelta {
     const damageDealt: Partial<GameStatsDamageTotals> = {};
     const damageTaken: Partial<GameStatsDamageTotals> = {};
+    const byCreature: Record<string, number> = {};
     let monstersKilled = 0;
 
     const afterCreatures = new Map(after.creatures.map((creature) => [creature.id, creature]));
@@ -294,6 +314,8 @@ export function buildGameStatsTransitionDelta(
         addDamageSource(damageDealt, damageSource, dealt);
         if (nextCreature.alive === false || nextCreature.currentHP <= 0) {
             monstersKilled += 1;
+            const creatureName = CREATURE_TYPES[creature.typeId]?.name ?? `Creature ${creature.typeId}`;
+            byCreature[creatureName] = addNumber(byCreature[creatureName], 1);
         }
     }
 
@@ -311,6 +333,7 @@ export function buildGameStatsTransitionDelta(
             ...(Object.keys(damageTaken).length > 0 ? { damageTaken } : {}),
             ...(monstersKilled > 0 ? { monstersKilled } : {}),
             ...(championsKilled > 0 ? { championsKilled } : {}),
+            ...(Object.keys(byCreature).length > 0 ? { byCreature } : {}),
         };
     }
     return delta;

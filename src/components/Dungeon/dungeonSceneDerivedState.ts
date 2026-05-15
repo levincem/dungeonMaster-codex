@@ -407,6 +407,26 @@ export function collectDungeonScenePressurePlates(args: {
     return plates;
 }
 
+export function collectDungeonSceneBlackFlamePits(args: {
+    map: GameMap;
+}): TileMarkerRender[] {
+    const out: TileMarkerRender[] = [];
+    for (const row of args.map.tiles) {
+        for (const tile of row) {
+            if (tile.type === 'Wall' || tile.type === 'Door' || tile.type === 'Teleporter') continue;
+            const hasBlackFlamePit = tile.objects.some((object) =>
+                object.category === 'Sensor' &&
+                (object as SensorObject).type === 6 &&
+                (object as SensorObject).graphic === 1 &&
+                (object as SensorObject).data === 11,
+            );
+            if (!hasBlackFlamePit) continue;
+            out.push({ tileX: tile.x, tileY: tile.y });
+        }
+    }
+    return out;
+}
+
 export function collectDungeonSceneTrickWalls(args: {
     level: number;
     map: GameMap;

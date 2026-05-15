@@ -17,6 +17,7 @@ type TestState = {
     lastCastResult: { message: string } | null;
     damageEvents: Array<{ id: string }>;
     spellVisualEvents: Array<{ id: string }>;
+    activeFluxcages?: Array<{ id: string }>;
     activeFloorDrag: { id: string } | null;
     pendingSensorEvents: string[];
     pendingGeneratorSpawns: string[];
@@ -39,6 +40,7 @@ function createState(overrides: Partial<TestState> = {}): TestState {
         lastCastResult: { message: 'hello' },
         damageEvents: [{ id: 'dmg' }],
         spellVisualEvents: [{ id: 'spell' }],
+        activeFluxcages: [{ id: 'flux' }],
         activeFloorDrag: { id: 'drag' },
         pendingSensorEvents: [],
         pendingGeneratorSpawns: [],
@@ -89,6 +91,7 @@ test('processTickFrame returns the game over patch immediately when the entry ch
     assert.equal(result.lastMonsterAttackDebug, null);
     assert.deepEqual(result.damageEvents, []);
     assert.deepEqual(result.spellVisualEvents, []);
+    assert.deepEqual(result.activeFluxcages, []);
     assert.equal(result.activeFloorDrag, null);
     assert.equal(result.alternateEndingSequence, null);
 });
@@ -155,4 +158,5 @@ test('processTickFrame composes exploration patches and runs the post-transport 
     assert.equal(result.marker, 'generator');
     assert.equal(result.activeMirrorChampionId, null);
     assert.deepEqual(result.damageEvents, []);
+    assert.deepEqual(result.activeFluxcages, []);
 });

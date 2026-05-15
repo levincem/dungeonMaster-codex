@@ -28,6 +28,7 @@ test('buildLoadedGameUiResetPatch reapplies the common exploration UI reset stat
         lastCastResult: null,
         damageEvents: [],
         spellVisualEvents: [],
+        activeFluxcages: [],
         activeFloorDrag: null,
         inventoryFullFeedback: null,
     });
@@ -47,6 +48,7 @@ test('buildReturnToTitlePatch resets title-facing transient UI state', () => {
         lastCastResult: null,
         damageEvents: [],
         spellVisualEvents: [],
+        activeFluxcages: [],
         inventoryFullFeedback: null,
     });
 });

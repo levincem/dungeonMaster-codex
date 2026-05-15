@@ -1,6 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { preloadDungeonData } from '../src/data/dungeonData.js';
+import { getGameMap } from '../src/data/mapLoader.js';
+import {
+    getOriginalWallOverlaySourceImage,
+    getOriginalWallOverlaysForMap,
+} from '../src/data/originalWallOverlays.js';
 import {
     ALTERNATE_ENDING_ENTRANCE_DOOR_KEY,
     ALTERNATE_ENDING_MESSAGE_DURATION_MS,
@@ -956,6 +961,16 @@ test('level 13 Firestaff sequence upgrades the Amalgam reward after the Zokathra
 
         let afterUse = useStore.getState();
         assert.equal(afterUse.firedSensors.has('13_535'), true);
+        const freeGemOverlay = getOriginalWallOverlaysForMap(getGameMap(13), afterUse.activeSensors, afterUse.firedSensors).find((overlay) =>
+            overlay.tileX === 24 &&
+            overlay.tileY === 3 &&
+            overlay.face === 'South',
+        );
+        assert.equal(
+            freeGemOverlay?.image,
+            getOriginalWallOverlaySourceImage('Amalgam (Free Gem)'),
+            'expected the Amalgam to switch to the free-gem state after Zokathra unlock',
+        );
         assert.equal(
             afterUse.championInventories[1]?.some((item) => item.id === zokathra.id) ?? false,
             false,
@@ -966,8 +981,19 @@ test('level 13 Firestaff sequence upgrades the Amalgam reward after the Zokathra
         assert.equal(combineMatched, true);
 
         afterUse = useStore.getState();
+        assert.equal(afterUse.firedSensors.has('13_146'), true);
         const upgradedFirestaff = afterUse.championInventories[1]?.find((item) => item.typeId === 45);
         assert.ok(upgradedFirestaff, 'expected the incomplete Firestaff to be replaced in inventory');
+        const withoutGemOverlay = getOriginalWallOverlaysForMap(getGameMap(13), afterUse.activeSensors, afterUse.firedSensors).find((overlay) =>
+            overlay.tileX === 24 &&
+            overlay.tileY === 3 &&
+            overlay.face === 'South',
+        );
+        assert.equal(
+            withoutGemOverlay?.image,
+            getOriginalWallOverlaySourceImage('Amalgam (Without Gem)'),
+            'expected the Amalgam to switch to the without-gem state after the Firestaff absorbs it',
+        );
         assert.equal(
             afterUse.floorItems.some((item) => item.id === hiddenRewardBefore.id),
             false,

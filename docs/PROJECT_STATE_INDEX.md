@@ -1,6 +1,6 @@
 # Project State Index
 
-Etat revu le `2026-05-04`.
+Etat revu le `2026-05-16`.
 
 Ce document sert seulement a dire quel document lire selon le besoin.
 
@@ -12,6 +12,8 @@ Ce document sert seulement a dire quel document lire selon le besoin.
   - uniquement les sujets encore ouverts, ordonnes
 - [docs/REMAKE_STATUS.md](/D:/DungeonMaster-codex/docs/REMAKE_STATUS.md)
   - journal d'etat detaille et historique
+- [docs/RC_FINISH_PLAN.md](/D:/DungeonMaster-codex/docs/RC_FINISH_PLAN.md)
+  - plan de finition concret pour fermer la `0.9 release candidate`
 
 Regle:
 
@@ -25,7 +27,8 @@ Si on doit se recaler vite:
 
 1. [docs/NEXT_PHASE_PLAN.md](/D:/DungeonMaster-codex/docs/NEXT_PHASE_PLAN.md)
 2. [docs/REMAKE_STATUS.md](/D:/DungeonMaster-codex/docs/REMAKE_STATUS.md)
-3. [docs/FIDELITY_REMAINING_MATRIX.md](/D:/DungeonMaster-codex/docs/FIDELITY_REMAINING_MATRIX.md)
+3. [docs/RC_FINISH_PLAN.md](/D:/DungeonMaster-codex/docs/RC_FINISH_PLAN.md)
+4. [docs/FIDELITY_REMAINING_MATRIX.md](/D:/DungeonMaster-codex/docs/FIDELITY_REMAINING_MATRIX.md)
 
 ## Quel document pour quelle question
 
@@ -33,6 +36,8 @@ Si on doit se recaler vite:
   - [docs/NEXT_PHASE_PLAN.md](/D:/DungeonMaster-codex/docs/NEXT_PHASE_PLAN.md)
 - Quel est l'etat global du projet:
   - [docs/REMAKE_STATUS.md](/D:/DungeonMaster-codex/docs/REMAKE_STATUS.md)
+- Quel est le plan court pour finir la `0.9 RC`:
+  - [docs/RC_FINISH_PLAN.md](/D:/DungeonMaster-codex/docs/RC_FINISH_PLAN.md)
 - Qu'est-ce qui reste ouvert cote fidelite:
   - [docs/FIDELITY_REMAINING_MATRIX.md](/D:/DungeonMaster-codex/docs/FIDELITY_REMAINING_MATRIX.md)
 - Qu'est-ce qu'on peut affirmer honnetement sur le `100%`:
@@ -53,5 +58,5 @@ Si on doit se recaler vite:
 
 - extraction: solide sur le contenu principal, avec quelques angles morts semantiques restants
 - moteur: largement source-backed sur le coeur du gameplay
-- principal reste ouvert: validation gameplay ciblee, labels, UX et optimisation
+- principal reste ouvert: validation gameplay ciblee, hall of fame partage, UX et optimisation
 - le `store` n'est plus le chantier prioritaire

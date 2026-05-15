@@ -15,6 +15,7 @@ export function buildLoadedGameUiResetPatch<T extends object>(hydrated: T) {
         lastCastResult: null,
         damageEvents: [],
         spellVisualEvents: [],
+        activeFluxcages: [],
         activeFloorDrag: null,
         inventoryFullFeedback: null,
     };
@@ -34,6 +35,7 @@ export function buildReturnToTitlePatch() {
         lastCastResult: null,
         damageEvents: [],
         spellVisualEvents: [],
+        activeFluxcages: [],
         inventoryFullFeedback: null,
     };
 }

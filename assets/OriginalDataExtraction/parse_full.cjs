@@ -176,11 +176,44 @@ function buildRuntimeWallOverlaySnapshot(fullOverlayData) {
   const fullDungeon = fs.existsSync(runtimeDungeonPath)
     ? JSON.parse(fs.readFileSync(runtimeDungeonPath, 'utf8'))
     : null;
+  const mapByIndex = new Map((fullDungeon?.maps ?? []).map((map) => [map.index, map]));
   return {
-    fixedFaces: Array.isArray(fullOverlayData?.fixedFaces) ? fullOverlayData.fixedFaces : [],
-    randomCapableFaces: Array.isArray(fullOverlayData?.randomCapableFaces) ? fullOverlayData.randomCapableFaces : [],
-    effectivePlacements: resolveWallOverlayEffectivePlacements(fullOverlayData, fullDungeon),
+    fixedFaces: normalizeWallOverlayMapNames(
+      Array.isArray(fullOverlayData?.fixedFaces) ? fullOverlayData.fixedFaces : [],
+      mapByIndex,
+    ),
+    randomCapableFaces: normalizeWallOverlayMapNames(
+      Array.isArray(fullOverlayData?.randomCapableFaces) ? fullOverlayData.randomCapableFaces : [],
+      mapByIndex,
+    ),
+    effectivePlacements: normalizeWallOverlayMapNames(
+      resolveWallOverlayEffectivePlacements(fullOverlayData, fullDungeon),
+      mapByIndex,
+    ),
   };
+}
+
+function normalizeWallOverlayMapNames(value, mapByIndex) {
+  if (Array.isArray(value)) {
+    return value.map((entry) => normalizeWallOverlayMapNames(entry, mapByIndex));
+  }
+
+  if (!value || typeof value !== 'object') {
+    return value;
+  }
+
+  const normalized = {};
+  for (const [key, entryValue] of Object.entries(value)) {
+    normalized[key] = normalizeWallOverlayMapNames(entryValue, mapByIndex);
+  }
+
+  const mapIndex = Number.isInteger(value.mapIndex) ? value.mapIndex : null;
+  const canonicalMapName = mapIndex !== null ? mapByIndex.get(mapIndex)?.name : null;
+  if (typeof canonicalMapName === 'string' && Object.prototype.hasOwnProperty.call(value, 'mapName')) {
+    normalized.mapName = canonicalMapName;
+  }
+
+  return normalized;
 }
 
 function buildRuntimeWallOverlayMapSnapshots(fullOverlayData) {
@@ -512,8 +545,35 @@ const ACTION_NAMES= ['Set','Clear','Toggle','Hold'];
 
 const MAP_NAMES = [
   'Hall of Champions','Level 1','Level 2','Level 3','Level 4','Level 5','Level 6',
-  'Level 7','Level 8','Level 9','Level 10','Level 11','Level 12',"Lord Chaos's Lair",
+  'Level 7','Level 8','Level 9','Level 10','Level 11',"Lord Chaos's Lair",'Dragon Lair',
 ];
+
+const RESOLVED_DOOR_FAMILY_NAMES = {
+  0: 'Porticullis',
+  1: 'Wooden Door',
+  2: 'Iron Door',
+  3: 'Ra Door',
+};
+
+const CORRECTED_IRON_DOOR_KEYS = new Set([
+  '12,17,0',
+  '12,19,2',
+  '13,22,5',
+  '13,24,8',
+]);
+
+function resolveDoorFamilyForTile(mapIndex, tileX, tileY, doorType) {
+  if (doorType === 0 && CORRECTED_IRON_DOOR_KEYS.has(`${mapIndex},${tileX},${tileY}`)) {
+    return {
+      resolvedDoorType: 2,
+      source: 'manual_endgame_layout_correction',
+    };
+  }
+  return {
+    resolvedDoorType: doorType,
+    source: 'raw_door_type_bit',
+  };
+}
 
 // ─── HEADER ──────────────────────────────────────────────────────────────────
 
@@ -1362,7 +1422,20 @@ function enrichObjectWithGlobalCoords(map, tile, obj) {
   obj.globalX = tile.globalX;
   obj.globalY = tile.globalY;
 
-  if (obj.category === 'Sensor') {
+  if (obj.category === 'Door') {
+    const { resolvedDoorType, source } = resolveDoorFamilyForTile(
+      map.index,
+      tile.x,
+      tile.y,
+      obj.doorType,
+    );
+    obj.doorType = resolvedDoorType;
+    if (obj.raw?.fields) {
+      obj.raw.fields.resolvedDoorType = resolvedDoorType;
+      obj.raw.fields.resolvedDoorFamilyName = RESOLVED_DOOR_FAMILY_NAMES[resolvedDoorType] ?? null;
+      obj.raw.fields.resolvedDoorFamilySource = source;
+    }
+  } else if (obj.category === 'Sensor') {
     if (obj.type === 3 && tile.type !== 'Wall' && tile.type !== 'TrickWall') {
       delete obj.requiredObjectType;
       delete obj.requiredObjectName;
@@ -1589,7 +1662,7 @@ for (let mi = 0; mi < numMaps; mi++) {
         objectListWordHex: objectListWord === null ? null : hex(objectListWord),
         objects,
       };
-      for (const obj of objects) enrichObjectWithGlobalCoords({ mapOffset }, tile, obj);
+      for (const obj of objects) enrichObjectWithGlobalCoords({ index: mi, mapOffset }, tile, obj);
       tiles.push(tile);
     }
     globalColCounter++;

@@ -234,17 +234,29 @@ export function itemMatchesMechanismRequirement(item: FloorItem, requiredName: s
     const normalizedRequired = normalizeLookupName(requiredName);
     if (!normalizedRequired) return false;
 
+    const itemRaw = normalizeLookupName(item.rawName);
+    const itemResolved = normalizeLookupName(resolveItemName(item.category, item.typeId, item.rawName));
+
     if (normalizedRequired === 'zokathra spell') {
-        const itemRaw = normalizeLookupName(item.rawName);
-        const itemResolved = normalizeLookupName(resolveItemName(item.category, item.typeId, item.rawName));
         if (itemRaw === 'zokathra' || itemResolved === 'zokathra') return true;
     }
 
-    const rawMatch = normalizeLookupName(item.rawName);
-    if (rawMatch === normalizedRequired) return true;
+    // Late-game party-possession sensors still ask for "THE FIRESTAFF" even
+    // after the inventory item has transformed into "The Firestaff (Complete)".
+    if (
+        normalizedRequired === 'the firestaff' &&
+        (
+            itemRaw === 'the firestaff (complete)'
+            || itemResolved === 'the firestaff (complete)'
+            || itemRaw === 'the firestaff complete'
+            || itemResolved === 'the firestaff complete'
+        )
+    ) {
+        return true;
+    }
 
-    const resolvedName = resolveItemName(item.category, item.typeId, item.rawName);
-    return normalizeLookupName(resolvedName) === normalizedRequired;
+    if (itemRaw === normalizedRequired) return true;
+    return itemResolved === normalizedRequired;
 }
 
 export function itemToLockData(category: string, typeId: number): number {

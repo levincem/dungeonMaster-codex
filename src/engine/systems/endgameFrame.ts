@@ -80,7 +80,10 @@ export function buildEndgameFramePatch<
 
     const age = now - sequence.startedAt;
     const elapsedStepCount = Math.floor(age / deps.fuseUpdateMs);
-    const messagePhaseStartedAt = 41 * deps.fuseUpdateMs;
+    const messagePhaseStartedAt = deps.actions.reduce(
+        (max, action) => Math.max(max, action.step),
+        0,
+    ) * deps.fuseUpdateMs;
     const messagePhaseAge = Math.max(0, age - messagePhaseStartedAt);
     const nextMessageCount = Math.min(
         sequence.messages.length,

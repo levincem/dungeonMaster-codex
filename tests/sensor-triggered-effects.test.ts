@@ -464,3 +464,91 @@ test('wall square events reach type 6 countdown sensors even when the countdown 
     assert.equal(state.sensorRuntimeData['1_77'], 0);
     assert.deepEqual([...state.openDoors], ['1,1,2']);
 });
+
+test('floor square events trigger generator actuators on the targeted floor tile', () => {
+    const generator = createSensor({
+        index: 308,
+        type: 6,
+        data: 11,
+        graphic: 1,
+        targetX: 9,
+        targetY: 21,
+    });
+    const floorTarget: GameTile = {
+        x: 7,
+        y: 1,
+        type: 'Floor',
+        objects: [generator],
+    };
+    const floorSource: GameTile = {
+        x: 5,
+        y: 5,
+        type: 'Floor',
+        objects: [],
+    };
+    let generatorTriggerCount = 0;
+
+    const deps = {
+        getTile: (level: number, x: number, y: number) => {
+            assert.equal(level, 12);
+            if (x === 7 && y === 1) return floorTarget;
+            if (x === 5 && y === 5) return floorSource;
+            return undefined;
+        },
+        applyToSet: (set: Set<string>, key: string, action: 'Set' | 'Clear' | 'Toggle' | 'Hold') => {
+            const next = new Set(set);
+            if (action === 'Set') next.add(key);
+            if (action === 'Clear') next.delete(key);
+            if (action === 'Toggle') {
+                if (next.has(key)) next.delete(key);
+                else next.add(key);
+            }
+            return next;
+        },
+        diffSensorState: (_before: TestState, after: TestState): Partial<TestState> => after,
+        getSensorStateKey: (level: number, sensorIndex: number) => `${level}_${sensorIndex}`,
+        wallLauncherSensorTypes: new Set<number>(),
+        findSensorPlacement: () => null,
+        buildWallLauncherProjectiles: () => [],
+        now: () => 0,
+        triggerGeneratorSensor: (_level: number, sensor: SensorObject, state: TestState) => {
+            generatorTriggerCount += 1;
+            assert.equal(sensor.index, 308);
+            return {
+                ...state,
+                activeSensors: new Set([...state.activeSensors, 'generator-fired']),
+            };
+        },
+        isGeneratorSensor: (sensor: SensorObject) => sensor.type === 6,
+        readWallSensorRuntimeData: (level: number, sensor: SensorObject, state: TestState) =>
+            readWallSensorRuntimeData(level, sensor, state.sensorRuntimeData),
+        writeWallSensorRuntimeData: (
+            level: number,
+            sensor: SensorObject,
+            state: TestState,
+            nextValue: number,
+        ) => writeWallSensorRuntimeData(level, sensor, state.sensorRuntimeData, nextValue),
+        hasWallFaceLocalRotationEffect: () => false,
+        rotateWallFaceSensors: (_level: number, _x: number, _y: number, _face: SensorObject['tilePos'], offsets: Record<string, number>) => offsets,
+        wallSensorFaceMask: {
+            North: 1,
+            East: 2,
+            South: 4,
+            West: 8,
+        },
+    };
+
+    const sourceSensor = createSensor({
+        index: 400,
+        type: 3,
+        action: 'Set',
+        targetX: 7,
+        targetY: 1,
+        targetDir: 'North',
+    });
+
+    const result = applyPatch(createState(), dispatchTriggeredSensorEffect(sourceSensor, 12, createState(), deps));
+
+    assert.equal(generatorTriggerCount, 1);
+    assert.deepEqual([...result.activeSensors], ['generator-fired']);
+});

@@ -52,8 +52,8 @@ function createSensor(overrides: Partial<SensorObject> = {}): SensorObject {
         revert: false,
         action: 'Set',
         onceOnly: false,
-        targetY: 0,
-        targetX: 0,
+        targetY: 3,
+        targetX: 2,
         targetDir: 'North',
         ...overrides,
     };

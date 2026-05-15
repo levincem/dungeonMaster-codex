@@ -1,7 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import type { SensorObject } from '../src/types/game.js';
-import { describeFloorSensor, getRequiredSensorItemName, isSpecificObjectFloorSensor } from '../src/data/mechanisms.js';
+import {
+    describeFloorSensor,
+    getRequiredSensorItemName,
+    isSpecificObjectFloorSensor,
+    itemMatchesMechanismRequirement,
+} from '../src/data/mechanisms.js';
 
 function createSensor(overrides: Partial<SensorObject> = {}): SensorObject {
     return {
@@ -45,4 +50,21 @@ test('describeFloorSensor distinguishes party presence from party orientation pl
     assert.equal(describeFloorSensor(createSensor({ type: 3, data: 0 })), 'Capteur de passage (party)');
     assert.equal(describeFloorSensor(createSensor({ type: 3, data: 2 })), 'Capteur d orientation (party)');
     assert.equal(describeFloorSensor(createSensor({ type: 4, data: 0 })), 'Dalle de pression (objet specifique)');
+});
+
+test('THE FIRESTAFF mechanism requirements still match The Firestaff (Complete) after the Amalgam upgrade', () => {
+    const completeFirestaff = {
+        id: 'firestaff-complete',
+        category: 'Weapon' as const,
+        typeId: 45,
+        rawName: 'The Firestaff (Complete)',
+        mapIndex: 13,
+        x: 49,
+        y: 39,
+        tilePos: 'North' as const,
+    };
+
+    assert.equal(itemMatchesMechanismRequirement(completeFirestaff, 'THE FIRESTAFF'), true);
+    assert.equal(itemMatchesMechanismRequirement(completeFirestaff, 'The Firestaff'), true);
+    assert.equal(itemMatchesMechanismRequirement(completeFirestaff, 'ZOKATHRA SPELL'), false);
 });

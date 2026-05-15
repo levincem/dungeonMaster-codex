@@ -1,6 +1,6 @@
 {
   "index": 12,
-  "name": "Level 12",
+  "name": "Lord Chaos's Lair",
   "level": 12,
   "width": 22,
   "height": 20,
@@ -9231,7 +9231,7 @@
           "hasButton": true,
           "openDirection": "Vertical",
           "ornate": 0,
-          "doorType": 0,
+          "doorType": 2,
           "raw": {
             "offset": 8298,
             "bytes": [
@@ -9253,7 +9253,10 @@
               "openDirectionBit": true,
               "ornateBits": 0,
               "doorTypeBit": 0,
-              "unreferencedBits": 0
+              "unreferencedBits": 0,
+              "resolvedDoorType": 2,
+              "resolvedDoorFamilyName": "Iron Door",
+              "resolvedDoorFamilySource": "manual_endgame_layout_correction"
             }
           },
           "globalX": 42,
@@ -10681,7 +10684,7 @@
           "hasButton": true,
           "openDirection": "Vertical",
           "ornate": 0,
-          "doorType": 0,
+          "doorType": 2,
           "raw": {
             "offset": 8366,
             "bytes": [
@@ -10703,7 +10706,10 @@
               "openDirectionBit": true,
               "ornateBits": 0,
               "doorTypeBit": 0,
-              "unreferencedBits": 0
+              "unreferencedBits": 0,
+              "resolvedDoorType": 2,
+              "resolvedDoorFamilyName": "Iron Door",
+              "resolvedDoorFamilySource": "manual_endgame_layout_correction"
             }
           },
           "globalX": 44,

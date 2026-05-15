@@ -1,6 +1,7 @@
 import type { Champion } from '../../types/champion';
 import type { ChampionEquipment, CreatureInstance, FloorItem } from '../../types/game';
 import type {
+    ActiveFluxcage,
     ActivePoisonCloud,
     ActivePotionBoost,
     ChampionCombat,
@@ -34,6 +35,7 @@ export type TickSpellsRuntimeState = {
     deadChampions: Record<number, Champion>;
     selectedChampionIndex: number;
     activePoisonClouds: ActivePoisonCloud[];
+    activeFluxcages?: ActiveFluxcage[];
     activeShields: PartyShield[];
     activePotionBoosts: ActivePotionBoost[];
     championCombat: Record<number, ChampionCombat>;
@@ -105,6 +107,7 @@ export function buildTickSpellsRuntimePatch(
             deadChampions: state.deadChampions,
             selectedChampionIndex: state.selectedChampionIndex,
             activePoisonClouds: state.activePoisonClouds,
+            activeFluxcages: state.activeFluxcages,
             activeShields: state.activeShields,
             activePotionBoosts: state.activePotionBoosts,
             footprintHistory: state.footprintHistory,

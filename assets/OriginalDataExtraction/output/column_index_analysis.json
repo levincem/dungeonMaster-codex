@@ -943,7 +943,7 @@
     },
     {
       "mapIndex": 12,
-      "name": "Level 12",
+      "name": "Lord Chaos's Lair",
       "width": 22,
       "height": 20,
       "mapOffset": {
@@ -1005,7 +1005,7 @@
     },
     {
       "mapIndex": 13,
-      "name": "Lord Chaos's Lair",
+      "name": "Dragon Lair",
       "width": 26,
       "height": 13,
       "mapOffset": {

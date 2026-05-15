@@ -1,13 +1,13 @@
 # Next Phase Plan
 
-Etat revu le `2026-05-11`.
+Etat revu le `2026-05-16`.
 
 Ce document ne doit contenir que des sujets encore ouverts.
 
 Lecture actuelle:
 
-- le projet est entre en phase `beta`
-- ce plan ne liste plus des chantiers d'alpha, mais surtout ce qu'il reste a valider avant une release plus large
+- le projet est en `0.9 release candidate`
+- ce plan ne liste plus des chantiers de beta large, mais les derniers sujets a fermer avant une `0.9` publique plus stable
 
 Regle simple:
 
@@ -70,13 +70,43 @@ Regle de correction:
   - les items sur case occupee ont maintenant leur presentation relevee / tiree vers le joueur, avec couverture dediee sur les cas `creature` et `party`
   - si un nouveau playtest remonte un vrai cas de pickup impossible ou illisible, on le rouvrira comme bug cible plutot que comme chantier ouvert generique
 
-## Ordre recommande avant release
+## Ordre recommande avant `0.9`
 
-1. playtest cible `generateurs / transitions de niveau`
-2. mecanismes rares et endgame
-3. profilage / optimisation
+1. hall of fame partage sur le VPS
+2. playtest final `generateurs / transitions / endgame`
+3. petit reliquat UX / perf / presentation
 
-## 1. Playtest cible generateurs / transitions
+## 1. Hall of fame partage sur le VPS
+
+Statut:
+
+- ouvert
+
+Pourquoi ce n'est pas fini:
+
+- le hall of fame de fin de partie existe deja cote front
+- il enregistre aujourd'hui en `localStorage`, donc seulement pour la machine courante
+- le besoin suivant est un tableau partage simple, pas un gros service live
+
+Livrable cible:
+
+- une API `Node.js` minimale sur le VPS
+- `GET /api/hall-of-fame`
+- `POST /api/hall-of-fame`
+- stockage fichier JSON persistant
+- validation basique anti-abus / anti-triche triviale
+
+Definition de fini:
+
+- le site lit et ecrit bien un classement global
+- une soumission absurde est rejetee proprement
+- le front garde un fallback local si l'API n'est pas disponible
+
+Support:
+
+- [docs/RC_FINISH_PLAN.md](/D:/DungeonMaster-codex/docs/RC_FINISH_PLAN.md)
+
+## 2. Playtest cible generateurs / transitions / endgame
 
 Statut:
 
@@ -105,7 +135,7 @@ Support:
 
 - [PLAYTEST_CHECKLIST_TRANSITIONS_ENDGAME.md](/D:/DungeonMaster-codex/docs/PLAYTEST_CHECKLIST_TRANSITIONS_ENDGAME.md)
 
-## 2. Profilage / optimisation
+## 3. Profilage / optimisation / presentation finale
 
 Statut:
 
@@ -131,37 +161,6 @@ Definition de fini:
 
 - on identifie 2 ou 3 gains concrets a fort rendement
 - on applique seulement ceux qui ne compliquent pas le runtime inutilement
-
-## 3. Mecanismes rares et endgame
-
-Statut:
-
-- ouvert
-
-Pourquoi ce n'est pas fini:
-
-- le coeur gameplay est solide, mais quelques cas tardifs / rares meritent encore confirmation en vrai playtest
-- la semantique des mecanismes courants est maintenant largement decryptee; le reliquat n'est plus un chantier moteur large, mais un petit long tail de combinaisons `delay / gate / local wall effects / countdowns` si de nouveaux retours apparaissent
-- le chemin `Firestaff -> Fuse -> endgame -> victory` et la fin alternative du `Hall of Champions` ne sont plus les inconnues principales
-- le point ouvert utile cote fin de jeu est surtout la fidelite exacte de la representation de `Lord Chaos` face aux `Fluxcage` et a ses echappements speciaux, si on veut coller de tres pres a la formulation walkthrough
-- un garde-fou utile existe deja: `Fluxcage` lance sur sa case le fait maintenant s'echapper vers une case adjacente libre au lieu de le pieger artificiellement
-- second garde-fou en place: `Fuse` n'entre plus en `endgame` si `Lord Chaos` a encore une case adjacente libre; il s'echappe d'abord au lieu de valider la fusion
-
-Cible:
-
-- representation exacte du piege final de `Lord Chaos`
-- echappements speciaux / double move de `Lord Chaos`
-- derniers timings / enchainements de la vraie fin
-- mecanismes tardifs peu frequents seulement si un playtest remonte un cas concret
-
-Definition de fini:
-
-- les cas critiques ont ete rejoues
-- les derniers ecarts observes sont documentes comme bugs ou comme sujets fermes
-
-Support:
-
-- [PLAYTEST_CHECKLIST_TRANSITIONS_ENDGAME.md](/D:/DungeonMaster-codex/docs/PLAYTEST_CHECKLIST_TRANSITIONS_ENDGAME.md)
 
 ## Hors priorite immediate
 

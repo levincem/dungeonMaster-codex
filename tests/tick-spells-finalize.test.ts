@@ -2,6 +2,7 @@ import type { Champion } from '../src/types/champion.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import type {
+    ActiveFluxcage,
     ActivePoisonCloud,
     ActivePotionBoost,
     ChampionVitals,
@@ -86,6 +87,7 @@ function createState(overrides: Partial<{
     deadChampions: Record<number, Champion>;
     selectedChampionIndex: number;
     activePoisonClouds: ActivePoisonCloud[];
+    activeFluxcages: ActiveFluxcage[];
     activeShields: PartyShield[];
     activePotionBoosts: ActivePotionBoost[];
     footprintHistory: FootprintEntry[];
@@ -106,6 +108,7 @@ function createState(overrides: Partial<{
         deadChampions: {} as Record<number, Champion>,
         selectedChampionIndex: 0,
         activePoisonClouds: [] as ActivePoisonCloud[],
+        activeFluxcages: [] as ActiveFluxcage[],
         activeShields: [] as PartyShield[],
         activePotionBoosts: [] as ActivePotionBoost[],
         footprintHistory: [] as FootprintEntry[],
@@ -147,6 +150,7 @@ test('buildTickSpellsPatch returns null when nothing changed', () => {
 test('buildTickSpellsPatch filters expired timed spell state and includes changed runtime fields', () => {
     const state = createState({
         spellLights: [{ id: 'light-1', lightContrib: 1, expiresAt: 900 }],
+        activeFluxcages: [{ id: 'flux-1', level: 0, x: 1, y: 1, expiresAt: 900 }],
         activeShields: [{ id: 'shield-1', defense: 5, expiresAt: 900 }],
         activePotionBoosts: [{ id: 'boost-1', championId: 1, stat: 'strength', amount: 5, expiresAt: 900 }],
         footprintHistory: [{ x: 1, y: 1, level: 0, ts: -70000 }],
@@ -183,6 +187,7 @@ test('buildTickSpellsPatch filters expired timed spell state and includes change
 
     assert.ok(result);
     assert.deepEqual(result?.spellLights, []);
+    assert.deepEqual(result?.activeFluxcages, []);
     assert.deepEqual(result?.activeShields, []);
     assert.deepEqual(result?.activePotionBoosts, []);
     assert.deepEqual(result?.footprintHistory, []);

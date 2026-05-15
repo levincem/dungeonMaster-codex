@@ -2,6 +2,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildUtilityAttackProjectile } from '../src/engine/systems/utilityAttackProjectiles.js';
 
+function queueRandomInt(...rolls: number[]) {
+    return () => rolls.shift() ?? 0;
+}
+
 test('buildUtilityAttackProjectile builds fixed combat projectiles with the expected front tile', () => {
     const lightning = buildUtilityAttackProjectile(
         'Lightning',
@@ -77,7 +81,8 @@ test('buildUtilityAttackProjectile selects invoke effects through injected rando
         'SOUTH',
         250,
         {
-            randomInt: () => 2,
+            randomInt: queueRandomInt(2, 11),
+            championMaxMana: 40,
             buildIdSuffix: () => 'invoke',
         },
     );
@@ -85,6 +90,71 @@ test('buildUtilityAttackProjectile selects invoke effects through injected rando
     assert.equal(invoke.id, 'weapon_invoke_250_invoke');
     assert.deepEqual([invoke.x, invoke.y], [2, 10]);
     assert.equal(invoke.effect, 'disrupt_nonmaterial');
+    assert.deepEqual(invoke.spellRunes, ['lo', 'des', 'ew']);
+    assert.equal(invoke.visualVariant, 'invoke');
     assert.deepEqual(invoke.damage, [20, 50]);
     assert.equal(invoke.nextMoveAt, 250);
+    assert.equal(invoke.remainingRange, 111);
+    assert.equal(invoke.remainingAttack, 90);
+    assert.equal(invoke.stepDecay, 5);
+});
+
+test('buildUtilityAttackProjectile keeps the original invoke weighting table', () => {
+    const poisonBolt = buildUtilityAttackProjectile(
+        'Invoke',
+        0,
+        [5, 5],
+        'NORTH',
+        10,
+        {
+            randomInt: queueRandomInt(0, 0),
+            championMaxMana: 32,
+            buildIdSuffix: () => 'pb',
+        },
+    );
+    const poisonCloud = buildUtilityAttackProjectile(
+        'Invoke',
+        0,
+        [5, 5],
+        'NORTH',
+        10,
+        {
+            randomInt: queueRandomInt(1, 1),
+            championMaxMana: 32,
+            buildIdSuffix: () => 'pc',
+        },
+    );
+    const dispell = buildUtilityAttackProjectile(
+        'Invoke',
+        0,
+        [5, 5],
+        'NORTH',
+        10,
+        {
+            randomInt: queueRandomInt(2, 2),
+            championMaxMana: 32,
+            buildIdSuffix: () => 'dp',
+        },
+    );
+    const fireball = buildUtilityAttackProjectile(
+        'Invoke',
+        0,
+        [5, 5],
+        'NORTH',
+        10,
+        {
+            randomInt: queueRandomInt(5, 3),
+            championMaxMana: 32,
+            buildIdSuffix: () => 'fb',
+        },
+    );
+
+    assert.equal(poisonBolt.effect, 'poison_bolt');
+    assert.deepEqual(poisonBolt.spellRunes, ['lo', 'des', 'ven']);
+    assert.equal(poisonCloud.effect, 'poison_cloud');
+    assert.deepEqual(poisonCloud.spellRunes, ['lo', 'oh', 'ven']);
+    assert.equal(dispell.effect, 'disrupt_nonmaterial');
+    assert.deepEqual(dispell.spellRunes, ['lo', 'des', 'ew']);
+    assert.equal(fireball.effect, 'fireball');
+    assert.deepEqual(fireball.spellRunes, ['lo', 'ful', 'ir']);
 });

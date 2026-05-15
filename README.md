@@ -6,17 +6,18 @@ Goal: rebuild the original dungeon, systems, and feel as faithfully as possible 
 
 Live build: [dungeon-master.fr](https://dungeon-master.fr/)
 
-Current local version: `v0.8.10`
+Current local version: `v0.9.0-rc.1`
 
 ## Status
 
-This is now a desktop-first beta focused on gameplay validation from the early dungeon through endgame, while keeping PC DOS fidelity first and presentation polish second.
+This is now a desktop-first `0.9 release candidate` focused on one last real-world validation pass from the early dungeon through endgame, while keeping PC DOS fidelity first and presentation polish second.
 
-Latest `v0.8.10` focus:
+Latest `v0.9.0-rc.1` focus:
 
 - late-game Firestaff progression and endgame flow stabilized, including `Zokathra -> Amalgam -> Firestaff (Complete)`
 - alternate ending in the `Hall of Champions` now plays as a full in-world scripted sequence back to the normal `Game Over`
-- special weapon actions and spell-impact feedback polished further, including `Disrupt`, `Fluxcage`, `Fuse`, and party hit visuals
+- final in-world ending sequence expanded with `Grey Lord` text, expedition stats, and a reusable hall-of-fame panel
+- special weapon actions and spell-impact feedback polished further, including `Disrupt`, `Fluxcage`, `Fuse`, `Invoke`, and party hit visuals
 
 Already in place:
 
@@ -29,13 +30,14 @@ Already in place:
 
 Still open:
 
-- targeted play validation from early game to endgame
-- rare mechanisms, transitions, and timing edge-case checks
+- one last end-to-end play validation pass
+- shared hall-of-fame publishing on the VPS
 - a smaller pass of UX and visual polish
 - selective performance work where long play sessions show real pain
 
-Before a release candidate:
+Before `0.9` final:
 
+- wire the shared hall of fame through a lightweight Node.js backend on the VPS
 - replay the remaining generator / transition / endgame cases
 - keep fixing only issues found in real play, not by reopening solved subsystems
 
@@ -77,6 +79,7 @@ docs/
   PROJECT_STATE_INDEX.md   Which doc answers which question
   NEXT_PHASE_PLAN.md       Current open work only
   REMAKE_STATUS.md         Compact project memory
+  RC_FINISH_PLAN.md        Tomorrow's finish plan for the 0.9 release candidate
 ```
 
 ## Docs
@@ -84,6 +87,7 @@ docs/
 - [docs/PROJECT_STATE_INDEX.md](/D:/DungeonMaster-codex/docs/PROJECT_STATE_INDEX.md)
 - [docs/NEXT_PHASE_PLAN.md](/D:/DungeonMaster-codex/docs/NEXT_PHASE_PLAN.md)
 - [docs/REMAKE_STATUS.md](/D:/DungeonMaster-codex/docs/REMAKE_STATUS.md)
+- [docs/RC_FINISH_PLAN.md](/D:/DungeonMaster-codex/docs/RC_FINISH_PLAN.md)
 
 ## Credits
 

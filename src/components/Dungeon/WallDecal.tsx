@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import type {} from '@react-three/fiber';
 import type { ThreeEvent } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -11,6 +11,7 @@ import {
     type WallDecalPreset,
 } from '../../data/wallDecalPresets';
 import { useWallTransparencyState } from './wallTransparency';
+import { useSafeTexture } from './useLoadedTexture';
 const NO_RAYCAST: THREE.Mesh['raycast'] = () => {};
 
 // ─── Face positioning (same convention as WallSensor / Cell FACE_CONFIGS) ─────
@@ -50,55 +51,6 @@ const LEVER_UP_IMAGE = miscPath('levier_haut.png');
 const LEVER_DOWN_IMAGE = miscPath('levier_bas.png');
 
 // ─── Inner sprite (loads texture) ─────────────────────────────────────────────
-
-function useSafeTexture(url: string, fallbackUrl?: string): THREE.Texture | null {
-    const [textureEntry, setTextureEntry] = useState<{ source: string; texture: THREE.Texture | null }>({
-        source: '',
-        texture: null,
-    });
-
-    useEffect(() => {
-        let disposed = false;
-        let activeTexture: THREE.Texture | null = null;
-        const loader = new THREE.TextureLoader();
-
-        const finalizeTexture = (next: THREE.Texture) => {
-            next.colorSpace = THREE.SRGBColorSpace;
-            next.needsUpdate = true;
-            if (disposed) {
-                next.dispose();
-                return;
-            }
-            activeTexture?.dispose();
-            activeTexture = next;
-            setTextureEntry({ source: url, texture: next });
-        };
-
-        const load = (source: string, fallback?: string) => {
-            loader.load(
-                source,
-                (loaded) => finalizeTexture(loaded),
-                undefined,
-                () => {
-                    if (fallback && fallback !== source) {
-                        load(fallback);
-                    } else if (!disposed) {
-                        setTextureEntry({ source: url, texture: null });
-                    }
-                },
-            );
-        };
-
-        load(url, fallbackUrl);
-
-        return () => {
-            disposed = true;
-            activeTexture?.dispose();
-        };
-    }, [url, fallbackUrl]);
-
-    return textureEntry.source === url ? textureEntry.texture : null;
-}
 
 const DecalSprite = ({
     image,

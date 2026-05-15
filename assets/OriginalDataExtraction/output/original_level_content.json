@@ -821,7 +821,7 @@
     },
     {
       "mapIndex": 12,
-      "name": "Level 12",
+      "name": "Lord Chaos's Lair",
       "items": [
         { "x": 43, "y": 31, "entries": ["Flamitt (Charges=7)", "The Hellion"] }
       ],
@@ -856,7 +856,7 @@
     },
     {
       "mapIndex": 13,
-      "name": "Lord Chaos's Lair",
+      "name": "Dragon Lair",
       "items": [
         { "x": 34, "y": 42, "entries": ["Copper Coin"] },
         { "x": 35, "y": 39, "entries": ["Silver Coin"] },

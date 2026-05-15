@@ -1,6 +1,6 @@
 {
   "index": 13,
-  "name": "Lord Chaos's Lair",
+  "name": "Dragon Lair",
   "level": 13,
   "width": 26,
   "height": 13,
@@ -7276,7 +7276,7 @@
           "hasButton": false,
           "openDirection": "Horizontal",
           "ornate": 0,
-          "doorType": 0,
+          "doorType": 2,
           "raw": {
             "offset": 8610,
             "bytes": [
@@ -7298,7 +7298,10 @@
               "openDirectionBit": false,
               "ornateBits": 0,
               "doorTypeBit": 0,
-              "unreferencedBits": 0
+              "unreferencedBits": 0,
+              "resolvedDoorType": 2,
+              "resolvedDoorFamilyName": "Iron Door",
+              "resolvedDoorFamilySource": "manual_endgame_layout_correction"
             }
           },
           "globalX": 47,
@@ -9011,7 +9014,7 @@
           "hasButton": false,
           "openDirection": "Vertical",
           "ornate": 1,
-          "doorType": 0,
+          "doorType": 2,
           "raw": {
             "offset": 8294,
             "bytes": [
@@ -9033,7 +9036,10 @@
               "openDirectionBit": true,
               "ornateBits": 1,
               "doorTypeBit": 0,
-              "unreferencedBits": 0
+              "unreferencedBits": 0,
+              "resolvedDoorType": 2,
+              "resolvedDoorFamilyName": "Iron Door",
+              "resolvedDoorFamilySource": "manual_endgame_layout_correction"
             }
           },
           "globalX": 49,

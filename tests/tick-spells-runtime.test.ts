@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import type { Champion } from '../src/types/champion.js';
 import type { ChampionEquipment, CreatureInstance, FloorItem, GameMap } from '../src/types/game.js';
 import type {
+    ActiveFluxcage,
     ActivePoisonCloud,
     ActivePotionBoost,
     ChampionCombat,
@@ -95,6 +96,7 @@ function buildBaseState() {
         deadChampions: {} as Record<number, Champion>,
         selectedChampionIndex: 0,
         activePoisonClouds: [] as ActivePoisonCloud[],
+        activeFluxcages: [] as ActiveFluxcage[],
         activeShields: [] as PartyShield[],
         activePotionBoosts: [] as ActivePotionBoost[],
         championCombat: {} as Record<number, ChampionCombat>,

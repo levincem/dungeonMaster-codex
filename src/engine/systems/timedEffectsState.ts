@@ -1,8 +1,9 @@
-import type { ActivePotionBoost, PartyShield, SpellLight } from '../runtimeTypes';
+import type { ActiveFluxcage, ActivePotionBoost, PartyShield, SpellLight } from '../runtimeTypes';
 
 type TimedEffectsState = {
     torchBurnStart: Record<string, number>;
     spellLights: SpellLight[];
+    activeFluxcages?: ActiveFluxcage[];
     activeShields: PartyShield[];
     activePotionBoosts: ActivePotionBoost[];
     invisibleUntil: number;
@@ -11,16 +12,17 @@ type TimedEffectsState = {
     footprintsUntil: number;
 };
 
-type LightTimedEffectsState = Pick<TimedEffectsState, 'torchBurnStart' | 'spellLights'>;
+type LightTimedEffectsState = Pick<TimedEffectsState, 'torchBurnStart' | 'spellLights' | 'activeFluxcages'>;
 
 export function shiftRealtimeLightEffectsState<TState extends LightTimedEffectsState>(
     state: TState,
     shiftMs: number,
-): Pick<LightTimedEffectsState, 'torchBurnStart' | 'spellLights'> {
+): Pick<LightTimedEffectsState, 'torchBurnStart' | 'spellLights' | 'activeFluxcages'> {
     if (shiftMs <= 0) {
         return {
             torchBurnStart: state.torchBurnStart,
             spellLights: state.spellLights,
+            activeFluxcages: state.activeFluxcages ?? [],
         };
     }
 
@@ -31,6 +33,10 @@ export function shiftRealtimeLightEffectsState<TState extends LightTimedEffectsS
         spellLights: state.spellLights.map((light) => ({
             ...light,
             expiresAt: light.expiresAt + shiftMs,
+        })),
+        activeFluxcages: (state.activeFluxcages ?? []).map((fluxcage) => ({
+            ...fluxcage,
+            expiresAt: fluxcage.expiresAt + shiftMs,
         })),
     };
 }
@@ -48,6 +54,9 @@ export function ageTimedEffectsState(
     const spellLights = state.spellLights
         .map((light) => ({ ...light, expiresAt: light.expiresAt - advanceMs }))
         .filter((light) => light.expiresAt > now);
+    const activeFluxcages = (state.activeFluxcages ?? [])
+        .map((fluxcage) => ({ ...fluxcage, expiresAt: fluxcage.expiresAt - advanceMs }))
+        .filter((fluxcage) => fluxcage.expiresAt > now);
     const activeShields = state.activeShields
         .map((shield) => ({ ...shield, expiresAt: shield.expiresAt - advanceMs }))
         .filter((shield) => shield.expiresAt > now);
@@ -58,6 +67,7 @@ export function ageTimedEffectsState(
     return {
         torchBurnStart,
         spellLights,
+        activeFluxcages,
         activeShields,
         activePotionBoosts,
         invisibleUntil: Math.max(0, state.invisibleUntil - advanceMs),

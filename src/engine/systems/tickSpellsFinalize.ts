@@ -1,6 +1,7 @@
 import type { Champion } from '../../types/champion';
 import type { ChampionEquipment, CreatureInstance, FloorItem } from '../../types/game';
 import type {
+    ActiveFluxcage,
     ActivePoisonCloud,
     ActivePotionBoost,
     ChampionVitals,
@@ -27,6 +28,7 @@ type TickSpellsFinalizeState = {
     deadChampions: Record<number, Champion>;
     selectedChampionIndex: number;
     activePoisonClouds: ActivePoisonCloud[];
+    activeFluxcages?: ActiveFluxcage[];
     activeShields: PartyShield[];
     activePotionBoosts: ActivePotionBoost[];
     footprintHistory: FootprintEntry[];
@@ -62,6 +64,7 @@ export function buildTickSpellsPatch(
     deps: TickSpellsFinalizeDeps,
 ): Partial<TickSpellsFinalizeState> | null {
     const spellLights = state.spellLights.filter((light) => light.expiresAt > now);
+    const activeFluxcages = (state.activeFluxcages ?? []).filter((fluxcage) => fluxcage.expiresAt > now);
     const activeShields = state.activeShields.filter((shield) => shield.expiresAt > now);
     const activePotionBoosts = state.activePotionBoosts.filter((boost) => boost.expiresAt > now);
     const footprintHistory = state.footprintHistory.filter((entry) => now - entry.ts < deps.footprintLifetimeMs);
@@ -86,6 +89,8 @@ export function buildTickSpellsPatch(
     const selectedChampionIndexChanged = accumulators.selectedChampionIndex !== state.selectedChampionIndex;
     const poisonCloudsChanged = accumulators.activePoisonClouds.length !== state.activePoisonClouds.length ||
         accumulators.activePoisonClouds.some((cloud, index) => cloud !== state.activePoisonClouds[index]);
+    const fluxcagesChanged = activeFluxcages.length !== (state.activeFluxcages?.length ?? 0) ||
+        activeFluxcages.some((fluxcage, index) => fluxcage !== state.activeFluxcages?.[index]);
     const shieldsChanged = activeShields.length !== state.activeShields.length;
     const potionBoostsChanged = activePotionBoosts.length !== state.activePotionBoosts.length;
     const footprintsChanged = footprintHistory.length !== state.footprintHistory.length;
@@ -106,6 +111,7 @@ export function buildTickSpellsPatch(
         !deadChampionsChanged &&
         !selectedChampionIndexChanged &&
         !poisonCloudsChanged &&
+        !fluxcagesChanged &&
         !shieldsChanged &&
         !potionBoostsChanged &&
         !footprintsChanged &&
@@ -129,6 +135,7 @@ export function buildTickSpellsPatch(
         ...(deadChampionsChanged ? { deadChampions: accumulators.deadChampions } : {}),
         ...(selectedChampionIndexChanged ? { selectedChampionIndex: accumulators.selectedChampionIndex } : {}),
         ...(poisonCloudsChanged ? { activePoisonClouds: accumulators.activePoisonClouds } : {}),
+        ...(fluxcagesChanged ? { activeFluxcages } : {}),
         ...(shieldsChanged ? { activeShields } : {}),
         ...(potionBoostsChanged ? { activePotionBoosts } : {}),
         ...(footprintsChanged ? { footprintHistory } : {}),

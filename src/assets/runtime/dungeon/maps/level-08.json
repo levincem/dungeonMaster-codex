@@ -4278,7 +4278,10 @@
               "openDirectionBit": true,
               "ornateBits": 2,
               "doorTypeBit": 1,
-              "unreferencedBits": 0
+              "unreferencedBits": 0,
+              "resolvedDoorType": 1,
+              "resolvedDoorFamilyName": "Wooden Door",
+              "resolvedDoorFamilySource": "raw_door_type_bit"
             }
           },
           "globalX": 15,
@@ -6724,7 +6727,10 @@
               "openDirectionBit": false,
               "ornateBits": 3,
               "doorTypeBit": 1,
-              "unreferencedBits": 0
+              "unreferencedBits": 0,
+              "resolvedDoorType": 1,
+              "resolvedDoorFamilyName": "Wooden Door",
+              "resolvedDoorFamilySource": "raw_door_type_bit"
             }
           },
           "globalX": 19,
@@ -7688,7 +7694,10 @@
               "openDirectionBit": true,
               "ornateBits": 2,
               "doorTypeBit": 1,
-              "unreferencedBits": 0
+              "unreferencedBits": 0,
+              "resolvedDoorType": 1,
+              "resolvedDoorFamilyName": "Wooden Door",
+              "resolvedDoorFamilySource": "raw_door_type_bit"
             }
           },
           "globalX": 20,
@@ -8122,7 +8131,10 @@
               "openDirectionBit": true,
               "ornateBits": 0,
               "doorTypeBit": 0,
-              "unreferencedBits": 0
+              "unreferencedBits": 0,
+              "resolvedDoorType": 0,
+              "resolvedDoorFamilyName": "Porticullis",
+              "resolvedDoorFamilySource": "raw_door_type_bit"
             }
           },
           "globalX": 21,
@@ -11576,7 +11588,10 @@
               "openDirectionBit": true,
               "ornateBits": 1,
               "doorTypeBit": 0,
-              "unreferencedBits": 0
+              "unreferencedBits": 0,
+              "resolvedDoorType": 0,
+              "resolvedDoorFamilyName": "Porticullis",
+              "resolvedDoorFamilySource": "raw_door_type_bit"
             }
           },
           "globalX": 25,
@@ -15545,7 +15560,10 @@
               "openDirectionBit": true,
               "ornateBits": 2,
               "doorTypeBit": 1,
-              "unreferencedBits": 0
+              "unreferencedBits": 0,
+              "resolvedDoorType": 1,
+              "resolvedDoorFamilyName": "Wooden Door",
+              "resolvedDoorFamilySource": "raw_door_type_bit"
             }
           },
           "globalX": 30,
@@ -18275,7 +18293,10 @@
               "openDirectionBit": true,
               "ornateBits": 0,
               "doorTypeBit": 0,
-              "unreferencedBits": 0
+              "unreferencedBits": 0,
+              "resolvedDoorType": 0,
+              "resolvedDoorFamilyName": "Porticullis",
+              "resolvedDoorFamilySource": "raw_door_type_bit"
             }
           },
           "globalX": 34,
@@ -22731,7 +22752,10 @@
               "openDirectionBit": true,
               "ornateBits": 0,
               "doorTypeBit": 0,
-              "unreferencedBits": 0
+              "unreferencedBits": 0,
+              "resolvedDoorType": 0,
+              "resolvedDoorFamilyName": "Porticullis",
+              "resolvedDoorFamilySource": "raw_door_type_bit"
             }
           },
           "globalX": 40,

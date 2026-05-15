@@ -1,5 +1,6 @@
 import { ALL_ITEM_IMAGE_PATHS } from '../data/itemImageCatalog';
 import {
+    AMALGAM_WALL_OVERLAY_IMAGE_PATHS,
     CORE_WALL_OVERLAY_IMAGE_PATHS,
     SECONDARY_WALL_OVERLAY_IMAGE_PATHS,
 } from '../data/originalWallOverlays';
@@ -47,6 +48,7 @@ let titleVisualPromise: Promise<void> | null = null;
 let gameplayCoreVisualPromise: Promise<void> | null = null;
 let gameplaySecondaryVisualPromise: Promise<void> | null = null;
 let gameplayVisualPromise: Promise<void> | null = null;
+let amalgamWallOverlayVisualPromise: Promise<void> | null = null;
 
 function preloadImage(src: string): Promise<void> {
     const cached = imagePromiseCache.get(src);
@@ -99,6 +101,13 @@ export function preloadGameplaySecondaryVisualAssets(): Promise<void> {
         gameplaySecondaryVisualPromise = preloadImageList(GAMEPLAY_SECONDARY_IMAGE_ASSETS);
     }
     return gameplaySecondaryVisualPromise;
+}
+
+export function preloadAmalgamWallOverlayVisualAssets(): Promise<void> {
+    if (!amalgamWallOverlayVisualPromise) {
+        amalgamWallOverlayVisualPromise = preloadImageList(AMALGAM_WALL_OVERLAY_IMAGE_PATHS);
+    }
+    return amalgamWallOverlayVisualPromise;
 }
 
 export function preloadGameplayVisualAssets(): Promise<void> {

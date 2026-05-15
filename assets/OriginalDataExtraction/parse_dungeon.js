@@ -182,8 +182,8 @@ const LEVEL_NAMES = [
   'Level 9',
   'Level 10',
   'Level 11',
-  'Level 12',
-  'Level 13 – Chaos\' Stronghold',
+  'Lord Chaos\'s Lair',
+  'Dragon Lair',
 ];
 
 console.log(`Dungeon Master – DUNGEON.DAT`);

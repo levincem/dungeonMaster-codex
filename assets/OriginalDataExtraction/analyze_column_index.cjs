@@ -12,7 +12,7 @@ const OFF_MAP_DATA = data.length - mapDataSize - 2;
 
 const mapNames = [
   'Hall of Champions', 'Level 1', 'Level 2', 'Level 3', 'Level 4', 'Level 5', 'Level 6',
-  'Level 7', 'Level 8', 'Level 9', 'Level 10', 'Level 11', 'Level 12', "Lord Chaos's Lair",
+  'Level 7', 'Level 8', 'Level 9', 'Level 10', 'Level 11', "Lord Chaos's Lair", 'Dragon Lair',
 ];
 
 const colIndex = [];

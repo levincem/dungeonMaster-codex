@@ -21,7 +21,7 @@ test('buildEndgameFramePatch advances actions and messages before victory', () =
             spellVisualEvents: [],
             lastCastResult: null,
         },
-        4200,
+        220,
         {
             fuseUpdateMs: 100,
             messageIntervalMs: 100,
@@ -64,7 +64,7 @@ test('buildEndgameFramePatch reports victory once the full sequence delay has el
             spellVisualEvents: [],
             lastCastResult: null,
         },
-        4300,
+        250,
         {
             fuseUpdateMs: 100,
             messageIntervalMs: 100,
@@ -101,7 +101,7 @@ test('applyEndgameFrameState converts reached victory into a victory patch', () 
             spellVisualEvents: [],
             lastCastResult: null,
         },
-        4300,
+        250,
         {
             fuseUpdateMs: 100,
             messageIntervalMs: 100,

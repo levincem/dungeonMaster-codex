@@ -81,6 +81,7 @@ function createState(overrides: Partial<{
 const deterministicDeps = {
     randomInt: () => 2,
     quantizeDurationMs: (durationMs: number) => durationMs,
+    championMaxMana: 40,
     buildIdSuffix: () => 'seed',
 };
 
@@ -146,6 +147,7 @@ test('buildSimpleUtilityAttackPatch appends spell lights, shields and projectile
     assert.equal(projectilePatch.projectiles.length, 1);
     assert.equal(projectilePatch.projectiles[0]?.id, 'weapon_invoke_1_seed');
     assert.equal(projectilePatch.projectiles[0]?.effect, 'disrupt_nonmaterial');
+    assert.equal(projectilePatch.projectiles[0]?.remainingAttack, 90);
 });
 
 test('buildSimpleUtilityAttackPatch updates freeze life and window state without disturbing the base patch', () => {

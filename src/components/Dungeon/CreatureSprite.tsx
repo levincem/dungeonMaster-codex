@@ -14,7 +14,11 @@ const DEFAULT_W = GRID_SIZE   * 0.56;
 const DEFAULT_H = WALL_HEIGHT * 0.54;
 
 // Per-typeId world size overrides  (w, h)
-const SPRITE_SIZES: Record<number, [number, number]> = {};
+const SPRITE_SIZES: Record<number, [number, number]> = {
+    23: [DEFAULT_W * 1.1, DEFAULT_H * 1.06],
+    25: [DEFAULT_W * 1.18, DEFAULT_H * 1.08],
+    26: [DEFAULT_W * 1.18, DEFAULT_H * 1.08],
+};
 
 // Creatures with only 1 frame (LordOrder, GreyLord)
 const SINGLE_FRAME_IDS = new Set([25, 26]);

@@ -15,6 +15,7 @@ type FuseState<TDamageEvent, TSpellVisualEvent> = {
     rightHand: FuseRightHand;
     rightHandWeaponName: string;
     fluxcageExpiresAt: number;
+    lordChaosTrapped?: boolean;
     creatures: CreatureInstance[];
     floorItems: FloorItem[];
     damageEvents: TDamageEvent[];
@@ -93,7 +94,7 @@ export function buildFuseActionPatch<
         };
     }
 
-    const trapped = state.fluxcageExpiresAt > state.now;
+    const trapped = state.lordChaosTrapped ?? (state.fluxcageExpiresAt > state.now);
     if (state.target.typeId === 23 && !trapped) {
         return {
             patch: {

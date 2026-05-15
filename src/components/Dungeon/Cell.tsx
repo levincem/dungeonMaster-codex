@@ -809,6 +809,27 @@ function makePlateTex(): THREE.CanvasTexture {
 
 const PLATE_TOP_TEX = makePlateTex();
 
+export const BlackFlamePit: React.FC = () => {
+    const texture = useLoadedTexture(miscPath('black_flame_pit.png'));
+
+    return (
+        <group position={[0, FLOOR_Y + 0.006, 0]}>
+            <mesh rotation={[-Math.PI / 2, 0, 0]} renderOrder={4}>
+                <planeGeometry args={[GRID_SIZE * 0.74, GRID_SIZE * 0.46]} />
+                <meshBasicMaterial
+                    map={texture}
+                    transparent
+                    alphaTest={0.02}
+                    polygonOffset
+                    polygonOffsetFactor={-1}
+                    polygonOffsetUnits={-1}
+                    toneMapped={false}
+                />
+            </mesh>
+        </group>
+    );
+};
+
 export const PressurePlate: React.FC<{ tileX: number; tileY: number; level: number; face?: CardinalDir }> = ({ tileX, tileY, level }) => {
     const pressRef = useRef(0);   // 0 = up, 1 = down, animating between
     const groupRef = useRef<THREE.Group>(null);

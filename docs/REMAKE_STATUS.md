@@ -1,6 +1,6 @@
 # Dungeon Master Remake - Etat du projet
 
-Etat revu le `2026-05-08`.
+Etat revu le `2026-05-16`.
 
 Ce document est un journal d'etat compact.
 
@@ -8,7 +8,7 @@ Pour la liste des sujets encore ouverts et ordonnes, lire [docs/NEXT_PHASE_PLAN.
 
 ## Resume actuel
 
-Le projet est maintenant une beta desktop-first jouable et serieuse.
+Le projet est maintenant une `0.9 release candidate` desktop-first jouable et serieuse.
 
 Ce qui est solidement en place:
 
@@ -29,8 +29,8 @@ Lecture honnete du projet aujourd'hui:
   - Atari ST sert de recoupement fort sur les tables et comportements proches
   - `CSB` ne sert que d'aide technique sur le moteur partage, pas de cible gameplay additionnelle
 - le `store` n'est plus le gros chantier prioritaire
-- les restes ouverts sont surtout du playtest cible, des cas rares, quelques ecarts de presentation, un petit reliquat structurel borne autour de `ACTIVE_GROUP`, et de l'optimisation
-- on n'est pas encore en `release candidate`, mais on n'est plus dans une logique d'alpha fragile
+- les restes ouverts sont surtout du playtest cible, quelques ecarts de presentation tardifs, le hall of fame partage a brancher sur le VPS, et de l'optimisation
+- on n'est plus dans une logique `alpha / beta` large; le vrai sujet est maintenant de refermer proprement la `0.9`
 
 Regle de travail retenue pour les regressions:
 
@@ -39,21 +39,21 @@ Regle de travail retenue pour les regressions:
 
 Validation locale la plus recente:
 
-- `npm.cmd test` : `900` tests verts
+- `npm.cmd test` : `924` tests verts
 - `npm.cmd run build` : vert
 
-## Lecture beta
+## Lecture release candidate
 
-Ce que veut dire `beta` ici:
+Ce que veut dire `0.9 release candidate` ici:
 
-- le debut du jeu est maintenant jouable de facon suivie sans bug bloquant evident
+- le debut et la fin du jeu sont rejouables sans blocage connu cote runtime principal
 - le coeur du runtime tient en conditions normales de playtest
-- les regressions restantes attendues sont plutot des cas rares, du tuning ou du polish que des ruptures structurelles
+- les regressions restantes attendues sont plutot des cas rares, du tuning, du polish ou de l'integration de publication que des ruptures structurelles
 
 Ce qu'il reste avant une release plus large:
 
+- brancher le hall of fame partage sur le VPS
 - rejouer explicitement `generateurs / transitions / endgame`
-- verifier les mecanismes rares et les timings tardifs
 - continuer a surveiller les performances sur longues sessions, surtout en `dev`
 
 ## Aide debug locale
@@ -132,6 +132,34 @@ Le detail ordonne vit dans [docs/NEXT_PHASE_PLAN.md](/D:/DungeonMaster-codex/doc
 - surtout du playtest cible sur cas rares, puis un petit reliquat de polish / perf
 
 ## Checkpoints recents
+
+### 2026-05-16
+
+Travail ferme dans cette session:
+
+- fin de jeu et presentation finale recalees
+  - sequence `Grey Lord` gardee dans la scene du donjon, avec texte en overlay et clic pour continuer
+  - ecran de stats de fin extrait dans un panneau reutilisable
+  - hall of fame local ajoute a la sequence de victoire avant `The End`
+  - logo final remis au-dessus de `The End`, avec `Thanks for playing` et retour a l'accueil
+- runtime et fidelite de fin de jeu etendus
+  - `Fluxcage` peut maintenant poser une vraie cage sur case vide
+  - `Invoke` du `Firestaff` recale sur la logique source et recoit un visuel dedie
+  - sequence `Amalgam -> Firestaff (Complete)` recalee cote overlays et presentation
+- audits tardifs refermes ou mieux bornes
+  - portes acier pleines de fin de jeu verifiees cote extraction/runtime
+  - puits `Black Flame` derives depuis les generateurs de sol source-backed
+  - libelles des deux dernieres maps recales cote extraction/support
+- instrumentation de run enrichie
+  - stats de partie persistantes et exposees dans la victoire
+  - comptage ajoute par creature vaincue, sorts, objets, deplacements et degats
+  - hall of fame encore local a ce stade; branchement partage VPS garde comme prochain petit chantier
+
+Impact:
+
+- la fin du jeu est maintenant beaucoup plus complete, lisible et rejouable en dev
+- les stats de run sont prêtes pour un classement partage des que la petite API VPS sera en place
+- la branche passe en `0.9.0-rc.1`
 
 ### 2026-05-06
 

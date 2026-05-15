@@ -2,6 +2,7 @@ import type { Champion } from '../../types/champion';
 import type { ChampionEquipment, CreatureInstance, FloorItem } from '../../types/game';
 import type { GameOptions } from '../runtimeTypes';
 import type {
+    ActiveFluxcage,
     ActivePoisonCloud,
     ActivePotionBoost,
     ChampionVitals,
@@ -85,6 +86,7 @@ export type StoreBootstrapState = {
     spellLights: SpellLight[];
     projectiles: Projectile[];
     activePoisonClouds: ActivePoisonCloud[];
+    activeFluxcages: ActiveFluxcage[];
     activeShields: PartyShield[];
     activePotionBoosts: ActivePotionBoost[];
     invisibleUntil: number;
@@ -177,6 +179,7 @@ export function createStoreBootstrapRuntime(
         spellLights: [],
         projectiles: [],
         activePoisonClouds: [],
+        activeFluxcages: [],
         activeShields: [],
         activePotionBoosts: [],
         invisibleUntil: 0,

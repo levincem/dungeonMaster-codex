@@ -325,6 +325,7 @@ import { resolveStairStepTransport as resolveStairStepTransportSystem } from './
 import { resolveStandardStepTransport as resolveStandardStepTransportSystem } from './systems/standardStepTransport';
 import { resolveTeleporterStepTransport as resolveTeleporterStepTransportSystem } from './systems/teleporterStepTransport';
 import { sanitizeOpenTeleporterKeys } from './systems/disabledTeleporters';
+import { hasActiveFluxcageAt } from './systems/fluxcageTileState';
 import {
     buildDefaultOpenDoorsForLevel,
     buildDefaultOpenDoorsForLevels,
@@ -784,6 +785,8 @@ export type ProjectileEffect =
     | 'disrupt_nonmaterial'
     | 'physical';
 
+export type ProjectileVisualVariant = 'invoke';
+
 export interface Projectile {
     id: string;
     level: number;
@@ -796,6 +799,7 @@ export interface Projectile {
     targetChampionId?: number;
     spellRunes?: string[];
     visualScale?: number;
+    visualVariant?: ProjectileVisualVariant;
     damage: [number, number]; // [min, max]
     nextMoveAt: number;  // Date.now() ms — when to advance to next tile
     remainingRange?: number;
@@ -814,6 +818,14 @@ export interface ActivePoisonCloud {
     remainingAttack: number;
     nextPulseGameTick: number;
     visualScale?: number;
+}
+
+export interface ActiveFluxcage {
+    id: string;
+    level: number;
+    x: number;
+    y: number;
+    expiresAt: number;
 }
 
 // ─── Party shields (magic shield / fire shield spells) ────────────────────────
@@ -2019,6 +2031,8 @@ interface GameState {
     projectiles: Projectile[];
     /** Persistent poison clouds that pulse every original timer tick */
     activePoisonClouds: ActivePoisonCloud[];
+    /** Persistent Fluxcage tiles placed on empty dungeon squares */
+    activeFluxcages: ActiveFluxcage[];
     /** Active magic / fire shields — reduce incoming damage */
     activeShields: PartyShield[];
     /** Temporary boosts from consumed potions */
@@ -2853,7 +2867,9 @@ const runStoreMonsterTickActionBase = createStoreMonsterTickAction<GameState>((s
         nextMonsterMoveDelaySeconds: getMonsterMoveDelaySecondsOriginal,
         nextMonsterAttackDelaySeconds: getMonsterAttackDelaySecondsOriginal,
         nextMonsterBehaviorUpdateAfterAttackDelaySeconds: getMonsterBehaviorUpdateAfterAttackDelaySecondsOriginal,
-        canCreatureShareTile,
+        canCreatureShareTile: (creature, level, x, y, creatures) =>
+            !hasActiveFluxcageAt(state.activeFluxcages, level, x, y, Date.now())
+            && canCreatureShareTile(creature, level, x, y, creatures),
         canArchenemyDoubleMove: (
             creatureState,
             level,

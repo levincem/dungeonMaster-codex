@@ -4,6 +4,7 @@ import type { WeaponAttackOption } from '../src/data/weaponAttacks.js';
 import type { Champion } from '../src/types/champion.js';
 import type { CreatureInstance, FloorItem } from '../src/types/game.js';
 import type {
+    ActiveFluxcage,
     ChampionVitals,
     PartyShield,
     Projectile,
@@ -157,6 +158,7 @@ function createState(overrides: Partial<{
     openDoors: Set<string>;
     openPits: Set<string>;
     openWalls: Set<string>;
+    activeFluxcages: ActiveFluxcage[];
     rightHandTypeId: number | undefined;
     rightHand: { typeId: number; rawName?: string } | null | undefined;
     rightHandWeaponName: string;
@@ -181,6 +183,7 @@ function createState(overrides: Partial<{
         openDoors: new Set<string>(),
         openPits: new Set<string>(),
         openWalls: new Set<string>(),
+        activeFluxcages: [] as ActiveFluxcage[],
         rightHandTypeId: undefined,
         rightHand: undefined,
         rightHandWeaponName: '',
@@ -431,6 +434,33 @@ test('buildSupportedUtilityAttackPatch adds a fluxcage burst when the target is 
     );
 });
 
+test('buildSupportedUtilityAttackPatch places a Fluxcage on the front tile when no creature is targeted', () => {
+    const result = buildSupportedUtilityAttackPatch(
+        createAction('Fluxcage'),
+        createState({ creatures: [] }),
+        createBasePatch(),
+        createDeps(),
+    );
+    const patch = result.patch as TestPatch & {
+        activeFluxcages?: Array<{ level: number; x: number; y: number; expiresAt: number }>;
+        spellVisualEvents?: SpellVisualEvent[];
+    };
+
+    assert.deepEqual(
+        patch.activeFluxcages?.map((fluxcage) => ({
+            level: fluxcage.level,
+            x: fluxcage.x,
+            y: fluxcage.y,
+            expiresAt: fluxcage.expiresAt,
+        })),
+        [{ level: 0, x: 1, y: 0, expiresAt: 121_000 }],
+    );
+    assert.deepEqual(
+        patch.spellVisualEvents?.map((event) => event.effect),
+        ['open', 'disrupt_nonmaterial'],
+    );
+});
+
 test('buildSupportedUtilityAttackPatch lets Lord Chaos escape a Fluxcage cast on his square when an adjacent tile is free', () => {
     let controlUpdateCalled = false;
 
@@ -462,4 +492,33 @@ test('buildSupportedUtilityAttackPatch lets Lord Chaos escape a Fluxcage cast on
         patch.spellVisualEvents?.map((event) => event.effect),
         ['open', 'disrupt_nonmaterial'],
     );
+});
+
+test('buildSupportedUtilityAttackPatch lets Fuse start when tile Fluxcages are the only thing blocking Lord Chaos', () => {
+    const result = buildSupportedUtilityAttackPatch(
+        createAction('Fuse'),
+        createState({
+            creatures: [createCreature('lord-chaos', { typeId: 23, x: 1, y: 0 })],
+            rightHand: { typeId: 45, rawName: 'Firestaff Complete' },
+            rightHandTypeId: 45,
+            rightHandWeaponName: 'Firestaff',
+            activeFluxcages: [
+                { id: 'east', level: 0, x: 2, y: 0, expiresAt: 2_000 },
+                { id: 'west', level: 0, x: 0, y: 0, expiresAt: 2_000 },
+                { id: 'south', level: 0, x: 1, y: 1, expiresAt: 2_000 },
+            ],
+        }),
+        createBasePatch(),
+        createDeps({
+            getMapTile: (_level, x, y) => {
+                if ((x === 2 && y === 0) || (x === 0 && y === 0) || (x === 1 && y === 1) || (x === 1 && y === 0)) {
+                    return { x, y, type: 'Floor', objects: [] };
+                }
+                return { x, y, type: 'Wall', objects: [] };
+            },
+        }),
+    );
+    const patch = result.patch as TestPatch & { gamePhase?: string };
+
+    assert.equal(patch.gamePhase, 'endgame');
 });

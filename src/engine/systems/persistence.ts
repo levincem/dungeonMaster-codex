@@ -19,6 +19,7 @@ import type {
     WallTextObject,
 } from '../../types/game';
 import type {
+    ActiveFluxcage,
     ActivePoisonCloud,
     ActivePotionBoost,
     ChampionCombat,
@@ -87,6 +88,7 @@ export interface PersistableGameState {
     spellLights: SpellLight[];
     projectiles: Projectile[];
     activePoisonClouds: ActivePoisonCloud[];
+    activeFluxcages: ActiveFluxcage[];
     activeShields: PartyShield[];
     activePotionBoosts: ActivePotionBoost[];
     invisibleUntil: number;
@@ -592,6 +594,15 @@ export function buildPersistedSaveData(
             nextMoveInMs: Math.max(0, projectile.nextMoveAt - now),
         })),
         activePoisonClouds: state.activePoisonClouds,
+        activeFluxcages: state.activeFluxcages
+            .map((fluxcage) => ({
+                id: fluxcage.id,
+                level: fluxcage.level,
+                x: fluxcage.x,
+                y: fluxcage.y,
+                remainingMs: Math.max(0, fluxcage.expiresAt - now),
+            }))
+            .filter((fluxcage) => fluxcage.remainingMs > 0),
         activeShields: state.activeShields.map((shield) => ({
             ...shield,
             remainingMs: Math.max(0, shield.expiresAt - now),
@@ -743,6 +754,12 @@ export function hydratePersistedGameState(
             };
         }),
         activePoisonClouds: data.activePoisonClouds ?? [],
+        activeFluxcages: (data.activeFluxcages ?? [])
+            .map((fluxcage) => {
+                const { remainingMs, ...rest } = fluxcage;
+                return { ...rest, expiresAt: now + remainingMs };
+            })
+            .filter((fluxcage) => fluxcage.expiresAt > now),
         activeShields: data.activeShields
             .map((shield) => {
                 const { remainingMs, ...rest } = shield;

@@ -68,6 +68,9 @@ test('collectPersistedGameplayPreloadLevels includes hydrated and runtime-refere
         activePoisonClouds: [
             { id: 'pc1', level: 9, x: 0, y: 0, remainingAttack: 12, nextPulseGameTick: 0 } as NonNullable<PersistedSaveData['activePoisonClouds']>[number],
         ],
+        activeFluxcages: [
+            { id: 'fx1', level: 14, x: 1, y: 1, remainingMs: 1200 } as NonNullable<PersistedSaveData['activeFluxcages']>[number],
+        ],
         footprintHistory: [
             { level: 10, x: 0, y: 0, ts: 0 },
         ],
@@ -81,7 +84,7 @@ test('collectPersistedGameplayPreloadLevels includes hydrated and runtime-refere
 
     assert.deepEqual(
         collectPersistedGameplayPreloadLevels(save),
-        [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+        [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
     );
 });
 

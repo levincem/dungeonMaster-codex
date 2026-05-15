@@ -4,8 +4,37 @@ export type UtilityProjectileAttack = 'Lightning' | 'Fireball' | 'Dispell' | 'Di
 
 type UtilityProjectileDeps = {
     randomInt: (max: number) => number;
+    championMaxMana?: number;
     buildIdSuffix?: () => string;
 };
+
+const SOURCE_BACKED_SPELL_PROJECTILE_ATTACK = 90;
+
+const INVOKE_EFFECT_TO_CANONICAL_RUNES: Record<
+    Extract<ProjectileEffect, 'fireball' | 'poison_bolt' | 'poison_cloud' | 'disrupt_nonmaterial'>,
+    string[]
+> = {
+    fireball: ['lo', 'ful', 'ir'],
+    poison_bolt: ['lo', 'des', 'ven'],
+    poison_cloud: ['lo', 'oh', 'ven'],
+    disrupt_nonmaterial: ['lo', 'des', 'ew'],
+};
+
+function getSourceBackedSpellStepDecay(championMaxMana: number | undefined): number {
+    return Math.max(2, 10 - Math.min(8, Math.floor(Math.max(0, championMaxMana ?? 0) / 8)));
+}
+
+function rollInvokeEffect(randomInt: (max: number) => number): Extract<
+    ProjectileEffect,
+    'fireball' | 'poison_bolt' | 'poison_cloud' | 'disrupt_nonmaterial'
+> {
+    switch (randomInt(6)) {
+        case 0: return 'poison_bolt';
+        case 1: return 'poison_cloud';
+        case 2: return 'disrupt_nonmaterial';
+        default: return 'fireball';
+    }
+}
 
 function getFrontPosition(position: [number, number], direction: Direction): { x: number; y: number } {
     const [y, x] = position;
@@ -69,13 +98,7 @@ export function buildUtilityAttackProjectile(
                 nextMoveAt: now,
             };
         case 'Invoke': {
-            const invokeEffects: ProjectileEffect[] = [
-                'poison_bolt',
-                'poison_cloud',
-                'disrupt_nonmaterial',
-                'fireball',
-            ];
-            const effect = invokeEffects[deps.randomInt(invokeEffects.length)] ?? 'fireball';
+            const effect = rollInvokeEffect(deps.randomInt);
             return {
                 id: buildProjectileId('weapon_invoke', now, deps),
                 level,
@@ -83,8 +106,13 @@ export function buildUtilityAttackProjectile(
                 y,
                 direction,
                 effect,
+                spellRunes: [...INVOKE_EFFECT_TO_CANONICAL_RUNES[effect]],
+                visualVariant: 'invoke',
                 damage: [20, 50],
                 nextMoveAt: now,
+                remainingRange: deps.randomInt(128) + 100,
+                remainingAttack: SOURCE_BACKED_SPELL_PROJECTILE_ATTACK,
+                stepDecay: getSourceBackedSpellStepDecay(deps.championMaxMana),
             };
         }
     }

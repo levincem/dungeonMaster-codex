@@ -4,6 +4,7 @@ import { getTranslations } from '../../i18n';
 import type { Champion } from '../../types/champion';
 import type { CreatureInstance, FloorItem } from '../../types/game';
 import type {
+    ActiveFluxcage,
     ChampionVitals,
     Direction,
     PartyShield,
@@ -13,6 +14,13 @@ import type {
 import { resolveAttackFrontContext } from './attackFrontContext';
 import type { CreatureTimers } from './creatureControlActions';
 import { buildFuseActionPatch } from './fuseAction';
+import {
+    FLUXCAGE_DURATION_MS,
+    getFrontFluxcageTile,
+    hasActiveFluxcageAt,
+    isFluxcagePlaceableTile,
+    upsertActiveFluxcage,
+} from './fluxcageTileState';
 import { resolveLordChaosFluxcageEscape } from './lordChaosFluxcageEscape';
 import {
     buildUtilityRuntimeActionPatch,
@@ -47,6 +55,7 @@ type UtilityAttackState<TDamageEvent, TSpellVisualEvent> = {
     openDoors: Set<string>;
     openPits: Set<string>;
     openWalls: Set<string>;
+    activeFluxcages?: ActiveFluxcage[];
     rightHandTypeId: number | undefined;
     rightHand: UtilityRightHand;
     rightHandWeaponName: string;
@@ -151,6 +160,15 @@ export function buildSupportedUtilityAttackPatch<
         state.party,
         state.championId,
     );
+    const activeFluxcages = state.activeFluxcages ?? [];
+    const canCreatureShareTileWithFluxcages = (
+        mover: CreatureInstance,
+        level: number,
+        x: number,
+        y: number,
+        creatures: CreatureInstance[],
+    ) => !hasActiveFluxcageAt(activeFluxcages, level, x, y, state.now)
+        && deps.canCreatureShareTile(mover, level, x, y, creatures);
 
     switch (action.enumName) {
         case 'Heal':
@@ -187,6 +205,7 @@ export function buildSupportedUtilityAttackPatch<
                     {
                         randomInt: deps.randomInt,
                         quantizeDurationMs: deps.quantizeDurationMs,
+                        championMaxMana: state.party.find((champion) => champion.id === state.championId)?.mana ?? 0,
                     },
                 ),
             };
@@ -232,7 +251,7 @@ export function buildSupportedUtilityAttackPatch<
                     state.openWalls,
                     {
                         getMapTile: deps.getMapTile,
-                        canCreatureShareTile: deps.canCreatureShareTile,
+                        canCreatureShareTile: canCreatureShareTileWithFluxcages,
                     },
                 );
                 if (escape) {
@@ -264,6 +283,43 @@ export function buildSupportedUtilityAttackPatch<
                         } as TPatch,
                     };
                 }
+            }
+
+            if (!target) {
+                const { x, y } = getFrontFluxcageTile(state.position, state.direction);
+                if (!isFluxcagePlaceableTile(
+                    state.level,
+                    x,
+                    y,
+                    state.openDoors,
+                    state.openPits,
+                    state.openWalls,
+                    { getMapTile: deps.getMapTile },
+                )) {
+                    return {
+                        patch: {
+                            ...basePatch,
+                            lastCastResult: deps.buildAttackResultMessage(runtimeText.utilityNoTarget(action.enumName)),
+                        } as TPatch,
+                    };
+                }
+
+                return {
+                    patch: {
+                        ...basePatch,
+                        activeFluxcages: upsertActiveFluxcage(
+                            activeFluxcages,
+                            state.level,
+                            x,
+                            y,
+                            state.now + deps.quantizeDurationMs(FLUXCAGE_DURATION_MS),
+                        ),
+                        spellVisualEvents: [
+                            ...state.spellVisualEvents,
+                            ...deps.buildFluxcageCastEvents(state.level, x, y),
+                        ],
+                    } as TPatch,
+                };
             }
 
             const result = buildUtilityRuntimeActionPatch(
@@ -313,6 +369,7 @@ export function buildSupportedUtilityAttackPatch<
             return { patch: climbDown.patch ?? basePatch };
         }
         case 'Fuse': {
+            const hasCreatureFluxcage = target ? deps.getFluxcageExpiresAt(target.id) > state.now : false;
             if (target?.typeId === 23 && deps.getFluxcageExpiresAt(target.id) > state.now) {
                 const escape = resolveLordChaosFluxcageEscape(
                     target,
@@ -323,7 +380,7 @@ export function buildSupportedUtilityAttackPatch<
                     state.openWalls,
                     {
                         getMapTile: deps.getMapTile,
-                        canCreatureShareTile: deps.canCreatureShareTile,
+                        canCreatureShareTile: canCreatureShareTileWithFluxcages,
                     },
                 );
                 if (escape) {
@@ -355,6 +412,33 @@ export function buildSupportedUtilityAttackPatch<
                 }
             }
 
+            const trappedByFluxcageTiles = target?.typeId === 23
+                && !hasCreatureFluxcage
+                && Boolean(resolveLordChaosFluxcageEscape(
+                    target,
+                    state.creatures,
+                    state.position,
+                    state.openDoors,
+                    state.openPits,
+                    state.openWalls,
+                    {
+                        getMapTile: deps.getMapTile,
+                        canCreatureShareTile: deps.canCreatureShareTile,
+                    },
+                ))
+                && !resolveLordChaosFluxcageEscape(
+                    target,
+                    state.creatures,
+                    state.position,
+                    state.openDoors,
+                    state.openPits,
+                    state.openWalls,
+                    {
+                        getMapTile: deps.getMapTile,
+                        canCreatureShareTile: canCreatureShareTileWithFluxcages,
+                    },
+                );
+
             const result = buildFuseActionPatch(
                 {
                     now: state.now,
@@ -363,6 +447,7 @@ export function buildSupportedUtilityAttackPatch<
                     rightHand: state.rightHand,
                     rightHandWeaponName: state.rightHandWeaponName,
                     fluxcageExpiresAt: target ? deps.getFluxcageExpiresAt(target.id) : 0,
+                    lordChaosTrapped: Boolean(hasCreatureFluxcage || trappedByFluxcageTiles),
                     creatures: state.creatures,
                     floorItems: state.floorItems,
                     damageEvents: state.damageEvents,

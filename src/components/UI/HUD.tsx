@@ -219,7 +219,7 @@ const DevPerformancePanel: React.FC = () => {
                 `projectiles ${projectiles.length} total | here ${counts.projectilesOnLevel}`,
                 `poison clouds ${activePoisonClouds.length} total | here ${counts.poisonCloudsOnLevel}`,
                 `pending spawns ${pendingGeneratorSpawns.length} total | here ${counts.pendingSpawnsOnLevel}`,
-                `hydrated ${hydratedLevels.size}: [${counts.hydratedLevelList.join(', ')}]`,
+                `hydrated ${hydratedLevels.size}: [${counts.hydratedLevelList.map((entry) => entry + 1).join(', ')}]`,
             ].join('\n')}
         </div>
     );

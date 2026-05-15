@@ -21,11 +21,11 @@ import {
 import type { Direction } from '../../engine/runtimeTypes';
 import { computeLightLevel } from '../../engine/store';
 import { getGameMap, toGlobalCoords } from '../../data/mapLoader';
-import type { GameMap, GameTile, TeleporterObject, CardinalDir, DoorObject } from '../../types/game';
+import type { GameMap, GameTile, TeleporterObject, CardinalDir } from '../../types/game';
 import type { Champion } from '../../data/champions';
 import type { EquipSlotKey } from '../../types/items';
 import { canFillWaterContainer } from '../../data/waterContainers';
-import { Cell, PressurePlate } from './Cell';
+import { BlackFlamePit, Cell, PressurePlate } from './Cell';
 import type { CellRenderType } from './Cell';
 import { InstancedTiles } from './InstancedTiles';
 import { WallSensor } from './WallSensor';
@@ -40,6 +40,7 @@ import { useLoadedTexture } from './useLoadedTexture';
 import {
     buildDungeonSceneWallButtons,
     buildDungeonSceneWallDecals,
+    collectDungeonSceneBlackFlamePits,
     collectDungeonScenePressurePlates,
     collectDungeonScenePits,
     collectDungeonSceneTeleporters,
@@ -81,6 +82,7 @@ import {
     ALTERNATE_ENDING_ENTRANCE_DOOR_KEY,
     ALTERNATE_ENDING_HALL_OVERLAY,
 } from '../../engine/systems/alternateEndingRuntime';
+import { getDoorObject } from '../../engine/systems/doorMetadata';
 
 const HALF = GRID_SIZE / 2;
 const BASE_FOG_NEAR = GRID_SIZE * 2;
@@ -479,7 +481,6 @@ function resolveStairsEntryFace(map: GameMap, x: number, y: number): CardinalDir
     return 'South';
 }
 
-// Level name overlay
 const LevelName = ({ level }: { level: number }) => {
     const map = getGameMap(level);
     return (
@@ -1110,18 +1111,24 @@ const TileGrid: React.FC<{
     recruitedIds: Set<number>;
     wallButtons: { tileX: number; tileY: number; face: CardinalDir; sensorIndex: number }[];
     wallDecals: OriginalWallOverlayRender[];
+    blackFlamePits: { tileX: number; tileY: number; face?: CardinalDir }[];
     pressurePlates: { tileX: number; tileY: number; face?: CardinalDir }[];
     showWallButtons: boolean;
     showWallDecals: boolean;
     onCellClick: (e: ThreeEvent<MouseEvent>, renderType: CellRenderType, x: number, y: number) => void;
     onWallSensor: (level: number, x: number, y: number, sensorIndex: number) => void;
-}> = memo(({ map, level, partyPosition, partyDirection, openDoors, brokenDoors, crushingDoors, openWalls, recruitedIds, wallButtons, wallDecals, pressurePlates, showWallButtons, showWallDecals, onCellClick, onWallSensor }) => {
+}> = memo(({ map, level, partyPosition, partyDirection, openDoors, brokenDoors, crushingDoors, openWalls, recruitedIds, wallButtons, wallDecals, blackFlamePits, pressurePlates, showWallButtons, showWallDecals, onCellClick, onWallSensor }) => {
     const frontTileY = partyDirection === 'NORTH' ? partyPosition[0] - 1 : partyDirection === 'SOUTH' ? partyPosition[0] + 1 : partyPosition[0];
     const frontTileX = partyDirection === 'EAST' ? partyPosition[1] + 1 : partyDirection === 'WEST' ? partyPosition[1] - 1 : partyPosition[1];
     return (
         <group>
             {/* One draw call each for floor, ceiling, and walls */}
             <InstancedTiles key={level} map={map} openWalls={openWalls} />
+            {blackFlamePits.map(({ tileX, tileY }) => (
+                <group key={`black_flame_pit_${tileX}_${tileY}`} position={[tileX * GRID_SIZE, 0, tileY * GRID_SIZE]}>
+                    <BlackFlamePit />
+                </group>
+            ))}
             {/* Pressure plates - floor-level objects */}
             {pressurePlates.map(({ tileX, tileY, face }) => (
                 <group key={`plate_${tileX}_${tileY}`} position={[tileX * GRID_SIZE, 0, tileY * GRID_SIZE]}>
@@ -1149,16 +1156,12 @@ const TileGrid: React.FC<{
                     const doorBroken = renderType === 'Door' ? brokenDoors.has(`${level},${y},${x}`) : undefined;
                     const doorCrushPhase = renderType === 'Door' ? crushingDoors[`${level},${y},${x}`]?.phase : undefined;
                     const doorOrientation = renderType === 'Door' ? tile.orientation : undefined;
+                    const doorObject = renderType === 'Door' ? getDoorObject(tile) : undefined;
                     const doorHasButton = renderType === 'Door'
-                        ? (tile.objects.find(o => o.category === 'Door') as DoorObject | undefined)?.hasButton ?? false
+                        ? doorObject?.hasButton ?? false
                         : undefined;
                     const doorType = renderType === 'Door'
-                        ? (() => {
-                            const originalDoorType = (tile.objects.find(o => o.category === 'Door') as DoorObject | undefined)?.doorType;
-                            return level === 0 && x === 1 && y === 2
-                                ? 1
-                                : originalDoorType;
-                        })()
+                        ? doorObject?.doorType
                         : undefined;
                     const isFrontDoor = x === frontTileX && y === frontTileY;
                     const doorButtonVisible = renderType === 'Door'
@@ -1353,6 +1356,11 @@ export const DungeonScene = () => {
     const pressurePlates = useMemo(
         () => collectDungeonScenePressurePlates({ level, map, mechanisms: getMapMechanisms(level) }),
         [level, map],
+    );
+
+    const blackFlamePits = useMemo(
+        () => collectDungeonSceneBlackFlamePits({ map }),
+        [map],
     );
 
     const trickWalls = useMemo(
@@ -1625,6 +1633,7 @@ export const DungeonScene = () => {
                     recruitedIds={recruitedIds}
                     wallButtons={wallButtons}
                     wallDecals={wallDecals}
+                    blackFlamePits={blackFlamePits}
                     pressurePlates={pressurePlates}
                     showWallButtons={!RENDER_DEBUG_ENABLED || renderDebug.wallButtons}
                     showWallDecals={!RENDER_DEBUG_ENABLED || renderDebug.wallDecals}

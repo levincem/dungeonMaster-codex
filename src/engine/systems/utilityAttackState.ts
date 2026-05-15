@@ -33,6 +33,7 @@ type SimpleUtilityAttackState = {
 type SimpleUtilityAttackDeps = {
     randomInt: (max: number) => number;
     quantizeDurationMs: (durationMs: number) => number;
+    championMaxMana: number;
     buildIdSuffix?: () => string;
 };
 
@@ -106,6 +107,7 @@ export function buildSimpleUtilityAttackPatch<TPatch extends object>(
                 state.now,
                 {
                     randomInt: deps.randomInt,
+                    championMaxMana: deps.championMaxMana,
                     buildIdSuffix: deps.buildIdSuffix,
                 },
             );

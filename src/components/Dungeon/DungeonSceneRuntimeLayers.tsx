@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { MIRROR_WALL_MAP, isSelfRevealingWallTile, useStore } from '../../engine/store';
 import { DAMAGE_EVENT_LIFETIME_MS, FOOTPRINT_LIFETIME_MS } from '../../engine/time';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
+import { hasHiddenFirestaffPickupRestriction } from '../../engine/systems/floorItemState';
 import { canEquipItemInSlot } from '../../data/equipment';
 import { getGameMap } from '../../data/mapLoader';
 import type { FootprintEntry } from '../../engine/runtimeTypes';
@@ -302,9 +303,15 @@ export const FloorItemsLayer: React.FC = () => {
         const tile = map.tiles[item.y]?.[item.x];
         return isFloorItemWallMountedTile(level, tile, openWalls);
     };
+    const isHiddenWallReward = (item: FloorItem) => {
+        if (!isWallMounted(item)) return false;
+        const tile = map.tiles[item.y]?.[item.x];
+        return hasHiddenFirestaffPickupRestriction(item, tile);
+    };
     const visibleFloorItems = floorItems
         .filter((item) => item.mapIndex === level)
         .filter((item) => !isMirrorTile(item))
+        .filter((item) => !isHiddenWallReward(item))
         .filter((item) => {
             if (!isWallMounted(item)) return true;
             if (!isSelfRevealingWallTile(level, item.x, item.y)) return true;

@@ -218,16 +218,11 @@ export function triggerFloorSensors<
             continue;
         }
 
+        // Floor type-6 generators are actuators on floor squares, not
+        // presence-triggered plates. They must be activated indirectly when
+        // another sensor targets their square, not by simply stepping onto
+        // their tile.
         if (deps.isGeneratorSensor(sensor)) {
-            const nextCur = deps.triggerGeneratorSensor(level, sensor, cur);
-            if (nextCur !== cur) {
-                cur = nextCur;
-                changed = true;
-                if (sensor.sound && !playedSound) {
-                    deps.playPlate();
-                    playedSound = true;
-                }
-            }
             continue;
         }
 

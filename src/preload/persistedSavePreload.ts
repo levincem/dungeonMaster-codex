@@ -32,6 +32,7 @@ export function collectPersistedGameplayPreloadLevels(data: PersistedSaveData): 
     addLevelsFromRecords(levels, data.floorItems, 'mapIndex');
     addLevelsFromRecords(levels, data.projectiles, 'level');
     addLevelsFromRecords(levels, data.activePoisonClouds, 'level');
+    addLevelsFromRecords(levels, data.activeFluxcages, 'level');
     addLevelsFromRecords(levels, data.spellVisualEvents, 'level');
     addLevelsFromRecords(levels, data.footprintHistory, 'level');
 

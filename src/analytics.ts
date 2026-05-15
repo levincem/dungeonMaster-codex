@@ -46,6 +46,13 @@ function sendAnalyticsEvent(eventName: string, params: AnalyticsEventParams = {}
     });
 }
 
+function getSessionTrackingContext(): { source: GameSessionSource; startedAt: number } {
+    return {
+        source: activeGameSession?.source ?? 'new_game',
+        startedAt: activeGameSession?.startedAt ?? Date.now(),
+    };
+}
+
 function buildSessionParams(
     snapshot: GameAnalyticsSnapshot,
     source: GameSessionSource,
@@ -90,9 +97,24 @@ export function maybeTrackGameplayHeartbeat(snapshot: GameAnalyticsSnapshot): vo
 }
 
 export function trackGameVictory(snapshot: GameAnalyticsSnapshot): void {
-    const source = activeGameSession?.source ?? 'new_game';
-    const startedAt = activeGameSession?.startedAt ?? Date.now();
+    const { source, startedAt } = getSessionTrackingContext();
     sendAnalyticsEvent('game_victory', buildSessionParams(snapshot, source, startedAt));
+}
+
+export function trackGameAlternateEnding(snapshot: GameAnalyticsSnapshot): void {
+    const { source, startedAt } = getSessionTrackingContext();
+    sendAnalyticsEvent('game_alternate_ending', buildSessionParams(snapshot, source, startedAt));
+}
+
+export function trackGameLevelChange(previousLevel: number, snapshot: GameAnalyticsSnapshot): void {
+    if (!activeGameSession) return;
+    if (previousLevel === snapshot.level) return;
+
+    sendAnalyticsEvent('game_level_change', {
+        from_level: previousLevel,
+        to_level: snapshot.level,
+        ...buildSessionParams(snapshot, activeGameSession.source, activeGameSession.startedAt),
+    });
 }
 
 export function endTrackedGameSession(reason: string, snapshot: GameAnalyticsSnapshot): void {

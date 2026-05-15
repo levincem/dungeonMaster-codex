@@ -134,6 +134,11 @@ const OMITTED_OVERLAYS = new Set([
 const ORIGINAL_OVERLAY_REMAKE_NOTE =
     'No dedicated modern remake yet; using the original BMP fallback to preserve the exact family-specific art.';
 
+const AMALGAM_WALL_OVERLAY_VERSION = '2026-05-15-organic-v3';
+const AMALGAM_ENCASED_GEM_IMAGE = `${miscPath('wall_amalgam_encased_gem.png')}?v=${AMALGAM_WALL_OVERLAY_VERSION}`;
+const AMALGAM_FREE_GEM_IMAGE = `${miscPath('wall_amalgam_free_gem.png')}?v=${AMALGAM_WALL_OVERLAY_VERSION}`;
+const AMALGAM_WITHOUT_GEM_IMAGE = `${miscPath('wall_amalgam_without_gem.png')}?v=${AMALGAM_WALL_OVERLAY_VERSION}`;
+
 const WALL_OVERLAY_ASSET_POLICY_BY_NAME: Record<string, OverlayAssetPolicy> = {
     'Fountain': { modernImage: miscPath('wall_foutain_overlay.png'), originalFallbackImage: originalMiscPath('fountain.bmp') },
     'Vi Altar': { modernImage: miscPath('autel.png'), originalFallbackImage: originalMiscPath('vi_altar.bmp') },
@@ -184,9 +189,9 @@ const WALL_OVERLAY_ASSET_POLICY_BY_NAME: Record<string, OverlayAssetPolicy> = {
     'Grate': { modernImage: miscPath('wall_grate.png'), originalFallbackImage: originalMiscPath('grate.bmp') },
     'Ghoul\'s Head': { modernImage: miscPath('wall_ghouls_head.png'), originalFallbackImage: originalMiscPath('ghouls_head.bmp') },
     'Scratches': { modernImage: miscPath('wall_scratches.png'), originalFallbackImage: originalMiscPath('scratches.bmp') },
-    'Amalgam (Encased Gem)': { modernImage: miscPath('wall_amalgam_encased_gem.png'), originalFallbackImage: originalMiscPath('amalgam_encased_gem.bmp') },
-    'Amalgam (Free Gem)': { modernImage: miscPath('wall_amalgam_free_gem.png'), originalFallbackImage: originalMiscPath('amalgam_free_gem.bmp') },
-    'Amalgam (Without Gem)': { modernImage: miscPath('wall_amalgam_without_gem.png'), originalFallbackImage: originalMiscPath('amalgam_without_gem.bmp') },
+    'Amalgam (Encased Gem)': { modernImage: AMALGAM_ENCASED_GEM_IMAGE, originalFallbackImage: originalMiscPath('amalgam_encased_gem.bmp') },
+    'Amalgam (Free Gem)': { modernImage: AMALGAM_FREE_GEM_IMAGE, originalFallbackImage: originalMiscPath('amalgam_free_gem.bmp') },
+    'Amalgam (Without Gem)': { modernImage: AMALGAM_WITHOUT_GEM_IMAGE, originalFallbackImage: originalMiscPath('amalgam_without_gem.bmp') },
     'Crack': { modernImage: miscPath('wall_crack.png'), originalFallbackImage: originalMiscPath('crack.bmp') },
     'Iron Ring': { modernImage: miscPath('wall_iron_ring.png'), originalFallbackImage: originalMiscPath('iron_ring.bmp') },
     'Manacles': { modernImage: miscPath('wall_manacles.png'), originalFallbackImage: originalMiscPath('manacles.bmp') },
@@ -274,9 +279,9 @@ const VISUALS_BY_NAME: Record<string, OverlayVisual> = {
     'Grate': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Grate'], accent: '#8c9098', width: 0.78, height: 0.92 },
     'Ghoul\'s Head': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Ghoul\'s Head'], accent: '#a89572', width: 0.62, height: 0.84 },
     'Scratches': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Scratches'], accent: '#8c8578', width: 0.58, height: 0.82 },
-    'Amalgam (Encased Gem)': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Amalgam (Encased Gem)'], accent: '#d1bf81', width: 0.78, height: 0.9 },
-    'Amalgam (Free Gem)': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Amalgam (Free Gem)'], accent: '#d1bf81', width: 0.78, height: 0.9 },
-    'Amalgam (Without Gem)': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Amalgam (Without Gem)'], accent: '#d1bf81', width: 0.78, height: 0.9 },
+    'Amalgam (Encased Gem)': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Amalgam (Encased Gem)'], accent: '#d1bf81', width: 1.02, height: 1.28 },
+    'Amalgam (Free Gem)': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Amalgam (Free Gem)'], accent: '#d1bf81', width: 1.02, height: 1.28 },
+    'Amalgam (Without Gem)': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Amalgam (Without Gem)'], accent: '#d1bf81', width: 1.02, height: 1.28 },
     'Crack': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Crack'], accent: '#8e8f9b', width: 0.56, height: 0.8 },
     'Iron Ring': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Iron Ring'], accent: '#a0a0a6', width: 0.2, height: 0.2 },
     'Manacles': { image: SOURCE_BACKED_WALL_OVERLAY_IMAGE_BY_NAME['Manacles'], accent: '#9c9aa4', width: 0.56, height: 0.66 },
@@ -370,6 +375,12 @@ function buildOverlayImagePathList(names: readonly string[]): string[] {
 
 export const CORE_WALL_OVERLAY_IMAGE_PATHS = buildOverlayImagePathList(CORE_WALL_OVERLAY_NAMES);
 
+export const AMALGAM_WALL_OVERLAY_IMAGE_PATHS = [
+    AMALGAM_ENCASED_GEM_IMAGE,
+    AMALGAM_FREE_GEM_IMAGE,
+    AMALGAM_WITHOUT_GEM_IMAGE,
+];
+
 const CORE_WALL_OVERLAY_IMAGE_PATH_SET = new Set(CORE_WALL_OVERLAY_IMAGE_PATHS);
 
 export const SECONDARY_WALL_OVERLAY_IMAGE_PATHS = ALL_WALL_OVERLAY_IMAGE_PATHS
@@ -436,12 +447,17 @@ function chooseOverlayName(
         names.has('Amalgam (Free Gem)') &&
         names.has('Amalgam (Without Gem)')
     ) {
+        const encasedGemVariant = face.variants.find((variant) => variant.overlayName === 'Amalgam (Encased Gem)');
         const freeGemVariant = face.variants.find((variant) => variant.overlayName === 'Amalgam (Free Gem)');
-        const withoutGemVariant = face.variants.find((variant) => variant.overlayName === 'Amalgam (Without Gem)');
-        if (withoutGemVariant && firedSensors.has(`${level}_${withoutGemVariant.objectIndex}`)) {
+        // The original Amalgam family uses the current sensor object as the
+        // marker for the *next* visual state: the Zokathra unlock object marks
+        // the transition to "Free Gem", and the Firestaff exchanger marks the
+        // transition to "Without Gem". The final ornament-only sprite itself
+        // does not become a fired runtime sensor.
+        if (freeGemVariant && firedSensors.has(`${level}_${freeGemVariant.objectIndex}`)) {
             return 'Amalgam (Without Gem)';
         }
-        if (freeGemVariant && firedSensors.has(`${level}_${freeGemVariant.objectIndex}`)) {
+        if (encasedGemVariant && firedSensors.has(`${level}_${encasedGemVariant.objectIndex}`)) {
             return 'Amalgam (Free Gem)';
         }
         return 'Amalgam (Encased Gem)';

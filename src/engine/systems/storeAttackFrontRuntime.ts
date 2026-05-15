@@ -16,6 +16,7 @@ import type { ChampionEquipment, CreatureInstance, FloorItem, GameTile } from '.
 import type { EquipSlotKey } from '../../types/items';
 import type { WeaponAttackOption } from '../../data/weaponAttacks';
 import type {
+    ActiveFluxcage,
     ActivePotionBoost,
     ChampionCombat,
     ChampionVitals,
@@ -52,6 +53,7 @@ type StoreAttackFrontRuntimeState = {
     openDoors: Set<string>;
     openPits?: Set<string>;
     openWalls?: Set<string>;
+    activeFluxcages?: ActiveFluxcage[];
     brokenDoors: Set<string>;
     floorItems: FloorItem[];
     championXP: Record<number, ChampionXP>;
@@ -352,6 +354,7 @@ export function buildStoreAttackFrontRuntimePatch<TState extends StoreAttackFron
                         seeThroughWallsUntil: attackState.seeThroughWallsUntil,
                         spellLights: attackState.spellLights,
                         activeShields: attackState.activeShields,
+                        activeFluxcages: attackState.activeFluxcages,
                         projectiles: attackState.projectiles,
                         openDoors: attackState.openDoors,
                         openPits: attackState.openPits ?? new Set<string>(),

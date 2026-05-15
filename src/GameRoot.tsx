@@ -2,6 +2,8 @@ import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
 import {
   endTrackedGameSession,
   maybeTrackGameplayHeartbeat,
+  trackGameAlternateEnding,
+  trackGameLevelChange,
   startTrackedGameSession,
   trackGameVictory,
   type GameAnalyticsSnapshot,
@@ -24,6 +26,7 @@ import {
   preloadOriginalWallOverlayMapData,
   preloadOriginalWallOverlayMapNeighborhoodData,
 } from './data/originalWallOverlayData';
+import { AMALGAM_WALL_OVERLAY_IMAGE_PATHS } from './data/originalWallOverlays';
 import { readBestPersistedSave } from './engine/saveGame';
 import { inspectPersistedSaveData } from './engine/systems/persistence';
 import {
@@ -31,9 +34,11 @@ import {
   preloadGameplayRenderModules,
 } from './preload/gameplayModulePreload';
 import {
+  preloadAmalgamWallOverlayVisualAssets,
   preloadGameplayCoreVisualAssets,
   preloadGameplaySecondaryVisualAssets,
 } from './preload/gameplayVisualPreload';
+import { preloadTexture } from './components/Dungeon/useLoadedTexture';
 import { useI18n } from './i18n';
 import './App.css';
 
@@ -102,6 +107,10 @@ function waitForNextPaint(): Promise<void> {
   });
 }
 
+function shouldPreloadAmalgamAssets(level: number): boolean {
+  return Math.abs(level - 13) <= 1;
+}
+
 function scheduleIdleWarmup(task: () => void, timeoutMs = 1_500): () => void {
   if (typeof window.requestIdleCallback === 'function') {
     const idleId = window.requestIdleCallback(task, { timeout: timeoutMs });
@@ -155,6 +164,7 @@ function GameRoot() {
   const lastTimeRef = useRef<number | null>(null);
   const tickInFlightRef = useRef(false);
   const previousPhaseRef = useRef(gamePhase);
+  const previousLevelRef = useRef(level);
 
   const handleEnterDungeon = useCallback(() => {
     if (titleTransitionMessage !== null) return;
@@ -317,6 +327,10 @@ function GameRoot() {
     }, 1_800);
 
     void preloadGameplayLevelNeighborhood(level).catch(() => {});
+    if (shouldPreloadAmalgamAssets(level)) {
+      void preloadAmalgamWallOverlayVisualAssets().catch(() => {});
+      void Promise.all(AMALGAM_WALL_OVERLAY_IMAGE_PATHS.map((image) => preloadTexture(image))).catch(() => {});
+    }
     void (async () => {
       try {
         await waitForTimeout(60);
@@ -356,21 +370,35 @@ function GameRoot() {
 
   useEffect(() => {
     const previousPhase = previousPhaseRef.current;
-    if (previousPhase === gamePhase) return;
-
+    const previousLevel = previousLevelRef.current;
     const snapshot = getAnalyticsSnapshot();
+    const phaseChanged = previousPhase !== gamePhase;
+    const levelChanged = previousLevel !== level;
 
-    if (gamePhase === 'victory') {
-      trackGameVictory(snapshot);
-      endTrackedGameSession('victory', snapshot);
-    } else if (gamePhase === 'game_over') {
-      endTrackedGameSession('game_over', snapshot);
-    } else if (previousPhase !== 'title' && gamePhase === 'title') {
-      endTrackedGameSession('return_to_title', snapshot);
+    if (phaseChanged) {
+      if (previousPhase !== 'alternate_ending' && gamePhase === 'alternate_ending') {
+        trackGameAlternateEnding(snapshot);
+      }
+
+      if (isGameplayPhase(previousPhase) && isGameplayPhase(gamePhase) && levelChanged) {
+        trackGameLevelChange(previousLevel, snapshot);
+      }
+
+      if (gamePhase === 'victory') {
+        trackGameVictory(snapshot);
+        endTrackedGameSession('victory', snapshot);
+      } else if (gamePhase === 'game_over') {
+        endTrackedGameSession('game_over', snapshot);
+      } else if (previousPhase !== 'title' && gamePhase === 'title') {
+        endTrackedGameSession('return_to_title', snapshot);
+      }
+    } else if (levelChanged && isGameplayPhase(previousPhase) && isGameplayPhase(gamePhase)) {
+      trackGameLevelChange(previousLevel, snapshot);
     }
 
+    previousLevelRef.current = level;
     previousPhaseRef.current = gamePhase;
-  }, [gamePhase]);
+  }, [gamePhase, level]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -463,7 +491,10 @@ function GameRoot() {
         <GameOverScreen />
       ) : gamePhase === 'victory' ? (
         <Suspense fallback={null}>
-          <VictoryScreen />
+          <>
+            <DungeonScene />
+            <VictoryScreen />
+          </>
         </Suspense>
       ) : gamePhase === 'endgame' || gamePhase === 'alternate_ending' ? (
         <Suspense fallback={null}>

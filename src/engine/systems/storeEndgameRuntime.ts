@@ -33,23 +33,23 @@ export const ENDGAME_FUSE_ACTIONS: EndgameFuseAction[] = [
     { step: 20, switchTypeId: 23, buzz: true },
     { step: 23, switchTypeId: 25, buzz: true },
     { step: 26, switchTypeId: 23, buzz: true },
-    { step: 28, switchTypeId: 25, buzz: true },
-    { step: 30, switchTypeId: 23, buzz: true },
-    { step: 32, switchTypeId: 25, buzz: true },
-    { step: 34, switchTypeId: 23, buzz: true },
+    { step: 29, switchTypeId: 25, buzz: true },
+    { step: 32, switchTypeId: 23, buzz: true },
     { step: 35, switchTypeId: 25, buzz: true },
-    { step: 36, switchTypeId: 23, buzz: true },
-    { step: 37, switchTypeId: 25, buzz: true },
+    { step: 38, switchTypeId: 23, buzz: true },
+    { step: 41, switchTypeId: 25, buzz: true },
+    { step: 44, switchTypeId: 23, buzz: true },
+    { step: 47, switchTypeId: 25, buzz: true },
     {
-        step: 38,
+        step: 48,
         effects: [
             { effect: 'fireball', scale: 1.44 },
             { effect: 'disrupt_nonmaterial', scale: 1.44 },
         ],
     },
-    { step: 39, switchTypeId: 26 },
-    { step: 40, hideFluxcages: true },
-    { step: 41, purgeOtherCreatures: true },
+    { step: 49, switchTypeId: 26 },
+    { step: 50, hideFluxcages: true },
+    { step: 51, purgeOtherCreatures: true },
 ];
 
 type EndgameMapTileLike = {

@@ -4,6 +4,7 @@ import type { Champion } from '../../types/champion';
 import type { ChampionEquipment, CreatureInstance, FloorItem } from '../../types/game';
 import type { EquipSlotKey } from '../../types/items';
 import type {
+    ActiveFluxcage,
     ActivePotionBoost,
     ChampionCombat,
     ChampionVitals,
@@ -35,6 +36,7 @@ type AttackFrontRuntimeState = {
     openDoors: Set<string>;
     openPits?: Set<string>;
     openWalls?: Set<string>;
+    activeFluxcages?: ActiveFluxcage[];
     brokenDoors: Set<string>;
     floorItems: FloorItem[];
     championXP: Record<number, ChampionXP>;

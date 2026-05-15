@@ -83,6 +83,8 @@ export type ProjectileEffect =
     | 'disrupt_nonmaterial'
     | 'physical';
 
+export type ProjectileVisualVariant = 'invoke';
+
 export interface SpellVisualEvent {
     id: string;
     level: number;
@@ -115,6 +117,7 @@ export interface Projectile {
     targetChampionId?: number;
     spellRunes?: string[];
     visualScale?: number;
+    visualVariant?: ProjectileVisualVariant;
     damage: [number, number];
     nextMoveAt: number;
     remainingRange?: number;
@@ -133,6 +136,14 @@ export interface ActivePoisonCloud {
     remainingAttack: number;
     nextPulseGameTick: number;
     visualScale?: number;
+}
+
+export interface ActiveFluxcage {
+    id: string;
+    level: number;
+    x: number;
+    y: number;
+    expiresAt: number;
 }
 
 export interface PartyShield {
@@ -238,6 +249,7 @@ export interface PersistedSaveData {
     spellLights: Array<Omit<SpellLight, 'expiresAt'> & { remainingMs: number }>;
     projectiles: Array<Omit<Projectile, 'nextMoveAt'> & { nextMoveInMs: number }>;
     activePoisonClouds?: ActivePoisonCloud[];
+    activeFluxcages?: Array<Omit<ActiveFluxcage, 'expiresAt'> & { remainingMs: number }>;
     activeShields: Array<Omit<PartyShield, 'expiresAt'> & { remainingMs: number }>;
     activePotionBoosts: Array<Omit<ActivePotionBoost, 'expiresAt'> & { remainingMs: number }>;
     invisibleRemainingMs: number;

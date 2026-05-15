@@ -5,7 +5,7 @@ import { DEFAULT_GAME_OPTIONS } from '../src/engine/options.js';
 import { createEmptyChampionTemporaryXP, createEmptyChampionXP } from '../src/data/skillProgression.js';
 import type { Champion } from '../src/types/champion.js';
 import type { CreatureInstance, FloorItem } from '../src/types/game.js';
-import type { ActivePoisonCloud, ChampionCombat, ChampionVitals, PartyShield, Projectile, SpellLight } from '../src/engine/runtimeTypes.js';
+import type { ActiveFluxcage, ActivePoisonCloud, ChampionCombat, ChampionVitals, PartyShield, Projectile, SpellLight } from '../src/engine/runtimeTypes.js';
 import {
     buildPersistedSaveData,
     computePersistedSaveIntegrity,
@@ -164,6 +164,16 @@ function createPoisonCloud(): ActivePoisonCloud {
     };
 }
 
+function createFluxcage(expiresAt: number): ActiveFluxcage {
+    return {
+        id: 'flux-1',
+        level: 0,
+        x: 4,
+        y: 5,
+        expiresAt,
+    };
+}
+
 function createRuntimeMaps(now: number): CreatureRuntimeMaps {
     return {
         creatureTimers: new Map([['creature-1', { mt: 9, at: 4 }]]),
@@ -230,6 +240,7 @@ function createState(now: number): PersistableGameState {
         spellLights: [spellLight],
         projectiles: [projectile],
         activePoisonClouds: [createPoisonCloud()],
+        activeFluxcages: [createFluxcage(now + 4500)],
         activeShields: [shield],
         activePotionBoosts: [{
             id: 'boost-1',
@@ -332,6 +343,7 @@ test('buildPersistedSaveData serializes runtime state in a stable shape', () => 
         assert.deepEqual(persisted.openDoors, ['0,1,2']);
         assert.deepEqual(persisted.brokenDoors, ['0,1,2']);
         assert.deepEqual(persisted.spellLights, [{ id: 'light-1', lightContrib: 0.5, remainingMs: 4000 }]);
+        assert.deepEqual(persisted.activeFluxcages, [{ id: 'flux-1', level: 0, x: 4, y: 5, remainingMs: 4500 }]);
         assert.equal(persisted.projectiles[0]?.nextMoveInMs, 2000);
         assert.equal(persisted.activeShields[0]?.remainingMs, 3000);
         assert.equal(persisted.activePotionBoosts[0]?.remainingMs, 5000);

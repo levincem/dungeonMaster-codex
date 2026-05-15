@@ -13,6 +13,7 @@ type TickFrameStateBase = {
     lastCastResult: unknown | null;
     damageEvents: unknown[];
     spellVisualEvents: unknown[];
+    activeFluxcages?: unknown[];
     activeFloorDrag: unknown | null;
     pendingSensorEvents: unknown[];
     pendingGeneratorSpawns: unknown[];
@@ -71,6 +72,7 @@ function buildGameOverPatch<TState extends TickFrameStateBase>(): Partial<TState
         lastCastResult: null,
         damageEvents: [],
         spellVisualEvents: [],
+        activeFluxcages: [],
         activeFloorDrag: null,
     } as unknown as Partial<TState>;
 }

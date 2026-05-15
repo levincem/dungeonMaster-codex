@@ -483,3 +483,37 @@ test('triggerFloorSensors clears a generic weight hold plate when the party leav
     assert.deepEqual([...result.sensorChanges.openDoors!], []);
     assert.deepEqual(result.pendingSensorEvents, []);
 });
+
+test('triggerFloorSensors does not activate floor generators on direct entry', () => {
+    const sensor = createSensor({ type: 6, data: 11, graphic: 1 });
+    let generatorTriggerCount = 0;
+    const { deps, getPlateSoundCount } = createDeps(sensor, {
+        isGeneratorSensor: (candidate: SensorObject) => candidate.type === 6,
+        triggerGeneratorSensor: (_level: number, _sensor: SensorObject, ss: TestSensorState) => {
+            generatorTriggerCount += 1;
+            return { ...ss, openDoors: new Set(['unexpected']) };
+        },
+        queueOrComputeSensorEffect: (_sensor, _level, _ss, pending) => ({
+            sensorChanges: {},
+            pendingSensorEvents: pending,
+        }),
+    });
+
+    const result = triggerFloorSensors(
+        0,
+        6,
+        9,
+        { openDoors: new Set<string>() },
+        {} as Record<number, never>,
+        {},
+        [],
+        [],
+        deps,
+        'enter',
+    );
+
+    assert.equal(generatorTriggerCount, 0);
+    assert.deepEqual(result.sensorChanges, {});
+    assert.deepEqual(result.pendingSensorEvents, []);
+    assert.equal(getPlateSoundCount(), 0);
+});
