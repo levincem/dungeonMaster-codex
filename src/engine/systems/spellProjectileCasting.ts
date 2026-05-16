@@ -1,5 +1,4 @@
 import type { SpellDef } from '../../data/runes';
-import { getOriginalSpellPowerLevel } from '../../data/originalSpells';
 import {
     getOriginalSpellProjectileLaunchProfile,
     getProjectileDamage,
@@ -8,6 +7,7 @@ import {
     type SpellProjectileLaunchProfile,
 } from '../../data/spellRuntime';
 import type { Direction, Projectile, ProjectileEffect } from '../runtimeTypes';
+import { getSpellVisualScale } from './spellVisualScale';
 
 type SpellProjectileCastingDeps = {
     projectileAttack: number;
@@ -25,12 +25,6 @@ export type SpellProjectileCastResult = {
     launchProfile: SpellProjectileLaunchProfile | null;
     projectile: Projectile;
 };
-
-function getSpellVisualScale(spell: SpellDef): number {
-    if (spell.effect !== 'fireball' && spell.effect !== 'open') return 1;
-    const powerLevel = getOriginalSpellPowerLevel(spell.runes) ?? 1;
-    return 0.82 + ((powerLevel - 1) * 0.15);
-}
 
 function getFrontPosition(position: [number, number], direction: Direction): { x: number; y: number } {
     const [y, x] = position;

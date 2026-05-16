@@ -13,7 +13,7 @@ Ce document sert seulement a dire quel document lire selon le besoin.
 - [docs/REMAKE_STATUS.md](/D:/DungeonMaster-codex/docs/REMAKE_STATUS.md)
   - journal d'etat detaille et historique
 - [docs/RC_FINISH_PLAN.md](/D:/DungeonMaster-codex/docs/RC_FINISH_PLAN.md)
-  - plan de finition concret pour fermer la `0.9 release candidate`
+  - plan court de stabilisation `0.9.x`
 
 Regle:
 
@@ -36,8 +36,10 @@ Si on doit se recaler vite:
   - [docs/NEXT_PHASE_PLAN.md](/D:/DungeonMaster-codex/docs/NEXT_PHASE_PLAN.md)
 - Quel est l'etat global du projet:
   - [docs/REMAKE_STATUS.md](/D:/DungeonMaster-codex/docs/REMAKE_STATUS.md)
-- Quel est le plan court pour finir la `0.9 RC`:
+- Quel est le plan court pour stabiliser la branche `0.9.x`:
   - [docs/RC_FINISH_PLAN.md](/D:/DungeonMaster-codex/docs/RC_FINISH_PLAN.md)
+- Comment deployer le hall of fame partage sur le VPS:
+  - [docs/HALL_OF_FAME_VPS_SETUP.md](/D:/DungeonMaster-codex/docs/HALL_OF_FAME_VPS_SETUP.md)
 - Qu'est-ce qui reste ouvert cote fidelite:
   - [docs/FIDELITY_REMAINING_MATRIX.md](/D:/DungeonMaster-codex/docs/FIDELITY_REMAINING_MATRIX.md)
 - Qu'est-ce qu'on peut affirmer honnetement sur le `100%`:
@@ -58,5 +60,5 @@ Si on doit se recaler vite:
 
 - extraction: solide sur le contenu principal, avec quelques angles morts semantiques restants
 - moteur: largement source-backed sur le coeur du gameplay
-- principal reste ouvert: validation gameplay ciblee, hall of fame partage, UX et optimisation
+- principal reste ouvert: validation gameplay ciblee, UX/visuel final, et optimisation
 - le `store` n'est plus le chantier prioritaire

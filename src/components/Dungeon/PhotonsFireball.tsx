@@ -1,7 +1,8 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import * as Photons from 'photons2';
+import { sampleSpellVisualRange } from './spellVisualSeed';
 
 function createProjectileSpriteTexture(stops: Array<[number, string]>): THREE.CanvasTexture {
     const size = 128;
@@ -66,6 +67,28 @@ type PhotonsBundle = {
     update: (elapsedTime: number, delta: number) => void;
     dispose: () => void;
 };
+
+type ProjectileVisualVariation = {
+    baseScale: number;
+    bobHeight: number;
+    yawSwing: number;
+    pitchSwing: number;
+    rollSwing: number;
+    phaseOffset: number;
+    speed: number;
+};
+
+function resolveProjectileVisualVariation(seed = 0): ProjectileVisualVariation {
+    return {
+        baseScale: sampleSpellVisualRange(seed, 1, 0.97, 1.08),
+        bobHeight: sampleSpellVisualRange(seed, 2, 0.008, 0.03),
+        yawSwing: sampleSpellVisualRange(seed, 3, 0.04, 0.18),
+        pitchSwing: sampleSpellVisualRange(seed, 4, 0.02, 0.14),
+        rollSwing: sampleSpellVisualRange(seed, 5, 0.03, 0.16),
+        phaseOffset: sampleSpellVisualRange(seed, 6, 0, Math.PI * 2),
+        speed: sampleSpellVisualRange(seed, 7, 1.4, 2.7),
+    };
+}
 
 function buildFireballBundle(): PhotonsBundle {
     const root = new THREE.Object3D();
@@ -284,7 +307,9 @@ function buildFireballBundle(): PhotonsBundle {
 
 function buildPoisonBundle(effect: 'poison_bolt' | 'poison_cloud' | 'slime'): PhotonsBundle {
     const root = new THREE.Object3D();
-    const atlasTexture = createProjectileSpriteTexture(effect === 'slime'
+    const isPoisonCloud = effect === 'poison_cloud';
+    const isSlime = effect === 'slime';
+    const atlasTexture = createProjectileSpriteTexture(isSlime
         ? [
             [0, '#f5ffcb'],
             [0.16, '#bdf06d'],
@@ -292,39 +317,115 @@ function buildPoisonBundle(effect: 'poison_bolt' | 'poison_cloud' | 'slime'): Ph
             [0.78, '#314b1d'],
             [1, '#0a1207'],
         ]
-        : [
-            [0, '#e8ffe0'],
-            [0.18, '#9cff72'],
-            [0.45, '#42b93c'],
-            [0.8, '#103d10'],
-            [1, '#020902'],
-        ]);
+        : isPoisonCloud
+            ? [
+                [0, 'rgba(214,255,232,0.92)'],
+                [0.22, 'rgba(76,240,156,0.84)'],
+                [0.5, 'rgba(22,154,98,0.66)'],
+                [0.82, 'rgba(10,74,48,0.12)'],
+                [1, 'rgba(0,0,0,0)'],
+            ]
+            : [
+                [0, 'rgba(208,255,228,0.94)'],
+                [0.18, 'rgba(64,228,146,0.96)'],
+                [0.45, 'rgba(18,148,92,0.82)'],
+                [0.72, 'rgba(10,88,54,0.2)'],
+                [0.9, 'rgba(10,88,54,0.05)'],
+                [1, 'rgba(0,0,0,0)'],
+            ]);
     const atlas = new Photons.Atlas(atlasTexture, `generated://${effect}-sprite`);
     atlas.addFrameSet(1, 0, 0, 1, 1);
 
-    const cloudScale = effect === 'poison_cloud' ? 1.22 : effect === 'slime' ? 0.98 : 0.92;
-    const trailRenderer = new Photons.AnimatedSpriteRenderer(true, atlas, true, THREE.AdditiveBlending, true, effect === 'poison_cloud' ? 56 : effect === 'slime' ? 46 : 40);
+    const cloudScale = isPoisonCloud ? 1.58 : isSlime ? 1.02 : 1.14;
+    const mistRenderer = new Photons.AnimatedSpriteRenderer(true, atlas, true, THREE.NormalBlending, true, isPoisonCloud ? 64 : isSlime ? 44 : 40);
+    const mistSystem = new Photons.ParticleSystem(root, mistRenderer);
+    mistSystem.init(isPoisonCloud ? 120 : isSlime ? 112 : 104);
+
+    const mistSampleState = mistSystem.getParticleStates().getState(0);
+    const mistVector2Type = mistSampleState.size.constructor;
+    const mistVector3Type = mistSampleState.acceleration.constructor;
+    mistSystem.setEmitter(new Photons.ConstantParticleEmitter(isPoisonCloud ? 16 : isSlime ? 14 : 13));
+    mistSystem.addParticleStateInitializer(new Photons.LifetimeInitializer(isPoisonCloud ? 0.64 : isSlime ? 0.36 : 0.34, isPoisonCloud ? 0.24 : isSlime ? 0.16 : 0.14, 0, 0, false));
+    mistSystem.addParticleStateInitializer(new Photons.SizeInitializer(
+        new Photons.RandomGenerator(
+            mistVector2Type,
+            new mistVector2Type((isPoisonCloud ? 0.42 : 0.34) * cloudScale, (isPoisonCloud ? 0.42 : 0.34) * cloudScale),
+            new mistVector2Type((isPoisonCloud ? 0.26 : 0.2) * cloudScale, (isPoisonCloud ? 0.26 : 0.2) * cloudScale),
+            0,
+            0,
+            false,
+        ),
+    ));
+    mistSystem.addParticleStateInitializer(new Photons.BoxPositionInitializer(
+        new THREE.Vector3(0.1 * cloudScale, 0.1 * cloudScale, 0.1 * cloudScale),
+        new THREE.Vector3(-0.05 * cloudScale, -0.05 * cloudScale, -0.05 * cloudScale),
+    ));
+    mistSystem.addParticleStateInitializer(new Photons.RandomVelocityInitializer(
+        new THREE.Vector3(0.1, 0.12, 0.1),
+        new THREE.Vector3(-0.05, -0.02, -0.05),
+        0.025,
+        0.008,
+        true,
+    ));
+
+    const mistOpacity = mistSystem.addParticleStateOperator(new Photons.OpacityInterpolatorOperator());
+    mistOpacity.addElements([
+        [0, 0],
+        [isPoisonCloud ? 0.7 : 0.58, 0.12],
+        [isPoisonCloud ? 0.58 : 0.46, isPoisonCloud ? 0.54 : 0.78],
+        [0, 1],
+    ]);
+
+    const mistSize = mistSystem.addParticleStateOperator(new Photons.SizeInterpolatorOperator(true));
+    mistSize.addElementsFromParameters([
+        [[isPoisonCloud ? 1.02 : 0.94, isPoisonCloud ? 1.02 : 0.94], 0],
+        [[isPoisonCloud ? 1.72 : 1.5, isPoisonCloud ? 1.72 : 1.5], 0.42],
+        [[isPoisonCloud ? 1.08 : 0.98, isPoisonCloud ? 1.08 : 0.98], 1],
+    ]);
+
+    const mistColor = mistSystem.addParticleStateOperator(new Photons.ColorInterpolatorOperator(true));
+    mistColor.addElementsFromParameters([
+        [isPoisonCloud ? [0.26, 0.92, 0.56] : [0.18, 0.78, 0.42], 0],
+        [isPoisonCloud ? [0.16, 0.64, 0.36] : [0.1, 0.5, 0.24], 0.46],
+        [isPoisonCloud ? [0.08, 0.4, 0.2] : [0.05, 0.32, 0.16], 0.9],
+        [isPoisonCloud ? [0.04, 0.24, 0.12] : [0.03, 0.2, 0.1], 1],
+    ]);
+
+    mistSystem.addParticleStateOperator(new Photons.AccelerationOperator(
+        new Photons.RandomGenerator(
+            mistVector3Type,
+            new mistVector3Type(0.015, 0.018, 0.015),
+            new mistVector3Type(-0.008, 0.002, -0.008),
+            0,
+            0,
+            false,
+        ),
+    ));
+    mistSystem.setSimulateInWorldSpace(false);
+    mistSystem.start();
+
+    const trailRenderer = new Photons.AnimatedSpriteRenderer(true, atlas, true, isPoisonCloud ? THREE.AdditiveBlending : THREE.AdditiveBlending, true, isPoisonCloud ? 44 : isSlime ? 54 : 48);
     const trailSystem = new Photons.ParticleSystem(root, trailRenderer);
-    trailSystem.init(effect === 'poison_cloud' ? 144 : effect === 'slime' ? 116 : 104);
+    trailSystem.init(isPoisonCloud ? 56 : isSlime ? 140 : 132);
 
     const trailSampleState = trailSystem.getParticleStates().getState(0);
     const trailVector2Type = trailSampleState.size.constructor;
     const trailVector3Type = trailSampleState.acceleration.constructor;
-    trailSystem.setEmitter(new Photons.ConstantParticleEmitter(effect === 'poison_cloud' ? 24 : effect === 'slime' ? 18 : 15));
-    trailSystem.addParticleStateInitializer(new Photons.LifetimeInitializer(effect === 'poison_cloud' ? 0.32 : effect === 'slime' ? 0.26 : 0.22, effect === 'poison_cloud' ? 0.18 : effect === 'slime' ? 0.14 : 0.12, 0, 0, false));
+    trailSystem.setEmitter(new Photons.ConstantParticleEmitter(isPoisonCloud ? 7 : isSlime ? 22 : 20));
+    trailSystem.addParticleStateInitializer(new Photons.LifetimeInitializer(isPoisonCloud ? 0.46 : isSlime ? 0.3 : 0.28, isPoisonCloud ? 0.18 : isSlime ? 0.16 : 0.14, 0, 0, false));
     trailSystem.addParticleStateInitializer(new Photons.SizeInitializer(
         new Photons.RandomGenerator(
             trailVector2Type,
-            new trailVector2Type(0.16 * cloudScale, 0.16 * cloudScale),
-            new trailVector2Type(0.1 * cloudScale, 0.1 * cloudScale),
+            new trailVector2Type((isPoisonCloud ? 0.2 : 0.24) * cloudScale, (isPoisonCloud ? 0.2 : 0.24) * cloudScale),
+            new trailVector2Type((isPoisonCloud ? 0.12 : 0.14) * cloudScale, (isPoisonCloud ? 0.12 : 0.14) * cloudScale),
             0,
             0,
             false,
         ),
     ));
     trailSystem.addParticleStateInitializer(new Photons.BoxPositionInitializer(
-        new THREE.Vector3(0.08 * cloudScale, 0.08 * cloudScale, 0.08 * cloudScale),
-        new THREE.Vector3(-0.04 * cloudScale, -0.04 * cloudScale, -0.04 * cloudScale),
+        new THREE.Vector3(0.12 * cloudScale, 0.12 * cloudScale, 0.12 * cloudScale),
+        new THREE.Vector3(-0.06 * cloudScale, -0.06 * cloudScale, -0.06 * cloudScale),
     ));
     trailSystem.addParticleStateInitializer(new Photons.RandomVelocityInitializer(
         new THREE.Vector3(0.22, 0.24, 0.22),
@@ -337,24 +438,24 @@ function buildPoisonBundle(effect: 'poison_bolt' | 'poison_cloud' | 'slime'): Ph
     const trailOpacity = trailSystem.addParticleStateOperator(new Photons.OpacityInterpolatorOperator());
     trailOpacity.addElements([
         [0, 0],
-        [0.22, 0.12],
-        [0.18, 0.74],
+        [0.42, 0.12],
+        [0.34, isPoisonCloud ? 0.34 : 0.94],
         [0, 1],
     ]);
 
     const trailSize = trailSystem.addParticleStateOperator(new Photons.SizeInterpolatorOperator(true));
     trailSize.addElementsFromParameters([
-        [[0.72, 0.72], 0],
-        [[1.15, 1.15], 0.35],
-        [[0.48, 0.48], 1],
+        [[0.84, 0.84], 0],
+        [[1.32, 1.32], 0.35],
+        [[0.62, 0.62], 1],
     ]);
 
     const trailColor = trailSystem.addParticleStateOperator(new Photons.ColorInterpolatorOperator(true));
     trailColor.addElementsFromParameters([
-        [[1.1, 2.4, 0.8], 0],
-        [[0.45, 1.4, 0.35], 0.4],
-        [[0.12, 0.48, 0.11], 0.88],
-        [[0.02, 0.12, 0.03], 1],
+        [isPoisonCloud ? [0.3, 1.5, 0.86] : [0.18, 1.12, 0.58], 0],
+        [isPoisonCloud ? [0.14, 0.82, 0.44] : [0.08, 0.62, 0.3], 0.4],
+        [isPoisonCloud ? [0.06, 0.42, 0.22] : [0.04, 0.34, 0.16], 0.88],
+        [isPoisonCloud ? [0.02, 0.2, 0.1] : [0.02, 0.2, 0.09], 1],
     ]);
 
     trailSystem.addParticleStateOperator(new Photons.AccelerationOperator(
@@ -370,26 +471,26 @@ function buildPoisonBundle(effect: 'poison_bolt' | 'poison_cloud' | 'slime'): Ph
     trailSystem.setSimulateInWorldSpace(true);
     trailSystem.start();
 
-    const auraRenderer = new Photons.AnimatedSpriteRenderer(true, atlas, true, THREE.AdditiveBlending, true, 42);
+    const auraRenderer = new Photons.AnimatedSpriteRenderer(true, atlas, true, THREE.AdditiveBlending, true, 52);
     const auraSystem = new Photons.ParticleSystem(root, auraRenderer);
-    auraSystem.init(84);
+    auraSystem.init(isPoisonCloud ? 48 : 110);
 
     const auraVector2Type = auraSystem.getParticleStates().getState(0).size.constructor;
-    auraSystem.setEmitter(new Photons.ConstantParticleEmitter(effect === 'poison_cloud' ? 14 : effect === 'slime' ? 11 : 10));
-    auraSystem.addParticleStateInitializer(new Photons.LifetimeInitializer(effect === 'poison_cloud' ? 0.2 : effect === 'slime' ? 0.18 : 0.16, 0.08, 0, 0, false));
+    auraSystem.setEmitter(new Photons.ConstantParticleEmitter(isPoisonCloud ? 6 : isSlime ? 14 : 12));
+    auraSystem.addParticleStateInitializer(new Photons.LifetimeInitializer(isPoisonCloud ? 0.18 : isSlime ? 0.2 : 0.18, 0.08, 0, 0, false));
     auraSystem.addParticleStateInitializer(new Photons.SizeInitializer(
         new Photons.RandomGenerator(
             auraVector2Type,
-            new auraVector2Type(0.24 * cloudScale, 0.24 * cloudScale),
-            new auraVector2Type(0.12 * cloudScale, 0.12 * cloudScale),
+            new auraVector2Type(0.32 * cloudScale, 0.32 * cloudScale),
+            new auraVector2Type(0.16 * cloudScale, 0.16 * cloudScale),
             0,
             0,
             false,
         ),
     ));
     auraSystem.addParticleStateInitializer(new Photons.BoxPositionInitializer(
-        new THREE.Vector3(0.05 * cloudScale, 0.05 * cloudScale, 0.05 * cloudScale),
-        new THREE.Vector3(-0.025 * cloudScale, -0.025 * cloudScale, -0.025 * cloudScale),
+        new THREE.Vector3(0.08 * cloudScale, 0.08 * cloudScale, 0.08 * cloudScale),
+        new THREE.Vector3(-0.04 * cloudScale, -0.04 * cloudScale, -0.04 * cloudScale),
     ));
     auraSystem.addParticleStateInitializer(new Photons.RandomVelocityInitializer(
         new THREE.Vector3(0.12, 0.12, 0.12),
@@ -402,49 +503,49 @@ function buildPoisonBundle(effect: 'poison_bolt' | 'poison_cloud' | 'slime'): Ph
     const auraOpacity = auraSystem.addParticleStateOperator(new Photons.OpacityInterpolatorOperator());
     auraOpacity.addElements([
         [0, 0],
-        [0.18, 0.15],
-        [0.14, 0.7],
+        [0.3, 0.15],
+        [0.24, isPoisonCloud ? 0.18 : 0.9],
         [0, 1],
     ]);
 
     const auraSize = auraSystem.addParticleStateOperator(new Photons.SizeInterpolatorOperator(true));
     auraSize.addElementsFromParameters([
-        [[0.8, 0.8], 0],
-        [[1.26, 1.26], 0.4],
-        [[0.74, 0.74], 1],
+        [[0.9, 0.9], 0],
+        [[1.38, 1.38], 0.4],
+        [[0.88, 0.88], 1],
     ]);
 
     const auraColor = auraSystem.addParticleStateOperator(new Photons.ColorInterpolatorOperator(true));
     auraColor.addElementsFromParameters([
-        [[1.2, 2.8, 1.0], 0],
-        [[0.52, 1.55, 0.42], 0.42],
-        [[0.1, 0.38, 0.12], 0.92],
-        [[0.02, 0.1, 0.04], 1],
+        [isPoisonCloud ? [0.18, 1.0, 0.54] : [0.14, 0.86, 0.38], 0],
+        [isPoisonCloud ? [0.08, 0.56, 0.28] : [0.06, 0.5, 0.22], 0.42],
+        [isPoisonCloud ? [0.03, 0.26, 0.13] : [0.03, 0.3, 0.13], 0.92],
+        [isPoisonCloud ? [0.01, 0.1, 0.05] : [0.02, 0.18, 0.08], 1],
     ]);
 
     auraSystem.setSimulateInWorldSpace(false);
     auraSystem.start();
 
-    const coreRenderer = new Photons.AnimatedSpriteRenderer(true, atlas, true, THREE.AdditiveBlending, true, 28);
+    const coreRenderer = new Photons.AnimatedSpriteRenderer(true, atlas, true, THREE.AdditiveBlending, true, 36);
     const coreSystem = new Photons.ParticleSystem(root, coreRenderer);
-    coreSystem.init(52);
+    coreSystem.init(isPoisonCloud ? 28 : 72);
 
     const coreVector2Type = coreSystem.getParticleStates().getState(0).size.constructor;
-    coreSystem.setEmitter(new Photons.ConstantParticleEmitter(effect === 'poison_cloud' ? 10 : effect === 'slime' ? 9 : 8));
-    coreSystem.addParticleStateInitializer(new Photons.LifetimeInitializer(0.11, 0.04, 0, 0, false));
+    coreSystem.setEmitter(new Photons.ConstantParticleEmitter(isPoisonCloud ? 4 : isSlime ? 10 : 9));
+    coreSystem.addParticleStateInitializer(new Photons.LifetimeInitializer(isPoisonCloud ? 0.12 : 0.16, 0.04, 0, 0, false));
     coreSystem.addParticleStateInitializer(new Photons.SizeInitializer(
         new Photons.RandomGenerator(
             coreVector2Type,
-            new coreVector2Type(0.18 * cloudScale, 0.18 * cloudScale),
-            new coreVector2Type(0.09 * cloudScale, 0.09 * cloudScale),
+            new coreVector2Type(0.24 * cloudScale, 0.24 * cloudScale),
+            new coreVector2Type(0.12 * cloudScale, 0.12 * cloudScale),
             0,
             0,
             false,
         ),
     ));
     coreSystem.addParticleStateInitializer(new Photons.BoxPositionInitializer(
-        new THREE.Vector3(0.025, 0.025, 0.025),
-        new THREE.Vector3(-0.0125, -0.0125, -0.0125),
+        new THREE.Vector3(0.04, 0.04, 0.04),
+        new THREE.Vector3(-0.02, -0.02, -0.02),
     ));
     coreSystem.addParticleStateInitializer(new Photons.RandomVelocityInitializer(
         new THREE.Vector3(0.06, 0.06, 0.06),
@@ -457,24 +558,24 @@ function buildPoisonBundle(effect: 'poison_bolt' | 'poison_cloud' | 'slime'): Ph
     const coreOpacity = coreSystem.addParticleStateOperator(new Photons.OpacityInterpolatorOperator());
     coreOpacity.addElements([
         [0, 0],
-        [0.4, 0.1],
-        [0.32, 0.58],
+        [0.58, 0.1],
+        [0.46, isPoisonCloud ? 0.14 : 0.78],
         [0, 1],
     ]);
 
     const coreSize = coreSystem.addParticleStateOperator(new Photons.SizeInterpolatorOperator(true));
     coreSize.addElementsFromParameters([
-        [[0.8, 0.8], 0],
-        [[1.08, 1.08], 0.36],
-        [[0.72, 0.72], 1],
+        [[0.9, 0.9], 0],
+        [[1.18, 1.18], 0.36],
+        [[0.82, 0.82], 1],
     ]);
 
     const coreColor = coreSystem.addParticleStateOperator(new Photons.ColorInterpolatorOperator(true));
     coreColor.addElementsFromParameters([
-        [[1.8, 2.9, 1.35], 0],
-        [[0.9, 2.0, 0.55], 0.3],
-        [[0.2, 0.7, 0.16], 0.85],
-        [[0.03, 0.14, 0.05], 1],
+        [isPoisonCloud ? [0.36, 1.6, 0.92] : [0.24, 1.08, 0.56], 0],
+        [isPoisonCloud ? [0.14, 0.78, 0.42] : [0.1, 0.58, 0.28], 0.3],
+        [isPoisonCloud ? [0.04, 0.3, 0.15] : [0.04, 0.32, 0.15], 0.85],
+        [isPoisonCloud ? [0.015, 0.12, 0.06] : [0.02, 0.18, 0.08], 1],
     ]);
 
     coreSystem.setSimulateInWorldSpace(false);
@@ -486,14 +587,17 @@ function buildPoisonBundle(effect: 'poison_bolt' | 'poison_cloud' | 'slime'): Ph
         root,
         update: (elapsedTime, delta) => {
             root.visible = true;
+            mistSystem.update(elapsedTime, delta);
             trailSystem.update(elapsedTime, delta);
             auraSystem.update(elapsedTime, delta);
             coreSystem.update(elapsedTime, delta);
         },
         dispose: () => {
+            mistSystem.pause();
             trailSystem.pause();
             auraSystem.pause();
             coreSystem.pause();
+            mistRenderer.dispose();
             trailRenderer.dispose();
             auraRenderer.dispose();
             coreRenderer.dispose();
@@ -508,10 +612,10 @@ function buildPoisonBundle(effect: 'poison_bolt' | 'poison_cloud' | 'slime'): Ph
 function buildDisruptBundle(): PhotonsBundle {
     const root = new THREE.Object3D();
     const atlasTexture = createProjectileSpriteTexture([
-        [0, 'rgba(255,255,255,0.95)'],
-        [0.18, 'rgba(206,255,255,0.7)'],
-        [0.45, 'rgba(112,220,255,0.38)'],
-        [0.82, 'rgba(38,76,116,0.12)'],
+        [0, 'rgba(255,251,230,0.98)'],
+        [0.18, 'rgba(255,239,164,0.78)'],
+        [0.45, 'rgba(255,222,94,0.42)'],
+        [0.82, 'rgba(112,86,12,0.14)'],
         [1, 'rgba(0,0,0,0)'],
     ]);
     const atlas = new Photons.Atlas(atlasTexture, 'generated://disrupt-sprite');
@@ -565,10 +669,10 @@ function buildDisruptBundle(): PhotonsBundle {
 
     const trailColor = trailSystem.addParticleStateOperator(new Photons.ColorInterpolatorOperator(true));
     trailColor.addElementsFromParameters([
-        [[1.5, 2.2, 2.5], 0],
-        [[0.82, 1.55, 1.82], 0.4],
-        [[0.24, 0.52, 0.72], 0.88],
-        [[0.02, 0.08, 0.14], 1],
+        [[2.6, 2.45, 1.55], 0],
+        [[2.0, 1.76, 0.72], 0.4],
+        [[0.82, 0.55, 0.16], 0.88],
+        [[0.16, 0.08, 0.01], 1],
     ]);
 
     trailSystem.addParticleStateOperator(new Photons.AccelerationOperator(
@@ -630,10 +734,10 @@ function buildDisruptBundle(): PhotonsBundle {
 
     const auraColor = auraSystem.addParticleStateOperator(new Photons.ColorInterpolatorOperator(true));
     auraColor.addElementsFromParameters([
-        [[1.1, 1.95, 2.2], 0],
-        [[0.45, 1.0, 1.25], 0.5],
-        [[0.08, 0.24, 0.38], 0.92],
-        [[0.01, 0.04, 0.08], 1],
+        [[2.15, 2.05, 1.25], 0],
+        [[1.2, 1.0, 0.34], 0.5],
+        [[0.42, 0.24, 0.04], 0.92],
+        [[0.08, 0.03, 0.01], 1],
     ]);
 
     auraSystem.setSimulateInWorldSpace(false);
@@ -664,80 +768,94 @@ function buildDisruptBundle(): PhotonsBundle {
 function buildLightningBundle(): PhotonsBundle {
     const root = new THREE.Object3D();
     const atlasTexture = createProjectileSpriteTexture([
-        [0, '#ffffff'],
-        [0.16, '#dff8ff'],
-        [0.42, '#8fd7ff'],
-        [0.78, '#215ba8'],
-        [1, '#010612'],
+        [0, '#f7feff'],
+        [0.18, '#dbf9ff'],
+        [0.46, '#8fe6ff'],
+        [0.8, '#2d98c8'],
+        [1, '#07121c'],
     ]);
     const atlas = new Photons.Atlas(atlasTexture, 'generated://lightning-sprite');
     atlas.addFrameSet(1, 0, 0, 1, 1);
 
     const boltGroup = new THREE.Group();
+    boltGroup.rotation.x = -0.12;
     root.add(boltGroup);
 
     const boltHaloMaterial = new THREE.MeshBasicMaterial({
-        color: new THREE.Color('#7fd4ff'),
+        color: new THREE.Color('#86dcff'),
         transparent: true,
-        opacity: 0.16,
+        opacity: 0.18,
         blending: THREE.AdditiveBlending,
         depthWrite: false,
     });
     const boltCoreMaterial = new THREE.MeshBasicMaterial({
-        color: new THREE.Color('#f2fbff'),
+        color: new THREE.Color('#e2f7ff'),
         transparent: true,
-        opacity: 0.92,
+        opacity: 0.86,
         blending: THREE.AdditiveBlending,
         depthWrite: false,
     });
     const boltAccentMaterial = new THREE.MeshBasicMaterial({
-        color: new THREE.Color('#4da6ff'),
+        color: new THREE.Color('#58c4ff'),
         transparent: true,
-        opacity: 0.62,
+        opacity: 0.72,
         blending: THREE.AdditiveBlending,
         depthWrite: false,
     });
 
-    const haloGeometry = new THREE.BoxGeometry(0.18, 0.16, 1.02);
-    const segmentGeometry = new THREE.BoxGeometry(0.085, 0.085, 0.48);
-    const tipGeometry = new THREE.BoxGeometry(0.065, 0.065, 0.18);
+    const haloGeometry = new THREE.BoxGeometry(0.08, 0.1, 1.18);
+    const spineGeometry = new THREE.BoxGeometry(0.05, 0.05, 1.02);
+    const segmentGeometry = new THREE.BoxGeometry(0.05, 0.05, 0.28);
+    const branchGeometry = new THREE.BoxGeometry(0.04, 0.04, 0.2);
+    const tipGeometry = new THREE.BoxGeometry(0.055, 0.055, 0.14);
 
     const haloA = new THREE.Mesh(haloGeometry, boltHaloMaterial);
     const haloB = new THREE.Mesh(haloGeometry, boltHaloMaterial.clone());
-    haloA.rotation.y = 0.24;
-    haloB.rotation.y = -0.24;
+    haloA.rotation.y = 0.08;
+    haloA.rotation.z = 0.1;
+    haloB.rotation.y = -0.08;
+    haloB.rotation.z = -0.1;
     boltGroup.add(haloA, haloB);
 
+    const coreSpine = new THREE.Mesh(spineGeometry, boltCoreMaterial.clone());
+    coreSpine.scale.set(0.94, 1, 1.04);
+    boltGroup.add(coreSpine);
+
     const segments = [
-        { mesh: new THREE.Mesh(segmentGeometry, boltCoreMaterial), baseX: -0.135, baseY: 0.016, baseZ: -0.29, phase: 0.0, amp: 0.016, yaw: 0.82, yawAmp: 0.08 },
-        { mesh: new THREE.Mesh(segmentGeometry, boltCoreMaterial.clone()), baseX: 0.02, baseY: -0.008, baseZ: -0.01, phase: 1.6, amp: 0.018, yaw: -0.88, yawAmp: 0.09 },
-        { mesh: new THREE.Mesh(segmentGeometry, boltCoreMaterial.clone()), baseX: 0.145, baseY: 0.012, baseZ: 0.27, phase: 3.1, amp: 0.016, yaw: 0.84, yawAmp: 0.08 },
+        { mesh: new THREE.Mesh(segmentGeometry, boltCoreMaterial), baseX: -0.02, baseY: 0.03, baseZ: -0.4, phase: 0.0, amp: 0.009, yaw: 0.05, yawAmp: 0.018, roll: 0.14, rollAmp: 0.045 },
+        { mesh: new THREE.Mesh(segmentGeometry, boltCoreMaterial.clone()), baseX: 0.018, baseY: -0.008, baseZ: -0.18, phase: 1.2, amp: 0.01, yaw: -0.06, yawAmp: 0.02, roll: -0.18, rollAmp: 0.05 },
+        { mesh: new THREE.Mesh(segmentGeometry, boltCoreMaterial.clone()), baseX: -0.012, baseY: 0.012, baseZ: 0.04, phase: 2.1, amp: 0.009, yaw: 0.04, yawAmp: 0.018, roll: 0.12, rollAmp: 0.04 },
+        { mesh: new THREE.Mesh(segmentGeometry, boltCoreMaterial.clone()), baseX: 0.02, baseY: -0.014, baseZ: 0.26, phase: 3.2, amp: 0.01, yaw: -0.05, yawAmp: 0.02, roll: -0.16, rollAmp: 0.05 },
+        { mesh: new THREE.Mesh(segmentGeometry, boltCoreMaterial.clone()), baseX: -0.016, baseY: 0.026, baseZ: 0.46, phase: 4.1, amp: 0.009, yaw: 0.05, yawAmp: 0.018, roll: 0.14, rollAmp: 0.04 },
     ];
 
     for (const segment of segments) {
         segment.mesh.position.set(segment.baseX, segment.baseY, segment.baseZ);
         segment.mesh.rotation.y = segment.yaw;
+        segment.mesh.rotation.z = segment.roll;
         boltGroup.add(segment.mesh);
     }
 
     const accentSegments = [
-        { mesh: new THREE.Mesh(segmentGeometry, boltAccentMaterial), baseX: -0.072, baseY: 0.03, baseZ: -0.13, phase: 0.9, amp: 0.013, yaw: -0.62, yawAmp: 0.07, scale: 0.7 },
-        { mesh: new THREE.Mesh(segmentGeometry, boltAccentMaterial.clone()), baseX: 0.086, baseY: -0.022, baseZ: 0.13, phase: 2.3, amp: 0.013, yaw: 0.66, yawAmp: 0.07, scale: 0.66 },
+        { mesh: new THREE.Mesh(branchGeometry, boltAccentMaterial), baseX: -0.048, baseY: 0.046, baseZ: -0.22, phase: 0.8, amp: 0.009, yaw: -0.12, yawAmp: 0.028, roll: 0.36, rollAmp: 0.08, scale: 0.72 },
+        { mesh: new THREE.Mesh(branchGeometry, boltAccentMaterial.clone()), baseX: 0.044, baseY: -0.028, baseZ: 0.02, phase: 2.0, amp: 0.01, yaw: 0.14, yawAmp: 0.03, roll: -0.42, rollAmp: 0.09, scale: 0.68 },
+        { mesh: new THREE.Mesh(branchGeometry, boltAccentMaterial.clone()), baseX: -0.038, baseY: 0.02, baseZ: 0.3, phase: 3.4, amp: 0.008, yaw: -0.1, yawAmp: 0.026, roll: 0.32, rollAmp: 0.08, scale: 0.64 },
     ];
 
     for (const accent of accentSegments) {
         accent.mesh.scale.set(accent.scale, accent.scale, accent.scale);
         accent.mesh.position.set(accent.baseX, accent.baseY, accent.baseZ);
         accent.mesh.rotation.y = accent.yaw;
+        accent.mesh.rotation.z = accent.roll;
         boltGroup.add(accent.mesh);
     }
 
     const tipFront = new THREE.Mesh(tipGeometry, boltCoreMaterial.clone());
     const tipBack = new THREE.Mesh(tipGeometry, boltAccentMaterial.clone());
-    tipFront.position.set(0.155, 0.004, 0.45);
-    tipBack.position.set(-0.155, 0.004, -0.45);
-    tipFront.rotation.y = 0.74;
-    tipBack.rotation.y = 0.74;
+    tipFront.position.set(0.018, 0.028, 0.62);
+    tipBack.position.set(-0.024, -0.012, -0.58);
+    tipFront.rotation.z = 0.12;
+    tipBack.rotation.z = -0.1;
     boltGroup.add(tipFront, tipBack);
 
     const trailRenderer = new Photons.AnimatedSpriteRenderer(true, atlas, true, THREE.AdditiveBlending, true, 44);
@@ -788,10 +906,10 @@ function buildLightningBundle(): PhotonsBundle {
 
     const trailColor = trailSystem.addParticleStateOperator(new Photons.ColorInterpolatorOperator(true));
     trailColor.addElementsFromParameters([
-        [[2.4, 2.8, 3.0], 0],
-        [[1.3, 2.0, 2.7], 0.36],
-        [[0.35, 0.7, 1.5], 0.88],
-        [[0.03, 0.08, 0.2], 1],
+        [[1.82, 2.38, 2.82], 0],
+        [[0.88, 1.82, 2.5], 0.34],
+        [[0.22, 0.82, 1.82], 0.86],
+        [[0.03, 0.11, 0.24], 1],
     ]);
 
     trailSystem.addParticleStateOperator(new Photons.AccelerationOperator(
@@ -853,10 +971,10 @@ function buildLightningBundle(): PhotonsBundle {
 
     const auraColor = auraSystem.addParticleStateOperator(new Photons.ColorInterpolatorOperator(true));
     auraColor.addElementsFromParameters([
-        [[2.0, 2.6, 3.0], 0],
-        [[0.95, 1.8, 2.5], 0.4],
-        [[0.22, 0.55, 1.25], 0.92],
-        [[0.03, 0.06, 0.18], 1],
+        [[1.6, 2.22, 2.76], 0],
+        [[0.76, 1.58, 2.34], 0.38],
+        [[0.18, 0.64, 1.58], 0.9],
+        [[0.03, 0.09, 0.22], 1],
     ]);
 
     auraSystem.setSimulateInWorldSpace(false);
@@ -869,30 +987,37 @@ function buildLightningBundle(): PhotonsBundle {
         update: (elapsedTime, delta) => {
             root.visible = true;
             const pulse = 1 + Math.sin(elapsedTime * 26) * 0.06;
-            boltGroup.scale.set(1.02, 0.95 + Math.sin(elapsedTime * 31) * 0.04, pulse);
-            haloA.material.opacity = 0.09 + (Math.sin(elapsedTime * 20) * 0.03 + 0.03);
-            (haloB.material as THREE.MeshBasicMaterial).opacity = 0.075 + (Math.sin(elapsedTime * 23 + 0.8) * 0.025 + 0.025);
+            boltGroup.scale.set(0.98, 0.94 + Math.sin(elapsedTime * 31) * 0.04, 1.04 + (pulse - 1) * 1.3);
+            boltGroup.rotation.x = -0.12 + Math.sin(elapsedTime * 12) * 0.016;
+            coreSpine.scale.set(
+                0.84 + Math.sin(elapsedTime * 18) * 0.04,
+                0.92 + Math.cos(elapsedTime * 16) * 0.05,
+                1.04 + Math.sin(elapsedTime * 24) * 0.06,
+            );
+            (coreSpine.material as THREE.MeshBasicMaterial).opacity = 0.72 + Math.sin(elapsedTime * 26) * 0.08;
+            haloA.material.opacity = 0.1 + (Math.sin(elapsedTime * 20) * 0.03 + 0.03);
+            (haloB.material as THREE.MeshBasicMaterial).opacity = 0.085 + (Math.sin(elapsedTime * 23 + 0.8) * 0.025 + 0.025);
 
             for (const segment of segments) {
                 const wobble = Math.sin(elapsedTime * 32 + segment.phase);
                 segment.mesh.position.x = segment.baseX + wobble * segment.amp;
-                segment.mesh.position.y = segment.baseY + Math.cos(elapsedTime * 18 + segment.phase) * 0.01;
+                segment.mesh.position.y = segment.baseY + Math.cos(elapsedTime * 18 + segment.phase) * 0.012;
                 segment.mesh.rotation.y = segment.yaw + wobble * segment.yawAmp;
-                segment.mesh.rotation.z = wobble * 0.04;
+                segment.mesh.rotation.z = segment.roll + wobble * segment.rollAmp;
             }
 
             for (const accent of accentSegments) {
                 const wobble = Math.sin(elapsedTime * 28 + accent.phase);
                 accent.mesh.position.x = accent.baseX + wobble * accent.amp;
-                accent.mesh.position.y = accent.baseY + Math.cos(elapsedTime * 16 + accent.phase) * 0.012;
+                accent.mesh.position.y = accent.baseY + Math.cos(elapsedTime * 16 + accent.phase) * 0.014;
                 accent.mesh.rotation.y = accent.yaw + wobble * accent.yawAmp;
-                accent.mesh.rotation.z = wobble * 0.035;
+                accent.mesh.rotation.z = accent.roll + wobble * accent.rollAmp;
             }
 
-            tipFront.position.x = 0.155 + Math.sin(elapsedTime * 30) * 0.018;
-            tipFront.position.y = 0.004 + Math.cos(elapsedTime * 22) * 0.006;
-            tipBack.position.x = -0.155 + Math.sin(elapsedTime * 27 + 1.4) * 0.016;
-            tipBack.position.y = 0.004 + Math.cos(elapsedTime * 18 + 0.7) * 0.006;
+            tipFront.position.x = 0.018 + Math.sin(elapsedTime * 30) * 0.012;
+            tipFront.position.y = 0.028 + Math.cos(elapsedTime * 22) * 0.008;
+            tipBack.position.x = -0.024 + Math.sin(elapsedTime * 27 + 1.4) * 0.012;
+            tipBack.position.y = -0.012 + Math.cos(elapsedTime * 18 + 0.7) * 0.008;
             trailSystem.update(elapsedTime, delta);
             auraSystem.update(elapsedTime, delta);
         },
@@ -912,10 +1037,10 @@ function buildLightningBundle(): PhotonsBundle {
 function buildOpenDoorBundle(): PhotonsBundle {
     const root = new THREE.Object3D();
     const atlasTexture = createProjectileSpriteTexture([
-        [0, '#fff7cf'],
-        [0.2, '#d9ffff'],
-        [0.48, '#7fefff'],
-        [0.82, '#0d5f78'],
+        [0, '#fffbe3'],
+        [0.2, '#ffe8a2'],
+        [0.48, '#ffd163'],
+        [0.82, '#6e4b0f'],
         [1, '#010508'],
     ]);
     const atlas = new Photons.Atlas(atlasTexture, 'generated://open-door-sprite');
@@ -968,10 +1093,10 @@ function buildOpenDoorBundle(): PhotonsBundle {
 
     const trailColor = trailSystem.addParticleStateOperator(new Photons.ColorInterpolatorOperator(true));
     trailColor.addElementsFromParameters([
-        [[2.4, 2.35, 1.75], 0],
-        [[1.05, 2.1, 2.15], 0.38],
-        [[0.22, 0.92, 1.05], 0.78],
-        [[0.02, 0.18, 0.26], 1],
+        [[2.8, 2.6, 1.55], 0],
+        [[2.25, 1.8, 0.62], 0.38],
+        [[0.95, 0.58, 0.12], 0.78],
+        [[0.18, 0.1, 0.02], 1],
     ]);
     trailSystem.setSimulateInWorldSpace(true);
     trailSystem.start();
@@ -1019,17 +1144,17 @@ function buildOpenDoorBundle(): PhotonsBundle {
     ]);
     const coreColor = coreSystem.addParticleStateOperator(new Photons.ColorInterpolatorOperator(true));
     coreColor.addElementsFromParameters([
-        [[2.8, 2.6, 2.1], 0],
-        [[1.4, 2.45, 2.6], 0.42],
-        [[0.4, 0.98, 1.2], 0.84],
-        [[0.03, 0.2, 0.3], 1],
+        [[3.0, 2.8, 2.0], 0],
+        [[2.2, 1.85, 0.82], 0.42],
+        [[1.05, 0.62, 0.16], 0.84],
+        [[0.22, 0.12, 0.02], 1],
     ]);
     coreSystem.setSimulateInWorldSpace(false);
     coreSystem.start();
 
     const ringGeometry = new THREE.TorusGeometry(0.18, 0.025, 10, 28);
     const ringMaterial = new THREE.MeshBasicMaterial({
-        color: '#b9ffff',
+        color: '#fff2b2',
         transparent: true,
         opacity: 0.55,
         blending: THREE.AdditiveBlending,
@@ -1275,137 +1400,148 @@ function buildTeleporterBundle(): PhotonsBundle {
     };
 }
 
-function buildRaDoorCurtainBundle(): PhotonsBundle {
+function buildFluxcageBundle(): PhotonsBundle {
     const root = new THREE.Object3D();
     const atlasTexture = createProjectileSpriteTexture([
-        [0, '#ffffff'],
-        [0.16, '#d9fbff'],
-        [0.42, '#7cecff'],
-        [0.72, '#1d8dff'],
-        [1, '#02050d'],
+        [0, 'rgba(248,255,214,0.98)'],
+        [0.18, 'rgba(188,255,124,0.94)'],
+        [0.48, 'rgba(82,208,82,0.5)'],
+        [0.82, 'rgba(18,72,26,0.14)'],
+        [1, 'rgba(0,0,0,0)'],
     ]);
-    const atlas = new Photons.Atlas(atlasTexture, 'generated://ra-door-curtain-sprite');
+    const atlas = new Photons.Atlas(atlasTexture, 'generated://fluxcage-sprite');
     atlas.addFrameSet(1, 0, 0, 1, 1);
 
-    const veilRenderer = new Photons.AnimatedSpriteRenderer(true, atlas, true, THREE.AdditiveBlending, true, 44);
-    const veilSystem = new Photons.ParticleSystem(root, veilRenderer);
-    veilSystem.init(180);
+    const driftRenderer = new Photons.AnimatedSpriteRenderer(true, atlas, true, THREE.AdditiveBlending, true, 52);
+    const driftSystem = new Photons.ParticleSystem(root, driftRenderer);
+    driftSystem.init(132);
 
-    const veilSampleState = veilSystem.getParticleStates().getState(0);
-    const veilVector2Type = veilSampleState.size.constructor;
-    const veilVector3Type = veilSampleState.acceleration.constructor;
-    veilSystem.setEmitter(new Photons.ConstantParticleEmitter(34));
-    veilSystem.addParticleStateInitializer(new Photons.LifetimeInitializer(0.42, 0.18, 0, 0, false));
-    veilSystem.addParticleStateInitializer(new Photons.SizeInitializer(
+    const driftSampleState = driftSystem.getParticleStates().getState(0);
+    const driftVector2Type = driftSampleState.size.constructor;
+    const driftVector3Type = driftSampleState.acceleration.constructor;
+    driftSystem.setEmitter(new Photons.ConstantParticleEmitter(14));
+    driftSystem.addParticleStateInitializer(new Photons.LifetimeInitializer(0.54, 0.18, 0, 0, false));
+    driftSystem.addParticleStateInitializer(new Photons.SizeInitializer(
         new Photons.RandomGenerator(
-            veilVector2Type,
-            new veilVector2Type(0.18, 0.44),
-            new veilVector2Type(0.08, 0.2),
+            driftVector2Type,
+            new driftVector2Type(0.08, 0.12),
+            new driftVector2Type(0.04, 0.06),
             0,
             0,
             false,
         ),
     ));
-    veilSystem.addParticleStateInitializer(new Photons.BoxPositionInitializer(
-        new THREE.Vector3(0.38, 0.82, 0.035),
-        new THREE.Vector3(-0.19, -0.41, -0.0175),
+    driftSystem.addParticleStateInitializer(new Photons.BoxPositionInitializer(
+        new THREE.Vector3(0.2, 0.56, 0.2),
+        new THREE.Vector3(-0.1, 0.02, -0.1),
     ));
-    veilSystem.addParticleStateInitializer(new Photons.RandomVelocityInitializer(
-        new THREE.Vector3(0.16, 0.6, 0.08),
-        new THREE.Vector3(-0.08, 0.22, -0.04),
-        0.08,
-        0.02,
+    driftSystem.addParticleStateInitializer(new Photons.RandomVelocityInitializer(
+        new THREE.Vector3(0.08, 0.22, 0.08),
+        new THREE.Vector3(-0.04, 0.04, -0.04),
+        0.035,
+        0.01,
         true,
     ));
 
-    const veilOpacity = veilSystem.addParticleStateOperator(new Photons.OpacityInterpolatorOperator());
-    veilOpacity.addElements([
+    const driftOpacity = driftSystem.addParticleStateOperator(new Photons.OpacityInterpolatorOperator());
+    driftOpacity.addElements([
         [0, 0],
-        [0.16, 0.08],
-        [0.28, 0.55],
-        [0.22, 1],
+        [0.32, 0.14],
+        [0.26, 0.78],
+        [0, 1],
     ]);
 
-    const veilSize = veilSystem.addParticleStateOperator(new Photons.SizeInterpolatorOperator(true));
-    veilSize.addElementsFromParameters([
-        [[0.85, 0.85], 0],
-        [[1.2, 1.08], 0.46],
-        [[0.72, 0.9], 1],
+    const driftSize = driftSystem.addParticleStateOperator(new Photons.SizeInterpolatorOperator(true));
+    driftSize.addElementsFromParameters([
+        [[0.74, 0.74], 0],
+        [[1.2, 1.34], 0.42],
+        [[0.42, 0.54], 1],
     ]);
 
-    const veilColor = veilSystem.addParticleStateOperator(new Photons.ColorInterpolatorOperator(true));
-    veilColor.addElementsFromParameters([
-        [[1.85, 2.55, 3.2], 0],
-        [[0.95, 2.1, 3.15], 0.34],
-        [[0.24, 0.92, 2.35], 0.8],
-        [[0.02, 0.08, 0.22], 1],
+    const driftColor = driftSystem.addParticleStateOperator(new Photons.ColorInterpolatorOperator(true));
+    driftColor.addElementsFromParameters([
+        [[2.45, 2.85, 1.4], 0],
+        [[1.15, 2.6, 0.72], 0.34],
+        [[0.3, 1.12, 0.28], 0.84],
+        [[0.04, 0.18, 0.05], 1],
     ]);
 
-    veilSystem.addParticleStateOperator(new Photons.AccelerationOperator(
+    driftSystem.addParticleStateOperator(new Photons.AccelerationOperator(
         new Photons.RandomGenerator(
-            veilVector3Type,
-            new veilVector3Type(0.06, 0.18, 0.04),
-            new veilVector3Type(-0.03, -0.08, -0.02),
+            driftVector3Type,
+            new driftVector3Type(0.02, 0.018, 0.02),
+            new driftVector3Type(-0.01, 0.004, -0.01),
             0,
             0,
             false,
         ),
     ));
-    veilSystem.setSimulateInWorldSpace(false);
-    veilSystem.start();
+    driftSystem.setSimulateInWorldSpace(false);
+    driftSystem.start();
 
-    const sparkRenderer = new Photons.AnimatedSpriteRenderer(true, atlas, true, THREE.AdditiveBlending, true, 45);
+    const sparkRenderer = new Photons.AnimatedSpriteRenderer(true, atlas, true, THREE.AdditiveBlending, true, 36);
     const sparkSystem = new Photons.ParticleSystem(root, sparkRenderer);
-    sparkSystem.init(72);
+    sparkSystem.init(88);
 
     const sparkVector2Type = sparkSystem.getParticleStates().getState(0).size.constructor;
-    sparkSystem.setEmitter(new Photons.ConstantParticleEmitter(12));
-    sparkSystem.addParticleStateInitializer(new Photons.LifetimeInitializer(0.14, 0.05, 0, 0, false));
+    const sparkVector3Type = sparkSystem.getParticleStates().getState(0).acceleration.constructor;
+    sparkSystem.setEmitter(new Photons.ConstantParticleEmitter(8));
+    sparkSystem.addParticleStateInitializer(new Photons.LifetimeInitializer(0.22, 0.08, 0, 0, false));
     sparkSystem.addParticleStateInitializer(new Photons.SizeInitializer(
         new Photons.RandomGenerator(
             sparkVector2Type,
-            new sparkVector2Type(0.1, 0.18),
-            new sparkVector2Type(0.04, 0.08),
+            new sparkVector2Type(0.06, 0.08),
+            new sparkVector2Type(0.03, 0.04),
             0,
             0,
             false,
         ),
     ));
     sparkSystem.addParticleStateInitializer(new Photons.BoxPositionInitializer(
-        new THREE.Vector3(0.4, 0.8, 0.025),
-        new THREE.Vector3(-0.2, -0.4, -0.0125),
+        new THREE.Vector3(0.32, 0.5, 0.32),
+        new THREE.Vector3(-0.16, 0.08, -0.16),
     ));
     sparkSystem.addParticleStateInitializer(new Photons.RandomVelocityInitializer(
-        new THREE.Vector3(0.6, 0.6, 0.3),
-        new THREE.Vector3(-0.3, -0.05, -0.15),
-        0.09,
-        0.03,
+        new THREE.Vector3(0.22, 0.08, 0.22),
+        new THREE.Vector3(-0.11, -0.03, -0.11),
+        0.055,
+        0.016,
         true,
     ));
 
     const sparkOpacity = sparkSystem.addParticleStateOperator(new Photons.OpacityInterpolatorOperator());
     sparkOpacity.addElements([
         [0, 0],
-        [0.75, 0.12],
-        [0.36, 0.48],
+        [0.8, 0.1],
+        [0.36, 0.42],
         [0, 1],
     ]);
 
     const sparkSize = sparkSystem.addParticleStateOperator(new Photons.SizeInterpolatorOperator(true));
     sparkSize.addElementsFromParameters([
-        [[0.72, 0.72], 0],
-        [[1.16, 1.04], 0.32],
-        [[0.55, 0.6], 1],
+        [[0.78, 0.78], 0],
+        [[1.18, 1.08], 0.32],
+        [[0.46, 0.42], 1],
     ]);
 
     const sparkColor = sparkSystem.addParticleStateOperator(new Photons.ColorInterpolatorOperator(true));
     sparkColor.addElementsFromParameters([
-        [[2.8, 2.75, 2.2], 0],
-        [[1.25, 2.4, 2.8], 0.28],
-        [[0.36, 1.1, 2.0], 0.82],
-        [[0.02, 0.08, 0.18], 1],
+        [[2.8, 3.1, 1.3], 0],
+        [[1.3, 2.8, 0.82], 0.28],
+        [[0.36, 1.42, 0.32], 0.82],
+        [[0.04, 0.2, 0.06], 1],
     ]);
 
+    sparkSystem.addParticleStateOperator(new Photons.AccelerationOperator(
+        new Photons.RandomGenerator(
+            sparkVector3Type,
+            new sparkVector3Type(0.04, 0.02, 0.04),
+            new sparkVector3Type(-0.02, -0.01, -0.02),
+            0,
+            0,
+            false,
+        ),
+    ));
     sparkSystem.setSimulateInWorldSpace(false);
     sparkSystem.start();
 
@@ -1414,13 +1550,16 @@ function buildRaDoorCurtainBundle(): PhotonsBundle {
     return {
         root,
         update: (elapsedTime, delta) => {
-            veilSystem.update(elapsedTime, delta);
+            root.visible = true;
+            root.rotation.y += delta * 0.38;
+            root.position.y = -0.02 + Math.sin(elapsedTime * 1.9) * 0.012;
+            driftSystem.update(elapsedTime, delta);
             sparkSystem.update(elapsedTime, delta);
         },
         dispose: () => {
-            veilSystem.pause();
+            driftSystem.pause();
             sparkSystem.pause();
-            veilRenderer.dispose();
+            driftRenderer.dispose();
             sparkRenderer.dispose();
             disposeObjectTree(root);
             atlasTexture.dispose();
@@ -1430,69 +1569,114 @@ function buildRaDoorCurtainBundle(): PhotonsBundle {
     };
 }
 
-export const PhotonsFireball: React.FC<{ scale?: number }> = ({ scale = 1 }) => {
+export const PhotonsFireball: React.FC<{ scale?: number; seed?: number }> = ({ scale = 1, seed = 0 }) => {
     const bundle = useMemo(() => buildFireballBundle(), []);
+    const variation = useMemo(() => resolveProjectileVisualVariation(seed), [seed]);
+    const groupRef = useRef<THREE.Group>(null);
 
     useFrame((state, delta) => {
         bundle.update(state.clock.elapsedTime, delta);
+        if (groupRef.current) {
+            const phase = (state.clock.elapsedTime * variation.speed) + variation.phaseOffset;
+            groupRef.current.position.y = Math.sin(phase * 1.4) * variation.bobHeight;
+            groupRef.current.rotation.y = Math.sin(phase) * variation.yawSwing;
+            groupRef.current.rotation.z = Math.cos(phase * 1.15) * variation.rollSwing;
+        }
     });
 
     useEffect(() => {
-        bundle.root.scale.setScalar(scale);
-    }, [bundle, scale]);
+        bundle.root.scale.setScalar(scale * variation.baseScale);
+    }, [bundle, scale, variation.baseScale]);
 
     useEffect(() => () => {
         bundle.dispose();
     }, [bundle]);
 
-    return <primitive object={bundle.root} />;
+    return (
+        <group ref={(node) => { groupRef.current = node; }}>
+            <primitive object={bundle.root} />
+        </group>
+    );
 };
 
-export const PhotonsPoisonProjectile: React.FC<{ effect: 'poison_bolt' | 'poison_cloud' | 'slime'; scale?: number }> = ({ effect, scale = 1 }) => {
+export const PhotonsPoisonProjectile: React.FC<{ effect: 'poison_bolt' | 'poison_cloud' | 'slime'; scale?: number; seed?: number }> = ({ effect, scale = 1, seed = 0 }) => {
     const bundle = useMemo(() => buildPoisonBundle(effect), [effect]);
+    const variation = useMemo(() => resolveProjectileVisualVariation(seed), [seed]);
+    const groupRef = useRef<THREE.Group>(null);
 
     useFrame((state, delta) => {
         bundle.update(state.clock.elapsedTime, delta);
+        if (groupRef.current) {
+            const phase = (state.clock.elapsedTime * variation.speed) + variation.phaseOffset;
+            groupRef.current.position.y = Math.sin(phase * 1.25) * variation.bobHeight;
+            groupRef.current.rotation.y = Math.sin(phase) * variation.yawSwing;
+            groupRef.current.rotation.x = Math.cos(phase * 1.1) * variation.pitchSwing;
+        }
     });
 
     useEffect(() => {
-        const effectScale = effect === 'poison_cloud' ? 1.08 : effect === 'slime' ? 0.96 : 0.92;
-        bundle.root.scale.setScalar(scale * effectScale);
-    }, [bundle, effect, scale]);
+        const effectScale = effect === 'poison_cloud' ? 1.28 : effect === 'slime' ? 1.04 : 1.08;
+        bundle.root.scale.setScalar(scale * effectScale * variation.baseScale);
+    }, [bundle, effect, scale, variation.baseScale]);
 
     useEffect(() => () => {
         bundle.dispose();
     }, [bundle]);
 
-    return <primitive object={bundle.root} />;
+    return (
+        <group ref={(node) => { groupRef.current = node; }}>
+            <primitive object={bundle.root} />
+        </group>
+    );
 };
 
-export const PhotonsDisruptProjectile: React.FC<{ scale?: number }> = ({ scale = 1 }) => {
+export const PhotonsDisruptProjectile: React.FC<{ scale?: number; seed?: number }> = ({ scale = 1, seed = 0 }) => {
     const bundle = useMemo(() => buildDisruptBundle(), []);
+    const variation = useMemo(() => resolveProjectileVisualVariation(seed), [seed]);
+    const groupRef = useRef<THREE.Group>(null);
 
     useFrame((state, delta) => {
         bundle.update(state.clock.elapsedTime, delta);
+        if (groupRef.current) {
+            const phase = (state.clock.elapsedTime * variation.speed) + variation.phaseOffset;
+            groupRef.current.position.y = Math.sin(phase * 1.55) * (variation.bobHeight * 0.8);
+            groupRef.current.rotation.y = Math.sin(phase * 0.8) * variation.yawSwing;
+            groupRef.current.rotation.z = Math.cos(phase * 1.2) * (variation.rollSwing * 0.8);
+        }
     });
 
     useEffect(() => {
-        bundle.root.scale.setScalar(scale);
-    }, [bundle, scale]);
+        bundle.root.scale.setScalar(scale * variation.baseScale);
+    }, [bundle, scale, variation.baseScale]);
 
     useEffect(() => () => {
         bundle.dispose();
     }, [bundle]);
 
-    return <primitive object={bundle.root} />;
+    return (
+        <group ref={(node) => { groupRef.current = node; }}>
+            <primitive object={bundle.root} />
+        </group>
+    );
 };
 
-export const PhotonsLightningProjectile: React.FC<{ scale?: number; directionRotation?: number }> = ({
+export const PhotonsLightningProjectile: React.FC<{ scale?: number; directionRotation?: number; seed?: number }> = ({
     scale = 1,
     directionRotation = 0,
+    seed = 0,
 }) => {
     const bundle = useMemo(() => buildLightningBundle(), []);
+    const variation = useMemo(() => resolveProjectileVisualVariation(seed), [seed]);
+    const groupRef = useRef<THREE.Group>(null);
 
     useFrame((state, delta) => {
         bundle.update(state.clock.elapsedTime, delta);
+        if (groupRef.current) {
+            const phase = (state.clock.elapsedTime * variation.speed) + variation.phaseOffset;
+            groupRef.current.position.y = Math.sin(phase * 1.6) * (variation.bobHeight * 0.55);
+            groupRef.current.rotation.x = -0.08 + Math.sin(phase * 1.2) * 0.02;
+            groupRef.current.rotation.z = Math.cos(phase * 1.25) * (variation.rollSwing * 0.65);
+        }
     });
 
     useEffect(() => () => {
@@ -1500,28 +1684,42 @@ export const PhotonsLightningProjectile: React.FC<{ scale?: number; directionRot
     }, [bundle]);
 
     return (
-        <group rotation={[0, directionRotation, 0]} scale={[scale, scale, scale]}>
-            <primitive object={bundle.root} />
+        <group rotation={[0, directionRotation, 0]} scale={[scale * variation.baseScale, scale * variation.baseScale, scale * variation.baseScale]}>
+            <group ref={(node) => { groupRef.current = node; }}>
+                <primitive object={bundle.root} />
+            </group>
         </group>
     );
 };
 
-export const PhotonsOpenDoorProjectile: React.FC<{ scale?: number }> = ({ scale = 1 }) => {
+export const PhotonsOpenDoorProjectile: React.FC<{ scale?: number; seed?: number }> = ({ scale = 1, seed = 0 }) => {
     const bundle = useMemo(() => buildOpenDoorBundle(), []);
+    const variation = useMemo(() => resolveProjectileVisualVariation(seed), [seed]);
+    const groupRef = useRef<THREE.Group>(null);
 
     useFrame((state, delta) => {
         bundle.update(state.clock.elapsedTime, delta);
+        if (groupRef.current) {
+            const phase = (state.clock.elapsedTime * variation.speed) + variation.phaseOffset;
+            groupRef.current.position.y = Math.sin(phase * 1.22) * (variation.bobHeight * 0.72);
+            groupRef.current.rotation.y = Math.sin(phase) * (variation.yawSwing * 0.75);
+            groupRef.current.rotation.z = Math.cos(phase * 1.18) * (variation.rollSwing * 0.7);
+        }
     });
 
     useEffect(() => {
-        bundle.root.scale.setScalar(scale * 0.88);
-    }, [bundle, scale]);
+        bundle.root.scale.setScalar(scale * 0.88 * variation.baseScale);
+    }, [bundle, scale, variation.baseScale]);
 
     useEffect(() => () => {
         bundle.dispose();
     }, [bundle]);
 
-    return <primitive object={bundle.root} />;
+    return (
+        <group ref={(node) => { groupRef.current = node; }}>
+            <primitive object={bundle.root} />
+        </group>
+    );
 };
 
 export const PhotonsTeleporterCloud: React.FC<{ scale?: number }> = ({ scale = 1 }) => {
@@ -1542,20 +1740,16 @@ export const PhotonsTeleporterCloud: React.FC<{ scale?: number }> = ({ scale = 1
     return <primitive object={bundle.root} />;
 };
 
-export const PhotonsRaDoorCurtain: React.FC<{ scaleX?: number; scaleY?: number; scaleZ?: number }> = ({
-    scaleX = 1,
-    scaleY = 1,
-    scaleZ = 1,
-}) => {
-    const bundle = useMemo(() => buildRaDoorCurtainBundle(), []);
+export const PhotonsFluxcageParticles: React.FC<{ scale?: number }> = ({ scale = 1 }) => {
+    const bundle = useMemo(() => buildFluxcageBundle(), []);
 
     useFrame((state, delta) => {
         bundle.update(state.clock.elapsedTime, delta);
     });
 
     useEffect(() => {
-        bundle.root.scale.set(scaleX, scaleY, scaleZ);
-    }, [bundle, scaleX, scaleY, scaleZ]);
+        bundle.root.scale.setScalar(scale);
+    }, [bundle, scale]);
 
     useEffect(() => () => {
         bundle.dispose();

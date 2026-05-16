@@ -21,6 +21,7 @@ export type GameStatsSpellCounters = {
 };
 
 export type GameStats = {
+    runId: string;
     startedAt: number;
     movement: {
         stepsForward: number;
@@ -67,6 +68,23 @@ export type GameStats = {
         unequipped: number;
     };
 };
+
+function generateGameRunId(now = Date.now()): string {
+    const randomPart = typeof globalThis.crypto?.randomUUID === 'function'
+        ? globalThis.crypto.randomUUID().replace(/-/g, '').slice(0, 12)
+        : Math.random().toString(36).slice(2, 14);
+    return `run_${Math.floor(now)}_${randomPart}`;
+}
+
+function normalizeRunId(value: unknown, now = Date.now()): string {
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (/^[A-Za-z0-9_-]{8,96}$/.test(trimmed)) {
+            return trimmed;
+        }
+    }
+    return generateGameRunId(now);
+}
 
 export type GameStatsDelta = Partial<{
     movement: Partial<GameStats['movement']>;
@@ -131,6 +149,7 @@ function createNamedCounters(): Record<string, number> {
 
 export function createInitialGameStats(now = Date.now()): GameStats {
     return {
+        runId: generateGameRunId(now),
         startedAt: now,
         movement: {
             stepsForward: 0,
@@ -233,6 +252,7 @@ export function normalizeGameStats(value: unknown, now = Date.now()): GameStats 
     const source = value && typeof value === 'object' ? value as Partial<GameStats> : {};
     const initial = createInitialGameStats(now);
     return {
+        runId: normalizeRunId(source.runId, now),
         startedAt: typeof source.startedAt === 'number' ? source.startedAt : initial.startedAt,
         movement: { ...initial.movement, ...(source.movement ?? {}) },
         exploration: { ...initial.exploration, ...(source.exploration ?? {}) },

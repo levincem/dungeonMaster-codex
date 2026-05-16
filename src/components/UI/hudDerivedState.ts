@@ -30,6 +30,7 @@ export type CombatGridSlotState = {
     weaponName: string;
     allAttacks: WeaponAttackOption[];
     usableAttacks: WeaponAttackOption[];
+    blockedAttackReasons: Record<number, string>;
 };
 
 export type HudCastState<TSpell> = {
@@ -121,6 +122,11 @@ export function buildCombatGridSlotState<C extends HudChampionLike>(args: {
     resolveWeaponName: (championId: number, equipment: ChampionEquipment, direction: Direction) => string;
     getAllAttacks: (championId: number, equipment: ChampionEquipment) => WeaponAttackOption[];
     getAttackMasteryLevel: (championId: number, attack: WeaponAttackOption) => number;
+    getAttackBlockedReason?: (
+        championId: number,
+        equipment: ChampionEquipment,
+        attack: WeaponAttackOption,
+    ) => string | null;
     direction: Direction;
 }): CombatGridSlotState {
     const {
@@ -132,6 +138,7 @@ export function buildCombatGridSlotState<C extends HudChampionLike>(args: {
         fistLabel,
         getAllAttacks,
         getAttackMasteryLevel,
+        getAttackBlockedReason,
         resolveWeaponImage,
         resolveWeaponName,
     } = args;
@@ -145,6 +152,7 @@ export function buildCombatGridSlotState<C extends HudChampionLike>(args: {
             weaponName: fistLabel,
             allAttacks: [],
             usableAttacks: [],
+            blockedAttackReasons: {},
         };
     }
 
@@ -155,7 +163,13 @@ export function buildCombatGridSlotState<C extends HudChampionLike>(args: {
     const allAttacks = getAllAttacks(champion.id, equipment).filter((attack) =>
         attack.masteryThreshold <= getAttackMasteryLevel(champion.id, attack),
     );
-    const usableAttacks = allAttacks;
+    const blockedAttackReasons = Object.fromEntries(
+        allAttacks.flatMap((attack) => {
+            const blockedReason = getAttackBlockedReason?.(champion.id, equipment, attack) ?? null;
+            return blockedReason ? [[attack.attackType, blockedReason]] : [];
+        }),
+    ) as Record<number, string>;
+    const usableAttacks = allAttacks.filter((attack) => !blockedAttackReasons[attack.attackType]);
 
     return {
         champion,
@@ -165,6 +179,7 @@ export function buildCombatGridSlotState<C extends HudChampionLike>(args: {
         weaponName: resolveWeaponName(champion.id, equipment, direction),
         allAttacks,
         usableAttacks,
+        blockedAttackReasons,
     };
 }
 

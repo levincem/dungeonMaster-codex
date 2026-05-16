@@ -2,12 +2,13 @@ import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useStore, getCreatureFluxcageExpiry } from '../../engine/store';
-import { GRID_SIZE } from '../../engine/constants';
+import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import { PHYSICAL_PROJECTILE_STEP_MS } from '../../engine/time';
 import type { Direction, ProjectileEffect } from '../../engine/runtimeTypes';
 import { getFloorItemImage } from '../../data/itemImages';
 import { BillboardGroup } from './renderHelpers';
 import { useSafeTexture } from './useLoadedTexture';
+import { hashSpellVisualSeed, sampleSpellVisualRange } from './spellVisualSeed';
 import type { FloorItem } from '../../types/game';
 import {
     resolvePhysicalProjectileLaunchPosition,
@@ -48,6 +49,10 @@ const LazyPhotonsTeleporterCloud = lazy(() =>
     loadPhotonEffects().then((module) => ({ default: module.PhotonsTeleporterCloud })),
 );
 
+const LazyPhotonsFluxcageParticles = lazy(() =>
+    loadPhotonEffects().then((module) => ({ default: module.PhotonsFluxcageParticles })),
+);
+
 const LazyPhotonsPoisonProjectile = lazy(() =>
     loadPhotonEffects().then((module) => ({ default: module.PhotonsPoisonProjectile })),
 );
@@ -67,6 +72,12 @@ function createPulseMaterial(color: string, opacity: number) {
 }
 
 const FLUXCAGE_RENDER_ORDER = 18;
+const FLUXCAGE_FLOOR_Y = (-GRID_SIZE / 2) + 0.06;
+const FLUXCAGE_CEILING_Y = FLUXCAGE_FLOOR_Y + WALL_HEIGHT - 0.12;
+const FLUXCAGE_CENTER_Y = (FLUXCAGE_FLOOR_Y + FLUXCAGE_CEILING_Y) / 2;
+const FLUXCAGE_RING_BOTTOM_Y = FLUXCAGE_FLOOR_Y + 0.18;
+const FLUXCAGE_RING_TOP_Y = FLUXCAGE_CEILING_Y - 0.52;
+const FLUXCAGE_RING_STEP_Y = (FLUXCAGE_RING_TOP_Y - FLUXCAGE_RING_BOTTOM_Y) / 2;
 
 function useWallClock(intervalMs = 200): number {
     const [nowMs, setNowMs] = useState(0);
@@ -333,6 +344,7 @@ const TeleporterVisual: React.FC<{
 
 const ProjectileOrb: React.FC<{
     projectile: {
+        id: string;
         x: number;
         y: number;
         effect: MagicProjectileEffect;
@@ -341,6 +353,7 @@ const ProjectileOrb: React.FC<{
         visualVariant?: 'invoke';
     };
 }> = ({ projectile }) => {
+    const groupRef = useRef<THREE.Group>(null);
     const directionRotation: Record<Direction, number> = {
         NORTH: 0,
         SOUTH: Math.PI,
@@ -348,9 +361,51 @@ const ProjectileOrb: React.FC<{
         WEST: Math.PI / 2,
     };
     const visualScale = projectile.visualScale ?? 1;
+    const seed = useMemo(() => hashSpellVisualSeed(projectile.id), [projectile.id]);
+    const baseYaw = useMemo(
+        () => sampleSpellVisualRange(
+            seed,
+            1,
+            projectile.effect === 'lightning' ? -0.06 : -Math.PI,
+            projectile.effect === 'lightning' ? 0.06 : Math.PI,
+        ),
+        [projectile.effect, seed],
+    );
+    const yawSwing = useMemo(
+        () => sampleSpellVisualRange(
+            seed,
+            2,
+            projectile.effect === 'lightning' ? 0.02 : 0.05,
+            projectile.effect === 'lightning' ? 0.08 : 0.16,
+        ),
+        [projectile.effect, seed],
+    );
+    const bobHeight = useMemo(
+        () => sampleSpellVisualRange(
+            seed,
+            3,
+            projectile.effect === 'lightning' ? GRID_SIZE * 0.008 : GRID_SIZE * 0.014,
+            projectile.effect === 'lightning' ? GRID_SIZE * 0.018 : GRID_SIZE * 0.03,
+        ),
+        [projectile.effect, seed],
+    );
+    const pulseAmount = useMemo(() => sampleSpellVisualRange(seed, 4, 0.018, 0.06), [seed]);
+    const phaseOffset = useMemo(() => sampleSpellVisualRange(seed, 5, 0, Math.PI * 2), [seed]);
+    const phaseSpeed = useMemo(() => sampleSpellVisualRange(seed, 6, 1.45, 2.8), [seed]);
+    const scaleJitter = useMemo(() => sampleSpellVisualRange(seed, 7, 0.97, 1.08), [seed]);
+
+    useFrame((state) => {
+        if (!groupRef.current) return;
+        const phase = (state.clock.elapsedTime * phaseSpeed) + phaseOffset;
+        const pulse = 1 + (Math.sin(phase * 1.7) * pulseAmount);
+        groupRef.current.rotation.y = baseYaw + (Math.sin(phase) * yawSwing);
+        groupRef.current.position.y = Math.sin(phase * 1.35) * bobHeight;
+        groupRef.current.scale.setScalar(scaleJitter * pulse);
+    });
 
     return (
         <group position={[projectile.x * GRID_SIZE, 0, projectile.y * GRID_SIZE]}>
+            <group ref={groupRef}>
             {projectile.visualVariant === 'invoke' ? (
                 <InvokeProjectileVisual
                     scale={visualScale}
@@ -358,28 +413,30 @@ const ProjectileOrb: React.FC<{
                 />
             ) : projectile.effect === 'fireball' ? (
                 <Suspense fallback={null}>
-                    <LazyPhotonsFireball scale={visualScale} />
+                    <LazyPhotonsFireball scale={visualScale} seed={seed} />
                 </Suspense>
             ) : projectile.effect === 'lightning' ? (
                 <Suspense fallback={null}>
                     <LazyPhotonsLightningProjectile
                         scale={visualScale}
                         directionRotation={directionRotation[projectile.direction ?? 'NORTH']}
+                        seed={seed}
                     />
                 </Suspense>
             ) : projectile.effect === 'open' ? (
                 <Suspense fallback={null}>
-                    <LazyPhotonsOpenDoorProjectile scale={visualScale} />
+                    <LazyPhotonsOpenDoorProjectile scale={visualScale} seed={seed} />
                 </Suspense>
             ) : projectile.effect === 'poison_cloud' || projectile.effect === 'poison_bolt' || projectile.effect === 'slime' ? (
                 <Suspense fallback={null}>
-                    <LazyPhotonsPoisonProjectile effect={projectile.effect} scale={visualScale} />
+                    <LazyPhotonsPoisonProjectile effect={projectile.effect} scale={visualScale} seed={seed} />
                 </Suspense>
             ) : (
                 <Suspense fallback={null}>
-                    <LazyPhotonsDisruptProjectile scale={visualScale} />
+                    <LazyPhotonsDisruptProjectile scale={visualScale} seed={seed} />
                 </Suspense>
             )}
+            </group>
         </group>
     );
 };
@@ -671,10 +728,21 @@ export const FluxcageLayer: React.FC = () => {
             ],
         [activeFluxcages, creatures, level, nowMs, hideFluxcages],
     );
-    const ringGeometry = useMemo(() => new THREE.TorusGeometry(0.28, 0.02, 8, 24), []);
-    const barGeometry = useMemo(() => new THREE.CylinderGeometry(0.012, 0.012, 0.8, 6), []);
-    const ringMaterial = useMemo(() => createPulseMaterial('#62e7ff', 0.32), []);
-    const barMaterial = useMemo(() => createPulseMaterial('#c8fbff', 0.24), []);
+    const ringGeometry = useMemo(() => new THREE.TorusGeometry(GRID_SIZE * 0.31, GRID_SIZE * 0.024, 10, 36), []);
+    const barGeometry = useMemo(() => new THREE.CylinderGeometry(GRID_SIZE * 0.018, GRID_SIZE * 0.018, WALL_HEIGHT * 0.92, 8), []);
+    const ringMaterial = useMemo(() => createPulseMaterial('#f0d86c', 0.48), []);
+    const barMaterial = useMemo(() => createPulseMaterial('#fff0a8', 0.72), []);
+    const barOffsets = useMemo(
+        () => Array.from({ length: 12 }, (_, index) => {
+            const angle = (index / 12) * Math.PI * 2;
+            return {
+                x: Math.cos(angle) * GRID_SIZE * 0.3,
+                z: Math.sin(angle) * GRID_SIZE * 0.3,
+                scaleY: index % 2 === 0 ? 1.04 : 0.94,
+            };
+        }),
+        [],
+    );
 
     useEffect(() => () => {
         ringGeometry.dispose();
@@ -694,6 +762,7 @@ export const FluxcageLayer: React.FC = () => {
                     barGeometry={barGeometry}
                     ringMaterial={ringMaterial}
                     barMaterial={barMaterial}
+                    barOffsets={barOffsets}
                 />
             ))}
         </>
@@ -707,23 +776,72 @@ const FluxcageVisual: React.FC<{
     barGeometry: THREE.CylinderGeometry;
     ringMaterial: THREE.MeshBasicMaterial;
     barMaterial: THREE.MeshBasicMaterial;
-}> = ({ x, y, ringGeometry, barGeometry, ringMaterial, barMaterial }) => {
+    barOffsets: Array<{ x: number; z: number; scaleY: number }>;
+}> = ({ x, y, ringGeometry, barGeometry, ringMaterial, barMaterial, barOffsets }) => {
     const groupRef = useRef<THREE.Group>(null);
+    const lightRef = useRef<THREE.PointLight>(null);
+    const phaseRef = useRef((x * 0.61) + (y * 0.37));
+
     useFrame((_, delta) => {
-        if (!groupRef.current) return;
-        groupRef.current.rotation.y += delta * 1.35;
-        const pulse = 1 + Math.sin(Date.now() / 140) * 0.04;
-        groupRef.current.scale.setScalar(pulse);
+        phaseRef.current += delta * 1.85;
+        const phase = phaseRef.current;
+        if (groupRef.current) {
+            groupRef.current.rotation.y += delta * 0.82;
+            groupRef.current.position.y = Math.sin(phase * 0.85) * GRID_SIZE * 0.012;
+            groupRef.current.scale.setScalar(1 + Math.sin(phase * 1.7) * 0.035);
+        }
+        if (lightRef.current) {
+            lightRef.current.intensity = 0.52 + ((Math.sin(phase * 2.1) + 1) * 0.12);
+        }
     });
 
     return (
         <group ref={groupRef} position={[x * GRID_SIZE, 0, y * GRID_SIZE]}>
-            <mesh geometry={ringGeometry} material={ringMaterial} renderOrder={FLUXCAGE_RENDER_ORDER} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.05, 0]} />
-            <mesh geometry={ringGeometry} material={ringMaterial} renderOrder={FLUXCAGE_RENDER_ORDER} rotation={[Math.PI / 2, 0, 0]} position={[0, -0.18, 0]} scale={0.82} />
-            <mesh geometry={barGeometry} material={barMaterial} renderOrder={FLUXCAGE_RENDER_ORDER} position={[0.22, 0, 0.22]} />
-            <mesh geometry={barGeometry} material={barMaterial} renderOrder={FLUXCAGE_RENDER_ORDER} position={[-0.22, 0, 0.22]} />
-            <mesh geometry={barGeometry} material={barMaterial} renderOrder={FLUXCAGE_RENDER_ORDER} position={[0.22, 0, -0.22]} />
-            <mesh geometry={barGeometry} material={barMaterial} renderOrder={FLUXCAGE_RENDER_ORDER} position={[-0.22, 0, -0.22]} />
+            <mesh
+                geometry={ringGeometry}
+                material={ringMaterial}
+                renderOrder={FLUXCAGE_RENDER_ORDER}
+                rotation={[Math.PI / 2, 0, 0]}
+                position={[0, FLUXCAGE_RING_TOP_Y, 0]}
+                scale={0.96}
+            />
+            <mesh
+                geometry={ringGeometry}
+                material={ringMaterial}
+                renderOrder={FLUXCAGE_RENDER_ORDER}
+                rotation={[Math.PI / 2, 0, 0]}
+                position={[0, FLUXCAGE_RING_BOTTOM_Y + FLUXCAGE_RING_STEP_Y, 0]}
+                scale={0.9}
+            />
+            <mesh
+                geometry={ringGeometry}
+                material={ringMaterial}
+                renderOrder={FLUXCAGE_RENDER_ORDER}
+                rotation={[Math.PI / 2, 0, 0]}
+                position={[0, FLUXCAGE_RING_BOTTOM_Y, 0]}
+                scale={0.84}
+            />
+            {barOffsets.map((bar, index) => (
+                <mesh
+                    key={`fluxcage_bar_${index}`}
+                    geometry={barGeometry}
+                    material={barMaterial}
+                    renderOrder={FLUXCAGE_RENDER_ORDER}
+                    position={[bar.x, FLUXCAGE_CENTER_Y, bar.z]}
+                    scale={[1, bar.scaleY, 1]}
+                />
+            ))}
+            <Suspense fallback={null}>
+                <LazyPhotonsFluxcageParticles scale={1.04} />
+            </Suspense>
+            <pointLight
+                ref={lightRef}
+                color="#f4dc75"
+                intensity={0.64}
+                distance={GRID_SIZE * 1.9}
+                decay={2}
+                position={[0, FLUXCAGE_CENTER_Y, 0]}
+            />
         </group>
     );
 };
@@ -753,11 +871,11 @@ const PersistentPoisonCloudVisual: React.FC<{
 
     useFrame((_, delta) => {
         if (!groupRef.current) return;
-        groupRef.current.rotation.y += delta * 0.18;
-        const pulse = 1 + Math.sin(Date.now() / 180) * 0.05;
+        groupRef.current.rotation.y += delta * 0.14;
+        const pulse = 1 + Math.sin(Date.now() / 180) * 0.08;
         groupRef.current.scale.setScalar(pulse);
         if (lightRef.current) {
-            lightRef.current.intensity = 0.32 + ((Math.sin(Date.now() / 220) + 1) * 0.08);
+            lightRef.current.intensity = 0.12 + ((Math.sin(Date.now() / 220) + 1) * 0.04);
         }
     });
 
@@ -765,14 +883,14 @@ const PersistentPoisonCloudVisual: React.FC<{
         <group position={[cloud.x * GRID_SIZE, GRID_SIZE * 0.02, cloud.y * GRID_SIZE]}>
             <group ref={groupRef}>
                 <Suspense fallback={null}>
-                    <LazyPhotonsPoisonProjectile effect="poison_cloud" scale={(cloud.visualScale ?? 1) * 1.16} />
+                    <LazyPhotonsPoisonProjectile effect="poison_cloud" scale={(cloud.visualScale ?? 1) * 1.7} />
                 </Suspense>
             </group>
             <pointLight
                 ref={lightRef}
-                color="#8cff8b"
-                intensity={0.36}
-                distance={GRID_SIZE * 1.4}
+                color="#34d88a"
+                intensity={0.22}
+                distance={GRID_SIZE * 1.25}
                 decay={2}
                 position={[0, GRID_SIZE * 0.16, 0]}
             />

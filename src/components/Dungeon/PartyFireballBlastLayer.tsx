@@ -154,20 +154,20 @@ function createPoisonMistTexture(): THREE.CanvasTexture {
         size * 0.52,
         size * 0.46,
     );
-    haze.addColorStop(0, 'rgba(235,255,210,0.88)');
-    haze.addColorStop(0.2, 'rgba(168,244,112,0.74)');
-    haze.addColorStop(0.48, 'rgba(82,176,78,0.5)');
-    haze.addColorStop(0.78, 'rgba(22,62,20,0.18)');
+    haze.addColorStop(0, 'rgba(170,194,166,0.82)');
+    haze.addColorStop(0.2, 'rgba(74,126,76,0.76)');
+    haze.addColorStop(0.48, 'rgba(36,82,46,0.62)');
+    haze.addColorStop(0.78, 'rgba(10,28,14,0.24)');
     haze.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = haze;
     ctx.fillRect(0, 0, size, size);
 
     const puffs = [
-        { x: 0.3, y: 0.62, r: 0.22, color: 'rgba(156,232,118,0.42)' },
-        { x: 0.46, y: 0.42, r: 0.18, color: 'rgba(214,255,184,0.28)' },
-        { x: 0.63, y: 0.56, r: 0.24, color: 'rgba(110,210,98,0.44)' },
-        { x: 0.74, y: 0.36, r: 0.15, color: 'rgba(196,255,168,0.2)' },
-        { x: 0.46, y: 0.74, r: 0.2, color: 'rgba(94,188,90,0.34)' },
+        { x: 0.3, y: 0.62, r: 0.22, color: 'rgba(82,142,86,0.46)' },
+        { x: 0.46, y: 0.42, r: 0.18, color: 'rgba(150,180,152,0.3)' },
+        { x: 0.63, y: 0.56, r: 0.24, color: 'rgba(48,102,58,0.5)' },
+        { x: 0.74, y: 0.36, r: 0.15, color: 'rgba(128,162,130,0.22)' },
+        { x: 0.46, y: 0.74, r: 0.2, color: 'rgba(42,92,52,0.42)' },
     ];
 
     for (const puff of puffs) {
@@ -671,10 +671,10 @@ const PartyPoisonBlast: React.FC<{
     const outerMistMaterial = useMemo(
         () =>
             new THREE.MeshBasicMaterial({
-                color: '#77d66b',
+                color: '#427941',
                 map: poisonTexture,
                 transparent: true,
-                opacity: 0.36,
+                opacity: 0.46,
                 alphaTest: 0.05,
                 depthWrite: false,
                 depthTest: false,
@@ -687,10 +687,10 @@ const PartyPoisonBlast: React.FC<{
     const innerMistMaterial = useMemo(
         () =>
             new THREE.MeshBasicMaterial({
-                color: '#d9ffb3',
+                color: '#8fb38e',
                 map: poisonTexture,
                 transparent: true,
-                opacity: 0.28,
+                opacity: 0.36,
                 alphaTest: 0.04,
                 depthWrite: false,
                 depthTest: false,
@@ -703,9 +703,9 @@ const PartyPoisonBlast: React.FC<{
     const ringMaterial = useMemo(
         () =>
             new THREE.MeshBasicMaterial({
-                color: '#8cff8b',
+                color: '#507f53',
                 transparent: true,
-                opacity: 0.3,
+                opacity: 0.38,
                 depthWrite: false,
                 toneMapped: false,
             }),
@@ -714,9 +714,9 @@ const PartyPoisonBlast: React.FC<{
     const wispMaterial = useMemo(
         () =>
             new THREE.MeshBasicMaterial({
-                color: '#baff8c',
+                color: '#6f986f',
                 transparent: true,
-                opacity: 0.34,
+                opacity: 0.42,
                 depthWrite: false,
                 toneMapped: false,
             }),
@@ -828,7 +828,7 @@ const PartyPoisonBlast: React.FC<{
             </Suspense>
             <pointLight
                 ref={lightRef}
-                color="#95ff7d"
+                color="#557f57"
                 intensity={0}
                 distance={GRID_SIZE * 2.2}
                 decay={2}
@@ -897,7 +897,7 @@ const PartyLightningBlast: React.FC<{
     const ringMaterial = useMemo(
         () =>
             new THREE.MeshBasicMaterial({
-                color: '#d7f7ff',
+                color: '#c4efff',
                 transparent: true,
                 opacity: 0.44,
                 depthWrite: false,
@@ -908,7 +908,7 @@ const PartyLightningBlast: React.FC<{
     const shockMaterial = useMemo(
         () =>
             new THREE.MeshBasicMaterial({
-                color: '#ffffff',
+                color: '#e5f8ff',
                 transparent: true,
                 opacity: 0.7,
                 depthWrite: false,
@@ -920,7 +920,7 @@ const PartyLightningBlast: React.FC<{
     const arcMaterial = useMemo(
         () =>
             new THREE.MeshBasicMaterial({
-                color: '#8fdfff',
+                color: '#68d1ff',
                 transparent: true,
                 opacity: 0.52,
                 depthWrite: false,
@@ -1022,7 +1022,7 @@ const PartyLightningBlast: React.FC<{
             ))}
             <pointLight
                 ref={lightRef}
-                color="#c7f1ff"
+                color="#8fe1ff"
                 intensity={0}
                 distance={GRID_SIZE * 2.4}
                 decay={2}

@@ -358,6 +358,7 @@ const CORE_WALL_OVERLAY_NAMES = [
     'Dagger Holes',
     'Poison Holes',
     'Slime Outlet',
+    'Lord Order (Outside)',
     'Amalgam (Encased Gem)',
     'Amalgam (Free Gem)',
     'Amalgam (Without Gem)',

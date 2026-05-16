@@ -32,6 +32,7 @@ import { inspectPersistedSaveData } from './engine/systems/persistence';
 import {
   preloadGameplayRenderCoreModules,
   preloadGameplayRenderModules,
+  preloadVictoryScreenModule,
 } from './preload/gameplayModulePreload';
 import {
   preloadAmalgamWallOverlayVisualAssets,
@@ -348,6 +349,11 @@ function GameRoot() {
       cancelSecondaryModuleWarmup();
     };
   }, [gamePhase, level]);
+
+  useEffect(() => {
+    if (gamePhase !== 'endgame') return;
+    void preloadVictoryScreenModule().catch(() => {});
+  }, [gamePhase]);
 
   useEffect(() => {
     const heartbeatTimer = window.setInterval(() => {

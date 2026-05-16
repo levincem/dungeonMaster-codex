@@ -22,6 +22,7 @@ import {
     getOriginalWeaponReference,
     matchesRequiredAmmoRawClass,
 } from '../../data/weaponAttacks';
+import { getCurrentLocale, getTranslations } from '../../i18n';
 import type { Champion } from '../../types/champion';
 import type {
     CardinalDir,
@@ -97,7 +98,13 @@ export function getRightHandStats(
             };
         }
     }
-    return { name: 'Poing', dmgMin: 1, dmgMax: 4, cooldownSec: 2.0, skill: 'fighter' };
+    return {
+        name: getTranslations(getCurrentLocale()).hud.fist,
+        dmgMin: 1,
+        dmgMax: 4,
+        cooldownSec: 2.0,
+        skill: 'fighter',
+    };
 }
 
 export function buildAttackResultMessage(message: string, success = false) {

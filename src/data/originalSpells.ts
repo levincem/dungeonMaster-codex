@@ -171,6 +171,17 @@ export function getOriginalSpellPowerLevel(runes: readonly string[]): number | n
     return index >= 0 ? index + 1 : null;
 }
 
+export function getOriginalSpellManaCost(baseDifficulty: number, powerLevel: number): number {
+    return Math.floor(baseDifficulty * ((powerLevel + 1) / 2));
+}
+
+export function getOriginalSpellManaCostForRunes(runes: readonly string[]): number | null {
+    const descriptor = getOriginalSpellDescriptorForRunes(runes);
+    const powerLevel = getOriginalSpellPowerLevel(runes);
+    if (!descriptor || !powerLevel) return null;
+    return getOriginalSpellManaCost(descriptor.baseDifficulty, powerLevel);
+}
+
 export function getOriginalSpellRequiredSkillLevel(runes: readonly string[]): number | null {
     const descriptor = getOriginalSpellDescriptorForRunes(runes);
     const powerLevel = getOriginalSpellPowerLevel(runes);

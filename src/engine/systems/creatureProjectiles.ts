@@ -3,6 +3,7 @@ import type { CreatureInstance } from '../../types/game';
 import type { Projectile, ProjectileEffect } from '../runtimeTypes';
 import { PROJECTILE_STEP_MS } from '../time';
 import { getPrimaryDirectionTowardTarget } from './directionState';
+import { getSharedNonRuneProjectileVisualScale } from './spellVisualScale';
 
 type ProjectileTargetState = {
     position: [number, number];
@@ -70,6 +71,6 @@ export function buildCreatureProjectile(
         remainingRange: kineticEnergy,
         remainingAttack: Math.max(1, def.dexterity),
         stepDecay: 8,
-        visualScale: effect === 'lightning' ? 1.05 : effect === 'poison_cloud' ? 1.1 : effect === 'slime' ? 0.96 : 1,
+        visualScale: getSharedNonRuneProjectileVisualScale(effect),
     };
 }

@@ -1,3 +1,4 @@
+import { useSyncExternalStore } from 'react';
 import { en } from './en';
 import { fr } from './fr';
 
@@ -10,6 +11,32 @@ const translations: Record<Locale, Translations> = {
 };
 
 let currentLocale: Locale = 'en';
+const LOCALE_STORAGE_KEY = 'dm_locale';
+const localeListeners = new Set<() => void>();
+
+function readStoredLocale(): Locale | null {
+    if (typeof localStorage === 'undefined') return null;
+    try {
+        return resolveLocaleCandidate(localStorage.getItem(LOCALE_STORAGE_KEY));
+    } catch {
+        return null;
+    }
+}
+
+function writeStoredLocale(locale: Locale): void {
+    if (typeof localStorage === 'undefined') return;
+    try {
+        localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+    } catch {
+        // Ignore storage failures and keep the in-memory locale.
+    }
+}
+
+function emitLocaleChange(): void {
+    for (const listener of localeListeners) {
+        listener();
+    }
+}
 
 function resolveLocaleCandidate(candidate: string | null | undefined): Locale | null {
     if (!candidate) return null;
@@ -44,14 +71,23 @@ export function detectLocaleFromEnvironment(): Locale {
 }
 
 export function setLocale(locale: Locale): void {
+    if (currentLocale === locale) {
+        if (typeof document !== 'undefined') {
+            document.documentElement.lang = locale;
+        }
+        writeStoredLocale(locale);
+        return;
+    }
     currentLocale = locale;
     if (typeof document !== 'undefined') {
         document.documentElement.lang = locale;
     }
+    writeStoredLocale(locale);
+    emitLocaleChange();
 }
 
 export function initializeLocale(locale?: Locale): Locale {
-    const resolved = locale ?? detectLocaleFromEnvironment();
+    const resolved = locale ?? readStoredLocale() ?? detectLocaleFromEnvironment();
     setLocale(resolved);
     return resolved;
 }
@@ -60,6 +96,21 @@ export function getTranslations(locale: Locale = currentLocale): Translations {
     return translations[locale];
 }
 
+export function getCurrentLocale(): Locale {
+    return currentLocale;
+}
+
+export function useLocale(): Locale {
+    return useSyncExternalStore(
+        (listener) => {
+            localeListeners.add(listener);
+            return () => localeListeners.delete(listener);
+        },
+        () => currentLocale,
+        () => currentLocale,
+    );
+}
+
 export function useI18n(): Translations {
-    return getTranslations();
+    return getTranslations(useLocale());
 }

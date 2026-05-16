@@ -11,7 +11,15 @@ node_modules
 dist
 dist-ssr
 .test-dist
+.test-probe/
+.tmp/
+dev-saves/
 *.local
+public/game/images/misc/amalgam_free_preview.png
+public/game/images/misc/black_flame_sprite_sheet.png
+public/game/images/misc/tile_a.png
+public/game/images/misc/tile_b.png
+public/game/images/misc/tile_c.png
 
 # Editor directories and files
 .vscode/*

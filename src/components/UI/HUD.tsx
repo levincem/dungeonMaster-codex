@@ -11,16 +11,22 @@ import { getGameMap } from '../../data/mapLoader';
 import type { Champion } from '../../data/champions';
 import type { ChampionEquipment } from '../../types/game';
 import { getEquippedItemImage } from '../../data/itemImages';
-import { getPreferredCombatItem } from '../../data/equipment';
+import { getPreferredCombatItem, QUIVER_SLOT_KEYS } from '../../data/equipment';
 import { formatKeybinding, matchesKeybinding, normalizeBindingKey } from '../../engine/options';
 import { importPersistedSave } from '../../engine/saveGame';
 import { findSpell } from '../../data/runes';
 import { itemsPath } from '../../data/assetPaths';
-import { useI18n } from '../../i18n';
+import { setLocale, useI18n, useLocale } from '../../i18n';
+import { getActionCharges } from '../../engine/systems/storeCombatRuntime';
 import { HudMagicPanel } from './HudMagicPanel';
 import { HudPartyPanel } from './HudPartyPanel';
 import {
     getWeaponAttackOptions,
+    getRequiredAmmoRawClass,
+    isPhysicalAttack,
+    isShootAttack,
+    isThrowAttack,
+    matchesRequiredAmmoRawClass,
     type WeaponAttackOption,
 } from '../../data/weaponAttacks';
 import { BASIC_SKILL_KEYS, getChampionSkillLevel, mapOriginalSkillNumberToSkillKey } from '../../data/skillProgression';
@@ -36,6 +42,7 @@ import {
     setPreparedHudRunes,
 } from './hudDerivedState';
 import { recordChampionStatHighlights, type HighlightStatKey } from './championStatHighlights';
+import { isChampionInRearRank, resolveAttackFrontContext } from '../../engine/systems/attackFrontContext';
 
 const ManualModal = lazy(() =>
     import('./ManualModal').then((module) => ({ default: module.ManualModal })),
@@ -234,15 +241,25 @@ const CombatGrid: React.FC<{
     championTemporaryXP: Record<number, ChampionTemporaryXP>;
     attackFront: (id: number, attackType?: number) => void;
 }> = ({ party, championCombat, championEquipment, championXP, championTemporaryXP, attackFront }) => {
-    const text = useI18n().hud;
+    const i18n = useI18n();
+    const text = i18n.hud;
+    const runtimeText = i18n.runtime;
     const [flash, setFlash] = useState([false, false, false, false]);
     const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null);
     const torchBurnStart = useStore((s) => s.torchBurnStart);
     const paused = useStore((s) => s.paused);
     const pausedAt = useStore((s) => s.pausedAt ?? null);
     const direction = useStore((s) => s.direction);
+    const level = useStore((s) => s.level);
+    const position = useStore((s) => s.position);
+    const creatures = useStore((s) => s.creatures);
     const emptyWeaponImage = itemsPath('hands_1.png');
     const weaponImageNow = paused && typeof pausedAt === 'number' ? pausedAt : Date.now();
+
+    const resolveCombatItem = (equipment: ChampionEquipment | undefined) => getPreferredCombatItem(equipment, {
+        getWeaponAttackOptions,
+        isThrowAttack,
+    })?.item;
 
     const triggerAttack = (i: number, champ: Champion, attackType?: number) => {
         attackFront(champ.id, attackType);
@@ -263,8 +280,8 @@ const CombatGrid: React.FC<{
             triggerAttack(i, champ, usableAttacks[0]?.attackType);
             return;
         }
-        if (allAttacks.length === 1 && usableAttacks.length === 1) {
-            triggerAttack(i, champ, usableAttacks[0].attackType);
+        if (allAttacks.length === 1) {
+            triggerAttack(i, champ, (usableAttacks[0] ?? allAttacks[0]).attackType);
             return;
         }
         setOpenMenuIndex((current) => current === i ? null : i);
@@ -274,6 +291,9 @@ const CombatGrid: React.FC<{
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 126px)', gap: 10, justifyContent: 'start' }}>
             {[0, 1, 2, 3].map(i => {
                 const champ = party[i];
+                const frontAttackContext = champ
+                    ? resolveAttackFrontContext(level, position, direction, creatures, party, champ.id)
+                    : null;
                 const getMasteryForAttack = (championId: number, attack: WeaponAttackOption) => {
                     if (!champ) return 0;
                     const skill = mapOriginalSkillNumberToSkillKey(attack.attack.skillNumber);
@@ -291,17 +311,11 @@ const CombatGrid: React.FC<{
                     fistLabel: text.fist,
                     direction,
                     resolveWeaponImage: (_championId, equipment) => {
-                        const weapon = getPreferredCombatItem(equipment, {
-                            getWeaponAttackOptions,
-                            isThrowAttack: (attack) => attack?.enumName === 'Throw',
-                        })?.item;
+                        const weapon = resolveCombatItem(equipment);
                         return weapon ? getEquippedItemImage(weapon, torchBurnStart, weaponImageNow) : emptyWeaponImage;
                     },
                     resolveWeaponName: (_championId, equipment, facingDirection) => {
-                        const weapon = getPreferredCombatItem(equipment, {
-                            getWeaponAttackOptions,
-                            isThrowAttack: (attack) => attack?.enumName === 'Throw',
-                        })?.item;
+                        const weapon = resolveCombatItem(equipment);
                         if (!weapon) return text.fist;
                         return weapon.category === 'Weapon'
                             ? (WEAPON_TYPES[weapon.typeId]?.name ?? weapon.rawName ?? '?')
@@ -311,17 +325,49 @@ const CombatGrid: React.FC<{
                                 facingDirection,
                             );
                     },
-                    getAllAttacks: (_championId, equipment) => getWeaponAttackOptions(
-                        getPreferredCombatItem(equipment, {
-                            getWeaponAttackOptions,
-                            isThrowAttack: (attack) => attack?.enumName === 'Throw',
-                        })?.item,
-                    ),
+                    getAllAttacks: (_championId, equipment) => getWeaponAttackOptions(resolveCombatItem(equipment)),
                     getAttackMasteryLevel: getMasteryForAttack,
+                    getAttackBlockedReason: (championId, equipment, attack) => {
+                        const attackItem = resolveCombatItem(equipment);
+                        if (isShootAttack(attack)) {
+                            if (!attackItem) return null;
+                            const requiredAmmoRawClass = getRequiredAmmoRawClass(attackItem);
+                            if (requiredAmmoRawClass !== null) {
+                                const hasCompatibleAmmo = QUIVER_SLOT_KEYS.some((slot) =>
+                                    matchesRequiredAmmoRawClass(equipment[slot], requiredAmmoRawClass),
+                                );
+                                if (!hasCompatibleAmmo) return runtimeText.noCompatibleAmmo;
+                            }
+                        }
+                        const rearRankContactAttack = isChampionInRearRank(party, championId)
+                            && Boolean(frontAttackContext?.target)
+                            && isPhysicalAttack(attack)
+                            && !isThrowAttack(attack)
+                            && !isShootAttack(attack);
+                        if (rearRankContactAttack) return runtimeText.targetOutOfReach;
+                        if (attack.requiresCharges) {
+                            const charges = getActionCharges(equipment.rightHand);
+                            if (charges !== null && charges <= 0) return runtimeText.noChargesRemaining;
+                        }
+                        return null;
+                    },
                 });
-                const { allAttacks, cooldownRatio, ready, usableAttacks, weaponImage, weaponName } = slotState;
+                const {
+                    allAttacks,
+                    blockedAttackReasons,
+                    cooldownRatio,
+                    ready,
+                    usableAttacks,
+                    weaponImage,
+                    weaponName,
+                } = slotState;
                 const isFlash = flash[i];
                 const menuOpen = openMenuIndex === i && ready && !!champ && allAttacks.length > 1;
+                const singleBlockedReason = allAttacks.length === 1
+                    ? (blockedAttackReasons[allAttacks[0]?.attackType] ?? null)
+                    : null;
+                const slotBlocked = Boolean(singleBlockedReason) && usableAttacks.length === 0;
+                const slotTitle = singleBlockedReason ? `${weaponName} | ${singleBlockedReason}` : weaponName;
 
                 return (
                     <div
@@ -331,8 +377,16 @@ const CombatGrid: React.FC<{
                             position: 'relative', overflow: 'hidden',
                             background: isFlash
                                 ? 'rgba(220,180,60,0.28)'
-                                : champ ? 'rgba(0,0,0,0.92)' : 'rgba(0,0,0,0.55)',
-                            border: `1px solid ${isFlash ? 'rgba(220,180,60,0.7)' : champ ? 'rgba(212,184,112,0.62)' : 'rgba(212,184,112,0.24)'}`,
+                                : slotBlocked
+                                    ? 'rgba(8,8,8,0.92)'
+                                    : champ ? 'rgba(0,0,0,0.92)' : 'rgba(0,0,0,0.55)',
+                            border: `1px solid ${
+                                isFlash
+                                    ? 'rgba(220,180,60,0.7)'
+                                    : slotBlocked
+                                        ? 'rgba(212,184,112,0.34)'
+                                        : champ ? 'rgba(212,184,112,0.62)' : 'rgba(212,184,112,0.24)'
+                            }`,
                             borderRadius: 4,
                             cursor: champ && ready ? 'pointer' : 'default',
                             width: 126,
@@ -340,12 +394,13 @@ const CombatGrid: React.FC<{
                             userSelect: 'none',
                             transition: 'background 0.08s, border-color 0.08s',
                         }}
+                        title={slotBlocked ? slotTitle : undefined}
                     >
                         {champ ? (
                             <>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
                                     <div
-                                        title={weaponName}
+                                        title={slotTitle}
                                         style={{
                                             width: 88,
                                             height: 100,
@@ -369,6 +424,7 @@ const CombatGrid: React.FC<{
                                                     maxHeight: '92%',
                                                     objectFit: 'contain',
                                                     imageRendering: 'crisp-edges',
+                                                    opacity: slotBlocked ? 0.45 : 1,
                                                 }}
                                             />
                                         ) : (
@@ -385,6 +441,17 @@ const CombatGrid: React.FC<{
                                     transition: 'height 0.08s linear',
                                     borderRadius: '0 0 3px 3px',
                                 }} />
+                                {slotBlocked && (
+                                    <div
+                                        style={{
+                                            position: 'absolute',
+                                            inset: 0,
+                                            background: 'rgba(42, 42, 42, 0.38)',
+                                            boxShadow: 'inset 0 0 0 1px rgba(212,184,112,0.14)',
+                                            pointerEvents: 'none',
+                                        }}
+                                    />
+                                )}
                                 {menuOpen && (
                                     <div style={{
                                         position: 'absolute',
@@ -397,28 +464,33 @@ const CombatGrid: React.FC<{
                                         zIndex: 2,
                                     }}>
                                         {allAttacks.map((attack) => {
+                                            const blockedReason = blockedAttackReasons[attack.attackType] ?? null;
+                                            const attackEnabled = !blockedReason;
                                             return (
                                                 <button
                                                     key={attack.attackType}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
+                                                        if (!attackEnabled) return;
                                                         triggerAttack(i, champ, attack.attackType);
                                                     }}
+                                                    aria-disabled={!attackEnabled}
                                                     style={{
                                                         flex: 1,
                                                         minHeight: 0,
-                                                        background: 'rgba(0,0,0,0.94)',
-                                                        border: '1px solid rgba(212,184,112,0.68)',
-                                                        color: '#e4c684',
+                                                        background: attackEnabled ? 'rgba(0,0,0,0.94)' : 'rgba(22,22,22,0.94)',
+                                                        border: `1px solid ${attackEnabled ? 'rgba(212,184,112,0.68)' : 'rgba(212,184,112,0.28)'}`,
+                                                        color: attackEnabled ? '#e4c684' : 'rgba(228,198,132,0.46)',
                                                         borderRadius: 3,
                                                         fontSize: 9,
                                                         fontWeight: 'bold',
                                                         letterSpacing: 0.5,
-                                                        cursor: 'pointer',
+                                                        cursor: attackEnabled ? 'pointer' : 'default',
                                                         padding: '2px 4px',
                                                         textAlign: 'center',
+                                                        opacity: attackEnabled ? 1 : 0.8,
                                                     }}
-                                                    title={`${attack.displayName} \u00b7 ${text.fatigue} ${attack.attack.staminaCost} \u00b7 ${text.speed} ${attack.attack.disableTime}/6s`}
+                                                    title={`${attack.displayName} \u00b7 ${text.fatigue} ${attack.attack.staminaCost} \u00b7 ${text.speed} ${attack.attack.disableTime}/6s${blockedReason ? ` \u00b7 ${blockedReason}` : ''}`}
                                                 >
                                                     {attack.displayName}
                                                 </button>
@@ -496,6 +568,7 @@ function removeHeldMovementKey(keys: HeldMovementKey[], key: HeldMovementKey): H
 
 export const HUD = () => {
     const translations = useI18n();
+    const currentLocale = useLocale();
     const text = translations.hud;
     const manual = translations.manual;
     const {
@@ -1183,9 +1256,11 @@ export const HUD = () => {
                 <HudOptionsModal
                     open={optionsModalOpen}
                     text={text}
+                    currentLocale={currentLocale}
                     keybindings={gameOptions.keybindings}
                     rebindingTarget={rebindingTarget}
                     onClose={handleCloseOptionsModal}
+                    onChangeLocale={setLocale}
                     onExportSave={handleExportSave}
                     onImportSave={handleImportSave}
                     onToggleBinding={(target) => {

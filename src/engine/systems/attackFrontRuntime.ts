@@ -221,7 +221,7 @@ export function runAttackFrontRuntime(
             championCombat: { ...state.championCombat, [championId]: newCombat },
             championVitals,
             lastCastResult: deps.buildAttackResultMessage(
-                `${selectedAttack.displayName} impossible: plus de charges.`,
+                runtimeText.attackUnavailable(selectedAttack.displayName, runtimeText.noChargesRemaining),
             ),
         };
     }
@@ -271,7 +271,7 @@ export function runAttackFrontRuntime(
             championCombat: { ...state.championCombat, [championId]: newCombat },
             championVitals,
             lastCastResult: deps.buildAttackResultMessage(
-                `Action originale pas encore integree: ${selectedAttack.displayName}.`,
+                runtimeText.originalActionNotImplemented(selectedAttack.displayName),
             ),
         };
     }

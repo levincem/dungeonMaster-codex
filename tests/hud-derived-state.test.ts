@@ -256,6 +256,95 @@ test('buildCombatGridSlotState can surface the next throwable quiver item when t
     assert.deepEqual(state.usableAttacks, [throwAttack]);
 });
 
+test('buildCombatGridSlotState keeps shoot visible but marks it unusable when the quiver is empty', () => {
+    const champion = createChampion(1, 'Hissssa');
+    const shootAttack = {
+        attackType: 7,
+        displayName: 'Shoot',
+        enumName: 'Shoot',
+        masteryThreshold: 0,
+        attack: { skillNumber: 1 },
+    } as WeaponAttackOption;
+    const championCombat: Record<number, ChampionCombat> = {
+        1: { cooldown: 0, cooldownMax: 12, defenseModifier: 0 },
+    };
+    const championEquipment: Record<number, ChampionEquipment> = {
+        1: {
+            rightHand: { id: 'bow', category: 'Weapon', typeId: 18, rawName: 'Bow', mapIndex: 0, x: 0, y: 0, tilePos: 'North' },
+        },
+    };
+
+    const state = buildCombatGridSlotState({
+        champion,
+        championCombat,
+        championEquipment,
+        emptyWeaponImage: 'empty.png',
+        fistLabel: 'FIST',
+        direction: 'NORTH',
+        resolveWeaponImage: () => 'bow.png',
+        resolveWeaponName: () => 'Bow',
+        getAllAttacks: () => [shootAttack],
+        getAttackMasteryLevel: () => 3,
+        getAttackBlockedReason: () => 'No compatible ammunition in the quiver.',
+    });
+
+    assert.deepEqual(state.allAttacks, [shootAttack]);
+    assert.deepEqual(state.usableAttacks, []);
+    assert.deepEqual(state.blockedAttackReasons, {
+        [shootAttack.attackType]: 'No compatible ammunition in the quiver.',
+    });
+});
+
+test('buildCombatGridSlotState keeps charge-based attacks visible but marks them unusable when charges are empty', () => {
+    const champion = createChampion(1, 'Halk');
+    const zapAttack = {
+        attackType: 11,
+        displayName: 'Zap',
+        enumName: 'Zap',
+        requiresCharges: true,
+        masteryThreshold: 0,
+        attack: { skillNumber: 4 },
+    } as WeaponAttackOption;
+    const championCombat: Record<number, ChampionCombat> = {
+        1: { cooldown: 0, cooldownMax: 12, defenseModifier: 0 },
+    };
+    const championEquipment: Record<number, ChampionEquipment> = {
+        1: {
+            rightHand: {
+                id: 'wand',
+                category: 'Weapon',
+                typeId: 24,
+                rawName: 'Wand',
+                actionCharges: 0,
+                mapIndex: 0,
+                x: 0,
+                y: 0,
+                tilePos: 'North',
+            },
+        },
+    };
+
+    const state = buildCombatGridSlotState({
+        champion,
+        championCombat,
+        championEquipment,
+        emptyWeaponImage: 'empty.png',
+        fistLabel: 'FIST',
+        direction: 'NORTH',
+        resolveWeaponImage: () => 'wand.png',
+        resolveWeaponName: () => 'Wand',
+        getAllAttacks: () => [zapAttack],
+        getAttackMasteryLevel: () => 3,
+        getAttackBlockedReason: () => 'No charges remaining.',
+    });
+
+    assert.deepEqual(state.allAttacks, [zapAttack]);
+    assert.deepEqual(state.usableAttacks, []);
+    assert.deepEqual(state.blockedAttackReasons, {
+        [zapAttack.attackType]: 'No charges remaining.',
+    });
+});
+
 test('selectHudRunes truncates at an existing rune and refuses to exceed four runes', () => {
     assert.deepEqual(selectHudRunes(['FUL', 'IR'], 'IR'), ['FUL']);
     assert.deepEqual(selectHudRunes(['FUL', 'IR', 'BRO', 'NETA'], 'DES'), ['FUL', 'IR', 'BRO', 'NETA']);

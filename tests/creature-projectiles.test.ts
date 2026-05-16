@@ -73,7 +73,7 @@ test('chooseOriginalCreatureProjectileEffect follows original creature-specific 
     assert.equal(lordChaosEffect, 'poison_cloud');
 });
 
-test('buildCreatureProjectile computes direction, kinetic bounds and visual scale', () => {
+test('buildCreatureProjectile computes direction, kinetic bounds and shared spell visual scale', () => {
     const projectile = buildCreatureProjectile(
         { position: [3, 10] },
         createCreature(),
@@ -93,7 +93,7 @@ test('buildCreatureProjectile computes direction, kinetic bounds and visual scal
     assert.equal(projectile.remainingRange, 21);
     assert.equal(projectile.remainingAttack, 13);
     assert.equal(projectile.nextMoveAt, 1000 + PROJECTILE_STEP_MS);
-    assert.equal(projectile.visualScale, 1.05);
+    assert.ok(Math.abs((projectile.visualScale ?? 0) - 1.18) < 1e-9);
 });
 
 test('buildCreatureProjectile clamps kinetic energy to the original cap', () => {
@@ -113,5 +113,5 @@ test('buildCreatureProjectile clamps kinetic energy to the original cap', () => 
     assert.deepEqual(projectile.damage, [1, 255]);
     assert.equal(projectile.remainingRange, 255);
     assert.equal(projectile.remainingAttack, 1);
-    assert.equal(projectile.visualScale, 1.1);
+    assert.ok(Math.abs((projectile.visualScale ?? 0) - 1.22) < 1e-9);
 });

@@ -4,6 +4,7 @@ import {
     applyGameStatsDelta,
     buildGameStatsTransitionDelta,
     createInitialGameStats,
+    normalizeGameStats,
 } from '../src/engine/systems/gameStats.js';
 
 test('buildGameStatsTransitionDelta counts defeated creatures by name', () => {
@@ -67,4 +68,17 @@ test('applyGameStatsDelta merges per-creature kill counters', () => {
 
     assert.equal(merged.combat.byCreature.Screamer, 5);
     assert.equal(merged.combat.byCreature.Mummy, 1);
+});
+
+test('normalizeGameStats creates a run id for legacy stats payloads that do not have one', () => {
+    const normalized = normalizeGameStats({ startedAt: 1_000 }, 2_000);
+
+    assert.match(normalized.runId, /^[A-Za-z0-9_-]{8,96}$/);
+    assert.equal(normalized.startedAt, 1_000);
+});
+
+test('normalizeGameStats preserves an existing run id', () => {
+    const normalized = normalizeGameStats({ runId: 'run_legacy_12345678', startedAt: 1_000 }, 2_000);
+
+    assert.equal(normalized.runId, 'run_legacy_12345678');
 });

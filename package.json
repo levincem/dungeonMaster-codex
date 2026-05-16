@@ -1,11 +1,12 @@
 {
   "name": "dungeonmaster",
   "private": true,
-  "version": "0.9.0-rc.1",
+  "version": "0.9.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "hall-of-fame:server": "node scripts/hall-of-fame-server.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "node scripts/run-tests.mjs"

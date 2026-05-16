@@ -115,7 +115,7 @@ test('buildWallLauncherProjectiles creates explosion projectiles from wall launc
     assert.equal(projectiles[0]?.direction, 'EAST');
     assert.equal(projectiles[0]?.effect, 'lightning');
     assert.equal(projectiles[0]?.launchedBy, 'wall');
-    assert.equal(projectiles[0]?.visualScale, 1.04);
+    assert.ok(Math.abs((projectiles[0]?.visualScale ?? 0) - 1.18) < 1e-9);
 });
 
 test('buildWallLauncherProjectiles creates physical item launchers with drops', () => {

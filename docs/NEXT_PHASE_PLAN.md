@@ -6,8 +6,8 @@ Ce document ne doit contenir que des sujets encore ouverts.
 
 Lecture actuelle:
 
-- le projet est en `0.9 release candidate`
-- ce plan ne liste plus des chantiers de beta large, mais les derniers sujets a fermer avant une `0.9` publique plus stable
+- le projet est en `0.9.1`
+- ce plan ne liste plus des chantiers de beta large, mais les derniers sujets a fermer pour une `0.9.x` plus stable
 
 Regle simple:
 
@@ -70,43 +70,13 @@ Regle de correction:
   - les items sur case occupee ont maintenant leur presentation relevee / tiree vers le joueur, avec couverture dediee sur les cas `creature` et `party`
   - si un nouveau playtest remonte un vrai cas de pickup impossible ou illisible, on le rouvrira comme bug cible plutot que comme chantier ouvert generique
 
-## Ordre recommande avant `0.9`
+## Ordre recommande maintenant
 
-1. hall of fame partage sur le VPS
-2. playtest final `generateurs / transitions / endgame`
-3. petit reliquat UX / perf / presentation
+1. playtest final `generateurs / transitions / endgame`
+2. petit reliquat UX / perf / presentation
+3. profilage / optimisation a fort rendement
 
-## 1. Hall of fame partage sur le VPS
-
-Statut:
-
-- ouvert
-
-Pourquoi ce n'est pas fini:
-
-- le hall of fame de fin de partie existe deja cote front
-- il enregistre aujourd'hui en `localStorage`, donc seulement pour la machine courante
-- le besoin suivant est un tableau partage simple, pas un gros service live
-
-Livrable cible:
-
-- une API `Node.js` minimale sur le VPS
-- `GET /api/hall-of-fame`
-- `POST /api/hall-of-fame`
-- stockage fichier JSON persistant
-- validation basique anti-abus / anti-triche triviale
-
-Definition de fini:
-
-- le site lit et ecrit bien un classement global
-- une soumission absurde est rejetee proprement
-- le front garde un fallback local si l'API n'est pas disponible
-
-Support:
-
-- [docs/RC_FINISH_PLAN.md](/D:/DungeonMaster-codex/docs/RC_FINISH_PLAN.md)
-
-## 2. Playtest cible generateurs / transitions / endgame
+## 1. Playtest cible generateurs / transitions / endgame
 
 Statut:
 
@@ -134,6 +104,28 @@ Definition de fini:
 Support:
 
 - [PLAYTEST_CHECKLIST_TRANSITIONS_ENDGAME.md](/D:/DungeonMaster-codex/docs/PLAYTEST_CHECKLIST_TRANSITIONS_ENDGAME.md)
+
+## 2. Presentation finale / UX tardive
+
+Statut:
+
+- ouvert
+
+Pourquoi ce n'est pas fini:
+
+- l'accueil, le Hall of Fame et les options ont recu une grosse passe utile
+- le reliquat visible est maintenant surtout de l'ajustement de presentation, pas un chantier de structure
+
+Priorites:
+
+- lisibilite finale de l'ecran titre sur grands ecrans
+- dernieres retouches sur les VFX de sorts si un vrai point ressort encore
+- verification du Hall of Fame sur des navigateurs et tailles d'ecran varies
+
+Definition de fini:
+
+- aucun ecart visuel vraiment choquant ne ressort sur les resolutions de bureau courantes
+- les derniers ajustements relevent bien du luxe et non d'un bug de presentation
 
 ## 3. Profilage / optimisation / presentation finale
 
@@ -176,8 +168,8 @@ Definition de fini:
 - polish HUD `combat`
   - a revoir plus tard
   - petit reliquat concret seulement
-  - le `combat grid` ouvre encore son sous-menu sur le compte total `allAttacks` au lieu de s'en tenir strictement aux actions vraiment utilisables
-  - les actions non utilisables restent encore visibles dans ce menu au lieu d'etre simplement filtrees
+  - le cas le plus visible `ammo / charges / melee rangee arriere` est maintenant grise proprement
+  - si on y revient, ce sera surtout pour d'autres raisons contextuelles rares ou pour simplifier encore la lecture du sous-menu
 
 ## Discipline de mise a jour
 

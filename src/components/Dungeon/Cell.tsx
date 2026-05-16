@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useEffect, Suspense, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { PhotonsRaDoorCurtain } from './PhotonsFireball';
+import { PhotonsRaDoorCurtain } from './PhotonsRaDoorCurtain';
 import { GRID_SIZE, WALL_HEIGHT } from '../../engine/constants';
 import { subscribePlateActivated } from '../../engine/store';
 import type { ThreeEvent } from '@react-three/fiber';

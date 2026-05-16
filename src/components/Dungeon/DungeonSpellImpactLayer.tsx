@@ -5,6 +5,12 @@ import { useStore } from '../../engine/store';
 import { DAMAGE_EVENT_LIFETIME_MS } from '../../engine/time';
 import { GRID_SIZE } from '../../engine/constants';
 import type { SpellVisualEvent } from '../../engine/runtimeTypes';
+import {
+    hashSpellVisualSeed,
+    sampleSpellVisualInt,
+    sampleSpellVisualRange,
+    sampleSpellVisualSeed,
+} from './spellVisualSeed';
 
 function createPulseMaterial(color: string, opacity: number) {
     return new THREE.MeshBasicMaterial({
@@ -24,21 +30,21 @@ export const SpellImpactLayer: React.FC = () => {
         [spellVisualEvents, level],
     );
     const ringGeometry = useMemo(() => new THREE.RingGeometry(0.1, 0.26, 24), []);
-    const fireMaterial = useMemo(() => createPulseMaterial('#ff8a3d', 0.42), []);
-    const fireCoreMaterial = useMemo(() => createPulseMaterial('#ffd97a', 0.7), []);
-    const fireFlameMaterial = useMemo(() => createPulseMaterial('#ffbe55', 0.58), []);
-    const lightningMaterial = useMemo(() => createPulseMaterial('#d7f7ff', 0.34), []);
-    const lightningCoreMaterial = useMemo(() => createPulseMaterial('#ffffff', 0.8), []);
-    const lightningArcMaterial = useMemo(() => createPulseMaterial('#8fdfff', 0.48), []);
-    const poisonMaterial = useMemo(() => createPulseMaterial('#8cff8b', 0.32), []);
-    const poisonCoreMaterial = useMemo(() => createPulseMaterial('#d6ff9f', 0.56), []);
-    const poisonMistMaterial = useMemo(() => createPulseMaterial('#6fdb75', 0.28), []);
-    const openMaterial = useMemo(() => createPulseMaterial('#8cf1ff', 0.42), []);
-    const openCoreMaterial = useMemo(() => createPulseMaterial('#fff6c8', 0.72), []);
-    const openSparkMaterial = useMemo(() => createPulseMaterial('#b9ffff', 0.56), []);
-    const disruptMaterial = useMemo(() => createPulseMaterial('#aeefff', 0.3), []);
-    const disruptCoreMaterial = useMemo(() => createPulseMaterial('#f3ffff', 0.52), []);
-    const disruptShardMaterial = useMemo(() => createPulseMaterial('#8dd8ff', 0.34), []);
+    const fireMaterial = useMemo(() => createPulseMaterial('#ff7e26', 0.46), []);
+    const fireCoreMaterial = useMemo(() => createPulseMaterial('#ffe39a', 0.74), []);
+    const fireFlameMaterial = useMemo(() => createPulseMaterial('#ffb54a', 0.62), []);
+    const lightningMaterial = useMemo(() => createPulseMaterial('#c3efff', 0.38), []);
+    const lightningCoreMaterial = useMemo(() => createPulseMaterial('#e6f8ff', 0.78), []);
+    const lightningArcMaterial = useMemo(() => createPulseMaterial('#64ceff', 0.58), []);
+    const poisonMaterial = useMemo(() => createPulseMaterial('#36be7a', 0.46), []);
+    const poisonCoreMaterial = useMemo(() => createPulseMaterial('#b8ffe0', 0.62), []);
+    const poisonMistMaterial = useMemo(() => createPulseMaterial('#269c64', 0.4), []);
+    const openMaterial = useMemo(() => createPulseMaterial('#f3df7e', 0.44), []);
+    const openCoreMaterial = useMemo(() => createPulseMaterial('#fff6d0', 0.74), []);
+    const openSparkMaterial = useMemo(() => createPulseMaterial('#ffe893', 0.58), []);
+    const disruptMaterial = useMemo(() => createPulseMaterial('#f0df93', 0.38), []);
+    const disruptCoreMaterial = useMemo(() => createPulseMaterial('#fff9d6', 0.6), []);
+    const disruptShardMaterial = useMemo(() => createPulseMaterial('#ffd96c', 0.46), []);
     const dustMaterial = useMemo(() => createPulseMaterial('#d8b781', 0.5), []);
 
     useEffect(() => () => {
@@ -160,33 +166,48 @@ const PoisonImpactBurst: React.FC<{
     const ringRef = useRef<THREE.Mesh>(null);
     const coreRef = useRef<THREE.Mesh>(null);
     const lightRef = useRef<THREE.PointLight>(null);
+    const seed = useMemo(() => hashSpellVisualSeed(event.id), [event.id]);
+    const duration = useMemo(
+        () => event.effect === 'poison_cloud'
+            ? sampleSpellVisualRange(seed, 1, 720, 860)
+            : event.effect === 'slime'
+                ? sampleSpellVisualRange(seed, 2, 560, 700)
+                : sampleSpellVisualRange(seed, 3, 520, 640),
+        [event.effect, seed],
+    );
     const mistNodes = useMemo(
-        () => Array.from({ length: event.effect === 'poison_cloud' ? 9 : event.effect === 'slime' ? 7 : 6 }, (_, index) => {
-            const count = event.effect === 'poison_cloud' ? 9 : event.effect === 'slime' ? 7 : 6;
+        () => {
+            const count = event.effect === 'poison_cloud'
+                ? sampleSpellVisualInt(seed, 4, 8, 11)
+                : event.effect === 'slime'
+                    ? sampleSpellVisualInt(seed, 5, 6, 8)
+                    : sampleSpellVisualInt(seed, 6, 5, 7);
+            return Array.from({ length: count }, (_, index) => {
             const angle = (index / count) * Math.PI * 2;
-            const spread = 0.08 + (index % 3) * 0.04;
-            const drift = 0.09 + (index % 4) * 0.035;
-            const rise = 0.08 + (index % 3) * 0.03;
-            return { x: Math.cos(angle) * spread, z: Math.sin(angle) * spread, drift, rise, phase: index * 0.65 };
-        }),
-        [event.effect],
+                const spread = sampleSpellVisualRange(seed, 10 + index, 0.08, 0.18);
+                const drift = sampleSpellVisualRange(seed, 24 + index, 0.08, 0.16);
+                const rise = sampleSpellVisualRange(seed, 38 + index, 0.08, 0.16);
+                const phase = sampleSpellVisualRange(seed, 52 + index, 0, Math.PI * 2);
+                return { x: Math.cos(angle) * spread, z: Math.sin(angle) * spread, drift, rise, phase };
+            });
+        },
+        [event.effect, seed],
     );
 
     useFrame(() => {
-        const duration = event.effect === 'poison_cloud' ? 760 : event.effect === 'slime' ? 620 : 580;
         const age = Date.now() - event.ts;
         const t = Math.max(0, Math.min(1, age / duration));
         const spellScale = (event.visualScale ?? 1) * (event.effect === 'poison_cloud' ? 1.22 : event.effect === 'slime' ? 1.02 : 0.95);
 
         if (ringRef.current) {
             ringRef.current.scale.setScalar((0.64 + t * 1.65) * spellScale);
-            (ringRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.34;
+            (ringRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.42;
             ringRef.current.visible = t < 1;
         }
 
         if (coreRef.current) {
             coreRef.current.scale.setScalar((0.28 + Math.sin(Math.PI * t) * 0.54) * spellScale);
-            (coreRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.44;
+            (coreRef.current.material as THREE.MeshBasicMaterial).opacity = (1 - t) * 0.56;
             coreRef.current.visible = t < 1;
         }
 
@@ -211,7 +232,7 @@ const PoisonImpactBurst: React.FC<{
             {mistNodes.map((mist, index) => (
                 <PoisonImpactWisp key={`poison_wisp_${index}`} event={event} material={mistMaterial} offset={mist} />
             ))}
-            <pointLight ref={lightRef} color="#95ff7d" intensity={0} distance={GRID_SIZE * 1.35} decay={2} position={[0, GRID_SIZE * 0.16, 0]} />
+            <pointLight ref={lightRef} color="#38d48a" intensity={0} distance={GRID_SIZE * 1.35} decay={2} position={[0, GRID_SIZE * 0.16, 0]} />
         </group>
     );
 };
@@ -222,9 +243,17 @@ const PoisonImpactWisp: React.FC<{
     offset: { x: number; z: number; drift: number; rise: number; phase: number };
 }> = ({ event, material, offset }) => {
     const wispRef = useRef<THREE.Mesh>(null);
+    const seed = useMemo(() => hashSpellVisualSeed(event.id), [event.id]);
+    const duration = useMemo(
+        () => event.effect === 'poison_cloud'
+            ? sampleSpellVisualRange(seed, 61, 720, 860)
+            : event.effect === 'slime'
+                ? sampleSpellVisualRange(seed, 62, 560, 700)
+                : sampleSpellVisualRange(seed, 63, 520, 640),
+        [event.effect, seed],
+    );
     useFrame(() => {
         if (!wispRef.current) return;
-        const duration = event.effect === 'poison_cloud' ? 760 : 580;
         const age = Date.now() - event.ts;
         const t = Math.max(0, Math.min(1, age / duration));
         const spellScale = (event.visualScale ?? 1) * (event.effect === 'poison_cloud' ? 1.18 : 0.92);
@@ -257,19 +286,24 @@ const LightningImpactBurst: React.FC<{
     const ringRef = useRef<THREE.Mesh>(null);
     const flashRef = useRef<THREE.Mesh>(null);
     const lightRef = useRef<THREE.PointLight>(null);
+    const seed = useMemo(() => hashSpellVisualSeed(event.id), [event.id]);
+    const duration = useMemo(() => sampleSpellVisualRange(seed, 71, 260, 340), [seed]);
     const arcs = useMemo(
-        () => Array.from({ length: 6 }, (_, index) => ({
-            angle: (index / 6) * Math.PI * 2,
-            tilt: index % 2 === 0 ? 0.32 : -0.32,
-            reach: 0.34 + (index % 3) * 0.05,
-            rise: 0.03 + (index % 2) * 0.035,
-        })),
-        [],
+        () => {
+            const count = sampleSpellVisualInt(seed, 72, 5, 7);
+            return Array.from({ length: count }, (_, index) => ({
+                angle: (index / count) * Math.PI * 2,
+                tilt: sampleSpellVisualRange(seed, 73 + index, -0.46, 0.46),
+                reach: sampleSpellVisualRange(seed, 81 + index, 0.28, 0.48),
+                rise: sampleSpellVisualRange(seed, 89 + index, 0.02, 0.08),
+            }));
+        },
+        [seed],
     );
 
     useFrame(() => {
         const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / 300));
+        const t = Math.max(0, Math.min(1, age / duration));
         const visualScale = event.visualScale ?? 1;
 
         if (ringRef.current) {
@@ -305,7 +339,7 @@ const LightningImpactBurst: React.FC<{
             {arcs.map((arc, index) => (
                 <LightningImpactArc key={`lightning_arc_${index}`} event={event} material={arcMaterial} arc={arc} />
             ))}
-            <pointLight ref={lightRef} color="#c7f1ff" intensity={0} distance={GRID_SIZE * 1.7} decay={2} position={[0, GRID_SIZE * 0.16, 0]} />
+            <pointLight ref={lightRef} color="#8fe1ff" intensity={0} distance={GRID_SIZE * 1.7} decay={2} position={[0, GRID_SIZE * 0.16, 0]} />
         </group>
     );
 };
@@ -316,10 +350,12 @@ const LightningImpactArc: React.FC<{
     arc: { angle: number; tilt: number; reach: number; rise: number };
 }> = ({ event, material, arc }) => {
     const arcRef = useRef<THREE.Mesh>(null);
+    const seed = useMemo(() => hashSpellVisualSeed(event.id), [event.id]);
+    const duration = useMemo(() => sampleSpellVisualRange(seed, 101, 260, 340), [seed]);
     useFrame(() => {
         if (!arcRef.current) return;
         const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / 300));
+        const t = Math.max(0, Math.min(1, age / duration));
         const visualScale = event.visualScale ?? 1;
         arcRef.current.position.x = Math.cos(arc.angle) * arc.reach * (0.3 + t * 0.95) * visualScale;
         arcRef.current.position.z = Math.sin(arc.angle) * arc.reach * (0.3 + t * 0.95) * visualScale;
@@ -353,18 +389,23 @@ const OpenDoorImpactBurst: React.FC<{
     const coreRef = useRef<THREE.Mesh>(null);
     const haloRef = useRef<THREE.Mesh>(null);
     const lightRef = useRef<THREE.PointLight>(null);
+    const seed = useMemo(() => hashSpellVisualSeed(event.id), [event.id]);
+    const duration = useMemo(() => sampleSpellVisualRange(seed, 111, 640, 820), [seed]);
     const sparks = useMemo(
-        () => Array.from({ length: 8 }, (_, index) => ({
-            angle: (index / 8) * Math.PI * 2,
-            radius: 0.22 + (index % 2) * 0.07,
-            rise: 0.11 + (index % 3) * 0.045,
-        })),
-        [],
+        () => {
+            const count = sampleSpellVisualInt(seed, 112, 7, 10);
+            return Array.from({ length: count }, (_, index) => ({
+                angle: (index / count) * Math.PI * 2,
+                radius: sampleSpellVisualRange(seed, 113 + index, 0.18, 0.34),
+                rise: sampleSpellVisualRange(seed, 125 + index, 0.08, 0.2),
+            }));
+        },
+        [seed],
     );
 
     useFrame(() => {
         const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / 720));
+        const t = Math.max(0, Math.min(1, age / duration));
         const visualScale = (event.visualScale ?? 1) * 1.28;
 
         if (ringRef.current) {
@@ -412,7 +453,7 @@ const OpenDoorImpactBurst: React.FC<{
             {sparks.map((spark, index) => (
                 <OpenDoorImpactSpark key={`open_spark_${index}`} event={event} material={sparkMaterial} spark={spark} />
             ))}
-            <pointLight ref={lightRef} color="#a8f8ff" intensity={0} distance={GRID_SIZE * 1.7} decay={2} position={[0, GRID_SIZE * 0.24, 0]} />
+            <pointLight ref={lightRef} color="#ffe48a" intensity={0} distance={GRID_SIZE * 1.7} decay={2} position={[0, GRID_SIZE * 0.24, 0]} />
         </group>
     );
 };
@@ -423,10 +464,12 @@ const OpenDoorImpactSpark: React.FC<{
     spark: { angle: number; radius: number; rise: number };
 }> = ({ event, material, spark }) => {
     const sparkRef = useRef<THREE.Mesh>(null);
+    const seed = useMemo(() => hashSpellVisualSeed(event.id), [event.id]);
+    const duration = useMemo(() => sampleSpellVisualRange(seed, 141, 640, 820), [seed]);
     useFrame(() => {
         if (!sparkRef.current) return;
         const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / 720));
+        const t = Math.max(0, Math.min(1, age / duration));
         const visualScale = (event.visualScale ?? 1) * 1.2;
         sparkRef.current.position.x = Math.cos(spark.angle) * spark.radius * (0.45 + t * 1.2) * visualScale;
         sparkRef.current.position.z = Math.sin(spark.angle) * spark.radius * (0.45 + t * 1.2) * visualScale;
@@ -459,19 +502,24 @@ const DisruptImpactBurst: React.FC<{
     const ringRef = useRef<THREE.Mesh>(null);
     const shellRef = useRef<THREE.Mesh>(null);
     const lightRef = useRef<THREE.PointLight>(null);
+    const seed = useMemo(() => hashSpellVisualSeed(event.id), [event.id]);
+    const duration = useMemo(() => sampleSpellVisualRange(seed, 151, 460, 620), [seed]);
     const shards = useMemo(
-        () => Array.from({ length: 8 }, (_, index) => {
-            const angle = (index / 8) * Math.PI * 2;
-            const radius = 0.12 + (index % 2) * 0.05;
-            const rise = 0.04 + (index % 3) * 0.025;
-            return { angle, radius, rise, spin: index % 2 === 0 ? 1 : -1 };
-        }),
-        [],
+        () => {
+            const count = sampleSpellVisualInt(seed, 152, 7, 10);
+            return Array.from({ length: count }, (_, index) => {
+                const angle = (index / count) * Math.PI * 2;
+                const radius = sampleSpellVisualRange(seed, 153 + index, 0.1, 0.2);
+                const rise = sampleSpellVisualRange(seed, 167 + index, 0.03, 0.09);
+                return { angle, radius, rise, spin: sampleSpellVisualSeed(seed, 181 + index) > 0.5 ? 1 : -1 };
+            });
+        },
+        [seed],
     );
 
     useFrame(() => {
         const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / 520));
+        const t = Math.max(0, Math.min(1, age / duration));
         const visualScale = event.visualScale ?? 1;
 
         if (ringRef.current) {
@@ -508,7 +556,7 @@ const DisruptImpactBurst: React.FC<{
             {shards.map((shard, index) => (
                 <DisruptImpactShard key={`disrupt_shard_${index}`} event={event} material={shardMaterial} shard={shard} />
             ))}
-            <pointLight ref={lightRef} color="#b7ecff" intensity={0} distance={GRID_SIZE * 1.45} decay={2} position={[0, GRID_SIZE * 0.14, 0]} />
+            <pointLight ref={lightRef} color="#ffe187" intensity={0} distance={GRID_SIZE * 1.45} decay={2} position={[0, GRID_SIZE * 0.14, 0]} />
         </group>
     );
 };
@@ -519,10 +567,12 @@ const DisruptImpactShard: React.FC<{
     shard: { angle: number; radius: number; rise: number; spin: number };
 }> = ({ event, material, shard }) => {
     const shardRef = useRef<THREE.Mesh>(null);
+    const seed = useMemo(() => hashSpellVisualSeed(event.id), [event.id]);
+    const duration = useMemo(() => sampleSpellVisualRange(seed, 195, 460, 620), [seed]);
     useFrame(() => {
         if (!shardRef.current) return;
         const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / 520));
+        const t = Math.max(0, Math.min(1, age / duration));
         const visualScale = event.visualScale ?? 1;
         const orbit = shard.angle + (t * Math.PI * 1.4 * shard.spin);
         shardRef.current.position.x = Math.cos(orbit) * shard.radius * (0.55 + t * 0.95) * visualScale;
@@ -571,7 +621,7 @@ const SpellImpactPulse: React.FC<{
                 event.kind === 'death' ? 0.65
                     : event.effect === 'fireball' ? 1.8
                         : event.effect === 'lightning' ? 1.55
-                            : event.effect === 'poison_cloud' || event.effect === 'poison_bolt' ? 0.8 : 1.0;
+                            : event.effect === 'poison_cloud' || event.effect === 'poison_bolt' ? 0.98 : 1.0;
             lightRef.current.intensity = Math.max(0, (1 - t) * baseIntensity * Math.max(1, visualScale * 0.85));
             lightRef.current.distance =
                 (event.effect === 'fireball' ? GRID_SIZE * 1.7
@@ -582,8 +632,8 @@ const SpellImpactPulse: React.FC<{
     const lightColor =
         event.kind === 'death' ? '#c9a56c'
             : event.effect === 'fireball' ? '#ff8a3d'
-                : event.effect === 'lightning' ? '#b7e8ff'
-                    : event.effect === 'poison_cloud' || event.effect === 'poison_bolt' ? '#8cff8b'
+                : event.effect === 'lightning' ? '#89dcff'
+                    : event.effect === 'poison_cloud' || event.effect === 'poison_bolt' ? '#39cf86'
                         : '#aeefff';
 
     return (
@@ -610,28 +660,36 @@ const FireballImpactBurst: React.FC<{
     const ringRef = useRef<THREE.Mesh>(null);
     const flashRef = useRef<THREE.Mesh>(null);
     const lightRef = useRef<THREE.PointLight>(null);
+    const seed = useMemo(() => hashSpellVisualSeed(event.id), [event.id]);
+    const duration = useMemo(() => sampleSpellVisualRange(seed, 201, 460, 580), [seed]);
     const shards = useMemo(
-        () => Array.from({ length: 10 }, (_, index) => {
-            const angle = (index / 10) * Math.PI * 2;
-            const spread = 0.16 + (index % 3) * 0.05;
-            const rise = 0.04 + (index % 4) * 0.02;
-            return { x: Math.cos(angle) * spread, z: Math.sin(angle) * spread, rise };
-        }),
-        [],
+        () => {
+            const count = sampleSpellVisualInt(seed, 202, 10, 14);
+            return Array.from({ length: count }, (_, index) => {
+                const angle = (index / count) * Math.PI * 2;
+                const spread = sampleSpellVisualRange(seed, 203 + index, 0.14, 0.3);
+                const rise = sampleSpellVisualRange(seed, 221 + index, 0.03, 0.11);
+                return { x: Math.cos(angle) * spread, z: Math.sin(angle) * spread, rise };
+            });
+        },
+        [seed],
     );
     const flames = useMemo(
-        () => Array.from({ length: 6 }, (_, index) => {
-            const angle = (index / 6) * Math.PI * 2;
-            const spread = 0.07 + (index % 2) * 0.035;
-            const lift = 0.18 + (index % 3) * 0.04;
-            return { x: Math.cos(angle) * spread, z: Math.sin(angle) * spread, lift, rotation: angle };
-        }),
-        [],
+        () => {
+            const count = sampleSpellVisualInt(seed, 239, 6, 8);
+            return Array.from({ length: count }, (_, index) => {
+                const angle = (index / count) * Math.PI * 2;
+                const spread = sampleSpellVisualRange(seed, 240 + index, 0.06, 0.14);
+                const lift = sampleSpellVisualRange(seed, 252 + index, 0.14, 0.32);
+                return { x: Math.cos(angle) * spread, z: Math.sin(angle) * spread, lift, rotation: angle };
+            });
+        },
+        [seed],
     );
 
     useFrame(() => {
         const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / 520));
+        const t = Math.max(0, Math.min(1, age / duration));
         const visualScale = event.visualScale ?? 1;
 
         if (ringRef.current) {
@@ -681,10 +739,12 @@ const FireballImpactFlame: React.FC<{
     offset: { x: number; z: number; lift: number; rotation: number };
 }> = ({ event, material, offset }) => {
     const flameRef = useRef<THREE.Mesh>(null);
+    const seed = useMemo(() => hashSpellVisualSeed(event.id), [event.id]);
+    const duration = useMemo(() => sampleSpellVisualRange(seed, 271, 460, 580), [seed]);
     useFrame(() => {
         if (!flameRef.current) return;
         const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / 520));
+        const t = Math.max(0, Math.min(1, age / duration));
         const visualScale = event.visualScale ?? 1;
         flameRef.current.position.x = offset.x * (0.6 + t * 1.8) * visualScale;
         flameRef.current.position.z = offset.z * (0.6 + t * 1.8) * visualScale;
@@ -713,10 +773,12 @@ const FireballImpactShard: React.FC<{
     offset: { x: number; z: number; rise: number };
 }> = ({ event, material, offset }) => {
     const shardRef = useRef<THREE.Mesh>(null);
+    const seed = useMemo(() => hashSpellVisualSeed(event.id), [event.id]);
+    const duration = useMemo(() => sampleSpellVisualRange(seed, 281, 460, 580), [seed]);
     useFrame(() => {
         if (!shardRef.current) return;
         const age = Date.now() - event.ts;
-        const t = Math.max(0, Math.min(1, age / 520));
+        const t = Math.max(0, Math.min(1, age / duration));
         const visualScale = event.visualScale ?? 1;
         shardRef.current.position.x = offset.x * t * visualScale;
         shardRef.current.position.z = offset.z * t * visualScale;

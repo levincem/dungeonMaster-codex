@@ -8,7 +8,7 @@ Pour la liste des sujets encore ouverts et ordonnes, lire [docs/NEXT_PHASE_PLAN.
 
 ## Resume actuel
 
-Le projet est maintenant une `0.9 release candidate` desktop-first jouable et serieuse.
+Le projet est maintenant en `0.9.1`, une build publique desktop-first jouable et serieuse.
 
 Ce qui est solidement en place:
 
@@ -29,8 +29,8 @@ Lecture honnete du projet aujourd'hui:
   - Atari ST sert de recoupement fort sur les tables et comportements proches
   - `CSB` ne sert que d'aide technique sur le moteur partage, pas de cible gameplay additionnelle
 - le `store` n'est plus le gros chantier prioritaire
-- les restes ouverts sont surtout du playtest cible, quelques ecarts de presentation tardifs, le hall of fame partage a brancher sur le VPS, et de l'optimisation
-- on n'est plus dans une logique `alpha / beta` large; le vrai sujet est maintenant de refermer proprement la `0.9`
+- les restes ouverts sont surtout du playtest cible, quelques ecarts de presentation tardifs, et de l'optimisation
+- on n'est plus dans une logique `alpha / beta` large; le vrai sujet est maintenant de stabiliser proprement la branche `0.9.x`
 
 Regle de travail retenue pour les regressions:
 
@@ -39,22 +39,22 @@ Regle de travail retenue pour les regressions:
 
 Validation locale la plus recente:
 
-- `npm.cmd test` : `924` tests verts
+- `npm.cmd test` : `936` tests verts
 - `npm.cmd run build` : vert
 
-## Lecture release candidate
+## Lecture actuelle
 
-Ce que veut dire `0.9 release candidate` ici:
+Ce que veut dire `0.9.1` ici:
 
 - le debut et la fin du jeu sont rejouables sans blocage connu cote runtime principal
 - le coeur du runtime tient en conditions normales de playtest
 - les regressions restantes attendues sont plutot des cas rares, du tuning, du polish ou de l'integration de publication que des ruptures structurelles
 
-Ce qu'il reste avant une release plus large:
+Ce qu'il reste avant une stabilisation plus large:
 
-- brancher le hall of fame partage sur le VPS
 - rejouer explicitement `generateurs / transitions / endgame`
 - continuer a surveiller les performances sur longues sessions, surtout en `dev`
+- limiter le reliquat a du polish a rendement clair
 
 ## Aide debug locale
 
@@ -153,13 +153,32 @@ Travail ferme dans cette session:
 - instrumentation de run enrichie
   - stats de partie persistantes et exposees dans la victoire
   - comptage ajoute par creature vaincue, sorts, objets, deplacements et degats
-  - hall of fame encore local a ce stade; branchement partage VPS garde comme prochain petit chantier
+  - hall of fame partage maintenant en place de bout en bout:
+    - front `API + fallback local`
+    - mini service `Node.js` dedie
+    - deploiement `Apache` valide sur le VPS
+    - dedoublonnage par `runId` persistant, y compris pour les anciennes saves rechargees
+    - details de run au survol et acces depuis l'ecran titre
+- presentation Hall / fin recalee sur deux points concrets
+  - la porte du Hall pres de `[g:1,3]` reste volontairement forcee en porte pleine opaque, meme si l'extraction runtime locale continue de la decoder comme `Porticullis`
+  - ce point doit se lire comme un override remake assume, pas comme une correction source-backed
+  - l'image `Lord Order (Outside)` est maintenant prechargee avec les overlays coeur pour eviter son apparition a froid au retour Hall + Firestaff
+- presentation et UX recalees
+  - ecran titre mis a jour avec lien Hall of Fame et colonne creature aleatoire
+  - modal d'options decoupe en onglets `keybindings / saves / language`
+  - changement de langue `fr / en` direct et persistant
+  - actions de combat non utilisables mieux signalees dans le HUD (`ammo`, `charges`, melee rangee arriere)
+- passe VFX sorts et presentation magique
+  - `Fluxcage` recalee visuellement et etendue en hauteur
+  - `Lightning` reoriente vers l'avant avec une palette plus electrique
+  - familles de sorts davantage differenciees, avec petites variations visuelles par cast
+  - les creatures et lanceurs partagent maintenant la meme echelle visuelle de sorts que le joueur
 
 Impact:
 
 - la fin du jeu est maintenant beaucoup plus complete, lisible et rejouable en dev
-- les stats de run sont prêtes pour un classement partage des que la petite API VPS sera en place
-- la branche passe en `0.9.0-rc.1`
+- le classement partage est maintenant actif en vrai sur le VPS
+- la branche passe en `0.9.1`
 
 ### 2026-05-06
 

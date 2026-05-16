@@ -1,17 +1,24 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { miscPath } from '../../data/assetPaths';
 import { getGameMap } from '../../data/mapLoader';
 import { useStore } from '../../engine/store';
 import {
     appendHallOfFameEntry,
     buildHallOfFameEntry,
+    loadHallOfFameEntries,
     readHallOfFameEntries,
     readLastHallOfFameName,
     type HallOfFameEntry,
 } from '../../engine/hallOfFame';
-import { useI18n } from '../../i18n';
+import { getCurrentLocale, useI18n } from '../../i18n';
 import type { WallTextObject } from '../../types/game';
 import { GameStatsPanel } from './GameStatsPanel';
+import {
+    buildHallOfFameEntryHoverText,
+    formatHallOfFameCompletedAt,
+    formatHallOfFameDurationFromSeconds,
+    sortHallOfFameEntries,
+} from './hallOfFameDetails';
 
 const ORIGINAL_ENDGAME_MAP_INDEX = 12;
 
@@ -42,24 +49,6 @@ const ORIGINAL_END_TEXT = resolveOriginalEndText();
 
 type VictoryStage = 'message' | 'stats' | 'hall' | 'end';
 
-function formatDurationFromSeconds(totalSeconds: number): string {
-    const clampedSeconds = Math.max(0, Math.floor(totalSeconds));
-    const hours = Math.floor(clampedSeconds / 3600);
-    const minutes = Math.floor((clampedSeconds % 3600) / 60);
-    const seconds = clampedSeconds % 60;
-    if (hours > 0) {
-        return `${hours}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`;
-    }
-    if (minutes > 0) {
-        return `${minutes}m ${seconds.toString().padStart(2, '0')}s`;
-    }
-    return `${seconds}s`;
-}
-
-function formatCompletedAt(ts: number): string {
-    return new Date(ts).toLocaleDateString();
-}
-
 function resolveEntryRank(
     entries: HallOfFameEntry[],
     entryId: string,
@@ -80,12 +69,25 @@ function resolveEntryRank(
 
 export const VictoryScreen = () => {
     const text = useI18n().victory;
+    const locale = getCurrentLocale();
     const gameStats = useStore((state) => state.gameStats);
     const [stage, setStage] = useState<VictoryStage>('message');
     const [playerName, setPlayerName] = useState(() => readLastHallOfFameName());
     const [hallEntries, setHallEntries] = useState<HallOfFameEntry[]>(() => readHallOfFameEntries());
     const [savedEntryId, setSavedEntryId] = useState<string | null>(null);
     const [hallFeedback, setHallFeedback] = useState<{ message: string; success: boolean } | null>(null);
+    const [isSavingHallEntry, setIsSavingHallEntry] = useState(false);
+
+    useEffect(() => {
+        let cancelled = false;
+        void loadHallOfFameEntries().then((result) => {
+            if (cancelled) return;
+            setHallEntries(result.entries);
+        });
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
     const showStatsCard = stage === 'stats';
     const showHallCard = stage === 'hall';
@@ -97,12 +99,7 @@ export const VictoryScreen = () => {
     );
     const leaderboardEntries = useMemo(
         () => {
-            const sortedEntries = [...hallEntries]
-                .sort((left, right) =>
-                    left.summary.playTimeSec - right.summary.playTimeSec
-                    || right.summary.monstersKilled - left.summary.monstersKilled
-                    || right.completedAt - left.completedAt,
-                )
+            const sortedEntries = sortHallOfFameEntries(hallEntries)
                 .slice(0, 10);
             if (!savedEntryId || sortedEntries.some((entry) => entry.id === savedEntryId)) {
                 return sortedEntries;
@@ -130,16 +127,19 @@ export const VictoryScreen = () => {
                 : current
     ));
 
-    const handleSaveVictory = () => {
-        if (savedEntryId) return;
+    const handleSaveVictory = async () => {
+        if (savedEntryId || isSavingHallEntry) return;
+        setIsSavingHallEntry(true);
+        setHallFeedback(null);
         const entry = buildHallOfFameEntry(playerName, gameStats);
-        const result = appendHallOfFameEntry(entry);
+        const result = await appendHallOfFameEntry(entry);
         setHallEntries(result.entries);
         setSavedEntryId(result.success ? entry.id : null);
         setHallFeedback({
             message: result.success ? text.hallOfFameSaved : text.hallOfFameSaveFailed,
             success: result.success,
         });
+        setIsSavingHallEntry(false);
     };
 
     return (
@@ -333,8 +333,10 @@ export const VictoryScreen = () => {
                         </label>
                         <button
                             type="button"
-                            onClick={handleSaveVictory}
-                            disabled={Boolean(savedEntryId)}
+                            onClick={() => {
+                                void handleSaveVictory();
+                            }}
+                            disabled={Boolean(savedEntryId) || isSavingHallEntry}
                             style={{
                                 padding: '12px 18px',
                                 borderRadius: 8,
@@ -346,7 +348,7 @@ export const VictoryScreen = () => {
                                 fontFamily: '"Courier New", monospace',
                                 fontSize: 14,
                                 letterSpacing: 1,
-                                cursor: savedEntryId ? 'default' : 'pointer',
+                                cursor: savedEntryId || isSavingHallEntry ? 'default' : 'pointer',
                                 minWidth: 180,
                             }}
                         >
@@ -458,9 +460,11 @@ export const VictoryScreen = () => {
                                             return (
                                                 <tr
                                                     key={entry.id}
+                                                    title={buildHallOfFameEntryHoverText(entry, text, locale)}
                                                     style={{
                                                         borderTop: '1px solid rgba(216, 188, 122, 0.14)',
                                                         background: isCurrent ? 'rgba(255, 224, 132, 0.08)' : 'transparent',
+                                                        cursor: 'help',
                                                     }}
                                                 >
                                                     <td style={{ padding: '10px 0' }}>#{rank}</td>
@@ -472,11 +476,11 @@ export const VictoryScreen = () => {
                                                             </span>
                                                         )}
                                                     </td>
-                                                    <td style={{ padding: '10px 12px 10px 0' }}>{formatCompletedAt(entry.completedAt)}</td>
-                                                    <td style={{ padding: '10px 0', textAlign: 'right' }}>{formatDurationFromSeconds(entry.summary.playTimeSec)}</td>
-                                                    <td style={{ padding: '10px 0', textAlign: 'right' }}>{entry.summary.monstersKilled.toLocaleString()}</td>
-                                                    <td style={{ padding: '10px 0', textAlign: 'right' }}>{entry.summary.spellsCast.toLocaleString()}</td>
-                                                    <td style={{ padding: '10px 0', textAlign: 'right' }}>{entry.summary.damageDealt.toLocaleString()}</td>
+                                                    <td style={{ padding: '10px 12px 10px 0' }}>{formatHallOfFameCompletedAt(entry.completedAt, locale)}</td>
+                                                    <td style={{ padding: '10px 0', textAlign: 'right' }}>{formatHallOfFameDurationFromSeconds(entry.summary.playTimeSec)}</td>
+                                                    <td style={{ padding: '10px 0', textAlign: 'right' }}>{entry.summary.monstersKilled.toLocaleString(locale === 'fr' ? 'fr-FR' : 'en-US')}</td>
+                                                    <td style={{ padding: '10px 0', textAlign: 'right' }}>{entry.summary.spellsCast.toLocaleString(locale === 'fr' ? 'fr-FR' : 'en-US')}</td>
+                                                    <td style={{ padding: '10px 0', textAlign: 'right' }}>{entry.summary.damageDealt.toLocaleString(locale === 'fr' ? 'fr-FR' : 'en-US')}</td>
                                                 </tr>
                                             );
                                         })}

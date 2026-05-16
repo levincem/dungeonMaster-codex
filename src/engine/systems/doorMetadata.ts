@@ -2,6 +2,11 @@ import type { DoorObject, GameTile } from '../../types/game';
 
 const FALLBACK_DOOR_TYPE = 1;
 const CORRECTED_IRON_DOOR_KEYS = new Set([
+    // Hall return / Firestaff path: the raw snapshot still exposes the door
+    // just north of [g:1,3] as a portcullis, but the expected presentation
+    // for this specific gate is the same fully opaque iron door family used
+    // by the late-game pass.
+    '1,2',
     '42,30',
     '44,32',
     '47,37',

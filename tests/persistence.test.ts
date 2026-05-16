@@ -352,6 +352,7 @@ test('buildPersistedSaveData serializes runtime state in a stable shape', () => 
         assert.equal(persisted.creatureTimers['creature-1']?.moveRemaining, 9);
         assert.equal(persisted.creatureTimers['creature-1']?.attackWindowRemainingMs, 1500);
         assert.equal(persisted.creatureTimers['creature-1']?.lastSeenPartyX, 12);
+        assert.equal(persisted.gameStats?.runId, state.gameStats.runId);
     } finally {
         Date.now = originalNow;
     }
@@ -592,6 +593,27 @@ test('hydratePersistedGameState and runtime restore drop dead creatures from old
     }
 });
 
+test('hydratePersistedGameState creates a run id when loading a legacy save without one', () => {
+    const now = 21_500;
+    const originalNow = Date.now;
+    Date.now = () => now;
+
+    try {
+        const state = createState(now);
+        const runtime = createRuntimeMaps(now);
+        const persisted = buildPersistedSaveData(state, runtime);
+        if (persisted.gameStats) {
+            delete (persisted.gameStats as { runId?: string }).runId;
+        }
+
+        const hydrated = hydratePersistedGameState(persisted, now);
+
+        assert.match(hydrated.gameStats.runId, /^[A-Za-z0-9_-]{8,96}$/);
+    } finally {
+        Date.now = originalNow;
+    }
+});
+
 test('persisted saves round-trip back into the same dungeon state', () => {
     const now = 30_000;
     const originalNow = Date.now;
@@ -620,6 +642,7 @@ test('persisted saves round-trip back into the same dungeon state', () => {
         };
 
         assert.deepEqual([...hydrated.hydratedLevels], [0, 1]);
+        assert.equal(hydrated.gameStats.runId, state.gameStats.runId);
         assert.deepEqual(roundTripped, expected);
     } finally {
         Date.now = originalNow;

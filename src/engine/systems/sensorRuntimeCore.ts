@@ -1,4 +1,5 @@
 import { getGameMap } from '../../data/mapLoader';
+import { getSharedNonRuneProjectileVisualScale } from './spellVisualScale';
 import type {
     CardinalDir,
     FloorItem,
@@ -275,7 +276,7 @@ export function buildWallLauncherProjectiles(
             remainingRange: kineticEnergy,
             remainingAttack: effect === 'open' ? 0 : 100,
             stepDecay: stepEnergy,
-            visualScale: effect === 'poison_cloud' ? 1.08 : effect === 'lightning' ? 1.04 : 1,
+            visualScale: getSharedNonRuneProjectileVisualScale(effect),
         }));
     }
 

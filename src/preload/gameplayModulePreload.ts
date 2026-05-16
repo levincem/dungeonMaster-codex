@@ -6,8 +6,10 @@ type GameRootModule = typeof import('../GameRoot');
 let gameRootModulePromise: Promise<GameRootModule> | null = null;
 let gameplayRenderCorePromise: Promise<void> | null = null;
 let gameplayRenderFullPromise: Promise<void> | null = null;
+let victoryScreenPromise: Promise<void> | null = null;
 let gameplayRenderCoreReady = false;
 let gameplayRenderFullReady = false;
+let victoryScreenReady = false;
 
 export function preloadGameRootModule(): Promise<GameRootModule> {
     if (!gameRootModulePromise) {
@@ -42,7 +44,6 @@ export function preloadGameplayRenderModules(): Promise<void> {
                 import('../components/Dungeon/PhotonsFireball'),
                 import('../components/UI/MirrorPopup'),
                 import('../components/UI/ChampionSheet'),
-                import('../components/UI/VictoryScreen'),
             ]))
             .then(() => {
                 gameplayRenderFullReady = true;
@@ -58,4 +59,19 @@ export function isGameplayRenderCoreModulesPreloaded(): boolean {
 
 export function isGameplayRenderModulesPreloaded(): boolean {
     return gameplayRenderFullReady;
+}
+
+export function preloadVictoryScreenModule(): Promise<void> {
+    if (!victoryScreenPromise) {
+        victoryScreenPromise = import('../components/UI/VictoryScreen')
+            .then(() => {
+                victoryScreenReady = true;
+            });
+    }
+
+    return victoryScreenPromise;
+}
+
+export function isVictoryScreenModulePreloaded(): boolean {
+    return victoryScreenReady;
 }

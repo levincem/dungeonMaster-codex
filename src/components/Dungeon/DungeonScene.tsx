@@ -886,6 +886,7 @@ const DungeonSceneCreatureDebugOverlay: React.FC<{
     position: [number, number];
     direction: Direction;
 }> = ({ level, position, direction }) => {
+    const text = useI18n().dungeonScene;
     const creatures = useStore((s) => s.creatures);
     const map = getGameMap(level);
 
@@ -939,7 +940,7 @@ const DungeonSceneCreatureDebugOverlay: React.FC<{
         };
 
         return [
-            'Creature debug',
+            text.creatureDebugTitle,
             `party [l:${currentX},${currentY} / g:${currentGlobal.x},${currentGlobal.y}] ${direction} -> front [l:${frontX},${frontY} / g:${frontGlobal.x},${frontGlobal.y}]`,
             `front tile occupants: ${frontCreatures.length}`,
             ...(frontCreatures.length > 0
@@ -955,7 +956,7 @@ const DungeonSceneCreatureDebugOverlay: React.FC<{
                     `${describeCreature(creature, index)} | dist ${distance} | delta ${dx},${dy}`)
                 : ['none']),
         ];
-    }, [creatures, direction, level, map, position]);
+    }, [creatures, direction, level, map, position, text]);
 
     return (
         <textarea
@@ -965,7 +966,7 @@ const DungeonSceneCreatureDebugOverlay: React.FC<{
             onFocus={(event) => event.currentTarget.select()}
             style={getCopyableDebugPanelStyle({ bottom: 14, left: 14 })}
             data-debug-overlay="true"
-            aria-label="Creature debug"
+            aria-label={text.creatureDebugTitle}
         />
     );
 };

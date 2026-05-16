@@ -6,18 +6,18 @@ Goal: rebuild the original dungeon, systems, and feel as faithfully as possible 
 
 Live build: [dungeon-master.fr](https://dungeon-master.fr/)
 
-Current local version: `v0.9.0-rc.1`
+Current local version: `v0.9.1`
 
 ## Status
 
-This is now a desktop-first `0.9 release candidate` focused on one last real-world validation pass from the early dungeon through endgame, while keeping PC DOS fidelity first and presentation polish second.
+This is now a desktop-first `0.9.1` public build focused on targeted play validation, selective polish, and keeping PC DOS fidelity first.
 
-Latest `v0.9.0-rc.1` focus:
+Latest `v0.9.1` focus:
 
-- late-game Firestaff progression and endgame flow stabilized, including `Zokathra -> Amalgam -> Firestaff (Complete)`
-- alternate ending in the `Hall of Champions` now plays as a full in-world scripted sequence back to the normal `Game Over`
-- final in-world ending sequence expanded with `Grey Lord` text, expedition stats, and a reusable hall-of-fame panel
-- special weapon actions and spell-impact feedback polished further, including `Disrupt`, `Fluxcage`, `Fuse`, `Invoke`, and party hit visuals
+- shared `Hall of Fame` is now live through a lightweight Node.js + Apache VPS pipeline, with API fallback to local storage
+- run stats, run identity, hover details, and title-screen access to the `Hall of Fame` are now wired end to end
+- spell visuals and late-game effects were polished further, including `Fluxcage`, `Lightning`, poison families, and shared creature/player spell scaling
+- title screen and options UI were refreshed, including localized language switching and a random title-screen creature panel
 
 Already in place:
 
@@ -31,13 +31,11 @@ Already in place:
 Still open:
 
 - one last end-to-end play validation pass
-- shared hall-of-fame publishing on the VPS
 - a smaller pass of UX and visual polish
 - selective performance work where long play sessions show real pain
 
-Before `0.9` final:
+Next useful priorities:
 
-- wire the shared hall of fame through a lightweight Node.js backend on the VPS
 - replay the remaining generator / transition / endgame cases
 - keep fixing only issues found in real play, not by reopening solved subsystems
 
@@ -79,7 +77,7 @@ docs/
   PROJECT_STATE_INDEX.md   Which doc answers which question
   NEXT_PHASE_PLAN.md       Current open work only
   REMAKE_STATUS.md         Compact project memory
-  RC_FINISH_PLAN.md        Tomorrow's finish plan for the 0.9 release candidate
+  RC_FINISH_PLAN.md        Short finish plan for the current 0.9.x stabilization pass
 ```
 
 ## Docs

@@ -9,10 +9,14 @@
 // - the internal family buckets below are therefore used as row/stage groupings for the UI
 //
 // Casting rule: power rune FIRST, then 1-3 additional runes.
-// mana cost = floor(manaBase x manaFactor / 8)
-// manaFactor per power rune: LO=8, UM=12, ON=16, EE=20, PAL=24, MON=28
+// original mana rule: floor(baseDifficulty * (powerLevel + 1) / 2)
+// equivalent power multipliers: LO=1.0, UM=1.5, ON=2.0, EE=2.5, PAL=3.0, MON=3.5
 import { getTranslations, type Translations } from '../i18n';
-import { getOriginalCastSkillForRunes, getOriginalSpellDescriptorForRunes } from './originalSpells';
+import {
+    getOriginalCastSkillForRunes,
+    getOriginalSpellDescriptorForRunes,
+    getOriginalSpellManaCost,
+} from './originalSpells';
 import { mapOriginalSkillNumberToSkillKey, type SkillKey } from './skillProgression';
 
 export type RuneFamily = 'power' | 'element' | 'form' | 'alignment';
@@ -90,7 +94,6 @@ export interface SpellDef {
 }
 
 const POWERS = ['lo', 'um', 'on', 'ee', 'pal', 'mon'] as const;
-const MANA_FACTORS = [8, 12, 16, 20, 24, 28] as const;
 
 function variants(
     spellKey: SpellTranslationKey,
@@ -105,7 +108,7 @@ function variants(
         runes: [power, ...spellRunes],
         name: localized.names[index],
         effect,
-        manaCost: Math.floor(manaBase * MANA_FACTORS[index] / 8),
+        manaCost: getOriginalSpellManaCost(manaBase, index + 1),
         manaBase,
         castSkill,
         description: localized.descriptions[index],
@@ -145,13 +148,13 @@ export const SPELLS: SpellDef[] = RAW_SPELLS.map((spell) => {
     const source = getOriginalSpellDescriptorForRunes(spell.runes);
     const sourceCastSkill = getOriginalCastSkillForRunes(spell.runes);
     if (!source || !sourceCastSkill) return spell;
-    const powerFactor = RUNES_BY_ID[spell.runes[0]]?.manaFactor ?? 8;
+    const powerLevel = RUNES_BY_ID[spell.runes[0]]?.level ?? 1;
     const manaBase = source.baseDifficulty;
     return {
         ...spell,
         name: source.name,
         manaBase,
-        manaCost: Math.floor(manaBase * powerFactor / 8),
+        manaCost: getOriginalSpellManaCost(manaBase, powerLevel),
         castSkill: sourceCastSkill,
         progressionSkill: mapOriginalSkillNumberToSkillKey(source.skillIndex),
         sourceSkillIndex: source.skillIndex,
