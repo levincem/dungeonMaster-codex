@@ -52,6 +52,10 @@ const SLIME_OUTLET_IMAGE = miscPath('wall_hazard_slime_outlet.png');
 const SLIME_IMAGE = miscPath('wall_slime.png');
 const GRATE_IMAGE = miscPath('wall_grate.png');
 const GHOULS_HEAD_IMAGE = miscPath('wall_ghouls_head.png');
+const SCRATCHES_IMAGE = miscPath('wall_scratches.png');
+const MANACLES_IMAGE = miscPath('wall_manacles.png');
+const DENT_1_IMAGE = miscPath('wall_dent_1.png');
+const CRACK_IMAGE = miscPath('wall_crack.png');
 const COIN_SLOT_IMAGE = miscPath('wall_coin_slot.png');
 const GEM_HOLE_IMAGE = miscPath('wall_gem_hole.png');
 const SMALL_SWITCH_IMAGE = miscPath('wall_switch_small.png');
@@ -207,6 +211,38 @@ const DECAL_PRESETS: Record<string, WallDecalPreset> = {
     [GHOULS_HEAD_IMAGE]: {
         width: GRID_SIZE * 0.4,
         height: WALL_HEIGHT * 0.54,
+        y: 0,
+        hasBacking: false,
+        hasGlow: false,
+        plateColor: '#3a2b1d',
+    },
+    [SCRATCHES_IMAGE]: {
+        width: GRID_SIZE * 0.3,
+        height: WALL_HEIGHT * 0.27,
+        y: 0,
+        hasBacking: false,
+        hasGlow: false,
+        plateColor: '#3a2b1d',
+    },
+    [MANACLES_IMAGE]: {
+        width: GRID_SIZE * 0.5,
+        height: WALL_HEIGHT * 0.3,
+        y: 0,
+        hasBacking: false,
+        hasGlow: false,
+        plateColor: '#3a2b1d',
+    },
+    [DENT_1_IMAGE]: {
+        width: GRID_SIZE * 0.16,
+        height: WALL_HEIGHT * 0.28,
+        y: 0,
+        hasBacking: false,
+        hasGlow: false,
+        plateColor: '#3a2b1d',
+    },
+    [CRACK_IMAGE]: {
+        width: GRID_SIZE * 0.26,
+        height: WALL_HEIGHT * 0.34,
         y: 0,
         hasBacking: false,
         hasGlow: false,
