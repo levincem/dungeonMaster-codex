@@ -48,6 +48,7 @@ function createValidSavePayload(savedAt: number, level: number): string {
                 strafeLeft: ['q'],
                 strafeRight: ['e'],
             },
+            showMinimap: false,
         },
         level,
         position: [0, 0],

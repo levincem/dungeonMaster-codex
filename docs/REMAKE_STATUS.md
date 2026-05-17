@@ -1,6 +1,6 @@
 # Dungeon Master Remake - Etat du projet
 
-Etat revu le `2026-05-16`.
+Etat revu le `2026-05-17`.
 
 Ce document est un journal d'etat compact.
 
@@ -8,7 +8,7 @@ Pour la liste des sujets encore ouverts et ordonnes, lire [docs/NEXT_PHASE_PLAN.
 
 ## Resume actuel
 
-Le projet est maintenant en `0.9.1`, une build publique desktop-first jouable et serieuse.
+Le projet est maintenant en `0.9.2`, une build publique desktop-first jouable et serieuse.
 
 Ce qui est solidement en place:
 
@@ -29,7 +29,7 @@ Lecture honnete du projet aujourd'hui:
   - Atari ST sert de recoupement fort sur les tables et comportements proches
   - `CSB` ne sert que d'aide technique sur le moteur partage, pas de cible gameplay additionnelle
 - le `store` n'est plus le gros chantier prioritaire
-- les restes ouverts sont surtout du playtest cible, quelques ecarts de presentation tardifs, et de l'optimisation
+- les restes ouverts sont surtout un petit reliquat de presentation tardive et, au besoin seulement, du profilage cible
 - on n'est plus dans une logique `alpha / beta` large; le vrai sujet est maintenant de stabiliser proprement la branche `0.9.x`
 
 Regle de travail retenue pour les regressions:
@@ -39,22 +39,23 @@ Regle de travail retenue pour les regressions:
 
 Validation locale la plus recente:
 
-- `npm.cmd test` : `936` tests verts
+- `npm.cmd test` : `943` tests verts
 - `npm.cmd run build` : vert
 
 ## Lecture actuelle
 
-Ce que veut dire `0.9.1` ici:
+Ce que veut dire `0.9.2` ici:
 
 - le debut et la fin du jeu sont rejouables sans blocage connu cote runtime principal
 - le coeur du runtime tient en conditions normales de playtest
+- le playtest recent a boucle les deux fins et les cas critiques `generateurs / transitions / teleport / pit`
 - les regressions restantes attendues sont plutot des cas rares, du tuning, du polish ou de l'integration de publication que des ruptures structurelles
 
 Ce qu'il reste avant une stabilisation plus large:
 
-- rejouer explicitement `generateurs / transitions / endgame`
-- continuer a surveiller les performances sur longues sessions, surtout en `dev`
-- limiter le reliquat a du polish a rendement clair
+- refermer les derniers ecarts de presentation utiles
+- verifier rapidement Hall of Fame et ecrans de fin sur quelques navigateurs / tailles d'ecran
+- ne rouvrir le profilage que si une gene concrete reapparait
 
 ## Aide debug locale
 
@@ -126,12 +127,28 @@ Point utile deja confirme:
 
 Le detail ordonne vit dans [docs/NEXT_PHASE_PLAN.md](/D:/DungeonMaster-codex/docs/NEXT_PHASE_PLAN.md), mais en resume:
 
-- playtest cible `generateurs / transitions de niveau`
-- profilage / optimisation
-- mecanismes rares et endgame
-- surtout du playtest cible sur cas rares, puis un petit reliquat de polish / perf
+- petit reliquat de presentation tardive
+- verification croisee Hall of Fame / ecrans de fin
+- profilage optionnel seulement si un symptome concret revient
 
 ## Checkpoints recents
+
+### 2026-05-17
+
+Travail ferme dans cette session:
+
+- validation finale de playtest consideree comme bouclee
+  - deux testeurs differents ont rejoue les deux fins
+  - `teleport`, `pit`, changements de niveau et generateurs n'ont pas remonte de nouvel ecart structurant
+- mini tutorial de nouveau coherent avec la langue active
+  - l'introduction Hall et le guide rapide suivent maintenant bien `fr / en`
+- documentation recalee sur l'etat reel de la branche
+  - le reliquat utile est maintenant surtout presentation tardive, verification croisee rapide et profilage seulement si un symptome concret reapparait
+
+Impact:
+
+- il n'y a plus de gros chantier gameplay ou endgame connu a rouvrir
+- la branche `0.9.2` entre dans une vraie phase de stabilisation legere plutot que de validation critique
 
 ### 2026-05-16
 
@@ -178,7 +195,7 @@ Impact:
 
 - la fin du jeu est maintenant beaucoup plus complete, lisible et rejouable en dev
 - le classement partage est maintenant actif en vrai sur le VPS
-- la branche passe en `0.9.1`
+- la branche passe en `0.9.2`
 
 ### 2026-05-06
 

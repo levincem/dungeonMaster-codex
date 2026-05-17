@@ -181,7 +181,7 @@ Test de soumission:
 ```bash
 curl -X POST https://votre-domaine.example/api/hall-of-fame \
   -H "Content-Type: application/json" \
-  --data '{"entry":{"id":"victory_test_01","name":"Halk","completedAt":1778932500000,"buildVersion":"0.9.1","stats":{"startedAt":1778932440000}}}'
+  --data '{"entry":{"id":"victory_test_01","name":"Halk","completedAt":1778932500000,"buildVersion":"0.9.2","stats":{"startedAt":1778932440000}}}'
 ```
 
 ## Comportement attendu cote securite

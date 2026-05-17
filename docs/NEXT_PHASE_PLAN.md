@@ -1,12 +1,12 @@
 # Next Phase Plan
 
-Etat revu le `2026-05-16`.
+Etat revu le `2026-05-17`.
 
 Ce document ne doit contenir que des sujets encore ouverts.
 
 Lecture actuelle:
 
-- le projet est en `0.9.1`
+- le projet est en `0.9.2`
 - ce plan ne liste plus des chantiers de beta large, mais les derniers sujets a fermer pour une `0.9.x` plus stable
 
 Regle simple:
@@ -69,43 +69,20 @@ Regle de correction:
   - ferme cote runtime utile
   - les items sur case occupee ont maintenant leur presentation relevee / tiree vers le joueur, avec couverture dediee sur les cas `creature` et `party`
   - si un nouveau playtest remonte un vrai cas de pickup impossible ou illisible, on le rouvrira comme bug cible plutot que comme chantier ouvert generique
+- playtest final `generateurs / transitions / endgame`
+  - ferme cote validation gameplay utile
+  - deux testeurs differents ont boucle les deux fins et rejoue explicitement `teleport / pit / changements de niveau / generateurs` sans nouvel ecart structurant
+- mini tutorial / guide rapide
+  - ferme cote i18n utile
+  - les deux etapes suivent maintenant bien la langue active
 
 ## Ordre recommande maintenant
 
-1. playtest final `generateurs / transitions / endgame`
-2. petit reliquat UX / perf / presentation
-3. profilage / optimisation a fort rendement
+1. petit reliquat UX / presentation
+2. verification rapide Hall of Fame / ecrans de fin sur navigateurs et tailles d'ecran varies
+3. profilage optionnel seulement si un inconfort concret reapparait
 
-## 1. Playtest cible generateurs / transitions / endgame
-
-Statut:
-
-- ouvert
-
-Pourquoi ce n'est pas fini:
-
-- le chantier generateurs est largement recale cote code et tests
-- le reliquat utile est surtout une passe de confirmation gameplay sur les cas limites, pas un gros doute moteur restant
-
-A verifier:
-
-- `teleport`
-- `pit`
-- changement de niveau
-- repop tardif
-- retour sur un niveau deja quitte
-
-Definition de fini:
-
-- les cas ci-dessus ont ete joues explicitement
-- aucun comportement incoherent n'est observe sur `active / dormant / reserved`
-- si un ecart apparait, il devient un bug cible avec reproduction courte
-
-Support:
-
-- [PLAYTEST_CHECKLIST_TRANSITIONS_ENDGAME.md](/D:/DungeonMaster-codex/docs/PLAYTEST_CHECKLIST_TRANSITIONS_ENDGAME.md)
-
-## 2. Presentation finale / UX tardive
+## 1. Presentation finale / UX tardive
 
 Statut:
 
@@ -119,6 +96,7 @@ Pourquoi ce n'est pas fini:
 Priorites:
 
 - lisibilite finale de l'ecran titre sur grands ecrans
+- evaluer une option de mini-map, ou eventuellement de carte complete, selon le cout UX / fidelite / lisibilite
 - dernieres retouches sur les VFX de sorts si un vrai point ressort encore
 - verification du Hall of Fame sur des navigateurs et tailles d'ecran varies
 
@@ -127,35 +105,35 @@ Definition de fini:
 - aucun ecart visuel vraiment choquant ne ressort sur les resolutions de bureau courantes
 - les derniers ajustements relevent bien du luxe et non d'un bug de presentation
 
-## 3. Profilage / optimisation / presentation finale
+## 2. Profilage / optimisation optionnel
 
 Statut:
 
-- ouvert
+- optionnel
 
 Pourquoi ce n'est pas fini:
 
-- le boot prod est acceptable, mais la pile runtime / rendu reste lourde
-- le mode `dev` reste lent a froid, meme si ce n'est pas le sujet prioritaire
-- les warnings de build les plus bruyants sont maintenant recales; le sujet redevient surtout une question de mesure reelle et de rendement
-- le warm-up title/gameplay est deja plus progressif qu'avant, mais `three` et le chargement des maps restent la vraie masse a surveiller
+- le boot prod est acceptable et le playtest complet recent n'a pas remonte d'inconfort structurant
+- les gains faciles semblent deja largement pris; rouvrir ce sujet sans symptome concret risque surtout d'ajouter de la complexite
+- si une gene reelle reapparait, le bon levier sera une mesure ciblee plutot qu'une nouvelle passe d'optimisation a l'aveugle
 
 Priorites:
 
-- `three-core`
-- `dungeon-render`
-- preload des donnees runtime
-- warm-up title / gameplay
-- rerenders evitables dans `DungeonScene`
-- garder le preload coeur limite aux assets / modules a rendement immediat
+- mesurer d'abord avant d'agir
+- verifier `three-core`, `dungeon-render`, preload runtime et warm-up title / gameplay seulement si les profils les pointent vraiment
+- ne garder que les optimisations a rendement immediat et a faible cout de maintenance
 
 Definition de fini:
 
-- on identifie 2 ou 3 gains concrets a fort rendement
-- on applique seulement ceux qui ne compliquent pas le runtime inutilement
+- le sujet peut rester ferme tant qu'aucun symptome concret ne justifie de le rouvrir
+- s'il rouvre, on se limite a 1 ou 2 gains mesures qui simplifient ou allegent reellement le runtime
 
 ## Hors priorite immediate
 
+- hardening serveur Hall of Fame `logs explicites + fail2ban`
+  - a revoir plus tard seulement si le trafic ou le bruit augmente
+  - idee: journaliser proprement les rejets `proof invalide / payload invalide / rate limit`, puis brancher une regle `fail2ban` simple derriere un proxy de confiance
+  - non prioritaire tant que le trafic reste faible et que le Hall ne montre pas d'abus reel
 - compatibilite navigateur `drag and drop inventaire -> vue donjon`
   - a verifier sur `Firefox / Linux`
   - symptome remonte: un objet deja dans l'inventaire reste en main apres relacher sur la vue du donjon; le drag natif navigateur semble prendre le dessus et l'overlay de drop du jeu n'apparait pas correctement

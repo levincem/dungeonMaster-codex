@@ -201,6 +201,7 @@ function createState(now: number): PersistableGameState {
 
     return {
         gameOptions: DEFAULT_GAME_OPTIONS,
+        minimapTiles: { '0,1,2': 'floor', '0,1,3': 'doorClosed' },
         level: 0,
         position: [1, 2],
         direction: 'NORTH',
@@ -339,6 +340,7 @@ test('buildPersistedSaveData serializes runtime state in a stable shape', () => 
         assert.equal(persisted.version, 2);
         assert.equal(persisted.buildVersion, APP_VERSION);
         assert.equal(integrity, computePersistedSaveIntegrity(persistedWithoutIntegrity));
+        assert.deepEqual(persisted.minimapTiles, { '0,1,2': 'floor', '0,1,3': 'doorClosed' });
         assert.deepEqual(persisted.hydratedLevels, [0, 1]);
         assert.deepEqual(persisted.openDoors, ['0,1,2']);
         assert.deepEqual(persisted.brokenDoors, ['0,1,2']);
@@ -642,6 +644,7 @@ test('persisted saves round-trip back into the same dungeon state', () => {
         };
 
         assert.deepEqual([...hydrated.hydratedLevels], [0, 1]);
+        assert.deepEqual(hydrated.minimapTiles, state.minimapTiles);
         assert.equal(hydrated.gameStats.runId, state.gameStats.runId);
         assert.deepEqual(roundTripped, expected);
     } finally {

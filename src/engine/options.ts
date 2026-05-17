@@ -11,7 +11,22 @@ export const DEFAULT_KEYBINDINGS: KeyBindings = {
 
 export const DEFAULT_GAME_OPTIONS: GameOptions = {
     keybindings: DEFAULT_KEYBINDINGS,
+    showMinimap: false,
 };
+
+export function normalizeGameOptions(
+    input: Partial<GameOptions> | undefined,
+): GameOptions {
+    return {
+        ...DEFAULT_GAME_OPTIONS,
+        ...input,
+        keybindings: {
+            ...DEFAULT_KEYBINDINGS,
+            ...(input?.keybindings ?? {}),
+        },
+        showMinimap: input?.showMinimap ?? DEFAULT_GAME_OPTIONS.showMinimap,
+    };
+}
 
 export function normalizeBindingKey(key: string): string {
     return key.length === 1 ? key.toLowerCase() : key;

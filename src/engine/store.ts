@@ -27,10 +27,15 @@ import type { GeneratedCreatureGroupPlanEntry } from './systems/generatedCreatur
 import {
     applyGameStatsDelta,
     buildGameStatsTransitionDelta,
+    isValidGameRunId,
     type GameStats,
     type GameStatsDamageSource,
     type GameStatsDelta,
 } from './systems/gameStats';
+import {
+    mergeMinimapTileMemory,
+    type MinimapSeenTileKind,
+} from './systems/minimapDiscovery';
 import type { EquipSlotKey } from '../types/items';
 import type { Champion } from '../data/champions';
 import { getChampionById } from '../data/champions';
@@ -109,7 +114,7 @@ import {
     playWarCry,
 } from './sounds';
 import { readBestPersistedSave, writePersistedSave } from './saveGame';
-import type { GameOptions, MonsterAttackDebugEntry } from './runtimeTypes';
+import type { GameOptions, MonsterAttackDebugEntry, PersistedSaveData } from './runtimeTypes';
 import {
     tryParsePersistedSaveData as tryParsePersistedSaveDataSystem,
 } from './systems/persistence';
@@ -168,9 +173,9 @@ import {
     buildUnequipItemRuntimePatch,
 } from './systems/itemTransferCommandRuntime';
 import {
+    buildStoreLoadedGamePatch,
     buildStorePersistedSavePayload,
     buildStoreReturnToTitlePatch,
-    loadStoreGamePatch,
     saveStoreGame,
 } from './systems/storePersistenceRuntime';
 import {
@@ -273,6 +278,7 @@ import {
     buildStoreEndgameFramePatch,
     buildStoreSleepFramePatch,
 } from './systems/storeTimeRuntime';
+import { resolveSpellStatsName } from './systems/spellStats';
 import {
     ALTERNATE_ENDING_HALL_FIREBALL_ORIGIN,
     buildAlternateEndingFramePatch,
@@ -1965,6 +1971,7 @@ interface GameState {
     direction: Direction;
     party: Champion[];
     gameOptions: GameOptions;
+    minimapTiles: Record<string, MinimapSeenTileKind>;
     /** Index (0-3) of the currently selected party slot — picks up items. */
     selectedChampionIndex: number;
     gamePhase: GamePhase;
@@ -2076,6 +2083,7 @@ interface GameState {
 
     selectChampion: (index: number) => void;
     setGameOptions: (updater: Partial<GameOptions>) => void;
+    updateMinimapTiles: (updates: Record<string, MinimapSeenTileKind>) => void;
     openOptionsModal: () => void;
     closeOptionsModal: () => void;
     setTutorialOverlayActive: (active: boolean) => void;
@@ -2568,7 +2576,7 @@ function buildSpellStatsDelta(
     const beforeVitals = state.championVitals[championId];
     const afterVitals = patch.championVitals?.[championId] ?? beforeVitals;
     const manaSpent = Math.max(0, (beforeVitals?.mana ?? 0) - (afterVitals?.mana ?? beforeVitals?.mana ?? 0));
-    const spellName = patch.lastCastResult?.message?.split(' (')[0] ?? runeIds.join(' ');
+    const spellName = resolveSpellStatsName(runeIds, patch.lastCastResult?.message);
     const succeeded = patch.lastCastResult?.success === true;
     const failed = patch.lastCastResult?.success === false;
     const spellCounters = {
@@ -2639,6 +2647,10 @@ function getStrafeRightDirection(direction: Direction): Direction {
     if (direction === 'SOUTH') return 'WEST';
     if (direction === 'EAST') return 'SOUTH';
     return 'NORTH';
+}
+
+function persistedGameStatsRunIdNeedsMigration(data: PersistedSaveData | null): boolean {
+    return !isValidGameRunId(data?.gameStats?.runId);
 }
 
 function applyDroppedFloorItemRuntimeEffects(
@@ -3408,6 +3420,10 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
     selectChampion: (index) => set(buildSelectChampionPatch(index)),
 
     setGameOptions: (updater) => set((state) => buildSetGameOptionsPatch(state, updater)),
+    updateMinimapTiles: (updates) => set((state) => {
+        const minimapTiles = mergeMinimapTileMemory(state.minimapTiles, updates);
+        return minimapTiles ? { minimapTiles } : state;
+    }),
 
     openOptionsModal: () => set(buildOpenOptionsModalPatch()),
     closeOptionsModal: () => set(buildCloseOptionsModalPatch()),
@@ -3785,16 +3801,26 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
         return buildStorePersistedSavePayload(state, buildStorePersistenceRuntimeMaps());
     },
 
-    loadGame: (): boolean =>
-        runStoreOptionalPatchAction(
-            () => loadStoreGamePatch<PendingSensorEvent, PendingGeneratorSpawnEvent>(
-                readBestPersistedSave(),
-                Date.now(),
-                buildStorePersistenceRuntimeMaps(),
-                tryParsePersistedSaveDataSystem,
-            ),
-            (patch) => set(patch),
-        ),
+    loadGame: (): boolean => {
+        const raw = readBestPersistedSave();
+        const now = Date.now();
+        const persistedData = tryParsePersistedSaveDataSystem(raw);
+        const runtimeMaps = buildStorePersistenceRuntimeMaps();
+        const patch = buildStoreLoadedGamePatch<PendingSensorEvent, PendingGeneratorSpawnEvent>(
+            persistedData,
+            now,
+            runtimeMaps,
+        );
+        if (!patch) return false;
+
+        set(patch);
+
+        if (persistedGameStatsRunIdNeedsMigration(persistedData)) {
+            saveStoreGame(get(), runtimeMaps, writePersistedSave);
+        }
+
+        return true;
+    },
 
     returnToTitle: () => set(buildStoreReturnToTitlePatch()),
 

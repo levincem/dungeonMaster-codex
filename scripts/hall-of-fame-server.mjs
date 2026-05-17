@@ -3,6 +3,10 @@ import { promises as fs } from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import {
+    sanitizeHallOfFamePlayerName,
+    verifyHallOfFameEntryProof,
+} from './hall-of-fame-security.mjs';
 
 const HALL_OF_FAME_VERSION = 1;
 const HALL_OF_FAME_MAX_ENTRIES = 200;
@@ -10,8 +14,8 @@ const MAX_BODY_BYTES = 16 * 1024;
 const MAX_COUNTER = 10_000_000;
 const MAX_NAMED_COUNTERS = 128;
 const MAX_KEY_LENGTH = 64;
-const MAX_NAME_LENGTH = 32;
 const MAX_PLAY_TIME_MS = 1000 * 60 * 60 * 24 * 31;
+const MAX_PROOF_CLOCK_SKEW_MS = 15 * 60 * 1000;
 const MIN_COMPLETED_AT = Date.UTC(2020, 0, 1);
 const HALL_OF_FAME_FILENAME = 'hall_of_fame.json';
 
@@ -45,8 +49,9 @@ function createSpellCounters() {
     };
 }
 
-function createInitialGameStats(now = Date.now()) {
+function createInitialGameStats(now = Date.now(), runId = 'run_legacy_server') {
     return {
+        runId,
         startedAt: now,
         movement: {
             stepsForward: 0,
@@ -189,14 +194,16 @@ function normalizeFlatCounterGroup(source, keys, keyPath) {
     return Object.fromEntries(keys.map((key) => [key, readCounter(object[key], `${keyPath}.${key}`)]));
 }
 
-function normalizeGameStats(source, completedAt, now = Date.now()) {
-    const initial = createInitialGameStats(now);
+function normalizeGameStats(source, completedAt, now = Date.now(), fallbackRunId = null) {
+    const initial = createInitialGameStats(now, fallbackRunId ?? 'run_legacy_server');
     const object = source && typeof source === 'object' && !Array.isArray(source) ? source : {};
     const startedAt = Number.isFinite(object.startedAt) ? Math.floor(object.startedAt) : initial.startedAt;
     if (startedAt < MIN_COMPLETED_AT || startedAt > completedAt || (completedAt - startedAt) > MAX_PLAY_TIME_MS) {
         throw new Error('Invalid startedAt');
     }
+    const runId = readSafeId(object.runId) ?? fallbackRunId ?? initial.runId;
     return {
+        runId,
         startedAt,
         movement: normalizeFlatCounterGroup(object.movement, [
             'stepsForward', 'stepsBackward', 'strafesLeft', 'strafesRight', 'turnsLeft', 'turnsRight', 'bumps', 'falls',
@@ -264,19 +271,39 @@ function readStoredServerHash(value, fallback) {
     return /^[a-f0-9]{24}$/.test(trimmed) ? trimmed : fallback;
 }
 
-function normalizeHallOfFameEntry(source, now = Date.now(), { preserveServerMetadata = false } = {}) {
+function isHallOfFameProofFresh(entry, proof) {
+    return Math.abs(entry.completedAt - proof.savedAt) <= MAX_PROOF_CLOCK_SKEW_MS;
+}
+
+function normalizeHallOfFameEntry(source, now = Date.now(), { preserveServerMetadata = false, requireProof = false } = {}) {
     if (!source || typeof source !== 'object' || Array.isArray(source)) return null;
     const id = readSafeId(source.id);
-    const name = readTrimmedString(source.name, MAX_NAME_LENGTH);
+    const name = sanitizeHallOfFamePlayerName(source.name);
     const completedAt = Number.isFinite(source.completedAt) ? Math.floor(source.completedAt) : NaN;
     if (!id || !name) return null;
     if (!Number.isFinite(completedAt) || completedAt < MIN_COMPLETED_AT || completedAt > now + 15 * 60 * 1000) {
         return null;
     }
     try {
-        const stats = normalizeGameStats(source.stats, completedAt, now);
+        const stats = normalizeGameStats(source.stats, completedAt, now, id);
         const buildVersion = readTrimmedString(source.buildVersion, 32, 'unknown') || 'unknown';
         const summary = buildSummary(stats, completedAt);
+        const normalizedEntry = {
+            id,
+            name,
+            completedAt,
+            buildVersion,
+            stats,
+            summary,
+        };
+
+        if (requireProof) {
+            const proof = verifyHallOfFameEntryProof(normalizedEntry, source.proof);
+            if (!proof || !isHallOfFameProofFresh(normalizedEntry, proof)) {
+                return null;
+            }
+        }
+
         const fallbackServerRecordedAt = now;
         const fallbackServerHash = buildServerHash({
             id,
@@ -286,12 +313,7 @@ function normalizeHallOfFameEntry(source, now = Date.now(), { preserveServerMeta
             summary,
         });
         return {
-            id,
-            name,
-            completedAt,
-            buildVersion,
-            stats,
-            summary,
+            ...normalizedEntry,
             serverRecordedAt: preserveServerMetadata
                 ? readStoredServerRecordedAt(source.serverRecordedAt, fallbackServerRecordedAt, now)
                 : fallbackServerRecordedAt,
@@ -422,7 +444,7 @@ export function createHallOfFameStore({
             return readFile();
         },
         async appendEntry(entry) {
-            const normalizedEntry = normalizeHallOfFameEntry(entry, now());
+            const normalizedEntry = normalizeHallOfFameEntry(entry, now(), { requireProof: true });
             if (!normalizedEntry) {
                 throw Object.assign(new Error('Invalid hall of fame entry'), { statusCode: 400 });
             }

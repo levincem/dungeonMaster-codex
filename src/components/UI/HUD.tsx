@@ -20,6 +20,7 @@ import { setLocale, useI18n, useLocale } from '../../i18n';
 import { getActionCharges } from '../../engine/systems/storeCombatRuntime';
 import { HudMagicPanel } from './HudMagicPanel';
 import { HudPartyPanel } from './HudPartyPanel';
+import { MinimapOverlay } from './MinimapOverlay';
 import {
     getWeaponAttackOptions,
     getRequiredAmmoRawClass,
@@ -578,7 +579,7 @@ export const HUD = () => {
         championVitals, castSpell: storeCastSpell, lastCastResult,
         championXP, championTemporaryXP, championCombat, attackFront, championEquipment, gameOptions,
         damageEvents, optionsModalOpen, openOptionsModal, closeOptionsModal, setGameOptions,
-        buildSaveExportPayload,
+        buildSaveExportPayload, saveGame,
         activeFloorDrag, inventoryFullFeedback, pickupItemToChampion, pickupItemToChampionSlot, endFloorDrag, giveItem, giveEquippedItem, equipItem,
         openDoors, openWalls, openPits, openTeleporters, paused, tutorialOverlayActive,
     } = useStore(useShallow((state) => ({
@@ -611,6 +612,7 @@ export const HUD = () => {
         closeOptionsModal: state.closeOptionsModal,
         setGameOptions: state.setGameOptions,
         buildSaveExportPayload: state.buildSaveExportPayload,
+        saveGame: state.saveGame,
         activeFloorDrag: state.activeFloorDrag,
         inventoryFullFeedback: state.inventoryFullFeedback,
         pickupItemToChampion: state.pickupItemToChampion,
@@ -692,6 +694,10 @@ export const HUD = () => {
             return { success: false, message: text.exportSaveUnavailable };
         }
     }, [buildSaveExportPayload, text.exportSaveSuccess, text.exportSaveUnavailable]);
+    const handleSaveGame = useCallback(() => {
+        const ok = saveGame();
+        return { success: ok, message: ok ? text.saveSuccess : text.saveFailed };
+    }, [saveGame, text.saveFailed, text.saveSuccess]);
     const handleImportSave = useCallback(async (file: File) => {
         try {
             if (file.size > MAX_IMPORTED_SAVE_BYTES) {
@@ -1094,6 +1100,7 @@ export const HUD = () => {
         }}
         data-tutorial-zone="hud-root"
         >
+            <MinimapOverlay />
             <button
                 onClick={() => {
                     setActiveManualSectionId((current) => current ?? manual.sections[0]?.id ?? null);
@@ -1257,10 +1264,15 @@ export const HUD = () => {
                     open={optionsModalOpen}
                     text={text}
                     currentLocale={currentLocale}
+                    showMinimap={gameOptions.showMinimap}
                     keybindings={gameOptions.keybindings}
                     rebindingTarget={rebindingTarget}
                     onClose={handleCloseOptionsModal}
                     onChangeLocale={setLocale}
+                    onToggleMinimap={() => {
+                        setGameOptions({ showMinimap: !gameOptions.showMinimap });
+                    }}
+                    onSaveGame={handleSaveGame}
                     onExportSave={handleExportSave}
                     onImportSave={handleImportSave}
                     onToggleBinding={(target) => {

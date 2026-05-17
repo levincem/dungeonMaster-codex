@@ -13,6 +13,7 @@ import type {
     SpellVisualEvent,
 } from '../runtimeTypes';
 import { createInitialGameStats, type GameStats } from './gameStats';
+import type { MinimapSeenTileKind } from './minimapDiscovery';
 
 export type StoreBootstrapDirection = 'NORTH' | 'EAST' | 'SOUTH' | 'WEST';
 export type StoreBootstrapGamePhase =
@@ -37,6 +38,7 @@ export type StoreBootstrapState = {
     direction: StoreBootstrapDirection;
     party: Champion[];
     gameOptions: GameOptions;
+    minimapTiles: Record<string, MinimapSeenTileKind>;
     selectedChampionIndex: number;
     gamePhase: StoreBootstrapGamePhase;
     optionsModalOpen: boolean;
@@ -130,6 +132,7 @@ export function createStoreBootstrapRuntime(
         direction: params.hallStartDirection,
         party: [],
         gameOptions,
+        minimapTiles: {},
         selectedChampionIndex: 0,
         gamePhase,
         optionsModalOpen: false,

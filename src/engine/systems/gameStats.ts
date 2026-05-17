@@ -69,6 +69,8 @@ export type GameStats = {
     };
 };
 
+export const GAME_RUN_ID_PATTERN = /^[A-Za-z0-9_-]{8,96}$/;
+
 function generateGameRunId(now = Date.now()): string {
     const randomPart = typeof globalThis.crypto?.randomUUID === 'function'
         ? globalThis.crypto.randomUUID().replace(/-/g, '').slice(0, 12)
@@ -76,10 +78,14 @@ function generateGameRunId(now = Date.now()): string {
     return `run_${Math.floor(now)}_${randomPart}`;
 }
 
+export function isValidGameRunId(value: unknown): value is string {
+    return typeof value === 'string' && GAME_RUN_ID_PATTERN.test(value.trim());
+}
+
 function normalizeRunId(value: unknown, now = Date.now()): string {
-    if (typeof value === 'string') {
+    if (isValidGameRunId(value)) {
         const trimmed = value.trim();
-        if (/^[A-Za-z0-9_-]{8,96}$/.test(trimmed)) {
+        if (trimmed.length > 0) {
             return trimmed;
         }
     }

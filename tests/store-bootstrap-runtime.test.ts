@@ -13,6 +13,7 @@ const TEST_OPTIONS: GameOptions = {
         strafeLeft: ['q'],
         strafeRight: ['e'],
     },
+    showMinimap: false,
 };
 
 test('store bootstrap runtime builds a fresh exploration-ready dungeon state', () => {
@@ -64,6 +65,7 @@ test('store bootstrap runtime builds a fresh exploration-ready dungeon state', (
     assert.deepEqual([...state.openPits], ['1,2,3']);
     assert.deepEqual([...state.openTeleporters], ['4,5,6']);
     assert.deepEqual([...state.visibleTexts], ['txt']);
+    assert.deepEqual(state.minimapTiles, {});
     assert.deepEqual(state.creatures, [creature]);
     assert.deepEqual(state.floorItems, [floorItem]);
     assert.equal(state.party.length, 0);
@@ -120,6 +122,7 @@ test('store bootstrap runtime keeps title boot lightweight until world hydration
     assert.deepEqual([...state.openPits], []);
     assert.deepEqual([...state.openTeleporters], []);
     assert.deepEqual([...state.visibleTexts], []);
+    assert.deepEqual(state.minimapTiles, {});
     assert.deepEqual(state.creatures, []);
     assert.deepEqual(state.floorItems, []);
     assert.equal(state.tutorialOverlayActive, false);

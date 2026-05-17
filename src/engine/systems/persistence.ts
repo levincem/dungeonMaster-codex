@@ -35,7 +35,8 @@ import type {
     SpellLight,
 } from '../runtimeTypes';
 import type { GameStats } from './gameStats';
-import { DEFAULT_GAME_OPTIONS } from '../options';
+import { normalizeGameOptions } from '../options';
+import type { MinimapSeenTileKind } from './minimapDiscovery';
 import {
     buildInitialChampionXP,
     isLegacyChampionXPForChampion,
@@ -49,6 +50,7 @@ import { getCreatureTileCapacity } from './generatedCreatureGroups';
 
 export interface PersistableGameState {
     gameOptions: import('../runtimeTypes').GameOptions;
+    minimapTiles: Record<string, MinimapSeenTileKind>;
     level: number;
     position: [number, number];
     direction: Direction;
@@ -546,6 +548,7 @@ export function buildPersistedSaveData(
         buildVersion: APP_VERSION,
         savedAt: now,
         gameOptions: state.gameOptions,
+        minimapTiles: state.minimapTiles,
         level: state.level,
         position: state.position,
         direction: state.direction,
@@ -695,7 +698,8 @@ export function hydratePersistedGameState(
     });
 
     return {
-        gameOptions: data.gameOptions ?? DEFAULT_GAME_OPTIONS,
+        gameOptions: normalizeGameOptions(data.gameOptions),
+        minimapTiles: { ...(data.minimapTiles ?? {}) },
         level: data.level,
         position: data.position,
         direction: data.direction,

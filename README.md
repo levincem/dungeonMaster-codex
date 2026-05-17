@@ -6,18 +6,19 @@ Goal: rebuild the original dungeon, systems, and feel as faithfully as possible 
 
 Live build: [dungeon-master.fr](https://dungeon-master.fr/)
 
-Current local version: `v0.9.1`
+Current local version: `v0.9.2`
 
 ## Status
 
-This is now a desktop-first `0.9.1` public build focused on targeted play validation, selective polish, and keeping PC DOS fidelity first.
+This is now a desktop-first `0.9.2` public build focused on selective polish, lightweight stabilization, and keeping PC DOS fidelity first.
 
-Latest `v0.9.1` focus:
+Latest `v0.9.2` focus:
 
+- final targeted play validation is considered closed, with two testers reaching both endings and rechecking generators, transitions, teleporters, and pits
 - shared `Hall of Fame` is now live through a lightweight Node.js + Apache VPS pipeline, with API fallback to local storage
 - run stats, run identity, hover details, and title-screen access to the `Hall of Fame` are now wired end to end
 - spell visuals and late-game effects were polished further, including `Fluxcage`, `Lightning`, poison families, and shared creature/player spell scaling
-- title screen and options UI were refreshed, including localized language switching and a random title-screen creature panel
+- title screen and options UI were refreshed, including localized language switching, a random title-screen creature panel, and a fully localized quick tutorial flow
 
 Already in place:
 
@@ -30,14 +31,14 @@ Already in place:
 
 Still open:
 
-- one last end-to-end play validation pass
 - a smaller pass of UX and visual polish
-- selective performance work where long play sessions show real pain
+- quick cross-browser / desktop-size verification for the end screens and shared `Hall of Fame`
+- selective performance work only if long play sessions show real pain
 
 Next useful priorities:
 
-- replay the remaining generator / transition / endgame cases
 - keep fixing only issues found in real play, not by reopening solved subsystems
+- treat profiling as optional unless a measured runtime pain point reappears
 
 ## Run Locally
 

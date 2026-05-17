@@ -1,6 +1,10 @@
 import { APP_VERSION } from '../appInfo';
 import type { GameStats } from './systems/gameStats';
 import { normalizeGameStats } from './systems/gameStats';
+import {
+    sanitizeHallOfFamePlayerName,
+    type HallOfFameEntryProof,
+} from './hallOfFameSecurity';
 
 const HALL_OF_FAME_STORAGE_KEY = 'dungeon-master-hall-of-fame-v1';
 const HALL_OF_FAME_LAST_NAME_KEY = 'dungeon-master-hall-of-fame-last-name-v1';
@@ -25,6 +29,10 @@ export interface HallOfFameEntry {
     buildVersion: string;
     stats: GameStats;
     summary: HallOfFameEntrySummary;
+}
+
+export interface HallOfFameSubmissionEntry extends HallOfFameEntry {
+    proof?: HallOfFameEntryProof;
 }
 
 interface HallOfFameFile {
@@ -61,7 +69,7 @@ function normalizeEntry(entry: Partial<HallOfFameEntry> | null | undefined): Hal
     const stats = normalizeGameStats(entry.stats, entry.completedAt);
     return {
         id: entry.id,
-        name: entry.name.trim().slice(0, 32) || 'Anonymous',
+        name: sanitizeHallOfFamePlayerName(entry.name),
         completedAt: entry.completedAt,
         buildVersion: typeof entry.buildVersion === 'string' ? entry.buildVersion : APP_VERSION,
         stats,
@@ -123,7 +131,7 @@ export function readHallOfFameEntries(): HallOfFameEntry[] {
 export function readLastHallOfFameName(): string {
     if (!canUseStorage()) return '';
     try {
-        return window.localStorage.getItem(HALL_OF_FAME_LAST_NAME_KEY) ?? '';
+        return sanitizeHallOfFamePlayerName(window.localStorage.getItem(HALL_OF_FAME_LAST_NAME_KEY) ?? '', '');
     } catch {
         return '';
     }
@@ -140,7 +148,7 @@ function persistLastHallOfFameName(name: string): void {
 
 export function buildHallOfFameEntry(name: string, stats: GameStats, completedAt = Date.now()): HallOfFameEntry {
     const normalizedStats = normalizeGameStats(stats, completedAt);
-    const trimmedName = name.trim().slice(0, 32) || 'Anonymous';
+    const trimmedName = sanitizeHallOfFamePlayerName(name);
     return {
         id: normalizedStats.runId,
         name: trimmedName,
@@ -151,7 +159,7 @@ export function buildHallOfFameEntry(name: string, stats: GameStats, completedAt
     };
 }
 
-function appendLocalHallOfFameEntry(entry: HallOfFameEntry): { success: boolean; entries: HallOfFameEntry[] } {
+function appendLocalHallOfFameEntry(entry: HallOfFameSubmissionEntry): { success: boolean; entries: HallOfFameEntry[] } {
     const entries = [entry, ...readHallOfFameEntries().filter((candidate) => candidate.id !== entry.id)];
     const success = writeLocalHallOfFame(entries);
     if (success) persistLastHallOfFameName(entry.name);
@@ -221,7 +229,7 @@ type HallOfFameSaveResult =
     | { kind: 'unavailable' }
     | { kind: 'rejected'; entries: HallOfFameEntry[] };
 
-async function appendHallOfFameEntryViaApi(entry: HallOfFameEntry): Promise<HallOfFameSaveResult> {
+async function appendHallOfFameEntryViaApi(entry: HallOfFameSubmissionEntry): Promise<HallOfFameSaveResult> {
     const response = await requestHallOfFameApi('POST', { entry });
     if (isHallOfFameApiUnavailable(response)) {
         return { kind: 'unavailable' };
@@ -250,7 +258,7 @@ export async function loadHallOfFameEntries(): Promise<{ source: HallOfFameSourc
     return { source: 'local', entries: readHallOfFameEntries() };
 }
 
-export async function appendHallOfFameEntry(entry: HallOfFameEntry): Promise<{ success: boolean; source: HallOfFameSource; entries: HallOfFameEntry[] }> {
+export async function appendHallOfFameEntry(entry: HallOfFameSubmissionEntry): Promise<{ success: boolean; source: HallOfFameSource; entries: HallOfFameEntry[] }> {
     const apiResult = await appendHallOfFameEntryViaApi(entry);
     if (apiResult.kind === 'success') {
         return { success: true, source: 'api', entries: apiResult.entries };

@@ -3,6 +3,7 @@ import type { ChampionWounds } from '../data/equipment';
 import type { ChampionTemporaryXP, ChampionXP } from '../data/skillProgression';
 import type { ChampionEquipment, CreatureInstance, FloorItem } from '../types/game';
 import type { GameStats } from './systems/gameStats';
+import type { MinimapSeenTileKind } from './systems/minimapDiscovery';
 
 export type { ChampionTemporaryXP, ChampionXP } from '../data/skillProgression';
 
@@ -189,6 +190,7 @@ export type KeyBindings = Record<GameAction, string[]>;
 
 export interface GameOptions {
     keybindings: KeyBindings;
+    showMinimap: boolean;
 }
 
 export interface PersistedCreatureTimers {
@@ -209,6 +211,7 @@ export interface PersistedSaveData {
     savedAt: number;
     integrity?: string;
     gameOptions?: GameOptions;
+    minimapTiles?: Record<string, MinimapSeenTileKind>;
     level: number;
     position: [number, number];
     direction: Direction;

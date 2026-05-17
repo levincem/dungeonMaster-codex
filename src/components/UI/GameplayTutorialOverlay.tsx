@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useStore } from '../../engine/store';
-import { en } from '../../i18n/en';
+import { useI18n } from '../../i18n';
 import { didPartyTakeSingleStep } from './hudDerivedState';
 
 type TutorialZoneKey =
@@ -94,7 +94,7 @@ function getTutorialZoneRect(zone: TutorialZoneKey): TutorialRect | null {
 }
 
 export const GameplayTutorialOverlay: React.FC = () => {
-    const text = en.gameTutorial;
+    const text = useI18n().gameTutorial;
     const {
         gamePhase,
         level,

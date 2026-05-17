@@ -5,6 +5,12 @@ import os from 'node:os';
 import path from 'node:path';
 import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
+import { buildHallOfFameEntry } from '../src/engine/hallOfFame.js';
+import {
+    HALL_OF_FAME_SUBMISSION_PROOF_VERSION,
+    buildHallOfFameEntryProof,
+} from '../src/engine/hallOfFameSecurity.js';
+import { createInitialGameStats } from '../src/engine/systems/gameStats.js';
 
 const FIXED_NOW = Date.UTC(2026, 4, 16, 12, 0, 0);
 const importEsm = new Function('specifier', 'return import(specifier)') as (specifier: string) => Promise<HallOfFameModule>;
@@ -113,47 +119,39 @@ async function requestJson(
 
 function createValidEntry(id = 'victory_abc12345') {
     const completedAt = FIXED_NOW - 1_000;
+    const stats = createInitialGameStats(completedAt - 90_000);
+    stats.runId = id;
+    stats.movement.stepsForward = 12;
+    stats.combat.monstersKilled = 7;
+    stats.combat.damageDealt.total = 345;
+    stats.combat.damageTaken.total = 21;
+    stats.combat.byCreature.Screamer = 3;
+    stats.magic.spells.attempted = 5;
+    stats.magic.spells.succeeded = 4;
+    stats.magic.spells.failed = 1;
+    stats.magic.manaSpent = 33;
+    stats.magic.bySpell.Lightning = {
+        attempted: 2,
+        succeeded: 2,
+        failed: 0,
+    };
+    stats.items.pickedUp = 2;
+
+    const entry = buildHallOfFameEntry('Tiggy', stats, completedAt);
+    const proof = buildHallOfFameEntryProof(entry, {
+        proofVersion: HALL_OF_FAME_SUBMISSION_PROOF_VERSION,
+        saveVersion: 2,
+        savedAt: completedAt,
+        saveIntegrity: 'deadbeef',
+        saveBuildVersion: entry.buildVersion,
+        runId: entry.id,
+        startedAt: entry.stats.startedAt,
+    });
+    assert.ok(proof, 'expected a valid hall of fame proof');
+
     return {
-        id,
-        name: 'Tiggy',
-        completedAt,
-        buildVersion: '0.9.0-rc.1',
-        stats: {
-            startedAt: completedAt - 90_000,
-            movement: {
-                stepsForward: 12,
-            },
-            combat: {
-                monstersKilled: 7,
-                damageDealt: {
-                    total: 345,
-                },
-                damageTaken: {
-                    total: 21,
-                },
-                byCreature: {
-                    Screamer: 3,
-                },
-            },
-            magic: {
-                spells: {
-                    attempted: 5,
-                    succeeded: 4,
-                    failed: 1,
-                },
-                manaSpent: 33,
-                bySpell: {
-                    Lightning: {
-                        attempted: 2,
-                        succeeded: 2,
-                        failed: 0,
-                    },
-                },
-            },
-            items: {
-                pickedUp: 2,
-            },
-        },
+        ...entry,
+        proof,
     };
 }
 
@@ -261,5 +259,59 @@ test('hall of fame server exposes only the exact API route', async (t) => {
     assert.equal(response.statusCode, 404);
     assert.deepEqual(response.body, {
         error: 'Not found',
+    });
+});
+
+test('hall of fame server sanitizes player names before persisting them', async (t) => {
+    const dataDir = await mkdtemp(path.join(os.tmpdir(), 'dm-hof-name-'));
+    t.after(async () => {
+        await rm(dataDir, { recursive: true, force: true });
+    });
+
+    const { server, baseUrl } = await startHallOfFameServer(dataDir);
+    t.after(async () => {
+        await new Promise<void>((resolve, reject) => {
+            server.close((error) => (error ? reject(error) : resolve()));
+        });
+    });
+
+    const entry = createValidEntry('victory_name_01');
+    const response = await requestJson(baseUrl, 'POST', '/api/hall-of-fame', {
+        entry: {
+            ...entry,
+            name: ' Ti!g gy ',
+        },
+    });
+
+    assert.equal(response.statusCode, 201);
+    const storedEntry = (response.body as { entries: Array<{ id: string; name: string }> }).entries[0];
+    assert.equal(storedEntry?.id, 'victory_name_01');
+    assert.equal(storedEntry?.name, 'Tiggy');
+});
+
+test('hall of fame server rejects submissions without a valid proof', async (t) => {
+    const dataDir = await mkdtemp(path.join(os.tmpdir(), 'dm-hof-proof-'));
+    t.after(async () => {
+        await rm(dataDir, { recursive: true, force: true });
+    });
+
+    const { server, baseUrl } = await startHallOfFameServer(dataDir);
+    t.after(async () => {
+        await new Promise<void>((resolve, reject) => {
+            server.close((error) => (error ? reject(error) : resolve()));
+        });
+    });
+
+    const entry = createValidEntry('victory_proof_01');
+    const response = await requestJson(baseUrl, 'POST', '/api/hall-of-fame', {
+        entry: {
+            ...entry,
+            proof: undefined,
+        },
+    });
+
+    assert.equal(response.statusCode, 400);
+    assert.deepEqual(response.body, {
+        error: 'Invalid hall of fame entry',
     });
 });

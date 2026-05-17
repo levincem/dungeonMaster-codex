@@ -1,6 +1,7 @@
 import type { Champion } from '../../types/champion';
 import type { ChampionEquipment, CreatureInstance, FloorItem } from '../../types/game';
 import type { GameOptions, ChampionVitals } from '../runtimeTypes';
+import { normalizeGameOptions } from '../options';
 
 type GameOptionsStateLike = {
     gameOptions: GameOptions;
@@ -45,17 +46,18 @@ export function buildSetGameOptionsPatch<TState extends GameOptionsStateLike>(
     state: TState,
     updater: Partial<GameOptions>,
 ) {
+    const keybindings = updater.keybindings
+        ? {
+            ...state.gameOptions.keybindings,
+            ...updater.keybindings,
+        }
+        : state.gameOptions.keybindings;
     return {
-        gameOptions: {
+        gameOptions: normalizeGameOptions({
             ...state.gameOptions,
             ...updater,
-            keybindings: updater.keybindings
-                ? {
-                    ...state.gameOptions.keybindings,
-                    ...updater.keybindings,
-                }
-                : state.gameOptions.keybindings,
-        },
+            keybindings,
+        }),
     };
 }
 

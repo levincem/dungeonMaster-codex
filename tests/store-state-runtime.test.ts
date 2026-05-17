@@ -85,6 +85,7 @@ test('buildSetGameOptionsPatch merges partial keybindings into the existing opti
                 strafeLeft: ['q'],
                 strafeRight: ['e'],
             },
+            showMinimap: false,
         } satisfies GameOptions,
     };
 
@@ -109,6 +110,7 @@ test('buildSetGameOptionsPatch merges partial keybindings into the existing opti
                 strafeLeft: ['q'],
                 strafeRight: ['e'],
             },
+            showMinimap: false,
         },
     });
 });

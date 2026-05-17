@@ -1,33 +1,28 @@
 # 0.9.x Finish Plan
 
-Etat revu le `2026-05-16`.
+Etat revu le `2026-05-17`.
 
 Ce document sert de plan de travail court pour refermer proprement la derniere passe utile de stabilisation `0.9.x`.
 
 ## Objectif
 
-Stabiliser `0.9.1` sans rouvrir de gros chantiers parasites.
+Stabiliser `0.9.2` sans rouvrir de gros chantiers parasites.
 
 ## Priorite 1 - Derniere passe endgame / fin
 
 Contexte:
 
-- la fin de jeu est jouable de bout en bout
-- le hall of fame partage est deja actif
-- le reliquat utile est surtout de confirmer confort, rythme et lisibilite sur un vrai run complet
+- fermee cote validation utile
+- deux testeurs differents ont boucle les deux fins
+- les transitions, `teleport`, `pit`, generateurs et ecrans de fin ont ete rejoues sans nouvel ecart structurant
 
-A verifier en vrai playtest:
+Ce qui est maintenant considere comme valide:
 
 - sequence `Amalgam -> Firestaff (Complete)`
 - `Fluxcage / Fuse / Lord Chaos`
 - rythme de la sequence `Lord Chaos -> Lord Order -> Grey Lord`
 - lisibilite des ecrans `texte -> stats -> hall of fame -> The End`
 - confort de lecture en `1920x1080`
-
-Definition de fini:
-
-- la sequence complete se rejoue en dev sans blocage
-- aucun bug visuel ou logique evident ne subsiste sur la fin
 
 ## Priorite 2 - Hall of fame partage
 
@@ -52,7 +47,9 @@ Support de deploiement conserve:
 Seulement si un vrai probleme reste visible:
 
 - derniers ecarts de presentation tardifs
-- petit reliquat perf / warm-up seulement si le gain est evident
+- eventuelle option de mini-map ou de carte complete a reevaluer a froid
+- verification rapide du Hall of Fame et des ecrans de fin sur d'autres navigateurs / tailles d'ecran
+- petit reliquat perf / warm-up seulement si une gene concrete reapparait
 
 Regle:
 
@@ -68,6 +65,5 @@ Note deja tranchee:
 
 - `npm.cmd test`
 - `npm.cmd run build`
-- un run de victoire complet
 - verification du resume de version dans `README` et l'ecran titre
 - verification rapide du hall of fame partage sur le VPS

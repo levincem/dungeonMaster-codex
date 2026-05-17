@@ -10,6 +10,12 @@ import {
     readLastHallOfFameName,
     type HallOfFameEntry,
 } from '../../engine/hallOfFame';
+import {
+    HALL_OF_FAME_PLAYER_NAME_MAX_LENGTH,
+    buildHallOfFameEntryProof,
+    extractHallOfFameProofSourceFromSaveExport,
+    sanitizeHallOfFamePlayerNameInput,
+} from '../../engine/hallOfFameSecurity';
 import { getCurrentLocale, useI18n } from '../../i18n';
 import type { WallTextObject } from '../../types/game';
 import { GameStatsPanel } from './GameStatsPanel';
@@ -71,8 +77,10 @@ export const VictoryScreen = () => {
     const text = useI18n().victory;
     const locale = getCurrentLocale();
     const gameStats = useStore((state) => state.gameStats);
+    const buildSaveExportPayload = useStore((state) => state.buildSaveExportPayload);
     const [stage, setStage] = useState<VictoryStage>('message');
     const [playerName, setPlayerName] = useState(() => readLastHallOfFameName());
+    const [nameInputBlocked, setNameInputBlocked] = useState(false);
     const [hallEntries, setHallEntries] = useState<HallOfFameEntry[]>(() => readHallOfFameEntries());
     const [savedEntryId, setSavedEntryId] = useState<string | null>(null);
     const [hallFeedback, setHallFeedback] = useState<{ message: string; success: boolean } | null>(null);
@@ -131,8 +139,20 @@ export const VictoryScreen = () => {
         if (savedEntryId || isSavingHallEntry) return;
         setIsSavingHallEntry(true);
         setHallFeedback(null);
-        const entry = buildHallOfFameEntry(playerName, gameStats);
-        const result = await appendHallOfFameEntry(entry);
+        const completedAt = Date.now();
+        const entry = buildHallOfFameEntry(playerName, gameStats, completedAt);
+        const proofSource = extractHallOfFameProofSourceFromSaveExport(buildSaveExportPayload());
+        const proof = buildHallOfFameEntryProof(entry, proofSource);
+        if (!proof) {
+            setHallFeedback({
+                message: text.hallOfFameSaveFailed,
+                success: false,
+            });
+            setIsSavingHallEntry(false);
+            return;
+        }
+
+        const result = await appendHallOfFameEntry({ ...entry, proof });
         setHallEntries(result.entries);
         setSavedEntryId(result.success ? entry.id : null);
         setHallFeedback({
@@ -316,9 +336,19 @@ export const VictoryScreen = () => {
                             <input
                                 type="text"
                                 value={playerName}
-                                maxLength={32}
-                                onChange={(event) => setPlayerName(event.target.value)}
+                                maxLength={HALL_OF_FAME_PLAYER_NAME_MAX_LENGTH}
+                                onChange={(event) => {
+                                    const nextValue = event.target.value;
+                                    const sanitizedValue = sanitizeHallOfFamePlayerNameInput(nextValue);
+                                    setPlayerName(sanitizedValue);
+                                    setNameInputBlocked(nextValue !== sanitizedValue);
+                                }}
                                 placeholder={text.hallOfFameNamePlaceholder}
+                                autoCapitalize="off"
+                                autoCorrect="off"
+                                spellCheck={false}
+                                inputMode="text"
+                                pattern="[A-Za-z0-9]*"
                                 style={{
                                     padding: '12px 14px',
                                     borderRadius: 8,
@@ -330,6 +360,15 @@ export const VictoryScreen = () => {
                                     outline: 'none',
                                 }}
                             />
+                            <span style={{
+                                minHeight: 18,
+                                fontSize: 11,
+                                letterSpacing: 0.6,
+                                textTransform: 'none',
+                                color: nameInputBlocked ? '#e3b57b' : '#cfbf94',
+                            }}>
+                                {nameInputBlocked ? text.hallOfFameNameBlocked : text.hallOfFameNameHelp}
+                            </span>
                         </label>
                         <button
                             type="button"

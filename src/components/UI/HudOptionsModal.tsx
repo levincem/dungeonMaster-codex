@@ -15,34 +15,40 @@ const MOVEMENT_ACTIONS: Array<{ action: GameAction; icon: string }> = [
 export type HudRebindingTarget = { action: GameAction; slot: 0 | 1 };
 
 type SaveTransferFeedback = { success: boolean; message: string };
-type OptionsTabId = 'keybindings' | 'saves' | 'language';
+type OptionsTabId = 'keybindings' | 'display' | 'saves' | 'language';
 
 export const HudOptionsModal: React.FC<{
     open: boolean;
     text: Translations['hud'];
     currentLocale: Locale;
+    showMinimap: boolean;
     keybindings: Record<GameAction, string[] | undefined>;
     rebindingTarget: HudRebindingTarget | null;
     onClose: () => void;
     onChangeLocale: (locale: Locale) => void;
+    onToggleMinimap: () => void;
     onToggleBinding: (target: HudRebindingTarget) => void;
+    onSaveGame: () => Promise<SaveTransferFeedback> | SaveTransferFeedback;
     onExportSave: () => Promise<SaveTransferFeedback> | SaveTransferFeedback;
     onImportSave: (file: File) => Promise<SaveTransferFeedback> | SaveTransferFeedback;
 }> = ({
     open,
     text,
     currentLocale,
+    showMinimap,
     keybindings,
     rebindingTarget,
     onClose,
     onChangeLocale,
+    onToggleMinimap,
     onToggleBinding,
+    onSaveGame,
     onExportSave,
     onImportSave,
 }) => {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const [saveTransferMessage, setSaveTransferMessage] = useState<SaveTransferFeedback | null>(null);
-    const [saveTransferBusy, setSaveTransferBusy] = useState(false);
+    const [saveManagementMessage, setSaveManagementMessage] = useState<SaveTransferFeedback | null>(null);
+    const [saveManagementBusy, setSaveManagementBusy] = useState(false);
     const [confirmImportOpen, setConfirmImportOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<OptionsTabId>('keybindings');
 
@@ -50,6 +56,7 @@ export const HudOptionsModal: React.FC<{
 
     const tabs: Array<{ id: OptionsTabId; label: string; subtitle: string }> = [
         { id: 'keybindings', label: text.keybindings, subtitle: text.clickToReassign },
+        { id: 'display', label: text.display, subtitle: showMinimap ? text.minimapEnabled : text.minimapDisabled },
         { id: 'saves', label: text.saveManagement, subtitle: text.saveTransfer },
         { id: 'language', label: text.language, subtitle: currentLocale === 'fr' ? text.languageFrench : text.languageEnglish },
     ];
@@ -61,16 +68,27 @@ export const HudOptionsModal: React.FC<{
 
     const activeTabDescription = activeTab === 'keybindings'
         ? (rebindingTarget === null ? text.clickToReassign : `${text.pressNewKey} ${text.pressEscToCancel}`)
+        : activeTab === 'display'
+            ? text.displayDescription
         : activeTab === 'saves'
-            ? text.saveTransferDescription
+            ? text.saveManagementDescription
             : text.languageDescription;
 
-    const handleExport = async () => {
-        setSaveTransferBusy(true);
+    const handleSaveGame = async () => {
+        setSaveManagementBusy(true);
         try {
-            setSaveTransferMessage(await onExportSave());
+            setSaveManagementMessage(await onSaveGame());
         } finally {
-            setSaveTransferBusy(false);
+            setSaveManagementBusy(false);
+        }
+    };
+
+    const handleExport = async () => {
+        setSaveManagementBusy(true);
+        try {
+            setSaveManagementMessage(await onExportSave());
+        } finally {
+            setSaveManagementBusy(false);
         }
     };
 
@@ -82,11 +100,11 @@ export const HudOptionsModal: React.FC<{
         const file = event.target.files?.[0];
         event.target.value = '';
         if (!file) return;
-        setSaveTransferBusy(true);
+        setSaveManagementBusy(true);
         try {
-            setSaveTransferMessage(await onImportSave(file));
+            setSaveManagementMessage(await onImportSave(file));
         } finally {
-            setSaveTransferBusy(false);
+            setSaveManagementBusy(false);
             setConfirmImportOpen(false);
         }
     };
@@ -310,8 +328,86 @@ export const HudOptionsModal: React.FC<{
                             </div>
                         )}
 
+                        {activeTab === 'display' && (
+                            <div style={{ display: 'grid', gap: 12 }}>
+                                <div
+                                    style={{
+                                        padding: '14px 16px',
+                                        borderRadius: 10,
+                                        border: '1px solid rgba(212,184,112,0.22)',
+                                        background: 'rgba(0,0,0,0.32)',
+                                        color: '#dfc891',
+                                        display: 'grid',
+                                        gap: 10,
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                                        <div style={{ display: 'grid', gap: 4 }}>
+                                            <span style={{ fontSize: 15, fontWeight: 'bold', color: '#f5e5b4' }}>{text.minimap}</span>
+                                            <span style={{ fontSize: 12, lineHeight: 1.5, opacity: 0.8 }}>{text.minimapDescription}</span>
+                                        </div>
+                                        <span
+                                            style={{
+                                                minWidth: 88,
+                                                textAlign: 'right',
+                                                fontSize: 12,
+                                                letterSpacing: 1,
+                                                textTransform: 'uppercase',
+                                                color: showMinimap ? '#f0d060' : 'rgba(223,200,145,0.58)',
+                                            }}
+                                        >
+                                            {showMinimap ? text.minimapEnabled : text.minimapDisabled}
+                                        </span>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={onToggleMinimap}
+                                        style={{
+                                            justifySelf: 'start',
+                                            minHeight: 36,
+                                            padding: '9px 14px',
+                                            borderRadius: 8,
+                                            border: `1px solid ${showMinimap ? 'rgba(240,208,96,0.52)' : 'rgba(212,184,112,0.3)'}`,
+                                            background: showMinimap ? 'rgba(20,14,0,0.9)' : 'rgba(0,0,0,0.62)',
+                                            color: showMinimap ? '#ffe9aa' : '#d8c08b',
+                                            fontSize: 13,
+                                            cursor: 'pointer',
+                                        }}
+                                    >
+                                        {showMinimap ? text.minimapToggleOff : text.minimapToggleOn}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
                         {activeTab === 'saves' && (
                             <div style={{ paddingTop: 2 }}>
+                                <div style={{ fontSize: 13, letterSpacing: 2, color: '#c9a85e', marginBottom: 8 }}>
+                                    {text.saveCurrentRun.toUpperCase()}
+                                </div>
+                                <div style={{ fontSize: 13, lineHeight: 1.6, color: 'rgba(232,214,160,0.72)', marginBottom: 14 }}>
+                                    {text.saveCurrentRunDescription}
+                                </div>
+                                <div style={{ marginBottom: 18 }}>
+                                    <button
+                                        onClick={() => { void handleSaveGame(); }}
+                                        disabled={saveManagementBusy}
+                                        title={text.saveCurrentRunTitle}
+                                        style={{
+                                            padding: '10px 12px',
+                                            borderRadius: 6,
+                                            border: '1px solid rgba(212,184,112,0.3)',
+                                            background: 'rgba(0,0,0,0.62)',
+                                            color: '#d8c08b',
+                                            fontSize: 14,
+                                            cursor: saveManagementBusy ? 'default' : 'pointer',
+                                            opacity: saveManagementBusy ? 0.72 : 1,
+                                        }}
+                                    >
+                                        {text.saveGame}
+                                    </button>
+                                </div>
+
                                 <div style={{ fontSize: 13, letterSpacing: 2, color: '#c9a85e', marginBottom: 8 }}>
                                     {text.saveTransfer.toUpperCase()}
                                 </div>
@@ -321,7 +417,7 @@ export const HudOptionsModal: React.FC<{
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                                     <button
                                         onClick={() => { void handleExport(); }}
-                                        disabled={saveTransferBusy}
+                                        disabled={saveManagementBusy}
                                         title={text.exportSaveTitle}
                                         style={{
                                             padding: '10px 12px',
@@ -330,15 +426,15 @@ export const HudOptionsModal: React.FC<{
                                             background: 'rgba(0,0,0,0.62)',
                                             color: '#d8c08b',
                                             fontSize: 14,
-                                            cursor: saveTransferBusy ? 'default' : 'pointer',
-                                            opacity: saveTransferBusy ? 0.72 : 1,
+                                            cursor: saveManagementBusy ? 'default' : 'pointer',
+                                            opacity: saveManagementBusy ? 0.72 : 1,
                                         }}
                                     >
                                         {text.exportSave}
                                     </button>
                                     <button
                                         onClick={handleImportClick}
-                                        disabled={saveTransferBusy}
+                                        disabled={saveManagementBusy}
                                         title={text.importSaveTitle}
                                         style={{
                                             padding: '10px 12px',
@@ -347,8 +443,8 @@ export const HudOptionsModal: React.FC<{
                                             background: 'rgba(0,0,0,0.62)',
                                             color: '#d8c08b',
                                             fontSize: 14,
-                                            cursor: saveTransferBusy ? 'default' : 'pointer',
-                                            opacity: saveTransferBusy ? 0.72 : 1,
+                                            cursor: saveManagementBusy ? 'default' : 'pointer',
+                                            opacity: saveManagementBusy ? 0.72 : 1,
                                         }}
                                     >
                                         {text.importSave}
@@ -416,14 +512,14 @@ export const HudOptionsModal: React.FC<{
                                         marginTop: 12,
                                         fontSize: 12,
                                         lineHeight: 1.5,
-                                        color: saveTransferMessage
-                                            ? (saveTransferMessage.success ? '#8fd18f' : '#de9a7a')
+                                        color: saveManagementMessage
+                                            ? (saveManagementMessage.success ? '#8fd18f' : '#de9a7a')
                                             : 'rgba(232,214,160,0.62)',
                                     }}
                                 >
-                                    {saveTransferBusy
+                                    {saveManagementBusy
                                         ? text.saveTransferBusy
-                                        : (saveTransferMessage?.message ?? text.saveTransferHint)}
+                                        : (saveManagementMessage?.message ?? text.saveTransferHint)}
                                 </div>
                             </div>
                         )}
