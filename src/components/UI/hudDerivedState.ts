@@ -292,8 +292,7 @@ export function buildHudCastState<
     const spell = findSpell(selectedRunes) ?? undefined;
     const canCast = selectedRunes.length >= 2 &&
         !!casterChampion &&
-        (casterChampionCooldown ?? 0) <= 0 &&
-        (spell ? (casterChampionMana ?? 0) >= spell.manaCost : true);
+        (casterChampionCooldown ?? 0) <= 0;
 
     return {
         currentFamilyIdx: Math.min(selectedRunes.length, Math.max(0, runeFamilyCount - 1)),

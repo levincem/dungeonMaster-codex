@@ -1,12 +1,12 @@
 # 0.9.x Finish Plan
 
-Etat revu le `2026-05-17`.
+Etat revu le `2026-05-19`.
 
 Ce document sert de plan de travail court pour refermer proprement la derniere passe utile de stabilisation `0.9.x`.
 
 ## Objectif
 
-Stabiliser `0.9.2` sans rouvrir de gros chantiers parasites.
+Stabiliser `0.9.3` sans rouvrir de gros chantiers parasites.
 
 ## Priorite 1 - Derniere passe endgame / fin
 
@@ -29,6 +29,7 @@ Ce qui est maintenant considere comme valide:
 Statut:
 
 - ferme cote repo et VPS
+- passe recente de stabilisation `proof / signature / diagnostics` appliquee
 
 Ce qui est deja valide:
 
@@ -40,7 +41,7 @@ Ce qui est deja valide:
 
 Support de deploiement conserve:
 
-- [docs/HALL_OF_FAME_VPS_SETUP.md](/D:/DungeonMaster-codex/docs/HALL_OF_FAME_VPS_SETUP.md)
+- [HALL_OF_FAME_VPS_SETUP.md](./HALL_OF_FAME_VPS_SETUP.md)
 
 ## Priorite 3 - Dernier polish cible
 

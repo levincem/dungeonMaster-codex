@@ -18,6 +18,7 @@ import type {
 import { resolveAttackSelection } from './attackSelection';
 import { isChampionInRearRank } from './attackFrontContext';
 import { getTranslations } from '../../i18n';
+import { isMagicBoxItem } from '../../data/itemChargeState';
 
 const runtimeText = getTranslations().runtime;
 
@@ -215,6 +216,7 @@ export function runAttackFrontRuntime(
         ? { ...state.championVitals, [championId]: vitalsUpdate.nextVitals }
         : state.championVitals;
     const rightHandCharges = deps.getActionCharges(rightHand);
+    const consumeOnUse = selectedAttack?.enumName === 'Freeze Life' && isMagicBoxItem(rightHand);
 
     if (selectedAttack?.requiresCharges && rightHandCharges !== null && rightHandCharges <= 0) {
         return {
@@ -226,13 +228,19 @@ export function runAttackFrontRuntime(
         };
     }
 
-    const chargedEquip = selectedAttack?.requiresCharges
-        ? deps.updateEquippedItemCharges(
+    const chargedEquip = consumeOnUse && rightHand
+        ? (() => {
+            const nextEquip = { ...equip };
+            delete nextEquip.rightHand;
+            return nextEquip;
+        })()
+        : selectedAttack?.requiresCharges
+            ? deps.updateEquippedItemCharges(
             equip,
             'rightHand',
             rightHandCharges === null ? null : Math.max(0, rightHandCharges - 1),
         )
-        : equip;
+            : equip;
 
     if (selectedAttack && (deps.isThrowAttack(selectedAttack) || deps.isShootAttack(selectedAttack))) {
         const projectileAttackPatch = deps.buildPhysicalProjectileAttackPatch({

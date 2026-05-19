@@ -8,6 +8,7 @@ import { getCurrentLocale, useI18n } from '../../i18n';
 import {
     buildHallOfFameEntryHoverText,
     formatHallOfFameCompletedAt,
+    formatHallOfFameCompactNumber,
     formatHallOfFameDurationFromSeconds,
     sortHallOfFameEntries,
 } from './hallOfFameDetails';
@@ -169,9 +170,9 @@ export const HallOfFameModal = ({ onClose }: HallOfFameModalProps) => {
                                         <td style={{ padding: '10px 12px 10px 0' }}>{entry.name}</td>
                                         <td style={{ padding: '10px 12px 10px 0' }}>{formatHallOfFameCompletedAt(entry.completedAt, locale)}</td>
                                         <td style={{ padding: '10px 0', textAlign: 'right' }}>{formatHallOfFameDurationFromSeconds(entry.summary.playTimeSec)}</td>
-                                        <td style={{ padding: '10px 0', textAlign: 'right' }}>{entry.summary.monstersKilled.toLocaleString(locale === 'fr' ? 'fr-FR' : 'en-US')}</td>
-                                        <td style={{ padding: '10px 0', textAlign: 'right' }}>{entry.summary.spellsCast.toLocaleString(locale === 'fr' ? 'fr-FR' : 'en-US')}</td>
-                                        <td style={{ padding: '10px 0', textAlign: 'right' }}>{entry.summary.damageDealt.toLocaleString(locale === 'fr' ? 'fr-FR' : 'en-US')}</td>
+                                        <td style={{ padding: '10px 0', textAlign: 'right' }}>{formatHallOfFameCompactNumber(entry.summary.monstersKilled, locale)}</td>
+                                        <td style={{ padding: '10px 0', textAlign: 'right' }}>{formatHallOfFameCompactNumber(entry.summary.spellsCast, locale)}</td>
+                                        <td style={{ padding: '10px 0', textAlign: 'right' }}>{formatHallOfFameCompactNumber(entry.summary.damageDealt, locale)}</td>
                                     </tr>
                                 ))}
                             </tbody>

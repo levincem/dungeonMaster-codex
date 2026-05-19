@@ -33,7 +33,7 @@ function createVitals(overrides: Partial<ChampionVitals> = {}): ChampionVitals {
     };
 }
 
-test('prepareSpellCast blocks on cooldown and mana before effect handling', () => {
+test('prepareSpellCast blocks on cooldown but no longer spends or rechecks mana at cast time', () => {
     const spell = {
         runes: ['lo', 'ful'],
         name: 'Torch',
@@ -61,7 +61,7 @@ test('prepareSpellCast blocks on cooldown and mana before effect handling', () =
             randomInt: () => 0,
         },
     );
-    const manaBlocked = prepareSpellCast(
+    const prepaidManaCast = prepareSpellCast(
         {
             championId: 1,
             spell: { ...spell, manaCost: 50 },
@@ -80,7 +80,7 @@ test('prepareSpellCast blocks on cooldown and mana before effect handling', () =
     );
 
     assert.equal(cooldownBlocked.kind, 'blocked');
-    assert.equal(manaBlocked.kind, 'blocked');
+    assert.equal(prepaidManaCast.kind, 'ready');
 });
 
 test('prepareSpellCast builds the ready cast payload with mana, cooldown and cast result', () => {
@@ -120,7 +120,7 @@ test('prepareSpellCast builds the ready cast payload with mana, cooldown and cas
     if (result.kind !== 'ready') {
         assert.fail('expected successful spell preparation');
     }
-    assert.equal(result.nextVitals.mana, 15);
+    assert.equal(result.nextVitals.mana, 20);
     assert.equal(result.basePatch.championCombat[1]?.cooldown, 2);
     assert.equal(result.basePatch.lastCastResult.success, true);
     assert.equal(result.basePatch.championXP[1]?.wizard, 99);

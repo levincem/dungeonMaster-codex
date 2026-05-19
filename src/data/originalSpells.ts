@@ -171,6 +171,9 @@ export function getOriginalSpellPowerLevel(runes: readonly string[]): number | n
     return index >= 0 ? index + 1 : null;
 }
 
+// This legacy spell-level formula is kept for existing runtime balancing/tuning.
+// Actual original mana spending during rune entry is source-backed separately in
+// `runes.ts` from the raw i560 symbol-cost tables.
 export function getOriginalSpellManaCost(baseDifficulty: number, powerLevel: number): number {
     return Math.floor(baseDifficulty * ((powerLevel + 1) / 2));
 }

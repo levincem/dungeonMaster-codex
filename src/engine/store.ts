@@ -278,7 +278,7 @@ import {
     buildStoreEndgameFramePatch,
     buildStoreSleepFramePatch,
 } from './systems/storeTimeRuntime';
-import { resolveSpellStatsName } from './systems/spellStats';
+import { resolveCanonicalSpellStatsName } from './systems/spellStats';
 import {
     ALTERNATE_ENDING_HALL_FIREBALL_ORIGIN,
     buildAlternateEndingFramePatch,
@@ -2088,6 +2088,7 @@ interface GameState {
     closeOptionsModal: () => void;
     setTutorialOverlayActive: (active: boolean) => void;
     reorderParty: (fromIndex: number, toIndex: number) => void;
+    spendPreparedSpellMana: (championId: number, amount: number) => boolean;
     castSpell: (championId: number, runeIds: string[]) => void;
     tickGameplayFrame: (delta: number, now: number) => void;
     tickFrame: (delta: number, now: number) => void;
@@ -2576,7 +2577,7 @@ function buildSpellStatsDelta(
     const beforeVitals = state.championVitals[championId];
     const afterVitals = patch.championVitals?.[championId] ?? beforeVitals;
     const manaSpent = Math.max(0, (beforeVitals?.mana ?? 0) - (afterVitals?.mana ?? beforeVitals?.mana ?? 0));
-    const spellName = resolveSpellStatsName(runeIds, patch.lastCastResult?.message);
+    const spellName = resolveCanonicalSpellStatsName(runeIds);
     const succeeded = patch.lastCastResult?.success === true;
     const failed = patch.lastCastResult?.success === false;
     const spellCounters = {
@@ -2588,9 +2589,11 @@ function buildSpellStatsDelta(
         magic: {
             spells: spellCounters,
             manaSpent,
-            bySpell: {
-                [spellName]: spellCounters,
-            },
+            ...(spellName ? {
+                bySpell: {
+                    [spellName]: spellCounters,
+                },
+            } : {}),
         },
     };
 }
@@ -3823,6 +3826,31 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
     },
 
     returnToTitle: () => set(buildStoreReturnToTitlePatch()),
+
+    spendPreparedSpellMana: (championId, amount) => {
+        if (!Number.isFinite(amount) || amount <= 0) return false;
+
+        const state = get();
+        const currentVitals = state.championVitals[championId];
+        if (!currentVitals || currentVitals.mana < amount) {
+            return false;
+        }
+
+        set(applyStatsDeltaToPatch(state, {
+            championVitals: {
+                ...state.championVitals,
+                [championId]: {
+                    ...currentVitals,
+                    mana: currentVitals.mana - amount,
+                },
+            },
+        }, {
+            magic: {
+                manaSpent: amount,
+            },
+        }) as Partial<GameState>);
+        return true;
+    },
 
     castSpell: (championId, runeIds) => {
         const state = get();

@@ -39,3 +39,105 @@ test('buildHallOfFameEntryProof binds the entry to a save fingerprint', () => {
     assert.equal(proof?.runId, entry.id);
     assert.match(proof?.signature ?? '', /^[a-f0-9]{16}$/);
 });
+
+test('buildHallOfFameEntryProof is stable even when named counter maps use a different key order', () => {
+    const stats = createInitialGameStats(1_000);
+    stats.combat.byCreature = {
+        Vexirk: 2,
+        Screamer: 4,
+        Demon: 1,
+    };
+    stats.magic.bySpell = {
+        Fireball: { attempted: 6, succeeded: 6, failed: 0 },
+        'Poison Cloud': { attempted: 3, succeeded: 2, failed: 1 },
+        'Lightning Bolt': { attempted: 5, succeeded: 5, failed: 0 },
+    };
+
+    const entry = buildHallOfFameEntry('Test', stats, 2_000);
+    const reorderedEntry = {
+        ...entry,
+        stats: {
+            ...entry.stats,
+            combat: {
+                ...entry.stats.combat,
+                byCreature: {
+                    Demon: 1,
+                    Screamer: 4,
+                    Vexirk: 2,
+                },
+            },
+            magic: {
+                ...entry.stats.magic,
+                bySpell: {
+                    'Lightning Bolt': { attempted: 5, succeeded: 5, failed: 0 },
+                    'Poison Cloud': { attempted: 3, succeeded: 2, failed: 1 },
+                    Fireball: { attempted: 6, succeeded: 6, failed: 0 },
+                },
+            },
+        },
+    };
+
+    const proof = buildHallOfFameEntryProof(entry, {
+        proofVersion: HALL_OF_FAME_SUBMISSION_PROOF_VERSION,
+        saveVersion: 2,
+        savedAt: 2_000,
+        saveIntegrity: 'deadbeef',
+        saveBuildVersion: entry.buildVersion,
+        runId: entry.id,
+        startedAt: entry.stats.startedAt,
+    });
+    const reorderedProof = buildHallOfFameEntryProof(reorderedEntry, {
+        proofVersion: HALL_OF_FAME_SUBMISSION_PROOF_VERSION,
+        saveVersion: 2,
+        savedAt: 2_000,
+        saveIntegrity: 'deadbeef',
+        saveBuildVersion: reorderedEntry.buildVersion,
+        runId: reorderedEntry.id,
+        startedAt: reorderedEntry.stats.startedAt,
+    });
+
+    assert.equal(proof?.signature, reorderedProof?.signature);
+});
+
+test('buildHallOfFameEntryProof is stable when spell labels exceed the server key length limit', () => {
+    const longSpellName = 'Weaken Nonmaterial Beings - Launches a powerful spell against nonmaterial beings.';
+    const stats = createInitialGameStats(1_000);
+    stats.magic.bySpell = {
+        [longSpellName]: { attempted: 9, succeeded: 9, failed: 0 },
+    };
+
+    const entry = buildHallOfFameEntry('Test', stats, 2_000);
+    const truncatedEntry = {
+        ...entry,
+        stats: {
+            ...entry.stats,
+            magic: {
+                ...entry.stats.magic,
+                bySpell: {
+                    'Weaken Nonmaterial Beings': { attempted: 9, succeeded: 9, failed: 0 },
+                },
+            },
+        },
+    };
+
+    const proof = buildHallOfFameEntryProof(entry, {
+        proofVersion: HALL_OF_FAME_SUBMISSION_PROOF_VERSION,
+        saveVersion: 2,
+        savedAt: 2_000,
+        saveIntegrity: 'deadbeef',
+        saveBuildVersion: entry.buildVersion,
+        runId: entry.id,
+        startedAt: entry.stats.startedAt,
+    });
+    const truncatedProof = buildHallOfFameEntryProof(truncatedEntry, {
+        proofVersion: HALL_OF_FAME_SUBMISSION_PROOF_VERSION,
+        saveVersion: 2,
+        savedAt: 2_000,
+        saveIntegrity: 'deadbeef',
+        saveBuildVersion: truncatedEntry.buildVersion,
+        runId: truncatedEntry.id,
+        startedAt: truncatedEntry.stats.startedAt,
+    });
+
+    assert.equal(proof?.signature, truncatedProof?.signature);
+});

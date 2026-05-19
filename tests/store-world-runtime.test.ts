@@ -375,6 +375,34 @@ test('store world runtime builds floor items while skipping the hall champion ti
     assert.equal(items[1]?.waterMaxCharges, 1);
 });
 
+test('store world runtime hydrates action charges from runtime map objects', () => {
+    const maps = [
+        createMap(0, 1, [[{
+            x: 1,
+            y: 2,
+            type: 'Floor',
+            objects: [
+                {
+                    category: 'Weapon',
+                    index: 4,
+                    tilePos: 'North',
+                    type: 0,
+                    name: 'Eye Of Time',
+                    charges: 5,
+                } as unknown as WallTextObject,
+            ],
+        }]]),
+    ];
+    const { runtime } = createRuntime(maps, {
+        parseItemCharges: () => ({}),
+    });
+
+    const items = runtime.buildFloorItems();
+
+    assert.equal(items[0]?.actionCharges, 5);
+    assert.equal(items[0]?.actionMaxCharges, 5);
+});
+
 test('store world runtime preserves nested contents for dungeon chests', () => {
     const maps = [
         createMap(1, 1, [[{

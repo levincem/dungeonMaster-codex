@@ -1,17 +1,17 @@
 # Next Phase Plan
 
-Etat revu le `2026-05-17`.
+Etat revu le `2026-05-19`.
 
 Ce document ne doit contenir que des sujets encore ouverts.
 
 Lecture actuelle:
 
-- le projet est en `0.9.2`
+- le projet est en `0.9.3`
 - ce plan ne liste plus des chantiers de beta large, mais les derniers sujets a fermer pour une `0.9.x` plus stable
 
 Regle simple:
 
-- un sujet `ferme` sort d'ici et reste trace dans [docs/REMAKE_STATUS.md](/D:/DungeonMaster-codex/docs/REMAKE_STATUS.md)
+- un sujet `ferme` sort d'ici et reste trace dans [REMAKE_STATUS.md](./REMAKE_STATUS.md)
 - un sujet `ouvert` doit dire explicitement ce qui manque encore
 - on n'utilise plus de statuts flous du type `entamee` sans dire `pourquoi ce n'est pas fini`
 
@@ -54,6 +54,12 @@ Regle de correction:
 - rendu `Ra Door`
   - ferme cote presentation cible
   - le rendu visible passe maintenant par un panneau energetique procedural + rideau `photons2`
+- stabilisation `Hall of Fame / magie / objets a charge`
+  - preuves `Hall of Fame` stabilisees avec signature canonique cote client et serveur
+  - diagnostics de rejet serveur et flux de soumission de victoire rendus plus clairs
+  - compteurs HOF compactes et labels de sorts assainis
+  - mana de runes recalee sur les sources originales, avec depense au clic et pas de remboursement a l'annulation
+  - `Magical Boxes` et objets a charge recales sur leur comportement source-backed utile
 - serie de correctifs playtest `LVL 5` / interactions murales / runtime d'exploration
   - portes ouvertes par defaut restaurees depuis les donnees source et au rechargement
   - serrures et anneaux muraux modernes recales en clic, taille et visibilite de face
@@ -156,4 +162,4 @@ Quand un sujet avance:
 - soit il est `ferme` et il sort de ce document
 - soit il reste `ouvert` et on precise exactement ce qu'il manque encore
 - pas de longues listes historiques ici
-- l'historique detaille vit dans [docs/REMAKE_STATUS.md](/D:/DungeonMaster-codex/docs/REMAKE_STATUS.md)
+- l'historique detaille vit dans [REMAKE_STATUS.md](./REMAKE_STATUS.md)

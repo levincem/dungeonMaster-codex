@@ -26,6 +26,10 @@ function main() {
     spells: decoded.spells,
     byte19016: decoded.byte19016,
     byte19010: decoded.byte19010,
+    powerSymbolManaCostMultipliers: decoded.powerSymbolManaCostMultipliers,
+    symbolBaseManaCosts: decoded.symbolBaseManaCosts,
+    powerSymbols: decoded.powerSymbols,
+    symbolBaseManaTable: decoded.symbolBaseManaTable,
   };
 
   fs.writeFileSync(path.resolve(outputPath), JSON.stringify(compact, null, 2), "utf8");

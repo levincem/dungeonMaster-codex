@@ -19,7 +19,13 @@ import {
     getSourceItemAllowedSlotsMask,
     resolveItemName,
 } from '../src/data/items.js';
-import { RUNES, RUNES_BY_ID, SPELLS } from '../src/data/runes.js';
+import {
+    RUNES,
+    RUNES_BY_ID,
+    SPELLS,
+    getOriginalPreparedRuneManaCost,
+    getOriginalRuneSelectionManaCost,
+} from '../src/data/runes.js';
 import {
     ALL_SKILL_KEYS,
     BASIC_SKILL_KEYS,
@@ -62,7 +68,14 @@ type OriginalMagicRuntime = {
     runeRows: Array<Array<{
         id: number;
         symbol: string;
+        row: string;
+        baseManaCost: number;
     }>>;
+};
+
+type AtariI560Stats = {
+    byte19016: number[];
+    byte19010: number[];
 };
 
 type OriginalActionsRuntime = {
@@ -137,6 +150,7 @@ type RuntimeWeaponAttacksDb = {
 const ORIGINAL_SKILLS_PATH = `${process.cwd()}\\src\\assets\\runtime\\reference\\original_skills_runtime.json`;
 const ORIGINAL_ITEM_RULES_PATH = `${process.cwd()}\\src\\assets\\runtime\\reference\\original_item_rules_runtime.json`;
 const ORIGINAL_MAGIC_PATH = `${process.cwd()}\\src\\assets\\runtime\\reference\\original_magic_runtime.json`;
+const RAW_I560_STATS_PATH = `${process.cwd()}\\assets\\OriginalDataExtraction\\output\\atari_i560_stats.json`;
 const ORIGINAL_ACTIONS_PATH = `${process.cwd()}\\src\\assets\\runtime\\reference\\original_actions_runtime.json`;
 const ORIGINAL_ACTION_COMBOS_PATH = `${process.cwd()}\\src\\assets\\runtime\\reference\\original_action_combos_runtime.json`;
 const RUNTIME_WEAPON_ATTACKS_DB_PATH = `${process.cwd()}\\src\\assets\\runtime\\db\\game_db_weapon_attacks.json`;
@@ -311,6 +325,67 @@ test('magic runtime stays aligned with the documented power rune constants and m
         const expectedManaCost = Math.floor((spell.sourceBaseDifficulty ?? spell.manaBase) * (powerRune.manaFactor ?? 8) / 8);
         assert.equal(spell.manaCost, expectedManaCost, `spell ${spell.name} mana cost drifted from documented formula`);
     }
+});
+
+test('original rune-click mana spending stays aligned with the documented symbol cost tables', () => {
+    const reference = readJson<OriginalMagicRuntime>(ORIGINAL_MAGIC_PATH);
+    const rawI560 = readJson<AtariI560Stats>(RAW_I560_STATS_PATH);
+    const flatRows = reference.runeRows.flat();
+    const baseManaBySymbol = new Map(
+        flatRows.map((rune) => [rune.symbol.toLowerCase(), rune.baseManaCost]),
+    );
+    const rawBaseManaBySymbol = new Map(
+        RUNES.map((rune, index) => [rune.id, rawI560.byte19010[index]]),
+    );
+
+    assert.deepEqual(
+        reference.powerSymbols.map((symbol) => symbol.difficultyMultiplier),
+        rawI560.byte19016,
+        'power multipliers drifted from the raw i560 table',
+    );
+    assert.deepEqual(
+        RUNES.map((rune) => rawBaseManaBySymbol.get(rune.id)),
+        rawI560.byte19010,
+        'runtime rune ordering drifted from the raw i560 symbol-cost table',
+    );
+
+    for (const powerSymbol of reference.powerSymbols) {
+        const powerRuneId = powerSymbol.symbol.toLowerCase();
+        assert.equal(
+            getOriginalRuneSelectionManaCost([], powerRuneId),
+            powerSymbol.baseManaCost,
+            `${powerSymbol.symbol} click cost drifted`,
+        );
+        assert.equal(
+            rawBaseManaBySymbol.get(powerRuneId),
+            powerSymbol.baseManaCost,
+            `${powerSymbol.symbol} raw base cost drifted`,
+        );
+    }
+
+    const loMultiplier = reference.powerSymbols.find((symbol) => symbol.symbol === 'LO')?.difficultyMultiplier ?? 8;
+    for (const rune of flatRows.filter((entry) => entry.row !== 'power')) {
+        const expectedCost = Math.floor(rune.baseManaCost * loMultiplier / 8);
+        assert.equal(
+            getOriginalRuneSelectionManaCost(['lo'], rune.symbol.toLowerCase()),
+            expectedCost,
+            `${rune.symbol} click cost drifted under LO`,
+        );
+        assert.equal(
+            baseManaBySymbol.get(rune.symbol.toLowerCase()),
+            rune.baseManaCost,
+        );
+        assert.equal(
+            rawBaseManaBySymbol.get(rune.symbol.toLowerCase()),
+            rune.baseManaCost,
+            `${rune.symbol} raw base cost drifted`,
+        );
+    }
+
+    assert.equal(getOriginalPreparedRuneManaCost(['lo', 'ful']), 6);
+    assert.equal(getOriginalPreparedRuneManaCost(['lo', 'ful', 'ir']), 13);
+    assert.equal(getOriginalPreparedRuneManaCost(['lo', 'des', 'ew']), 12);
+    assert.equal(getOriginalPreparedRuneManaCost(['lo', 'oh', 'ir', 'ra']), 18);
 });
 
 test('documented action table stays aligned with the runtime weapon attack slice', () => {

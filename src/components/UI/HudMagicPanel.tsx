@@ -127,6 +127,7 @@ export const HudMagicPanel: React.FC<{
     selectedRunes: string[];
     currentFamilyIdx: number;
     spell?: { name?: string; manaCost: number } | null;
+    displayManaCost?: number | null;
     canCast: boolean;
     lastCastResult?: { success: boolean; message: string } | null;
     onSelectCaster: (championId: number) => void;
@@ -144,6 +145,7 @@ export const HudMagicPanel: React.FC<{
     selectedRunes,
     currentFamilyIdx,
     spell,
+    displayManaCost,
     canCast,
     lastCastResult,
     onSelectCaster,
@@ -364,7 +366,7 @@ export const HudMagicPanel: React.FC<{
                             <div style={{ fontSize: 12, color: '#f0d060', fontWeight: 'bold', letterSpacing: 0.5 }}>
                                 {spell.name}
                                 <span style={{ color: '#d4b870', fontWeight: 'normal', fontSize: 10, marginLeft: 5 }}>
-                                    {spell.manaCost} {text.manaUnit}
+                                    {displayManaCost ?? spell.manaCost} {text.manaUnit}
                                 </span>
                             </div>
                         ) : selectedRunes.length > 0 ? (

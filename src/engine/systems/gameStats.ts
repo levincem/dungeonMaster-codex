@@ -1,6 +1,7 @@
 import type { ChampionVitals } from '../runtimeTypes';
 import type { CreatureInstance } from '../../types/game';
 import { CREATURE_TYPES } from '../../data/creatures';
+import { normalizePersistedSpellStatsName } from './spellStats';
 
 export type GameStatsDamageSource = 'melee' | 'projectile' | 'magic' | 'environment' | 'poison' | 'other';
 
@@ -244,6 +245,18 @@ function mergeNamedCounters(base: Record<string, number> | undefined, delta?: Re
     return next;
 }
 
+function normalizeSpellNameCounters(
+    source: Record<string, Partial<GameStatsSpellCounters>> | undefined,
+): Record<string, GameStatsSpellCounters> {
+    const next: Record<string, GameStatsSpellCounters> = {};
+    for (const [rawSpellName, counters] of Object.entries(source ?? {})) {
+        const spellName = normalizePersistedSpellStatsName(rawSpellName);
+        if (!spellName) continue;
+        next[spellName] = mergeSpellCounters(next[spellName], counters);
+    }
+    return next;
+}
+
 function addDamageSource(total: Partial<GameStatsDamageTotals>, source: GameStatsDamageSource, amount: number): void {
     if (amount <= 0) return;
     total.total = addNumber(total.total, amount);
@@ -273,12 +286,7 @@ export function normalizeGameStats(value: unknown, now = Date.now()): GameStats 
         magic: {
             spells: mergeSpellCounters(source.magic?.spells),
             manaSpent: source.magic?.manaSpent ?? 0,
-            bySpell: Object.fromEntries(
-                Object.entries(source.magic?.bySpell ?? {}).map(([spellName, counters]) => [
-                    spellName,
-                    mergeSpellCounters(counters),
-                ]),
-            ),
+            bySpell: normalizeSpellNameCounters(source.magic?.bySpell),
         },
         items: { ...initial.items, ...(source.items ?? {}) },
     };

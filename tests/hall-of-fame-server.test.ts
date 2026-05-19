@@ -312,6 +312,268 @@ test('hall of fame server rejects submissions without a valid proof', async (t) 
 
     assert.equal(response.statusCode, 400);
     assert.deepEqual(response.body, {
-        error: 'Invalid hall of fame entry',
+        error: 'Invalid hall of fame entry: proof payload is missing or malformed',
     });
+});
+
+test('hall of fame server returns a detailed reason when the proof build version does not match', async (t) => {
+    const dataDir = await mkdtemp(path.join(os.tmpdir(), 'dm-hof-proof-detail-'));
+    t.after(async () => {
+        await rm(dataDir, { recursive: true, force: true });
+    });
+
+    const { server, baseUrl } = await startHallOfFameServer(dataDir);
+    t.after(async () => {
+        await new Promise<void>((resolve, reject) => {
+            server.close((error) => (error ? reject(error) : resolve()));
+        });
+    });
+
+    const entry = createValidEntry('victory_proof_detail_01');
+    const response = await requestJson(baseUrl, 'POST', '/api/hall-of-fame', {
+        entry: {
+            ...entry,
+            buildVersion: '0.9.2-hotfix',
+        },
+    });
+
+    assert.equal(response.statusCode, 400);
+    assert.deepEqual(response.body, {
+        error: 'Invalid hall of fame entry: proof buildVersion does not match the hall of fame entry',
+    });
+});
+
+test('hall of fame server accepts a proof when the submitted named-counter maps are reordered', async (t) => {
+    const dataDir = await mkdtemp(path.join(os.tmpdir(), 'dm-hof-reordered-proof-'));
+    t.after(async () => {
+        await rm(dataDir, { recursive: true, force: true });
+    });
+
+    const { server, baseUrl } = await startHallOfFameServer(dataDir);
+    t.after(async () => {
+        await new Promise<void>((resolve, reject) => {
+            server.close((error) => (error ? reject(error) : resolve()));
+        });
+    });
+
+    const completedAt = FIXED_NOW - 2_000;
+    const stats = createInitialGameStats(completedAt - 120_000);
+    stats.runId = 'victory_reordered_01';
+    stats.combat.monstersKilled = 7;
+    stats.combat.damageDealt.total = 345;
+    stats.combat.damageTaken.total = 21;
+    stats.combat.byCreature = {
+        Screamer: 3,
+        Vexirk: 1,
+    };
+    stats.magic.spells.attempted = 5;
+    stats.magic.spells.succeeded = 4;
+    stats.magic.spells.failed = 1;
+    stats.magic.manaSpent = 33;
+    stats.magic.bySpell = {
+        'Lightning Bolt': {
+            attempted: 2,
+            succeeded: 2,
+            failed: 0,
+        },
+        Zokathra: {
+            attempted: 1,
+            succeeded: 1,
+            failed: 0,
+        },
+    };
+    stats.items.pickedUp = 2;
+
+    const entry = buildHallOfFameEntry('Tiggy', stats, completedAt);
+    const proof = buildHallOfFameEntryProof(entry, {
+        proofVersion: HALL_OF_FAME_SUBMISSION_PROOF_VERSION,
+        saveVersion: 2,
+        savedAt: completedAt,
+        saveIntegrity: 'deadbeef',
+        saveBuildVersion: entry.buildVersion,
+        runId: entry.id,
+        startedAt: entry.stats.startedAt,
+    });
+    assert.ok(proof, 'expected a valid hall of fame proof');
+
+    const response = await requestJson(baseUrl, 'POST', '/api/hall-of-fame', {
+        entry: {
+            ...entry,
+            proof,
+            stats: {
+                ...entry.stats,
+                combat: {
+                    ...entry.stats.combat,
+                    byCreature: {
+                        Screamer: 3,
+                        Vexirk: 1,
+                    },
+                },
+                magic: {
+                    ...entry.stats.magic,
+                    bySpell: {
+                        'Lightning Bolt': {
+                            attempted: 2,
+                            succeeded: 2,
+                            failed: 0,
+                        },
+                        Zokathra: {
+                            attempted: 1,
+                            succeeded: 1,
+                            failed: 0,
+                        },
+                    },
+                },
+            },
+        },
+    });
+
+    assert.equal(response.statusCode, 201);
+    const entries = (response.body as { entries: Array<{ id: string }> }).entries;
+    assert.equal(entries[0]?.id, 'victory_reordered_01');
+});
+
+test('hall of fame server accepts a proof when spell labels exceed the server key length limit', async (t) => {
+    const dataDir = await mkdtemp(path.join(os.tmpdir(), 'dm-hof-long-spell-key-'));
+    t.after(async () => {
+        await rm(dataDir, { recursive: true, force: true });
+    });
+
+    const { server, baseUrl } = await startHallOfFameServer(dataDir);
+    t.after(async () => {
+        await new Promise<void>((resolve, reject) => {
+            server.close((error) => (error ? reject(error) : resolve()));
+        });
+    });
+
+    const completedAt = FIXED_NOW - 2_500;
+    const stats = createInitialGameStats(completedAt - 120_000);
+    stats.runId = 'victory_long_spell_key_01';
+    stats.combat.monstersKilled = 9;
+    stats.combat.damageDealt.total = 512;
+    stats.combat.damageTaken.total = 34;
+    stats.magic.spells.attempted = 9;
+    stats.magic.spells.succeeded = 9;
+    stats.magic.manaSpent = 44;
+    stats.magic.bySpell = {
+        'Weaken Nonmaterial Beings - Launches a powerful spell against nonmaterial beings.': {
+            attempted: 9,
+            succeeded: 9,
+            failed: 0,
+        },
+    };
+
+    const entry = buildHallOfFameEntry('Tiggy', stats, completedAt);
+    const proof = buildHallOfFameEntryProof(entry, {
+        proofVersion: HALL_OF_FAME_SUBMISSION_PROOF_VERSION,
+        saveVersion: 2,
+        savedAt: completedAt,
+        saveIntegrity: 'deadbeef',
+        saveBuildVersion: entry.buildVersion,
+        runId: entry.id,
+        startedAt: entry.stats.startedAt,
+    });
+    assert.ok(proof, 'expected a valid hall of fame proof');
+
+    const response = await requestJson(baseUrl, 'POST', '/api/hall-of-fame', {
+        entry: {
+            ...entry,
+            proof,
+        },
+    });
+
+    assert.equal(response.statusCode, 201);
+    const entries = (response.body as { entries: Array<{ id: string }> }).entries;
+    assert.equal(entries[0]?.id, 'victory_long_spell_key_01');
+});
+
+test('hall of fame server accepts legitimate victories from long-lived saves', async (t) => {
+    const dataDir = await mkdtemp(path.join(os.tmpdir(), 'dm-hof-long-run-'));
+    t.after(async () => {
+        await rm(dataDir, { recursive: true, force: true });
+    });
+
+    const { server, baseUrl } = await startHallOfFameServer(dataDir);
+    t.after(async () => {
+        await new Promise<void>((resolve, reject) => {
+            server.close((error) => (error ? reject(error) : resolve()));
+        });
+    });
+
+    const startedAt = Date.UTC(2026, 2, 1, 12, 0, 0);
+    const completedAt = FIXED_NOW;
+    const stats = createInitialGameStats(startedAt);
+    stats.runId = 'victory_long_run_01';
+    stats.combat.monstersKilled = 8;
+
+    const entry = buildHallOfFameEntry('Tiggy', stats, completedAt);
+    const proof = buildHallOfFameEntryProof(entry, {
+        proofVersion: HALL_OF_FAME_SUBMISSION_PROOF_VERSION,
+        saveVersion: 2,
+        savedAt: completedAt,
+        saveIntegrity: 'deadbeef',
+        saveBuildVersion: entry.buildVersion,
+        runId: entry.id,
+        startedAt: entry.stats.startedAt,
+    });
+    assert.ok(proof, 'expected a valid hall of fame proof for a long-lived save');
+
+    const response = await requestJson(baseUrl, 'POST', '/api/hall-of-fame', {
+        entry: {
+            ...entry,
+            proof,
+        },
+    });
+
+    assert.equal(response.statusCode, 201);
+    const entries = (response.body as { entries: Array<{ id: string; summary: { playTimeSec: number } }> }).entries;
+    assert.equal(entries[0]?.id, 'victory_long_run_01');
+    assert.equal(entries[0]?.summary.playTimeSec, Math.floor((completedAt - startedAt) / 1000));
+});
+
+test('hall of fame server accepts a valid proof even when the save timestamp is older than the victory timestamp', async (t) => {
+    const dataDir = await mkdtemp(path.join(os.tmpdir(), 'dm-hof-old-proof-'));
+    t.after(async () => {
+        await rm(dataDir, { recursive: true, force: true });
+    });
+
+    const { server, baseUrl } = await startHallOfFameServer(dataDir);
+    t.after(async () => {
+        await new Promise<void>((resolve, reject) => {
+            server.close((error) => (error ? reject(error) : resolve()));
+        });
+    });
+
+    const startedAt = FIXED_NOW - (36 * 60 * 60 * 1000);
+    const completedAt = FIXED_NOW;
+    const stats = createInitialGameStats(startedAt);
+    stats.runId = 'victory_old_proof_01';
+    stats.combat.monstersKilled = 12;
+    stats.combat.damageDealt.total = 640;
+    stats.magic.spells.attempted = 18;
+
+    const entry = buildHallOfFameEntry('Tiggy', stats, completedAt);
+    const proof = buildHallOfFameEntryProof(entry, {
+        proofVersion: HALL_OF_FAME_SUBMISSION_PROOF_VERSION,
+        saveVersion: 2,
+        savedAt: completedAt - (3 * 24 * 60 * 60 * 1000),
+        saveIntegrity: 'deadbeef',
+        saveBuildVersion: entry.buildVersion,
+        runId: entry.id,
+        startedAt: entry.stats.startedAt,
+    });
+    assert.ok(proof, 'expected a valid hall of fame proof');
+
+    const response = await requestJson(baseUrl, 'POST', '/api/hall-of-fame', {
+        entry: {
+            ...entry,
+            proof,
+        },
+    });
+
+    assert.equal(response.statusCode, 201);
+    const entries = (response.body as { entries: Array<{ id: string; summary: { monstersKilled: number; damageDealt: number } }> }).entries;
+    assert.equal(entries[0]?.id, 'victory_old_proof_01');
+    assert.equal(entries[0]?.summary.monstersKilled, 12);
+    assert.equal(entries[0]?.summary.damageDealt, 640);
 });

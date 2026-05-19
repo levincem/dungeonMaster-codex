@@ -1,14 +1,14 @@
 # Dungeon Master Remake - Etat du projet
 
-Etat revu le `2026-05-17`.
+Etat revu le `2026-05-19`.
 
 Ce document est un journal d'etat compact.
 
-Pour la liste des sujets encore ouverts et ordonnes, lire [docs/NEXT_PHASE_PLAN.md](/D:/DungeonMaster-codex/docs/NEXT_PHASE_PLAN.md).
+Pour la liste des sujets encore ouverts et ordonnes, lire [NEXT_PHASE_PLAN.md](./NEXT_PHASE_PLAN.md).
 
 ## Resume actuel
 
-Le projet est maintenant en `0.9.2`, une build publique desktop-first jouable et serieuse.
+Le projet est maintenant en `0.9.3`, une build publique desktop-first jouable et serieuse.
 
 Ce qui est solidement en place:
 
@@ -39,12 +39,12 @@ Regle de travail retenue pour les regressions:
 
 Validation locale la plus recente:
 
-- `npm.cmd test` : `943` tests verts
+- `npm.cmd test` : `964` tests verts
 - `npm.cmd run build` : vert
 
 ## Lecture actuelle
 
-Ce que veut dire `0.9.2` ici:
+Ce que veut dire `0.9.3` ici:
 
 - le debut et la fin du jeu sont rejouables sans blocage connu cote runtime principal
 - le coeur du runtime tient en conditions normales de playtest
@@ -125,13 +125,39 @@ Point utile deja confirme:
 
 ## Ce qui reste ouvert
 
-Le detail ordonne vit dans [docs/NEXT_PHASE_PLAN.md](/D:/DungeonMaster-codex/docs/NEXT_PHASE_PLAN.md), mais en resume:
+Le detail ordonne vit dans [NEXT_PHASE_PLAN.md](./NEXT_PHASE_PLAN.md), mais en resume:
 
 - petit reliquat de presentation tardive
 - verification croisee Hall of Fame / ecrans de fin
 - profilage optionnel seulement si un symptome concret revient
 
 ## Checkpoints recents
+
+### 2026-05-19
+
+Travail ferme dans cette session:
+
+- stabilisation `Hall of Fame` partage
+  - suppression du faux rejet base sur la duree reelle de la run
+  - diagnostics serveur rendus explicites jusqu'au niveau `proof signature mismatch`
+  - signature de preuve rendue canonique et stable entre client et serveur
+  - modal de victoire clarifie, confirmation plus lisible et transition finale auto apres succes
+- passe fidelite `magie / runes / stats`
+  - couts de runes recroises contre les sources originales et l'Encyclopaedia locale
+  - depense de mana recalee au clic de rune, sans remboursement si on annule
+  - nettoyage des faux libelles descriptifs dans `bySpell`
+- passe fidelite `objets a charge`
+  - `Magical Boxes` recalees sur leur consommation source-backed
+  - objets a charge vides mieux exposes dans l'UI avec etats visuels dedies quand disponibles
+- documentation de publication recalee
+  - version publique passee en `0.9.3`
+  - `README` et docs de suivi remises a jour avec liens markdown portables
+
+Impact:
+
+- le Hall of Fame partage est beaucoup plus robuste en condition reelle de publication
+- la magie et les objets a charge collent mieux aux regles originales utiles
+- la branche publique de travail passe en `0.9.3`
 
 ### 2026-05-17
 

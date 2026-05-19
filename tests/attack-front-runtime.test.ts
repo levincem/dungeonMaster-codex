@@ -250,6 +250,36 @@ test('runAttackFrontRuntime delegates non-physical attacks to the utility path',
     assert.equal(partyAttackPlayed, false);
 });
 
+test('runAttackFrontRuntime consumes magical boxes when Freeze Life succeeds', () => {
+    const freezeLife = createAttackOption(11, 'Freeze Life', 'Freeze Life');
+    const magicBox: FloorItem = {
+        id: 'magic-box-blue',
+        category: 'Misc',
+        typeId: 42,
+        rawName: 'Magical Box (Blue)',
+        mapIndex: 0,
+        x: 0,
+        y: 0,
+        tilePos: 'North',
+    };
+    let receivedChargedEquip: ChampionEquipment | null = null;
+
+    runAttackFrontRuntime(
+        createBaseState({ rightHand: magicBox }),
+        1,
+        undefined,
+        createBaseDeps([freezeLife], {
+            isPhysicalAttack: () => false,
+            buildSupportedUtilityAttackPatch: ({ chargedEquip }) => {
+                receivedChargedEquip = chargedEquip;
+                return { kind: 'utility' };
+            },
+        }),
+    );
+
+    assert.deepEqual(receivedChargedEquip, {});
+});
+
 test('runAttackFrontRuntime falls back to melee orchestration and triggers party attack', () => {
     let partyAttackPlayed = false;
 

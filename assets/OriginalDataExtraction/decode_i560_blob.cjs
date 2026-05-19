@@ -50,6 +50,13 @@ const ATTACK_TYPE_NAMES = [
   "Fuse",
 ];
 
+const RUNE_SYMBOLS_IN_UI_ORDER = [
+  "LO", "UM", "ON", "EE", "PAL", "MON",
+  "YA", "VI", "OH", "FUL", "DES", "ZO",
+  "VEN", "EW", "KATH", "IR", "BRO", "GOR",
+  "KU", "ROS", "DAIN", "NETA", "RA", "SAR",
+];
+
 function readU8(buffer, offset) {
   return buffer[offset] & 0xff;
 }
@@ -186,6 +193,19 @@ function decodeI560(buffer, options = {}) {
   });
   const byte19016 = takeBytes(6);
   const byte19010 = takeBytes(24);
+  const powerSymbolManaCostMultipliers = byte19016.slice();
+  const symbolBaseManaCosts = byte19010.slice();
+  const powerSymbols = RUNE_SYMBOLS_IN_UI_ORDER.slice(0, 6).map((symbol, index) => ({
+    ordinal: index,
+    symbol,
+    difficultyMultiplier: powerSymbolManaCostMultipliers[index],
+    baseManaCost: symbolBaseManaCosts[index],
+  }));
+  const symbolBaseManaTable = RUNE_SYMBOLS_IN_UI_ORDER.map((symbol, ordinal) => ({
+    ordinal,
+    symbol,
+    baseManaCost: symbolBaseManaCosts[ordinal],
+  }));
 
   const attacks = ATTACK_TYPE_NAMES.map((enumName, index) => ({
     index,
@@ -254,6 +274,10 @@ function decodeI560(buffer, options = {}) {
     spells,
     byte19016,
     byte19010,
+    powerSymbolManaCostMultipliers,
+    symbolBaseManaCosts,
+    powerSymbols,
+    symbolBaseManaTable,
     attacks,
   };
 }

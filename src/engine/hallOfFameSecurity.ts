@@ -8,6 +8,8 @@ const HALL_OF_FAME_ID_PATTERN = /^[A-Za-z0-9_-]{8,96}$/;
 const HALL_OF_FAME_SAVE_INTEGRITY_PATTERN = /^[a-f0-9]{8}$/i;
 const HALL_OF_FAME_NON_ALNUM_NAME_PATTERN = /[^A-Za-z0-9]+/g;
 const HALL_OF_FAME_BUILD_VERSION_MAX_LENGTH = 32;
+const HALL_OF_FAME_MAX_NAMED_COUNTERS = 128;
+const HALL_OF_FAME_COUNTER_KEY_MAX_LENGTH = 64;
 
 export interface HallOfFameProofSource {
     proofVersion: number;
@@ -42,6 +44,12 @@ interface HallOfFameProofEntrySnapshot {
     };
 }
 
+interface HallOfFameSpellCounterSnapshot {
+    attempted: number;
+    succeeded: number;
+    failed: number;
+}
+
 function readFiniteInteger(value: unknown): number | null {
     if (!Number.isFinite(value)) return null;
     return Math.floor(value as number);
@@ -67,11 +75,89 @@ function computeHallOfFameDigest(input: string): string {
     return `${(primary >>> 0).toString(16).padStart(8, '0')}${(secondary >>> 0).toString(16).padStart(8, '0')}`;
 }
 
+function canonicalizeHallOfFamePayload(value: unknown): unknown {
+    if (Array.isArray(value)) {
+        return value.map((entry) => canonicalizeHallOfFamePayload(entry));
+    }
+    if (!value || typeof value !== 'object') {
+        return value;
+    }
+    return Object.fromEntries(
+        Object.entries(value as Record<string, unknown>)
+            .sort(([leftKey], [rightKey]) => leftKey.localeCompare(rightKey))
+            .map(([key, nestedValue]) => [key, canonicalizeHallOfFamePayload(nestedValue)]),
+    );
+}
+
+function normalizeHallOfFameCounterKey(value: string): string {
+    return value.trim().slice(0, HALL_OF_FAME_COUNTER_KEY_MAX_LENGTH).replace(/\s+/g, ' ');
+}
+
+function normalizeHallOfFameCounterValue(value: unknown): number {
+    const normalized = readFiniteInteger(value);
+    return normalized === null || normalized < 0 ? 0 : normalized;
+}
+
+function normalizeHallOfFameSpellCounterValue(value: unknown): HallOfFameSpellCounterSnapshot {
+    const object = value && typeof value === 'object' && !Array.isArray(value)
+        ? value as Record<string, unknown>
+        : {};
+    return {
+        attempted: normalizeHallOfFameCounterValue(object.attempted),
+        succeeded: normalizeHallOfFameCounterValue(object.succeeded),
+        failed: normalizeHallOfFameCounterValue(object.failed),
+    };
+}
+
+function normalizeHallOfFameNamedCounters<T>(
+    counters: Record<string, T> | null | undefined,
+    normalizeValue?: (value: T) => T,
+): Record<string, T> {
+    if (!counters || typeof counters !== 'object' || Array.isArray(counters)) return {};
+    const next: Record<string, T> = {};
+    for (const [key, value] of Object.entries(counters).slice(0, HALL_OF_FAME_MAX_NAMED_COUNTERS)) {
+        const normalizedKey = normalizeHallOfFameCounterKey(key);
+        if (!normalizedKey) continue;
+        next[normalizedKey] = normalizeValue ? normalizeValue(value as T) : value as T;
+    }
+    return next;
+}
+
+function normalizeHallOfFameProofEntrySnapshot(entry: HallOfFameProofEntrySnapshot): HallOfFameProofEntrySnapshot {
+    return {
+        ...entry,
+        name: sanitizeHallOfFamePlayerName(entry.name),
+        buildVersion: normalizeBuildVersion(entry.buildVersion),
+        stats: {
+            ...entry.stats,
+            combat: entry.stats.combat && typeof entry.stats.combat === 'object'
+                ? {
+                    ...entry.stats.combat,
+                    byCreature: normalizeHallOfFameNamedCounters(
+                        (entry.stats.combat as { byCreature?: Record<string, number> }).byCreature,
+                        (value) => normalizeHallOfFameCounterValue(value) as number,
+                    ),
+                }
+                : entry.stats.combat,
+            magic: entry.stats.magic && typeof entry.stats.magic === 'object'
+                ? {
+                    ...entry.stats.magic,
+                    bySpell: normalizeHallOfFameNamedCounters(
+                        (entry.stats.magic as { bySpell?: Record<string, HallOfFameSpellCounterSnapshot> }).bySpell,
+                        (value) => normalizeHallOfFameSpellCounterValue(value),
+                    ),
+                }
+                : entry.stats.magic,
+        },
+    };
+}
+
 function buildHallOfFameProofSignaturePayload(
     entry: HallOfFameProofEntrySnapshot,
     source: HallOfFameProofSource,
 ): string {
-    return JSON.stringify({
+    const normalizedEntry = normalizeHallOfFameProofEntrySnapshot(entry);
+    return JSON.stringify(canonicalizeHallOfFamePayload({
         proofVersion: source.proofVersion,
         saveVersion: source.saveVersion,
         savedAt: source.savedAt,
@@ -80,14 +166,14 @@ function buildHallOfFameProofSignaturePayload(
         runId: source.runId,
         startedAt: source.startedAt,
         entry: {
-            id: entry.id,
-            name: entry.name,
-            completedAt: entry.completedAt,
-            buildVersion: entry.buildVersion,
-            stats: entry.stats,
-            summary: entry.summary,
+            id: normalizedEntry.id,
+            name: normalizedEntry.name,
+            completedAt: normalizedEntry.completedAt,
+            buildVersion: normalizedEntry.buildVersion,
+            stats: normalizedEntry.stats,
+            summary: normalizedEntry.summary,
         },
-    });
+    }));
 }
 
 function normalizeHallOfFameProofSource(

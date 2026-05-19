@@ -24,6 +24,22 @@ function formatHallOfFameNumber(value: number, locale: Locale): string {
     return value.toLocaleString(resolveIntlLocale(locale));
 }
 
+export function formatHallOfFameCompactNumber(value: number, locale: Locale): string {
+    const clamped = Math.max(0, value);
+    if (clamped < 1000) {
+        return formatHallOfFameNumber(clamped, locale);
+    }
+    return new Intl.NumberFormat(resolveIntlLocale(locale), {
+        notation: 'compact',
+        compactDisplay: 'short',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    })
+        .format(clamped)
+        .replace(/\s+/g, '')
+        .toLowerCase();
+}
+
 export function formatHallOfFameDurationFromSeconds(totalSeconds: number): string {
     const clampedSeconds = Math.max(0, Math.floor(totalSeconds));
     const hours = Math.floor(clampedSeconds / 3600);
@@ -80,14 +96,14 @@ export function buildHallOfFameEntryHoverText(
         `${text.hallOfFameCompleted}: ${formatHallOfFameCompletedAt(entry.completedAt, locale, true)}`,
         `${text.hallOfFameBuild}: v${entry.buildVersion}`,
         `${text.playTime}: ${formatHallOfFameDurationFromSeconds(entry.summary.playTimeSec)}`,
-        `${text.damageTaken}: ${formatHallOfFameNumber(entry.summary.damageTaken, locale)}`,
-        `${text.manaSpent}: ${formatHallOfFameNumber(entry.summary.manaSpent, locale)}`,
-        `${text.steps}: ${formatHallOfFameNumber(steps, locale)} | ${text.turns}: ${formatHallOfFameNumber(turns, locale)}`,
-        `${text.pickedUp}: ${formatHallOfFameNumber(entry.stats.items.pickedUp, locale)} | ${text.dropped}: ${formatHallOfFameNumber(entry.stats.items.dropped, locale)} | ${text.equipped}: ${formatHallOfFameNumber(entry.stats.items.equipped, locale)}`,
+        `${text.damageTaken}: ${formatHallOfFameCompactNumber(entry.summary.damageTaken, locale)}`,
+        `${text.manaSpent}: ${formatHallOfFameCompactNumber(entry.summary.manaSpent, locale)}`,
+        `${text.steps}: ${formatHallOfFameCompactNumber(steps, locale)} | ${text.turns}: ${formatHallOfFameCompactNumber(turns, locale)}`,
+        `${text.pickedUp}: ${formatHallOfFameCompactNumber(entry.stats.items.pickedUp, locale)} | ${text.dropped}: ${formatHallOfFameCompactNumber(entry.stats.items.dropped, locale)} | ${text.equipped}: ${formatHallOfFameCompactNumber(entry.stats.items.equipped, locale)}`,
     ];
 
     if (topSpells.length > 0) {
-        lines.push(`${text.topSpellsTitle}: ${topSpells.map((spell) => `${spell.name} x${formatHallOfFameNumber(spell.attempted, locale)}`).join(' | ')}`);
+        lines.push(`${text.topSpellsTitle}: ${topSpells.map((spell) => `${spell.name} x${formatHallOfFameCompactNumber(spell.attempted, locale)}`).join(' | ')}`);
     } else {
         lines.push(`${text.topSpellsTitle}: ${text.noSpellsCast}`);
     }

@@ -9,8 +9,10 @@
 // - the internal family buckets below are therefore used as row/stage groupings for the UI
 //
 // Casting rule: power rune FIRST, then 1-3 additional runes.
-// original mana rule: floor(baseDifficulty * (powerLevel + 1) / 2)
-// equivalent power multipliers: LO=1.0, UM=1.5, ON=2.0, EE=2.5, PAL=3.0, MON=3.5
+// original rune-click mana rule:
+// - the power rune costs its own base value
+// - each following rune costs floor(baseSymbolCost * powerMultiplier / 8)
+// power multipliers from raw i560 data: LO=8, UM=12, ON=16, EE=20, PAL=24, MON=28
 import { getTranslations, type Translations } from '../i18n';
 import {
     getOriginalCastSkillForRunes,
@@ -70,6 +72,77 @@ export const RUNES_BY_FAMILY: Record<RuneFamily, RuneDef[]> = {
     form: RUNES.filter((rune) => rune.family === 'form'),
     alignment: RUNES.filter((rune) => rune.family === 'alignment'),
 };
+
+const ORIGINAL_RUNE_BASE_MANA_COST: Record<string, number> = {
+    lo: 1,
+    um: 2,
+    on: 3,
+    ee: 4,
+    pal: 5,
+    mon: 6,
+    ya: 2,
+    vi: 3,
+    oh: 4,
+    ful: 5,
+    des: 6,
+    zo: 7,
+    ven: 4,
+    ew: 5,
+    kath: 6,
+    ir: 7,
+    bro: 7,
+    gor: 9,
+    ku: 2,
+    ros: 2,
+    dain: 3,
+    neta: 4,
+    ra: 6,
+    sar: 7,
+};
+
+export function getOriginalRuneBaseManaCost(runeId: string): number | null {
+    const normalizedRuneId = runeId.trim().toLowerCase();
+    return ORIGINAL_RUNE_BASE_MANA_COST[normalizedRuneId] ?? null;
+}
+
+export function getOriginalRuneSelectionManaCost(
+    currentRunes: readonly string[],
+    runeId: string,
+): number | null {
+    const normalizedRuneId = runeId.trim().toLowerCase();
+    const selectedRune = RUNES_BY_ID[normalizedRuneId];
+    if (!selectedRune) return null;
+
+    const step = currentRunes.length;
+    if (step >= 4) return null;
+
+    const baseManaCost = getOriginalRuneBaseManaCost(normalizedRuneId);
+    if (baseManaCost === null) return null;
+
+    if (step === 0) {
+        return selectedRune.family === 'power' ? baseManaCost : null;
+    }
+
+    const powerRuneId = currentRunes[0]?.trim().toLowerCase();
+    const powerRune = powerRuneId ? RUNES_BY_ID[powerRuneId] : undefined;
+    if (!powerRune?.manaFactor || selectedRune.family === 'power') return null;
+
+    return Math.floor((baseManaCost * powerRune.manaFactor) / 8);
+}
+
+export function getOriginalPreparedRuneManaCost(runeIds: readonly string[]): number {
+    let totalManaCost = 0;
+    const preparedRunes: string[] = [];
+
+    for (const runeId of runeIds) {
+        const manaCost = getOriginalRuneSelectionManaCost(preparedRunes, runeId);
+        if (manaCost === null) return totalManaCost;
+        totalManaCost += manaCost;
+        preparedRunes.push(runeId);
+    }
+
+    return totalManaCost;
+}
 
 export type SpellEffect =
     | 'light' | 'heal' | 'fireball' | 'lightning'

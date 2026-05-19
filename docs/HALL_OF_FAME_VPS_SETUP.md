@@ -75,8 +75,8 @@ sudo chmod 700 /var/lib/dungeon-master-hof
 
 Copier ensuite le mini service sur le VPS, au minimum:
 
-- [package.json](/D:/DungeonMaster-codex/package.json)
-- [scripts/hall-of-fame-server.mjs](/D:/DungeonMaster-codex/scripts/hall-of-fame-server.mjs)
+- [package.json](../package.json)
+- [scripts/hall-of-fame-server.mjs](../scripts/hall-of-fame-server.mjs)
 
 Si le repo entier est deja deploie ailleurs sur le serveur, il suffit bien sur d'utiliser ce chemin-la.
 
@@ -181,7 +181,7 @@ Test de soumission:
 ```bash
 curl -X POST https://votre-domaine.example/api/hall-of-fame \
   -H "Content-Type: application/json" \
-  --data '{"entry":{"id":"victory_test_01","name":"Halk","completedAt":1778932500000,"buildVersion":"0.9.2","stats":{"startedAt":1778932440000}}}'
+  --data '{"entry":{"id":"victory_test_01","name":"Halk","completedAt":1778932500000,"buildVersion":"0.9.3","stats":{"startedAt":1778932440000}}}'
 ```
 
 ## Comportement attendu cote securite

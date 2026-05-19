@@ -5,7 +5,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import {
     sanitizeHallOfFamePlayerName,
-    verifyHallOfFameEntryProof,
+    verifyHallOfFameEntryProofDetailed,
 } from './hall-of-fame-security.mjs';
 
 const HALL_OF_FAME_VERSION = 1;
@@ -14,8 +14,6 @@ const MAX_BODY_BYTES = 16 * 1024;
 const MAX_COUNTER = 10_000_000;
 const MAX_NAMED_COUNTERS = 128;
 const MAX_KEY_LENGTH = 64;
-const MAX_PLAY_TIME_MS = 1000 * 60 * 60 * 24 * 31;
-const MAX_PROOF_CLOCK_SKEW_MS = 15 * 60 * 1000;
 const MIN_COMPLETED_AT = Date.UTC(2020, 0, 1);
 const HALL_OF_FAME_FILENAME = 'hall_of_fame.json';
 
@@ -198,7 +196,10 @@ function normalizeGameStats(source, completedAt, now = Date.now(), fallbackRunId
     const initial = createInitialGameStats(now, fallbackRunId ?? 'run_legacy_server');
     const object = source && typeof source === 'object' && !Array.isArray(source) ? source : {};
     const startedAt = Number.isFinite(object.startedAt) ? Math.floor(object.startedAt) : initial.startedAt;
-    if (startedAt < MIN_COMPLETED_AT || startedAt > completedAt || (completedAt - startedAt) > MAX_PLAY_TIME_MS) {
+    // Real playthroughs can legitimately span weeks or months of wall-clock time.
+    // Rejecting long-lived saves here causes valid victories to bounce even though
+    // the proof itself is otherwise sound.
+    if (startedAt < MIN_COMPLETED_AT || startedAt > completedAt) {
         throw new Error('Invalid startedAt');
     }
     const runId = readSafeId(object.runId) ?? fallbackRunId ?? initial.runId;
@@ -271,18 +272,68 @@ function readStoredServerHash(value, fallback) {
     return /^[a-f0-9]{24}$/.test(trimmed) ? trimmed : fallback;
 }
 
-function isHallOfFameProofFresh(entry, proof) {
-    return Math.abs(entry.completedAt - proof.savedAt) <= MAX_PROOF_CLOCK_SKEW_MS;
+function summarizeProofMismatchDetails(source, normalizedEntry, proofResult) {
+    if (!proofResult?.details || !normalizedEntry) return null;
+    const submittedSummary = source?.summary && typeof source.summary === 'object' ? source.summary : {};
+    const summaryDiff = {
+        playTimeSec: {
+            submitted: submittedSummary.playTimeSec ?? null,
+            normalized: normalizedEntry.summary.playTimeSec,
+        },
+        monstersKilled: {
+            submitted: submittedSummary.monstersKilled ?? null,
+            normalized: normalizedEntry.summary.monstersKilled,
+        },
+        spellsCast: {
+            submitted: submittedSummary.spellsCast ?? null,
+            normalized: normalizedEntry.summary.spellsCast,
+        },
+        damageDealt: {
+            submitted: submittedSummary.damageDealt ?? null,
+            normalized: normalizedEntry.summary.damageDealt,
+        },
+        damageTaken: {
+            submitted: submittedSummary.damageTaken ?? null,
+            normalized: normalizedEntry.summary.damageTaken,
+        },
+        manaSpent: {
+            submitted: submittedSummary.manaSpent ?? null,
+            normalized: normalizedEntry.summary.manaSpent,
+        },
+    };
+
+    return {
+        ...proofResult.details,
+        entryId: normalizedEntry.id,
+        entryBuildVersion: normalizedEntry.buildVersion,
+        entryCompletedAt: normalizedEntry.completedAt,
+        entryStartedAt: normalizedEntry.stats.startedAt,
+        submittedName: typeof source?.name === 'string' ? source.name : null,
+        normalizedName: normalizedEntry.name,
+        submittedBuildVersion: typeof source?.buildVersion === 'string' ? source.buildVersion : null,
+        submittedByCreatureCount: Object.keys(source?.stats?.combat?.byCreature ?? {}).length,
+        normalizedByCreatureCount: Object.keys(normalizedEntry.stats.combat.byCreature).length,
+        submittedBySpellCount: Object.keys(source?.stats?.magic?.bySpell ?? {}).length,
+        normalizedBySpellCount: Object.keys(normalizedEntry.stats.magic.bySpell).length,
+        summaryDiff,
+    };
 }
 
-function normalizeHallOfFameEntry(source, now = Date.now(), { preserveServerMetadata = false, requireProof = false } = {}) {
-    if (!source || typeof source !== 'object' || Array.isArray(source)) return null;
+function normalizeHallOfFameEntryDetailed(source, now = Date.now(), { preserveServerMetadata = false, requireProof = false } = {}) {
+    if (!source || typeof source !== 'object' || Array.isArray(source)) {
+        return { entry: null, reason: 'entry payload must be an object', details: null };
+    }
     const id = readSafeId(source.id);
     const name = sanitizeHallOfFamePlayerName(source.name);
     const completedAt = Number.isFinite(source.completedAt) ? Math.floor(source.completedAt) : NaN;
-    if (!id || !name) return null;
+    if (!id) {
+        return { entry: null, reason: 'entry id is invalid', details: null };
+    }
+    if (!name) {
+        return { entry: null, reason: 'entry player name is invalid', details: null };
+    }
     if (!Number.isFinite(completedAt) || completedAt < MIN_COMPLETED_AT || completedAt > now + 15 * 60 * 1000) {
-        return null;
+        return { entry: null, reason: 'entry completedAt is invalid', details: null };
     }
     try {
         const stats = normalizeGameStats(source.stats, completedAt, now, id);
@@ -298,9 +349,13 @@ function normalizeHallOfFameEntry(source, now = Date.now(), { preserveServerMeta
         };
 
         if (requireProof) {
-            const proof = verifyHallOfFameEntryProof(normalizedEntry, source.proof);
-            if (!proof || !isHallOfFameProofFresh(normalizedEntry, proof)) {
-                return null;
+            const proofResult = verifyHallOfFameEntryProofDetailed(normalizedEntry, source.proof);
+            if (!proofResult.ok) {
+                return {
+                    entry: null,
+                    reason: proofResult.reason,
+                    details: summarizeProofMismatchDetails(source, normalizedEntry, proofResult),
+                };
             }
         }
 
@@ -313,17 +368,31 @@ function normalizeHallOfFameEntry(source, now = Date.now(), { preserveServerMeta
             summary,
         });
         return {
-            ...normalizedEntry,
-            serverRecordedAt: preserveServerMetadata
-                ? readStoredServerRecordedAt(source.serverRecordedAt, fallbackServerRecordedAt, now)
-                : fallbackServerRecordedAt,
-            serverHash: preserveServerMetadata
-                ? readStoredServerHash(source.serverHash, fallbackServerHash)
-                : fallbackServerHash,
+            entry: {
+                ...normalizedEntry,
+                serverRecordedAt: preserveServerMetadata
+                    ? readStoredServerRecordedAt(source.serverRecordedAt, fallbackServerRecordedAt, now)
+                    : fallbackServerRecordedAt,
+                serverHash: preserveServerMetadata
+                    ? readStoredServerHash(source.serverHash, fallbackServerHash)
+                    : fallbackServerHash,
+            },
+            reason: null,
+            details: null,
         };
-    } catch {
-        return null;
+    } catch (error) {
+        return {
+            entry: null,
+            reason: error instanceof Error && error.message
+                ? error.message
+                : 'entry normalization failed',
+            details: null,
+        };
     }
+}
+
+function normalizeHallOfFameEntry(source, now = Date.now(), options = {}) {
+    return normalizeHallOfFameEntryDetailed(source, now, options).entry;
 }
 
 function normalizeHallOfFameFile(source, now = Date.now(), { preserveServerMetadata = false } = {}) {
@@ -404,6 +473,22 @@ function sendJson(response, statusCode, payload) {
     response.end(JSON.stringify(payload));
 }
 
+function logHallOfFameRequestIssue(request, statusCode, message, details = null) {
+    const prefix = '[hall-of-fame]';
+    const line = `${prefix} ${request.method ?? 'UNKNOWN'} ${request.url ?? '/'} -> ${statusCode}: ${message}`;
+    if (statusCode >= 500) {
+        console.error(line);
+        if (details) {
+            console.error(`${prefix} details: ${JSON.stringify(details)}`);
+        }
+        return;
+    }
+    console.warn(line);
+    if (details) {
+        console.warn(`${prefix} details: ${JSON.stringify(details)}`);
+    }
+}
+
 export function createHallOfFameStore({
     dataDir = path.resolve(process.cwd(), 'data', 'hall-of-fame'),
     now = () => Date.now(),
@@ -444,9 +529,13 @@ export function createHallOfFameStore({
             return readFile();
         },
         async appendEntry(entry) {
-            const normalizedEntry = normalizeHallOfFameEntry(entry, now(), { requireProof: true });
+            const { entry: normalizedEntry, reason, details } = normalizeHallOfFameEntryDetailed(entry, now(), { requireProof: true });
             if (!normalizedEntry) {
-                throw Object.assign(new Error('Invalid hall of fame entry'), { statusCode: 400 });
+                const suffix = reason ? `: ${reason}` : '';
+                throw Object.assign(new Error(`Invalid hall of fame entry${suffix}`), {
+                    statusCode: 400,
+                    details,
+                });
             }
             const nextWrite = writeQueue.catch(() => undefined).then(async () => {
                 const current = await readFile();
@@ -533,8 +622,13 @@ export function createHallOfFameRequestHandler({
             const statusCode = error && typeof error === 'object' && Number.isInteger(error.statusCode)
                 ? error.statusCode
                 : 500;
+            const message = statusCode >= 500
+                ? 'Internal server error'
+                : String(error?.message ?? 'Request failed');
+            const details = error && typeof error === 'object' && 'details' in error ? error.details : null;
+            logHallOfFameRequestIssue(request, statusCode, message, details);
             sendJson(response, statusCode, {
-                error: statusCode >= 500 ? 'Internal server error' : String(error.message ?? 'Request failed'),
+                error: message,
             });
         }
     };

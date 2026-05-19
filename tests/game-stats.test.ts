@@ -82,3 +82,35 @@ test('normalizeGameStats preserves an existing run id', () => {
 
     assert.equal(normalized.runId, 'run_legacy_12345678');
 });
+
+test('normalizeGameStats collapses descriptive spell-stat labels back to canonical spell names', () => {
+    const normalized = normalizeGameStats({
+        magic: {
+            bySpell: {
+                'Weaken Nonmaterial Beings - Launches a powerful spell against nonmaterial beings.': {
+                    attempted: 9,
+                    succeeded: 9,
+                    failed: 0,
+                },
+                'Weaken Nonmaterial Beings': {
+                    attempted: 2,
+                    succeeded: 2,
+                    failed: 0,
+                },
+                'Unknown rune combination.': {
+                    attempted: 4,
+                    succeeded: 0,
+                    failed: 4,
+                },
+            },
+        },
+    }, 2_000);
+
+    assert.deepEqual(normalized.magic.bySpell, {
+        'Weaken Nonmaterial Beings': {
+            attempted: 11,
+            succeeded: 11,
+            failed: 0,
+        },
+    });
+});

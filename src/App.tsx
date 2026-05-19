@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { ComponentType } from 'react';
+import { APP_VERSION } from './appInfo';
 import { LoadingScreen } from './components/UI/LoadingScreen';
 import { useI18n } from './i18n';
 import { preloadGameRootModule } from './preload/gameplayModulePreload';
@@ -261,16 +262,23 @@ function App() {
             </div>
             <div style={{ fontSize: 17, lineHeight: 1.65, color: '#dcc48b' }}>
               <p style={{ margin: '0 0 12px' }}>
-                {text.welcome.intro}
+                {text.welcome.version(APP_VERSION)}
               </p>
               <p style={{ margin: '0 0 12px' }}>
-                {text.welcome.alphaNotice}
+                {text.welcome.playableNotice}
               </p>
+              <div style={{ margin: '0 0 12px' }}>
+                <div style={{ marginBottom: 6 }}>
+                  {text.welcome.requirementsTitle}
+                </div>
+                <ul style={{ margin: 0, paddingLeft: 22 }}>
+                  <li>{text.welcome.requirementBrowser}</li>
+                  <li>{text.welcome.requirementDisplay}</li>
+                  <li>{text.welcome.requirementInput}</li>
+                </ul>
+              </div>
               <p style={{ margin: '0 0 12px' }}>
-                {text.welcome.saveNotice}
-              </p>
-              <p style={{ margin: '0 0 12px' }}>
-                {text.welcome.desktopNotice}
+                {text.welcome.mobileNotice}
               </p>
               {systemRequirementWarnings.length > 0 && (
                 <div style={{
@@ -296,6 +304,9 @@ function App() {
                 </div>
               )}
               <p style={{ margin: '0 0 12px' }}>
+                {text.welcome.bugsNotice}
+              </p>
+              <p style={{ margin: '0 0 12px' }}>
                 {text.welcome.githubIntro}{' '}
                 <a
                   href="https://github.com/levincem/DungeonMaster-codex"
@@ -316,9 +327,6 @@ function App() {
                 >
                   reddit.com/user/levincem
                 </a>
-              </p>
-              <p style={{ margin: 0 }}>
-                {text.welcome.polishNotice}
               </p>
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 22 }}>

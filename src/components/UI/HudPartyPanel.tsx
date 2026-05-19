@@ -3,6 +3,7 @@ import type { Champion } from '../../data/champions';
 import { canEquipItemInSlot } from '../../data/equipment';
 import { miscPath } from '../../data/assetPaths';
 import { getEquippedItemImage } from '../../data/itemImages';
+import { isChargeDepleted } from '../../data/itemChargeState';
 import type { ChampionVitals } from '../../engine/runtimeTypes';
 import { useStore } from '../../engine/store';
 import { canChampionInventoryAcceptItem } from '../../engine/systems/inventoryState';
@@ -235,6 +236,8 @@ const HandSlot: React.FC<{
                         maxHeight: '82%',
                         objectFit: 'contain',
                         imageRendering: 'crisp-edges',
+                        filter: isChargeDepleted(item) ? 'grayscale(1)' : undefined,
+                        opacity: isChargeDepleted(item) ? 0.7 : 1,
                     }}
                 />
             ) : (

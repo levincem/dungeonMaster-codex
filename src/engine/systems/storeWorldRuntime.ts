@@ -115,9 +115,20 @@ export function createStoreWorldRuntime<TSensorState extends SensorStateLike>(
             name?: string;
             text?: string;
             contents?: FloorItemObject[];
+            charges?: number;
         };
         const rawText = rawObj.text ?? rawObj.name;
         const parsedCharges = params.parseItemCharges(rawText);
+        const initialActionCharges = typeof parsedCharges.charges === 'number'
+            ? parsedCharges.charges
+            : typeof rawObj.charges === 'number'
+                ? rawObj.charges
+                : undefined;
+        const initialActionMaxCharges = typeof parsedCharges.maxCharges === 'number'
+            ? parsedCharges.maxCharges
+            : typeof rawObj.charges === 'number' && rawObj.charges > 0
+                ? rawObj.charges
+                : undefined;
         const runtimeItem = params.normaliseWaterContainer({
             id,
             category: obj.category as FloorItem['category'],
@@ -133,8 +144,8 @@ export function createStoreWorldRuntime<TSensorState extends SensorStateLike>(
             x: tile.x,
             y: tile.y,
             tilePos: obj.tilePos,
-            actionCharges: parsedCharges.charges,
-            actionMaxCharges: parsedCharges.maxCharges,
+            actionCharges: initialActionCharges,
+            actionMaxCharges: initialActionMaxCharges,
             potionPower: obj.category === 'Potion' ? rawObj.power : undefined,
         });
 

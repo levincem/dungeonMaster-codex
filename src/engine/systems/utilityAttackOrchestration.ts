@@ -29,10 +29,15 @@ import {
 import type { UtilityRuntimeActionResult } from './utilityAttackControlState';
 import { buildSimpleUtilityAttackPatch } from './utilityAttackState';
 import type { FearUtilityActionResult } from './fearUtilityActions';
+import {
+    MAGIC_BOX_BLUE_TYPE_ID,
+    MAGIC_BOX_GREEN_TYPE_ID,
+} from '../../data/itemChargeState';
 
 const runtimeText = getTranslations().runtime;
 
 type UtilityRightHand = {
+    category: FloorItem['category'];
     typeId: number;
     rawName?: string;
 } | null | undefined;
@@ -169,6 +174,13 @@ export function buildSupportedUtilityAttackPatch<
         creatures: CreatureInstance[],
     ) => !hasActiveFluxcageAt(activeFluxcages, level, x, y, state.now)
         && deps.canCreatureShareTile(mover, level, x, y, creatures);
+    const freezeLifeDurationTicks = state.rightHand?.category === 'Misc'
+        ? state.rightHand.typeId === MAGIC_BOX_BLUE_TYPE_ID
+            ? 30
+            : state.rightHand.typeId === MAGIC_BOX_GREEN_TYPE_ID
+                ? 125
+                : 70
+        : 70;
 
     switch (action.enumName) {
         case 'Heal':
@@ -179,7 +191,6 @@ export function buildSupportedUtilityAttackPatch<
         case 'Fireball':
         case 'Dispell':
         case 'Disrupt':
-        case 'Freeze Life':
         case 'Block':
         case 'Flip':
         case 'Invoke':
@@ -208,6 +219,16 @@ export function buildSupportedUtilityAttackPatch<
                         championMaxMana: state.party.find((champion) => champion.id === state.championId)?.mana ?? 0,
                     },
                 ),
+            };
+        case 'Freeze Life':
+            return {
+                patch: {
+                    ...basePatch,
+                    freezeLifeRemainingTicks: Math.min(
+                        200,
+                        state.freezeLifeRemainingTicks + freezeLifeDurationTicks,
+                    ),
+                },
             };
         case 'Confuse':
         case 'Calm':

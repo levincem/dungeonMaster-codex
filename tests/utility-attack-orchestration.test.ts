@@ -160,7 +160,7 @@ function createState(overrides: Partial<{
     openWalls: Set<string>;
     activeFluxcages: ActiveFluxcage[];
     rightHandTypeId: number | undefined;
-    rightHand: { typeId: number; rawName?: string } | null | undefined;
+    rightHand: { category: FloorItem['category']; typeId: number; rawName?: string } | null | undefined;
     rightHandWeaponName: string;
 }> = {}) {
     return {
@@ -341,7 +341,7 @@ test('buildSupportedUtilityAttackPatch clears runtime control statuses when Fuse
         createAction('Fuse'),
         createState({
             creatures: [createCreature('lord-chaos', { typeId: 23 })],
-            rightHand: { typeId: 45, rawName: 'Firestaff Complete' },
+            rightHand: { category: 'Weapon', typeId: 45, rawName: 'Firestaff Complete' },
             rightHandTypeId: 45,
             rightHandWeaponName: 'Firestaff',
         }),
@@ -370,7 +370,7 @@ test('buildSupportedUtilityAttackPatch makes Lord Chaos escape Fuse when he stil
         createAction('Fuse'),
         createState({
             creatures: [createCreature('lord-chaos', { typeId: 23, x: 1, y: 0 })],
-            rightHand: { typeId: 45, rawName: 'Firestaff Complete' },
+            rightHand: { category: 'Weapon', typeId: 45, rawName: 'Firestaff Complete' },
             rightHandTypeId: 45,
             rightHandWeaponName: 'Firestaff',
         }),
@@ -410,6 +410,31 @@ test('buildSupportedUtilityAttackPatch routes Disrupt through the non-material p
     assert.equal(patch.projectiles?.length, 1);
     assert.equal(patch.projectiles?.[0]?.effect, 'disrupt_nonmaterial');
     assert.deepEqual([patch.projectiles?.[0]?.x, patch.projectiles?.[0]?.y], [1, 0]);
+});
+
+test('buildSupportedUtilityAttackPatch applies original Freeze Life durations for magical boxes', () => {
+    const blueResult = buildSupportedUtilityAttackPatch(
+        createAction('Freeze Life'),
+        createState({ rightHandTypeId: 42, rightHand: { category: 'Misc', typeId: 42, rawName: 'Magical Box (Blue)' } }),
+        createBasePatch(),
+        createDeps(),
+    );
+    const greenResult = buildSupportedUtilityAttackPatch(
+        createAction('Freeze Life'),
+        createState({ rightHandTypeId: 43, rightHand: { category: 'Misc', typeId: 43, rawName: 'Magical Box (Green)' } }),
+        createBasePatch(),
+        createDeps(),
+    );
+    const eyeResult = buildSupportedUtilityAttackPatch(
+        createAction('Freeze Life'),
+        createState({ rightHandTypeId: 0, rightHand: { category: 'Weapon', typeId: 0, rawName: 'Eye Of Time' } }),
+        createBasePatch(),
+        createDeps(),
+    );
+
+    assert.equal((blueResult.patch as TestPatch & { freezeLifeRemainingTicks?: number }).freezeLifeRemainingTicks, 30);
+    assert.equal((greenResult.patch as TestPatch & { freezeLifeRemainingTicks?: number }).freezeLifeRemainingTicks, 125);
+    assert.equal((eyeResult.patch as TestPatch & { freezeLifeRemainingTicks?: number }).freezeLifeRemainingTicks, 70);
 });
 
 test('buildSupportedUtilityAttackPatch adds a fluxcage burst when the target is trapped', () => {
@@ -499,7 +524,7 @@ test('buildSupportedUtilityAttackPatch lets Fuse start when tile Fluxcages are t
         createAction('Fuse'),
         createState({
             creatures: [createCreature('lord-chaos', { typeId: 23, x: 1, y: 0 })],
-            rightHand: { typeId: 45, rawName: 'Firestaff Complete' },
+            rightHand: { category: 'Weapon', typeId: 45, rawName: 'Firestaff Complete' },
             rightHandTypeId: 45,
             rightHandWeaponName: 'Firestaff',
             activeFluxcages: [

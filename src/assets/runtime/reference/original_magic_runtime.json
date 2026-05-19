@@ -1,8 +1,8 @@
 {
   "_meta": {
-    "source": "graphics.dat item 560 and current rune ordering used by the remake",
-    "status": "documented_external_plus_repo_mapping",
-    "generatedAt": "2026-04-06T00:00:00Z",
+    "source": "raw i560 tables (byte19016/byte19010), game_db rune ordering, and Dungeon Master Encyclopaedia cross-check",
+    "status": "raw_i560_crosschecked",
+    "generatedAt": "2026-05-19T00:00:00Z",
     "purpose": "Runtime-facing magic constants from original spell-power and rune-cost tables."
   },
   "powerSymbols": [
@@ -26,25 +26,25 @@
       { "id": 6, "symbol": "YA", "row": "element1", "baseManaCost": 2 },
       { "id": 7, "symbol": "VI", "row": "element1", "baseManaCost": 3 },
       { "id": 8, "symbol": "OH", "row": "element1", "baseManaCost": 4 },
-      { "id": 9, "symbol": "KATH", "row": "element1", "baseManaCost": 5 },
-      { "id": 10, "symbol": "FUL", "row": "element1", "baseManaCost": 6 },
-      { "id": 11, "symbol": "DES", "row": "element1", "baseManaCost": 7 }
+      { "id": 9, "symbol": "FUL", "row": "element1", "baseManaCost": 5 },
+      { "id": 10, "symbol": "DES", "row": "element1", "baseManaCost": 6 },
+      { "id": 11, "symbol": "ZO", "row": "element1", "baseManaCost": 7 }
     ],
     [
-      { "id": 12, "symbol": "ZO", "row": "form", "baseManaCost": 4 },
-      { "id": 13, "symbol": "NETA", "row": "form", "baseManaCost": 5 },
-      { "id": 14, "symbol": "VEN", "row": "form", "baseManaCost": 6 },
-      { "id": 15, "symbol": "KU", "row": "form", "baseManaCost": 7 },
-      { "id": 16, "symbol": "IR", "row": "form", "baseManaCost": 7 },
-      { "id": 17, "symbol": "BRO", "row": "form", "baseManaCost": 9 }
+      { "id": 12, "symbol": "VEN", "row": "form", "baseManaCost": 4 },
+      { "id": 13, "symbol": "EW", "row": "form", "baseManaCost": 5 },
+      { "id": 14, "symbol": "KATH", "row": "form", "baseManaCost": 6 },
+      { "id": 15, "symbol": "IR", "row": "form", "baseManaCost": 7 },
+      { "id": 16, "symbol": "BRO", "row": "form", "baseManaCost": 7 },
+      { "id": 17, "symbol": "GOR", "row": "form", "baseManaCost": 9 }
     ],
     [
-      { "id": 18, "symbol": "GOR", "row": "alignment", "baseManaCost": 2 },
-      { "id": 19, "symbol": "SAR", "row": "alignment", "baseManaCost": 2 },
-      { "id": 20, "symbol": "ROS", "row": "alignment", "baseManaCost": 3 },
-      { "id": 21, "symbol": "EW", "row": "alignment", "baseManaCost": 4 },
+      { "id": 18, "symbol": "KU", "row": "alignment", "baseManaCost": 2 },
+      { "id": 19, "symbol": "ROS", "row": "alignment", "baseManaCost": 2 },
+      { "id": 20, "symbol": "DAIN", "row": "alignment", "baseManaCost": 3 },
+      { "id": 21, "symbol": "NETA", "row": "alignment", "baseManaCost": 4 },
       { "id": 22, "symbol": "RA", "row": "alignment", "baseManaCost": 6 },
-      { "id": 23, "symbol": "DAIN", "row": "alignment", "baseManaCost": 7 }
+      { "id": 23, "symbol": "SAR", "row": "alignment", "baseManaCost": 7 }
     ]
   ],
   "manaCostRule": "realCost = floor(baseManaCost * (powerLevel + 1) / 2)"

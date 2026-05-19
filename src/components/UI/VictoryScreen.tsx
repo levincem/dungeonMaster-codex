@@ -22,6 +22,7 @@ import { GameStatsPanel } from './GameStatsPanel';
 import {
     buildHallOfFameEntryHoverText,
     formatHallOfFameCompletedAt,
+    formatHallOfFameCompactNumber,
     formatHallOfFameDurationFromSeconds,
     sortHallOfFameEntries,
 } from './hallOfFameDetails';
@@ -97,6 +98,16 @@ export const VictoryScreen = () => {
         };
     }, []);
 
+    useEffect(() => {
+        if (stage !== 'hall' || !savedEntryId) return undefined;
+        const timeoutId = window.setTimeout(() => {
+            setStage('end');
+        }, 5000);
+        return () => {
+            window.clearTimeout(timeoutId);
+        };
+    }, [savedEntryId, stage]);
+
     const showStatsCard = stage === 'stats';
     const showHallCard = stage === 'hall';
     const showEndCard = stage === 'end';
@@ -144,6 +155,12 @@ export const VictoryScreen = () => {
         const proofSource = extractHallOfFameProofSourceFromSaveExport(buildSaveExportPayload());
         const proof = buildHallOfFameEntryProof(entry, proofSource);
         if (!proof) {
+            console.warn('[hall-of-fame] Failed to build victory proof before submission.', {
+                entryId: entry.id,
+                completedAt: entry.completedAt,
+                startedAt: entry.stats.startedAt,
+                proofSource,
+            });
             setHallFeedback({
                 message: text.hallOfFameSaveFailed,
                 success: false,
@@ -153,6 +170,16 @@ export const VictoryScreen = () => {
         }
 
         const result = await appendHallOfFameEntry({ ...entry, proof });
+        if (!result.success) {
+            console.warn('[hall-of-fame] Victory submission failed.', {
+                entryId: entry.id,
+                source: result.source,
+                reason: result.reason,
+                completedAt: entry.completedAt,
+                startedAt: entry.stats.startedAt,
+                playTimeSec: entry.summary.playTimeSec,
+            });
+        }
         setHallEntries(result.entries);
         setSavedEntryId(result.success ? entry.id : null);
         setHallFeedback({
@@ -517,9 +544,9 @@ export const VictoryScreen = () => {
                                                     </td>
                                                     <td style={{ padding: '10px 12px 10px 0' }}>{formatHallOfFameCompletedAt(entry.completedAt, locale)}</td>
                                                     <td style={{ padding: '10px 0', textAlign: 'right' }}>{formatHallOfFameDurationFromSeconds(entry.summary.playTimeSec)}</td>
-                                                    <td style={{ padding: '10px 0', textAlign: 'right' }}>{entry.summary.monstersKilled.toLocaleString(locale === 'fr' ? 'fr-FR' : 'en-US')}</td>
-                                                    <td style={{ padding: '10px 0', textAlign: 'right' }}>{entry.summary.spellsCast.toLocaleString(locale === 'fr' ? 'fr-FR' : 'en-US')}</td>
-                                                    <td style={{ padding: '10px 0', textAlign: 'right' }}>{entry.summary.damageDealt.toLocaleString(locale === 'fr' ? 'fr-FR' : 'en-US')}</td>
+                                                    <td style={{ padding: '10px 0', textAlign: 'right' }}>{formatHallOfFameCompactNumber(entry.summary.monstersKilled, locale)}</td>
+                                                    <td style={{ padding: '10px 0', textAlign: 'right' }}>{formatHallOfFameCompactNumber(entry.summary.spellsCast, locale)}</td>
+                                                    <td style={{ padding: '10px 0', textAlign: 'right' }}>{formatHallOfFameCompactNumber(entry.summary.damageDealt, locale)}</td>
                                                 </tr>
                                             );
                                         })}
@@ -535,29 +562,6 @@ export const VictoryScreen = () => {
                                 {text.hallOfFameEmpty}
                             </div>
                         )}
-                    </div>
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                    }}>
-                        <button
-                            type="button"
-                            onClick={() => setStage('end')}
-                            style={{
-                                padding: '12px 18px',
-                                borderRadius: 8,
-                                border: '1px solid rgba(232, 215, 164, 0.38)',
-                                background: 'linear-gradient(180deg, rgba(58, 43, 22, 0.96), rgba(28, 20, 12, 0.96))',
-                                color: '#f0dfaf',
-                                fontFamily: '"Courier New", monospace',
-                                fontSize: 14,
-                                letterSpacing: 1,
-                                cursor: 'pointer',
-                                minWidth: 210,
-                            }}
-                        >
-                            {text.hallOfFameContinue}
-                        </button>
                     </div>
                 </div>
             ) : (

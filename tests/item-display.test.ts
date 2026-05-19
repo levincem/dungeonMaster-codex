@@ -26,3 +26,14 @@ test('getDisplayedItemName reflects the state of water containers', () => {
         'Empty Flask',
     );
 });
+
+test('getDisplayedItemName appends empty state for exhausted charged items only', () => {
+    assert.equal(
+        getDisplayedItemName('Eye Of Time', { category: 'Weapon', typeId: 0, rawName: 'Eye Of Time', actionCharges: 0 }, 'NORTH'),
+        'Eye Of Time (empty)',
+    );
+    assert.equal(
+        getDisplayedItemName('Magical Box (Blue)', { category: 'Misc', typeId: 42, rawName: 'Magical Box (Blue)', actionCharges: 0 }, 'NORTH'),
+        'Magical Box (Blue)',
+    );
+});

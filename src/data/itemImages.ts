@@ -72,10 +72,18 @@ function getNameOverrideImage(rawName?: string): string | undefined {
 // Weapon variant images (charged / worn states).
 export const WEAPON_VARIANTS: Record<number, { empty: string; full: string }> = {
      2: { empty: 'torch_unlit.png',          full: 'torch_lit.png'           },
+     0: { empty: 'eye_of_time_empty.png',    full: 'eye_of_time_full.png'    },
+     1: { empty: 'stormring_empty.png',      full: 'stormring_full.png'      },
      3: { empty: 'flamitt_empty.png',        full: 'flamitt_full.png'        },
      4: { empty: 'staff_of_claws_empty.png', full: 'staff_of_claws_full.png' },
      5: { empty: 'bolt_blade_empty.png',     full: 'bolt_blade_full.png'     },
      6: { empty: 'fury_empty.png',           full: 'fury_full.png'           },
+    35: { empty: 'wand_empty.png',           full: 'wand_full.png'           },
+    36: { empty: 'teowand_empty.png',        full: 'teowand_full.png'        },
+    37: { empty: 'yew_staff_empty.png',      full: 'yew_staff_full.png'      },
+    38: { empty: 'staff_of_manar_empty.png', full: 'staff_of_manar_full.png' },
+    40: { empty: 'snake_staff_empty.png',    full: 'snake_staff_full.png'    },
+    42: { empty: 'sceptre_of_lyf_empty.png', full: 'sceptre_of_lyf_full.png' },
 };
 
 /** Torch images by state index (0=burnt, 1=used_2, 2=used_1, 3=lit). */
@@ -155,6 +163,12 @@ export function getFloorItemImage(item: FloorItem): string {
             return ITEM_BASE + (waterState.charges > 0 ? 'water_waterskin_full.png' : 'waterskin_empty.png');
         }
         return ITEM_BASE + (waterState.charges > 0 ? 'water_flask.png' : 'empty_flask.png');
+    }
+    if (item.category === 'Weapon') {
+        const variant = WEAPON_VARIANTS[item.typeId];
+        if (variant && typeof item.actionCharges === 'number') {
+            return ITEM_BASE + (item.actionCharges > 0 ? variant.full : variant.empty);
+        }
     }
     return getItemImage(item.category, item.typeId, item.rawName);
 }

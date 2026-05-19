@@ -1,5 +1,6 @@
 import type { Direction } from '../engine/runtimeTypes';
 import type { FloorItem } from '../types/game';
+import { isChargeDepleted } from './itemChargeState';
 
 const DIRECTION_LABELS: Record<Direction, string> = {
     NORTH: 'North',
@@ -10,7 +11,7 @@ const DIRECTION_LABELS: Record<Direction, string> = {
 
 export function getDisplayedItemName(
     baseName: string,
-    item: Pick<FloorItem, 'category' | 'typeId' | 'rawName' | 'waterCharges' | 'waterMaxCharges'>,
+    item: Pick<FloorItem, 'category' | 'typeId' | 'rawName' | 'waterCharges' | 'waterMaxCharges' | 'actionCharges' | 'actionMaxCharges'>,
     direction?: Direction,
 ): string {
     if ((item.category === 'Potion' && item.typeId === 24) || (item.category === 'Misc' && item.typeId === 1)) {
@@ -21,6 +22,11 @@ export function getDisplayedItemName(
     ) {
         return (item.waterCharges ?? (item.typeId === 15 ? 1 : 0)) > 0 ? 'Water Flask' : 'Empty Flask';
     }
-    if (item.category !== 'Misc' || item.typeId !== 0 || !direction) return baseName;
-    return `${baseName} (${DIRECTION_LABELS[direction]})`;
+    if (item.category === 'Misc' && item.typeId === 0 && direction) {
+        return `${baseName} (${DIRECTION_LABELS[direction]})`;
+    }
+    if (isChargeDepleted(item as FloorItem)) {
+        return `${baseName} (empty)`;
+    }
+    return baseName;
 }

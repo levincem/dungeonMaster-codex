@@ -6,19 +6,19 @@ Goal: rebuild the original dungeon, systems, and feel as faithfully as possible 
 
 Live build: [dungeon-master.fr](https://dungeon-master.fr/)
 
-Current local version: `v0.9.2`
+Current local version: `v0.9.3`
 
 ## Status
 
-This is now a desktop-first `0.9.2` public build focused on selective polish, lightweight stabilization, and keeping PC DOS fidelity first.
+This is now a desktop-first `0.9.3` public build focused on late stabilization, Hall of Fame hardening, and fidelity fixes that tighten the original rules without reopening the core runtime.
 
-Latest `v0.9.2` focus:
+Latest `v0.9.3` focus:
 
-- final targeted play validation is considered closed, with two testers reaching both endings and rechecking generators, transitions, teleporters, and pits
-- shared `Hall of Fame` is now live through a lightweight Node.js + Apache VPS pipeline, with API fallback to local storage
-- run stats, run identity, hover details, and title-screen access to the `Hall of Fame` are now wired end to end
-- spell visuals and late-game effects were polished further, including `Fluxcage`, `Lightning`, poison families, and shared creature/player spell scaling
-- title screen and options UI were refreshed, including localized language switching, a random title-screen creature panel, and a fully localized quick tutorial flow
+- shared `Hall of Fame` flow was stabilized across client and VPS, with better validation diagnostics, canonical proof signatures, saner long-run acceptance, and cleaner submission UX
+- victory stats and `Hall of Fame` presentation were improved, including compact formatting for large counters, clearer confirmation flow, and title-screen access to detailed shared runs
+- original magic rules were tightened further: rune mana is now spent on click with no refund on cancel, and rune mana tables were rechecked against original sources
+- charge-bearing items and `Magical Boxes` were recaled closer to original behavior, including proper depletion or consumption and clearer empty-state feedback
+- run stats are now more reliable and readable, with cleaner per-spell labels and better per-creature tracking for new runs
 
 Already in place:
 
@@ -83,10 +83,10 @@ docs/
 
 ## Docs
 
-- [docs/PROJECT_STATE_INDEX.md](/D:/DungeonMaster-codex/docs/PROJECT_STATE_INDEX.md)
-- [docs/NEXT_PHASE_PLAN.md](/D:/DungeonMaster-codex/docs/NEXT_PHASE_PLAN.md)
-- [docs/REMAKE_STATUS.md](/D:/DungeonMaster-codex/docs/REMAKE_STATUS.md)
-- [docs/RC_FINISH_PLAN.md](/D:/DungeonMaster-codex/docs/RC_FINISH_PLAN.md)
+- [Project state index](docs/PROJECT_STATE_INDEX.md)
+- [Next phase plan](docs/NEXT_PHASE_PLAN.md)
+- [Remake status](docs/REMAKE_STATUS.md)
+- [0.9.x finish plan](docs/RC_FINISH_PLAN.md)
 
 ## Credits
 

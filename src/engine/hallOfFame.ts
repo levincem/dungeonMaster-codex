@@ -227,7 +227,21 @@ function isHallOfFameApiUnavailable(response: Response | null): boolean {
 type HallOfFameSaveResult =
     | { kind: 'success'; entries: HallOfFameEntry[] }
     | { kind: 'unavailable' }
-    | { kind: 'rejected'; entries: HallOfFameEntry[] };
+    | { kind: 'rejected'; entries: HallOfFameEntry[]; reason?: string };
+
+async function readHallOfFameErrorReason(response: Response): Promise<string | undefined> {
+    try {
+        const contentType = response.headers.get('content-type')?.toLowerCase() ?? '';
+        if (contentType.includes('application/json')) {
+            const payload = await response.json() as { error?: unknown };
+            return typeof payload?.error === 'string' ? payload.error : undefined;
+        }
+        const text = (await response.text()).trim();
+        return text || undefined;
+    } catch {
+        return undefined;
+    }
+}
 
 async function appendHallOfFameEntryViaApi(entry: HallOfFameSubmissionEntry): Promise<HallOfFameSaveResult> {
     const response = await requestHallOfFameApi('POST', { entry });
@@ -235,18 +249,30 @@ async function appendHallOfFameEntryViaApi(entry: HallOfFameSubmissionEntry): Pr
         return { kind: 'unavailable' };
     }
     if (!response?.ok) {
-        return { kind: 'rejected', entries: readHallOfFameEntries() };
+        return {
+            kind: 'rejected',
+            entries: readHallOfFameEntries(),
+            reason: response ? await readHallOfFameErrorReason(response) : undefined,
+        };
     }
     try {
         const payload = normalizeHallOfFameFile(await response.json());
         if (!payload) {
-            return { kind: 'rejected', entries: readHallOfFameEntries() };
+            return {
+                kind: 'rejected',
+                entries: readHallOfFameEntries(),
+                reason: 'Invalid hall of fame API payload',
+            };
         }
         mirrorApiEntriesToLocal(payload.entries);
         persistLastHallOfFameName(entry.name);
         return { kind: 'success', entries: payload.entries };
     } catch {
-        return { kind: 'rejected', entries: readHallOfFameEntries() };
+        return {
+            kind: 'rejected',
+            entries: readHallOfFameEntries(),
+            reason: 'Unable to parse hall of fame API payload',
+        };
     }
 }
 
@@ -258,14 +284,19 @@ export async function loadHallOfFameEntries(): Promise<{ source: HallOfFameSourc
     return { source: 'local', entries: readHallOfFameEntries() };
 }
 
-export async function appendHallOfFameEntry(entry: HallOfFameSubmissionEntry): Promise<{ success: boolean; source: HallOfFameSource; entries: HallOfFameEntry[] }> {
+export async function appendHallOfFameEntry(entry: HallOfFameSubmissionEntry): Promise<{ success: boolean; source: HallOfFameSource; entries: HallOfFameEntry[]; reason?: string }> {
     const apiResult = await appendHallOfFameEntryViaApi(entry);
     if (apiResult.kind === 'success') {
         return { success: true, source: 'api', entries: apiResult.entries };
     }
     if (apiResult.kind === 'rejected') {
-        return { success: false, source: 'api', entries: apiResult.entries };
+        return { success: false, source: 'api', entries: apiResult.entries, reason: apiResult.reason };
     }
     const localResult = appendLocalHallOfFameEntry(entry);
-    return { success: localResult.success, source: 'local', entries: localResult.entries };
+    return {
+        success: localResult.success,
+        source: 'local',
+        entries: localResult.entries,
+        ...(localResult.success ? {} : { reason: 'Local hall of fame storage write failed' }),
+    };
 }

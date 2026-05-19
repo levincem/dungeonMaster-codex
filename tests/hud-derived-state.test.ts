@@ -390,7 +390,7 @@ test('didPartyTakeSingleStep only reports adjacent same-level movement', () => {
     }), false);
 });
 
-test('buildHudCastState derives selected champion, active family, and cast availability', () => {
+test('buildHudCastState derives selected champion and cast availability after rune-prepaid mana spending', () => {
     const party = [createChampion(1, 'Alex'), createChampion(2, 'Tiggy')];
 
     const readyState = buildHudCastState({
@@ -398,7 +398,7 @@ test('buildHudCastState derives selected champion, active family, and cast avail
         activeCasterChampionId: 2,
         party,
         championVitals: {
-            2: { mana: 18 },
+            2: { mana: 1 },
         },
         championCombat: {
             2: { cooldown: 0 },

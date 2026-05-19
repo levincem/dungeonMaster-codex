@@ -7,6 +7,7 @@ import { getMechanismsAt } from '../../data/mechanisms';
 import type { Mechanism } from '../../data/mechanisms';
 import { hasEffectiveOriginalWallOverlayAt } from '../../data/originalWallOverlays';
 import { getDisplayedItemName } from '../../data/itemDisplay';
+import { isChargeDepleted } from '../../data/itemChargeState';
 import { isOriginalConsumableItem } from '../../data/originalItemRules';
 import { isAltarWallFace as isAltarWallFaceSystem } from '../../engine/systems/resurrection';
 import {
@@ -201,6 +202,8 @@ const ItemThumb: React.FC<{ item: FloorItem; size?: number; equipped?: boolean }
                 position: 'absolute',
                 inset: 0,
                 margin: 'auto',
+                filter: isChargeDepleted(item) ? 'grayscale(1)' : undefined,
+                opacity: isChargeDepleted(item) ? 0.6 : 1,
             }}
         />
     );

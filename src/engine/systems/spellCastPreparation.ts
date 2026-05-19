@@ -83,19 +83,6 @@ export function prepareSpellCast<TXpPatch extends object>(
         };
     }
 
-    if (vitals.mana < spell.manaCost) {
-        return {
-            kind: 'blocked',
-            patch: {
-                lastCastResult: {
-                    success: false,
-                    message: runtimeText.insufficientMana(spell.name, spell.manaCost),
-                    ts: now,
-                },
-            },
-        };
-    }
-
     const spellSkill = spell.progressionSkill ?? spell.castSkill;
     const skillLevel = deps.getSkillLevel(spellSkill);
     const castCheck = deps.rollCastCheck(skillLevel);
@@ -125,10 +112,7 @@ export function prepareSpellCast<TXpPatch extends object>(
             )
             : runtimeText.spellSuccess(spell.name, spell.description);
 
-    const nextVitals = {
-        ...vitals,
-        mana: Math.max(0, vitals.mana - spell.manaCost),
-    };
+    const nextVitals = vitals;
     const spellCooldownSeconds = deps.originalTimerTicksToSeconds(spell.sourceDisableTimeTicks ?? 0);
     const newCombat = deps.createChampionCombatState(spellCooldownSeconds, 0);
 

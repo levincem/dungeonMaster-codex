@@ -6,6 +6,7 @@ import {
 import { playStep, playWallBump } from '../../engine/sounds';
 import type { ChampionCombat, ChampionTemporaryXP, ChampionXP, GameAction } from '../../engine/runtimeTypes';
 import { getDisplayedItemName } from '../../data/itemDisplay';
+import { isChargeDepleted } from '../../data/itemChargeState';
 import { WEAPON_TYPES, resolveItemName } from '../../data/items';
 import { getGameMap } from '../../data/mapLoader';
 import type { Champion } from '../../data/champions';
@@ -14,7 +15,7 @@ import { getEquippedItemImage } from '../../data/itemImages';
 import { getPreferredCombatItem, QUIVER_SLOT_KEYS } from '../../data/equipment';
 import { formatKeybinding, matchesKeybinding, normalizeBindingKey } from '../../engine/options';
 import { importPersistedSave } from '../../engine/saveGame';
-import { findSpell } from '../../data/runes';
+import { findSpell, getOriginalPreparedRuneManaCost, getOriginalRuneSelectionManaCost } from '../../data/runes';
 import { itemsPath } from '../../data/assetPaths';
 import { setLocale, useI18n, useLocale } from '../../i18n';
 import { getActionCharges } from '../../engine/systems/storeCombatRuntime';
@@ -39,7 +40,6 @@ import {
     didPartyTakeSingleStep,
     getPreparedHudRunes,
     prunePreparedHudRunes,
-    selectHudRunes,
     setPreparedHudRunes,
 } from './hudDerivedState';
 import { recordChampionStatHighlights, type HighlightStatKey } from './championStatHighlights';
@@ -362,6 +362,8 @@ const CombatGrid: React.FC<{
                     weaponImage,
                     weaponName,
                 } = slotState;
+                const combatItem = champ ? resolveCombatItem(championEquipment[champ.id]) : null;
+                const combatItemDepleted = isChargeDepleted(combatItem);
                 const isFlash = flash[i];
                 const menuOpen = openMenuIndex === i && ready && !!champ && allAttacks.length > 1;
                 const singleBlockedReason = allAttacks.length === 1
@@ -425,7 +427,8 @@ const CombatGrid: React.FC<{
                                                     maxHeight: '92%',
                                                     objectFit: 'contain',
                                                     imageRendering: 'crisp-edges',
-                                                    opacity: slotBlocked ? 0.45 : 1,
+                                                    opacity: slotBlocked ? 0.45 : combatItemDepleted ? 0.7 : 1,
+                                                    filter: combatItemDepleted ? 'grayscale(1)' : undefined,
                                                 }}
                                             />
                                         ) : (
@@ -576,7 +579,7 @@ export const HUD = () => {
         party, level, position, direction,
         selectedChampionIndex, selectChampion, openPartyMember, reorderParty,
         moveForward, moveBackward, strafeLeft, strafeRight, turnLeft, turnRight,
-        championVitals, castSpell: storeCastSpell, lastCastResult,
+        championVitals, spendPreparedSpellMana, castSpell: storeCastSpell, lastCastResult,
         championXP, championTemporaryXP, championCombat, attackFront, championEquipment, gameOptions,
         damageEvents, optionsModalOpen, openOptionsModal, closeOptionsModal, setGameOptions,
         buildSaveExportPayload, saveGame,
@@ -598,6 +601,7 @@ export const HUD = () => {
         turnLeft: state.turnLeft,
         turnRight: state.turnRight,
         championVitals: state.championVitals,
+        spendPreparedSpellMana: state.spendPreparedSpellMana,
         castSpell: state.castSpell,
         lastCastResult: state.lastCastResult,
         championXP: state.championXP,
@@ -1061,7 +1065,21 @@ export const HUD = () => {
     }, [resolvedActiveSpellCasterId]);
 
     const selectRune = (runeId: string) => {
-        setSelectedRunes((prev) => selectHudRunes(prev, runeId));
+        const existingIndex = selectedRunes.indexOf(runeId);
+        if (existingIndex !== -1) {
+            setSelectedRunes(selectedRunes.slice(0, existingIndex));
+            return;
+        }
+        if (selectedRunes.length >= 4 || resolvedActiveSpellCasterId === null) {
+            return;
+        }
+
+        const manaCost = getOriginalRuneSelectionManaCost(selectedRunes, runeId);
+        if (manaCost === null || !spendPreparedSpellMana(resolvedActiveSpellCasterId, manaCost)) {
+            return;
+        }
+
+        setSelectedRunes([...selectedRunes, runeId]);
     };
     const handleCast = () => {
         if (!castState.casterChampion) return;
@@ -1080,6 +1098,7 @@ export const HUD = () => {
     });
     const spell = castState.spell;
     const canCast = castState.canCast;
+    const displayedSpellManaCost = spell ? getOriginalPreparedRuneManaCost(spell.runes) : null;
     const panel: React.CSSProperties = {
         background: 'rgba(0,0,0,0.84)',
         border: '1px solid rgba(200,170,110,0.18)',
@@ -1193,6 +1212,7 @@ export const HUD = () => {
                 selectedRunes={selectedRunes}
                 currentFamilyIdx={castState.currentFamilyIdx}
                 spell={spell}
+                displayManaCost={displayedSpellManaCost}
                 canCast={canCast}
                 lastCastResult={lastCastResult}
                 onSelectCaster={setActiveSpellCasterId}
