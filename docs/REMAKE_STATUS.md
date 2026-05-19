@@ -8,7 +8,7 @@ Pour la liste des sujets encore ouverts et ordonnes, lire [NEXT_PHASE_PLAN.md](.
 
 ## Resume actuel
 
-Le projet est maintenant en `0.9.3`, une build publique desktop-first jouable et serieuse.
+Le projet est maintenant en `0.9.4`, une build publique desktop-first jouable et serieuse.
 
 Ce qui est solidement en place:
 
@@ -39,12 +39,12 @@ Regle de travail retenue pour les regressions:
 
 Validation locale la plus recente:
 
-- `npm.cmd test` : `964` tests verts
+- `npm.cmd test` : `968` tests verts
 - `npm.cmd run build` : vert
 
 ## Lecture actuelle
 
-Ce que veut dire `0.9.3` ici:
+Ce que veut dire `0.9.4` ici:
 
 - le debut et la fin du jeu sont rejouables sans blocage connu cote runtime principal
 - le coeur du runtime tient en conditions normales de playtest

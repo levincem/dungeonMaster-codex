@@ -6,6 +6,9 @@ type HallOfFameDetailText = {
     hallOfFameCompleted: string;
     playTime: string;
     damageTaken: string;
+    mostDangerousCreaturesTitle: string;
+    noCreatureDamageTaken: string;
+    timeByLevelTitle: string;
     manaSpent: string;
     steps: string;
     turns: string;
@@ -73,6 +76,14 @@ function summarizeSpellName(name: string): string {
     return shortName?.trim() || name.trim();
 }
 
+function formatLevelLabel(levelKey: string): string {
+    const levelIndex = Number.parseInt(levelKey, 10);
+    if (!Number.isFinite(levelIndex) || levelIndex < 0) {
+        return levelKey;
+    }
+    return `L${levelIndex + 1}`;
+}
+
 export function buildHallOfFameEntryHoverText(
     entry: HallOfFameEntry,
     text: HallOfFameDetailText,
@@ -91,6 +102,14 @@ export function buildHallOfFameEntryHoverText(
         .filter((spell) => spell.attempted > 0)
         .sort((left, right) => right.attempted - left.attempted || left.name.localeCompare(right.name))
         .slice(0, 3);
+    const dangerousCreatures = Object.entries(entry.stats.combat.damageTakenByCreature)
+        .filter(([, damage]) => damage > 0)
+        .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+        .slice(0, 3);
+    const timeByLevel = Object.entries(entry.stats.exploration.timeByLevelMs)
+        .filter(([, durationMs]) => durationMs > 0)
+        .sort((left, right) => right[1] - left[1] || Number(left[0]) - Number(right[0]))
+        .slice(0, 3);
 
     const lines = [
         `${text.hallOfFameCompleted}: ${formatHallOfFameCompletedAt(entry.completedAt, locale, true)}`,
@@ -101,6 +120,16 @@ export function buildHallOfFameEntryHoverText(
         `${text.steps}: ${formatHallOfFameCompactNumber(steps, locale)} | ${text.turns}: ${formatHallOfFameCompactNumber(turns, locale)}`,
         `${text.pickedUp}: ${formatHallOfFameCompactNumber(entry.stats.items.pickedUp, locale)} | ${text.dropped}: ${formatHallOfFameCompactNumber(entry.stats.items.dropped, locale)} | ${text.equipped}: ${formatHallOfFameCompactNumber(entry.stats.items.equipped, locale)}`,
     ];
+
+    if (dangerousCreatures.length > 0) {
+        lines.push(`${text.mostDangerousCreaturesTitle}: ${dangerousCreatures.map(([name, damage]) => `${name} ${formatHallOfFameCompactNumber(damage, locale)}`).join(' | ')}`);
+    } else {
+        lines.push(`${text.mostDangerousCreaturesTitle}: ${text.noCreatureDamageTaken}`);
+    }
+
+    if (timeByLevel.length > 0) {
+        lines.push(`${text.timeByLevelTitle}: ${timeByLevel.map(([levelKey, durationMs]) => `${formatLevelLabel(levelKey)} ${formatHallOfFameDurationFromSeconds(Math.floor(durationMs / 1000))}`).join(' | ')}`);
+    }
 
     if (topSpells.length > 0) {
         lines.push(`${text.topSpellsTitle}: ${topSpells.map((spell) => `${spell.name} x${formatHallOfFameCompactNumber(spell.attempted, locale)}`).join(' | ')}`);

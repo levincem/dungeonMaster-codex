@@ -6,7 +6,7 @@ Ce document ne doit contenir que des sujets encore ouverts.
 
 Lecture actuelle:
 
-- le projet est en `0.9.3`
+- le projet est en `0.9.4`
 - ce plan ne liste plus des chantiers de beta large, mais les derniers sujets a fermer pour une `0.9.x` plus stable
 
 Regle simple:

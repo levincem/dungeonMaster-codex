@@ -6,12 +6,12 @@ import {
 } from '../../engine/hallOfFame';
 import { getCurrentLocale, useI18n } from '../../i18n';
 import {
-    buildHallOfFameEntryHoverText,
     formatHallOfFameCompletedAt,
     formatHallOfFameCompactNumber,
     formatHallOfFameDurationFromSeconds,
     sortHallOfFameEntries,
 } from './hallOfFameDetails';
+import { HallOfFameEntryDetailsOverlay } from './HallOfFameEntryDetailsOverlay';
 
 interface HallOfFameModalProps {
     onClose: () => void;
@@ -21,6 +21,7 @@ export const HallOfFameModal = ({ onClose }: HallOfFameModalProps) => {
     const { titleScreen, victory } = useI18n();
     const locale = getCurrentLocale();
     const [entries, setEntries] = useState<HallOfFameEntry[]>(() => readHallOfFameEntries());
+    const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
 
     useEffect(() => {
         let cancelled = false;
@@ -37,16 +38,24 @@ export const HallOfFameModal = ({ onClose }: HallOfFameModalProps) => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Escape') {
                 event.preventDefault();
+                if (selectedEntryId) {
+                    setSelectedEntryId(null);
+                    return;
+                }
                 onClose();
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [onClose]);
+    }, [onClose, selectedEntryId]);
 
     const leaderboardEntries = useMemo(
         () => sortHallOfFameEntries(entries).slice(0, 20),
         [entries],
+    );
+    const selectedEntry = useMemo(
+        () => (selectedEntryId ? entries.find((entry) => entry.id === selectedEntryId) ?? null : null),
+        [entries, selectedEntryId],
     );
 
     return (
@@ -160,10 +169,10 @@ export const HallOfFameModal = ({ onClose }: HallOfFameModalProps) => {
                                 {leaderboardEntries.map((entry, index) => (
                                     <tr
                                         key={entry.id}
-                                        title={buildHallOfFameEntryHoverText(entry, victory, locale)}
+                                        onClick={() => setSelectedEntryId(entry.id)}
                                         style={{
                                             borderTop: '1px solid rgba(216, 188, 122, 0.14)',
-                                            cursor: 'help',
+                                            cursor: 'pointer',
                                         }}
                                     >
                                         <td style={{ padding: '10px 0' }}>#{index + 1}</td>
@@ -189,6 +198,12 @@ export const HallOfFameModal = ({ onClose }: HallOfFameModalProps) => {
                     )}
                 </div>
             </div>
+            {selectedEntry && (
+                <HallOfFameEntryDetailsOverlay
+                    entry={selectedEntry}
+                    onClose={() => setSelectedEntryId(null)}
+                />
+            )}
         </div>
     );
 };

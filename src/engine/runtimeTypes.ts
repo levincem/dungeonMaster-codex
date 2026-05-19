@@ -36,6 +36,7 @@ export interface DamageEvent {
     target: 'creature' | 'champion';
     championId?: number;
     creatureId?: string;
+    sourceName?: string;
     x?: number;
     y?: number;
     amount: number;

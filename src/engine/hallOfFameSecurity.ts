@@ -133,12 +133,25 @@ function normalizeHallOfFameProofEntrySnapshot(entry: HallOfFameProofEntrySnapsh
             combat: entry.stats.combat && typeof entry.stats.combat === 'object'
                 ? {
                     ...entry.stats.combat,
+                    damageTakenByCreature: normalizeHallOfFameNamedCounters(
+                        (entry.stats.combat as { damageTakenByCreature?: Record<string, number> }).damageTakenByCreature,
+                        (value) => normalizeHallOfFameCounterValue(value) as number,
+                    ),
                     byCreature: normalizeHallOfFameNamedCounters(
                         (entry.stats.combat as { byCreature?: Record<string, number> }).byCreature,
                         (value) => normalizeHallOfFameCounterValue(value) as number,
                     ),
                 }
                 : entry.stats.combat,
+            exploration: entry.stats.exploration && typeof entry.stats.exploration === 'object'
+                ? {
+                    ...entry.stats.exploration,
+                    timeByLevelMs: normalizeHallOfFameNamedCounters(
+                        (entry.stats.exploration as { timeByLevelMs?: Record<string, number> }).timeByLevelMs,
+                        (value) => normalizeHallOfFameCounterValue(value) as number,
+                    ),
+                }
+                : entry.stats.exploration,
             magic: entry.stats.magic && typeof entry.stats.magic === 'object'
                 ? {
                     ...entry.stats.magic,

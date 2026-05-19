@@ -16,11 +16,12 @@ import {
     extractHallOfFameProofSourceFromSaveExport,
     sanitizeHallOfFamePlayerNameInput,
 } from '../../engine/hallOfFameSecurity';
+import { materializeGameStatsSnapshot } from '../../engine/systems/gameStats';
 import { getCurrentLocale, useI18n } from '../../i18n';
 import type { WallTextObject } from '../../types/game';
 import { GameStatsPanel } from './GameStatsPanel';
+import { HallOfFameEntryDetailsOverlay } from './HallOfFameEntryDetailsOverlay';
 import {
-    buildHallOfFameEntryHoverText,
     formatHallOfFameCompletedAt,
     formatHallOfFameCompactNumber,
     formatHallOfFameDurationFromSeconds,
@@ -77,6 +78,8 @@ function resolveEntryRank(
 export const VictoryScreen = () => {
     const text = useI18n().victory;
     const locale = getCurrentLocale();
+    const currentLevel = useStore((state) => state.level);
+    const elapsedGameTimeTicks = useStore((state) => state.elapsedGameTimeTicks);
     const gameStats = useStore((state) => state.gameStats);
     const buildSaveExportPayload = useStore((state) => state.buildSaveExportPayload);
     const [stage, setStage] = useState<VictoryStage>('message');
@@ -84,6 +87,7 @@ export const VictoryScreen = () => {
     const [nameInputBlocked, setNameInputBlocked] = useState(false);
     const [hallEntries, setHallEntries] = useState<HallOfFameEntry[]>(() => readHallOfFameEntries());
     const [savedEntryId, setSavedEntryId] = useState<string | null>(null);
+    const [selectedLeaderboardEntryId, setSelectedLeaderboardEntryId] = useState<string | null>(null);
     const [hallFeedback, setHallFeedback] = useState<{ message: string; success: boolean } | null>(null);
     const [isSavingHallEntry, setIsSavingHallEntry] = useState(false);
 
@@ -115,6 +119,14 @@ export const VictoryScreen = () => {
     const savedEntry = useMemo(
         () => hallEntries.find((entry) => entry.id === savedEntryId) ?? null,
         [hallEntries, savedEntryId],
+    );
+    const selectedLeaderboardEntry = useMemo(
+        () => (selectedLeaderboardEntryId ? hallEntries.find((entry) => entry.id === selectedLeaderboardEntryId) ?? null : null),
+        [hallEntries, selectedLeaderboardEntryId],
+    );
+    const materializedGameStats = useMemo(
+        () => materializeGameStatsSnapshot(gameStats, elapsedGameTimeTicks, currentLevel),
+        [currentLevel, elapsedGameTimeTicks, gameStats],
     );
     const leaderboardEntries = useMemo(
         () => {
@@ -151,7 +163,7 @@ export const VictoryScreen = () => {
         setIsSavingHallEntry(true);
         setHallFeedback(null);
         const completedAt = Date.now();
-        const entry = buildHallOfFameEntry(playerName, gameStats, completedAt);
+        const entry = buildHallOfFameEntry(playerName, materializedGameStats, completedAt);
         const proofSource = extractHallOfFameProofSourceFromSaveExport(buildSaveExportPayload());
         const proof = buildHallOfFameEntryProof(entry, proofSource);
         if (!proof) {
@@ -292,7 +304,7 @@ export const VictoryScreen = () => {
                 </div>
             ) : stage === 'stats' ? (
                 <GameStatsPanel
-                    gameStats={gameStats}
+                    gameStats={materializedGameStats}
                     footer={
                         <div style={{
                             textAlign: 'center',
@@ -526,11 +538,11 @@ export const VictoryScreen = () => {
                                             return (
                                                 <tr
                                                     key={entry.id}
-                                                    title={buildHallOfFameEntryHoverText(entry, text, locale)}
+                                                    onClick={() => setSelectedLeaderboardEntryId(entry.id)}
                                                     style={{
                                                         borderTop: '1px solid rgba(216, 188, 122, 0.14)',
                                                         background: isCurrent ? 'rgba(255, 224, 132, 0.08)' : 'transparent',
-                                                        cursor: 'help',
+                                                        cursor: 'pointer',
                                                     }}
                                                 >
                                                     <td style={{ padding: '10px 0' }}>#{rank}</td>
@@ -623,6 +635,12 @@ export const VictoryScreen = () => {
                         {text.returnHome}
                     </button>
                 </div>
+            )}
+            {selectedLeaderboardEntry && (
+                <HallOfFameEntryDetailsOverlay
+                    entry={selectedLeaderboardEntry}
+                    onClose={() => setSelectedLeaderboardEntryId(null)}
+                />
             )}
         </div>
     );

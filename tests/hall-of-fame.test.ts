@@ -42,10 +42,20 @@ test('buildHallOfFameEntryProof binds the entry to a save fingerprint', () => {
 
 test('buildHallOfFameEntryProof is stable even when named counter maps use a different key order', () => {
     const stats = createInitialGameStats(1_000);
+    stats.exploration.timeByLevelMs = {
+        0: 3_600,
+        2: 7_200,
+        1: 4_800,
+    };
     stats.combat.byCreature = {
         Vexirk: 2,
         Screamer: 4,
         Demon: 1,
+    };
+    stats.combat.damageTakenByCreature = {
+        Demon: 14,
+        Vexirk: 8,
+        Screamer: 5,
     };
     stats.magic.bySpell = {
         Fireball: { attempted: 6, succeeded: 6, failed: 0 },
@@ -58,8 +68,21 @@ test('buildHallOfFameEntryProof is stable even when named counter maps use a dif
         ...entry,
         stats: {
             ...entry.stats,
+            exploration: {
+                ...entry.stats.exploration,
+                timeByLevelMs: {
+                    2: 7_200,
+                    0: 3_600,
+                    1: 4_800,
+                },
+            },
             combat: {
                 ...entry.stats.combat,
+                damageTakenByCreature: {
+                    Screamer: 5,
+                    Demon: 14,
+                    Vexirk: 8,
+                },
                 byCreature: {
                     Demon: 1,
                     Screamer: 4,

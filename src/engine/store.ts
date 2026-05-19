@@ -536,9 +536,11 @@ export interface DamageEvent {
     target: 'creature' | 'champion';
     championId?: number;
     creatureId?: string;
+    sourceName?: string;
     x?: number;
     y?: number;
     amount: number;
+    kind?: 'normal' | 'poison';
     ts: number;    // Date.now() — auto-cleared after ~500 ms
 }
 
@@ -3299,10 +3301,10 @@ const storeCreator: StateCreator<GameState> = (set, get) => ({
     },
 
       goToLevel: (level, pos, dir) => set((state) =>
-        applyStatsDeltaToPatch(state, {
+        applyStatsToStateTransitionPatch(state, {
             ...(buildStoreLevelHydrationPatch(state, level) ?? {}),
             ...buildGoToLevelPatch(level, pos, dir),
-        }, { exploration: { levelTransitions: level === state.level ? 0 : 1 } }) as GameState | Partial<GameState>
+        }, 'environment', { exploration: { levelTransitions: level === state.level ? 0 : 1 } }) as GameState | Partial<GameState>
       ),
 
     toggleDoor: (x, y) => set((state) =>

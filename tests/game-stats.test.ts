@@ -70,6 +70,65 @@ test('applyGameStatsDelta merges per-creature kill counters', () => {
     assert.equal(merged.combat.byCreature.Mummy, 1);
 });
 
+test('buildGameStatsTransitionDelta attributes champion damage to the attacking creature name', () => {
+    const delta = buildGameStatsTransitionDelta(
+        {
+            creatures: [],
+            championVitals: { 1: { hp: 40 } as never },
+            deadChampions: {},
+            damageEvents: [],
+        },
+        {
+            creatures: [],
+            championVitals: { 1: { hp: 34 } as never },
+            deadChampions: {},
+            damageEvents: [{
+                id: 'champ_dmg_1',
+                level: 0,
+                target: 'champion',
+                championId: 1,
+                amount: 6,
+                sourceName: 'Mummy',
+                ts: 1_000,
+            }],
+        },
+        'melee',
+    );
+
+    assert.equal(delta.combat?.damageTaken?.total, 6);
+    assert.equal(delta.combat?.damageTakenByCreature?.Mummy, 6);
+});
+
+test('buildGameStatsTransitionDelta records time spent on the previous level when changing depth', () => {
+    const stats = createInitialGameStats(1_000);
+    stats.exploration.currentLevel = 2;
+    stats.exploration.currentLevelStartedAtTick = 100;
+
+    const delta = buildGameStatsTransitionDelta(
+        {
+            creatures: [],
+            championVitals: {},
+            deadChampions: {},
+            level: 2,
+            elapsedGameTimeTicks: 150,
+            gameStats: stats,
+        },
+        {
+            creatures: [],
+            championVitals: {},
+            deadChampions: {},
+            level: 3,
+            elapsedGameTimeTicks: 160,
+            gameStats: stats,
+        },
+        'environment',
+    );
+
+    assert.equal(delta.exploration?.timeByLevelMs?.['2'], 60 * 240);
+    assert.equal(delta.exploration?.currentLevel, 3);
+    assert.equal(delta.exploration?.currentLevelStartedAtTick, 160);
+});
+
 test('normalizeGameStats creates a run id for legacy stats payloads that do not have one', () => {
     const normalized = normalizeGameStats({ startedAt: 1_000 }, 2_000);
 
@@ -113,4 +172,25 @@ test('normalizeGameStats collapses descriptive spell-stat labels back to canonic
             failed: 0,
         },
     });
+});
+
+test('normalizeGameStats preserves new hall-of-fame stat maps and level timing trackers', () => {
+    const normalized = normalizeGameStats({
+        exploration: {
+            timeByLevelMs: { 0: 1_200, 2: 3_400 },
+            currentLevel: 2,
+            currentLevelStartedAtTick: 456,
+        },
+        combat: {
+            damageTakenByCreature: {
+                Mummy: 12,
+                Screamer: 5,
+            },
+        },
+    }, 2_000);
+
+    assert.deepEqual(normalized.exploration.timeByLevelMs, { 0: 1_200, 2: 3_400 });
+    assert.equal(normalized.exploration.currentLevel, 2);
+    assert.equal(normalized.exploration.currentLevelStartedAtTick, 456);
+    assert.deepEqual(normalized.combat.damageTakenByCreature, { Mummy: 12, Screamer: 5 });
 });

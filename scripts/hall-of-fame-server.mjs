@@ -12,6 +12,7 @@ const HALL_OF_FAME_VERSION = 1;
 const HALL_OF_FAME_MAX_ENTRIES = 200;
 const MAX_BODY_BYTES = 16 * 1024;
 const MAX_COUNTER = 10_000_000;
+const MAX_DURATION_COUNTER = 1_000_000_000;
 const MAX_NAMED_COUNTERS = 128;
 const MAX_KEY_LENGTH = 64;
 const MIN_COMPLETED_AT = Date.UTC(2020, 0, 1);
@@ -70,6 +71,9 @@ function createInitialGameStats(now = Date.now(), runId = 'run_legacy_server') {
             sleeps: 0,
             wakes: 0,
             resurrections: 0,
+            timeByLevelMs: {},
+            currentLevel: 0,
+            currentLevelStartedAtTick: 0,
         },
         combat: {
             attacks: createActionCounters(),
@@ -77,6 +81,7 @@ function createInitialGameStats(now = Date.now(), runId = 'run_legacy_server') {
             championsKilled: 0,
             damageDealt: createDamageTotals(),
             damageTaken: createDamageTotals(),
+            damageTakenByCreature: {},
             byCreature: {},
         },
         magic: {
@@ -101,6 +106,14 @@ function createInitialGameStats(now = Date.now(), runId = 'run_legacy_server') {
 function readCounter(value, keyPath) {
     if (value === undefined) return 0;
     if (!Number.isFinite(value) || value < 0 || value > MAX_COUNTER) {
+        throw new Error(`Invalid counter: ${keyPath}`);
+    }
+    return Math.floor(value);
+}
+
+function readLargeCounter(value, keyPath) {
+    if (value === undefined) return 0;
+    if (!Number.isFinite(value) || value < 0 || value > MAX_DURATION_COUNTER) {
         throw new Error(`Invalid counter: ${keyPath}`);
     }
     return Math.floor(value);
@@ -132,6 +145,18 @@ function normalizeNamedCounters(source, keyPath) {
         const key = sanitizeNamedCounterKey(rawKey);
         if (!key) continue;
         next[key] = readCounter(rawValue, `${keyPath}.${key}`);
+    }
+    return next;
+}
+
+function normalizeLargeNamedCounters(source, keyPath) {
+    if (!source || typeof source !== 'object' || Array.isArray(source)) return {};
+    const entries = Object.entries(source).slice(0, MAX_NAMED_COUNTERS);
+    const next = {};
+    for (const [rawKey, rawValue] of entries) {
+        const key = sanitizeNamedCounterKey(rawKey);
+        if (!key) continue;
+        next[key] = readLargeCounter(rawValue, `${keyPath}.${key}`);
     }
     return next;
 }
@@ -209,16 +234,16 @@ function normalizeGameStats(source, completedAt, now = Date.now(), fallbackRunId
         movement: normalizeFlatCounterGroup(object.movement, [
             'stepsForward', 'stepsBackward', 'strafesLeft', 'strafesRight', 'turnsLeft', 'turnsRight', 'bumps', 'falls',
         ], 'movement'),
-        exploration: normalizeFlatCounterGroup(object.exploration, [
-            'levelTransitions', 'doorsToggled', 'wallSensorsActivated', 'fountainDrinks',
-            'waterContainersFilled', 'sleeps', 'wakes', 'resurrections',
-        ], 'exploration'),
         combat: {
             attacks: normalizeActionCounters(object.combat?.attacks, 'combat.attacks'),
             monstersKilled: readCounter(object.combat?.monstersKilled, 'combat.monstersKilled'),
             championsKilled: readCounter(object.combat?.championsKilled, 'combat.championsKilled'),
             damageDealt: normalizeDamageTotals(object.combat?.damageDealt, 'combat.damageDealt'),
             damageTaken: normalizeDamageTotals(object.combat?.damageTaken, 'combat.damageTaken'),
+            damageTakenByCreature: normalizeNamedCounters(
+                object.combat?.damageTakenByCreature,
+                'combat.damageTakenByCreature',
+            ),
             byCreature: normalizeNamedCounters(object.combat?.byCreature, 'combat.byCreature'),
         },
         magic: {
@@ -230,6 +255,18 @@ function normalizeGameStats(source, completedAt, now = Date.now(), fallbackRunId
             'pickedUp', 'dropped', 'thrown', 'used', 'storedInContainers',
             'takenFromContainers', 'given', 'equipped', 'unequipped',
         ], 'items'),
+        exploration: {
+            ...normalizeFlatCounterGroup(object.exploration, [
+                'levelTransitions', 'doorsToggled', 'wallSensorsActivated', 'fountainDrinks',
+                'waterContainersFilled', 'sleeps', 'wakes', 'resurrections',
+            ], 'exploration'),
+            timeByLevelMs: normalizeLargeNamedCounters(object.exploration?.timeByLevelMs, 'exploration.timeByLevelMs'),
+            currentLevel: readCounter(object.exploration?.currentLevel, 'exploration.currentLevel'),
+            currentLevelStartedAtTick: readCounter(
+                object.exploration?.currentLevelStartedAtTick,
+                'exploration.currentLevelStartedAtTick',
+            ),
+        },
     };
 }
 

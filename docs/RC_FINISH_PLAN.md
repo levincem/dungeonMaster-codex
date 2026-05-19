@@ -6,7 +6,7 @@ Ce document sert de plan de travail court pour refermer proprement la derniere p
 
 ## Objectif
 
-Stabiliser `0.9.3` sans rouvrir de gros chantiers parasites.
+Stabiliser `0.9.4` sans rouvrir de gros chantiers parasites.
 
 ## Priorite 1 - Derniere passe endgame / fin
 

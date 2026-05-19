@@ -87,12 +87,25 @@ function normalizeHallOfFameProofEntrySnapshot(entry) {
             combat: entry.stats?.combat && typeof entry.stats.combat === 'object' && !Array.isArray(entry.stats.combat)
                 ? {
                     ...entry.stats.combat,
+                    damageTakenByCreature: normalizeHallOfFameNamedCounters(
+                        entry.stats.combat.damageTakenByCreature,
+                        normalizeHallOfFameCounterValue,
+                    ),
                     byCreature: normalizeHallOfFameNamedCounters(
                         entry.stats.combat.byCreature,
                         normalizeHallOfFameCounterValue,
                     ),
                 }
                 : entry.stats?.combat,
+            exploration: entry.stats?.exploration && typeof entry.stats.exploration === 'object' && !Array.isArray(entry.stats.exploration)
+                ? {
+                    ...entry.stats.exploration,
+                    timeByLevelMs: normalizeHallOfFameNamedCounters(
+                        entry.stats.exploration.timeByLevelMs,
+                        normalizeHallOfFameCounterValue,
+                    ),
+                }
+                : entry.stats?.exploration,
             magic: entry.stats?.magic && typeof entry.stats.magic === 'object' && !Array.isArray(entry.stats.magic)
                 ? {
                     ...entry.stats.magic,

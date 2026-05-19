@@ -6,16 +6,17 @@ Goal: rebuild the original dungeon, systems, and feel as faithfully as possible 
 
 Live build: [dungeon-master.fr](https://dungeon-master.fr/)
 
-Current local version: `v0.9.3`
+Current local version: `v0.9.4`
 
 ## Status
 
-This is now a desktop-first `0.9.3` public build focused on late stabilization, Hall of Fame hardening, and fidelity fixes that tighten the original rules without reopening the core runtime.
+This is now a desktop-first `0.9.4` public build focused on late stabilization, Hall of Fame hardening, and fidelity fixes that tighten the original rules without reopening the core runtime.
 
-Latest `v0.9.3` focus:
+Latest `v0.9.4` focus:
 
 - shared `Hall of Fame` flow was stabilized across client and VPS, with better validation diagnostics, canonical proof signatures, saner long-run acceptance, and cleaner submission UX
 - victory stats and `Hall of Fame` presentation were improved, including compact formatting for large counters, clearer confirmation flow, and title-screen access to detailed shared runs
+- `Hall of Fame` run inspection now opens a proper detailed stats view on click instead of relying on hover-only summaries
 - original magic rules were tightened further: rune mana is now spent on click with no refund on cancel, and rune mana tables were rechecked against original sources
 - charge-bearing items and `Magical Boxes` were recaled closer to original behavior, including proper depletion or consumption and clearer empty-state feedback
 - run stats are now more reliable and readable, with cleaner per-spell labels and better per-creature tracking for new runs

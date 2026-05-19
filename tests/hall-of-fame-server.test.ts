@@ -359,9 +359,17 @@ test('hall of fame server accepts a proof when the submitted named-counter maps 
     const completedAt = FIXED_NOW - 2_000;
     const stats = createInitialGameStats(completedAt - 120_000);
     stats.runId = 'victory_reordered_01';
+    stats.exploration.timeByLevelMs = {
+        0: 12_000,
+        2: 24_000,
+    };
     stats.combat.monstersKilled = 7;
     stats.combat.damageDealt.total = 345;
     stats.combat.damageTaken.total = 21;
+    stats.combat.damageTakenByCreature = {
+        Mummy: 9,
+        Screamer: 12,
+    };
     stats.combat.byCreature = {
         Screamer: 3,
         Vexirk: 1,
@@ -402,8 +410,19 @@ test('hall of fame server accepts a proof when the submitted named-counter maps 
             proof,
             stats: {
                 ...entry.stats,
+                exploration: {
+                    ...entry.stats.exploration,
+                    timeByLevelMs: {
+                        2: 24_000,
+                        0: 12_000,
+                    },
+                },
                 combat: {
                     ...entry.stats.combat,
+                    damageTakenByCreature: {
+                        Screamer: 12,
+                        Mummy: 9,
+                    },
                     byCreature: {
                         Screamer: 3,
                         Vexirk: 1,

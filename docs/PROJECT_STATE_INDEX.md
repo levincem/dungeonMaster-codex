@@ -60,6 +60,6 @@ Si on doit se recaler vite:
 
 - extraction: solide sur le contenu principal, avec quelques angles morts semantiques restants
 - moteur: largement source-backed sur le coeur du gameplay
-- branche publique de travail: `0.9.3`
+- branche publique de travail: `0.9.4`
 - principal reste ouvert: petit polish UX/visuel, verification Hall of Fame et ecrans de fin sur quelques environnements, et optimisation seulement si un symptome concret revient
 - le `store` n'est plus le chantier prioritaire

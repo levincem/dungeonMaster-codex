@@ -24,7 +24,13 @@ type CreatureAttackOutcomeStateArgs<TDamageEvent> = {
 };
 
 type CreatureAttackOutcomeStateDeps<TDamageEvent> = {
-    buildChampionDamageEvent: (level: number, championId: number, amount: number) => TDamageEvent;
+    buildChampionDamageEvent: (
+        level: number,
+        championId: number,
+        amount: number,
+        kind?: 'normal' | 'poison',
+        sourceName?: string,
+    ) => TDamageEvent;
 };
 
 export type CreatureAttackOutcomeStateResult<TDamageEvent> =
@@ -123,6 +129,8 @@ export function resolveCreatureAttackOutcomeState<TDamageEvent>(
                     args.level,
                     args.attackResult.targetChampionId,
                     args.attackResult.damage,
+                    'normal',
+                    args.attackResult.debug?.attackerName,
                 ),
             ],
             defeatedChampionId,

@@ -45,7 +45,7 @@ import {
 import { getCreatureCellsForOccupancy, normalizeCreatureCells } from './creatureTileState';
 import { buildDefaultOpenDoorsForLevels } from './defaultOpenDoors';
 import { sanitizeOpenTeleporterKeys } from './disabledTeleporters';
-import { normalizeGameStats } from './gameStats';
+import { materializeGameStatsSnapshot, normalizeGameStats } from './gameStats';
 import { getCreatureTileCapacity } from './generatedCreatureGroups';
 
 export interface PersistableGameState {
@@ -516,6 +516,12 @@ export function buildPersistedSaveData(
     runtime: CreatureRuntimeMaps,
 ): PersistedSaveData {
     const now = Date.now();
+    const persistedGameStats = materializeGameStatsSnapshot(
+        state.gameStats,
+        state.elapsedGameTimeTicks,
+        state.level,
+        { resetCurrentLevelStart: true },
+    );
     const livingCreatures = normalizePersistableCreaturesForSave(state.creatures);
     const floorItems = dedupePersistedPositionedEntriesById(state.floorItems);
     const livingCreatureIds = new Set(livingCreatures.map((creature) => creature.id));
@@ -581,7 +587,7 @@ export function buildPersistedSaveData(
         movementCooldown: state.movementCooldown,
         championXP: state.championXP,
         championTemporaryXP: state.championTemporaryXP,
-        gameStats: state.gameStats,
+        gameStats: persistedGameStats,
         championCombat: state.championCombat,
         crushingDoors: state.crushingDoors,
         torchBurnElapsed: Object.fromEntries(
@@ -697,6 +703,11 @@ export function hydratePersistedGameState(
         visibleTexts: new Set<string>(data.visibleTexts ?? [...buildDefaultVisibleTexts()]),
     });
 
+    const normalizedGameStats = normalizeGameStats(data.gameStats, data.savedAt);
+    const hasPersistedLevelTiming =
+        typeof data.gameStats?.exploration?.currentLevel === 'number' &&
+        typeof data.gameStats?.exploration?.currentLevelStartedAtTick === 'number';
+
     return {
         gameOptions: normalizeGameOptions(data.gameOptions),
         minimapTiles: { ...(data.minimapTiles ?? {}) },
@@ -739,7 +750,16 @@ export function hydratePersistedGameState(
         movementCooldown: data.movementCooldown,
         championXP,
         championTemporaryXP,
-        gameStats: normalizeGameStats(data.gameStats, data.savedAt),
+        gameStats: hasPersistedLevelTiming
+            ? normalizedGameStats
+            : {
+                ...normalizedGameStats,
+                exploration: {
+                    ...normalizedGameStats.exploration,
+                    currentLevel: data.level,
+                    currentLevelStartedAtTick: data.elapsedGameTimeTicks,
+                },
+            },
         championCombat: data.championCombat,
         crushingDoors: data.crushingDoors,
         torchBurnStart: Object.fromEntries(

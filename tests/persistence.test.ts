@@ -355,6 +355,9 @@ test('buildPersistedSaveData serializes runtime state in a stable shape', () => 
         assert.equal(persisted.creatureTimers['creature-1']?.attackWindowRemainingMs, 1500);
         assert.equal(persisted.creatureTimers['creature-1']?.lastSeenPartyX, 12);
         assert.equal(persisted.gameStats?.runId, state.gameStats.runId);
+        assert.equal(persisted.gameStats?.exploration.timeByLevelMs['0'], 1234 * 240);
+        assert.equal(persisted.gameStats?.exploration.currentLevel, state.level);
+        assert.equal(persisted.gameStats?.exploration.currentLevelStartedAtTick, state.elapsedGameTimeTicks);
     } finally {
         Date.now = originalNow;
     }
@@ -611,6 +614,29 @@ test('hydratePersistedGameState creates a run id when loading a legacy save with
         const hydrated = hydratePersistedGameState(persisted, now);
 
         assert.match(hydrated.gameStats.runId, /^[A-Za-z0-9_-]{8,96}$/);
+    } finally {
+        Date.now = originalNow;
+    }
+});
+
+test('hydratePersistedGameState aligns legacy level-timing trackers with the loaded runtime state', () => {
+    const now = 21_750;
+    const originalNow = Date.now;
+    Date.now = () => now;
+
+    try {
+        const state = createState(now);
+        const runtime = createRuntimeMaps(now);
+        const persisted = buildPersistedSaveData(state, runtime);
+        if (persisted.gameStats?.exploration) {
+            delete (persisted.gameStats.exploration as { currentLevel?: number }).currentLevel;
+            delete (persisted.gameStats.exploration as { currentLevelStartedAtTick?: number }).currentLevelStartedAtTick;
+        }
+
+        const hydrated = hydratePersistedGameState(persisted, now);
+
+        assert.equal(hydrated.gameStats.exploration.currentLevel, persisted.level);
+        assert.equal(hydrated.gameStats.exploration.currentLevelStartedAtTick, persisted.elapsedGameTimeTicks);
     } finally {
         Date.now = originalNow;
     }

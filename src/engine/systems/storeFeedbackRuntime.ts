@@ -27,6 +27,7 @@ type DamageEventLike = {
     target: 'creature' | 'champion';
     championId?: number;
     creatureId?: string;
+    sourceName?: string;
     x?: number;
     y?: number;
     amount: number;
@@ -121,12 +122,14 @@ export function buildChampionDamageEvent(
     championId: number,
     amount: number,
     kind: 'normal' | 'poison' = 'normal',
+    sourceName?: string,
 ): DamageEventLike {
     return {
         id: `champ_dmg_${Date.now()}_${Math.random().toString(36).slice(2)}`,
         level,
         target: 'champion',
         championId,
+        ...(typeof sourceName === 'string' && sourceName.trim().length > 0 ? { sourceName: sourceName.trim() } : {}),
         amount,
         kind,
         ts: Date.now(),

@@ -16,11 +16,14 @@ test('formatHallOfFameCompactNumber shortens large values for leaderboard displa
 test('buildHallOfFameEntryHoverText uses compact counters in the hover summary', () => {
     const stats = createInitialGameStats(1_000);
     stats.combat.damageTaken.total = 589_256;
+    stats.combat.damageTakenByCreature.Mummy = 12_500;
     stats.magic.manaSpent = 5_000_000;
     stats.movement.stepsForward = 123_456;
     stats.items.pickedUp = 12_300;
     stats.items.dropped = 4_500;
     stats.items.equipped = 999;
+    stats.exploration.timeByLevelMs['0'] = 3_600_000;
+    stats.exploration.timeByLevelMs['2'] = 540_000;
     stats.magic.bySpell.Fireball = {
         attempted: 12_500,
         succeeded: 12_000,
@@ -33,6 +36,9 @@ test('buildHallOfFameEntryHoverText uses compact counters in the hover summary',
         hallOfFameCompleted: 'Completed',
         playTime: 'Play Time',
         damageTaken: 'Damage Taken',
+        mostDangerousCreaturesTitle: 'Dangerous Creatures',
+        noCreatureDamageTaken: 'None',
+        timeByLevelTitle: 'Time By Level',
         manaSpent: 'Mana Spent',
         steps: 'Steps',
         turns: 'Turns',
@@ -47,5 +53,7 @@ test('buildHallOfFameEntryHoverText uses compact counters in the hover summary',
     assert.match(hover, /Mana Spent: 5m/);
     assert.match(hover, /Steps: 123k/);
     assert.match(hover, /Picked Up: 12k \| Dropped: 5k \| Equipped: 999/);
+    assert.match(hover, /Dangerous Creatures: Mummy 13k/);
+    assert.match(hover, /Time By Level: L1 1h 00m 00s \| L3 9m 00s/);
     assert.match(hover, /Top Spells: Fireball x13k/);
 });
