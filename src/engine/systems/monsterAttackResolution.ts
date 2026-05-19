@@ -83,7 +83,7 @@ type ResolveMonsterAttackAgainstChampionDeps = {
     ) => { damage: number; nextVitals: ChampionVitals; debug?: IncomingAttackDebug };
     clampVital: (value: number, max: number) => number;
     adjustByAttribute: (value: number, currentAttribute: number) => number;
-    applyPoison: (vitals: ChampionVitals, poisonStrength: number) => ChampionVitals;
+    applyPoison: (vitals: ChampionVitals, poisonStrength: number, sourceName?: string) => ChampionVitals;
     getParryMastery: (
         champion: Champion,
         championXP: ChampionXP | undefined,
@@ -298,7 +298,7 @@ export function resolveMonsterAttackAgainstChampion(
             args.nowMs,
         );
         const poisonStrength = deps.adjustByAttribute(args.attackerDef.poisonAttack, nextEffective.vitality);
-        nextVitals = deps.applyPoison(nextVitals, poisonStrength);
+        nextVitals = deps.applyPoison(nextVitals, poisonStrength, args.attackerDef.name);
     }
 
     return {

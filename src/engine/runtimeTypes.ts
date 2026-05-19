@@ -25,7 +25,7 @@ export interface ChampionVitals {
         antiFire: number;
     };
     wounds: ChampionWounds;
-    poisonEntries: { remaining: number; nextTickIn: number }[];
+    poisonEntries: { remaining: number; nextTickIn: number; sourceName?: string }[];
 }
 
 export type DamageEventKind = 'normal' | 'poison';
@@ -116,6 +116,7 @@ export interface Projectile {
     effect: ProjectileEffect;
     launchedBy?: 'party' | 'creature' | 'wall';
     sourceCreatureId?: string;
+    sourceName?: string;
     targetChampionId?: number;
     spellRunes?: string[];
     visualScale?: number;
@@ -138,6 +139,7 @@ export interface ActivePoisonCloud {
     remainingAttack: number;
     nextPulseGameTick: number;
     visualScale?: number;
+    sourceName?: string;
 }
 
 export interface ActiveFluxcage {

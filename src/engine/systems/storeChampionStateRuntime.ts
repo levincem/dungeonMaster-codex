@@ -192,7 +192,9 @@ export function createStoreChampionStateRuntime<
     const applyPoisonCharacterOriginal = (
         vitals: ChampionVitals,
         poisonStrength: number,
-    ): ChampionVitals => applyOriginalPoisonCharacter(vitals, poisonStrength, params.poisonTickIntervalSec);
+        sourceName?: string,
+    ): ChampionVitals =>
+        applyOriginalPoisonCharacter(vitals, poisonStrength, params.poisonTickIntervalSec, sourceName);
 
     const buildChampionSkillExperiencePatchOriginal = (
         state: TChampionXpState,

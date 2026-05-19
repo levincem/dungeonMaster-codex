@@ -65,6 +65,7 @@ export function buildCreatureProjectile(
         effect,
         launchedBy: 'creature',
         sourceCreatureId: creature.id,
+        sourceName: def.name,
         targetChampionId,
         damage: [1, Math.max(1, kineticEnergy)],
         nextMoveAt: now + PROJECTILE_STEP_MS,

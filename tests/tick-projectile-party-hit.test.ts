@@ -132,7 +132,7 @@ function createState(overrides: Partial<{
 
 test('applyProjectilePartyHit applies direct champion damage and emits a party impact visual', () => {
     const result = applyProjectilePartyHit(
-        createProjectile({ effect: 'physical', explosionOnImpact: 'fireball', explosionAttack: 8 }),
+        createProjectile({ effect: 'physical', explosionOnImpact: 'fireball', explosionAttack: 8, sourceName: 'Mummy' }),
         0,
         3,
         3,
@@ -145,11 +145,12 @@ test('applyProjectilePartyHit applies direct champion damage and emits a party i
                 damage: 7,
                 nextVitals: { ...currentVitals, hp: currentVitals.hp - 7 },
             }),
-            buildChampionDamageEvent: (level, championId, amount) => ({
+            buildChampionDamageEvent: (level, championId, amount, _kind, sourceName) => ({
                 id: 'damage-1',
                 level,
                 target: 'champion',
                 championId,
+                sourceName,
                 amount,
                 ts: 1000,
             }),
@@ -172,6 +173,7 @@ test('applyProjectilePartyHit applies direct champion damage and emits a party i
 
     assert.equal(result.championVitals[1]?.hp, 43);
     assert.equal(result.damageEvents.length, 1);
+    assert.equal(result.damageEvents[0]?.sourceName, 'Mummy');
     assert.equal(result.spellVisualEvents.length, 1);
     assert.equal(result.spellVisualEvents[0]?.effect, 'fireball');
 });
@@ -179,7 +181,7 @@ test('applyProjectilePartyHit applies direct champion damage and emits a party i
 test('applyProjectilePartyHit applies party backlash for fireball and lightning impacts', () => {
     let backlashCalled = false;
     const result = applyProjectilePartyHit(
-        createProjectile({ effect: 'fireball' }),
+        createProjectile({ effect: 'fireball', sourceName: 'Vexirk' }),
         0,
         3,
         3,
@@ -199,8 +201,9 @@ test('applyProjectilePartyHit applies party backlash for fireball and lightning 
             buildDeathDrop: () => {
                 throw new Error('death drop should not happen here');
             },
-            applyPartySpellBacklashDamage: (state, championVitals) => {
+            applyPartySpellBacklashDamage: (state, championVitals, _effect, _rawDamage, _now, sourceName) => {
                 backlashCalled = true;
+                assert.equal(sourceName, 'Vexirk');
                 return {
                     championVitals: {
                         ...championVitals,
@@ -239,7 +242,7 @@ test('applyProjectilePartyHit applies party backlash for fireball and lightning 
 test('applyProjectilePartyHit turns poison cloud impacts into lingering active clouds', () => {
     let poisonSplashCalled = false;
     const result = applyProjectilePartyHit(
-        createProjectile({ effect: 'poison_cloud', remainingRange: 5 }),
+        createProjectile({ effect: 'poison_cloud', remainingRange: 5, sourceName: 'Wizard Eye' }),
         0,
         3,
         3,
@@ -260,12 +263,13 @@ test('applyProjectilePartyHit turns poison cloud impacts into lingering active c
                 throw new Error('death drop should not happen here');
             },
             applyPartySpellBacklashDamage: () => null,
-            applyPartyWideIncomingAttack: (_state, championVitals) => {
+            applyPartyWideIncomingAttack: (_state, championVitals, _attack, _now, sourceName) => {
                 poisonSplashCalled = true;
+                assert.equal(sourceName, 'Wizard Eye');
                 return { championVitals };
             },
             rollExplosionBurstAttack: () => 4,
-            buildActivePoisonCloud: (level, x, y, attack, currentGameTick, visualScale) => ({
+            buildActivePoisonCloud: (level, x, y, attack, currentGameTick, visualScale, sourceName) => ({
                 id: 'cloud-1',
                 level,
                 x,
@@ -273,6 +277,7 @@ test('applyProjectilePartyHit turns poison cloud impacts into lingering active c
                 remainingAttack: attack,
                 nextPulseGameTick: currentGameTick,
                 visualScale,
+                sourceName,
             }),
             buildDroppedItem: (item, level, x, y) => ({ ...item, mapIndex: level, x, y, tilePos: 'North' }),
             getThrownExplosionVisualScale: () => 1,
@@ -283,6 +288,7 @@ test('applyProjectilePartyHit turns poison cloud impacts into lingering active c
     assert.equal(poisonSplashCalled, true);
     assert.equal(result.activePoisonClouds.length, 1);
     assert.equal(result.activePoisonClouds[0]?.remainingAttack, 5);
+    assert.equal(result.activePoisonClouds[0]?.sourceName, 'Wizard Eye');
     assert.equal(result.spellVisualEvents[0]?.effect, 'poison_cloud');
 });
 

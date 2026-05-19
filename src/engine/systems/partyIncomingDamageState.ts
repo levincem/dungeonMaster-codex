@@ -26,7 +26,13 @@ type PartyDamageState = {
 };
 
 type PartyDamageDeps = {
-    buildChampionDamageEvent: (level: number, championId: number, damage: number) => DamageEvent;
+    buildChampionDamageEvent: (
+        level: number,
+        championId: number,
+        damage: number,
+        kind?: 'normal' | 'poison',
+        sourceName?: string,
+    ) => DamageEvent;
     buildDeathDrop: (state: {
         level: number;
         position: [number, number];
@@ -180,6 +186,7 @@ export function applyPartySpellBacklashDamageState<DamageClass extends string>(
     effect: Exclude<ProjectileEffect, 'physical'>,
     rawDamage: number,
     nowMs: number,
+    sourceName: string | undefined,
     deps: PartyDamageDeps & {
         rollOriginalPartyWideAttack: (rawAttack: number) => number;
         getProjectileDamageClass: (effect: Exclude<ProjectileEffect, 'physical'>) => DamageClass;
@@ -239,7 +246,7 @@ export function applyPartySpellBacklashDamageState<DamageClass extends string>(
         if (next.hp === current.hp) continue;
         if (nextVitals === championVitals) nextVitals = { ...championVitals };
         nextVitals[champion.id] = next;
-        damageEvents = [...damageEvents, deps.buildChampionDamageEvent(state.level, champion.id, damage)];
+        damageEvents = [...damageEvents, deps.buildChampionDamageEvent(state.level, champion.id, damage, 'normal', sourceName)];
         if (next.hp === 0) newlyDead.push(champion.id);
     }
 
@@ -262,6 +269,7 @@ export function applyPartyWideIncomingAttackState(
     allowedSlots: readonly string[],
     nowMs: number,
     spread: boolean,
+    sourceName: string | undefined,
     deps: PartyDamageDeps & {
         rollOriginalPartyWideAttack: (rawAttack: number) => number;
         resolveChampionIncomingAttack: (
@@ -301,7 +309,10 @@ export function applyPartyWideIncomingAttackState(
         }
         if (resolved.damage <= 0) continue;
 
-        damageEvents = [...damageEvents, deps.buildChampionDamageEvent(state.level, champion.id, resolved.damage)];
+        damageEvents = [
+            ...damageEvents,
+            deps.buildChampionDamageEvent(state.level, champion.id, resolved.damage, 'normal', sourceName),
+        ];
         if (resolved.nextVitals.hp === 0) newlyDead.push(champion.id);
     }
 
@@ -389,6 +400,7 @@ export function applyPartySpellBacklashDamageRuntimeState<DamageClass extends st
     effect: Exclude<ProjectileEffect, 'physical'>,
     rawDamage: number,
     nowMs = Date.now(),
+    sourceName: string | undefined,
     deps: PartyDamageDeps & {
         rollOriginalPartyWideAttack: (rawAttack: number) => number;
         getProjectileDamageClass: (effect: Exclude<ProjectileEffect, 'physical'>) => DamageClass;
@@ -421,6 +433,7 @@ export function applyPartySpellBacklashDamageRuntimeState<DamageClass extends st
         effect,
         rawDamage,
         nowMs,
+        sourceName,
         deps,
     );
 }
@@ -433,6 +446,7 @@ export function applyPartyWideIncomingAttackRuntimeState(
     allowedSlots: readonly string[],
     nowMs = Date.now(),
     spread: boolean,
+    sourceName: string | undefined,
     deps: PartyDamageDeps & {
         rollOriginalPartyWideAttack: (rawAttack: number) => number;
         resolveChampionIncomingAttack: (
@@ -457,6 +471,7 @@ export function applyPartyWideIncomingAttackRuntimeState(
         allowedSlots,
         nowMs,
         spread,
+        sourceName,
         deps,
     );
 }
@@ -492,6 +507,7 @@ export function applyPartyFallImpactDamageRuntimeState(
         ['legs', 'feet'],
         nowMs,
         false,
+        undefined,
         deps,
     );
 }

@@ -518,7 +518,7 @@ export interface ChampionVitals {
         antiFire: number;
     };
     wounds: ChampionWounds;
-    poisonEntries: { remaining: number; nextTickIn: number }[];
+    poisonEntries: { remaining: number; nextTickIn: number; sourceName?: string }[];
 }
 
 export interface CastResult {
@@ -804,6 +804,7 @@ export interface Projectile {
     effect: ProjectileEffect;
     launchedBy?: 'party' | 'creature' | 'wall';
     sourceCreatureId?: string;
+    sourceName?: string;
     targetChampionId?: number;
     spellRunes?: string[];
     visualScale?: number;
@@ -826,6 +827,7 @@ export interface ActivePoisonCloud {
     remainingAttack: number;
     nextPulseGameTick: number;
     visualScale?: number;
+    sourceName?: string;
 }
 
 export interface ActiveFluxcage {
@@ -1402,8 +1404,14 @@ function buildCreatureDamageEvent(level: number, x: number, y: number, amount: n
     return buildCreatureDamageEventRuntime(level, x, y, amount, creatureId);
 }
 
-function buildChampionDamageEvent(level: number, championId: number, amount: number): DamageEvent {
-    return buildChampionDamageEventRuntime(level, championId, amount);
+function buildChampionDamageEvent(
+    level: number,
+    championId: number,
+    amount: number,
+    kind: 'normal' | 'poison' = 'normal',
+    sourceName?: string,
+): DamageEvent {
+    return buildChampionDamageEventRuntime(level, championId, amount, kind, sourceName);
 }
 
 function buildDeathDustEvent(level: number, x: number, y: number): SpellVisualEvent {

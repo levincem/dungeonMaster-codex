@@ -144,16 +144,17 @@ const normalizeCreatureCellsOnTile = (creatures: CreatureInstance[], level: numb
 
 test('tickPoisonClouds applies party backlash when a cloud pulses on the party square', () => {
     const state = createState({
-        activePoisonClouds: [createCloud({ x: 3, y: 3 })],
+        activePoisonClouds: [createCloud({ x: 3, y: 3, sourceName: 'Vexirk' })],
     });
 
     let backlashCalled = false;
 
     const result = tickPoisonClouds(state, 5, 1000, {
         rollPoisonCloudPulseAttack: () => 7,
-        applyPartyWideIncomingAttack: (incomingState, championVitals) => {
+        applyPartyWideIncomingAttack: (incomingState, championVitals, _attack, _now, sourceName) => {
             backlashCalled = true;
             assert.equal(incomingState.party.length, 1);
+            assert.equal(sourceName, 'Vexirk');
             return {
                 championVitals: {
                     ...championVitals,

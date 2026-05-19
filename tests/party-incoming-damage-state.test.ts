@@ -116,6 +116,7 @@ test('applyPartyWideIncomingAttackState records damage events and death drops', 
         ['legs'],
         1000,
         false,
+        undefined,
         {
             rollOriginalPartyWideAttack: (damage) => damage,
             resolveChampionIncomingAttack: (_state, _champion, currentVitals) => ({
@@ -154,6 +155,7 @@ test('applyPartyWideIncomingAttackState preserves nextVitals even when incoming 
         ['legs'],
         1000,
         false,
+        undefined,
         {
             rollOriginalPartyWideAttack: (damage) => damage,
             resolveChampionIncomingAttack: (_state, champion, currentVitals) => ({
@@ -191,6 +193,7 @@ test('applyPartyWideIncomingAttackState rolls spread attack separately for each 
         ['legs'],
         1000,
         true,
+        undefined,
         {
             rollOriginalPartyWideAttack: (damage) => {
                 const next = damage + rolled.length + 1;
@@ -220,4 +223,39 @@ test('applyPartyWideIncomingAttackState rolls spread attack separately for each 
         (patch?.damageEvents as Array<{ championId: number; amount: number }>).map((entry) => entry.amount),
         [11, 12],
     );
+});
+
+test('applyPartyWideIncomingAttackState tags damage events with the creature source name', () => {
+    const patch = applyPartyWideIncomingAttackState(
+        baseState,
+        vitals,
+        10,
+        'Magic',
+        [],
+        1000,
+        false,
+        'Vexirk',
+        {
+            rollOriginalPartyWideAttack: (damage) => damage,
+            resolveChampionIncomingAttack: (_state, _champion, currentVitals) => ({
+                damage: 4,
+                nextVitals: { ...currentVitals, hp: currentVitals.hp - 4 },
+            }),
+            buildChampionDamageEvent: (level, championId, damage, _kind, sourceName) => ({
+                id: `event-${championId}`,
+                level,
+                target: 'champion',
+                championId,
+                amount: damage,
+                sourceName,
+                ts: 0,
+            }),
+            buildDeathDrop: () => {
+                throw new Error('death drop should not happen here');
+            },
+        },
+    );
+
+    assert.equal((patch?.damageEvents as Array<{ sourceName?: string }>)[0]?.sourceName, 'Vexirk');
+    assert.equal((patch?.damageEvents as Array<{ sourceName?: string }>)[1]?.sourceName, 'Vexirk');
 });

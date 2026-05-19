@@ -85,12 +85,14 @@ function buildPoisonDamageEvent(
     level: number,
     championId: number,
     amount: number,
+    sourceName?: string,
 ): DamageEvent {
     return {
         id: `champ_poison_${Date.now()}_${Math.random().toString(36).slice(2)}`,
         level,
         target: 'champion',
         championId,
+        ...(typeof sourceName === 'string' && sourceName.trim().length > 0 ? { sourceName: sourceName.trim() } : {}),
         amount,
         kind: 'poison',
         ts: Date.now(),
@@ -296,11 +298,17 @@ export function advanceSurvivalTimeState(
                     };
                     damageEvents = [
                         ...(damageEvents ?? []),
-                        buildPoisonDamageEvent(state.level ?? 0, champ.id, poisonDamage),
+                        buildPoisonDamageEvent(state.level ?? 0, champ.id, poisonDamage, entry.sourceName),
                     ];
                     const nextRemaining = entry.remaining - 1;
                     if (nextRemaining > 0) {
-                        updatedEntries.push({ remaining: nextRemaining, nextTickIn: deps.poisonTickIntervalSec });
+                        updatedEntries.push({
+                            remaining: nextRemaining,
+                            nextTickIn: deps.poisonTickIntervalSec,
+                            ...(typeof entry.sourceName === 'string' && entry.sourceName.trim().length > 0
+                                ? { sourceName: entry.sourceName.trim() }
+                                : {}),
+                        });
                     }
                 }
                 next = { ...next, poisonEntries: updatedEntries };

@@ -455,7 +455,9 @@ type StoreTickSpellsRuntimePartyDamageSourceDeps<
         attack: Parameters<TickSpellsStoreRuntimePartyDamageDeps['applyPartyWideIncomingAttack']>[2],
         attackType: TAttackType,
         allowedSlots: TAllowedSlots,
-        now: Parameters<TickSpellsStoreRuntimePartyDamageDeps['applyPartyWideIncomingAttack']>[3],
+        now: number,
+        spread?: boolean,
+        sourceName?: string,
     ) => ReturnType<TickSpellsStoreRuntimePartyDamageDeps['applyPartyWideIncomingAttack']>;
 };
 
@@ -471,7 +473,7 @@ export function createStoreTickSpellsRuntimePartyDamageDeps<
 ): TickSpellsStoreRuntimePartyDamageDeps {
     return {
         applyPartySpellBacklashDamage: runtimePartyDamageDeps.applyPartySpellBacklashDamage,
-        applyPartyWideIncomingAttack: (state, championVitals, attack, now) =>
+        applyPartyWideIncomingAttack: (state, championVitals, attack, now, sourceName) =>
             runtimePartyDamageDeps.applyPartyWideIncomingAttack(
                 state,
                 championVitals,
@@ -479,6 +481,8 @@ export function createStoreTickSpellsRuntimePartyDamageDeps<
                 defaults.attackType,
                 defaults.allowedSlots,
                 now,
+                true,
+                sourceName,
             ),
     };
 }

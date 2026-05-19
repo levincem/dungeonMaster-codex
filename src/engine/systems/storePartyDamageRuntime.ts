@@ -63,7 +63,13 @@ type IncomingAttackState = Pick<
 >;
 
 type StorePartyDamageRuntimeParams = {
-    buildChampionDamageEvent: (level: number, championId: number, amount: number) => DamageEvent;
+    buildChampionDamageEvent: (
+        level: number,
+        championId: number,
+        amount: number,
+        kind?: 'normal' | 'poison',
+        sourceName?: string,
+    ) => DamageEvent;
     buildDeathDrop: (
         state: {
             level: number;
@@ -174,12 +180,14 @@ export function createStorePartyDamageRuntimeDeps(params: StorePartyDamageRuntim
             effect: Exclude<ProjectileEffect, 'physical'>,
             rawDamage: number,
             nowMs: number,
+            sourceName?: string,
         ) => applyPartySpellBacklashDamageRuntimeState(
             state,
             championVitals,
             effect,
             rawDamage,
             nowMs,
+            sourceName,
             {
                 ...sharedDeps,
                 rollOriginalPartyWideAttack: params.rollOriginalPartyWideAttack,
@@ -197,6 +205,7 @@ export function createStorePartyDamageRuntimeDeps(params: StorePartyDamageRuntim
             allowedSlots: readonly string[],
             nowMs: number,
             spread = true,
+            sourceName?: string,
         ) => applyPartyWideIncomingAttackRuntimeState(
             state,
             championVitals,
@@ -205,6 +214,7 @@ export function createStorePartyDamageRuntimeDeps(params: StorePartyDamageRuntim
             allowedSlots,
             nowMs,
             spread,
+            sourceName,
             {
                 ...sharedDeps,
                 rollOriginalPartyWideAttack: params.rollOriginalPartyWideAttack,

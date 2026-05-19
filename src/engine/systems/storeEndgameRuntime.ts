@@ -99,6 +99,7 @@ export function createStoreEndgameRuntime(
         remainingAttack: number,
         nextPulseGameTick: number,
         visualScale = 1,
+        sourceName?: string,
     ): ActivePoisonCloud => ({
         id: `poisoncloud_${nowMs()}_${buildRandomToken()}`,
         level,
@@ -107,6 +108,7 @@ export function createStoreEndgameRuntime(
         remainingAttack,
         nextPulseGameTick,
         visualScale,
+        ...(typeof sourceName === 'string' && sourceName.trim().length > 0 ? { sourceName: sourceName.trim() } : {}),
     });
 
     const getEndgameMessagesForMap = (level: number): string[] => {

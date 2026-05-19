@@ -29,6 +29,7 @@ export function applyOriginalPoisonCharacter(
     vitals: ChampionVitals,
     poisonStrength: number,
     poisonTickIntervalSec: number,
+    sourceName?: string,
 ): ChampionVitals {
     if (poisonStrength <= 0) return vitals;
     const immediateDamage = Math.max(1, Math.floor(poisonStrength / 64));
@@ -37,7 +38,16 @@ export function applyOriginalPoisonCharacter(
         ...vitals,
         hp: Math.max(0, vitals.hp - immediateDamage),
         poisonEntries: remaining > 0
-            ? [...vitals.poisonEntries, { remaining, nextTickIn: poisonTickIntervalSec }]
+            ? [
+                ...vitals.poisonEntries,
+                {
+                    remaining,
+                    nextTickIn: poisonTickIntervalSec,
+                    ...(typeof sourceName === 'string' && sourceName.trim().length > 0
+                        ? { sourceName: sourceName.trim() }
+                        : {}),
+                },
+            ]
             : vitals.poisonEntries,
     };
 }

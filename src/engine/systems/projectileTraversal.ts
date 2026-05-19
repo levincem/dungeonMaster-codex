@@ -26,6 +26,7 @@ type TraversalDeps = {
         attack: number,
         currentGameTick: number,
         visualScale: number,
+        sourceName?: string,
     ) => ActivePoisonCloud;
     getThrownExplosionVisualScale: (attack?: number) => number;
     buildDroppedItem: (item: FloorItem, level: number, x: number, y: number) => FloorItem;
@@ -167,6 +168,7 @@ export function resolveProjectileTraversalStep(
                     cloudAttack,
                     currentGameTick,
                     cloudVisualScale,
+                    projectile.sourceName,
                 ),
             );
         }

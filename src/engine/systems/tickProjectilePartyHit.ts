@@ -75,8 +75,14 @@ type ProjectilePartyHitDeps = {
         attackType: string,
         now: number,
     ) => DirectIncomingResolution;
-    buildChampionDamageEvent: (level: number, championId: number, amount: number) => DamageEvent;
-    applyPoisonCharacter: (vitals: ChampionVitals, poisonAttack: number) => ChampionVitals;
+    buildChampionDamageEvent: (
+        level: number,
+        championId: number,
+        amount: number,
+        kind?: 'normal' | 'poison',
+        sourceName?: string,
+    ) => DamageEvent;
+    applyPoisonCharacter: (vitals: ChampionVitals, poisonAttack: number, sourceName?: string) => ChampionVitals;
     randomInt: (max: number) => number;
     buildDeathDrop: (
         state: {
@@ -109,6 +115,7 @@ type ProjectilePartyHitDeps = {
         effect: 'fireball' | 'lightning' | 'poison_cloud',
         rawDamage: number,
         now: number,
+        sourceName?: string,
     ) => PartyWidePatch | null;
     applyPartyWideIncomingAttack: (
         state: {
@@ -128,6 +135,7 @@ type ProjectilePartyHitDeps = {
         championVitals: Record<number, ChampionVitals>,
         attack: number,
         now: number,
+        sourceName?: string,
     ) => PartyWidePatch | null;
     rollExplosionBurstAttack: (effect: 'fireball' | 'lightning' | 'poison_cloud', attack: number) => number;
     buildActivePoisonCloud: (
@@ -137,6 +145,7 @@ type ProjectilePartyHitDeps = {
         attack: number,
         currentGameTick: number,
         visualScale: number,
+        sourceName?: string,
     ) => ActivePoisonCloud;
     buildDroppedItem: (item: FloorItem, level: number, x: number, y: number) => FloorItem;
     getThrownExplosionVisualScale: (attack?: number) => number;
@@ -185,6 +194,7 @@ export function applyProjectilePartyHit(
         const currentVitals = championVitals[targetChampion.id];
         if (currentVitals && currentVitals.hp > 0 && impact.damage > 0) {
             let targetChampionDropped = false;
+            let nextTargetVitals = currentVitals;
             const resolved = deps.resolveChampionIncomingAttack(
                 {
                     championEquipment,
@@ -203,17 +213,50 @@ export function applyProjectilePartyHit(
                     [targetChampion.id]: resolved.nextVitals,
                 };
             }
-            if (resolved.damage > 0) {
+            nextTargetVitals = championVitals[targetChampion.id] ?? resolved.nextVitals;
+            if (resolved.damage > 0 && impact.poisonAttack > 0 && nextTargetVitals.hp > 0 && deps.randomInt(2) !== 0) {
+                nextTargetVitals = deps.applyPoisonCharacter(
+                    nextTargetVitals,
+                    impact.poisonAttack,
+                    projectile.sourceName,
+                );
+                championVitals[targetChampion.id] = nextTargetVitals;
+                if ((nextTargetVitals.hp ?? 0) === 0) {
+                    targetChampionDropped = true;
+                    const partial = deps.buildDeathDrop(
+                        {
+                            level: state.level,
+                            position: state.position,
+                            party,
+                            championInventories,
+                            championEquipment,
+                            floorItems,
+                            deadChampions,
+                        },
+                        targetChampion.id,
+                        now,
+                    );
+                    party = partial.party;
+                    floorItems = partial.floorItems;
+                    championInventories = partial.championInventories;
+                    championEquipment = partial.championEquipment;
+                    deadChampions = partial.deadChampions;
+                    selectedChampionIndex = party.length > 0 ? Math.min(selectedChampionIndex, party.length - 1) : 0;
+                }
+            }
+            const totalChampionDamage = Math.max(0, currentVitals.hp - (championVitals[targetChampion.id]?.hp ?? currentVitals.hp));
+            if (totalChampionDamage > 0) {
                 damageEvents = [
                     ...damageEvents,
-                    deps.buildChampionDamageEvent(projectileLevel, targetChampion.id, resolved.damage),
+                    deps.buildChampionDamageEvent(
+                        projectileLevel,
+                        targetChampion.id,
+                        totalChampionDamage,
+                        'normal',
+                        projectile.sourceName,
+                    ),
                 ];
-                if (impact.poisonAttack > 0 && resolved.nextVitals.hp > 0 && deps.randomInt(2) !== 0) {
-                    championVitals[targetChampion.id] = deps.applyPoisonCharacter(
-                        championVitals[targetChampion.id]!,
-                        impact.poisonAttack,
-                    );
-                    if ((championVitals[targetChampion.id]?.hp ?? 0) === 0) {
+                if (!targetChampionDropped && (championVitals[targetChampion.id]?.hp ?? 0) === 0) {
                         targetChampionDropped = true;
                         const partial = deps.buildDeathDrop(
                             {
@@ -234,28 +277,6 @@ export function applyProjectilePartyHit(
                         championEquipment = partial.championEquipment;
                         deadChampions = partial.deadChampions;
                         selectedChampionIndex = party.length > 0 ? Math.min(selectedChampionIndex, party.length - 1) : 0;
-                    }
-                }
-                if (!targetChampionDropped && championVitals[targetChampion.id]?.hp === 0) {
-                    const partial = deps.buildDeathDrop(
-                        {
-                            level: state.level,
-                            position: state.position,
-                            party,
-                            championInventories,
-                            championEquipment,
-                            floorItems,
-                            deadChampions,
-                        },
-                        targetChampion.id,
-                        now,
-                    );
-                    party = partial.party;
-                    floorItems = partial.floorItems;
-                    championInventories = partial.championInventories;
-                    championEquipment = partial.championEquipment;
-                    deadChampions = partial.deadChampions;
-                    selectedChampionIndex = party.length > 0 ? Math.min(selectedChampionIndex, party.length - 1) : 0;
                 }
             }
         }
@@ -280,6 +301,7 @@ export function applyProjectilePartyHit(
             projectile.effect,
             deps.rollExplosionBurstAttack(projectile.effect, Math.max(1, Math.round(projectile.remainingRange ?? 0))),
             now,
+            projectile.sourceName,
         );
         if (splash) {
             party = splash.party ?? party;
@@ -310,6 +332,7 @@ export function applyProjectilePartyHit(
             championVitals,
             deps.rollExplosionBurstAttack('poison_cloud', Math.max(1, Math.round(projectile.remainingRange ?? 0))),
             now,
+            projectile.sourceName,
         );
         if (splash) {
             party = splash.party ?? party;
@@ -330,6 +353,7 @@ export function applyProjectilePartyHit(
                 Math.max(1, projectile.remainingRange ?? 0),
                 currentGameTick,
                 (projectile.visualScale ?? 1) * 1.08,
+                projectile.sourceName,
             ),
         );
     }

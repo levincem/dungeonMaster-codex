@@ -229,7 +229,6 @@ export const GameStatsPanel = ({ gameStats, title, footer, completedAt }: GameSt
                         <div style={counterRowStyle}><span>{text.total}</span><strong>{formatNumber(gameStats.combat.attacks.total)}</strong></div>
                         <div style={counterRowStyle}><span>{text.melee}</span><strong>{formatNumber(gameStats.combat.attacks.melee)}</strong></div>
                         <div style={counterRowStyle}><span>{text.projectile}</span><strong>{formatNumber(gameStats.combat.attacks.projectile)}</strong></div>
-                        <div style={counterRowStyle}><span>{text.magic}</span><strong>{formatNumber(gameStats.combat.attacks.magic)}</strong></div>
                         <div style={counterRowStyle}><span>{text.utility}</span><strong>{formatNumber(gameStats.combat.attacks.utility)}</strong></div>
                         <div style={{ ...sectionDividerStyle, marginTop: 2, marginBottom: 2 }} />
                         <div style={counterRowStyle}><span>{text.championsKilled}</span><strong>{formatNumber(gameStats.combat.championsKilled)}</strong></div>
@@ -255,7 +254,6 @@ export const GameStatsPanel = ({ gameStats, title, footer, completedAt }: GameSt
                         <div style={counterRowStyle}><span>{text.fountainDrinks}</span><strong>{formatNumber(gameStats.exploration.fountainDrinks)}</strong></div>
                         <div style={counterRowStyle}><span>{text.waterContainersFilled}</span><strong>{formatNumber(gameStats.exploration.waterContainersFilled)}</strong></div>
                         <div style={counterRowStyle}><span>{text.sleeps}</span><strong>{formatNumber(gameStats.exploration.sleeps)}</strong></div>
-                        <div style={counterRowStyle}><span>{text.wakes}</span><strong>{formatNumber(gameStats.exploration.wakes)}</strong></div>
                         <div style={counterRowStyle}><span>{text.resurrections}</span><strong>{formatNumber(gameStats.exploration.resurrections)}</strong></div>
                     </div>
                 </div>
@@ -268,10 +266,6 @@ export const GameStatsPanel = ({ gameStats, title, footer, completedAt }: GameSt
                         <div style={counterRowStyle}><span>{text.thrown}</span><strong>{formatNumber(gameStats.items.thrown)}</strong></div>
                         <div style={counterRowStyle}><span>{text.used}</span><strong>{formatNumber(gameStats.items.used)}</strong></div>
                         <div style={counterRowStyle}><span>{text.equipped}</span><strong>{formatNumber(gameStats.items.equipped)}</strong></div>
-                        <div style={counterRowStyle}><span>{text.unequipped}</span><strong>{formatNumber(gameStats.items.unequipped)}</strong></div>
-                        <div style={counterRowStyle}><span>{text.storedInContainers}</span><strong>{formatNumber(gameStats.items.storedInContainers)}</strong></div>
-                        <div style={counterRowStyle}><span>{text.takenFromContainers}</span><strong>{formatNumber(gameStats.items.takenFromContainers)}</strong></div>
-                        <div style={counterRowStyle}><span>{text.given}</span><strong>{formatNumber(gameStats.items.given)}</strong></div>
                     </div>
                 </div>
             </div>

@@ -214,9 +214,10 @@ export function buildLingeringPoisonCloudAfterImmediatePulse(
     initialAttack: number,
     nextPulseGameTick: number,
     visualScale = 1,
+    sourceName?: string,
 ): ActivePoisonCloud | null {
     if (initialAttack < 6) return null;
-    return buildActivePoisonCloud(level, x, y, initialAttack - 3, nextPulseGameTick, visualScale);
+    return buildActivePoisonCloud(level, x, y, initialAttack - 3, nextPulseGameTick, visualScale, sourceName);
 }
 
 function rollRandomProjectileDamage(projectile: Projectile): number {
@@ -273,7 +274,7 @@ export function createTickSpellsProjectileDeps(
         normalizeCreatureCellsOnTile: deps.normalizeCreatureCellsOnTile,
         buildDeathDustEvent: deps.buildDeathDustEvent,
         buildCreatureDamageEvent: deps.buildCreatureDamageEvent,
-        buildLingeringPoisonCloud: (level, x, y, initialAttack, nextPulseGameTick, visualScale) =>
+        buildLingeringPoisonCloud: (level, x, y, initialAttack, nextPulseGameTick, visualScale, sourceName) =>
             buildLingeringPoisonCloudAfterImmediatePulse(
                 deps.buildActivePoisonCloud,
                 level,
@@ -282,6 +283,7 @@ export function createTickSpellsProjectileDeps(
                 initialAttack,
                 nextPulseGameTick,
                 visualScale,
+                sourceName,
             ),
         rollPoisonCloudPulseAttack: (remainingAttack) =>
             rollOriginalExplosionBurstAttack('poison_cloud', remainingAttack, deps.randomInt),

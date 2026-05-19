@@ -59,6 +59,7 @@ type TickProjectileCreatureHitDeps = {
         initialAttack: number,
         nextPulseGameTick: number,
         visualScale: number,
+        sourceName?: string,
     ) => ActivePoisonCloud | null;
     buildActivePoisonCloud: (
         level: number,
@@ -67,6 +68,7 @@ type TickProjectileCreatureHitDeps = {
         attack: number,
         currentGameTick: number,
         visualScale: number,
+        sourceName?: string,
     ) => ActivePoisonCloud;
     getThrownExplosionVisualScale: (attack?: number) => number;
     buildDroppedItem: (item: FloorItem, level: number, x: number, y: number) => FloorItem;
@@ -210,6 +212,7 @@ export function applyProjectileCreatureHit(
                         projectile.explosionAttack,
                         currentGameTick + 1,
                         deps.getThrownExplosionVisualScale(projectile.explosionAttack),
+                        projectile.sourceName,
                     );
                     if (lingeringCloud) {
                         if (activePoisonClouds === state.activePoisonClouds) activePoisonClouds = [...activePoisonClouds];
@@ -285,6 +288,7 @@ export function applyProjectileCreatureHit(
                 Math.max(1, projectile.remainingAttack ?? 0),
                 currentGameTick,
                 (projectile.visualScale ?? 1) * 1.08,
+                projectile.sourceName,
             ),
         );
     }

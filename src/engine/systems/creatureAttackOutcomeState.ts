@@ -111,6 +111,10 @@ export function resolveCreatureAttackOutcomeState<TDamageEvent>(
     }
 
     if (args.attackResult.kind === 'damage') {
+        const previousVitals = args.championVitals[args.attackResult.targetChampionId];
+        const totalDamage = previousVitals
+            ? Math.max(0, previousVitals.hp - args.attackResult.nextVitals.hp)
+            : Math.max(0, args.attackResult.damage);
         const defeatedChampionId = args.attackResult.nextVitals.hp === 0
             ? args.attackResult.targetChampionId
             : null;
@@ -128,7 +132,7 @@ export function resolveCreatureAttackOutcomeState<TDamageEvent>(
                 deps.buildChampionDamageEvent(
                     args.level,
                     args.attackResult.targetChampionId,
-                    args.attackResult.damage,
+                    totalDamage,
                     'normal',
                     args.attackResult.debug?.attackerName,
                 ),

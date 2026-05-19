@@ -223,7 +223,7 @@ test('resolveCreatureAttackOutcomeState applies damage and returns defeated cham
     assert.equal(result.kind, 'damage');
     if (result.kind === 'damage') {
         assert.equal(result.championVitals[3]?.hp, 0);
-        assert.deepEqual(result.damageEvents, [{ level: 0, championId: 3, amount: 6 }]);
+        assert.deepEqual(result.damageEvents, [{ level: 0, championId: 3, amount: 12 }]);
         assert.equal(result.defeatedChampionId, 3);
     }
 });

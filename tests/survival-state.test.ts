@@ -129,7 +129,7 @@ test('advanceSurvivalTimeState applies poison pulses and refreshes poison timers
             championVitals: {
                 1: createVitals({
                     hp: 20,
-                    poisonEntries: [{ remaining: 128, nextTickIn: 1 }],
+                    poisonEntries: [{ remaining: 128, nextTickIn: 1, sourceName: 'Vexirk' }],
                 }),
             },
             championEquipment: {},
@@ -146,11 +146,12 @@ test('advanceSurvivalTimeState applies poison pulses and refreshes poison timers
     );
 
     assert.equal(result.championVitals[1]?.hp, 18);
-    assert.deepEqual(result.championVitals[1]?.poisonEntries, [{ remaining: 127, nextTickIn: 5 }]);
+    assert.deepEqual(result.championVitals[1]?.poisonEntries, [{ remaining: 127, nextTickIn: 5, sourceName: 'Vexirk' }]);
     assert.equal(result.damageEvents?.length, 1);
     assert.equal(result.damageEvents?.[0]?.championId, 1);
     assert.equal(result.damageEvents?.[0]?.amount, 2);
     assert.equal(result.damageEvents?.[0]?.kind, 'poison');
+    assert.equal(result.damageEvents?.[0]?.sourceName, 'Vexirk');
 });
 
 test('isPartyRestedState reports false until all living champions are topped up', () => {

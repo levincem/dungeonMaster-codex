@@ -65,6 +65,7 @@ type TickPoisonCloudDeps = {
         championVitals: Record<number, ChampionVitals>,
         attack: number,
         now: number,
+        sourceName?: string,
     ) => PartyBacklashPatch | null;
     getCreaturePoisonAdjustedAttack: (typeId: number, attack: number) => number;
     buildCreatureDamageEvent: (
@@ -166,6 +167,7 @@ export function tickPoisonClouds(
                     championVitals,
                     pulseAttack,
                     now,
+                    workingCloud.sourceName,
                 );
                 if (backlash) {
                     party = backlash.party ?? party;
