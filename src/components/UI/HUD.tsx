@@ -713,7 +713,8 @@ export const HUD = () => {
             const payload = await file.text();
             const result = importPersistedSave(payload);
             if (result.kind === 'success') {
-                return { success: true, message: text.importSaveSuccess };
+                window.location.reload();
+                return { success: true };
             }
             if (result.kind === 'incompatible') {
                 return {

@@ -14,7 +14,7 @@ const MOVEMENT_ACTIONS: Array<{ action: GameAction; icon: string }> = [
 
 export type HudRebindingTarget = { action: GameAction; slot: 0 | 1 };
 
-type SaveTransferFeedback = { success: boolean; message: string };
+type SaveTransferFeedback = { success: boolean; message?: string };
 type OptionsTabId = 'keybindings' | 'display' | 'saves' | 'language';
 
 export const HudOptionsModal: React.FC<{
@@ -102,7 +102,8 @@ export const HudOptionsModal: React.FC<{
         if (!file) return;
         setSaveManagementBusy(true);
         try {
-            setSaveManagementMessage(await onImportSave(file));
+            const result = await onImportSave(file);
+            setSaveManagementMessage(result.message ? result : null);
         } finally {
             setSaveManagementBusy(false);
             setConfirmImportOpen(false);

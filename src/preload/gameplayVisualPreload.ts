@@ -31,7 +31,6 @@ const GAMEPLAY_CORE_IMAGE_ASSETS: string[] = [
     texturesPath('wall.png'),
     texturesPath('floor.png'),
     texturesPath('ceiling.png'),
-    texturesPath('door.png'),
     texturesPath('doorWood.png'),
     texturesPath('doorIron.png'),
 ];
