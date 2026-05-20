@@ -222,6 +222,10 @@ const EquipSlot: React.FC<{
 }> = ({ slotKey, item, championId, size = 48, highlight = false, wounded = false, onDrop, onUnequip, onDragBegin, onDragEnd, labels, unequipTitle }) => {
     const [over, setOver] = useState(false);
     const borderColor = over ? T.gold : wounded ? T.red : item ? T.panelBorder : T.slotBorder;
+    const borderWidth = wounded ? 2 : 1;
+    const slotBoxShadow = wounded
+        ? `0 0 0 1px ${T.red}66, 0 0 14px ${T.red}88, inset 0 0 10px rgba(120, 12, 12, 0.28)`
+        : undefined;
     const emptyHandImageSrc = !item && (slotKey === 'leftHand' || slotKey === 'rightHand')
         ? miscPath(slotKey === 'leftHand' ? 'handLeft.png' : 'handRight.png')
         : null;
@@ -238,7 +242,7 @@ const EquipSlot: React.FC<{
                 onDragBegin?.(payload);
             }}
             onDragEnd={onDragEnd}
-            style={{ width: size, height: size, border: `1px solid ${borderColor}`, borderRadius: 3, background: over ? 'rgba(255,248,230,0.98)' : T.slotBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, cursor: item ? 'grab' : 'default', position: 'relative', transition: over ? undefined : 'border-color 0.1s', padding: 2, boxSizing: 'border-box', boxShadow: wounded ? `0 0 10px ${T.red}55` : undefined }}
+            style={{ width: size, height: size, border: `${borderWidth}px solid ${borderColor}`, borderRadius: 3, background: over ? 'rgba(255,248,230,0.98)' : T.slotBg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, cursor: item ? 'grab' : 'default', position: 'relative', transition: over ? undefined : 'border-color 0.1s, box-shadow 0.1s', padding: 2, boxSizing: 'border-box', boxShadow: slotBoxShadow }}
             onDragOver={e => { e.preventDefault(); setOver(true); }}
             onDragLeave={() => setOver(false)}
             onDrop={e => { e.preventDefault(); setOver(false); const p = getDragPayload(e); if (p) onDrop(p, slotKey); }}
@@ -273,10 +277,10 @@ const EquipSlot: React.FC<{
                         style={{
                             width: size - 18,
                             height: size - 18,
-                            border: `1px dashed ${wounded ? T.red : T.slotBorder}`,
+                            border: `${wounded ? 2 : 1}px dashed ${wounded ? T.red : T.slotBorder}`,
                             borderRadius: 2,
-                            opacity: wounded ? 0.65 : 0.35,
-                            background: 'rgba(255,255,255,0.65)',
+                            opacity: wounded ? 0.9 : 0.35,
+                            background: wounded ? 'rgba(120, 18, 18, 0.12)' : 'rgba(255,255,255,0.65)',
                             position: 'relative',
                             zIndex: 1,
                         }}

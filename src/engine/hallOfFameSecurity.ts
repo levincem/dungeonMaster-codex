@@ -2,7 +2,12 @@ import type { PersistedSaveData } from './runtimeTypes';
 
 export const HALL_OF_FAME_PLAYER_NAME_MAX_LENGTH = 32;
 export const HALL_OF_FAME_ANONYMOUS_NAME = 'Anonymous';
-export const HALL_OF_FAME_SUBMISSION_PROOF_VERSION = 1;
+const HALL_OF_FAME_LEGACY_SUBMISSION_PROOF_VERSION = 1;
+export const HALL_OF_FAME_SUBMISSION_PROOF_VERSION = 2;
+const HALL_OF_FAME_SUPPORTED_PROOF_VERSIONS = new Set([
+    HALL_OF_FAME_LEGACY_SUBMISSION_PROOF_VERSION,
+    HALL_OF_FAME_SUBMISSION_PROOF_VERSION,
+]);
 
 const HALL_OF_FAME_ID_PATTERN = /^[A-Za-z0-9_-]{8,96}$/;
 const HALL_OF_FAME_SAVE_INTEGRITY_PATTERN = /^[a-f0-9]{8}$/i;
@@ -61,10 +66,10 @@ function normalizeBuildVersion(value: unknown): string {
     return trimmed || 'unknown';
 }
 
-function computeHallOfFameDigest(input: string): string {
+function computeHallOfFameDigest(input: string, proofVersion: number): string {
     let primary = 0x811c9dc5;
     let secondary = 0x811c9dc5;
-    const salted = `hof|${input}|v${HALL_OF_FAME_SUBMISSION_PROOF_VERSION}`;
+    const salted = `hof|${input}|v${proofVersion}`;
     for (let index = 0; index < salted.length; index += 1) {
         const code = salted.charCodeAt(index);
         primary ^= code;
@@ -123,7 +128,14 @@ function normalizeHallOfFameNamedCounters<T>(
     return next;
 }
 
-function normalizeHallOfFameProofEntrySnapshot(entry: HallOfFameProofEntrySnapshot): HallOfFameProofEntrySnapshot {
+function normalizeHallOfFameProofEntrySnapshot(
+    entry: HallOfFameProofEntrySnapshot,
+    {
+        includeExtendedCounters = true,
+    }: {
+        includeExtendedCounters?: boolean;
+    } = {},
+): HallOfFameProofEntrySnapshot {
     return {
         ...entry,
         name: sanitizeHallOfFamePlayerName(entry.name),
@@ -133,10 +145,14 @@ function normalizeHallOfFameProofEntrySnapshot(entry: HallOfFameProofEntrySnapsh
             combat: entry.stats.combat && typeof entry.stats.combat === 'object'
                 ? {
                     ...entry.stats.combat,
-                    damageTakenByCreature: normalizeHallOfFameNamedCounters(
-                        (entry.stats.combat as { damageTakenByCreature?: Record<string, number> }).damageTakenByCreature,
-                        (value) => normalizeHallOfFameCounterValue(value) as number,
-                    ),
+                    ...(includeExtendedCounters
+                        ? {
+                            damageTakenByCreature: normalizeHallOfFameNamedCounters(
+                                (entry.stats.combat as { damageTakenByCreature?: Record<string, number> }).damageTakenByCreature,
+                                (value) => normalizeHallOfFameCounterValue(value) as number,
+                            ),
+                        }
+                        : {}),
                     byCreature: normalizeHallOfFameNamedCounters(
                         (entry.stats.combat as { byCreature?: Record<string, number> }).byCreature,
                         (value) => normalizeHallOfFameCounterValue(value) as number,
@@ -146,10 +162,14 @@ function normalizeHallOfFameProofEntrySnapshot(entry: HallOfFameProofEntrySnapsh
             exploration: entry.stats.exploration && typeof entry.stats.exploration === 'object'
                 ? {
                     ...entry.stats.exploration,
-                    timeByLevelMs: normalizeHallOfFameNamedCounters(
-                        (entry.stats.exploration as { timeByLevelMs?: Record<string, number> }).timeByLevelMs,
-                        (value) => normalizeHallOfFameCounterValue(value) as number,
-                    ),
+                    ...(includeExtendedCounters
+                        ? {
+                            timeByLevelMs: normalizeHallOfFameNamedCounters(
+                                (entry.stats.exploration as { timeByLevelMs?: Record<string, number> }).timeByLevelMs,
+                                (value) => normalizeHallOfFameCounterValue(value) as number,
+                            ),
+                        }
+                        : {}),
                 }
                 : entry.stats.exploration,
             magic: entry.stats.magic && typeof entry.stats.magic === 'object'
@@ -168,8 +188,13 @@ function normalizeHallOfFameProofEntrySnapshot(entry: HallOfFameProofEntrySnapsh
 function buildHallOfFameProofSignaturePayload(
     entry: HallOfFameProofEntrySnapshot,
     source: HallOfFameProofSource,
+    {
+        includeExtendedCounters = true,
+    }: {
+        includeExtendedCounters?: boolean;
+    } = {},
 ): string {
-    const normalizedEntry = normalizeHallOfFameProofEntrySnapshot(entry);
+    const normalizedEntry = normalizeHallOfFameProofEntrySnapshot(entry, { includeExtendedCounters });
     return JSON.stringify(canonicalizeHallOfFamePayload({
         proofVersion: source.proofVersion,
         saveVersion: source.saveVersion,
@@ -203,7 +228,8 @@ function normalizeHallOfFameProofSource(
     const saveBuildVersion = normalizeBuildVersion(source?.saveBuildVersion);
 
     if (
-        proofVersion !== HALL_OF_FAME_SUBMISSION_PROOF_VERSION ||
+        proofVersion === null ||
+        !HALL_OF_FAME_SUPPORTED_PROOF_VERSIONS.has(proofVersion) ||
         saveVersion === null ||
         savedAt === null ||
         startedAt === null ||
@@ -273,6 +299,9 @@ export function buildHallOfFameEntryProof(
 
     return {
         ...normalizedSource,
-        signature: computeHallOfFameDigest(buildHallOfFameProofSignaturePayload(entry, normalizedSource)),
+        signature: computeHallOfFameDigest(
+            buildHallOfFameProofSignaturePayload(entry, normalizedSource),
+            normalizedSource.proofVersion,
+        ),
     };
 }

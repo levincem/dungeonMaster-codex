@@ -348,10 +348,14 @@ function summarizeProofMismatchDetails(source, normalizedEntry, proofResult) {
         submittedName: typeof source?.name === 'string' ? source.name : null,
         normalizedName: normalizedEntry.name,
         submittedBuildVersion: typeof source?.buildVersion === 'string' ? source.buildVersion : null,
+        submittedDamageTakenByCreatureCount: Object.keys(source?.stats?.combat?.damageTakenByCreature ?? {}).length,
+        normalizedDamageTakenByCreatureCount: Object.keys(normalizedEntry.stats.combat.damageTakenByCreature).length,
         submittedByCreatureCount: Object.keys(source?.stats?.combat?.byCreature ?? {}).length,
         normalizedByCreatureCount: Object.keys(normalizedEntry.stats.combat.byCreature).length,
         submittedBySpellCount: Object.keys(source?.stats?.magic?.bySpell ?? {}).length,
         normalizedBySpellCount: Object.keys(normalizedEntry.stats.magic.bySpell).length,
+        submittedTimeByLevelCount: Object.keys(source?.stats?.exploration?.timeByLevelMs ?? {}).length,
+        normalizedTimeByLevelCount: Object.keys(normalizedEntry.stats.exploration.timeByLevelMs).length,
         summaryDiff,
     };
 }

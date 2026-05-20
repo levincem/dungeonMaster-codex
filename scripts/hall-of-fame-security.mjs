@@ -1,6 +1,11 @@
 export const HALL_OF_FAME_PLAYER_NAME_MAX_LENGTH = 32;
 export const HALL_OF_FAME_ANONYMOUS_NAME = 'Anonymous';
-export const HALL_OF_FAME_SUBMISSION_PROOF_VERSION = 1;
+const HALL_OF_FAME_LEGACY_SUBMISSION_PROOF_VERSION = 1;
+export const HALL_OF_FAME_SUBMISSION_PROOF_VERSION = 2;
+const HALL_OF_FAME_SUPPORTED_PROOF_VERSIONS = new Set([
+    HALL_OF_FAME_LEGACY_SUBMISSION_PROOF_VERSION,
+    HALL_OF_FAME_SUBMISSION_PROOF_VERSION,
+]);
 
 const HALL_OF_FAME_ID_PATTERN = /^[A-Za-z0-9_-]{8,96}$/;
 const HALL_OF_FAME_SAVE_INTEGRITY_PATTERN = /^[a-f0-9]{8}$/i;
@@ -20,10 +25,10 @@ function normalizeBuildVersion(value) {
     return trimmed || 'unknown';
 }
 
-function computeHallOfFameDigest(input) {
+function computeHallOfFameDigest(input, proofVersion) {
     let primary = 0x811c9dc5;
     let secondary = 0x811c9dc5;
-    const salted = `hof|${input}|v${HALL_OF_FAME_SUBMISSION_PROOF_VERSION}`;
+    const salted = `hof|${input}|v${proofVersion}`;
     for (let index = 0; index < salted.length; index += 1) {
         const code = salted.charCodeAt(index);
         primary ^= code;
@@ -77,7 +82,7 @@ function normalizeHallOfFameNamedCounters(counters, normalizeValue) {
     return next;
 }
 
-function normalizeHallOfFameProofEntrySnapshot(entry) {
+function normalizeHallOfFameProofEntrySnapshot(entry, { includeExtendedCounters = true } = {}) {
     return {
         ...entry,
         name: sanitizeHallOfFamePlayerName(entry.name),
@@ -87,10 +92,14 @@ function normalizeHallOfFameProofEntrySnapshot(entry) {
             combat: entry.stats?.combat && typeof entry.stats.combat === 'object' && !Array.isArray(entry.stats.combat)
                 ? {
                     ...entry.stats.combat,
-                    damageTakenByCreature: normalizeHallOfFameNamedCounters(
-                        entry.stats.combat.damageTakenByCreature,
-                        normalizeHallOfFameCounterValue,
-                    ),
+                    ...(includeExtendedCounters
+                        ? {
+                            damageTakenByCreature: normalizeHallOfFameNamedCounters(
+                                entry.stats.combat.damageTakenByCreature,
+                                normalizeHallOfFameCounterValue,
+                            ),
+                        }
+                        : {}),
                     byCreature: normalizeHallOfFameNamedCounters(
                         entry.stats.combat.byCreature,
                         normalizeHallOfFameCounterValue,
@@ -100,10 +109,14 @@ function normalizeHallOfFameProofEntrySnapshot(entry) {
             exploration: entry.stats?.exploration && typeof entry.stats.exploration === 'object' && !Array.isArray(entry.stats.exploration)
                 ? {
                     ...entry.stats.exploration,
-                    timeByLevelMs: normalizeHallOfFameNamedCounters(
-                        entry.stats.exploration.timeByLevelMs,
-                        normalizeHallOfFameCounterValue,
-                    ),
+                    ...(includeExtendedCounters
+                        ? {
+                            timeByLevelMs: normalizeHallOfFameNamedCounters(
+                                entry.stats.exploration.timeByLevelMs,
+                                normalizeHallOfFameCounterValue,
+                            ),
+                        }
+                        : {}),
                 }
                 : entry.stats?.exploration,
             magic: entry.stats?.magic && typeof entry.stats.magic === 'object' && !Array.isArray(entry.stats.magic)
@@ -119,8 +132,8 @@ function normalizeHallOfFameProofEntrySnapshot(entry) {
     };
 }
 
-function buildHallOfFameProofSignaturePayload(entry, source) {
-    const normalizedEntry = normalizeHallOfFameProofEntrySnapshot(entry);
+function buildHallOfFameProofSignaturePayload(entry, source, { includeExtendedCounters = true } = {}) {
+    const normalizedEntry = normalizeHallOfFameProofEntrySnapshot(entry, { includeExtendedCounters });
     return JSON.stringify(canonicalizeHallOfFamePayload({
         proofVersion: source.proofVersion,
         saveVersion: source.saveVersion,
@@ -152,7 +165,8 @@ function normalizeProofSource(source) {
     const saveBuildVersion = normalizeBuildVersion(source?.saveBuildVersion);
 
     if (
-        proofVersion !== HALL_OF_FAME_SUBMISSION_PROOF_VERSION ||
+        proofVersion === null ||
+        !HALL_OF_FAME_SUPPORTED_PROOF_VERSIONS.has(proofVersion) ||
         saveVersion === null ||
         savedAt === null ||
         startedAt === null ||
@@ -206,13 +220,31 @@ export function verifyHallOfFameEntryProofDetailed(entry, rawProof) {
         return { ok: false, reason: 'proof signature is missing or malformed' };
     }
 
-    const expected = computeHallOfFameDigest(buildHallOfFameProofSignaturePayload(entry, source));
-    if (signature !== expected) {
+    const expectedSignatures = source.proofVersion === HALL_OF_FAME_LEGACY_SUBMISSION_PROOF_VERSION
+        ? [
+            computeHallOfFameDigest(
+                buildHallOfFameProofSignaturePayload(entry, source, { includeExtendedCounters: false }),
+                source.proofVersion,
+            ),
+            computeHallOfFameDigest(
+                buildHallOfFameProofSignaturePayload(entry, source),
+                source.proofVersion,
+            ),
+        ]
+        : [
+            computeHallOfFameDigest(
+                buildHallOfFameProofSignaturePayload(entry, source),
+                source.proofVersion,
+            ),
+        ];
+    const uniqueExpectedSignatures = [...new Set(expectedSignatures)];
+    if (!uniqueExpectedSignatures.includes(signature)) {
         return {
             ok: false,
             reason: 'proof signature mismatch',
             details: {
-                expectedSignature: expected,
+                expectedSignature: uniqueExpectedSignatures[0],
+                expectedSignatures: uniqueExpectedSignatures,
                 receivedSignature: signature,
                 proofVersion: source.proofVersion,
                 saveVersion: source.saveVersion,

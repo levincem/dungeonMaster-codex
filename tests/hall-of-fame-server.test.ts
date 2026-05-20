@@ -13,6 +13,7 @@ import {
 import { createInitialGameStats } from '../src/engine/systems/gameStats.js';
 
 const FIXED_NOW = Date.UTC(2026, 4, 16, 12, 0, 0);
+const LEGACY_HALL_OF_FAME_SUBMISSION_PROOF_VERSION = 1;
 const importEsm = new Function('specifier', 'return import(specifier)') as (specifier: string) => Promise<HallOfFameModule>;
 
 interface HallOfFameStore {
@@ -38,6 +39,70 @@ interface HallOfFameModule {
 interface JsonResponse {
     statusCode: number;
     body: unknown;
+}
+
+type HallOfFameEntrySnapshot = ReturnType<typeof buildHallOfFameEntry>;
+
+function computeCompatHallOfFameDigest(input: string, proofVersion: number): string {
+    let primary = 0x811c9dc5;
+    let secondary = 0x811c9dc5;
+    const salted = `hof|${input}|v${proofVersion}`;
+    for (let index = 0; index < salted.length; index += 1) {
+        const code = salted.charCodeAt(index);
+        primary ^= code;
+        primary = Math.imul(primary, 0x01000193);
+        secondary ^= (code << (index % 8)) & 0xff;
+        secondary = Math.imul(secondary, 0x01000193);
+    }
+    return `${(primary >>> 0).toString(16).padStart(8, '0')}${(secondary >>> 0).toString(16).padStart(8, '0')}`;
+}
+
+function canonicalizeProofPayload(value: unknown): unknown {
+    if (Array.isArray(value)) {
+        return value.map((entry) => canonicalizeProofPayload(entry));
+    }
+    if (!value || typeof value !== 'object') {
+        return value;
+    }
+    return Object.fromEntries(
+        Object.entries(value as Record<string, unknown>)
+            .sort(([leftKey], [rightKey]) => leftKey.localeCompare(rightKey))
+            .map(([key, nestedValue]) => [key, canonicalizeProofPayload(nestedValue)]),
+    );
+}
+
+function buildLegacyV1Proof(entry: HallOfFameEntrySnapshot): NonNullable<ReturnType<typeof buildHallOfFameEntryProof>> {
+    const proof = {
+        proofVersion: LEGACY_HALL_OF_FAME_SUBMISSION_PROOF_VERSION,
+        saveVersion: 2,
+        savedAt: entry.completedAt,
+        saveIntegrity: 'deadbeef',
+        saveBuildVersion: entry.buildVersion,
+        runId: entry.id,
+        startedAt: entry.stats.startedAt,
+    };
+    const payload = JSON.stringify(canonicalizeProofPayload({
+        proofVersion: proof.proofVersion,
+        saveVersion: proof.saveVersion,
+        savedAt: proof.savedAt,
+        saveIntegrity: proof.saveIntegrity,
+        saveBuildVersion: proof.saveBuildVersion,
+        runId: proof.runId,
+        startedAt: proof.startedAt,
+        entry: {
+            id: entry.id,
+            name: entry.name,
+            completedAt: entry.completedAt,
+            buildVersion: entry.buildVersion,
+            stats: entry.stats,
+            summary: entry.summary,
+        },
+    }));
+
+    return {
+        ...proof,
+        signature: computeCompatHallOfFameDigest(payload, proof.proofVersion),
+    };
 }
 
 async function loadHallOfFameModule(): Promise<HallOfFameModule> {
@@ -595,4 +660,67 @@ test('hall of fame server accepts a valid proof even when the save timestamp is 
     assert.equal(entries[0]?.id, 'victory_old_proof_01');
     assert.equal(entries[0]?.summary.monstersKilled, 12);
     assert.equal(entries[0]?.summary.damageDealt, 640);
+});
+
+test('hall of fame server accepts a legacy v1 proof for entries that include exploration and creature-damage maps', async (t) => {
+    const dataDir = await mkdtemp(path.join(os.tmpdir(), 'dm-hof-legacy-v1-'));
+    t.after(async () => {
+        await rm(dataDir, { recursive: true, force: true });
+    });
+
+    const { server, baseUrl } = await startHallOfFameServer(dataDir);
+    t.after(async () => {
+        await new Promise<void>((resolve, reject) => {
+            server.close((error) => (error ? reject(error) : resolve()));
+        });
+    });
+
+    const completedAt = FIXED_NOW - 2_000;
+    const stats = createInitialGameStats(completedAt - 120_000);
+    stats.runId = 'victory_legacy_v1_01';
+    stats.exploration.timeByLevelMs = {
+        0: 12_000,
+        2: 24_000,
+    };
+    stats.combat.monstersKilled = 7;
+    stats.combat.damageDealt.total = 345;
+    stats.combat.damageTaken.total = 21;
+    stats.combat.damageTakenByCreature = {
+        Mummy: 9,
+        Screamer: 12,
+    };
+    stats.combat.byCreature = {
+        Screamer: 3,
+        Vexirk: 1,
+    };
+    stats.magic.spells.attempted = 5;
+    stats.magic.spells.succeeded = 4;
+    stats.magic.spells.failed = 1;
+    stats.magic.manaSpent = 33;
+    stats.magic.bySpell = {
+        'Lightning Bolt': {
+            attempted: 2,
+            succeeded: 2,
+            failed: 0,
+        },
+        Zokathra: {
+            attempted: 1,
+            succeeded: 1,
+            failed: 0,
+        },
+    };
+
+    const entry = buildHallOfFameEntry('Tiggy', stats, completedAt);
+    const proof = buildLegacyV1Proof(entry);
+
+    const response = await requestJson(baseUrl, 'POST', '/api/hall-of-fame', {
+        entry: {
+            ...entry,
+            proof,
+        },
+    });
+
+    assert.equal(response.statusCode, 201);
+    const entries = (response.body as { entries: Array<{ id: string }> }).entries;
+    assert.equal(entries[0]?.id, 'victory_legacy_v1_01');
 });

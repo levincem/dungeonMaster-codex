@@ -37,6 +37,7 @@ test('buildHallOfFameEntryProof binds the entry to a save fingerprint', () => {
 
     assert.ok(proof);
     assert.equal(proof?.runId, entry.id);
+    assert.equal(proof?.proofVersion, HALL_OF_FAME_SUBMISSION_PROOF_VERSION);
     assert.match(proof?.signature ?? '', /^[a-f0-9]{16}$/);
 });
 
