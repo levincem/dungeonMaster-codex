@@ -110,6 +110,9 @@ The fans and preservation community:
 - the [ReDMCSB](https://github.com/gondur/ReDMCSB_Release2) project by Christophe Fontanel
 - the Swoosh Construction Kit ecosystem and related reverse-engineering tools
 
+Special effects : 
+- [mkkellog - Photons2](https://github.com/mkkellogg/Photons2)
+
 Playtesting help:
 
 - [Hydro338](https://github.com/Hydro338) for playtesting, bug reports, and ongoing feedback
